@@ -1,0 +1,36 @@
+# TODO: Rename
+name: ESS CI
+
+on:
+  # Build pull requests for any branch
+  pull_request: { }
+
+jobs:
+  build:
+    name: Java environment
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Set up the Java environment
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+
+      # Set up the Maven configuration
+      - name: Set up maven configuration
+        run: cp .github/maven-settings.xml $HOME/.m2/settings.xml
+
+      # Run the actual build
+      - name: Build the code with Maven
+        run: mvn -B -ntp clean install javadoc:javadoc
+        env:
+          MAVEN_REPO_USERNAME: ${{ secrets.CLOUDSMITH_USERNAME }}
+          MAVEN_REPO_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
