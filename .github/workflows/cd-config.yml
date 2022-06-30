@@ -1,21 +1,16 @@
-# TODO: Rename
-name: ESS CD
+name: Solid Java Client CD
 
 on:
   push:
     branches:
       - main
     tags:
-      # TODO: Replace PROJECT
-      - inrupt-PROJECT-[0-9]+.[0-9]+.[0-9]+
+      - inrupt-client-[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   publish:
-    name: Build and publish to Cloudsmith
+    name: Build and deploy
     runs-on: ubuntu-latest
-    env:
-      MAVEN_REPO_USERNAME: ${{ secrets.CLOUDSMITH_USERNAME }}
-      MAVEN_REPO_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -31,25 +26,8 @@ jobs:
         run: cp .github/maven-settings.xml $HOME/.m2/settings.xml
 
       - name: Build the code with Maven
-        run: ./mvnw -B -ntp clean install
+        run: ./mvnw -B -ntp clean install javadoc:javadoc
 
-      - name: Configure container registry
-        run: echo "QUARKUS_CONTAINER_IMAGE_REGISTRY=docker.stage.software.inrupt.com" >> $GITHUB_ENV
-        # TODO: Replace PROJECT
-        if: startsWith(github.ref, 'refs/tags/inrupt-PROJECT-')
-
-      - name: Configure container registry
-        run: echo "QUARKUS_CONTAINER_IMAGE_REGISTRY=docker.dev.software.inrupt.com" >> $GITHUB_ENV
-        if: github.ref == 'refs/heads/main'
-
-      - name: Login to docker repository
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.QUARKUS_CONTAINER_IMAGE_REGISTRY }}
-          username: ${{ secrets.CLOUDSMITH_USERNAME }}
-          password: ${{ secrets.CLOUDSMITH_TOKEN }}
-
-      # TODO: Replace NAME and enable
-      #- name: Publish NAME app
-      #  run: ./mvnw -pl app/NAME package -Ppublish-app
+      # TODO: Run ./mvnw deploy
+      # TODO: build and publish javadoc
 
