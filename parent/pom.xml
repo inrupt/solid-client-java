@@ -102,7 +102,6 @@
           <configuration>
             <argLine>${surefire.jacoco.args}</argLine>
             <systemPropertyVariables>
-              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
               <maven.home>${maven.home}</maven.home>
             </systemPropertyVariables>
           </configuration>

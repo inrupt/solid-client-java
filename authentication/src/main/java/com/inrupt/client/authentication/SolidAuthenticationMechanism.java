@@ -20,17 +20,36 @@
  */
 package com.inrupt.client.authentication;
 
-import java.util.List;
+import java.util.concurrent.CompletionStage;
 
-public class SolidAuthenticator {
+/**
+ * An authentication mechanism that knows how to authenticate network connections.
+ */
+public interface SolidAuthenticationMechanism {
 
-    void register(final SolidAuthenticationMechanism authMechanism) {
-        // TODO implement
-    }
+    /**
+     * Return the authorization scheme, such as Bearer or DPoP.
+     *
+     * @return the authorization scheme
+     */
+    String getScheme();
 
-    List<SolidAuthenticationMechanism> parseWwwAuthenticate(final String wwwAuthenticate) {
-        // TODO implement
-        return List.of();
-    }
+    /**
+     * Return the access token.
+     *
+     * @return an access token
+     */
+    String getToken();
+
+    /**
+     * Perform a synchronous authentication process, resulting in an access token.
+     */
+    void authenticate();
+
+    /**
+     * Perform an ansynchronous authentication process, resulting in an access token.
+     *
+     * @return the next stage of completion
+     */
+    CompletionStage<Void> authenticateAsync();
 }
-

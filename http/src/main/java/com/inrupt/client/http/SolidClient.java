@@ -47,6 +47,10 @@ public class SolidClient {
         return client.sendAsync(request, handler);
     }
 
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     protected SolidClient(final HttpClient client, final SolidAuthenticator authenticator) {
         this.client = client;
         this.authenticator = authenticator;
@@ -56,10 +60,6 @@ public class SolidClient {
 
         private HttpClient client;
         private SolidAuthenticator authenticator;
-
-        public static SolidClient.Builder newBuilder() {
-            return new Builder();
-        }
 
         public Builder authenticator(final SolidAuthenticator authenticator) {
             this.authenticator = authenticator;

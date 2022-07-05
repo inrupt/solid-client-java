@@ -20,17 +20,24 @@
  */
 package com.inrupt.client.authentication;
 
-import java.util.List;
+import java.net.URI;
+import java.security.PrivateKey;
 
-public class SolidAuthenticator {
+public class DPoP {
 
-    void register(final SolidAuthenticationMechanism authMechanism) {
+    private final PrivateKey key;
+
+    public DPoP() {
         // TODO implement
+        this(null);
     }
 
-    List<SolidAuthenticationMechanism> parseWwwAuthenticate(final String wwwAuthenticate) {
+    public DPoP(final PrivateKey key) {
+        this.key = key;
+    }
+
+    public String generateProof(final URI htu, final String htm) {
         // TODO implement
-        return List.of();
+        return "PROOF-placeholder";
     }
 }
-

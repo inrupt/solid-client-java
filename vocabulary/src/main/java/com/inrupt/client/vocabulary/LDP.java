@@ -18,19 +18,27 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.authentication;
+package com.inrupt.client.vocabulary;
 
-import java.util.List;
+import java.net.URI;
 
-public class SolidAuthenticator {
+public final class LDP {
 
-    void register(final SolidAuthenticationMechanism authMechanism) {
-        // TODO implement
+    private static String namespace = "http://www.w3.org/ns/ldp#";
+
+    // Properties
+    public static URI contains = URI.create(namespace + "contains");
+    public static URI inbox = URI.create(namespace + "inbox");
+
+    // Classes
+    public static URI RDFSource = URI.create(namespace + "RDFSource");
+    public static URI BasicContainer = URI.create(namespace + "BasicContainer");
+
+    public static URI getNamespace() {
+        return URI.create(namespace);
     }
 
-    List<SolidAuthenticationMechanism> parseWwwAuthenticate(final String wwwAuthenticate) {
-        // TODO implement
-        return List.of();
+    private LDP() {
+        // Prevent instantiation
     }
 }
-

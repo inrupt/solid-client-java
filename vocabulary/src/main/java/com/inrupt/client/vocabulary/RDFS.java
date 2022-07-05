@@ -18,19 +18,22 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.authentication;
+package com.inrupt.client.vocabulary;
 
-import java.util.List;
+import java.net.URI;
 
-public class SolidAuthenticator {
+public final class RDFS {
 
-    void register(final SolidAuthenticationMechanism authMechanism) {
-        // TODO implement
+    private static String namespace = "http://www.w3.org/2000/01/rdf-schema#";
+
+    // Properties
+    public static URI seeAlso = URI.create(namespace + "seeAlso");
+
+    public static URI getNamespace() {
+        return URI.create(namespace);
     }
 
-    List<SolidAuthenticationMechanism> parseWwwAuthenticate(final String wwwAuthenticate) {
-        // TODO implement
-        return List.of();
+    private RDFS() {
+        // Prevent instantiation
     }
 }
-
