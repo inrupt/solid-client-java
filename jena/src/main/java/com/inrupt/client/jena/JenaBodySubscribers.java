@@ -20,38 +20,30 @@
  */
 package com.inrupt.client.jena;
 
-import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.update.UpdateRequest;
 
-public class JenaBodyPublishers() {
+public final class JenaBodySubscribers {
 
-
-    public static HttpRequest.BodyPublisher ofModel(final Model model) {
+    public static HttpResponse.BodySubscriber<Model> ofModel(final Model model) {
         // TODO implement
-        return null
+        return null;
     }
 
-    public static HttpRequest.BodyPublisher ofGraph(final Graph graph) {
+    public static HttpResponse.BodySubscriber<Graph> ofGraph(final Graph graph) {
         // TODO implement
-        return null
+        return null;
     }
 
-    public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset) {
+    public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Dataset dataset) {
         // TODO implement
-        return null
+        return null;
     }
 
-    public static HttpRequest.BodyPublisher ofUpdateRequest(final UpdateRequest sparql) {
-        // TODO implement
-        return null
-    }
-
-
-    private JenaBodyPublishers() {
+    private JenaBodySubscribers() {
         // Prevent instantiation
     }
 }
