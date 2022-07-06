@@ -25,20 +25,33 @@ import java.net.http.HttpResponse;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
 
 public final class JenaBodySubscribers {
 
     public static HttpResponse.BodySubscriber<Model> ofModel(final Model model) {
+        return ofModel(model, Lang.TURTLE);
+    }
+
+    public static HttpResponse.BodySubscriber<Model> ofModel(final Model model, final Lang lang) {
         // TODO implement
         return null;
     }
 
     public static HttpResponse.BodySubscriber<Graph> ofGraph(final Graph graph) {
+        return ofGraph(graph, Lang.TURTLE);
+    }
+
+    public static HttpResponse.BodySubscriber<Graph> ofGraph(final Graph graph, final Lang lang) {
         // TODO implement
         return null;
     }
 
     public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Dataset dataset) {
+        return ofDataset(dataset, Lang.TURTLE);
+    }
+
+    public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Dataset dataset, final Lang lang) {
         // TODO implement
         return null;
     }
