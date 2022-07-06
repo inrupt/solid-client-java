@@ -157,75 +157,13 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>${checkstyle.plugin.version}</version>
-          <dependencies>
-            <!-- Override dependencies to use latest version of checkstyle -->
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${checkstyle.tool.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>com.inrupt</groupId>
-              <artifactId>inrupt-build-tools</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-            <consoleOutput>true</consoleOutput>
-            <logViolationsToConsole>true</logViolationsToConsole>
-            <failsOnError>true</failsOnError>
-            <failOnViolation>true</failOnViolation>
-            <violationSeverity>warning</violationSeverity>
-            <configLocation>inrupt-checkstyle/checkstyle.xml</configLocation>
-            <suppressionsLocation>inrupt-checkstyle/suppressions.xml</suppressionsLocation>
-            <sourceDirectories>${project.build.sourceDirectory}</sourceDirectories>
-          </configuration>
-          <executions>
-            <execution>
-              <id>checkstyle</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>${license.plugin.version}</version>
-          <configuration>
-            <header>inrupt-license/HEADER.txt</header>
-            <mapping>
-              <java>SLASHSTAR_STYLE</java>
-            </mapping>
-            <excludes>
-              <exclude>**/src/main/resources/**</exclude>
-              <exclude>**/src/test/resources/**</exclude>
-            </excludes>
-            <includes>
-              <include>**/src/main/java/**</include>
-              <include>**/src/test/java/**</include>
-            </includes>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>com.inrupt</groupId>
-              <artifactId>inrupt-build-tools</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-          </dependencies>
-          <executions>
-            <execution>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
+         </plugin>
+         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.plugin.version}</version>
@@ -355,31 +293,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
           <version>${pmd.plugin.version}</version>
-          <configuration>
-            <linkXRef>false</linkXRef>
-            <failOnViolation>false</failOnViolation>
-            <verbose>true</verbose>
-            <rulesets>
-              <ruleset>inrupt-pmd/pmd.xml</ruleset>
-            </rulesets>
-            <excludeRoots>
-              <excludeRoot>target/generated-sources</excludeRoot>
-            </excludeRoots>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>com.inrupt</groupId>
-              <artifactId>inrupt-build-tools</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -409,18 +322,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
       </plugin>
@@ -433,19 +334,6 @@
 
   <reporting>
     <plugins>
-      <plugin>
-        <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-maven-reports-plugin</artifactId>
-        <version>${inrupt.plugin.reports.version}</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>changelog</report>
-              <report>dependencies</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
