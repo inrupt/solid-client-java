@@ -21,21 +21,41 @@
 package com.inrupt.client.authentication;
 
 import java.net.URI;
-import java.security.PrivateKey;
+import java.security.KeyPair;
 
+/**
+ * An implementation of OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP).
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop">DPoP draft specification</a>
+ */
 public class DPoP {
 
-    private final PrivateKey key;
+    private final KeyPair keypair;
 
+    /**
+     * Create a DPoP instance with a default keypair.
+     */
     public DPoP() {
         // TODO implement
         this(null);
     }
 
-    public DPoP(final PrivateKey key) {
-        this.key = key;
+    /**
+     * Create a DPoP instance with a user-supplied keypair.
+     *
+     * @param keypair a keypair
+     */
+    public DPoP(final KeyPair keypair) {
+        this.keypair = keypair;
     }
 
+    /**
+     * Generate a DPoP proof for a given URI and method pair.
+     *
+     * @param htu the HTTP URI
+     * @param htm the HTTP method
+     * @return the DPoP Proof, serialized as a Base64-encoded string, suitable for use with HTTP headers
+     */
     public String generateProof(final URI htu, final String htm) {
         // TODO implement
         return "PROOF-placeholder";

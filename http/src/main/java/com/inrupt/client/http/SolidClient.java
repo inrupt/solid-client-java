@@ -37,10 +37,29 @@ import java.util.concurrent.Executor;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+/**
+ * An HTTP client for interacting with Solid Resources.
+ *
+ * <p>This client extends the native Java client by introducing a {@link SolidAuthenticator} class
+ * for performing Solid-conforming authentication.
+ */
 public class SolidClient extends HttpClient {
+
+    private static final int UNAUTHORIZED = 401;
 
     private final HttpClient client;
     private final SolidAuthenticator solidAuthenticator;
+
+    /**
+     * Create a new SolidClient.
+     *
+     * @param client an HTTP client
+     * @param authenticator the Solid authenticator
+     */
+    protected SolidClient(final HttpClient client, final SolidAuthenticator authenticator) {
+        this.client = client;
+        this.solidAuthenticator = authenticator;
+    }
 
     @Override
     public Optional<Authenticator> authenticator() {
@@ -90,54 +109,97 @@ public class SolidClient extends HttpClient {
     @Override
     public <T> HttpResponse<T> send(final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler)
             throws IOException, InterruptedException {
-        return client.send(request, responseBodyHandler);
+        final var res = client.send(request, responseBodyHandler);
+        if (res.statusCode() == UNAUTHORIZED) {
+            // TODO -- make use of the authenticator
+
+        }
+        return res;
     }
 
     @Override
     public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
             final HttpResponse.BodyHandler<T> responseBodyHandler) {
-        return client.sendAsync(request, responseBodyHandler);
+        return client.sendAsync(request, responseBodyHandler)
+            .thenCompose(res -> {
+                if (res.statusCode() == UNAUTHORIZED) {
+                    // TODO -- make use of the authenticator
+                }
+                return CompletableFuture.completedFuture(res);
+            });
     }
 
     @Override
     public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
             final HttpResponse.BodyHandler<T> responseBodyHandler,
             final HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
-        return client.sendAsync(request, responseBodyHandler, pushPromiseHandler);
+        return client.sendAsync(request, responseBodyHandler, pushPromiseHandler)
+            .thenCompose(res -> {
+                if (res.statusCode() == UNAUTHORIZED) {
+                    // TODO -- make use of the authenticator
+
+                }
+                return CompletableFuture.completedFuture(res);
+            });
     }
 
-    protected SolidClient(final HttpClient client, final SolidAuthenticator authenticator) {
-        this.client = client;
-        this.solidAuthenticator = authenticator;
-    }
+    /**
+     * A builder of Solid HTTP Clients.
+     *
+     * <p>Builders are created by invoking {@link Builder#newBuilder}. Each of the setter methods modifies the state
+     * of the builder and returns the same instance. Builders are not thread-safe and should not be used concurrently
+     * from multiple threads without external synchronization.
+     */
+    public static final class Builder {
 
-    public static class Builder {
+        private HttpClient httpClient;
+        private SolidAuthenticator solidAuthenticator;
 
-        private HttpClient client;
-        private SolidAuthenticator authenticator;
-
+        /**
+         * Sets a Solid authenticator to use for HTTP authentication.
+         *
+         * @param authenticator the Solid authenticator
+         * @return this builder instance
+         */
         public Builder authenticator(final SolidAuthenticator authenticator) {
-            this.authenticator = authenticator;
+            this.solidAuthenticator = authenticator;
             return this;
         }
 
+        /**
+         * Sets a configured HTTP client to use for HTTP interactions.
+         *
+         * @param client the HTTP client
+         * @return this builder instance
+         */
         public Builder client(final HttpClient client) {
-            this.client = client;
+            this.httpClient = client;
             return this;
         }
 
+        /**
+         * Returns a new {@link SolidClient} built from the current state of this builder.
+         *
+         * @return a new Solid client
+         */
         public SolidClient build() {
-            if (client == null) {
-                client = HttpClient.newBuilder().build();
+            if (httpClient == null) {
+                httpClient = HttpClient.newBuilder().build();
             }
-            return new SolidClient(client, authenticator);
+            return new SolidClient(httpClient, solidAuthenticator);
         }
 
-        protected Builder() {
-        }
-
+        /**
+         * Create a new {@link SolidClient.Builder} instance.
+         *
+         * @return a new Solid client builder
+         */
         public static Builder newBuilder() {
             return new Builder();
+        }
+
+        private Builder() {
+            // Prevent instantiation
         }
     }
 }
