@@ -23,37 +23,92 @@ package com.inrupt.client.http;
 import com.inrupt.client.authentication.SolidAuthenticator;
 
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.CookieHandler;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.concurrent.CompletionStage;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
-public class SolidClient {
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+
+public class SolidClient extends HttpClient {
 
     private final HttpClient client;
-    private final SolidAuthenticator authenticator;
+    private final SolidAuthenticator solidAuthenticator;
 
-    public HttpClient httpClient() {
-        return client;
+    @Override
+    public Optional<Authenticator> authenticator() {
+        return client.authenticator();
     }
 
-    public <T> HttpResponse<T> send(final HttpRequest request, final HttpResponse.BodyHandler<T> handler)
+    @Override
+    public Optional<Duration> connectTimeout() {
+        return client.connectTimeout();
+    }
+
+    @Override
+    public Optional<CookieHandler> cookieHandler() {
+        return client.cookieHandler();
+    }
+
+    @Override
+    public Optional<Executor> executor() {
+        return client.executor();
+    }
+
+    @Override
+    public HttpClient.Redirect followRedirects() {
+        return client.followRedirects();
+    }
+
+    @Override
+    public Optional<ProxySelector> proxy() {
+        return client.proxy();
+    }
+
+    @Override
+    public HttpClient.Version version() {
+        return client.version();
+    }
+
+    @Override
+    public SSLContext sslContext() {
+        return client.sslContext();
+    }
+
+    @Override
+    public SSLParameters sslParameters() {
+        return client.sslParameters();
+    }
+
+    @Override
+    public <T> HttpResponse<T> send(final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler)
             throws IOException, InterruptedException {
-        return client.send(request, handler);
+        return client.send(request, responseBodyHandler);
     }
 
-    public <T> CompletionStage<HttpResponse<T>> sendAsync(final HttpRequest request,
-            final HttpResponse.BodyHandler<T> handler) {
-        return client.sendAsync(request, handler);
+    @Override
+    public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
+            final HttpResponse.BodyHandler<T> responseBodyHandler) {
+        return client.sendAsync(request, responseBodyHandler);
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
+    @Override
+    public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
+            final HttpResponse.BodyHandler<T> responseBodyHandler,
+            final HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
+        return client.sendAsync(request, responseBodyHandler, pushPromiseHandler);
     }
 
     protected SolidClient(final HttpClient client, final SolidAuthenticator authenticator) {
         this.client = client;
-        this.authenticator = authenticator;
+        this.solidAuthenticator = authenticator;
     }
 
     public static class Builder {
@@ -79,6 +134,10 @@ public class SolidClient {
         }
 
         protected Builder() {
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
         }
     }
 }
