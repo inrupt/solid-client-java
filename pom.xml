@@ -27,6 +27,7 @@
     <module>http</module>
     <module>jena</module>
     <module>parent</module>
+    <module>webid</module>
     <module>vocabulary</module>
   </modules>
 

@@ -38,16 +38,15 @@ public final class JenaBodyHandlers {
     /**
      * Populate a Jena {@link Model} with an HTTP response.
      *
-     * @param model the Jena model
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Model> ofModel(final Model model) {
+    public static HttpResponse.BodyHandler<Model> ofModel() {
         return new HttpResponse.BodyHandler<Model>() {
             @Override
             public HttpResponse.BodySubscriber<Model> apply(final HttpResponse.ResponseInfo responseInfo) {
                 final var lang = responseInfo.headers().firstValue("Content-Type")
                     .orElseThrow(() -> new RiotException("Missing content-type header from response"));
-                return JenaBodySubscribers.ofModel(model, toJenaLang(lang));
+                return JenaBodySubscribers.ofModel(toJenaLang(lang));
             }
         };
     }
@@ -55,16 +54,15 @@ public final class JenaBodyHandlers {
     /**
      * Populate a Jena {@link Graph} with an HTTP response.
      *
-     * @param graph the Jena graph
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Graph> ofGraph(final Graph graph) {
+    public static HttpResponse.BodyHandler<Graph> ofGraph() {
         return new HttpResponse.BodyHandler<Graph>() {
             @Override
             public HttpResponse.BodySubscriber<Graph> apply(final HttpResponse.ResponseInfo responseInfo) {
                 final var lang = responseInfo.headers().firstValue("Content-Type")
                     .orElseThrow(() -> new RiotException("Missing content-type header from response"));
-                return JenaBodySubscribers.ofGraph(graph, toJenaLang(lang));
+                return JenaBodySubscribers.ofGraph(toJenaLang(lang));
             }
         };
     }
@@ -72,16 +70,15 @@ public final class JenaBodyHandlers {
     /**
      * Populate a Jena {@link Dataset} with an HTTP response.
      *
-     * @param dataset the Jena dataset
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Dataset> ofDataset(final Dataset dataset) {
+    public static HttpResponse.BodyHandler<Dataset> ofDataset() {
         return new HttpResponse.BodyHandler<Dataset>() {
             @Override
             public HttpResponse.BodySubscriber<Dataset> apply(final HttpResponse.ResponseInfo responseInfo) {
                 final var lang = responseInfo.headers().firstValue("Content-Type")
                     .orElseThrow(() -> new RiotException("Missing content-type header from response"));
-                return JenaBodySubscribers.ofDataset(dataset, toJenaLang(lang));
+                return JenaBodySubscribers.ofDataset(toJenaLang(lang));
             }
         };
     }

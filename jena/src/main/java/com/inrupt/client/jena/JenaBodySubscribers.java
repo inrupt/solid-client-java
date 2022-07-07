@@ -23,9 +23,12 @@ package com.inrupt.client.jena;
 import java.io.InputStream;
 import java.net.http.HttpResponse;
 
+import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -39,23 +42,22 @@ public final class JenaBodySubscribers {
      *
      * <p>This method expects the default (TURTLE) serialization of an HTTP response.
      *
-     * @param model the model into which to populate the response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Model> ofModel(final Model model) {
-        return ofModel(model, Lang.TURTLE);
+    public static HttpResponse.BodySubscriber<Model> ofModel() {
+        return ofModel(Lang.TURTLE);
     }
 
     /**
      * Process an HTTP response as a Jena {@link Model}.
      *
-     * @param model the model into which to populate the response
      * @param lang the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Model> ofModel(final Model model, final Lang lang) {
+    public static HttpResponse.BodySubscriber<Model> ofModel(final Lang lang) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
+            final var model = ModelFactory.createDefaultModel();
             RDFDataMgr.read(model, input, lang);
             return model;
         });
@@ -66,23 +68,22 @@ public final class JenaBodySubscribers {
      *
      * <p>This method expects the default (TURTLE) serialization of an HTTP response.
      *
-     * @param graph the graph into which to populate the response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Graph> ofGraph(final Graph graph) {
-        return ofGraph(graph, Lang.TURTLE);
+    public static HttpResponse.BodySubscriber<Graph> ofGraph() {
+        return ofGraph(Lang.TURTLE);
     }
 
     /**
      * Process an HTTP response as a Jena {@link Graph}.
      *
-     * @param graph the graph into which to populate the response
      * @param lang the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Graph> ofGraph(final Graph graph, final Lang lang) {
+    public static HttpResponse.BodySubscriber<Graph> ofGraph(final Lang lang) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
+            final var graph = Factory.createDefaultGraph();
             RDFDataMgr.read(graph, input, lang);
             return graph;
         });
@@ -93,23 +94,22 @@ public final class JenaBodySubscribers {
      *
      * <p>This method expects the default (TRIG) serialization of an HTTP response.
      *
-     * @param dataset the dataset into which to populate the response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Dataset dataset) {
-        return ofDataset(dataset, Lang.TRIG);
+    public static HttpResponse.BodySubscriber<Dataset> ofDataset() {
+        return ofDataset(Lang.TRIG);
     }
 
     /**
      * Process an HTTP response as a Jena {@link Dataset}.
      *
-     * @param dataset the dataset into which to populate the response
      * @param lang the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Dataset dataset, final Lang lang) {
+    public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Lang lang) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
+            final var dataset = DatasetFactory.create();
             RDFDataMgr.read(dataset, input, lang);
             return dataset;
         });
