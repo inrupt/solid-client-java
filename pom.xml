@@ -26,6 +26,7 @@
     <module>build-tools</module>
     <module>http</module>
     <module>jena</module>
+    <module>openid</module>
     <module>parent</module>
     <module>webid</module>
     <module>vocabulary</module>
