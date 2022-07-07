@@ -1,4 +1,4 @@
-<project name="Inrupt PROJECT Service">
+<project name="Inrupt Client Libraries">
 
   <publishDate position="right"/>
   <version position="right"/>
@@ -11,10 +11,4 @@
         <item name="Changelog" href="changelog.html"/>
     </menu>
   </body>
-
-  <skin>
-    <groupId>com.inrupt</groupId>
-    <artifactId>inrupt-maven-skin</artifactId>
-    <version>1.2</version>
-  </skin>
 </project>
