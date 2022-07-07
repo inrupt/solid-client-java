@@ -22,6 +22,17 @@ package com.inrupt.client.authentication;
 
 import java.net.URI;
 import java.security.KeyPair;
+import java.security.spec.ECParameterSpec;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.keys.EcKeyUtil;
+import org.jose4j.keys.EllipticCurves;
+import org.jose4j.lang.JoseException;
 
 /**
  * An implementation of OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP).
@@ -30,34 +41,90 @@ import java.security.KeyPair;
  */
 public class DPoP {
 
-    private final KeyPair keypair;
+    private final Map<String, KeyPair> keypairs;
 
     /**
-     * Create a DPoP instance with a default keypair.
+     * Create a DPoP instance with a default ES256 keypair.
      */
     public DPoP() {
-        // TODO implement
-        this(null);
+        this("EC256", defaultKeyPair(EllipticCurves.P256));
     }
 
     /**
      * Create a DPoP instance with a user-supplied keypair.
      *
+     * @param algorithm an algorithm name, such as ES256 or RS256
      * @param keypair a keypair
      */
-    public DPoP(final KeyPair keypair) {
-        this.keypair = keypair;
+    public DPoP(final String algorithm, final KeyPair keypair) {
+        this(Map.of(Objects.requireNonNull(algorithm), Objects.requireNonNull(keypair)));
+    }
+
+    /**
+     * Create a DPoP instance with multiple user-supplied keypairs.
+     *
+     * @param keypairs the algorithm-keypair mapping
+     */
+    public DPoP(final Map<String, KeyPair> keypairs) {
+        this.keypairs = Objects.requireNonNull(keypairs);
+    }
+
+    /**
+     * Generate a DPoP proof for a given URI and method pair, using the default algorithm (EC256).
+     *
+     * @param uri the HTTP URI
+     * @param method the HTTP method
+     * @return the DPoP Proof, serialized as a Base64-encoded string, suitable for use with HTTP headers
+     */
+    public String generateProof(final URI uri, final String method) {
+        return generateProof("EC256", uri, method);
     }
 
     /**
      * Generate a DPoP proof for a given URI and method pair.
      *
-     * @param htu the HTTP URI
-     * @param htm the HTTP method
+     * @param algorithm the algorithm to use
+     * @param uri the HTTP URI
+     * @param method the HTTP method
      * @return the DPoP Proof, serialized as a Base64-encoded string, suitable for use with HTTP headers
      */
-    public String generateProof(final URI htu, final String htm) {
-        // TODO implement
-        return "PROOF-placeholder";
+    public String generateProof(final String algorithm, final URI uri, final String method) {
+        final var keypair = keypairs.get(Objects.requireNonNull(algorithm));
+        if (keypair == null) {
+            throw new AuthenticationException("Unsupported DPoP algorithm: " + algorithm);
+        }
+
+        final var htm = Objects.requireNonNull(method);
+        final var htu = Objects.requireNonNull(uri);
+
+        try {
+            final var jwk = PublicJsonWebKey.Factory.newPublicJwk(keypair.getPublic());
+            final var jws = new JsonWebSignature();
+            jws.setAlgorithmHeaderValue(algorithm);
+            jws.setHeader("type", "dpop+jwt");
+            jws.setJwkHeader(jwk);
+            jws.setKey(keypair.getPrivate());
+
+            final var claims = new JwtClaims();
+            claims.setJwtId(UUID.randomUUID().toString());
+            claims.setStringClaim("htm", htm);
+            claims.setStringClaim("htu", htu.toString());
+            claims.setIssuedAtToNow();
+            jws.setPayload(claims.toJson());
+
+            return jws.getCompactSerialization();
+        } catch (final JoseException ex) {
+            throw new AuthenticationException("Unable to generate DPoP proof", ex);
+        }
+    }
+
+    static KeyPair defaultKeyPair(final ECParameterSpec spec) {
+        try {
+            final var keyUtil = new EcKeyUtil();
+            return keyUtil.generateKeyPair(spec);
+        } catch (final JoseException ex) {
+            throw new AuthenticationException("Unable to generate default keypair", ex);
+        }
+
     }
 }
