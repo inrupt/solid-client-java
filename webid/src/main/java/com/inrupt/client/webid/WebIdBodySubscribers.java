@@ -24,6 +24,7 @@ import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.apache.jena.rdf.model.ResourceFactory.createResource;
 
 import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.vocabulary.RDFS;
 import com.inrupt.client.vocabulary.Solid;
 
@@ -77,6 +78,13 @@ public final class WebIdBodySubscribers {
                 .mapWith(Resource::getURI)
                 .mapWith(URI::create)
                 .forEach(builder::storage);
+
+            model.listObjectsOfProperty(createResource(webid.toString()), createProperty(RDF.type.toString()))
+                .filterKeep(RDFNode::isURIResource)
+                .mapWith(RDFNode::asResource)
+                .mapWith(Resource::getURI)
+                .mapWith(URI::create)
+                .forEach(builder::type);
 
             return builder.build(webid);
         });

@@ -34,6 +34,7 @@ public class WebIdProfile {
     private final Set<URI> seeAlso = new HashSet<>();
     private final Set<URI> oidcIssuer = new HashSet<>();
     private final Set<URI> storage = new HashSet<>();
+    private final Set<URI> type = new HashSet<>();
 
     protected WebIdProfile(final URI id) {
         this.id = id;
@@ -46,6 +47,15 @@ public class WebIdProfile {
      */
     public URI getId() {
         return id;
+    }
+
+    /**
+     * Retrieve the RDF type values.
+     *
+     * @return the {@code rdf:type} values
+     */
+    public Set<URI> getType() {
+        return type;
     }
 
     /**
@@ -92,6 +102,7 @@ public class WebIdProfile {
         private Set<URI> builderSeeAlso = new HashSet<>();
         private Set<URI> builderStorage = new HashSet<>();
         private Set<URI> builderOidcIssuer = new HashSet<>();
+        private Set<URI> builderType = new HashSet<>();
 
         /**
          * Add a seeAlso property.
@@ -127,6 +138,17 @@ public class WebIdProfile {
         }
 
         /**
+         * Add a type property.
+         *
+         * @param uri the type URI
+         * @return this builder
+         */
+        public Builder type(final URI uri) {
+            builderType.add(uri);
+            return this;
+        }
+
+        /**
          * Build the WebIdProfile object.
          *
          * @param id the WebID URI
@@ -137,6 +159,7 @@ public class WebIdProfile {
             profile.oidcIssuer.addAll(builderOidcIssuer);
             profile.storage.addAll(builderStorage);
             profile.seeAlso.addAll(builderSeeAlso);
+            profile.type.addAll(builderType);
             return profile;
         }
 
