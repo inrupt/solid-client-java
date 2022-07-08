@@ -14,8 +14,10 @@
   <packaging>pom</packaging>
 
   <properties>
+      <jackson.version>2.13.3</jackson.version>
       <jena.version>4.5.0</jena.version>
       <jose4j.version>0.7.12</jose4j.version>
+      <json.bind.version>1.0.2</json.bind.version>
 
       <!-- testing -->
       <junit.version>5.8.1</junit.version>
@@ -25,15 +27,28 @@
     <module>authentication</module>
     <module>build-tools</module>
     <module>http</module>
+    <module>jackson</module>
     <module>jena</module>
+    <module>jsonb</module>
     <module>openid</module>
     <module>parent</module>
+    <module>spi</module>
     <module>webid</module>
     <module>vocabulary</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.json.bind</groupId>
+        <artifactId>jakarta.json.bind-api</artifactId>
+        <version>${json.bind.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-arq</artifactId>
