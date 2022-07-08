@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.openid;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public class Metadata {
 
-    public String issuer;
+    public URI issuer;
 
     //@JsonbProperty("scopes_supported")
     public List<String> scopesSupported;
@@ -39,19 +40,19 @@ public class Metadata {
     public List<String> grantTypesSupported;
 
     //@JsonbProperty("end_session_endpoint")
-    public String endSessionEndpoint;
+    public URI endSessionEndpoint;
 
     //@JsonbProperty("authorization_endpoint")
-    public String authorizationEndpoint;
+    public URI authorizationEndpoint;
 
     //@JsonbProperty("token_endpoint")
-    public String tokenEndpoint;
+    public URI tokenEndpoint;
 
     //@JsonbProperty("token_endpoint_auth_methods_supported")
     public List<String> tokenEndpointAuthMethodsSupported;
 
     //@JsonbProperty("userinfo_endpoint")
-    public String userinfoEndpoint;
+    public URI userinfoEndpoint;
 
     //@JsonbProperty("claims_supported")
     public List<String> claimsSupported;
@@ -63,13 +64,13 @@ public class Metadata {
     public List<String> codeChallengeMethodsSupported;
 
     //@JsonbProperty("jwks_uri")
-    public String jwksUri;
+    public URI jwksUri;
 
     //@JsonbProperty("registration_endpoint")
-    public String registrationEndpoint;
+    public URI registrationEndpoint;
 
     //@JsonbProperty("revocation_endpoint")
-    public String revocationEndpoint;
+    public URI revocationEndpoint;
 
     //@JsonbProperty("id_token_signing_alg_values_supported")
     public List<String> idTokenSigningAlgValuesSupported;

@@ -33,51 +33,98 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * A class for interacting with an OpenID Provider.
+ *
+ * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect 1.0</a>
+ */
 public class OpenIdProvider {
 
     private final URI issuer;
     private final DPoP dpop;
-    private final HttpClient client;
+    private final HttpClient httpClient;
     private final JsonProcessor processor;
 
+    /**
+     * Create an OpenID Provider client.
+     *
+     * @param issuer the OpenID provider issuer
+     */
     public OpenIdProvider(final URI issuer) {
         this(issuer, new DPoP());
     }
 
+    /**
+     * Create an OpenID Provider client.
+     *
+     * @param issuer the OpenID provider issuer
+     * @param dpop a DPoP proof generator
+     */
     public OpenIdProvider(final URI issuer, final DPoP dpop) {
         this(issuer, dpop, HttpClient.newHttpClient());
     }
 
-    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpClient client) {
+    /**
+     * Create an OpenID Provider client.
+     *
+     * @param issuer the OpenID provider issuer
+     * @param dpop a DPoP proof generator
+     * @param httpClient an HTTP client
+     */
+    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpClient httpClient) {
         this.issuer = Objects.requireNonNull(issuer);
         this.dpop = Objects.requireNonNull(dpop);
-        this.client = Objects.requireNonNull(client);
+        this.httpClient = Objects.requireNonNull(httpClient);
         this.processor = ServiceLoader.load(JsonProcessor.class).findFirst()
             .orElseThrow(() -> new ServiceLoadingException(
                         "Unable to load JSON processor. " +
                         "Please ensure that a JSON processor is available on the classpath"));
     }
 
+    /**
+     * Fetch the OpenID metadata resource.
+     *
+     * @return the OpenID Provider's metadata resource
+     */
     public Metadata metadata() {
+        // consider caching this response
         final var req = HttpRequest.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
         try {
-            final var res = client.send(req, HttpResponse.BodyHandlers.ofInputStream());
+            final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
             return processor.fromJson(res.body(), Metadata.class);
         } catch (final InterruptedException | IOException ex) {
             throw new OpenIdException("Error fetching OpenID metadata resource", ex);
         }
     }
 
+    /**
+     * Fetch the OpenID metadata resource.
+     *
+     * @return the next stage of completion, containing the OpenID Provider's metadata resource
+     */
     public CompletionStage<Metadata> metadataAsync() {
+        // consider caching this response
         final var req = HttpRequest.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
-        return client.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(res -> processor.fromJson(res.body(), Metadata.class));
     }
 
+    public URI authorize(final AuthorizationRequest request) {
+        final var metadata = metadata();
+        // TODO -- add more options
+        final var builder = URIBuilder.newBuilder(metadata.authorizationEndpoint)
+            .queryParam("client_id", request.getClientId())
+            .queryParam("redirect_uri", request.getRedirectUri().toString());
+
+        return builder.build();
+    }
+
+    public CompletionStage<URI> authorizeAsync(final AuthorizationRequest request) {
+        return null;
+    }
+
+
     private URI getMetadataUrl() {
-        if (issuer.toString().endsWith("/")) {
-            return URI.create(issuer + ".well-known/openid-configuration");
-        }
-        return URI.create(issuer + "/.well-known/openid-configuration");
+        return URIBuilder.newBuilder(issuer).path(".well-known/openid-configuration").build();
     }
 }
