@@ -19,6 +19,11 @@
       <artifactId>inrupt-client-authentication</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-spi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

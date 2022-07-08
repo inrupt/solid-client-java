@@ -25,19 +25,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 
 public class JacksonProcessor implements JsonProcessor {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
-    public <T> void toJson(final T object, final OutputStream output) throws IOException {
-        MAPPER.writeValue(output, object);
+    public <T> void toJson(final T object, final OutputStream output) {
+        try {
+            MAPPER.writeValue(output, object);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error writing JSON", ex);
+        }
     }
 
     @Override
-    public <T> T fromJson(final InputStream input, final Class<T> clazz) throws IOException {
-        return MAPPER.readValue(input, clazz);
+    public <T> T fromJson(final InputStream input, final Class<T> clazz) {
+        try {
+            return MAPPER.readValue(input, clazz);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error reading from JSON", ex);
+        }
     }
 }
 

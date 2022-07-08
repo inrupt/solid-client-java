@@ -20,13 +20,12 @@
  */
 package com.inrupt.client.spi;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface JsonProcessor {
 
-    <T> void toJson(T object, OutputStream output) throws IOException;
+    <T> void toJson(T object, OutputStream output);
 
-    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+    <T> T fromJson(InputStream input, Class<T> clazz);
 }

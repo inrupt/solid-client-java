@@ -18,37 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.jsonb;
+package com.inrupt.client.openid;
 
-import com.inrupt.client.spi.JsonProcessor;
+/**
+ * A runtime exception for use with OpenID-related errors.
+ */
+public class OpenIdException extends RuntimeException {
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Objects;
+    private static final long serialVersionUID = 3892357293662737233L;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
-public class JsonbProcessor implements JsonProcessor {
-
-    private final Jsonb jsonb;
-
-    public JsonbProcessor() {
-        this(JsonbBuilder.create());
+    /**
+     * Create an OpenID exception.
+     *
+     * @param message the message
+     */
+    public OpenIdException(final String message) {
+        super(message);
     }
 
-    public JsonbProcessor(final Jsonb jsonb) {
-        this.jsonb = Objects.requireNonNull(jsonb);
-    }
-
-    @Override
-    public <T> void toJson(final T object, final OutputStream output) {
-        jsonb.toJson(object, output);
-    }
-
-    @Override
-    public <T> T fromJson(final InputStream input, final Class<T> clazz) {
-        return jsonb.fromJson(input, clazz);
+    /**
+     * Create an OpenID exception.
+     *
+     * @param message the message
+     * @param cause the cause
+     */
+    public OpenIdException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }
 
