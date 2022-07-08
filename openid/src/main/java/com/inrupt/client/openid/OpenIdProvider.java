@@ -111,16 +111,34 @@ public class OpenIdProvider {
 
     public URI authorize(final AuthorizationRequest request) {
         final var metadata = metadata();
-        // TODO -- add more options
+
         final var builder = URIBuilder.newBuilder(metadata.authorizationEndpoint)
             .queryParam("client_id", request.getClientId())
-            .queryParam("redirect_uri", request.getRedirectUri().toString());
+            .queryParam("redirect_uri", request.getRedirectUri().toString())
+            .queryParam("response_type", request.getResponseType());
+
+        if (request.getCodeChallenge() != null && request.getCodeChallengeMethod() != null) {
+            builder.queryParam("code_challenge", request.getCodeChallenge());
+            builder.queryParam("code_challenge_method", request.getCodeChallengeMethod());
+        }
 
         return builder.build();
     }
 
     public CompletionStage<URI> authorizeAsync(final AuthorizationRequest request) {
-        return null;
+        return metadataAsync().thenApply(metadata -> {
+            final var builder = URIBuilder.newBuilder(metadata.authorizationEndpoint)
+                .queryParam("client_id", request.getClientId())
+                .queryParam("redirect_uri", request.getRedirectUri().toString())
+                .queryParam("response_type", request.getResponseType());
+
+            if (request.getCodeChallenge() != null && request.getCodeChallengeMethod() != null) {
+                builder.queryParam("code_challenge", request.getCodeChallenge());
+                builder.queryParam("code_challenge_method", request.getCodeChallengeMethod());
+            }
+
+            return builder.build();
+        });
     }
 
 

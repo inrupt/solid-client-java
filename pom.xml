@@ -194,6 +194,18 @@
     </plugins>
   </build>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${javadoc.plugin.version}</version>
+        <configuration>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <scm>
     <connection>scm:git:https://github.com/inrupt/solid-client-java.git</connection>
     <developerConnection>scm:git:https://github.com/inrupt/solid-client-java.git</developerConnection>

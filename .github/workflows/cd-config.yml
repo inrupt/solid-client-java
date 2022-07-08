@@ -26,8 +26,14 @@ jobs:
         run: cp .github/maven-settings.xml $HOME/.m2/settings.xml
 
       - name: Build the code with Maven
-        run: ./mvnw -B -ntp clean install javadoc:javadoc
+        run: ./mvnw -B -ntp clean install javadoc:javadoc site
 
       # TODO: Run ./mvnw deploy
       # TODO: build and publish javadoc
+
+      - name: Publish to GitHub pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: ./target/site/
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
 
