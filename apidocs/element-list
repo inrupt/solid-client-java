@@ -1,0 +1,8 @@
+com.inrupt.client.authentication
+com.inrupt.client.http
+com.inrupt.client.jena
+com.inrupt.client.jsonb
+com.inrupt.client.openid
+com.inrupt.client.spi
+com.inrupt.client.vocabulary
+com.inrupt.client.webid
