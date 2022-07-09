@@ -27,6 +27,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 
+/**
+ * A {@link JsonProcessor} using the Jackson JSON library.
+ */
 public class JacksonProcessor implements JsonProcessor {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

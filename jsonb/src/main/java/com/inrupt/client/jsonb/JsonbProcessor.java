@@ -29,6 +29,9 @@ import java.util.Objects;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+/**
+ * A {@link JsonProcessor} using the JakartaEE JSON Bind API.
+ */
 public class JsonbProcessor implements JsonProcessor {
 
     private final Jsonb jsonb;

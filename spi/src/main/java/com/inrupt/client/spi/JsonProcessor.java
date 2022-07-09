@@ -23,9 +23,24 @@ package com.inrupt.client.spi;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * A JSON handling abstraction.
+ */
 public interface JsonProcessor {
 
+    /**
+     * Write object data into JSON.
+     *
+     * @param object the object to serialize
+     * @param output the output stream
+     */
     <T> void toJson(T object, OutputStream output);
 
+    /**
+     * Read JSON into a java object.
+     *
+     * @param input the input stream
+     * @param clazz the type mapping
+     */
     <T> T fromJson(InputStream input, Class<T> clazz);
 }
