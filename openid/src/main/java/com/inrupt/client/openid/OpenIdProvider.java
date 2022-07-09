@@ -109,6 +109,12 @@ public class OpenIdProvider {
             .thenApply(res -> processor.fromJson(res.body(), Metadata.class));
     }
 
+    /**
+     * Construct the OpenID authorization URI.
+     *
+     * @param request the authorization request
+     * @return the URI for performing the authorization request
+     */
     public URI authorize(final AuthorizationRequest request) {
         final var metadata = metadata();
 
@@ -125,6 +131,12 @@ public class OpenIdProvider {
         return builder.build();
     }
 
+    /**
+     * Construct the OpenID authorization URI asynchronously.
+     *
+     * @param request the authorization request
+     * @return the next stage of completion, containing URI for performing the authorization request
+     */
     public CompletionStage<URI> authorizeAsync(final AuthorizationRequest request) {
         return metadataAsync().thenApply(metadata -> {
             final var builder = URIBuilder.newBuilder(metadata.authorizationEndpoint)
@@ -141,6 +153,27 @@ public class OpenIdProvider {
         });
     }
 
+    /**
+     * Retrieve a token fromt the OpenID Provider.
+     *
+     * @param request the token request
+     * @return the token response
+     */
+    public TokenResponse getToken(final TokenRequest request) {
+        // TODO - implement
+        return null;
+    }
+
+    /**
+     * Retrieve a token fromt the OpenID Provider asynchronously.
+     *
+     * @param request the token request
+     * @return the next stage of completion, containing the token response
+     */
+    public CompletionStage<TokenResponse> getTokenAsync(final TokenRequest request) {
+        // TODO - implement
+        return null;
+    }
 
     private URI getMetadataUrl() {
         return URIBuilder.newBuilder(issuer).path(".well-known/openid-configuration").build();
