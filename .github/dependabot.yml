@@ -1,23 +1,9 @@
 version: 2
-registries:
-  maven-central:
-    type: "maven-repository"
-    url: "https://repo1.maven.org/maven2"
-    username: ""
-    password: ""
-  inrupt-internal:
-    type: "maven-repository"
-    url: "https://download.software.inrupt.com/basic/internal/maven"
-    username: ${{secrets.CLOUDSMITH_USERNAME}}
-    password: ${{secrets.CLOUDSMITH_TOKEN}}
 updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
       interval: "weekly"
-    registries:
-      - "maven-central"
-      - "inrupt-internal"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
