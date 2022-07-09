@@ -21,6 +21,7 @@
 package com.inrupt.client.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inrupt.client.spi.JsonProcessor;
 
 import java.io.IOException;
 import java.io.InputStream;
