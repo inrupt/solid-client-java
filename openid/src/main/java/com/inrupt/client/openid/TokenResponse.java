@@ -22,6 +22,9 @@ package com.inrupt.client.openid;
 
 import java.util.Objects;
 
+/**
+ * A class representing successful responses from a token endpoint.
+ */
 public final class TokenResponse {
 
     private String accessToken;
@@ -58,6 +61,9 @@ public final class TokenResponse {
         // Prevent external instantiation
     }
 
+    /**
+     * A builder class for {@link TokenResponse} objects.
+     */
     public static class Builder {
 
         private String builderTokenType = "Bearer";

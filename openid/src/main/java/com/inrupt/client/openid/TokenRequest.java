@@ -23,6 +23,9 @@ package com.inrupt.client.openid;
 import java.net.URI;
 import java.util.Objects;
 
+/**
+ * A class for representing a Token request.
+ */
 public final class TokenRequest {
 
     private String grantType;
@@ -69,6 +72,9 @@ public final class TokenRequest {
         // Prevent external instantiation
     }
 
+    /**
+     * A builder class for {@link TokenRequest} objects.
+     */
     public static class Builder {
 
         private String builderGrantType = "authorization_code";

@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A class representing an authorization request at an OpenID provider.
+ */
 public final class AuthorizationRequest {
 
     private String responseType;
@@ -66,6 +69,9 @@ public final class AuthorizationRequest {
         // Prevent external instantiation
     }
 
+    /**
+     * A class for building {@link AuthorizationRequest} objects.
+     */
     public static class Builder {
 
         private String builderResponseType = "code";
