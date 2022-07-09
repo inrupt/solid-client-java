@@ -42,6 +42,15 @@ public interface SolidAuthenticationMechanism {
     String getToken();
 
     /**
+     * The priority of the authentication mechanism.
+     *
+     * <p>A higher value relates to a higher priority
+     *
+     * @return the priority value
+     */
+    int priority();
+
+    /**
      * Perform a synchronous authentication process, resulting in an access token.
      */
     void authenticate();

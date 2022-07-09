@@ -22,12 +22,26 @@ package com.inrupt.client.authentication;
 
 import java.util.List;
 
+/**
+ * A class for holding registered authentication mechanisms.
+ */
 public class SolidAuthenticator {
 
+    /**
+     * Register an authentication mechansim.
+     *
+     * @param authMechanism the authentication mechanism
+     */
     void register(final SolidAuthenticationMechanism authMechanism) {
         // TODO implement
     }
 
+    /**
+     * Parse a WWW-Authenticate header.
+     *
+     * @param wwwAuthenticate the WWW-Authenticate header
+     * @return a list of viable authentication mechanisms
+     */
     List<SolidAuthenticationMechanism> parseWwwAuthenticate(final String wwwAuthenticate) {
         // TODO implement
         return List.of();

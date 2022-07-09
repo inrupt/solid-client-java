@@ -31,6 +31,7 @@ public interface JsonProcessor {
     /**
      * Write object data into JSON.
      *
+     * @param <T> the object type
      * @param object the object to serialize
      * @param output the output stream
      */
@@ -39,8 +40,10 @@ public interface JsonProcessor {
     /**
      * Read JSON into a java object.
      *
+     * @param <T> the object type
      * @param input the input stream
-     * @param clazz the type mapping
+     * @param clazz the object class
+     * @return the newly created object
      */
     <T> T fromJson(InputStream input, Class<T> clazz);
 }
