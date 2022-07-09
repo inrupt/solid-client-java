@@ -17,7 +17,7 @@
       <jackson.version>2.13.3</jackson.version>
       <jena.version>4.5.0</jena.version>
       <jose4j.version>0.7.12</jose4j.version>
-      <json.bind.version>1.0.2</json.bind.version>
+      <json.bind.version>3.0.0</json.bind.version>
 
       <!-- testing -->
       <junit.version>5.8.1</junit.version>
