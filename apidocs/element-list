@@ -1,5 +1,6 @@
 com.inrupt.client.authentication
 com.inrupt.client.http
+com.inrupt.client.jackson
 com.inrupt.client.jena
 com.inrupt.client.jsonb
 com.inrupt.client.openid
