@@ -35,7 +35,7 @@
     <surefire.plugin.version>3.0.0-M7</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.3</checkstyle.tool.version>
+    <checkstyle.tool.version>10.3.1</checkstyle.tool.version>
   </properties>
 
   <build>
