@@ -22,6 +22,11 @@ package com.inrupt.client.vocabulary;
 
 import java.net.URI;
 
+/**
+ * URI constants from the Solid terms vocabulary.
+ *
+ * @see <a href="http://www.w3.org/ns/solid/terms#">Solid Terms</a>
+ */
 public final class Solid {
 
     private static String namespace = "http://www.w3.org/ns/solid/terms#";

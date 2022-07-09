@@ -22,6 +22,11 @@ package com.inrupt.client.vocabulary;
 
 import java.net.URI;
 
+/**
+ * URI constants from the LDP vocabulary.
+ *
+ * @see <a href="https://www.w3.org/ns/ldp">LDP Vocabulary</a>
+ */
 public final class LDP {
 
     private static String namespace = "http://www.w3.org/ns/ldp#";

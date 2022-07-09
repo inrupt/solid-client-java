@@ -22,6 +22,11 @@ package com.inrupt.client.vocabulary;
 
 import java.net.URI;
 
+/**
+ * URI constants from the PIM vocabulary.
+ *
+ * @see <a href="http://www.w3.org/ns/pim/space#">PIM vocabulary</a>
+ */
 public final class PIM {
 
     private static String namespace = "http://www.w3.org/ns/pim/space#";

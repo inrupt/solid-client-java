@@ -22,6 +22,11 @@ package com.inrupt.client.vocabulary;
 
 import java.net.URI;
 
+/**
+ * URI constants from the RDF vocabulary.
+ *
+ * @see <a href="http://www.w3.org/1999/02/22-rdf-syntax-ns#">RDF Vocabulary</a>
+ */
 public final class RDF {
 
     private static String namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
