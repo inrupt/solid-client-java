@@ -33,6 +33,9 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.update.UpdateRequest;
 
+/**
+ * {@link HttpRequest.BodyPublisher} implementations for use with Jena types.
+ */
 public final class JenaBodyPublishers {
 
     public static HttpRequest.BodyPublisher ofModel(final Model model) {
