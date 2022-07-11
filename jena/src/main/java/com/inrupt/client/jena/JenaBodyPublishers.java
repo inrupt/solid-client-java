@@ -67,7 +67,7 @@ public final class JenaBodyPublishers {
     }
 
     public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset) {
-        return ofDataset(dataset, Lang.TURTLE);
+        return ofDataset(dataset, Lang.TRIG);
     }
 
     public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset, final Lang lang) {
