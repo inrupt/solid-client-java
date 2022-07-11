@@ -37,6 +37,7 @@ class JenaQuad extends JenaTriple implements Quad {
         this.graphName = quad.isDefaultGraph() ? null : quad.getGraph();
     }
 
+    @Override
     public Optional<RDFNode> getGraphName() {
         return Optional.ofNullable(graphName).map(Node::getURI).map(URI::create).map(RDFNode::namedNode);
     }

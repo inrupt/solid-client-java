@@ -36,6 +36,9 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
+/**
+ * An RDF processor that uses the Jena library.
+ */
 public class JenaRdfProcessor implements RdfProcessor {
 
     private static Map<Syntax, Lang> SYNTAX_TO_LANG = Map.of(
@@ -45,16 +48,19 @@ public class JenaRdfProcessor implements RdfProcessor {
             Syntax.NTRIPLES, Lang.NTRIPLES,
             Syntax.NQUADS, Lang.NQUADS);
 
+    @Override
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
     }
 
+    @Override
     public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
     }
 
+    @Override
     public Dataset toDataset(final Syntax syntax, final InputStream input) {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var dataset = DatasetFactory.create();
@@ -63,6 +69,7 @@ public class JenaRdfProcessor implements RdfProcessor {
         return new JenaDataset(dataset.asDatasetGraph());
     }
 
+    @Override
     public Graph toGraph(final Syntax syntax, final InputStream input) {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var model = ModelFactory.createDefaultModel();

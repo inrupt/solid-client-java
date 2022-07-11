@@ -33,6 +33,7 @@ class JenaTriple implements Triple {
         this.triple = triple;
     }
 
+    @Override
     public RDFNode getSubject() {
         final var s = triple.getSubject();
         if (s.isURI()) {
@@ -41,12 +42,14 @@ class JenaTriple implements Triple {
         return RDFNode.blankNode();
     }
 
+    @Override
     public RDFNode getPredicate() {
         final var p = triple.getPredicate();
         return RDFNode.namedNode(URI.create(p.getURI()));
 
     }
 
+    @Override
     public RDFNode getObject() {
         final var o = triple.getObject();
         if (o.isURI()) {
@@ -57,7 +60,6 @@ class JenaTriple implements Triple {
             } else if (o.getLiteralDatatypeURI() != null) {
                 return RDFNode.literal(o.getLiteralLexicalForm(), URI.create(o.getLiteralDatatypeURI()));
             }
-
             return RDFNode.literal(o.getLiteralLexicalForm());
         } else {
             return RDFNode.blankNode();
