@@ -46,9 +46,13 @@ public class JenaRdfProcessor implements RdfProcessor {
             Syntax.NQUADS, Lang.NQUADS);
 
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) {
+        final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
+        RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
     }
 
     public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) {
+        final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
+        RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
     }
 
     public Dataset toDataset(final Syntax syntax, final InputStream input) {

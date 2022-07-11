@@ -41,6 +41,11 @@ class JenaGraph implements Graph {
         this.model = model;
     }
 
+    public Model asJenaModel() {
+        return model;
+    }
+
+    @Override
     public Stream<Triple> stream(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
 
         final var s = getSubject(subject);
@@ -51,6 +56,7 @@ class JenaGraph implements Graph {
         return Iter.asStream(iter).map(JenaTriple::new);
     }
 
+    @Override
     public Stream<Triple> stream() {
         final var iter = model.getGraph().find();
         return Iter.asStream(iter).map(JenaTriple::new);

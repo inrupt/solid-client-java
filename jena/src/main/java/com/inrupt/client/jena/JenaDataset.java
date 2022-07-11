@@ -41,6 +41,11 @@ class JenaDataset implements Dataset {
         this.dataset = dataset;
     }
 
+    public DatasetGraph asJenaDatasetGraph() {
+        return dataset;
+    }
+
+    @Override
     public Stream<Quad> stream(final Optional<RDFNode> graphName, final RDFNode subject,
             final RDFNode predicate, final RDFNode object) {
 
@@ -53,6 +58,7 @@ class JenaDataset implements Dataset {
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
+    @Override
     public Stream<Quad> stream() {
         final var iter = dataset.find();
         return Iter.asStream(iter).map(JenaQuad::new);
