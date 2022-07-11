@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 public interface Dataset {
 
-    Stream<Quad> stream(RDFNode subject, RDFNode predicate, RDFNode object, Optional<RDFNode> graph);
+    Stream<Quad> stream(Optional<RDFNode> graph, RDFNode subject, RDFNode predicate, RDFNode object);
 
     Stream<Quad> stream();
 

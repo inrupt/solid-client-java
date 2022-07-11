@@ -27,6 +27,7 @@ public final class RDFNode {
     private final URI uri;
     private final String literal;
     private final URI datatype;
+    private final String language;
 
     /**
      * Create a new blank node.
@@ -34,7 +35,7 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode() {
-        return new RDFNode(null, null, null);
+        return new RDFNode(null, null, null, null);
     }
 
     /**
@@ -44,7 +45,7 @@ public final class RDFNode {
      * @return the RDF named node
      */
     public static RDFNode namedNode(final URI uri) {
-        return new RDFNode(uri, null, null);
+        return new RDFNode(uri, null, null, null);
     }
 
     /**
@@ -54,7 +55,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal) {
-        return new RDFNode(null, literal, null);
+        return new RDFNode(null, literal, null, null);
     }
 
     /**
@@ -65,12 +66,24 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final URI datatype) {
-        return new RDFNode(null, literal, datatype);
+        return new RDFNode(null, literal, null, datatype);
     }
 
-    private RDFNode(final URI uri, final String literal, final URI datatype) {
+    /**
+     * Create a new literal with a language value.
+     *
+     * @param literal the literal value
+     * @param language the literal language
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal, final String language) {
+        return new RDFNode(null, literal, language, null);
+    }
+
+    private RDFNode(final URI uri, final String literal, final String language, final URI datatype) {
         this.uri = uri;
         this.literal = literal;
+        this.language = language;
         this.datatype = datatype;
     }
 
@@ -126,5 +139,14 @@ public final class RDFNode {
      */
     public URI getDatatype() {
         return datatype;
+    }
+
+    /**
+     * Return the language tag for this node.
+     *
+     * @return the language tag assiciated with the node or {@code null}
+     */
+    public String getLanguage() {
+        return language;
     }
 }
