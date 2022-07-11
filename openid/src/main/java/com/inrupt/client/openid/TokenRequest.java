@@ -77,16 +77,10 @@ public final class TokenRequest {
      */
     public static class Builder {
 
-        private String builderGrantType = "authorization_code";
         private String builderClientSecret;
         private String builderAuthMethod;
         private String builderCode;
         private String builderCodeVerifier;
-
-        public Builder grantType(final String grantType) {
-            builderGrantType = grantType;
-            return this;
-        }
 
         public Builder clientSecret(final String clientSecret) {
             builderClientSecret = clientSecret;
@@ -108,15 +102,35 @@ public final class TokenRequest {
             return this;
         }
 
-        public TokenRequest build(final String clientId, final URI redirectUri) {
+        public TokenRequest build(final String grantType, final String clientId, final URI redirectUri) {
+
+            final var grant = Objects.requireNonNull(grantType);
+
+            switch(grantType) {
+                case "authorization_code":
+                    if (builderCode == null) {
+                        throw new IllegalArgumentException(
+                                "Missing code parameter for authorization_code grant type");
+                    }
+                    break;
+
+                case "client_credential":
+                    if (builderClientSecret == null) {
+                        throw new IllegalArgumentException(
+                                "Missing client_secret parameter for client_credential grant type");
+                    }
+                    break;
+            }
+
             final var req = new TokenRequest();
             req.redirectUri = Objects.requireNonNull(redirectUri);
             req.clientId = Objects.requireNonNull(clientId);
+            req.grantType = grant;
             req.code = builderCode;
             req.clientSecret = builderClientSecret;
-            req.grantType = builderGrantType;
             req.codeVerifier = builderCodeVerifier;
             req.authMethod = builderAuthMethod;
+
             return req;
         }
     }

@@ -36,6 +36,8 @@ public final class AuthorizationRequest {
     private String codeChallengeMethod;
     private String clientId;
     private URI redirectUri;
+    private String state;
+    private String nonce;
 
     public String getResponseType() {
         return responseType;
@@ -61,6 +63,14 @@ public final class AuthorizationRequest {
         return redirectUri;
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -76,11 +86,23 @@ public final class AuthorizationRequest {
 
         private String builderResponseType = "code";
         private List<String> builderScope = new ArrayList<>();
+        private String builderNonce;
+        private String builderState;
         private String builderCodeChallenge;
         private String builderCodeChallengeMethod;
 
         public Builder scope(final String scope) {
             builderScope.add(scope);
+            return this;
+        }
+
+        public Builder state(final String state) {
+            builderState = state;
+            return this;
+        }
+
+        public Builder nonce(final String nonce) {
+            builderNonce = nonce;
             return this;
         }
 
@@ -107,6 +129,8 @@ public final class AuthorizationRequest {
             req.scope = builderScope;
             req.codeChallenge = builderCodeChallenge;
             req.codeChallengeMethod = builderCodeChallengeMethod;
+            req.state = builderState;
+            req.nonce = builderNonce;
             return req;
         }
     }
