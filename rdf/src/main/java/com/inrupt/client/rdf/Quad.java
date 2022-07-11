@@ -18,22 +18,11 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
+package com.inrupt.client.rdf;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Graph;
-import com.inrupt.client.rdf.Syntax;
+import java.util.Optional;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+public interface Quad extends Triple {
 
-public interface RdfProcessor {
-
-    void fromDataset(Dataset dataset, Syntax syntax, OutputStream output);
-
-    void fromGraph(Graph graph, Syntax syntax, OutputStream output);
-
-    Dataset toDataset(Syntax syntax, InputStream input);
-
-    Graph toGraph(Syntax syntax, InputStream input);
+    Optional<RDFNode> getGraphName();
 }

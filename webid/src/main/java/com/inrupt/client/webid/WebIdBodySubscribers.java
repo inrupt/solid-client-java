@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.webid;
 
-import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
-import static org.apache.jena.rdf.model.ResourceFactory.createResource;
-
+import com.inrupt.client.rdf.*;
+import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.ServiceLoadingException;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.vocabulary.RDFS;
@@ -31,17 +31,14 @@ import com.inrupt.client.vocabulary.Solid;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpResponse;
-
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
+import java.util.ServiceLoader;
 
 /**
  * Classes for reading HTTP responses as WebID Profile objects.
  */
 public final class WebIdBodySubscribers {
+
+    private static final RdfProcessor processor = loadRdfProcessor();
 
     /**
      * Process an HTTP response as a WebID Profile.
@@ -54,40 +51,43 @@ public final class WebIdBodySubscribers {
     public static HttpResponse.BodySubscriber<WebIdProfile> ofWebIdProfile(final URI webid) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
-            final var model = ModelFactory.createDefaultModel();
-            RDFDataMgr.read(model, input, Lang.TURTLE);
+
+            final var graph = processor.toGraph(Syntax.TURTLE, input);
 
             final var builder = WebIdProfile.newBuilder();
-            model.listObjectsOfProperty(createResource(webid.toString()), createProperty(Solid.oidcIssuer.toString()))
-                .filterKeep(RDFNode::isURIResource)
-                .mapWith(RDFNode::asResource)
-                .mapWith(Resource::getURI)
-                .mapWith(URI::create)
+            graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(Solid.oidcIssuer), null)
+                .map(Triple::getObject)
+                .filter(RDFNode::isNamedNode)
+                .map(RDFNode::getURI)
                 .forEach(builder::oidcIssuer);
 
-            model.listObjectsOfProperty(createResource(webid.toString()), createProperty(RDFS.seeAlso.toString()))
-                .filterKeep(RDFNode::isURIResource)
-                .mapWith(RDFNode::asResource)
-                .mapWith(Resource::getURI)
-                .mapWith(URI::create)
+            graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDFS.seeAlso), null)
+                .map(Triple::getObject)
+                .filter(RDFNode::isNamedNode)
+                .map(RDFNode::getURI)
                 .forEach(builder::seeAlso);
 
-            model.listObjectsOfProperty(createResource(webid.toString()), createProperty(PIM.storage.toString()))
-                .filterKeep(RDFNode::isURIResource)
-                .mapWith(RDFNode::asResource)
-                .mapWith(Resource::getURI)
-                .mapWith(URI::create)
+            graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(PIM.storage), null)
+                .map(Triple::getObject)
+                .filter(RDFNode::isNamedNode)
+                .map(RDFNode::getURI)
                 .forEach(builder::storage);
 
-            model.listObjectsOfProperty(createResource(webid.toString()), createProperty(RDF.type.toString()))
-                .filterKeep(RDFNode::isURIResource)
-                .mapWith(RDFNode::asResource)
-                .mapWith(Resource::getURI)
-                .mapWith(URI::create)
+            graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDF.type), null)
+                .map(Triple::getObject)
+                .filter(RDFNode::isNamedNode)
+                .map(RDFNode::getURI)
                 .forEach(builder::type);
 
             return builder.build(webid);
         });
+    }
+
+    static RdfProcessor loadRdfProcessor() {
+        return ServiceLoader.load(RdfProcessor.class).findFirst()
+            .orElseThrow(() -> new ServiceLoadingException(
+                        "Unable to load RDF processor. " +
+                        "Please ensure that an RDF processor module is available on the classpath"));
     }
 
     private WebIdBodySubscribers() {
