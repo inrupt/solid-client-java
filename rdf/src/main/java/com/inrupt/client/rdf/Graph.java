@@ -22,10 +22,28 @@ package com.inrupt.client.rdf;
 
 import java.util.stream.Stream;
 
+/**
+ * A simple RDF graph abstraction.
+ */
 public interface Graph {
 
+    /**
+     * Stream all matched triples.
+     *
+     * <p>Using {@code null} acts as a wildcard.
+     *
+     * @param subject the subject node. May be {@code null}
+     * @param predicate the predicate node. May be {@code null}
+     * @param object the object node. May be {@code null}
+     * @return a stream of matched triples
+     */
     Stream<Triple> stream(RDFNode subject, RDFNode predicate, RDFNode object);
 
+    /**
+     * Stream all triples from the graph.
+     *
+     * @return a stream of all triples
+     */
     Stream<Triple> stream();
 
 }

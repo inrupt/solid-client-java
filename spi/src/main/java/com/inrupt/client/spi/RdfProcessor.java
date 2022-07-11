@@ -27,13 +27,44 @@ import com.inrupt.client.rdf.Syntax;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * A generic abstraction for interacting with different underlying RDF libraries.
+ */
 public interface RdfProcessor {
 
+    /**
+     * Serialize a dataset to an output stream.
+     *
+     * @param dataset the dataset
+     * @param syntax the concrete RDF syntax
+     * @param output the output stream
+     */
     void fromDataset(Dataset dataset, Syntax syntax, OutputStream output);
 
+    /**
+     * Serialize a graph to an output stream.
+     *
+     * @param graph the graph
+     * @param syntax the concrete RDF syntax
+     * @param output the output stream
+     */
     void fromGraph(Graph graph, Syntax syntax, OutputStream output);
 
+    /**
+     * Parse an input stream into a Dataset.
+     *
+     * @param syntax the concrete RDF syntax
+     * @param input the input stream
+     * @return a dataset
+     */
     Dataset toDataset(Syntax syntax, InputStream input);
 
+    /**
+     * Parse an input stream into a Graph.
+     *
+     * @param syntax the concrete RDF syntax
+     * @param input the input stream
+     * @return a graph
+     */
     Graph toGraph(Syntax syntax, InputStream input);
 }
