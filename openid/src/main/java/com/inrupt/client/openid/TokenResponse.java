@@ -70,7 +70,7 @@ public final class TokenResponse {
         private String builderAccessToken;
         private String builderIdToken;
         private String builderRefreshToken;
-        private int builderExpiresIn = 0;
+        private int builderExpiresIn;
 
         public Builder tokenType(final String tokenType) {
             builderTokenType = tokenType;

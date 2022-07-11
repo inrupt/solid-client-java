@@ -106,20 +106,16 @@ public final class TokenRequest {
 
             final var grant = Objects.requireNonNull(grantType);
 
-            switch(grantType) {
-                case "authorization_code":
-                    if (builderCode == null) {
-                        throw new IllegalArgumentException(
-                                "Missing code parameter for authorization_code grant type");
-                    }
-                    break;
-
-                case "client_credential":
-                    if (builderClientSecret == null) {
-                        throw new IllegalArgumentException(
-                                "Missing client_secret parameter for client_credential grant type");
-                    }
-                    break;
+            if ("authorization_code".equals(grantType)) {
+                if (builderCode == null) {
+                    throw new IllegalArgumentException(
+                            "Missing code parameter for authorization_code grant type");
+                }
+            } else if ("client_credentials".equals(grantType)) {
+                if (builderClientSecret == null) {
+                    throw new IllegalArgumentException(
+                            "Missing client_secret parameter for client_credentials grant type");
+                }
             }
 
             final var req = new TokenRequest();

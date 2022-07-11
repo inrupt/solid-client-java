@@ -32,6 +32,7 @@
     <module>jsonb</module>
     <module>openid</module>
     <module>parent</module>
+    <module>rdf</module>
     <module>spi</module>
     <module>webid</module>
     <module>vocabulary</module>

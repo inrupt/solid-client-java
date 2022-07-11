@@ -25,6 +25,7 @@ import java.security.KeyPair;
 import java.security.spec.ECParameterSpec;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -47,7 +48,7 @@ public class DPoP {
      * Create a DPoP instance with a default ES256 keypair.
      */
     public DPoP() {
-        this("EC256", defaultKeyPair(EllipticCurves.P256));
+        this("ES256", defaultKeyPair(EllipticCurves.P256));
     }
 
     /**
@@ -67,6 +68,15 @@ public class DPoP {
      */
     public DPoP(final Map<String, KeyPair> keypairs) {
         this.keypairs = Objects.requireNonNull(keypairs);
+    }
+
+    /**
+     * Return a collection of the supported algorithm names.
+     *
+     * @return the supported algorithm names
+     */
+    public Set<String> algorithms() {
+        return keypairs.keySet();
     }
 
     /**

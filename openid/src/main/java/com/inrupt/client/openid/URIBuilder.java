@@ -30,6 +30,8 @@ import java.util.List;
 
 final class URIBuilder {
 
+    private static int PAIR = 2;
+
     private String builderScheme;
     private String builderUserInfo;
     private String builderHost;
@@ -50,7 +52,7 @@ final class URIBuilder {
         if (params != null) {
             for (final var param : params.split("&")) {
                 final var parts = param.split("=", 2);
-                if (parts.length == 2) {
+                if (parts.length == PAIR) {
                     builder.builderQueryParams.add(encodeQueryParam(parts[0], parts[1]));
                 }
             }
