@@ -70,7 +70,9 @@ final class URIBuilder {
     }
 
     public URIBuilder queryParam(final String param, final String value) {
-        builderQueryParams.add(encodeQueryParam(param, value));
+        if (value != null) {
+            builderQueryParams.add(encodeQueryParam(param, value));
+        }
         return this;
     }
 

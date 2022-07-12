@@ -233,6 +233,45 @@ public class OpenIdProvider {
         return req.build();
     }
 
+    /**
+     * End the session with the OpenID Provider.
+     *
+     * @param request the end session request
+     * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
+     */
+    public URI endSession(final EndSessionRequest request) {
+        final var metadata = metadata();
+        if (metadata.endSessionEndpoint != null) {
+            return endSession(metadata.endSessionEndpoint, request);
+        }
+        return null;
+    }
+
+    /**
+     * End the session asynchronously with the OpenID Provider.
+     *
+     * @param request the end session request
+     * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
+     */
+    public CompletionStage<URI> endSessionAsync(final EndSessionRequest request) {
+        return metadataAsync()
+            .thenApply(metadata -> {
+                if (metadata.endSessionEndpoint != null) {
+                    return endSession(metadata.endSessionEndpoint, request);
+                }
+                return null;
+            });
+    }
+
+    private URI endSession(final URI endSessionEndpoint, final EndSessionRequest request) {
+        return URIBuilder.newBuilder(endSessionEndpoint)
+            .queryParam("client_id", request.getClientId())
+            .queryParam("post_logout_redirect_uri", request.getPostLogoutRedirectUri().toString())
+            .queryParam("id_token_hint", request.getIdTokenHint())
+            .queryParam("state", request.getState())
+            .build();
+    }
+
     static HttpRequest.BodyPublisher ofFormData(final Map<String, String> data) {
         final var form = data.entrySet().stream().map(entry -> {
             final var name = URLEncoder.encode(entry.getKey(), UTF_8);
