@@ -31,7 +31,7 @@ import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RiotException;
 
 /**
- * Body handlers for Jena types.
+ * {@link HttpResponse.BodyHandler} implementations for Jena types.
  */
 public final class JenaBodyHandlers {
 

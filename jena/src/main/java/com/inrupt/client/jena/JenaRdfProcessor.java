@@ -37,7 +37,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
 /**
- * An RDF processor that uses the Jena library.
+ * An {@link RdfProcessor} that uses the Jena library.
  */
 public class JenaRdfProcessor implements RdfProcessor {
 
