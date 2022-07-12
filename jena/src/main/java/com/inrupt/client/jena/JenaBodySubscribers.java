@@ -33,7 +33,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
 /**
- * {@link HttpResponse.BodySubscriber} implementations for Jena types.
+ * {@link HttpResponse.BodySubscriber} implementations for use with Jena types.
  */
 public final class JenaBodySubscribers {
 
