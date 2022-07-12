@@ -77,7 +77,7 @@ public final class EndSessionRequest {
     }
 
     /**
-     * A builder class for {@link EndSession} requests.
+     * A builder class for {@link EndSessionRequest} objects.
      */
     public static final class Builder {
         private String builderClientId;
