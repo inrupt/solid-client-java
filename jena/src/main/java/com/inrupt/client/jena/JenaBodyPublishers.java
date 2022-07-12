@@ -38,10 +38,25 @@ import org.apache.jena.update.UpdateRequest;
  */
 public final class JenaBodyPublishers {
 
+    /**
+     * Serialize a Jena Model as an HTTP request body.
+     *
+     * <p>This method uses the default (TURTLE) serialization.
+     *
+     * @param model the model
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofModel(final Model model) {
         return ofModel(model, Lang.TURTLE);
     }
 
+    /**
+     * Serialize a Jena Model as an HTTP request body.
+     *
+     * @param model the model
+     * @param lang the serialization language
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofModel(final Model model, final Lang lang) {
         final var in = new PipedInputStream();
         try (final var out = new PipedOutputStream(in)) {
@@ -52,10 +67,25 @@ public final class JenaBodyPublishers {
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
+    /**
+     * Serialize a Jena Graph as an HTTP request body.
+     *
+     * <p>This method uses the default (TURTLE) serialization.
+     *
+     * @param graph the graph
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofGraph(final Graph graph) {
         return ofGraph(graph, Lang.TURTLE);
     }
 
+    /**
+     * Serialize a Jena Graph as an HTTP request body.
+     *
+     * @param graph the graph
+     * @param lang the serialization language
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofGraph(final Graph graph, final Lang lang) {
         final var in = new PipedInputStream();
         try (final var out = new PipedOutputStream(in)) {
@@ -66,10 +96,25 @@ public final class JenaBodyPublishers {
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
+    /**
+     * Serialize a Jena Dataset as an HTTP request body.
+     *
+     * <p>This method uses the default (TRIG) serialization.
+     *
+     * @param dataset the dataset
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset) {
         return ofDataset(dataset, Lang.TRIG);
     }
 
+    /**
+     * Serialize a Jena Dataset as an HTTP request body.
+     *
+     * @param dataset the dataset
+     * @param lang the serialization language
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset, final Lang lang) {
         final var in = new PipedInputStream();
         try (final var out = new PipedOutputStream(in)) {
@@ -80,6 +125,12 @@ public final class JenaBodyPublishers {
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
+    /**
+     * Serialize a Jena UpdateRequest (SPARQL-Update) as an HTTP request body.
+     *
+     * @param sparql the SPARQL Update request
+     * @return the body publisher
+     */
     public static HttpRequest.BodyPublisher ofUpdateRequest(final UpdateRequest sparql) {
         return HttpRequest.BodyPublishers.ofString(sparql.toString());
     }

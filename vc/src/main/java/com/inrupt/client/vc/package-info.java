@@ -18,27 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.webid;
-
-import java.net.URI;
-import java.net.http.HttpResponse;
-
 /**
- * Body handlers for WebID Profiles.
+ * Verifiable Credential support for the Inrupt client libraries.
  */
-public final class WebIdBodyHandlers {
-
-    /**
-     * Transform an HTTP response into a WebID Profile object.
-     *
-     * @param webid the WebID URI
-     * @return an HTTP body handler
-     */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
-        return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
-    }
-
-    private WebIdBodyHandlers() {
-        // Prevent instantiation
-    }
-}
+package com.inrupt.client.vc;

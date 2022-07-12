@@ -18,27 +18,45 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.webid;
+package com.inrupt.client.vc;
 
-import java.net.URI;
+import com.inrupt.client.spi.JsonProcessor;
+
 import java.net.http.HttpResponse;
 
+
 /**
- * Body handlers for WebID Profiles.
+ * {@link HttpResponse.BodySubscriber} implementations for use with Verifiable Credential types.
  */
-public final class WebIdBodyHandlers {
+public final class VerifiableCredentialBodySubscribers {
+
+    private static final JsonProcessor processor = VcUtils.loadJsonProcessor();
 
     /**
-     * Transform an HTTP response into a WebID Profile object.
+     * Process an HTTP response as a Verifiable Credential.
      *
-     * @param webid the WebID URI
-     * @return an HTTP body handler
+     * @return the body subscriber
      */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
-        return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
+    public static HttpResponse.BodySubscriber ofVerifiableCredential() {
+        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
+
+        return HttpResponse.BodySubscribers.mapping(upstream, input ->
+                processor.fromJson(input, VerifiableCredential.class));
     }
 
-    private WebIdBodyHandlers() {
+    /**
+     * Process an HTTP response as a Verifiable Presentation.
+     *
+     * @return the body subscriber
+     */
+    public static HttpResponse.BodySubscriber ofVerifiablePresentation() {
+        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
+
+        return HttpResponse.BodySubscribers.mapping(upstream, input ->
+                processor.fromJson(input, VerifiablePresentation.class));
+    }
+
+    private VerifiableCredentialBodySubscribers() {
         // Prevent instantiation
     }
 }

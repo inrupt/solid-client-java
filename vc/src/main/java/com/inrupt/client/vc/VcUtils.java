@@ -18,27 +18,23 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.webid;
+package com.inrupt.client.vc;
 
-import java.net.URI;
-import java.net.http.HttpResponse;
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceLoadingException;
 
-/**
- * Body handlers for WebID Profiles.
- */
-public final class WebIdBodyHandlers {
+import java.util.ServiceLoader;
 
-    /**
-     * Transform an HTTP response into a WebID Profile object.
-     *
-     * @param webid the WebID URI
-     * @return an HTTP body handler
-     */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
-        return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
+final class VcUtils {
+
+    public static JsonProcessor loadJsonProcessor() {
+        return ServiceLoader.load(JsonProcessor.class).findFirst()
+            .orElseThrow(() -> new ServiceLoadingException(
+                        "Unable to load JSON processor. " +
+                        "Please ensure that a JSON processor module is available on the classpath"));
     }
 
-    private WebIdBodyHandlers() {
+    private VcUtils() {
         // Prevent instantiation
     }
 }

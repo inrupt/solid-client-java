@@ -18,27 +18,35 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.webid;
+package com.inrupt.client.vc;
 
-import java.net.URI;
 import java.net.http.HttpResponse;
 
 /**
- * Body handlers for WebID Profiles.
+ * {@link HttpResponse.BodyHandler} implementations for use with Verifiable Credential types.
  */
-public final class WebIdBodyHandlers {
+public final class VerifiableCredentialBodyHandlers {
 
     /**
-     * Transform an HTTP response into a WebID Profile object.
+     * Create a {@link VerifiableCredential} from an HTTP response.
      *
-     * @param webid the WebID URI
-     * @return an HTTP body handler
+     * @return the body handler
      */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
-        return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
+    public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
+        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiableCredential();
     }
 
-    private WebIdBodyHandlers() {
+    /**
+     * Create a {@link VerifiablePresentation} from an HTTP response.
+     *
+     * @return the body handler
+     */
+    public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiablePresentation() {
+        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
+    }
+
+    private VerifiableCredentialBodyHandlers() {
         // Prevent instantiation
     }
 }
+

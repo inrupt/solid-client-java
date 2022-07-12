@@ -36,6 +36,7 @@
     <module>spi</module>
     <module>webid</module>
     <module>vocabulary</module>
+    <module>vc</module>
   </modules>
 
   <dependencyManagement>
