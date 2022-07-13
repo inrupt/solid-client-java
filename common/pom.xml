@@ -7,23 +7,13 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-openid</artifactId>
-  <name>Inrupt Solid Client - OpenID</name>
+  <artifactId>inrupt-client-common</artifactId>
+  <name>Inrupt Solid Client - Common Utilities</name>
   <description>
-      An OpenID library for the Inrupt Client.
+      Common Utilities for the Inrupt Client.
   </description>
 
   <dependencies>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-authentication</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-spi</artifactId>

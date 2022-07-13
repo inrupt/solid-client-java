@@ -25,7 +25,7 @@ import java.net.URI;
 public final class RDFNode {
 
     private final URI uri;
-    private final String literal;
+    private final String lexicalValue;
     private final URI datatype;
     private final String language;
 
@@ -82,7 +82,7 @@ public final class RDFNode {
 
     private RDFNode(final URI uri, final String literal, final String language, final URI datatype) {
         this.uri = uri;
-        this.literal = literal;
+        this.lexicalValue = literal;
         this.language = language;
         this.datatype = datatype;
     }
@@ -102,7 +102,7 @@ public final class RDFNode {
      * @return true if this is a blank node; false otherwise
      */
     public boolean isBlankNode() {
-        return uri == null && literal == null;
+        return uri == null && lexicalValue == null;
     }
 
     /**
@@ -111,7 +111,7 @@ public final class RDFNode {
      * @return true if this is an RDF literal; false otherwise
      */
     public boolean isLiteral() {
-        return literal != null;
+        return lexicalValue != null;
     }
 
     /**
@@ -129,7 +129,7 @@ public final class RDFNode {
      * @return the lexical value associated with the node or {@code null}
      */
     public String getLiteral() {
-        return literal;
+        return lexicalValue;
     }
 
     /**

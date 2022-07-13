@@ -21,6 +21,7 @@
 package com.inrupt.client.vc;
 
 import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.net.http.HttpResponse;
 
@@ -30,14 +31,14 @@ import java.net.http.HttpResponse;
  */
 public final class VerifiableCredentialBodySubscribers {
 
-    private static final JsonProcessor processor = VcUtils.loadJsonProcessor();
+    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
 
     /**
      * Process an HTTP response as a Verifiable Credential.
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber ofVerifiableCredential() {
+    public static HttpResponse.BodySubscriber<VerifiableCredential> ofVerifiableCredential() {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
 
         return HttpResponse.BodySubscribers.mapping(upstream, input ->
@@ -49,7 +50,7 @@ public final class VerifiableCredentialBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber ofVerifiablePresentation() {
+    public static HttpResponse.BodySubscriber<VerifiablePresentation> ofVerifiablePresentation() {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
 
         return HttpResponse.BodySubscribers.mapping(upstream, input ->

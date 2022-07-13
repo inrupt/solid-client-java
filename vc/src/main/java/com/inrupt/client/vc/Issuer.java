@@ -1,0 +1,224 @@
+/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.vc;
+
+import com.inrupt.client.common.URIBuilder;
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletionStage;
+
+public class Issuer {
+
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String APPLICATION_JSON = "application/json";
+
+    private final URI issuerBaseUri;
+    private final HttpClient httpClient;
+    private final JsonProcessor processor;
+
+    public Issuer(final URI issuer) {
+        this(issuer, HttpClient.newHttpClient());
+    }
+
+    public Issuer(final URI issuer, final HttpClient httpClient) {
+        this.issuerBaseUri = issuer;
+        this.httpClient = httpClient;
+        this.processor = ServiceProvider.getJsonProcessor();
+    }
+
+    public VerifiableCredential issue(final VerifiableCredential credential) {
+        final var req = HttpRequest.newBuilder(getIssueUrl())
+            .header(CONTENT_TYPE, APPLICATION_JSON)
+            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
+            .build();
+        try {
+            return httpClient
+                .send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+                .body();
+        } catch (final InterruptedException | IOException ex) {
+            throw new VerifiableCredentialException("Error issuing verifiable credential", ex);
+        }
+    }
+
+    public CompletionStage<VerifiableCredential> issueAsync(final VerifiableCredential credential) {
+        final var req = HttpRequest.newBuilder(getIssueUrl())
+            .header(CONTENT_TYPE, APPLICATION_JSON)
+            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
+            .build();
+        return httpClient
+                .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+                .thenApply(HttpResponse::body);
+    }
+
+    public void status(final StatusRequest request) {
+        final var req = HttpRequest.newBuilder(getStatusUrl())
+            .header(CONTENT_TYPE, APPLICATION_JSON)
+            .POST(ofStatusRequest(request))
+            .build();
+
+        try {
+            httpClient.send(req, HttpResponse.BodyHandlers.discarding());
+        } catch (final InterruptedException | IOException ex) {
+            throw new VerifiableCredentialException("Error updating credential status.", ex);
+        }
+    }
+
+    public CompletionStage<Void> statusAsync(final StatusRequest request) {
+        final var req = HttpRequest.newBuilder(getStatusUrl())
+            .header(CONTENT_TYPE, APPLICATION_JSON)
+            .POST(ofStatusRequest(request))
+            .build();
+
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
+            .thenApply(HttpResponse::body);
+    }
+
+    /**
+     * A credential status request.
+     */
+    public static final class StatusRequest {
+        private String credentialId;
+        private List<CredentialStatus> credentialStatus;
+
+        /**
+         * Get the credential identifier.
+         *
+         * @return the credential identifier
+         */
+        public String getCredentialId() {
+            return credentialId;
+        }
+
+        /**
+         * Get the credential status values.
+         *
+         * @return the credential status values
+         */
+        public List<CredentialStatus> getCredentialStatus() {
+            return credentialStatus;
+        }
+
+        private StatusRequest(final String credentialId, final List<CredentialStatus> credentialStatus) {
+            this.credentialId = credentialId;
+            this.credentialStatus = credentialStatus;
+        }
+
+        /**
+         * A builder of {@link StatusRequest} objects.
+         */
+        public static final class Builder {
+
+            private List<CredentialStatus> builderCredentialStatus = new ArrayList<>();
+
+            /**
+             * Create a status request builder.
+             *
+             * @return the builder object
+             */
+            public static Builder newBuilder() {
+                return new Builder();
+            }
+
+            /**
+             * Add a credential status declaration.
+             *
+             * @param type the type URI
+             * @param revoked true if the credential is to be revoked; false otherwise
+             * @return this builder object
+             */
+            public Builder credentialStatus(final URI type, final boolean revoked) {
+                builderCredentialStatus.add(new CredentialStatus(type, revoked));
+                return this;
+            }
+
+            /**
+             * Build a {@link StatusRequest} object.
+             *
+             * @param credentialId the credential identifier
+             * @return the status request
+             */
+            public StatusRequest build(final String credentialId) {
+                return new StatusRequest(Objects.requireNonNull(credentialId), builderCredentialStatus);
+            }
+        }
+    }
+
+    public static final class CredentialStatus {
+
+        private final URI type;
+        private final boolean status;
+
+        /**
+         * Get the credential status type.
+         *
+         * @return the type URI
+         */
+        public URI getType() {
+            return type;
+        }
+
+        /**
+         * Get the status value.
+         *
+         * <p>False is active, true is revoked
+         *
+         * @return true if the credential has been revoked; false otherwise
+         */
+        public Boolean getStatus() {
+            return status;
+        }
+
+        private CredentialStatus(final URI type, final boolean status) {
+            this.type = type;
+            this.status = status;
+        }
+    }
+
+    private HttpRequest.BodyPublisher ofStatusRequest(final StatusRequest request) {
+        final var in = new PipedInputStream();
+        try (final var out = new PipedOutputStream(in)) {
+            processor.toJson(request, out);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error serializing Status request", ex);
+        }
+        return HttpRequest.BodyPublishers.ofInputStream(() -> in);
+    }
+
+    private URI getIssueUrl() {
+        return URIBuilder.newBuilder(issuerBaseUri).path("credentials/issue").build();
+    }
+
+    private URI getStatusUrl() {
+        return URIBuilder.newBuilder(issuerBaseUri).path("credentials/status").build();
+    }
+}

@@ -21,6 +21,7 @@
 package com.inrupt.client.vc;
 
 import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -33,7 +34,7 @@ import java.net.http.HttpRequest;
  */
 public final class VerifiableCredentialBodyPublishers {
 
-    private static final JsonProcessor processor = VcUtils.loadJsonProcessor();
+    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
 
     /**
      * Serialize a {@link VerifiableCredential} as an HTTP request body.

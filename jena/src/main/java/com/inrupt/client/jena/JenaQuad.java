@@ -34,11 +34,18 @@ class JenaQuad extends JenaTriple implements Quad {
 
     public JenaQuad(final org.apache.jena.sparql.core.Quad quad) {
         super(quad.asTriple());
-        this.graphName = quad.isDefaultGraph() ? null : quad.getGraph();
+        this.graphName = getGraphName(quad);
     }
 
     @Override
     public Optional<RDFNode> getGraphName() {
         return Optional.ofNullable(graphName).map(Node::getURI).map(URI::create).map(RDFNode::namedNode);
+    }
+
+    static Node getGraphName(final org.apache.jena.sparql.core.Quad quad) {
+        if (quad.isDefaultGraph()) {
+            return null;
+        }
+        return quad.getGraph();
     }
 }

@@ -26,6 +26,7 @@
   <modules>
     <module>authentication</module>
     <module>build-tools</module>
+    <module>common</module>
     <module>http</module>
     <module>jackson</module>
     <module>jena</module>

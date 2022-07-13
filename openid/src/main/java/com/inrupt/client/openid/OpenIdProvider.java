@@ -23,8 +23,9 @@ package com.inrupt.client.openid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.authentication.DPoP;
+import com.inrupt.client.common.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
-import com.inrupt.client.spi.ServiceLoadingException;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URI;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -47,6 +47,9 @@ import java.util.stream.Collectors;
  * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect 1.0</a>
  */
 public class OpenIdProvider {
+
+    private static final String CLIENT_ID = "client_id";
+    private static final String REDIRECT_URI = "redirect_uri";
 
     private final URI issuer;
     private final DPoP dpop;
@@ -83,10 +86,7 @@ public class OpenIdProvider {
         this.issuer = Objects.requireNonNull(issuer);
         this.dpop = Objects.requireNonNull(dpop);
         this.httpClient = Objects.requireNonNull(httpClient);
-        this.processor = ServiceLoader.load(JsonProcessor.class).findFirst()
-            .orElseThrow(() -> new ServiceLoadingException(
-                        "Unable to load JSON processor. " +
-                        "Please ensure that a JSON processor is available on the classpath"));
+        this.processor = ServiceProvider.getJsonProcessor();
     }
 
     /**
@@ -145,8 +145,8 @@ public class OpenIdProvider {
 
     private URI authorize(final URI authorizationEndpoint, final AuthorizationRequest request) {
         final var builder = URIBuilder.newBuilder(authorizationEndpoint)
-            .queryParam("client_id", request.getClientId())
-            .queryParam("redirect_uri", request.getRedirectUri().toString())
+            .queryParam(CLIENT_ID, request.getClientId())
+            .queryParam(REDIRECT_URI, request.getRedirectUri().toString())
             .queryParam("response_type", request.getResponseType());
 
         if (request.getCodeChallenge() != null && request.getCodeChallengeMethod() != null) {
@@ -193,7 +193,7 @@ public class OpenIdProvider {
         data.put("grant_type", request.getGrantType());
         data.put("code", request.getCode());
         data.put("code_verifier", request.getCodeVerifier());
-        data.put("redirect_uri", request.getRedirectUri().toString());
+        data.put(REDIRECT_URI, request.getRedirectUri().toString());
 
         final Optional<String> authHeader;
         if (request.getClientSecret() != null) {
@@ -201,13 +201,13 @@ public class OpenIdProvider {
                 authHeader = getBasicAuthHeader(request.getClientId(), request.getClientSecret());
             } else {
                 if ("client_secret_post".equals(request.getAuthMethod())) {
-                    data.put("client_id", request.getClientId());
+                    data.put(CLIENT_ID, request.getClientId());
                     data.put("client_secret", request.getClientSecret());
                 }
                 authHeader = Optional.empty();
             }
         } else {
-            data.put("client_id", request.getClientId());
+            data.put(CLIENT_ID, request.getClientId());
             authHeader = Optional.empty();
         }
 
@@ -265,7 +265,7 @@ public class OpenIdProvider {
 
     private URI endSession(final URI endSessionEndpoint, final EndSessionRequest request) {
         return URIBuilder.newBuilder(endSessionEndpoint)
-            .queryParam("client_id", request.getClientId())
+            .queryParam(CLIENT_ID, request.getClientId())
             .queryParam("post_logout_redirect_uri", request.getPostLogoutRedirectUri().toString())
             .queryParam("id_token_hint", request.getIdTokenHint())
             .queryParam("state", request.getState())

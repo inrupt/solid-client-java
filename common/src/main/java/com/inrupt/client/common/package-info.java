@@ -18,23 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.vc;
-
-import com.inrupt.client.spi.JsonProcessor;
-import com.inrupt.client.spi.ServiceLoadingException;
-
-import java.util.ServiceLoader;
-
-final class VcUtils {
-
-    public static JsonProcessor loadJsonProcessor() {
-        return ServiceLoader.load(JsonProcessor.class).findFirst()
-            .orElseThrow(() -> new ServiceLoadingException(
-                        "Unable to load JSON processor. " +
-                        "Please ensure that a JSON processor module is available on the classpath"));
-    }
-
-    private VcUtils() {
-        // Prevent instantiation
-    }
-}
+/**
+ * Common utilities for the Inrupt client libraries.
+ */
+package com.inrupt.client.common;

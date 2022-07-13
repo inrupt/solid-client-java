@@ -18,35 +18,40 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.vc;
+package com.inrupt.client.spi;
 
-import java.net.http.HttpResponse;
+import java.util.ServiceLoader;
 
 /**
- * {@link HttpResponse.BodyHandler} implementations for use with Verifiable Credential types.
+ * This is the class used to access data processors for the Inrupt Client libraries.
  */
-public final class VerifiableCredentialBodyHandlers {
+public final class ServiceProvider {
 
     /**
-     * Create a {@link VerifiableCredential} from an HTTP response.
+     * Get the {@link JsonProcessor} for this application.
      *
-     * @return the body handler
+     * @return an object for processing JSON
      */
-    public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiableCredential();
+    public static JsonProcessor getJsonProcessor() {
+        return ServiceLoader.load(JsonProcessor.class).findFirst()
+            .orElseThrow(() -> new ServiceLoadingException(
+                        "Unable to load JSON processor. " +
+                        "Please ensure that a JSON processor is available on the classpath"));
     }
 
     /**
-     * Create a {@link VerifiablePresentation} from an HTTP response.
+     * Get the {@link RdfProcessor} for this application.
      *
-     * @return the body handler
+     * @return an object for processing RDF
      */
-    public static HttpResponse.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
+    public static RdfProcessor getRdfProcessor() {
+        return ServiceLoader.load(RdfProcessor.class).findFirst()
+            .orElseThrow(() -> new ServiceLoadingException(
+                        "Unable to load RDF processor. " +
+                        "Please ensure that an RDF processor is available on the classpath"));
     }
 
-    private VerifiableCredentialBodyHandlers() {
+    private ServiceProvider() {
         // Prevent instantiation
     }
 }
-

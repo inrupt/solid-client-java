@@ -20,33 +20,30 @@
  */
 package com.inrupt.client.vc;
 
-import java.net.http.HttpResponse;
-
 /**
- * {@link HttpResponse.BodyHandler} implementations for use with Verifiable Credential types.
+ * A runtime exception for use with Verifiable Credential-related errors.
  */
-public final class VerifiableCredentialBodyHandlers {
+public class VerifiableCredentialException extends RuntimeException {
+
+    private static final long serialVersionUID = 4828374653830284474L;
 
     /**
-     * Create a {@link VerifiableCredential} from an HTTP response.
+     * Create a Verifiable Credential exception.
      *
-     * @return the body handler
+     * @param message the message
      */
-    public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiableCredential();
+    public VerifiableCredentialException(final String message) {
+        super(message);
     }
 
     /**
-     * Create a {@link VerifiablePresentation} from an HTTP response.
+     * Create a Verifiable Credential exception.
      *
-     * @return the body handler
+     * @param message the message
+     * @param cause the cause
      */
-    public static HttpResponse.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
-    }
-
-    private VerifiableCredentialBodyHandlers() {
-        // Prevent instantiation
+    public VerifiableCredentialException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }
 
