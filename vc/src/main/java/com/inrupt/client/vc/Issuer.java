@@ -37,6 +37,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * A class for interacting with a VC-API Issuer endpoint.
+ *
+ * @see <a href="https://w3c-ccg.github.io/vc-api/issuer.html">VC-API: Issuer</a>
+ */
 public class Issuer {
 
     private static final String CONTENT_TYPE = "Content-Type";
@@ -46,16 +51,33 @@ public class Issuer {
     private final HttpClient httpClient;
     private final JsonProcessor processor;
 
+    /**
+     * Create a new Issuer object.
+     *
+     * @param issuer the base URL for the VC-API
+     */
     public Issuer(final URI issuer) {
         this(issuer, HttpClient.newHttpClient());
     }
 
+    /**
+     * Create a new Issuer object.
+     *
+     * @param issuer the base URL for the VC-API
+     * @param httpClient an HTTP client
+     */
     public Issuer(final URI issuer, final HttpClient httpClient) {
         this.issuerBaseUri = issuer;
         this.httpClient = httpClient;
         this.processor = ServiceProvider.getJsonProcessor();
     }
 
+    /**
+     * Synchronously issue a new verifiable credential.
+     *
+     * @param credential the credential to be signed and issued
+     * @return a new Verifiable Credential
+     */
     public VerifiableCredential issue(final VerifiableCredential credential) {
         final var req = HttpRequest.newBuilder(getIssueUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -70,6 +92,12 @@ public class Issuer {
         }
     }
 
+    /**
+     * Synchronously issue a new verifiable credential.
+     *
+     * @param credential the credential to be signed and issued
+     * @return a new Verifiable Credential
+     */
     public CompletionStage<VerifiableCredential> issueAsync(final VerifiableCredential credential) {
         final var req = HttpRequest.newBuilder(getIssueUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -80,6 +108,11 @@ public class Issuer {
                 .thenApply(HttpResponse::body);
     }
 
+    /**
+     * Synchronously update the status of a verifiable credential.
+     *
+     * @param request the status request
+     */
     public void status(final StatusRequest request) {
         final var req = HttpRequest.newBuilder(getStatusUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -93,6 +126,12 @@ public class Issuer {
         }
     }
 
+    /**
+     * Asynchronously update the status of a verifiable credential.
+     *
+     * @param request the status request
+     * @return the next stage of completion
+     */
     public CompletionStage<Void> statusAsync(final StatusRequest request) {
         final var req = HttpRequest.newBuilder(getStatusUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -171,36 +210,39 @@ public class Issuer {
                 return new StatusRequest(Objects.requireNonNull(credentialId), builderCredentialStatus);
             }
         }
-    }
-
-    public static final class CredentialStatus {
-
-        private final URI type;
-        private final boolean status;
 
         /**
-         * Get the credential status type.
-         *
-         * @return the type URI
+         * A credendial status data holder.
          */
-        public URI getType() {
-            return type;
-        }
+        public static final class CredentialStatus {
 
-        /**
-         * Get the status value.
-         *
-         * <p>False is active, true is revoked
-         *
-         * @return true if the credential has been revoked; false otherwise
-         */
-        public Boolean getStatus() {
-            return status;
-        }
+            private final URI type;
+            private final boolean status;
 
-        private CredentialStatus(final URI type, final boolean status) {
-            this.type = type;
-            this.status = status;
+            /**
+             * Get the credential status type.
+             *
+             * @return the type URI
+             */
+            public URI getType() {
+                return type;
+            }
+
+            /**
+             * Get the status value.
+             *
+             * <p>False is active, true is revoked
+             *
+             * @return true if the credential has been revoked; false otherwise
+             */
+            public Boolean getStatus() {
+                return status;
+            }
+
+            private CredentialStatus(final URI type, final boolean status) {
+                this.type = type;
+                this.status = status;
+            }
         }
     }
 
