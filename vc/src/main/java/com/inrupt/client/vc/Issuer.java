@@ -210,39 +210,39 @@ public class Issuer {
                 return new StatusRequest(Objects.requireNonNull(credentialId), builderCredentialStatus);
             }
         }
+    }
+
+    /**
+     * A credendial status data holder.
+     */
+    public static final class CredentialStatus {
+
+        private final URI type;
+        private final boolean status;
 
         /**
-         * A credendial status data holder.
+         * Get the credential status type.
+         *
+         * @return the type URI
          */
-        public static final class CredentialStatus {
+        public URI getType() {
+            return type;
+        }
 
-            private final URI type;
-            private final boolean status;
+        /**
+         * Get the status value.
+         *
+         * <p>False is active, true is revoked
+         *
+         * @return true if the credential has been revoked; false otherwise
+         */
+        public Boolean getStatus() {
+            return status;
+        }
 
-            /**
-             * Get the credential status type.
-             *
-             * @return the type URI
-             */
-            public URI getType() {
-                return type;
-            }
-
-            /**
-             * Get the status value.
-             *
-             * <p>False is active, true is revoked
-             *
-             * @return true if the credential has been revoked; false otherwise
-             */
-            public Boolean getStatus() {
-                return status;
-            }
-
-            private CredentialStatus(final URI type, final boolean status) {
-                this.type = type;
-                this.status = status;
-            }
+        private CredentialStatus(final URI type, final boolean status) {
+            this.type = type;
+            this.status = status;
         }
     }
 
