@@ -59,11 +59,15 @@ public final class JenaBodyPublishers {
      */
     public static HttpRequest.BodyPublisher ofModel(final Model model, final Lang lang) {
         final var in = new PipedInputStream();
-        try (final var out = new PipedOutputStream(in)) {
-            RDFDataMgr.write(out, model, lang);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error serializing Jena model", ex);
-        }
+        final Runnable task = () -> {
+            try (final var out = new PipedOutputStream(in)) {
+                RDFDataMgr.write(out, model, lang);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException("Error serializing Jena model", ex);
+            }
+        };
+
+        new Thread(task).start();
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
@@ -88,11 +92,15 @@ public final class JenaBodyPublishers {
      */
     public static HttpRequest.BodyPublisher ofGraph(final Graph graph, final Lang lang) {
         final var in = new PipedInputStream();
-        try (final var out = new PipedOutputStream(in)) {
-            RDFDataMgr.write(out, graph, lang);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error serializing Jena graph", ex);
-        }
+        final Runnable task = () -> {
+            try (final var out = new PipedOutputStream(in)) {
+                RDFDataMgr.write(out, graph, lang);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException("Error serializing Jena graph", ex);
+            }
+        };
+
+        new Thread(task).start();
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
@@ -117,11 +125,15 @@ public final class JenaBodyPublishers {
      */
     public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset, final Lang lang) {
         final var in = new PipedInputStream();
-        try (final var out = new PipedOutputStream(in)) {
-            RDFDataMgr.write(out, dataset, lang);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error serializing Jena dataset", ex);
-        }
+        final Runnable task = () -> {
+            try (final var out = new PipedOutputStream(in)) {
+                RDFDataMgr.write(out, dataset, lang);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException("Error serializing Jena dataset", ex);
+            }
+        };
+
+        new Thread(task).start();
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 

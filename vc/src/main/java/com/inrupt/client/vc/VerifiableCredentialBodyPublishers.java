@@ -44,11 +44,15 @@ public final class VerifiableCredentialBodyPublishers {
      */
     public static HttpRequest.BodyPublisher ofVerifiableCredential(final VerifiableCredential vc) {
         final var in = new PipedInputStream();
-        try (final var out = new PipedOutputStream(in)) {
-            processor.toJson(vc, out);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error serializing verifiable credential", ex);
-        }
+        final Runnable task = () -> {
+            try (final var out = new PipedOutputStream(in)) {
+                processor.toJson(vc, out);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException("Error serializing verifiable credential", ex);
+            }
+        };
+
+        new Thread(task).start();
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
@@ -60,11 +64,15 @@ public final class VerifiableCredentialBodyPublishers {
      */
     public static HttpRequest.BodyPublisher ofVerifiablePresentation(final VerifiablePresentation vp) {
         final var in = new PipedInputStream();
-        try (final var out = new PipedOutputStream(in)) {
-            processor.toJson(vp, out);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error serializing verifiable presentation", ex);
-        }
+        final Runnable task = () -> {
+            try (final var out = new PipedOutputStream(in)) {
+                processor.toJson(vp, out);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException("Error serializing verifiable presentation", ex);
+            }
+        };
+
+        new Thread(task).start();
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 

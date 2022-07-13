@@ -248,11 +248,15 @@ public class Issuer {
 
     private HttpRequest.BodyPublisher ofStatusRequest(final StatusRequest request) {
         final var in = new PipedInputStream();
-        try (final var out = new PipedOutputStream(in)) {
-            processor.toJson(request, out);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error serializing Status request", ex);
-        }
+        final Runnable task = () -> {
+            try (final var out = new PipedOutputStream(in)) {
+                processor.toJson(request, out);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException("Error serializing Status request", ex);
+            }
+        };
+
+        new Thread(task).start();
         return HttpRequest.BodyPublishers.ofInputStream(() -> in);
     }
 
