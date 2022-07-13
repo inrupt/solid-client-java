@@ -47,27 +47,27 @@ public class Issuer {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
 
-    private final URI issuerBaseUri;
+    private final URI baseUri;
     private final HttpClient httpClient;
     private final JsonProcessor processor;
 
     /**
      * Create a new Issuer object.
      *
-     * @param issuer the base URL for the VC-API
+     * @param baseUri the base URL for the VC-API
      */
-    public Issuer(final URI issuer) {
-        this(issuer, HttpClient.newHttpClient());
+    public Issuer(final URI baseUri) {
+        this(baseUri, HttpClient.newHttpClient());
     }
 
     /**
-     * Create a new Issuer object.
+     * Create a new Issuer object for interacting with a VC-API.
      *
-     * @param issuer the base URL for the VC-API
+     * @param baseUri the base URI for the VC-API
      * @param httpClient an HTTP client
      */
-    public Issuer(final URI issuer, final HttpClient httpClient) {
-        this.issuerBaseUri = issuer;
+    public Issuer(final URI baseUri, final HttpClient httpClient) {
+        this.baseUri = baseUri;
         this.httpClient = httpClient;
         this.processor = ServiceProvider.getJsonProcessor();
     }
@@ -93,10 +93,10 @@ public class Issuer {
     }
 
     /**
-     * Synchronously issue a new verifiable credential.
+     * Asynchronously issue a new verifiable credential.
      *
      * @param credential the credential to be signed and issued
-     * @return a new Verifiable Credential
+     * @return the next stage of completion, containing the new Verifiable Credential
      */
     public CompletionStage<VerifiableCredential> issueAsync(final VerifiableCredential credential) {
         final var req = HttpRequest.newBuilder(getIssueUrl())
@@ -257,10 +257,10 @@ public class Issuer {
     }
 
     private URI getIssueUrl() {
-        return URIBuilder.newBuilder(issuerBaseUri).path("credentials/issue").build();
+        return URIBuilder.newBuilder(baseUri).path("credentials/issue").build();
     }
 
     private URI getStatusUrl() {
-        return URIBuilder.newBuilder(issuerBaseUri).path("credentials/status").build();
+        return URIBuilder.newBuilder(baseUri).path("credentials/status").build();
     }
 }
