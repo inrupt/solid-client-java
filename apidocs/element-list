@@ -1,4 +1,5 @@
 com.inrupt.client.authentication
+com.inrupt.client.common
 com.inrupt.client.http
 com.inrupt.client.jackson
 com.inrupt.client.jena
