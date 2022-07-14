@@ -20,13 +20,10 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.common.IOUtils;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.UncheckedIOException;
 import java.net.http.HttpRequest;
 
 /**
@@ -43,17 +40,8 @@ public final class VerifiableCredentialBodyPublishers {
      * @return the body publisher
      */
     public static HttpRequest.BodyPublisher ofVerifiableCredential(final VerifiableCredential vc) {
-        final var in = new PipedInputStream();
-        final Runnable task = () -> {
-            try (final var out = new PipedOutputStream(in)) {
-                processor.toJson(vc, out);
-            } catch (final IOException ex) {
-                throw new UncheckedIOException("Error serializing verifiable credential", ex);
-            }
-        };
-
-        new Thread(task).start();
-        return HttpRequest.BodyPublishers.ofInputStream(() -> in);
+        return HttpRequest.BodyPublishers.ofInputStream(() ->
+                IOUtils.pipe(out -> processor.toJson(vc, out)));
     }
 
     /**
@@ -63,17 +51,8 @@ public final class VerifiableCredentialBodyPublishers {
      * @return the body publisher
      */
     public static HttpRequest.BodyPublisher ofVerifiablePresentation(final VerifiablePresentation vp) {
-        final var in = new PipedInputStream();
-        final Runnable task = () -> {
-            try (final var out = new PipedOutputStream(in)) {
-                processor.toJson(vp, out);
-            } catch (final IOException ex) {
-                throw new UncheckedIOException("Error serializing verifiable presentation", ex);
-            }
-        };
-
-        new Thread(task).start();
-        return HttpRequest.BodyPublishers.ofInputStream(() -> in);
+        return HttpRequest.BodyPublishers.ofInputStream(() ->
+                IOUtils.pipe(out -> processor.toJson(vp, out)));
     }
 
     private VerifiableCredentialBodyPublishers() {
