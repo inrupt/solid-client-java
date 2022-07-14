@@ -317,6 +317,12 @@ public class Holder {
             .thenApply(HttpResponse::body);
     }
 
+    /**
+     * Prove a presentation.
+     *
+     * @param request the prove request
+     * @return the verifiable presentation
+     */
     public VerifiablePresentation prove(final ProveRequest request) {
         final var req = HttpRequest.newBuilder(getProveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -330,6 +336,12 @@ public class Holder {
         }
     }
 
+    /**
+     * Prove a presentation.
+     *
+     * @param request the prove request
+     * @return the next stage of completion, including the verifiable presentation
+     */
     public CompletionStage<VerifiablePresentation> proveAsync(final ProveRequest request) {
         final var req = HttpRequest.newBuilder(getProveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -340,6 +352,13 @@ public class Holder {
             .thenApply(HttpResponse::body);
     }
 
+    /**
+     * Initiate a presentation exchange.
+     *
+     * @param exchangeId a unique identifier for a shared exchange
+     * @param request the exchange request
+     * @return the server-generated VP Request
+     */
     public VerifiablePresentationRequest initiateExchange(final String exchangeId, final ExchangeRequest request) {
         // TODO - implement
         // Request payload example:
@@ -373,6 +392,13 @@ public class Holder {
         return null;
     }
 
+    /**
+     * Initiate a presentation exchange.
+     *
+     * @param exchangeId a unique identifier for a shared exchange
+     * @param request the exchange request
+     * @return the next stage of completion, including a server-generated VP Request
+     */
     public CompletionStage<VerifiablePresentationRequest> initiateExchangeAsync(final String exchangeId,
             final ExchangeRequest request) {
         // TODO - implement
