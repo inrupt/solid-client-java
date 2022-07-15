@@ -353,6 +353,7 @@
               <report>summary</report>
               <report>plugins</report>
               <report>licenses</report>
+              <report>modules</report>
             </reports>
           </reportSet>
         </reportSets>
