@@ -349,6 +349,7 @@
           <reportSet>
             <reports>
               <report>index</report>
+              <report>dependencies</report>
               <report>summary</report>
               <report>plugins</report>
               <report>licenses</report>
