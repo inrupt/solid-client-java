@@ -11,6 +11,9 @@
   <artifactId>inrupt-client</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <name>Inrupt Solid Client Libraries</name>
+  <description>
+    Inrupt Client Libraries for use with Solid.
+  </description>
   <packaging>pom</packaging>
 
   <properties>
