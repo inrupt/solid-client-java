@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-jena</artifactId>
   <name>Inrupt Solid Client - Jena</name>
   <description>
-      Jena body handlers for the Inrupt Client.
+      Jena body handlers for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

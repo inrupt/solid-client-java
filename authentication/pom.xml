@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-authentication</artifactId>
   <name>Inrupt Solid Client - Authentication</name>
   <description>
-      The authentication API for the Inrupt Client.
+      The authentication API for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

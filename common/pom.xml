@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-common</artifactId>
   <name>Inrupt Solid Client - Common Utilities</name>
   <description>
-      Common Utilities for the Inrupt Client.
+      Common Utilities for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

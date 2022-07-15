@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-spi</artifactId>
   <name>Inrupt Solid Client - SPI</name>
   <description>
-      The Service Programming Interface for the Inrupt Client.
+      The Service Programming Interface for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

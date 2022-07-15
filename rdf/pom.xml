@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-rdf</artifactId>
   <name>Inrupt Solid Client - RDF</name>
   <description>
-      Generic RDF abstractions for the Inrupt Client.
+      Generic RDF abstractions for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

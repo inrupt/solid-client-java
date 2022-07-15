@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-jsonb</artifactId>
   <name>Inrupt Solid Client - JSONB JSON processor</name>
   <description>
-      A JSONB-based JSON processor for the Inrupt Client.
+      A JSONB-based JSON processor for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

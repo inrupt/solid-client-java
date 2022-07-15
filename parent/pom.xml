@@ -7,6 +7,10 @@
   <name>Inrupt Solid Client - Parent POM</name>
   <packaging>pom</packaging>
 
+  <description>
+    Common maven configuration for the Solid Client libraries.
+  </description>
+
   <properties>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.source>11</maven.compiler.source>

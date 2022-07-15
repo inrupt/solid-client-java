@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-http</artifactId>
   <name>Inrupt Solid Client - HTTP</name>
   <description>
-      The core HTTP API for the Inrupt Client.
+      The core HTTP API for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

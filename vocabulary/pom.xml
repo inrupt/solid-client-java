@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-vocabulary</artifactId>
   <name>Inrupt Solid Client - Vocabulary</name>
   <description>
-      RDF Vocabulary constants for the Inrupt Client.
+      RDF Vocabulary constants for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

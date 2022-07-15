@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-vc</artifactId>
   <name>Inrupt Solid Client - Verifiable Credentials</name>
   <description>
-      Verifiable Credential body handlers for the Inrupt Client.
+      Verifiable Credential body handlers for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

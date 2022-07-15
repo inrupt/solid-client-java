@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-openid</artifactId>
   <name>Inrupt Solid Client - OpenID</name>
   <description>
-      An OpenID library for the Inrupt Client.
+      An OpenID library for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

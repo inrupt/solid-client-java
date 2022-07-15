@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-webid</artifactId>
   <name>Inrupt Solid Client - WebID</name>
   <description>
-      WebID Profile body handlers for the Inrupt Client.
+      WebID Profile body handlers for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

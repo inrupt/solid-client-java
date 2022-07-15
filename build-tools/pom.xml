@@ -12,6 +12,9 @@
   <artifactId>inrupt-build-tools</artifactId>
   <name>Inrupt Solid Client - Build Tools</name>
   <version>0.1.0-SNAPSHOT</version>
+  <description>
+      Build tooling for the Inrupt Client Libaries.
+  </description>
   <packaging>jar</packaging>
 
   <properties>
