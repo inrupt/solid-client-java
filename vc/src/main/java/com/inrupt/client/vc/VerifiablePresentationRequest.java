@@ -35,6 +35,9 @@ public class VerifiablePresentationRequest {
     public String domain;
     public String challenge;
 
+    /**
+     * A data structure to represent server-generated VP Request queries.
+     */
     public static class Query {
         public List<URI> type;
         public Map<String, Object> credentialQuery;

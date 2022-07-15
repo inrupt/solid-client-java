@@ -430,21 +430,33 @@ public class Holder {
         return null;
     }
 
+    /**
+     * A data structure for exchange requests when interacting with a VC Holder API.
+     */
     public static class ExchangeRequest {
         public Query query;
     }
 
+    /**
+     * A data structure for query specifications when interacting with a VC Holder API.
+     */
     public static class Query {
         public URI type;
         public Map<String, Object> credentialQuery;
     }
 
+    /**
+     * A data structure for derive requests when interacting with a VC Holder API.
+     */
     public static class DerivationRequest {
         public VerifiableCredential verifiableCredential;
         public Map<String, Object> frame;
         public Map<String, Object> options;
     }
 
+    /**
+     * A data structure for prove requests when interacting with a VC Holder API.
+     */
     public static class ProveRequest {
         public VerifiablePresentation presentation;
         public Map<String, Object> options;
