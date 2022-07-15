@@ -48,6 +48,7 @@ public class Holder {
     private static final String APPLICATION_JSON = "application/json";
     private static final String CREDENTIALS = "credentials";
     private static final String PRESENTATIONS = "presentations";
+    private static final String EXCHANGES = "exchanges";
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -186,7 +187,7 @@ public class Holder {
     public VerifiableCredential derive(final DerivationRequest request) {
         final var req = HttpRequest.newBuilder(getDeriveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(ofDerivationRequest(request))
+            .POST(serialize(request))
             .build();
 
         try {
@@ -205,7 +206,7 @@ public class Holder {
     public CompletionStage<VerifiableCredential> deriveAsync(final DerivationRequest request) {
         final var req = HttpRequest.newBuilder(getDeriveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(ofDerivationRequest(request))
+            .POST(serialize(request))
             .build();
 
         return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
@@ -326,7 +327,7 @@ public class Holder {
     public VerifiablePresentation prove(final ProveRequest request) {
         final var req = HttpRequest.newBuilder(getProveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(ofProveRequest(request))
+            .POST(serialize(request))
             .build();
 
         try {
@@ -345,7 +346,7 @@ public class Holder {
     public CompletionStage<VerifiablePresentation> proveAsync(final ProveRequest request) {
         final var req = HttpRequest.newBuilder(getProveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(ofProveRequest(request))
+            .POST(serialize(request))
             .build();
 
         return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
@@ -359,37 +360,45 @@ public class Holder {
      * @param request the exchange request
      * @return the server-generated VP Request
      */
+    // Request payload example:
+    // {
+    //   "query": {
+    //     "type": "QueryByExample",
+    //     "credentialQuery": {
+    //       "type": ["VerifiableCredential", "SolidAccessGrant"],
+    //       "reason": "Access to a Solid Resource"
+    //     }
+    //   }
+    // }
+    //
+    // Response payload example:
+    // {
+    //   "query": [
+    //     {
+    //       "type": "QueryByExample",
+    //       "credentialQuery": {
+    //         "frame": {
+    //           "@context": [...],
+    //           "type": ["VerifiableCredential", "SolidAccessGrant"],
+    //           "credentialSubject": { ... }
+    //         }
+    //       }
+    //     }
+    //   ],
+    //   "domain": "credentials.example.com",
+    //   "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f"
+    // }
     public VerifiablePresentationRequest initiateExchange(final String exchangeId, final ExchangeRequest request) {
-        // TODO - implement
-        // Request payload example:
-        // {
-        //   "query": {
-        //     "type": "QueryByExample",
-        //     "credentialQuery": {
-        //       "type": ["VerifiableCredential", "SolidAccessGrant"],
-        //       "reason": "Access to a Solid Resource"
-        //     }
-        //   }
-        // }
-        //
-        // Response payload example:
-        // {
-        //   "query": [
-        //     {
-        //       "type": "QueryByExample",
-        //       "credentialQuery": {
-        //         "frame": {
-        //           "@context": [...],
-        //           "type": ["VerifiableCredential", "SolidAccessGrant"],
-        //           "credentialSubject": { ... }
-        //         }
-        //       }
-        //     }
-        //   ],
-        //   "domain": "credentials.example.com",
-        //   "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f"
-        // }
-        return null;
+        final var req = HttpRequest.newBuilder(getExchangeEndpoint(exchangeId))
+            .header(CONTENT_TYPE, APPLICATION_JSON)
+            .POST(serialize(request))
+            .build();
+
+        try {
+            return httpClient.send(req, ofVerifiablePresentationRequest()).body();
+        } catch (final InterruptedException | IOException ex) {
+            throw new VerifiableCredentialException("Error proving presentation.", ex);
+        }
     }
 
     /**
@@ -401,8 +410,13 @@ public class Holder {
      */
     public CompletionStage<VerifiablePresentationRequest> initiateExchangeAsync(final String exchangeId,
             final ExchangeRequest request) {
-        // TODO - implement
-        return null;
+        final var req = HttpRequest.newBuilder(getExchangeEndpoint(exchangeId))
+            .header(CONTENT_TYPE, APPLICATION_JSON)
+            .POST(serialize(request))
+            .build();
+
+        return httpClient.sendAsync(req, ofVerifiablePresentationRequest())
+            .thenApply(HttpResponse::body);
     }
 
     public void continueExchange(final String exchangeId, final String transactionId,
@@ -422,25 +436,25 @@ public class Holder {
 
     public static class Query {
         public URI type;
-        public Map<String, Object> credentialSubject;
+        public Map<String, Object> credentialQuery;
     }
 
     public static class DerivationRequest {
-        // TODO - implement
-
+        public VerifiableCredential verifiableCredential;
+        public Map<String, Object> frame;
+        public Map<String, Object> options;
     }
 
     public static class ProveRequest {
-        // TODO - implement
-
+        public VerifiablePresentation presentation;
+        public Map<String, Object> options;
     }
 
-    private HttpRequest.BodyPublisher ofDerivationRequest(final DerivationRequest request) {
-        return serialize(request);
-    }
-
-    private HttpRequest.BodyPublisher ofProveRequest(final ProveRequest request) {
-        return serialize(request);
+    private HttpResponse.BodyHandler<VerifiablePresentationRequest> ofVerifiablePresentationRequest() {
+        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
+        return responseInfo ->
+            HttpResponse.BodySubscribers.mapping(upstream, input ->
+                    processor.fromJson(input, VerifiablePresentationRequest.class));
     }
 
     private <T> HttpRequest.BodyPublisher serialize(final T request) {
@@ -474,6 +488,10 @@ public class Holder {
 
     private URI getProveEndpoint() {
         return URIBuilder.newBuilder(baseUri).path(PRESENTATIONS).path("prove").build();
+    }
+
+    private URI getExchangeEndpoint(final String exchangeId) {
+        return URIBuilder.newBuilder(baseUri).path(EXCHANGES).path(exchangeId).build();
     }
 
     interface VerifiablePresentationList extends List<VerifiablePresentation> {
