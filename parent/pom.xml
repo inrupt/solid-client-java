@@ -30,7 +30,7 @@
     <jar.plugin.version>3.2.2</jar.plugin.version>
     <javadoc.plugin.version>3.4.0</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
-    <projectinfo.plugin.version>3.3.0</projectinfo.plugin.version>
+    <projectinfo.plugin.version>3.4.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.17.0</pmd.plugin.version>
     <site.plugin.version>3.12.0</site.plugin.version>
     <release.plugin.version>2.5.3</release.plugin.version>
