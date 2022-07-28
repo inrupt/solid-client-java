@@ -30,6 +30,7 @@
     <jar.plugin.version>3.2.2</jar.plugin.version>
     <javadoc.plugin.version>3.4.0</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
+    <nexus.plugin.version>1.6.7</nexus.plugin.version>
     <projectinfo.plugin.version>3.4.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.17.0</pmd.plugin.version>
     <site.plugin.version>3.12.0</site.plugin.version>
@@ -44,14 +45,14 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <name>Development Repository</name>
-      <id>development</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <name>Snapshot Repository</name>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
     <repository>
       <name>Staging Repository</name>
-      <id>staging</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
   </distributionManagement>
 
@@ -329,6 +330,17 @@
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
           <version>${sonar.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>${nexus.plugin.version}</version>
+          <extensions>true</extensions>
+          <configuration>
+            <serverId>ossrh</serverId>
+            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
