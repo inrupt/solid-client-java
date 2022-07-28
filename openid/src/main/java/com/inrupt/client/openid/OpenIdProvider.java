@@ -158,14 +158,14 @@ public class OpenIdProvider {
     }
 
     /**
-     * Retrieve a token fromt the OpenID Provider.
+     * Interact with the OpenID Provider's token endpoint.
      *
      * @param request the token request
      * @return the token response
      */
-    public TokenResponse getToken(final TokenRequest request) {
+    public TokenResponse token(final TokenRequest request) {
         final var metadata = metadata();
-        final var req = getTokenRequest(metadata, request);
+        final var req = tokenRequest(metadata, request);
 
         try {
             final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
@@ -176,19 +176,19 @@ public class OpenIdProvider {
     }
 
     /**
-     * Retrieve a token fromt the OpenID Provider asynchronously.
+     * Interact asynchronously with the OpenID Provider's token endpoint.
      *
      * @param request the token request
      * @return the next stage of completion, containing the token response
      */
-    public CompletionStage<TokenResponse> getTokenAsync(final TokenRequest request) {
+    public CompletionStage<TokenResponse> tokenAsync(final TokenRequest request) {
         return metadataAsync()
-            .thenApply(metadata -> getTokenRequest(metadata, request))
+            .thenApply(metadata -> tokenRequest(metadata, request))
             .thenCompose(req -> httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream()))
             .thenApply(res -> processor.fromJson(res.body(), TokenResponse.class));
     }
 
-    private HttpRequest getTokenRequest(final Metadata metadata, final TokenRequest request) {
+    private HttpRequest tokenRequest(final Metadata metadata, final TokenRequest request) {
         final var data = new HashMap<String, String>();
         data.put("grant_type", request.getGrantType());
         data.put("code", request.getCode());

@@ -1,12 +1,12 @@
 <settings>
   <servers>
     <server>
-      <id>inrupt-development</id>
+      <id>development</id>
       <username>${env.MAVEN_REPO_USERNAME}</username>
       <password>${env.MAVEN_REPO_TOKEN}</password>
     </server>
     <server>
-      <id>inrupt-staging</id>
+      <id>staging</id>
       <username>${env.MAVEN_REPO_USERNAME}</username>
       <password>${env.MAVEN_REPO_TOKEN}</password>
     </server>
