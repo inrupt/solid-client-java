@@ -28,11 +28,11 @@ jobs:
       - name: Build the code with Maven
         run: ./mvnw -B -ntp clean install javadoc:javadoc site
 
-      - name: Deploy Artifacts
-        run: ./mvnw deploy
-        env:
-          MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
+      #- name: Deploy Artifacts
+        #run: ./mvnw deploy
+        #env:
+          #MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          #MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
 
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
