@@ -42,6 +42,19 @@
     <checkstyle.tool.version>10.3.1</checkstyle.tool.version>
   </properties>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <name>Development Repository</name>
+      <id>development</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <name>Staging Repository</name>
+      <id>staging</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+  </distributionManagement>
+
   <build>
     <pluginManagement>
       <plugins>

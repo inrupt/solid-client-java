@@ -28,7 +28,7 @@ jobs:
       - name: Build the code with Maven
         run: ./mvnw -B -ntp clean install javadoc:javadoc site
 
-      - name: Deploy Code
+      - name: Deploy Artifacts
         run: ./mvnw deploy
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
