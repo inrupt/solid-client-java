@@ -11,6 +11,9 @@ jobs:
   publish:
     name: Build and deploy
     runs-on: ubuntu-latest
+    env:
+      MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+      MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -28,15 +31,13 @@ jobs:
       - name: Build the code with Maven
         run: ./mvnw -B -ntp clean install javadoc:javadoc site
 
-      #- name: Deploy Artifacts
-        #run: ./mvnw deploy
-        #env:
-          #MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          #MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
-
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           publish_dir: ./target/site/
           personal_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy Artifacts
+        run: ./mvnw deploy
+
 

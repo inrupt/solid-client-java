@@ -1,12 +1,7 @@
 <settings>
   <servers>
     <server>
-      <id>development</id>
-      <username>${env.MAVEN_REPO_USERNAME}</username>
-      <password>${env.MAVEN_REPO_TOKEN}</password>
-    </server>
-    <server>
-      <id>staging</id>
+      <id>ossrh</id>
       <username>${env.MAVEN_REPO_USERNAME}</username>
       <password>${env.MAVEN_REPO_TOKEN}</password>
     </server>
