@@ -11,9 +11,6 @@ jobs:
   publish:
     name: Build and deploy
     runs-on: ubuntu-latest
-    env:
-      MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-      MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -24,9 +21,9 @@ jobs:
           distribution: 'temurin'
           java-version: 11
           cache: 'maven'
-
-      - name: Set up maven configuration
-        run: cp .github/maven-settings.xml $HOME/.m2/settings.xml
+          server-id: 'ossrh'
+          server-username: MAVEN_REPO_USERNAME
+          server-password: MAVEN_REPO_TOKEN
 
       - name: Build the code with Maven
         run: ./mvnw -B -ntp clean install javadoc:javadoc site
@@ -39,5 +36,7 @@ jobs:
 
       - name: Deploy Artifacts
         run: ./mvnw deploy
-
+        env:
+          MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
 

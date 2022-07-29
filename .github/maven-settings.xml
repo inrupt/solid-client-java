@@ -1,9 +1,0 @@
-<settings>
-  <servers>
-    <server>
-      <id>ossrh</id>
-      <username>${env.MAVEN_REPO_USERNAME}</username>
-      <password>${env.MAVEN_REPO_TOKEN}</password>
-    </server>
-  </servers>
-</settings>
