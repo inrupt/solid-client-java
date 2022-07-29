@@ -22,8 +22,5 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
 
-      - name: Set up maven configuration
-        run: cp .github/maven-settings.xml $HOME/.m2/settings.xml
-
       - name: Build the code with Maven
         run: mvn -B -ntp clean install javadoc:javadoc
