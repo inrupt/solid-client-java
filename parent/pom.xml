@@ -26,6 +26,7 @@
     <deploy.plugin.version>3.0.0</deploy.plugin.version>
     <install.plugin.version>3.0.1</install.plugin.version>
     <git.plugin.version>4.9.10</git.plugin.version>
+    <gpg.plugin.version>3.0.1</gpg.plugin.version>
     <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
     <jar.plugin.version>3.2.2</jar.plugin.version>
     <javadoc.plugin.version>3.4.0</javadoc.plugin.version>
@@ -103,6 +104,20 @@
               </tag>
             </tags>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${gpg.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>sign-artifacts</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>sign</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -385,4 +400,22 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <profiles>
+    <profile>
+      <id>publish</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
