@@ -35,30 +35,46 @@ public interface SolidAuthenticationMechanism {
     String getScheme();
 
     /**
-     * Return the access token.
+     * Return an authenticator for the supplied challenge.
      *
-     * @return an access token
+     * @param challenge the HTTP challenge value
+     * @return an authenticator
      */
-    String getToken();
+    Authenticator getAuthenticator(Challenge challenge);
 
     /**
-     * The priority of the authentication mechanism.
-     *
-     * <p>A higher value relates to a higher priority
-     *
-     * @return the priority value
+     * An interface for performing authentication over a network connection.
      */
-    int priority();
+    interface Authenticator {
 
-    /**
-     * Perform a synchronous authentication process, resulting in an access token.
-     */
-    void authenticate();
+        /**
+         * Return the authorization scheme, such as Bearer or DPoP.
+         *
+         * @return the authorization scheme
+         */
+        String getScheme();
 
-    /**
-     * Perform an ansynchronous authentication process, resulting in an access token.
-     *
-     * @return the next stage of completion
-     */
-    CompletionStage<Void> authenticateAsync();
+        /**
+         * The priority of the authentication mechanism.
+         *
+         * <p>A higher value relates to a higher priority
+         *
+         * @return the priority value
+         */
+        int priority();
+
+        /**
+         * Perform a synchronous authentication process, resulting in an access token.
+         *
+         * @return the access token
+         */
+        String authenticate();
+
+        /**
+         * Perform an ansynchronous authentication process, resulting in an access token.
+         *
+         * @return the next stage of completion, containing the access token
+         */
+        CompletionStage<String> authenticateAsync();
+    }
 }
