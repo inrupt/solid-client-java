@@ -12,9 +12,6 @@ jobs:
     name: Build and deploy
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
       - uses: actions/checkout@v3
 
@@ -35,12 +32,14 @@ jobs:
 
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
+        if: github.actor != 'dependabot[bot]'
         with:
           publish_dir: ./target/site/
           personal_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy Artifacts
         run: ./mvnw deploy -P publish
+        if: github.actor != 'dependabot[bot]'
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
