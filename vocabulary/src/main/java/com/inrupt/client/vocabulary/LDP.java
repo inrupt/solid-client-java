@@ -32,13 +32,30 @@ public final class LDP {
     private static String namespace = "http://www.w3.org/ns/ldp#";
 
     // Properties
+    /**
+     * The ldp:contains URI.
+     */
     public static URI contains = URI.create(namespace + "contains");
+    /**
+     * The ldp:inbox URI.
+     */
     public static URI inbox = URI.create(namespace + "inbox");
 
     // Classes
+    /**
+     * The ldp:RDFSource URI.
+     */
     public static URI RDFSource = URI.create(namespace + "RDFSource");
+    /**
+     * The ldp:BasicContainer URI.
+     */
     public static URI BasicContainer = URI.create(namespace + "BasicContainer");
 
+    /**
+     * Get the LDP namespace URI.
+     *
+     * @return the LDP namespace
+     */
     public static URI getNamespace() {
         return URI.create(namespace);
     }

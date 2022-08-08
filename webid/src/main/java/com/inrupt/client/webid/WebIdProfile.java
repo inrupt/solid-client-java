@@ -36,6 +36,11 @@ public class WebIdProfile {
     private final Set<URI> storage = new HashSet<>();
     private final Set<URI> type = new HashSet<>();
 
+    /**
+     * Create a new WebID profile resource.
+     *
+     * @param id the webid URI
+     */
     protected WebIdProfile(final URI id) {
         this.id = id;
     }

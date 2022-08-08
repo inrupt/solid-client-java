@@ -419,11 +419,26 @@ public class Holder {
             .thenApply(HttpResponse::body);
     }
 
+    /**
+     * Continue an existing exchange.
+     *
+     * @param exchangeId the exchange identifier
+     * @param transactionId the transaction identifier
+     * @param presentation the verifiable presentation
+     */
     public void continueExchange(final String exchangeId, final String transactionId,
             final VerifiablePresentation presentation) {
         // TODO - implement
     }
 
+    /**
+     * Continue an existing exchange.
+     *
+     * @param exchangeId the exchange identifier
+     * @param transactionId the transaction identifier
+     * @param presentation the verifiable presentation
+     * @return the next stage of completion
+     */
     public CompletionStage<Void> continueExchangeAsync(final String exchangeId, final String transactionId,
             final VerifiablePresentation presentation) {
         // TODO - implement
@@ -434,6 +449,9 @@ public class Holder {
      * A data structure for exchange requests when interacting with a VC Holder API.
      */
     public static class ExchangeRequest {
+        /**
+         * The exchange query.
+         */
         public Query query;
     }
 
@@ -441,7 +459,14 @@ public class Holder {
      * A data structure for query specifications when interacting with a VC Holder API.
      */
     public static class Query {
+        /**
+         * The query type.
+         */
         public URI type;
+
+        /**
+         * The credential query.
+         */
         public Map<String, Object> credentialQuery;
     }
 
@@ -449,8 +474,19 @@ public class Holder {
      * A data structure for derive requests when interacting with a VC Holder API.
      */
     public static class DerivationRequest {
+        /**
+         * The credential to derive.
+         */
         public VerifiableCredential verifiableCredential;
+
+        /**
+         * A frame for the derived credential.
+         */
         public Map<String, Object> frame;
+
+        /**
+         * Options for the derive request.
+         */
         public Map<String, Object> options;
     }
 
@@ -458,7 +494,14 @@ public class Holder {
      * A data structure for prove requests when interacting with a VC Holder API.
      */
     public static class ProveRequest {
+        /**
+         * The presentation to prove.
+         */
         public VerifiablePresentation presentation;
+
+        /**
+         * Options for the prove request.
+         */
         public Map<String, Object> options;
     }
 

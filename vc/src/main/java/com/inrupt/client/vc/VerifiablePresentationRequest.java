@@ -31,15 +31,33 @@ import java.util.Map;
  */
 public class VerifiablePresentationRequest {
 
+    /**
+     * A collection of Verifiable Presentation Request queries.
+     */
     public List<Query> query;
+
+    /**
+     * The Verifiable Presentation Request domain.
+     */
     public String domain;
+
+    /**
+     * The Verifiable Presentation Request challenge.
+     */
     public String challenge;
 
     /**
      * A data structure to represent server-generated VP Request queries.
      */
     public static class Query {
+        /**
+         * The query type.
+         */
         public List<URI> type;
+
+        /**
+         * The credential query.
+         */
         public Map<String, Object> credentialQuery;
     }
 }

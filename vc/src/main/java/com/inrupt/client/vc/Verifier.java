@@ -142,8 +142,19 @@ public class Verifier {
      * A data objects for verification responses.
      */
     public static class VerificationResponse {
+        /**
+         * The verification checks that were performed.
+         */
         public List<String> checks;
+
+        /**
+         * The verification warnings that were discovered.
+         */
         public List<String> warnings;
+
+        /**
+         * The verification errors that were discovered.
+         */
         public List<String> errors;
     }
 

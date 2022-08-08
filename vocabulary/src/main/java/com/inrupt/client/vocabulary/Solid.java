@@ -32,8 +32,16 @@ public final class Solid {
     private static String namespace = "http://www.w3.org/ns/solid/terms#";
 
     // Properties
+    /**
+     * The solid:oidcIssuer URI.
+     */
     public static URI oidcIssuer = URI.create(namespace + "oidcIssuer");
 
+    /**
+     * Get the Solid namespace URI.
+     *
+     * @return the Solid namespace
+     */
     public static URI getNamespace() {
         return URI.create(namespace);
     }
