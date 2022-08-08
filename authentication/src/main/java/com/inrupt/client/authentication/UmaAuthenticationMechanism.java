@@ -22,11 +22,19 @@ package com.inrupt.client.authentication;
 
 import java.util.concurrent.CompletionStage;
 
+/**
+ * An authentication mechanism that makes use of UMA authorization servers.
+ */
 public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism {
 
     private String token;
     private final int priorityLevel;
 
+    /**
+     * Create a {@link UmaAuthenticationMechanism} with a defined priority.
+     *
+     * @param priority the priority of this authentication mechanism
+     */
     public UmaAuthenticationMechanism(final int priority) {
         this.priorityLevel = priority;
     }
@@ -41,11 +49,20 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
         return new UmaAuthenticator(challenge, priorityLevel);
     }
 
+    /**
+     * A mechanism capable of retrieving an access token from an UMA authorization server.
+     */
     public class UmaAuthenticator implements SolidAuthenticationMechanism.Authenticator {
 
         private final Challenge challenge;
         private final int priorityLevel;
 
+        /**
+         * The UmaAuthenticator with a defined challenge and priority.
+         *
+         * @param challenge the resource server challenge
+         * @param priority the priority of this authentication mechanism
+         */
         protected UmaAuthenticator(final Challenge challenge, final int priority) {
             this.priorityLevel = priority;
             this.challenge = challenge;

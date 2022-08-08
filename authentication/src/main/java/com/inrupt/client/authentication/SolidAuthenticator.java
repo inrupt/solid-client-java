@@ -40,10 +40,18 @@ public class SolidAuthenticator {
     private final Map<String, SolidAuthenticationMechanism> registry = new HashMap<>();
     private final HeaderParser parser;
 
+    /**
+     * Create a {@link SolidAuthenticator} with the default header parser.
+     */
     public SolidAuthenticator() {
         this(new DefaultHeaderParser());
     }
 
+    /**
+     * Create a {@link SolidAuthenticator} with a custom header parser.
+     *
+     * @param parser a header parser
+     */
     public SolidAuthenticator(final HeaderParser parser) {
         this.parser = Objects.requireNonNull(parser);
     }
@@ -58,10 +66,10 @@ public class SolidAuthenticator {
     }
 
     /**
-     * Parse a WWW-Authenticate header.
+     * Parse a WWW-Authenticate header and convert the challenges into callable authentication mechanisms.
      *
      * @param header the WWW-Authenticate header
-     * @return a list of viable authentication mechanisms
+     * @return a sorted list of viable authentication mechanisms
      */
     public List<SolidAuthenticationMechanism.Authenticator> challenge(final String header) {
         final var challenges = parser.wwwAuthenticate(header);
@@ -75,10 +83,7 @@ public class SolidAuthenticator {
         }
 
         mechanisms.sort(comparator);
-
         return mechanisms;
     }
-
-
 }
 

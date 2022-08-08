@@ -22,10 +22,18 @@ package com.inrupt.client.authentication;
 
 import java.util.concurrent.CompletionStage;
 
+/**
+ * An authentication mechanism that makes use of bearer tokens.
+ */
 public class BearerAuthenticationMechanism implements SolidAuthenticationMechanism {
 
     private final int priorityLevel;
 
+    /**
+     * Create a {@link BearerAuthenticationMechanism} with a defined priority.
+     *
+     * @param priority the priority of this authentication mechanism
+     */
     public BearerAuthenticationMechanism(final int priority) {
         this.priorityLevel = priority;
     }
@@ -40,10 +48,18 @@ public class BearerAuthenticationMechanism implements SolidAuthenticationMechani
         return new BearerAuthenticator(priorityLevel);
     }
 
+    /**
+     * A mechanism capable of retrieving a bearer token for use with Solid resources.
+     */
     public class BearerAuthenticator implements SolidAuthenticationMechanism.Authenticator {
 
         private final int priorityLevel;
 
+        /**
+         * The BearerAuthenticator with a defined priority.
+         *
+         * @param priority the priority of this mechanism
+         */
         protected BearerAuthenticator(final int priority) {
             this.priorityLevel = priority;
         }

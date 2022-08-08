@@ -21,6 +21,7 @@
 package com.inrupt.client.authentication;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,23 +37,50 @@ public class Challenge {
     private final String scheme;
     private final Map<String, String> parameters;
 
+    /**
+     * Create a new Challenge object with a specific authentication scheme and no parameters.
+     *
+     * @param scheme the authentication scheme
+     */
     public Challenge(final String scheme) {
         this(scheme, Collections.emptyMap());
     }
 
+    /**
+     * Create a new Challenge object with a specific authentication scheme and parameters.
+     *
+     * @param scheme the authentication scheme
+     * @param parameters the authentication parameters
+     */
     public Challenge(final String scheme, final Map<String, String> parameters) {
         this.scheme = Objects.requireNonNull(scheme);
         this.parameters = Objects.requireNonNull(parameters);
     }
 
+    /**
+     * Get the authentication scheme for this challenge.
+     *
+     * @return the scheme name
+     */
     public String getScheme() {
         return scheme;
     }
 
+    /**
+     * Get the value of the given parameter.
+     *
+     * @param parameter the parameter name
+     * @return the parameter value, may be {@code null}
+     */
     public String getParameter(final String parameter) {
         return parameters.get(parameter);
     }
 
+    /**
+     * Get all the parameters for this challenge.
+     *
+     * @return the complete collection of parameters
+     */
     public Map<String, String> getParameters() {
         return Collections.unmodifiableMap(parameters);
     }
@@ -76,7 +104,7 @@ public class Challenge {
 
         final Challenge c = (Challenge) obj;
 
-        if (!scheme.equalsIgnoreCase(c.scheme)) {
+        if (!scheme.toLowerCase(Locale.ENGLISH).equals(c.scheme.toLowerCase(Locale.ENGLISH))) {
             return false;
         }
 
@@ -85,6 +113,6 @@ public class Challenge {
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheme, parameters);
+        return Objects.hash(scheme.toLowerCase(Locale.ENGLISH), parameters);
     }
 }

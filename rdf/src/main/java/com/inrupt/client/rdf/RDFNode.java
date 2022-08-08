@@ -22,70 +22,15 @@ package com.inrupt.client.rdf;
 
 import java.net.URI;
 
+/**
+ * An RDF node.
+ */
 public final class RDFNode {
 
     private final URI uri;
     private final String lexicalValue;
     private final URI datatype;
     private final String language;
-
-    /**
-     * Create a new blank node.
-     *
-     * @return an RDF blank node
-     */
-    public static RDFNode blankNode() {
-        return new RDFNode(null, null, null, null);
-    }
-
-    /**
-     * Create a new named node.
-     *
-     * @param uri the node URI
-     * @return the RDF named node
-     */
-    public static RDFNode namedNode(final URI uri) {
-        return new RDFNode(uri, null, null, null);
-    }
-
-    /**
-     * Create a new literal.
-     *
-     * @param literal the literal value
-     * @return the RDF literal
-     */
-    public static RDFNode literal(final String literal) {
-        return new RDFNode(null, literal, null, null);
-    }
-
-    /**
-     * Create a new typed literal.
-     *
-     * @param literal the literal value
-     * @param datatype the literal datatype
-     * @return the RDF literal
-     */
-    public static RDFNode literal(final String literal, final URI datatype) {
-        return new RDFNode(null, literal, null, datatype);
-    }
-
-    /**
-     * Create a new literal with a language value.
-     *
-     * @param literal the literal value
-     * @param language the literal language
-     * @return the RDF literal
-     */
-    public static RDFNode literal(final String literal, final String language) {
-        return new RDFNode(null, literal, language, null);
-    }
-
-    private RDFNode(final URI uri, final String literal, final String language, final URI datatype) {
-        this.uri = uri;
-        this.lexicalValue = literal;
-        this.language = language;
-        this.datatype = datatype;
-    }
 
     /**
      * Indicate whether this is a named node.
@@ -148,5 +93,63 @@ public final class RDFNode {
      */
     public String getLanguage() {
         return language;
+    }
+
+    /**
+     * Create a new blank node.
+     *
+     * @return an RDF blank node
+     */
+    public static RDFNode blankNode() {
+        return new RDFNode(null, null, null, null);
+    }
+
+    /**
+     * Create a new named node.
+     *
+     * @param uri the node URI
+     * @return the RDF named node
+     */
+    public static RDFNode namedNode(final URI uri) {
+        return new RDFNode(uri, null, null, null);
+    }
+
+    /**
+     * Create a new literal.
+     *
+     * @param literal the literal value
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal) {
+        return new RDFNode(null, literal, null, null);
+    }
+
+    /**
+     * Create a new typed literal.
+     *
+     * @param literal the literal value
+     * @param datatype the literal datatype
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal, final URI datatype) {
+        return new RDFNode(null, literal, null, datatype);
+    }
+
+    /**
+     * Create a new literal with a language value.
+     *
+     * @param literal the literal value
+     * @param language the literal language
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal, final String language) {
+        return new RDFNode(null, literal, language, null);
+    }
+
+    private RDFNode(final URI uri, final String literal, final String language, final URI datatype) {
+        this.uri = uri;
+        this.lexicalValue = literal;
+        this.language = language;
+        this.datatype = datatype;
     }
 }

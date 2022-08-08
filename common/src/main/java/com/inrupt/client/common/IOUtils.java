@@ -28,8 +28,17 @@ import java.io.PipedOutputStream;
 import java.io.UncheckedIOException;
 import java.util.function.Consumer;
 
+/**
+ * Input/Output utilities for use with the Inrupt client libraries.
+ */
 public final class IOUtils {
 
+    /**
+     * Pipe an output stream to a consumable input stream.
+     *
+     * @param function the output stream
+     * @return a consumable input stream
+     */
     public static InputStream pipe(final Consumer<OutputStream> function) {
 
         final var in = new PipedInputStream();
@@ -44,8 +53,6 @@ public final class IOUtils {
         new Thread(task).start();
         return in;
     }
-
-
 
     private IOUtils() {
         // Prevent instantiation
