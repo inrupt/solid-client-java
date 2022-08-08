@@ -18,43 +18,20 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.common;
+package com.inrupt.client.authentication;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.UncheckedIOException;
-import java.util.function.Consumer;
+import java.util.List;
 
 /**
- * Input/Output utilities for use with the Inrupt client libraries.
+ * A header parsing interface for the authentication module.
  */
-public final class IOUtils {
+public interface HeaderParser {
 
     /**
-     * Pipe an output stream to a consumable input stream.
+     * Parse a WWW-Authenticate header into a list of Challenge objects.
      *
-     * @param function the output stream
-     * @return a consumable input stream
+     * @param header the value of the WWW-Authenticate header
+     * @return a list of Challenge objects
      */
-    public static InputStream pipe(final Consumer<OutputStream> function) {
-
-        final var in = new PipedInputStream();
-        final Runnable task = () -> {
-            try (final var out = new PipedOutputStream(in)) {
-                function.accept(out);
-            } catch (final IOException ex) {
-                throw new UncheckedIOException("Error piping data across threads", ex);
-            }
-        };
-
-        new Thread(task).start();
-        return in;
-    }
-
-    private IOUtils() {
-        // Prevent instantiation
-    }
+    List<Challenge> wwwAuthenticate(String header);
 }

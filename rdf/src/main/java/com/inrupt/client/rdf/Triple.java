@@ -20,11 +20,29 @@
  */
 package com.inrupt.client.rdf;
 
+/**
+ * An RDF Triple.
+ */
 public interface Triple {
 
+    /**
+     * Get the subject of the triple.
+     *
+     * @return the subject node
+     */
     RDFNode getSubject();
 
+    /**
+     * Get the predicate of the triple.
+     *
+     * @return the predicate node
+     */
     RDFNode getPredicate();
 
+    /**
+     * Get the object of the triple.
+     *
+     * @return the object node
+     */
     RDFNode getObject();
 }

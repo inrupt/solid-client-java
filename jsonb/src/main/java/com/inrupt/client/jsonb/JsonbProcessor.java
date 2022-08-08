@@ -36,10 +36,18 @@ public class JsonbProcessor implements JsonProcessor {
 
     private final Jsonb jsonb;
 
+    /**
+     * Create a JSON-B processor with the default {@link Jsonb} builder.
+     */
     public JsonbProcessor() {
         this(JsonbBuilder.create());
     }
 
+    /**
+     * Create a JSON-B processor with the provided {@link Jsonb} object.
+     *
+     * @param jsonb the JSON-B object
+     */
     public JsonbProcessor(final Jsonb jsonb) {
         this.jsonb = Objects.requireNonNull(jsonb);
     }

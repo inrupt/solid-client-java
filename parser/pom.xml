@@ -7,21 +7,20 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-authentication</artifactId>
-  <name>Inrupt Solid Client - Authentication</name>
+  <artifactId>inrupt-client-parser</artifactId>
+  <name>Inrupt Solid Client - Parsing Utilities</name>
   <description>
-      The authentication API for the Inrupt Client Libraries.
+      Parsing utilities for the Inrupt Client Libraries.
   </description>
 
   <dependencies>
     <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-parser</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.bitbucket.b_c</groupId>
-      <artifactId>jose4j</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
 
     <dependency>
@@ -62,6 +61,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

@@ -20,31 +20,70 @@
  */
 package com.inrupt.client.authentication;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A class for holding registered authentication mechanisms.
  */
 public class SolidAuthenticator {
 
+    static final Comparator<SolidAuthenticationMechanism.Authenticator> comparator = Comparator
+        .comparing(SolidAuthenticationMechanism.Authenticator::priority)
+        .reversed();
+
+    private final Map<String, SolidAuthenticationMechanism> registry = new HashMap<>();
+    private final HeaderParser parser;
+
+    /**
+     * Create a {@link SolidAuthenticator} with the default header parser.
+     */
+    public SolidAuthenticator() {
+        this(new DefaultHeaderParser());
+    }
+
+    /**
+     * Create a {@link SolidAuthenticator} with a custom header parser.
+     *
+     * @param parser a header parser
+     */
+    public SolidAuthenticator(final HeaderParser parser) {
+        this.parser = Objects.requireNonNull(parser);
+    }
+
     /**
      * Register an authentication mechansim.
      *
      * @param authMechanism the authentication mechanism
      */
-    void register(final SolidAuthenticationMechanism authMechanism) {
-        // TODO implement
+    public void register(final SolidAuthenticationMechanism authMechanism) {
+        registry.put(authMechanism.getScheme().toLowerCase(Locale.ENGLISH), authMechanism);
     }
 
     /**
-     * Parse a WWW-Authenticate header.
+     * Parse a WWW-Authenticate header and convert the challenges into callable authentication mechanisms.
      *
-     * @param wwwAuthenticate the WWW-Authenticate header
-     * @return a list of viable authentication mechanisms
+     * @param header the WWW-Authenticate header
+     * @return a sorted list of viable authentication mechanisms
      */
-    List<SolidAuthenticationMechanism> parseWwwAuthenticate(final String wwwAuthenticate) {
-        // TODO implement
-        return List.of();
+    public List<SolidAuthenticationMechanism.Authenticator> challenge(final String header) {
+        final var challenges = parser.wwwAuthenticate(header);
+
+        final var mechanisms = new ArrayList<SolidAuthenticationMechanism.Authenticator>();
+        for (final var challenge : challenges) {
+            final var scheme = challenge.getScheme().toLowerCase(Locale.ENGLISH);
+            if (registry.containsKey(scheme)) {
+                mechanisms.add(registry.get(scheme).getAuthenticator(challenge));
+            }
+        }
+
+        mechanisms.sort(comparator);
+        return mechanisms;
     }
 }
 

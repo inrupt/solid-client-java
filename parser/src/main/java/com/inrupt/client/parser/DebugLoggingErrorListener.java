@@ -18,43 +18,33 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.common;
+package com.inrupt.client.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.UncheckedIOException;
-import java.util.function.Consumer;
+import org.antlr.v4.runtime.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Input/Output utilities for use with the Inrupt client libraries.
+ * A parser listener that records syntax errors at the DEBUG level.
  */
-public final class IOUtils {
+public class DebugLoggingErrorListener extends BaseErrorListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugLoggingErrorListener.class);
 
     /**
-     * Pipe an output stream to a consumable input stream.
-     *
-     * @param function the output stream
-     * @return a consumable input stream
+     * A DebugLoggingErrorListener instance.
      */
-    public static InputStream pipe(final Consumer<OutputStream> function) {
+    public static final DebugLoggingErrorListener INSTANCE = new DebugLoggingErrorListener();
 
-        final var in = new PipedInputStream();
-        final Runnable task = () -> {
-            try (final var out = new PipedOutputStream(in)) {
-                function.accept(out);
-            } catch (final IOException ex) {
-                throw new UncheckedIOException("Error piping data across threads", ex);
-            }
-        };
-
-        new Thread(task).start();
-        return in;
-    }
-
-    private IOUtils() {
-        // Prevent instantiation
+    @Override
+    public void syntaxError(final Recognizer<?, ?> recognizer,
+            final Object offendingSymbol,
+            final int line,
+            final int charPositionInLine,
+            final String msg,
+            final RecognitionException ex) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Line " + line + ":" + charPositionInLine + " " + msg);
+        }
     }
 }

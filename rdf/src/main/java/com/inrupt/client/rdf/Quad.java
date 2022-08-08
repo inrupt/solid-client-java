@@ -22,7 +22,15 @@ package com.inrupt.client.rdf;
 
 import java.util.Optional;
 
+/**
+ * An RDF Quad.
+ */
 public interface Quad extends Triple {
 
+    /**
+     * Get the graph name for this quad.
+     *
+     * @return the graph name, if one exists
+     */
     Optional<RDFNode> getGraphName();
 }

@@ -28,6 +28,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A utility for building {@link URI} objects.
+ */
 public final class URIBuilder {
 
     private static int PAIR = 2;
@@ -40,6 +43,12 @@ public final class URIBuilder {
     private List<String> builderQueryParams = new ArrayList<>();
     private String builderFragment;
 
+    /**
+     * Create a new URI builder from an existing URI.
+     *
+     * @param uri the URI
+     * @return the builder
+     */
     public static URIBuilder newBuilder(final URI uri) {
         final var builder = new URIBuilder();
         builder.builderScheme = uri.getScheme();
@@ -60,6 +69,12 @@ public final class URIBuilder {
         return builder;
     }
 
+    /**
+     * Append a path segment to a URI.
+     *
+     * @param path the path segment
+     * @return this builder
+     */
     public URIBuilder path(final String path) {
         if (builderPath.endsWith("/")) {
             builderPath += path;
@@ -69,6 +84,13 @@ public final class URIBuilder {
         return this;
     }
 
+    /**
+     * Set a query parameter for a URI.
+     *
+     * @param param the parameter name
+     * @param value the parameter value
+     * @return this builder
+     */
     public URIBuilder queryParam(final String param, final String value) {
         if (value != null) {
             builderQueryParams.add(encodeQueryParam(param, value));
@@ -76,11 +98,22 @@ public final class URIBuilder {
         return this;
     }
 
+    /**
+     * Set a fragment value for a URI.
+     *
+     * @param fragment the fragment value
+     * @return this builder
+     */
     public URIBuilder fragment(final String fragment) {
         builderFragment = fragment;
         return this;
     }
 
+    /**
+     * Build a URI.
+     *
+     * @return the newly constructed URI
+     */
     public URI build() {
         try {
             return new URI(builderScheme, builderUserInfo, builderHost, builderPort, builderPath,
@@ -97,5 +130,4 @@ public final class URIBuilder {
     private URIBuilder() {
         // Prevent direct instantiation
     }
-
 }

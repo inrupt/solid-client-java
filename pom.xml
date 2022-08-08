@@ -17,10 +17,12 @@
   <packaging>pom</packaging>
 
   <properties>
+      <antlr.version>4.10.1</antlr.version>
       <jackson.version>2.13.3</jackson.version>
       <jena.version>4.5.0</jena.version>
       <jose4j.version>0.7.12</jose4j.version>
       <json.bind.version>1.0.2</json.bind.version>
+      <slf4j.version>1.7.36</slf4j.version>
 
       <!-- testing -->
       <junit.version>5.9.0</junit.version>
@@ -36,6 +38,7 @@
     <module>jsonb</module>
     <module>openid</module>
     <module>parent</module>
+    <module>parser</module>
     <module>rdf</module>
     <module>spi</module>
     <module>webid</module>
@@ -45,6 +48,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${antlr.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
@@ -65,17 +73,24 @@
         <artifactId>jose4j</artifactId>
         <version>${jose4j.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
 
       <!-- testing -->
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.version}</version>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
