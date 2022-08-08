@@ -36,34 +36,74 @@ public final class TokenRequest {
     private String authMethod;
     private URI redirectUri;
 
+    /**
+     * Get the grant type value.
+     *
+     * @return the grant type
+     */
     public String getGrantType() {
         return grantType;
     }
 
+    /**
+     * Get the authentication method.
+     *
+     * @return the authentication method
+     */
     public String getAuthMethod() {
         return authMethod;
     }
 
+    /**
+     * Get the authorization code value.
+     *
+     * @return the authorization code
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     * Get the code_verifier value.
+     *
+     * @return the code verifier
+     */
     public String getCodeVerifier() {
         return codeVerifier;
     }
 
+    /**
+     * Get the client_id value.
+     *
+     * @return the client id
+     */
     public String getClientId() {
         return clientId;
     }
 
+    /**
+     * Get the client_secret value.
+     *
+     * @return the client secret
+     */
     public String getClientSecret() {
         return clientSecret;
     }
 
+    /**
+     * Get the redirect_uri value.
+     *
+     * @return the redirect URI
+     */
     public URI getRedirectUri() {
         return redirectUri;
     }
 
+    /**
+     * Create a new token request builder.
+     *
+     * @return the new builder
+     */
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -82,26 +122,58 @@ public final class TokenRequest {
         private String builderCode;
         private String builderCodeVerifier;
 
+        /**
+         * Set the client secret value.
+         *
+         * @param clientSecret the client secret
+         * @return this builder
+         */
         public Builder clientSecret(final String clientSecret) {
             builderClientSecret = clientSecret;
             return this;
         }
 
+        /**
+         * Set the PKCE code verifier for the token endpoint.
+         *
+         * @param codeVerifier the code verifier
+         * @return this builder
+         */
         public Builder codeVerifier(final String codeVerifier) {
             builderCodeVerifier = codeVerifier;
             return this;
         }
 
+        /**
+         * Set the authentication method for the token endpoint.
+         *
+         * @param authMethod the authentication method
+         * @return this builder
+         */
         public Builder authMethod(final String authMethod) {
             builderAuthMethod = authMethod;
             return this;
         }
 
+        /**
+         * Set the authorization code value.
+         *
+         * @param code the authorization code
+         * @return this builder
+         */
         public Builder code(final String code) {
             builderCode = code;
             return this;
         }
 
+        /**
+         * Build a token request.
+         *
+         * @param grantType the grant type
+         * @param clientId the client id
+         * @param redirectUri the redirect URI
+         * @return the token request
+         */
         public TokenRequest build(final String grantType, final String clientId, final URI redirectUri) {
 
             final var grant = Objects.requireNonNull(grantType);

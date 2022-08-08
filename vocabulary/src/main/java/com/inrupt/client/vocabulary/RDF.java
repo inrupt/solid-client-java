@@ -32,8 +32,16 @@ public final class RDF {
     private static String namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
     // Properties
+    /**
+     * The rdf:type URI.
+     */
     public static URI type = URI.create(namespace + "type");
 
+    /**
+     * Get the RDF namespace URI.
+     *
+     * @return the RDF namespace
+     */
     public static URI getNamespace() {
         return URI.create(namespace);
     }

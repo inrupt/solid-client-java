@@ -39,38 +39,85 @@ public final class AuthorizationRequest {
     private String state;
     private String nonce;
 
+    /**
+     * Get the OAuth 2.0 response type.
+     *
+     * @return the response type
+     */
     public String getResponseType() {
         return responseType;
     }
 
+    /**
+     * Get the OAuth 2.0 scope value.
+     *
+     * <p>The response will be a space-delimited string of scope values.
+     *
+     * @return the scope value
+     */
     public String getScope() {
         return String.join(" ", scope);
     }
 
+    /**
+     * Get the PKCE code challenge.
+     *
+     * @return the code challenge value.
+     */
     public String getCodeChallenge() {
         return codeChallenge;
     }
 
+    /**
+     * Get the PKCE code challenge method.
+     *
+     * @return the code challenge method
+     */
     public String getCodeChallengeMethod() {
         return codeChallengeMethod;
     }
 
+    /**
+     * Get the OAuth 2.0 client id.
+     *
+     * @return the client id
+     */
     public String getClientId() {
         return clientId;
     }
 
+    /**
+     * Get the OAuth 2.0 redirect URI.
+     *
+     * @return the redirect URI
+     */
     public URI getRedirectUri() {
         return redirectUri;
     }
 
+    /**
+     * Get the OAuth 2.0 state value.
+     *
+     * @return the state value
+     */
     public String getState() {
         return state;
     }
 
+    /**
+     * Get the OpenID Connect nonce value.
+     *
+     * @return the nonce value
+     */
     public String getNonce() {
         return nonce;
     }
 
+    /**
+     * Create a new builder object for an authorization request.
+     *
+     * @return a new builder
+     */
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -91,36 +138,79 @@ public final class AuthorizationRequest {
         private String builderCodeChallenge;
         private String builderCodeChallengeMethod;
 
+        /**
+         * Add a scope value to the builder.
+         *
+         * @param scope the scope value
+         * @return this builder
+         */
         public Builder scope(final String scope) {
             builderScope.add(scope);
             return this;
         }
 
+        /**
+         * Add a state value to the builder.
+         *
+         * @param state the state value
+         * @return this builder
+         */
         public Builder state(final String state) {
             builderState = state;
             return this;
         }
 
+        /**
+         * Add a nonce value to the builder.
+         *
+         * @param nonce the nonce value
+         * @return this builder
+         */
         public Builder nonce(final String nonce) {
             builderNonce = nonce;
             return this;
         }
 
+        /**
+         * Add a response type to the builder.
+         *
+         * @param responseType the response type
+         * @return this builder
+         */
         public Builder responseType(final String responseType) {
             builderResponseType = responseType;
             return this;
         }
 
+        /**
+         * Add a code challenge to the builder.
+         *
+         * @param codeChallenge the code challenge
+         * @return this builder
+         */
         public Builder codeChallenge(final String codeChallenge) {
             builderCodeChallenge = codeChallenge;
             return this;
         }
 
+        /**
+         * Add a code challenge method to the builder.
+         *
+         * @param codeChallengeMethod the code challenge method
+         * @return this builder
+         */
         public Builder codeChallengeMethod(final String codeChallengeMethod) {
             builderCodeChallengeMethod = codeChallengeMethod;
             return this;
         }
 
+        /**
+         * Build the authorization request.
+         *
+         * @param clientId the client id
+         * @param redirectUri the redirect URI
+         * @return the authorization request
+         */
         public AuthorizationRequest build(final String clientId, final URI redirectUri) {
             final var req = new AuthorizationRequest();
             req.redirectUri = Objects.requireNonNull(redirectUri);

@@ -32,8 +32,16 @@ public final class PIM {
     private static String namespace = "http://www.w3.org/ns/pim/space#";
 
     // Properties
+    /**
+     * The pim:storage URI.
+     */
     public static URI storage = URI.create(namespace + "storage");
 
+    /**
+     * Get the PIM namespace URI.
+     *
+     * @return the PIM namespace
+     */
     public static URI getNamespace() {
         return URI.create(namespace);
     }

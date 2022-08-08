@@ -29,13 +29,48 @@ import java.util.Map;
  */
 public class VerifiableCredential {
 
+    /**
+     * The JSON-LD Context values.
+     */
     public List<String> context;
+
+    /**
+     * The credential identifier.
+     */
     public String id;
+
+    /**
+     * The credential types.
+     */
     public List<String> type;
+
+    /**
+     * The credential issuer.
+     */
     public String issuer;
+
+    /**
+     * The credential issuance date.
+     */
     public Instant issuanceDate;
+
+    /**
+     * The credential expiration date.
+     */
     public Instant expirationDate;
+
+    /**
+     * The credential subject.
+     */
     public Map<String, Object> credentialSubject;
+
+    /**
+     * The credential status.
+     */
     public Map<String, Object> credentialStatus;
+
+    /**
+     * The credential signature.
+     */
     public Map<String, Object> proof;
 }

@@ -32,8 +32,16 @@ public final class RDFS {
     private static String namespace = "http://www.w3.org/2000/01/rdf-schema#";
 
     // Properties
+    /**
+     * The rdfs:seeAlso URI.
+     */
     public static URI seeAlso = URI.create(namespace + "seeAlso");
 
+    /**
+     * Get the RDFS namespace URI.
+     *
+     * @return the RDFS namespace
+     */
     public static URI getNamespace() {
         return URI.create(namespace);
     }

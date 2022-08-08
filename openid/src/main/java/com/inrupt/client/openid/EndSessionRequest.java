@@ -85,26 +85,53 @@ public final class EndSessionRequest {
         private String builderState;
         private String builderIdTokenHint;
 
+        /**
+         * Create a new builder for end session requests.
+         *
+         * @return the new builder
+         */
         public static Builder newBuilder() {
             return new Builder();
         }
 
+        /**
+         * Set a client id for the builder.
+         *
+         * @param clientId the client id
+         * @return this builder
+         */
         public Builder clientId(final String clientId) {
             builderClientId = clientId;
             return this;
         }
 
+        /**
+         * Set a post-logout redirect URI for the builder.
+         *
+         * @param postLogoutRedirectUri the post-logout redirect URI
+         * @return this builder
+         */
         public Builder postLogoutRedirectUri(final URI postLogoutRedirectUri) {
             builderPostLogoutRedirectUri = postLogoutRedirectUri;
             return this;
         }
 
-
+        /**
+         * Set a state for the builder.
+         *
+         * @param state the state value
+         * @return this builder
+         */
         public Builder state(final String state) {
             builderState = state;
             return this;
         }
 
+        /**
+         * Build the end session request.
+         *
+         * @return the end session request
+         */
         public EndSessionRequest build() {
             return new EndSessionRequest(builderClientId, builderPostLogoutRedirectUri,
                     builderIdTokenHint, builderState);
@@ -115,6 +142,4 @@ public final class EndSessionRequest {
         }
     }
 }
-
-
 
