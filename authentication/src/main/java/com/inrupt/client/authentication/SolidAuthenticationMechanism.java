@@ -68,13 +68,13 @@ public interface SolidAuthenticationMechanism {
          *
          * @return the access token
          */
-        String authenticate();
+        AccessToken authenticate();
 
         /**
          * Perform an ansynchronous authentication process, resulting in an access token.
          *
          * @return the next stage of completion, containing the access token
          */
-        CompletionStage<String> authenticateAsync();
+        CompletionStage<AccessToken> authenticateAsync();
     }
 }

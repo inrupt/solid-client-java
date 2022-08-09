@@ -23,23 +23,21 @@ package com.inrupt.client.openid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.authentication.DPoP;
+import com.inrupt.client.core.OAuthBodyPublishers;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 /**
  * A class for interacting with an OpenID Provider.
@@ -225,7 +223,7 @@ public class OpenIdProvider {
 
         final var req = HttpRequest.newBuilder(metadata.tokenEndpoint)
             .header("Content-Type", "application/x-www-form-urlencoded")
-            .POST(ofFormData(data));
+            .POST(OAuthBodyPublishers.ofFormData(data));
 
         // Add auth header, if relevant
         authHeader.ifPresent(header -> req.header("Authorization", header));
@@ -282,16 +280,6 @@ public class OpenIdProvider {
             .queryParam("id_token_hint", request.getIdTokenHint())
             .queryParam("state", request.getState())
             .build();
-    }
-
-    static HttpRequest.BodyPublisher ofFormData(final Map<String, String> data) {
-        final var form = data.entrySet().stream().map(entry -> {
-            final var name = URLEncoder.encode(entry.getKey(), UTF_8);
-            final var value = URLEncoder.encode(entry.getValue(), UTF_8);
-            return String.join("=", name, value);
-        }).collect(Collectors.joining("&"));
-
-        return HttpRequest.BodyPublishers.ofString(form);
     }
 
     static Optional<String> getBasicAuthHeader(final String clientId, final String clientSecret) {

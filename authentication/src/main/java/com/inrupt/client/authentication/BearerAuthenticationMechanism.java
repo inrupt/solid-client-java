@@ -75,13 +75,13 @@ public class BearerAuthenticationMechanism implements SolidAuthenticationMechani
         }
 
         @Override
-        public String authenticate() {
+        public AccessToken authenticate() {
             // TODO implement, retrieve token
             return null;
         }
 
         @Override
-        public CompletionStage<String> authenticateAsync() {
+        public CompletionStage<AccessToken> authenticateAsync() {
             // TODO implement, retrieve token
             return null;
         }

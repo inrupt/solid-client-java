@@ -44,6 +44,7 @@
     <module>rdf</module>
     <module>reports</module>
     <module>spi</module>
+    <module>uma</module>
     <module>webid</module>
     <module>vocabulary</module>
     <module>vc</module>

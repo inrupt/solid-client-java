@@ -18,35 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+package com.inrupt.client.uma;
 
 /**
- * A JSON handling abstraction.
+ * A runtime exception for use with UMA-related errors.
  */
-public interface JsonProcessor {
+public class UmaException extends RuntimeException {
+
+    private static final long serialVersionUID = 3422598347430002847L;
 
     /**
-     * Write object data into JSON.
+     * Create an UMA exception.
      *
-     * @param <T> the object type
-     * @param object the object to serialize
-     * @param output the output stream
-     * @throws IOException when there is a serialization error
+     * @param message the message
      */
-    <T> void toJson(T object, OutputStream output) throws IOException;
+    public UmaException(final String message) {
+        super(message);
+    }
 
     /**
-     * Read JSON into a java object.
+     * Create an UMA exception.
      *
-     * @param <T> the object type
-     * @param input the input stream
-     * @param clazz the object class
-     * @return the newly created object
-     * @throws IOException when there is a parsing error
+     * @param message the message
+     * @param cause the cause
      */
-    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+    public UmaException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }
+

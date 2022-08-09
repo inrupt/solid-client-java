@@ -18,35 +18,28 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
+package com.inrupt.client.uma;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+public class RequestDeniedException extends UmaException {
 
-/**
- * A JSON handling abstraction.
- */
-public interface JsonProcessor {
+    private static final long serialVersionUID = 2634097455648315683L;
 
     /**
-     * Write object data into JSON.
+     * Create a Request Denied exception.
      *
-     * @param <T> the object type
-     * @param object the object to serialize
-     * @param output the output stream
-     * @throws IOException when there is a serialization error
+     * @param message the message
      */
-    <T> void toJson(T object, OutputStream output) throws IOException;
+    public RequestDeniedException(final String message) {
+        super(message);
+    }
 
     /**
-     * Read JSON into a java object.
+     * Create a Request Denied exception.
      *
-     * @param <T> the object type
-     * @param input the input stream
-     * @param clazz the object class
-     * @return the newly created object
-     * @throws IOException when there is a parsing error
+     * @param message the message
+     * @param cause the cause
      */
-    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+    public RequestDeniedException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }
