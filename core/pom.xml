@@ -7,10 +7,10 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-common</artifactId>
-  <name>Inrupt Solid Client - Common Utilities</name>
+  <artifactId>inrupt-client-core</artifactId>
+  <name>Inrupt Solid Client - Core</name>
   <description>
-      Common Utilities for the Inrupt Client Libraries.
+      Core Classes and Utilities for the Inrupt Client Libraries.
   </description>
 
   <dependencies>

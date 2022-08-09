@@ -19,6 +19,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * Common utilities for the Inrupt client libraries.
+ * Core classes and utilities for the Inrupt client libraries.
  */
-package com.inrupt.client.common;
+package com.inrupt.client.core;

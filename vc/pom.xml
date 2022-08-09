@@ -16,7 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-common</artifactId>
+      <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

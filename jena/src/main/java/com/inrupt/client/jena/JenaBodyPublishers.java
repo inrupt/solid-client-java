@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.common.IOUtils;
+import com.inrupt.client.core.IOUtils;
 
 import java.net.http.HttpRequest;
 
