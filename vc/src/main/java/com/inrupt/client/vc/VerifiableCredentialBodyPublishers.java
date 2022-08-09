@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.vc;
 
-import com.inrupt.client.common.IOUtils;
+import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
