@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.authentication;
 
-import com.inrupt.client.parser.DebugLoggingErrorListener;
+import com.inrupt.client.parser.ConsumerErrorListener;
 import com.inrupt.client.parser.WwwAuthenticateBaseListener;
 import com.inrupt.client.parser.WwwAuthenticateLexer;
 import com.inrupt.client.parser.WwwAuthenticateParser;
@@ -33,11 +33,15 @@ import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A default header parser implementation.
  */
 public class DefaultHeaderParser implements HeaderParser {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHeaderParser.class);
 
     private static int PAIR = 2;
     private static String DQUOTE = "\"";
@@ -49,7 +53,7 @@ public class DefaultHeaderParser implements HeaderParser {
      * Create a header parser with an error listener that records syntax exceptions to a DEBUG log.
      */
     public DefaultHeaderParser() {
-        this(DebugLoggingErrorListener.INSTANCE);
+        this(new ConsumerErrorListener(msg -> LOGGER.debug("Header parse error: {}", msg)));
     }
 
     /**
