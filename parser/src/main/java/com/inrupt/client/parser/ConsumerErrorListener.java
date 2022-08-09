@@ -20,21 +20,20 @@
  */
 package com.inrupt.client.parser;
 
+import java.util.function.Consumer;
+
 import org.antlr.v4.runtime.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * A parser listener that records syntax errors at the DEBUG level.
+ * A listener that consumes syntax error notifications.
  */
-public class DebugLoggingErrorListener extends BaseErrorListener {
+public class ConsumerErrorListener extends BaseErrorListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugLoggingErrorListener.class);
+    private final Consumer<String> consumer;
 
-    /**
-     * A DebugLoggingErrorListener instance.
-     */
-    public static final DebugLoggingErrorListener INSTANCE = new DebugLoggingErrorListener();
+    public ConsumerErrorListener(final Consumer<String> consumer) {
+        this.consumer = consumer;
+    }
 
     @Override
     public void syntaxError(final Recognizer<?, ?> recognizer,
@@ -43,8 +42,6 @@ public class DebugLoggingErrorListener extends BaseErrorListener {
             final int charPositionInLine,
             final String msg,
             final RecognitionException ex) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Line " + line + ":" + charPositionInLine + " " + msg);
-        }
+        consumer.accept("Line " + line + ":" + charPositionInLine + " " + msg);
     }
 }
