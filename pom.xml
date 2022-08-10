@@ -40,6 +40,7 @@
     <module>parent</module>
     <module>parser</module>
     <module>rdf</module>
+    <module>reports</module>
     <module>spi</module>
     <module>webid</module>
     <module>vocabulary</module>
@@ -212,6 +213,35 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <failBuildOnCVSS>7</failBuildOnCVSS>
+          <formats>
+            <format>HTML</format>
+            <format>JSON</format>
+            <format>CSV</format>
+          </formats>
+          <suppressionFile>
+            inrupt-owasp/suppressions.xml
+          </suppressionFile>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.inrupt</groupId>
+            <artifactId>inrupt-build-tools</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
 
@@ -236,6 +266,25 @@
             </reports>
           </reportSet>
         </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>${owasp.plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+        <configuration>
+          <suppressionFiles>
+            <suppressionFile>
+              inrupt-owasp/suppressions.xml
+            </suppressionFile>
+          </suppressionFiles>
+        </configuration>
       </plugin>
     </plugins>
   </reporting>
