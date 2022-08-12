@@ -5,6 +5,7 @@
   <body>
     <menu name="Overview" inherit="top">
         <item name="Summary" href="summary.html"/>
+        <item name="Documentation" href="apidocs/"/>
         <item name="Dependencies" href="dependencies.html"/>
         <item name="Plugins" href="plugins.html"/>
         <item name="Modules" href="modules.html"/>
