@@ -21,11 +21,13 @@
       <jackson.version>2.13.3</jackson.version>
       <jena.version>4.5.0</jena.version>
       <jose4j.version>0.7.12</jose4j.version>
+      <jakarta.json.version>1.1.6</jakarta.json.version>
       <json.bind.version>1.0.2</json.bind.version>
       <slf4j.version>1.7.36</slf4j.version>
 
       <!-- testing -->
       <junit.version>5.9.0</junit.version>
+      <yasson.version>1.0.3</yasson.version>
   </properties>
 
   <modules>
@@ -65,6 +67,11 @@
         <version>${json.bind.version}</version>
       </dependency>
       <dependency>
+        <groupId>jakarta.json</groupId>
+        <artifactId>jakarta.json-api</artifactId>
+        <version>${jakarta.json.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-arq</artifactId>
         <version>${jena.version}</version>
@@ -92,6 +99,16 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse</groupId>
+        <artifactId>yasson</artifactId>
+        <version>${yasson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>jakarta.json</artifactId>
+        <version>${jakarta.json.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

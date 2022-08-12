@@ -161,8 +161,13 @@ public class Verifier {
     private HttpResponse.BodyHandler<VerificationResponse> ofVerificationResponse() {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return responseInfo ->
-            HttpResponse.BodySubscribers.mapping(upstream, input ->
-                    processor.fromJson(input, VerificationResponse.class));
+            HttpResponse.BodySubscribers.mapping(upstream, input -> {
+                try {
+                    return processor.fromJson(input, VerificationResponse.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException("Error parsing verification request", ex);
+                }
+            });
     }
 
     private URI getCredentialVerifierUrl() {

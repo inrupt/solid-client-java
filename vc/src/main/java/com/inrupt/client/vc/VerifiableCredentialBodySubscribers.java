@@ -23,8 +23,8 @@ package com.inrupt.client.vc;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
+import java.io.IOException;
 import java.net.http.HttpResponse;
-
 
 /**
  * {@link HttpResponse.BodySubscriber} implementations for use with Verifiable Credential types.
@@ -41,8 +41,13 @@ public final class VerifiableCredentialBodySubscribers {
     public static HttpResponse.BodySubscriber<VerifiableCredential> ofVerifiableCredential() {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
 
-        return HttpResponse.BodySubscribers.mapping(upstream, input ->
-                processor.fromJson(input, VerifiableCredential.class));
+        return HttpResponse.BodySubscribers.mapping(upstream, input -> {
+            try {
+                return processor.fromJson(input, VerifiableCredential.class);
+            } catch (final IOException ex) {
+                throw new VerifiableCredentialException("Error parsing credential", ex);
+            }
+        });
     }
 
     /**
@@ -53,8 +58,13 @@ public final class VerifiableCredentialBodySubscribers {
     public static HttpResponse.BodySubscriber<VerifiablePresentation> ofVerifiablePresentation() {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
 
-        return HttpResponse.BodySubscribers.mapping(upstream, input ->
-                processor.fromJson(input, VerifiablePresentation.class));
+        return HttpResponse.BodySubscribers.mapping(upstream, input -> {
+            try {
+                return processor.fromJson(input, VerifiablePresentation.class);
+            } catch (final IOException ex) {
+                throw new VerifiableCredentialException("Error parsing presentation", ex);
+            }
+        });
     }
 
     private VerifiableCredentialBodySubscribers() {
