@@ -18,35 +18,11 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
+package com.inrupt.client.uma;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-/**
- * A JSON handling abstraction.
- */
-public interface JsonProcessor {
-
-    /**
-     * Write object data into JSON.
-     *
-     * @param <T> the object type
-     * @param object the object to serialize
-     * @param output the output stream
-     * @throws IOException when there is a serialization error
-     */
-    <T> void toJson(T object, OutputStream output) throws IOException;
-
-    /**
-     * Read JSON into a java object.
-     *
-     * @param <T> the object type
-     * @param input the input stream
-     * @param clazz the object class
-     * @return the newly created object
-     * @throws IOException when there is a parsing error
-     */
-    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+public class TokenResponse {
+    public String accessToken;
+    public String tokenType;
+    public int expiresIn;
+    public String scope;
 }

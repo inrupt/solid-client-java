@@ -19,6 +19,16 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * Authentication support for the Inrupt client libraries.
+ * <h2>Authentication support for the Inrupt client libraries</h2>
+ *
+ * <p>User control of data is at the center of the Solid ecosystem. As such, a robust
+ * authentication framework is a core part of all HTTP-based interactions. Furthermore,
+ * Solid is a decentralized system, where one cannot rely on a single way of handling
+ * authentication across all servers and applications.
+ *
+ * <p>The {@code authentication} module plays a critical role in the Inrupt client
+ * libraries, allowing developers to focus on their own application logic while
+ * allowing the low-level authentication interactions to work flexibly across
+ * different servers and different authorization frameworks.
  */
 package com.inrupt.client.authentication;

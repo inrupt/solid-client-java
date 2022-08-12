@@ -19,6 +19,36 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * Parsing support for the Inrupt client libraries.
+ * <h2>Parsing support for the Inrupt client libraries</h2>
+ *
+ * <p>The Solid ecosystem relies on conformance with many different formal specifications.
+ * Consequently, many of these specifications define formal grammars as part of a protocol
+ * definition. For HTTP interactions, this principally consists of header definitions.
+ *
+ * <p>This module defines a formal grammar for different HTTP headers along with generated
+ * lexer and parser classes for use with processing these headers in a specification-compliant
+ * way.
+ *
+ * <p>The grammars in this module make use of the <a href="https://www.antlr.org/">ANTLR</a> tooling.
+ * From these defined grammars, Java classes are automatically generated. Convenience methods are provided
+ * at higher levels to make this parsing simple, but it is also possible to use these classes directly.
+ *
+ * <p>For example, parsing a {@code WWW-Authenticate} header might take this form in code:
+ * <pre>{@code    final var lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));
+ *   final var parser = new WwwAuthenticateParser(new CommonTokenStream(lexer));
+ *   final var tree = parser.wwwAuthenticate();
+ *
+ *   System.out.println(tree.toStringTree(parser));  }</pre>
+ *
+ * <p>Alternatively, this is an example using a
+ * <a href="https://github.com/antlr/antlr4/blob/master/doc/listeners.md">custom listener</a>:
+ * <pre>{@code    final var lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));
+ *   final var parser = new WwwAuthenticateParser(new CommonTokenStream(lexer));
+ *   final var tree = parser.wwwAuthenticate();
+ *
+ *   final var walker = new ParseTreeWalker();
+ *   final var listener = new MyCustomListener();
+ *   walker.walk(listener, tree);  }</pre>
+ *
  */
 package com.inrupt.client.parser;

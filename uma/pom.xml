@@ -7,30 +7,26 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-authentication</artifactId>
-  <name>Inrupt Solid Client - Authentication</name>
+  <artifactId>inrupt-client-uma</artifactId>
+  <name>Inrupt Solid Client - UMA</name>
   <description>
-      The authentication API for the Inrupt Client Libraries.
+      UMA abstractions for the Inrupt Client Libraries.
   </description>
 
   <dependencies>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-uma</artifactId>
+      <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-parser</artifactId>
+      <artifactId>inrupt-client-spi</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.bitbucket.b_c</groupId>
       <artifactId>jose4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
     </dependency>
 
     <dependency>
@@ -71,10 +67,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

@@ -18,35 +18,37 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
+package com.inrupt.client.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * A JSON handling abstraction.
- */
-public interface JsonProcessor {
+import java.net.URLEncoder;
+import java.net.http.HttpRequest;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-    /**
-     * Write object data into JSON.
-     *
-     * @param <T> the object type
-     * @param object the object to serialize
-     * @param output the output stream
-     * @throws IOException when there is a serialization error
-     */
-    <T> void toJson(T object, OutputStream output) throws IOException;
+public final class OAuthBodyPublishers {
+
+    private static final String EQUALS = "=";
+    private static final String ETC = "&";
 
     /**
-     * Read JSON into a java object.
+     * Convert a {@link Map} into a body publisher, serialized as a {@code application/x-www-form-urlencoded} string.
      *
-     * @param <T> the object type
-     * @param input the input stream
-     * @param clazz the object class
-     * @return the newly created object
-     * @throws IOException when there is a parsing error
+     * @param data the input data
+     * @return the body publisher
      */
-    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+    public static HttpRequest.BodyPublisher ofFormData(final Map<String, String> data) {
+        final var form = data.entrySet().stream().map(entry -> {
+            final var name = URLEncoder.encode(entry.getKey(), UTF_8);
+            final var value = URLEncoder.encode(entry.getValue(), UTF_8);
+            return String.join(EQUALS, name, value);
+        }).collect(Collectors.joining(ETC));
+
+        return HttpRequest.BodyPublishers.ofString(form);
+    }
+
+    private OAuthBodyPublishers() {
+        // Prevent instantiation
+    }
 }

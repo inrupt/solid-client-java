@@ -18,35 +18,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 /**
- * A JSON handling abstraction.
+ * <h2>User Managed Access support for the Inrupt client libraries</h2>
+ *
+ * <p>UMA builds on the OAuth 2.0 authorization framework, defining a mechanism by which
+ * a client can iteratively negotiate for an access token.
  */
-public interface JsonProcessor {
-
-    /**
-     * Write object data into JSON.
-     *
-     * @param <T> the object type
-     * @param object the object to serialize
-     * @param output the output stream
-     * @throws IOException when there is a serialization error
-     */
-    <T> void toJson(T object, OutputStream output) throws IOException;
-
-    /**
-     * Read JSON into a java object.
-     *
-     * @param <T> the object type
-     * @param input the input stream
-     * @param clazz the object class
-     * @return the newly created object
-     * @throws IOException when there is a parsing error
-     */
-    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
-}
+package com.inrupt.client.uma;
