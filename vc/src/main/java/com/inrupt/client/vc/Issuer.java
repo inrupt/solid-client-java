@@ -246,7 +246,13 @@ public class Issuer {
 
     private HttpRequest.BodyPublisher ofStatusRequest(final StatusRequest request) {
         return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> processor.toJson(request, out)));
+                IOUtils.pipe(out -> {
+                    try {
+                        processor.toJson(request, out);
+                    } catch (final IOException ex) {
+                        throw new VerifiableCredentialException("Error serializing status request", ex);
+                    }
+                }));
     }
 
     private URI getIssueUrl() {

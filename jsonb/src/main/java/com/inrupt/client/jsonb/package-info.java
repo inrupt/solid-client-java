@@ -19,6 +19,14 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * JSON Bind-API support for the Inrupt client libraries.
+ * <h2>JakartaEE JSON Bind support for the Inrupt client libraries</h2>
+ *
+ * <p>Many of the high-level APIs in the Inrupt client libraries make use of a
+ * JSON parser. In the Java ecosystem, there are several widely used JSON
+ * parsing libraries. This package adds support for the JakartaEE 8 JSON APIs.
+ *
+ * <p>This module depends on the JakartaEE APIs. A user of this module should
+ * ensure that the relevant JakartaEE JSON implementations are available on the
+ * classpath.
  */
 package com.inrupt.client.jsonb;

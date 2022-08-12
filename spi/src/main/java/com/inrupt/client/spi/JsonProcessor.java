@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.spi;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -34,8 +35,9 @@ public interface JsonProcessor {
      * @param <T> the object type
      * @param object the object to serialize
      * @param output the output stream
+     * @throws IOException in the case of an IO processing error
      */
-    <T> void toJson(T object, OutputStream output);
+    <T> void toJson(T object, OutputStream output) throws IOException;
 
     /**
      * Read JSON into a java object.
@@ -44,6 +46,7 @@ public interface JsonProcessor {
      * @param input the input stream
      * @param clazz the object class
      * @return the newly created object
+     * @throws IOException in the case of an IO processing error
      */
-    <T> T fromJson(InputStream input, Class<T> clazz);
+    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
 }

@@ -118,7 +118,13 @@ public class Holder {
     public CompletionStage<List<VerifiableCredential>> listCredentialsAsync(final List<URI> types) {
         final var req = HttpRequest.newBuilder(getCredentialListEndpoint(Objects.requireNonNull(types))).build();
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenApply(res -> processor.fromJson(res.body(), VerifiableCredentialList.class));
+            .thenApply(res -> {
+                try {
+                    return processor.fromJson(res.body(), VerifiableCredentialList.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException("Error serializing credential list", ex);
+                }
+            });
     }
 
     /**
@@ -256,7 +262,13 @@ public class Holder {
     public CompletionStage<List<VerifiablePresentation>> listPresentationsAsync(final List<URI> types) {
         final var req = HttpRequest.newBuilder(getPresentationListEndpoint(types)).build();
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenApply(res -> processor.fromJson(res.body(), VerifiablePresentationList.class));
+            .thenApply(res -> {
+                try {
+                    return processor.fromJson(res.body(), VerifiablePresentationList.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException("Error serializing presentation list", ex);
+                }
+            });
     }
 
     /**
@@ -508,13 +520,24 @@ public class Holder {
     private HttpResponse.BodyHandler<VerifiablePresentationRequest> ofVerifiablePresentationRequest() {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return responseInfo ->
-            HttpResponse.BodySubscribers.mapping(upstream, input ->
-                    processor.fromJson(input, VerifiablePresentationRequest.class));
+            HttpResponse.BodySubscribers.mapping(upstream, input -> {
+                try {
+                    return processor.fromJson(input, VerifiablePresentationRequest.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException("Error parsing presentation request", ex);
+                }
+            });
     }
 
     private <T> HttpRequest.BodyPublisher serialize(final T request) {
         return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> processor.toJson(request, out)));
+                IOUtils.pipe(out -> {
+                    try {
+                        processor.toJson(request, out);
+                    } catch (final IOException ex) {
+                        throw new VerifiableCredentialException("Error serializing JSON", ex);
+                    }
+                }));
     }
 
     private URI getPresentationListEndpoint(final List<URI> types) {

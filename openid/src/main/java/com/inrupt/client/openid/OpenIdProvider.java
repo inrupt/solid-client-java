@@ -114,7 +114,13 @@ public class OpenIdProvider {
         // consider caching this response
         final var req = HttpRequest.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenApply(res -> processor.fromJson(res.body(), Metadata.class));
+            .thenApply(res -> {
+                try {
+                    return processor.fromJson(res.body(), Metadata.class);
+                } catch (final IOException ex) {
+                    throw new OpenIdException("Error parsing OpenID Metadata resource", ex);
+                }
+            });
     }
 
     private URI getMetadataUrl() {
@@ -185,7 +191,13 @@ public class OpenIdProvider {
         return metadataAsync()
             .thenApply(metadata -> tokenRequest(metadata, request))
             .thenCompose(req -> httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream()))
-            .thenApply(res -> processor.fromJson(res.body(), TokenResponse.class));
+            .thenApply(res -> {
+                try {
+                    return processor.fromJson(res.body(), TokenResponse.class);
+                } catch (final IOException ex) {
+                    throw new OpenIdException("Error parsing token response", ex);
+                }
+            });
     }
 
     private HttpRequest tokenRequest(final Metadata metadata, final TokenRequest request) {

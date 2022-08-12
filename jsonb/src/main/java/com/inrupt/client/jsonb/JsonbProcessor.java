@@ -22,12 +22,16 @@ package com.inrupt.client.jsonb;
 
 import com.inrupt.client.spi.JsonProcessor;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Objects;
 
+import javax.json.JsonException;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.JsonbException;
+import javax.json.bind.config.PropertyNamingStrategy;
 
 /**
  * A {@link JsonProcessor} using the JakartaEE JSON Bind API.
@@ -37,29 +41,30 @@ public class JsonbProcessor implements JsonProcessor {
     private final Jsonb jsonb;
 
     /**
-     * Create a JSON-B processor with the default {@link Jsonb} builder.
+     * Create a JSON-B processor.
      */
     public JsonbProcessor() {
-        this(JsonbBuilder.create());
-    }
-
-    /**
-     * Create a JSON-B processor with the provided {@link Jsonb} object.
-     *
-     * @param jsonb the JSON-B object
-     */
-    public JsonbProcessor(final Jsonb jsonb) {
-        this.jsonb = Objects.requireNonNull(jsonb);
+        final var config = new JsonbConfig()
+            .withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);
+        this.jsonb = JsonbBuilder.create(config);
     }
 
     @Override
-    public <T> void toJson(final T object, final OutputStream output) {
-        jsonb.toJson(object, output);
+    public <T> void toJson(final T object, final OutputStream output) throws IOException {
+        try {
+            jsonb.toJson(object, output);
+        } catch (final JsonbException | JsonException ex) {
+            throw new IOException("Error serializing JSON", ex);
+        }
     }
 
     @Override
-    public <T> T fromJson(final InputStream input, final Class<T> clazz) {
-        return jsonb.fromJson(input, clazz);
+    public <T> T fromJson(final InputStream input, final Class<T> clazz) throws IOException {
+        try {
+            return jsonb.fromJson(input, clazz);
+        } catch (final JsonbException | JsonException ex) {
+            throw new IOException("Error parsing JSON", ex);
+        }
     }
 }
 

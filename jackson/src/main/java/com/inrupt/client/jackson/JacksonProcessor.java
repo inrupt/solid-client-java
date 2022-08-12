@@ -21,36 +21,33 @@
 package com.inrupt.client.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.inrupt.client.spi.JsonProcessor;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 
 /**
  * A {@link JsonProcessor} using the Jackson JSON library.
  */
 public class JacksonProcessor implements JsonProcessor {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper mapper;
 
-    @Override
-    public <T> void toJson(final T object, final OutputStream output) {
-        try {
-            MAPPER.writeValue(output, object);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error writing JSON", ex);
-        }
+    public JacksonProcessor() {
+        mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     }
 
     @Override
-    public <T> T fromJson(final InputStream input, final Class<T> clazz) {
-        try {
-            return MAPPER.readValue(input, clazz);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Error reading from JSON", ex);
-        }
+    public <T> void toJson(final T object, final OutputStream output) throws IOException {
+        mapper.writeValue(output, object);
+    }
+
+    @Override
+    public <T> T fromJson(final InputStream input, final Class<T> clazz) throws IOException {
+        return mapper.readValue(input, clazz);
     }
 }
 
