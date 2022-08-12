@@ -41,6 +41,11 @@ class JsonbProcessorTest {
     private final JsonProcessor processor = ServiceProvider.getJsonProcessor();
 
     @Test
+    void checkInstance() {
+        assertTrue(processor instanceof JsonbProcessor);
+    }
+
+    @Test
     void parseJsonInput() throws IOException {
         try (final var input = JsonbProcessorTest.class.getResourceAsStream("/myobject.json")) {
             final var obj = processor.fromJson(input, MyObject.class);
