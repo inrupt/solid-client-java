@@ -19,6 +19,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * Jackson JSON support for the Inrupt client libraries.
+ * <h2>Jackson JSON support for the Inrupt client libraries</h2>
+ *
+ * <p>Many of the high-level APIs in the Inrupt client libraries make use of a
+ * JSON parser. In the Java ecosystem, there are several widely used JSON
+ * parsing libraries. This package adds support for the Jackson JSON libraries.
  */
 package com.inrupt.client.jackson;
