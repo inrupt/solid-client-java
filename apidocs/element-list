@@ -8,6 +8,7 @@ com.inrupt.client.openid
 com.inrupt.client.parser
 com.inrupt.client.rdf
 com.inrupt.client.spi
+com.inrupt.client.uma
 com.inrupt.client.vc
 com.inrupt.client.vocabulary
 com.inrupt.client.webid
