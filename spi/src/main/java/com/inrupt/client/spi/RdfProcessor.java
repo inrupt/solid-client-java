@@ -24,6 +24,7 @@ import com.inrupt.client.rdf.Dataset;
 import com.inrupt.client.rdf.Graph;
 import com.inrupt.client.rdf.Syntax;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -38,8 +39,9 @@ public interface RdfProcessor {
      * @param dataset the dataset
      * @param syntax the concrete RDF syntax
      * @param output the output stream
+     * @throws IOException when there is an error serializing the dataset
      */
-    void fromDataset(Dataset dataset, Syntax syntax, OutputStream output);
+    void fromDataset(Dataset dataset, Syntax syntax, OutputStream output) throws IOException;
 
     /**
      * Serialize a graph to an output stream.
@@ -47,8 +49,9 @@ public interface RdfProcessor {
      * @param graph the graph
      * @param syntax the concrete RDF syntax
      * @param output the output stream
+     * @throws IOException when there is an error serializing the graph
      */
-    void fromGraph(Graph graph, Syntax syntax, OutputStream output);
+    void fromGraph(Graph graph, Syntax syntax, OutputStream output) throws IOException;
 
     /**
      * Parse an input stream into a Dataset.
@@ -56,8 +59,9 @@ public interface RdfProcessor {
      * @param syntax the concrete RDF syntax
      * @param input the input stream
      * @return a dataset
+     * @throws IOException when there is an error parsing the dataset
      */
-    Dataset toDataset(Syntax syntax, InputStream input);
+    Dataset toDataset(Syntax syntax, InputStream input) throws IOException;
 
     /**
      * Parse an input stream into a Graph.
@@ -65,6 +69,7 @@ public interface RdfProcessor {
      * @param syntax the concrete RDF syntax
      * @param input the input stream
      * @return a graph
+     * @throws IOException when there is an error parsing the graph
      */
-    Graph toGraph(Syntax syntax, InputStream input);
+    Graph toGraph(Syntax syntax, InputStream input) throws IOException;
 }

@@ -20,12 +20,12 @@
  */
 package com.inrupt.client.jena;
 
-
 import com.inrupt.client.rdf.Dataset;
 import com.inrupt.client.rdf.Graph;
 import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.spi.RdfProcessor;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
@@ -35,6 +35,7 @@ import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RiotException;
 
 /**
  * An {@link RdfProcessor} that uses the Jena library.
@@ -49,31 +50,47 @@ public class JenaRdfProcessor implements RdfProcessor {
             Syntax.NQUADS, Lang.NQUADS);
 
     @Override
-    public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) {
+    public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
-        RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+        try {
+            RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+        } catch (final RiotException ex) {
+            throw new IOException("Error serializing dataset", ex);
+        }
     }
 
     @Override
-    public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) {
+    public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
-        RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
+        try {
+            RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
+        } catch (final RiotException ex) {
+            throw new IOException("Error serializing graph", ex);
+        }
     }
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input) {
+    public Dataset toDataset(final Syntax syntax, final InputStream input) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var dataset = DatasetFactory.create();
-        RDFDataMgr.read(dataset, input, lang);
+        try {
+            RDFDataMgr.read(dataset, input, lang);
+        } catch (final RiotException ex) {
+            throw new IOException("Error parsing dataset", ex);
+        }
 
         return new JenaDataset(dataset.asDatasetGraph());
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input) {
+    public Graph toGraph(final Syntax syntax, final InputStream input) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var model = ModelFactory.createDefaultModel();
-        RDFDataMgr.read(model, input, lang);
+        try {
+            RDFDataMgr.read(model, input, lang);
+        } catch (final RiotException ex) {
+            throw new IOException("Error parsing graph", ex);
+        }
 
         return new JenaGraph(model);
     }
