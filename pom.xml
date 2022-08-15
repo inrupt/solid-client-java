@@ -21,7 +21,7 @@
       <jackson.version>2.13.3</jackson.version>
       <jena.version>4.5.0</jena.version>
       <jose4j.version>0.7.12</jose4j.version>
-      <jakarta.json.version>1.1.6</jakarta.json.version>
+      <jakarta.json.version>2.0.1</jakarta.json.version>
       <json.bind.version>1.0.2</json.bind.version>
       <slf4j.version>1.7.36</slf4j.version>
 
