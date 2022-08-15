@@ -29,7 +29,7 @@
     <gpg.plugin.version>3.0.1</gpg.plugin.version>
     <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
     <jar.plugin.version>3.2.2</jar.plugin.version>
-    <javadoc.plugin.version>3.4.0</javadoc.plugin.version>
+    <javadoc.plugin.version>3.4.1</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
     <owasp.plugin.version>7.1.1</owasp.plugin.version>
