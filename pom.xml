@@ -27,7 +27,7 @@
 
       <!-- testing -->
       <junit.version>5.9.0</junit.version>
-      <yasson.version>1.0.3</yasson.version>
+      <yasson.version>3.0.1</yasson.version>
   </properties>
 
   <modules>
