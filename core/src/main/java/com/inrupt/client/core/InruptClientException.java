@@ -18,33 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.authentication;
-
-import com.inrupt.client.core.InruptClientException;
+package com.inrupt.client.core;
 
 /**
- * A runtime exception for use with authentication-related errors.
+ * A generic Inrupt runtime exception for use as a superclass.
  */
-public class AuthenticationException extends InruptClientException {
+public class InruptClientException extends RuntimeException {
 
-    private static final long serialVersionUID = 7136771254436299431L;
+    private static final long serialVersionUID = 1L;
 
     /**
-     * Create an authentication exception.
+     * Create a InruptClientException exception.
      *
      * @param message the message
      */
-    public AuthenticationException(final String message) {
+    public InruptClientException(final String message) {
         super(message);
     }
 
     /**
-     * Create an authentication exception.
+     * Create a InruptClientException exception.
      *
      * @param message the message
      * @param cause   the cause
      */
-    public AuthenticationException(final String message, final Throwable cause) {
+    public InruptClientException(final String message, final Throwable cause) {
         super(message, cause);
     }
+
 }

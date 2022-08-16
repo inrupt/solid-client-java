@@ -20,10 +20,12 @@
  */
 package com.inrupt.client.webid;
 
+import com.inrupt.client.core.InruptClientException;
+
 /**
  * A runtime exception for use with WebId-related errors.
  */
-public class WebIdException extends RuntimeException {
+public class WebIdException extends InruptClientException {
 
     private static final long serialVersionUID = 3854695545552441025L;
 
@@ -40,10 +42,9 @@ public class WebIdException extends RuntimeException {
      * Create a WebId exception.
      *
      * @param message the message
-     * @param cause the cause
+     * @param cause   the cause
      */
     public WebIdException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
-

@@ -20,10 +20,12 @@
  */
 package com.inrupt.client.uma;
 
+import com.inrupt.client.core.InruptClientException;
+
 /**
  * A runtime exception for use with UMA-related errors.
  */
-public class UmaException extends RuntimeException {
+public class UmaException extends InruptClientException {
 
     private static final long serialVersionUID = 3422598347430002847L;
 
@@ -40,10 +42,9 @@ public class UmaException extends RuntimeException {
      * Create an UMA exception.
      *
      * @param message the message
-     * @param cause the cause
+     * @param cause   the cause
      */
     public UmaException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
-
