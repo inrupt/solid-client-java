@@ -17,18 +17,19 @@
   <packaging>pom</packaging>
 
   <properties>
-      <antlr.version>4.10.1</antlr.version>
-      <jackson.version>2.13.3</jackson.version>
-      <jakarta.json.version>1.1.6</jakarta.json.version>
-      <jena.version>4.5.0</jena.version>
-      <jose4j.version>0.7.12</jose4j.version>
-      <json.bind.version>1.0.2</json.bind.version>
-      <slf4j.version>1.7.36</slf4j.version>
+    <antlr.version>4.10.1</antlr.version>
+    <jackson.version>2.13.3</jackson.version>
+    <jena.version>4.5.0</jena.version>
+    <jose4j.version>0.7.12</jose4j.version>
+    <jakarta.json.version>1.1.6</jakarta.json.version>
+    <json.bind.version>1.0.2</json.bind.version>
+    <rdf4j.version>4.1.0</rdf4j.version>
+    <slf4j.version>1.7.36</slf4j.version>
 
-      <!-- testing -->
-      <junit.version>5.9.0</junit.version>
-      <yasson.version>1.0.3</yasson.version>
-      <wiremock.version>2.27.2</wiremock.version>
+    <!-- testing -->
+    <junit.version>5.9.0</junit.version>
+    <yasson.version>1.0.3</yasson.version>
+    <wiremock.version>2.27.2</wiremock.version>
   </properties>
 
   <modules>
@@ -43,6 +44,7 @@
     <module>parent</module>
     <module>parser</module>
     <module>rdf</module>
+    <module>rdf4j</module>
     <module>reports</module>
     <module>spi</module>
     <module>uma</module>
@@ -80,6 +82,46 @@
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-arq</artifactId>
         <version>${jena.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-rio-api</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-model</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-query</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-repository-api</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-repository-sparql</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-common-exception</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-repository-sail</artifactId>
+        <version>${rdf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-sail-memory</artifactId>
+        <version>${rdf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.bitbucket.b_c</groupId>
