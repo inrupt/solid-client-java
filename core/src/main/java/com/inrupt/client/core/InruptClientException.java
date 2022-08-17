@@ -37,7 +37,7 @@ public class InruptClientException extends RuntimeException {
     }
 
     /**
-     * Create a InruptClientException exception.
+     * Create an InruptClientException exception.
      *
      * @param message the message
      * @param cause the cause
