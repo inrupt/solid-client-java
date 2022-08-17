@@ -25,7 +25,7 @@ package com.inrupt.client.core;
  */
 public class InruptClientException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -6044908162372507932L;
 
     /**
      * Create a InruptClientException exception.
