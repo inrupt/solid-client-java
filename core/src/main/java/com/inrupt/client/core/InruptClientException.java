@@ -28,7 +28,7 @@ public class InruptClientException extends RuntimeException {
     private static final long serialVersionUID = -6044908162372507932L;
 
     /**
-     * Create a InruptClientException exception.
+     * Create an InruptClientException exception.
      *
      * @param message the message
      */
