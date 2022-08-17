@@ -42,9 +42,10 @@ public class AuthenticationException extends InruptClientException {
      * Create an authentication exception.
      *
      * @param message the message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public AuthenticationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
+

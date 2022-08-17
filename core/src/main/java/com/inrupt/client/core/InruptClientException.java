@@ -40,7 +40,7 @@ public class InruptClientException extends RuntimeException {
      * Create a InruptClientException exception.
      *
      * @param message the message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public InruptClientException(final String message, final Throwable cause) {
         super(message, cause);

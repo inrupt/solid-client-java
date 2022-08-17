@@ -42,9 +42,10 @@ public class WebIdException extends InruptClientException {
      * Create a WebId exception.
      *
      * @param message the message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public WebIdException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
+

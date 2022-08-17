@@ -42,9 +42,10 @@ public class VerifiableCredentialException extends InruptClientException {
      * Create a Verifiable Credential exception.
      *
      * @param message the message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public VerifiableCredentialException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
+

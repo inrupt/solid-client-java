@@ -42,9 +42,10 @@ public class UmaException extends InruptClientException {
      * Create an UMA exception.
      *
      * @param message the message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public UmaException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }
+
