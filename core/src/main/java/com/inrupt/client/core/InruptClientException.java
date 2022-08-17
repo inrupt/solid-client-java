@@ -18,34 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.webid;
-
-import com.inrupt.client.core.InruptClientException;
+package com.inrupt.client.core;
 
 /**
- * A runtime exception for use with WebId-related errors.
+ * A generic Inrupt runtime exception for use as a superclass.
  */
-public class WebIdException extends InruptClientException {
+public class InruptClientException extends RuntimeException {
 
-    private static final long serialVersionUID = 3854695545552441025L;
+    private static final long serialVersionUID = -6044908162372507932L;
 
     /**
-     * Create a WebId exception.
+     * Create an InruptClientException exception.
      *
      * @param message the message
      */
-    public WebIdException(final String message) {
+    public InruptClientException(final String message) {
         super(message);
     }
 
     /**
-     * Create a WebId exception.
+     * Create an InruptClientException exception.
      *
      * @param message the message
      * @param cause the cause
      */
-    public WebIdException(final String message, final Throwable cause) {
+    public InruptClientException(final String message, final Throwable cause) {
         super(message, cause);
     }
-}
 
+}

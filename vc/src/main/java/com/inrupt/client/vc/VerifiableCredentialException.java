@@ -20,10 +20,12 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.core.InruptClientException;
+
 /**
  * A runtime exception for use with Verifiable Credential-related errors.
  */
-public class VerifiableCredentialException extends RuntimeException {
+public class VerifiableCredentialException extends InruptClientException {
 
     private static final long serialVersionUID = 4828374653830284474L;
 

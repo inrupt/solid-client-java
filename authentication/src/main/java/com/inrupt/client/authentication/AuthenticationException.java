@@ -20,10 +20,12 @@
  */
 package com.inrupt.client.authentication;
 
+import com.inrupt.client.core.InruptClientException;
+
 /**
  * A runtime exception for use with authentication-related errors.
  */
-public class AuthenticationException extends RuntimeException {
+public class AuthenticationException extends InruptClientException {
 
     private static final long serialVersionUID = 7136771254436299431L;
 
