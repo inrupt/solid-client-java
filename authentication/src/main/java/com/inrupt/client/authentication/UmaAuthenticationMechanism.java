@@ -147,6 +147,7 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
             final var request = new TokenRequest(ticket, null, null, null, requestScopes);
 
             return umaClient.metadataAsync(as)
+                // TODO implement the mapping function
                 .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, request, needInfo ->
                             CompletableFuture.completedFuture(null)))
                 .thenApply(token -> new UmaAccessToken(token.accessToken, token.tokenType,
