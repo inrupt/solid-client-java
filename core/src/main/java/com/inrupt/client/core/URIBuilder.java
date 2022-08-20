@@ -20,9 +20,6 @@
  */
 package com.inrupt.client.core;
 
-import static java.net.URLEncoder.encode;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -36,10 +33,7 @@ public final class URIBuilder {
     private static int PAIR = 2;
 
     private String builderScheme;
-    private String builderUserInfo;
-    private String builderHost;
-    private int builderPort;
-    private String builderPath;
+    private StringBuilder builderSsp;
     private List<String> builderQueryParams = new ArrayList<>();
     private String builderFragment;
 
@@ -52,20 +46,17 @@ public final class URIBuilder {
     public static URIBuilder newBuilder(final URI uri) {
         final var builder = new URIBuilder();
         builder.builderScheme = uri.getScheme();
-        builder.builderUserInfo = uri.getUserInfo();
-        builder.builderHost = uri.getHost();
-        builder.builderPort = uri.getPort();
-        builder.builderPath = uri.getPath();
         builder.builderFragment = uri.getFragment();
-        final var params = uri.getQuery();
-        if (params != null) {
-            for (final var param : params.split("&")) {
-                final var parts = param.split("=", 2);
-                if (parts.length == PAIR) {
-                    builder.builderQueryParams.add(encodeQueryParam(parts[0], parts[1]));
-                }
+
+        final var parts = uri.getSchemeSpecificPart().split("\\?", PAIR);
+
+        builder.builderSsp = new StringBuilder(parts[0]);
+        if (parts.length == PAIR) {
+            for (final var param : parts[1].split("&")) {
+                builder.builderQueryParams.add(param);
             }
         }
+
         return builder;
     }
 
@@ -76,10 +67,12 @@ public final class URIBuilder {
      * @return this builder
      */
     public URIBuilder path(final String path) {
-        if (builderPath.endsWith("/")) {
-            builderPath += path;
-        } else {
-            builderPath += "/" + path;
+        if (path != null && !path.isBlank()) {
+            if (builderSsp.charAt(builderSsp.length() - 1) == '/') {
+                builderSsp.append(path.startsWith("/") ? path.substring(1) : path);
+            } else {
+                builderSsp.append(path.startsWith("/") ? path : "/" + path);
+            }
         }
         return this;
     }
@@ -92,9 +85,7 @@ public final class URIBuilder {
      * @return this builder
      */
     public URIBuilder queryParam(final String param, final String value) {
-        if (value != null) {
-            builderQueryParams.add(encodeQueryParam(param, value));
-        }
+        builderQueryParams.add(formatQueryParam(param, value));
         return this;
     }
 
@@ -115,16 +106,26 @@ public final class URIBuilder {
      * @return the newly constructed URI
      */
     public URI build() {
+        if (!builderQueryParams.isEmpty()) {
+            builderSsp.append("?");
+            builderSsp.append(String.join("&", builderQueryParams));
+        }
         try {
-            return new URI(builderScheme, builderUserInfo, builderHost, builderPort, builderPath,
-                    String.join("&", builderQueryParams), builderFragment);
+            return new URI(builderScheme, builderSsp.toString(), builderFragment);
         } catch (final URISyntaxException ex) {
             throw new IllegalArgumentException("Invalid URI value", ex);
         }
     }
 
-    static String encodeQueryParam(final String key, final String value) {
-        return encode(key, UTF_8) + "=" + encode(value, UTF_8);
+    static String formatQueryParam(final String key, final String value) {
+        return formatParam(key) + "=" + formatParam(value);
+    }
+
+    static String formatParam(final String param) {
+        if (param != null) {
+            return param;
+        }
+        return "";
     }
 
     private URIBuilder() {
