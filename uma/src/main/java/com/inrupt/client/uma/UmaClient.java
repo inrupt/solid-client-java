@@ -294,6 +294,6 @@ public class UmaClient {
     }
 
     private URI getMetadataUrl(final URI authorizationServer) {
-        return URIBuilder.newBuilder(authorizationServer).path("/.well-known/uma2-configuration").build();
+        return URIBuilder.newBuilder(authorizationServer).path(".well-known/uma2-configuration").build();
     }
 }
