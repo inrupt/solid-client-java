@@ -297,9 +297,8 @@ class UmaClientTest {
         assertEquals(List.of("urn:ietf:params:oauth:grant-type:uma-ticket"),
                 metadata.grantTypesSupported);
         assertEquals(asUri, metadata.issuer);
-        // TODO - re-enable these checks once the URIBuilder class is fixed
-        //assertEquals(jwksEndpoint, metadata.jwksUri);
-        //assertEquals(tokenEndpoint, metadata.tokenEndpoint);
+        assertEquals(jwksEndpoint, metadata.jwksUri);
+        assertEquals(tokenEndpoint, metadata.tokenEndpoint);
         assertEquals(List.of(
                     URI.create("https://www.w3.org/TR/vc-data-model/#json-ld"),
                     URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken")),
