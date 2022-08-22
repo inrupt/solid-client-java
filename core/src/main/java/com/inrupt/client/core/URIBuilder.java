@@ -32,10 +32,10 @@ public final class URIBuilder {
 
     private static int PAIR = 2;
 
-    private String builderScheme;
-    private StringBuilder builderSsp;
-    private List<String> builderQueryParams = new ArrayList<>();
-    private String builderFragment;
+    private String scheme;
+    private StringBuilder schemeSpecificPart;
+    private List<String> queryParams = new ArrayList<>();
+    private String uriFragment;
 
     /**
      * Create a new URI builder from an existing URI.
@@ -45,15 +45,15 @@ public final class URIBuilder {
      */
     public static URIBuilder newBuilder(final URI uri) {
         final var builder = new URIBuilder();
-        builder.builderScheme = uri.getScheme();
-        builder.builderFragment = uri.getFragment();
+        builder.scheme = uri.getScheme();
+        builder.uriFragment = uri.getFragment();
 
         final var parts = uri.getSchemeSpecificPart().split("\\?", PAIR);
 
-        builder.builderSsp = new StringBuilder(parts[0]);
+        builder.schemeSpecificPart = new StringBuilder(parts[0]);
         if (parts.length == PAIR) {
             for (final var param : parts[1].split("&")) {
-                builder.builderQueryParams.add(param);
+                builder.queryParams.add(param);
             }
         }
 
@@ -68,10 +68,10 @@ public final class URIBuilder {
      */
     public URIBuilder path(final String path) {
         if (path != null && !path.isBlank()) {
-            if (builderSsp.charAt(builderSsp.length() - 1) == '/') {
-                builderSsp.append(path.startsWith("/") ? path.substring(1) : path);
+            if (schemeSpecificPart.charAt(schemeSpecificPart.length() - 1) == '/') {
+                schemeSpecificPart.append(path.startsWith("/") ? path.substring(1) : path);
             } else {
-                builderSsp.append(path.startsWith("/") ? path : "/" + path);
+                schemeSpecificPart.append(path.startsWith("/") ? path : "/" + path);
             }
         }
         return this;
@@ -85,7 +85,7 @@ public final class URIBuilder {
      * @return this builder
      */
     public URIBuilder queryParam(final String param, final String value) {
-        builderQueryParams.add(formatQueryParam(param, value));
+        queryParams.add(formatQueryParam(param, value));
         return this;
     }
 
@@ -96,7 +96,7 @@ public final class URIBuilder {
      * @return this builder
      */
     public URIBuilder fragment(final String fragment) {
-        builderFragment = fragment;
+        uriFragment = fragment;
         return this;
     }
 
@@ -106,12 +106,12 @@ public final class URIBuilder {
      * @return the newly constructed URI
      */
     public URI build() {
-        if (!builderQueryParams.isEmpty()) {
-            builderSsp.append("?");
-            builderSsp.append(String.join("&", builderQueryParams));
+        if (!queryParams.isEmpty()) {
+            schemeSpecificPart.append("?");
+            schemeSpecificPart.append(String.join("&", queryParams));
         }
         try {
-            return new URI(builderScheme, builderSsp.toString(), builderFragment);
+            return new URI(scheme, schemeSpecificPart.toString(), uriFragment);
         } catch (final URISyntaxException ex) {
             throw new IllegalArgumentException("Invalid URI value", ex);
         }
