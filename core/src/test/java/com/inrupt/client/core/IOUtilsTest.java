@@ -23,6 +23,8 @@ package com.inrupt.client.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,103 +32,105 @@ import org.junit.jupiter.api.Test;
 
 class IOUtilsTest {
 
+    static final String INPUT_DOC = "/clarissa.txt";
+
+    enum Speed { FAST, SLOW };
+
     @Test
     void testAsyncOutputPipe() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream("/clarissa.txt")) {
+        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
             final var data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> {
-                try {
-                    for (var i = 0; i < data.length; i++) {
-                        source.write(data[i]);
-                    }
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
+            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
-            CompletableFuture.runAsync(() -> {
-                try {
-                    final var bytes = sink.readAllBytes();
-                    assertEquals(data.length, bytes.length);
-                    for (var i = 0; i < data.length; i++) {
-                        assertEquals(data[i], bytes[i]);
-                    }
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            }).join();
+            CompletableFuture.runAsync(() -> consume(sink, data, Speed.FAST)).join();
         }
     }
 
     @Test
-    void testAsyncOutputPipeSlowerReader() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream("/clarissa.txt")) {
+    void testAsyncOutputPipeSlowReader() throws IOException {
+        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
             final var data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> {
-                try {
-                    for (var i = 0; i < data.length; i++) {
-                        source.write(data[i]);
-                    }
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
+            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
-            CompletableFuture.runAsync(() -> {
-                try {
-                    for (var i = 0; i < data.length; i++) {
-                        assertEquals(data[i], sink.read());
-                    }
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            }).join();
+            CompletableFuture.runAsync(() -> consume(sink, data, Speed.SLOW)).join();
+        }
+    }
+
+    @Test
+    void testAsyncOutputPipeSlowWriter() throws IOException {
+        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final var data = res.readAllBytes();
+
+            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
+
+            CompletableFuture.runAsync(() -> consume(sink, data, Speed.FAST)).join();
         }
     }
 
     @Test
     void testSyncOutputPipe() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream("/clarissa.txt")) {
+        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
             final var data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> {
-                try {
-                    for (var i = 0; i < data.length; i++) {
-                        source.write(data[i]);
-                    }
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
+            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
-            final var bytes = sink.readAllBytes();
-            assertEquals(data.length, bytes.length);
-            for (var i = 0; i < data.length; i++) {
-                assertEquals(data[i], bytes[i]);
-            }
+            consume(sink, data, Speed.FAST);
         }
     }
 
     @Test
-    void testSyncOutputPipeSlowerReader() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream("/clarissa.txt")) {
+    void testSyncOutputPipeSlowReader() throws Exception {
+        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
             final var data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> {
-                try {
-                    for (var i = 0; i < data.length; i++) {
-                        source.write(data[i]);
-                    }
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            });
+            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
+            consume(sink, data, Speed.SLOW);
+        }
+    }
+
+    @Test
+    void testSyncOutputPipeSlowWriter() throws Exception {
+        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final var data = res.readAllBytes();
+
+            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
+
+            consume(sink, data, Speed.FAST);
+        }
+    }
+
+    void produce(final OutputStream out, final byte[] data, final Speed speed) {
+        try {
             for (var i = 0; i < data.length; i++) {
-                assertEquals(data[i], sink.read());
+                if (Speed.SLOW.equals(speed) && i % 100 == 0) {
+                    // Simulate a slow producer
+                    Thread.sleep(1);
+                }
+                out.write(data[i]);
             }
+        } catch (final InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
+    void consume(final InputStream in, final byte[] data, final Speed speed) {
+        try {
+            for (var i = 0; i < data.length; i++) {
+                if (Speed.SLOW.equals(speed) && i % 100 == 0) {
+                    // Simulate a slow consumer
+                    Thread.sleep(1);
+                }
+                assertEquals(data[i], in.read());
+            }
+        } catch (final InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException(ex);
         }
     }
 }
