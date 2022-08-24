@@ -95,7 +95,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
             try (final var conn = repository.getConnection()) {
                 conn.add(input, format, RDF4J.NIL);
             }
-            return RDF4JDataset(repository);
+            return new RDF4JDataset(repository);
         } catch (final RDF4JException ex) {
             throw new IOException("Error parsing dataset", ex);
         }
@@ -108,7 +108,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
 
         try {
             final var model = Rio.parse(input, format);
-            return RDF4JGraph(model);
+            return new RDF4JGraph(model);
         } catch (RDFParseException ex) {
             throw new IOException("Error parsing graph", ex);
         } catch (RDFHandlerException ex) {

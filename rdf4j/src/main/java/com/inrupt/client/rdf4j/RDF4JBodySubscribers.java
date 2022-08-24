@@ -20,14 +20,18 @@
  */
 package com.inrupt.client.rdf4j;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpResponse;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 /**
@@ -55,7 +59,13 @@ public final class RDF4JBodySubscribers {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         //RDFParser rdfParser = Rio.createParser(format); -> not sure if needed
         return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
-            return Rio.parse(input, format);
+            try {
+                return Rio.parse(input, format);
+            } catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return null;
+            }
         });
     }
 
@@ -82,8 +92,11 @@ public final class RDF4JBodySubscribers {
             final var repository = new SailRepository(new MemoryStore());
             try (final var conn = repository.getConnection()) {
                 conn.add(input, format);
+            } catch (final RDFParseException | RepositoryException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-            return RDF4JDataset(repository);
+            return repository;
         });
     }
 
