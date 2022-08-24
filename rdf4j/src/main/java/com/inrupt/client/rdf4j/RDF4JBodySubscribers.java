@@ -22,6 +22,7 @@ package com.inrupt.client.rdf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
 
 import org.eclipse.rdf4j.model.Model;
@@ -61,10 +62,15 @@ public final class RDF4JBodySubscribers {
         return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
             try {
                 return Rio.parse(input, format);
-            } catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (RDFParseException | UnsupportedRDFormatException ex) {
+                //TODO: maybe add throws RDF4JException and UnsupportedRDFormatException to method
                 return null;
+
+            } catch (IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream into a Model",
+                    ex
+                );
             }
         });
     }
@@ -92,9 +98,13 @@ public final class RDF4JBodySubscribers {
             final var repository = new SailRepository(new MemoryStore());
             try (final var conn = repository.getConnection()) {
                 conn.add(input, format);
-            } catch (final RDFParseException | RepositoryException | IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (final RDFParseException | RepositoryException ex) {
+                //TODO: maybe add throws RDF4JException to method
+            } catch (final IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream into a Repository",
+                    ex
+                );
             }
             return repository;
         });
