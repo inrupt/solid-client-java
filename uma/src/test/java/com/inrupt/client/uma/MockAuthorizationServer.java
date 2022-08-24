@@ -20,10 +20,13 @@
  */
 package com.inrupt.client.uma;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class MockAuthorizationServer {
@@ -84,6 +87,67 @@ public class MockAuthorizationServer {
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                     .withBody("{\"error\":\"invalid_scope\"}")));
 
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-need-info-no-response-ticket"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(400)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"error\":\"need_info\"}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-need-info-with-ticket"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(403)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"error\":\"need_info\",\"ticket\":\"ticket-need-info-lvl-02\"}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-need-info-lvl-02"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(403)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"error\":\"need_info\",\"ticket\":\"ticket-need-info-lvl-3\"}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-need-info-lvl-03"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(403)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"error\":\"need_info\",\"ticket\":\"ticket-need-info-lvl-4\"}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-need-info-lvl-04"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(403)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"error\":\"need_info\",\"ticket\":\"ticket-request-denied\"}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-need-info-oidc-requirement"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(403)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{" +
+                        "\"error\":\"need_info\"," +
+                        "\"ticket\":\"ticket-request-id-token\"," +
+                        "\"required_claims\":[{" +
+                            "\"claim_token_format\":[" +
+                                "\"http://openid.net/specs/openid-connect-core-1_0.html#IDToken\"]," +
+                            "\"claim_type\":\"webid\"," +
+                            "\"friendly_name\":\"webid\"" +
+                        "}]}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-request-id-token"))
+                .withRequestBody(WireMock.containing("claim_token=oidc-id-token"))
+                .withRequestBody(WireMock.containing("claim_token_format=" +
+                        URLEncoder.encode("http://openid.net/specs/openid-connect-core-1_0.html#IDToken", UTF_8)))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"access_token\":\"token-from-id-token\",\"token_type\":\"Bearer\"}")));
+
+
         // Stubs for unexpected error responses (per spec)
         wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
                 .withRequestBody(WireMock.containing("ticket=ticket-unknown-error"))
@@ -91,6 +155,13 @@ public class MockAuthorizationServer {
                     .withStatus(400)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                     .withBody("{\"error\":\"unknown-error\"}")));
+
+        wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.containing("ticket=ticket-invalid-response"))
+                .willReturn(WireMock.aResponse()
+                    .withStatus(400)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody("{\"foo\":\"bar\"}")));
 
         wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))
                 .withRequestBody(WireMock.containing("ticket=ticket-malformed-response"))
