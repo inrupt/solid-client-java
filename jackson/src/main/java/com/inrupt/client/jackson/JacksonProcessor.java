@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.jackson;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.inrupt.client.spi.JsonProcessor;
@@ -38,6 +39,7 @@ public class JacksonProcessor implements JsonProcessor {
     public JacksonProcessor() {
         mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override

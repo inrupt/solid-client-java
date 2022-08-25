@@ -49,7 +49,7 @@ public class UmaClient {
 
     /* UMA parameter names */
     private static final String CLAIM_TOKEN = "claim_token";
-    private static final String CLAIM_TOKEN_TYPE = "claim_token_type";
+    private static final String CLAIM_TOKEN_FORMAT = "claim_token_format";
     private static final String GRANT_TYPE = "grant_type";
     private static final String PCT = "pct";
     private static final String RPT = "rpt";
@@ -173,14 +173,15 @@ public class UmaClient {
                         switch (err.error) {
                             case NEED_INFO:
                                 // recursive claims gathering
-                                if (err.ticket == null) {
-                                    throw new UmaException("Missing ticket in need_info response");
-                                }
-
                                 return NeedInfo.ofErrorResponse(err)
-                                    .map(needInfo -> claimMapper.apply(needInfo).thenApply(claimToken ->
-                                                new TokenRequest(needInfo.getTicket(), null, null, claimToken,
-                                                    tokenRequest.getScopes())))
+                                    .map(needInfo -> claimMapper.apply(needInfo).thenApply(claimToken -> {
+                                        if (claimToken == null) {
+                                            throw new RequestDeniedException(
+                                                    "The client is unable to negotiate an access token");
+                                        }
+                                        return new TokenRequest(needInfo.getTicket(), null, null, claimToken,
+                                                    tokenRequest.getScopes());
+                                    }))
                                     .orElseThrow(() -> new RequestDeniedException("Invalid need_info error response"))
                                     .thenCompose(modifiedTokenRequest ->
                                         tokenAsync(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));
@@ -230,17 +231,19 @@ public class UmaClient {
                 switch (err.error) {
                     case NEED_INFO:
                         // recursive claims gathering
-                        if (err.ticket == null) {
-                            throw new UmaException("Missing ticket in need_info response");
-                        }
-
                         return NeedInfo.ofErrorResponse(err)
                             .map(needInfo -> {
                                 final var claimToken = claimMapper.apply(needInfo);
+                                if (claimToken == null) {
+                                    throw new RequestDeniedException(
+                                            "The client is unable to negotiate an access token");
+                                }
+
                                 final var modifiedTokenRequest = new TokenRequest(needInfo.getTicket(), null, null,
                                         claimToken, tokenRequest.getScopes());
                                 return token(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1);
-                            }).orElseThrow(() ->
+                            })
+                            .orElseThrow(() ->
                                 new RequestDeniedException("Invalid need_info error response"));
 
                     case REQUEST_DENIED:
@@ -269,7 +272,7 @@ public class UmaClient {
         request.getRequestingPartyToken().ifPresent(rpt -> data.put(RPT, rpt));
         request.getClaimToken().ifPresent(claimToken -> {
             data.put(CLAIM_TOKEN, claimToken.getClaimToken());
-            data.put(CLAIM_TOKEN_TYPE, claimToken.getClaimTokenType());
+            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType());
         });
         if (!request.getScopes().isEmpty()) {
             data.put(SCOPE, String.join(" ", request.getScopes()));
