@@ -39,7 +39,8 @@ class UmaClientTest {
 
     private static final MockAuthorizationServer as = new MockAuthorizationServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static final String ID_TOKEN_TYPE = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+    private static final String ID_TOKEN_CLAIM_TOKEN_FORMAT =
+        "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
 
     @BeforeAll
     static void setup() {
@@ -202,7 +203,7 @@ class UmaClientTest {
         final var req = new TokenRequest(ticket, null, null, null, null);
 
         final var token = client.token(metadata.tokenEndpoint, req, needInfo ->
-                ClaimToken.of(idToken, ID_TOKEN_TYPE));
+                ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT));
 
         assertEquals("token-from-id-token", token.accessToken);
         assertEquals("Bearer", token.tokenType);
@@ -219,7 +220,7 @@ class UmaClientTest {
         final var req = new TokenRequest(ticket, null, null, null, null);
 
         assertThrows(UmaException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo ->
-                ClaimToken.of(idToken, ID_TOKEN_TYPE)));
+                ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT)));
     }
 
 
@@ -422,7 +423,7 @@ class UmaClientTest {
         final var token = client.metadataAsync(asUri)
                 .thenCompose(metadata ->
                     client.tokenAsync(metadata.tokenEndpoint, req, needInfo ->
-                        CompletableFuture.completedFuture(ClaimToken.of(idToken, ID_TOKEN_TYPE))))
+                        CompletableFuture.completedFuture(ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT))))
                 .toCompletableFuture().join();
 
         assertEquals("token-from-id-token", token.accessToken);
@@ -441,7 +442,7 @@ class UmaClientTest {
                 client.metadataAsync(asUri)
                     .thenCompose(metadata ->
                         client.tokenAsync(metadata.tokenEndpoint, req, needInfo ->
-                            CompletableFuture.completedFuture(ClaimToken.of(idToken, ID_TOKEN_TYPE))))
+                            CompletableFuture.completedFuture(ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT))))
                     .toCompletableFuture()::join);
 
         assertTrue(err.getCause() instanceof UmaException);
