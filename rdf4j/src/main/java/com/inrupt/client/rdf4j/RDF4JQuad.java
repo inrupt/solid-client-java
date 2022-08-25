@@ -29,7 +29,6 @@ import java.util.Optional;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 
 
 class RDF4JQuad extends RDF4JTriple implements Quad {
@@ -39,20 +38,13 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
     public RDF4JQuad(final Statement statement) {
         //TODO Values.triple(st) can throw a NullPointerException if s,p or o null
         super(Values.triple(statement));
-        this.graphName = getGraphName(statement);
+        this.graphName = statement.getContext();
     }
 
     @Override
     public Optional<RDFNode> getGraphName() {
         return Optional.ofNullable(graphName).map(Resource::stringValue)
                 .map(URI::create).map(RDFNode::namedNode);
-    }
-
-    static Resource getGraphName(final Statement statement) {
-        if (statement.getContext() == RDF4J.NIL) {
-            return null;
-        }
-        return statement.getContext();
     }
 
 }

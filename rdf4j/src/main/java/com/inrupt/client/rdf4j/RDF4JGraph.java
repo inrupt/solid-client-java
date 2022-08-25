@@ -32,7 +32,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 
 class RDF4JGraph implements Graph {
 
@@ -51,14 +50,12 @@ class RDF4JGraph implements Graph {
         final var s = getSubject(subject);
         final var p = getPredicate(predicate);
         final var o = getObject(object);
-        //TODO to test the context -> should work with the default graph here
-        return model.filter(s, p, o, RDF4J.NIL).stream().map(st -> (RDF4JTriple)Values.triple(st));
+        return model.filter(s, p, o).stream().map(st -> new RDF4JTriple(Values.triple(st)));
     }
 
     @Override
     public Stream<Triple> stream() {
-        //TODO to test the context -> should work with the default graph here
-        return model.filter(null, null, null, RDF4J.NIL).stream().map(st -> (RDF4JTriple)Values.triple(st));
+        return model.filter(null, null, null).stream().map(st -> new RDF4JTriple(Values.triple(st)));
     }
 
     static Resource getSubject(final RDFNode subject) {

@@ -28,10 +28,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 class RDF4JDataset implements Dataset {
 
@@ -54,7 +56,12 @@ class RDF4JDataset implements Dataset {
         final var o = RDF4JGraph.getObject(object);
 
         try (final var conn = repository.getConnection()) {
-            final var statements = conn.getStatements(s, p, o, g);
+            final RepositoryResult<Statement> statements;
+            if (g != null) {
+                statements = conn.getStatements(s, p, o, g);
+            } else {
+                statements = conn.getStatements(s, p, o);
+            }
             final var model = QueryResults.asModel(statements);
             return model.stream().map(RDF4JQuad::new);
         }
@@ -63,22 +70,23 @@ class RDF4JDataset implements Dataset {
     @Override
     public Stream<Quad> stream() {
         try (final var conn = repository.getConnection()) {
-            final var statements = conn.getStatements(null, null, null, RDF4J.NIL);
+            final var statements = conn.getStatements(null, null, null);
             final var model = QueryResults.asModel(statements);
             return model.stream().map(RDF4JQuad::new);
         }
     }
 
-    private Resource getGraph(final Optional<RDFNode> graph) {
-        final var factory = SimpleValueFactory.getInstance();
-        if (graph.isPresent()) {
-            if (graph.get().isLiteral()) {
-                throw new IllegalArgumentException("Graph cannot be an RDF literal");
+    static Resource getGraph(final Optional<RDFNode> graph) {
+        if (graph != null) {
+            if (graph.isPresent()) {
+                if (graph.get().isLiteral()) {
+                    throw new IllegalArgumentException("Graph cannot be an RDF literal");
+                }
+                if (graph.get().isNamedNode()) {
+                    return SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString());
+                }
+                return RDF4J.NIL;
             }
-            if (graph.get().isNamedNode()) {
-                return factory.createIRI(graph.get().getURI().toString());
-            }
-            return RDF4J.NIL;
         }
         return null;
     }

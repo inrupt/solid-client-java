@@ -32,8 +32,8 @@ public class RDF4JTripleTest {
 
     private RDF4JTriple rdf4jTriple;
     private static final ValueFactory VF = SimpleValueFactory.getInstance();
-    private final IRI subject = VF.createIRI("https://example.com/test");
-    private final IRI predicate = VF.createIRI("https://example.com/belongsTo");;
+    private final IRI subject = VF.createIRI("http://example.com/test");
+    private final IRI predicate = VF.createIRI("http://example.com/belongsTo");
 
     @Test
     void testValidTriple() {
@@ -42,12 +42,16 @@ public class RDF4JTripleTest {
 
         assertAll("triple creation validation",
                 () -> assertTrue(rdf4jTriple.getSubject().isNamedNode()),
-                () -> assertEquals(rdf4jTriple.getSubject().getURI().toString(),
-                                "https://example.com/test"),
+                () -> assertEquals("http://example.com/test", rdf4jTriple.getSubject().getURI().toString()),
                 () -> assertTrue(rdf4jTriple.getPredicate().isNamedNode()),
-                () -> assertEquals(rdf4jTriple.getPredicate().getURI().toString(),
-                        "https://example.com/belongsTo"),
-                () -> assertEquals(rdf4jTriple.getObject().getLiteral(), "TestCase1"));
+                () -> assertEquals("http://example.com/belongsTo", rdf4jTriple.getPredicate().getURI().toString()),
+                () -> assertEquals("TestCase1", rdf4jTriple.getObject().getLiteral()));
+    }
+
+    @Test
+    void testInvalidTriple() {
+        assertThrows(NullPointerException.class,
+            () -> new RDF4JTriple(VF.createTriple(null, null, null)));
     }
 
     @Test
@@ -55,18 +59,17 @@ public class RDF4JTripleTest {
         final var object = VF.createLiteral("TestCase1");
         rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
 
-        assertEquals(rdf4jTriple.getObject().getLiteral(), "TestCase1");
+        assertEquals("TestCase1", rdf4jTriple.getObject().getLiteral());
     }
 
     @Test
     void testObjectAsIRI() {
-        final var object = VF.createIRI("https://example.com/object");
+        final var object = VF.createIRI("http://example.com/object");
         rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
 
         assertAll("object is a NamedNode",
                 () -> assertTrue(rdf4jTriple.getObject().isNamedNode()),
-                () -> assertEquals(rdf4jTriple.getObject().getURI().toString(),
-                        "https://example.com/object"));
+                () -> assertEquals("http://example.com/object", rdf4jTriple.getObject().getURI().toString()));
     }
 
     @Test
@@ -76,7 +79,7 @@ public class RDF4JTripleTest {
 
         assertAll("object is literal",
                 () -> assertTrue(rdf4jTriple.getObject().isLiteral()),
-                () -> assertEquals(rdf4jTriple.getObject().getLiteral(), "42"));
+                () -> assertEquals("42", rdf4jTriple.getObject().getLiteral()));
     }
 
     @Test
@@ -85,8 +88,8 @@ public class RDF4JTripleTest {
         rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
 
         assertAll("object is literal with datatype",
-                () -> assertEquals(rdf4jTriple.getObject().getLiteral(), "object"),
-                () -> assertEquals(rdf4jTriple.getObject().getDatatype().toString(), SKOS.CONCEPT.stringValue()));
+                () -> assertEquals("object", rdf4jTriple.getObject().getLiteral()),
+                () -> assertEquals(SKOS.CONCEPT.stringValue(), rdf4jTriple.getObject().getDatatype().toString()));
     }
 
     @Test
@@ -95,8 +98,8 @@ public class RDF4JTripleTest {
         rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
 
         assertAll("object is literal with language",
-            () -> assertEquals(rdf4jTriple.getObject().getLiteral(), "object"),
-            () -> assertEquals(rdf4jTriple.getObject().getLanguage(), "en")
+            () -> assertEquals("object", rdf4jTriple.getObject().getLiteral()),
+            () -> assertEquals("en", rdf4jTriple.getObject().getLanguage())
         );
     }
 
