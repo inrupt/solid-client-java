@@ -40,7 +40,7 @@ public final class ClaimToken {
         return claimTokenType;
     }
 
-    public static ClaimToken ofClaimToken(final String claimToken, final String claimTokenType) {
+    public static ClaimToken of(final String claimToken, final String claimTokenType) {
         return new ClaimToken(claimToken, claimTokenType);
     }
 }

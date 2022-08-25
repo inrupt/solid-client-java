@@ -20,12 +20,14 @@
  */
 package com.inrupt.client.core;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UncheckedIOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -41,17 +43,33 @@ public final class IOUtils {
      */
     public static InputStream pipe(final Consumer<OutputStream> function) {
 
-        final var in = new PipedInputStream();
-        final Runnable task = () -> {
-            try (final var out = new PipedOutputStream(in)) {
-                function.accept(out);
-            } catch (final IOException ex) {
-                throw new UncheckedIOException("Error piping data across threads", ex);
-            }
-        };
+        try {
+            final var sink = new PipedInputStream();
+            final var source = new PipedOutputStream(sink);
 
-        new Thread(task).start();
-        return in;
+            CompletableFuture
+                .runAsync(() -> function.accept(source))
+                .whenComplete((x, err) -> closeUnchecked(source));
+
+            return sink;
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error piping data across threads", ex);
+        }
+    }
+
+    /**
+     * Close an I/O stream.
+     *
+     * <p>Note: Useful in lambda functions
+     *
+     * @param stream the I/O stream
+     */
+    static void closeUnchecked(final Closeable stream) {
+        try {
+            stream.close();
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error closing I/O stream", ex);
+        }
     }
 
     private IOUtils() {
