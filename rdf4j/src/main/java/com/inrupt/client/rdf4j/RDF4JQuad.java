@@ -30,17 +30,28 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Values;
 
-
+/**
+ * The RDF4J implementation of a {@link Quad}.
+ */
 class RDF4JQuad extends RDF4JTriple implements Quad {
 
     private final Resource graphName;
 
+    /**
+     * Create a RDF4JQuad.
+     *
+     * @param statement the RDF4J {@link Statement}
+     */
     public RDF4JQuad(final Statement statement) {
-        //TODO Values.triple(st) can throw a NullPointerException if s,p or o null
         super(Values.triple(statement));
         this.graphName = statement.getContext();
     }
 
+    /**
+     * Retrieve the {@link RDFNode} graph name.
+     *
+     * @return the {@link RDFNode} graph name from {@code graphName}
+     */
     @Override
     public Optional<RDFNode> getGraphName() {
         return Optional.ofNullable(graphName).map(Resource::stringValue)

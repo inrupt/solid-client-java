@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.rdf4j.common.exception.RDF4JException;
-import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.RepositoryConnection;

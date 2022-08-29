@@ -31,7 +31,6 @@ import org.eclipse.rdf4j.repository.sparql.query.SPARQLUpdate;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
-
 /**
  * {@link HttpRequest.BodyPublisher} implementations for use with RDF4J types.
  */

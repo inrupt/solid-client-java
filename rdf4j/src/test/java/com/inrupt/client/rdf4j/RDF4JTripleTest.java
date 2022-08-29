@@ -22,50 +22,44 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.junit.jupiter.api.Test;
 
-public class RDF4JTripleTest {
+class RDF4JTripleTest {
 
-    private RDF4JTriple rdf4jTriple;
-    private static final ValueFactory VF = SimpleValueFactory.getInstance();
-    private final IRI subject = VF.createIRI("http://example.com/test");
-    private final IRI predicate = VF.createIRI("http://example.com/belongsTo");
+    private static RDF4JTriple rdf4jTriple;
 
     @Test
     void testValidTriple() {
-        final var object = VF.createLiteral("TestCase1");
-        rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
+        final var object = TestModel.VF.createLiteral("TestCase1");
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
 
         assertAll("triple creation validation",
                 () -> assertTrue(rdf4jTriple.getSubject().isNamedNode()),
-                () -> assertEquals("http://example.com/test", rdf4jTriple.getSubject().getURI().toString()),
+                () -> assertEquals(TestModel.S_VALUE, rdf4jTriple.getSubject().getURI().toString()),
                 () -> assertTrue(rdf4jTriple.getPredicate().isNamedNode()),
-                () -> assertEquals("http://example.com/belongsTo", rdf4jTriple.getPredicate().getURI().toString()),
+                () -> assertEquals(TestModel.P_VALUE, rdf4jTriple.getPredicate().getURI().toString()),
                 () -> assertEquals("TestCase1", rdf4jTriple.getObject().getLiteral()));
     }
 
     @Test
     void testInvalidTriple() {
         assertThrows(NullPointerException.class,
-            () -> new RDF4JTriple(VF.createTriple(null, null, null)));
+            () -> new RDF4JTriple(TestModel.VF.createTriple(null, null, null)));
     }
 
     @Test
     void testLiteralObject() {
-        final var object = VF.createLiteral("TestCase1");
-        rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
+        final var object = TestModel.VF.createLiteral("TestCase1");
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
 
         assertEquals("TestCase1", rdf4jTriple.getObject().getLiteral());
     }
 
     @Test
     void testObjectAsIRI() {
-        final var object = VF.createIRI("http://example.com/object");
-        rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
+        final var object = TestModel.VF.createIRI("http://example.com/object");
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
 
         assertAll("object is a NamedNode",
                 () -> assertTrue(rdf4jTriple.getObject().isNamedNode()),
@@ -74,8 +68,8 @@ public class RDF4JTripleTest {
 
     @Test
     void testObjectAsLiteral() {
-        final var object = VF.createLiteral(42);
-        rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
+        final var object = TestModel.VF.createLiteral(42);
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
 
         assertAll("object is literal",
                 () -> assertTrue(rdf4jTriple.getObject().isLiteral()),
@@ -84,8 +78,8 @@ public class RDF4JTripleTest {
 
     @Test
     void testObjectWithDatatype() {
-        final var object = VF.createLiteral("object", SKOS.CONCEPT);
-        rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
+        final var object = TestModel.VF.createLiteral("object", SKOS.CONCEPT);
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
 
         assertAll("object is literal with datatype",
                 () -> assertEquals("object", rdf4jTriple.getObject().getLiteral()),
@@ -94,8 +88,8 @@ public class RDF4JTripleTest {
 
     @Test
     void testObjectWithLanguage() {
-        final var object = VF.createLiteral("object", "en");
-        rdf4jTriple = new RDF4JTriple(VF.createTriple(subject, predicate, object));
+        final var object = TestModel.VF.createLiteral("object", "en");
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
 
         assertAll("object is literal with language",
             () -> assertEquals("object", rdf4jTriple.getObject().getLiteral()),

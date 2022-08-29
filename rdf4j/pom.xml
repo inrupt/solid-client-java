@@ -61,6 +61,11 @@
       <groupId>org.eclipse.rdf4j</groupId>
       <artifactId>rdf4j-sail-memory</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

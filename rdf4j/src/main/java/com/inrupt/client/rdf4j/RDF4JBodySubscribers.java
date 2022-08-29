@@ -32,7 +32,6 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 /**
@@ -58,22 +57,26 @@ public final class RDF4JBodySubscribers {
      */
     public static HttpResponse.BodySubscriber<Model> ofModel(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        //RDFParser rdfParser = Rio.createParser(format); -> not sure if needed
-        return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
-            try {
-                return Rio.parse(input, format);
-            } catch (RDFParseException | UnsupportedRDFormatException ex) {
-                //TODO: maybe add throws RDF4JException and UnsupportedRDFormatException to method
-                return null;
-
-            } catch (IOException ex) {
-                throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream into a Model",
-                    ex
-                );
+        //RDFParser rdfParser = Rio.createParser(format);
+        /* BodySubscriber<RDF4JBodySubscribers> downstream  =
+        HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
+            try (InputSteram stream = input) {
+                return Rio.parse(stream, format);
             }
-        });
+        }); */
+        final HttpResponse.BodySubscriber<Model> downstream  = HttpResponse.BodySubscribers.mapping(
+            upstream,
+            (InputStream is) -> {
+                try (InputStream stream = is) {
+                    return Rio.parse(stream, format);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
+        );
+        return downstream;
     }
+
 
     /**
      * Process an HTTP response as a RDF4J {@link Repository}.

@@ -27,14 +27,27 @@ import java.net.URI;
 
 import org.eclipse.rdf4j.model.Literal;
 
+/**
+ * The RDF4J implementation of a {@link Triple}.
+ */
 class RDF4JTriple implements Triple {
 
     private final org.eclipse.rdf4j.model.Triple triple;
 
+    /**
+     * Create a RDF4JTriple.
+     *
+     * @param triple the RDF4J {@link org.eclipse.rdf4j.model.Triple}
+     */
     public RDF4JTriple(final org.eclipse.rdf4j.model.Triple triple) {
         this.triple = triple;
     }
 
+    /**
+     * Retrieve the {@link RDFNode} subject.
+     *
+     * @return the {@link RDFNode} subject from {@code triple}
+     */
     @Override
     public RDFNode getSubject() {
         final var s = triple.getSubject();
@@ -44,12 +57,22 @@ class RDF4JTriple implements Triple {
         return RDFNode.blankNode();
     }
 
+    /**
+     * Retrieve the {@link RDFNode} predicate.
+     *
+     * @return the {@link RDFNode} predicate from {@code triple}
+     */
     @Override
     public RDFNode getPredicate() {
         final var p = triple.getPredicate();
         return RDFNode.namedNode(URI.create(p.stringValue()));
     }
 
+    /**
+     * Retrieve the {@link RDFNode} object.
+     *
+     * @return the {@link RDFNode} object from {@code triple}
+     */
     @Override
     public RDFNode getObject() {
         final var o = triple.getObject();
