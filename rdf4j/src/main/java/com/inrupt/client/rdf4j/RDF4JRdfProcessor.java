@@ -77,7 +77,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
         final var writer = Rio.createWriter(format, output);
         try {
             writer.startRDF();
-            for (Statement st: ((RDF4JGraph) graph).asRDF4JModel()) {
+            for (final var st : ((RDF4JGraph) graph).asRDF4JModel()) {
                 writer.handleStatement(st);
             }
             writer.endRDF();
