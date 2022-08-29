@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
-public class RDF4JGraphTest {
+class RDF4JGraphTest {
 
     private static RDF4JGraph rdf4jGraph;
     private static RDFNode s;
