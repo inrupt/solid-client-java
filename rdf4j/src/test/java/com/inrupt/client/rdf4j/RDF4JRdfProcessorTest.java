@@ -38,7 +38,6 @@ import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class RDF4JRdfProcessorTest {
@@ -49,6 +48,7 @@ class RDF4JRdfProcessorTest {
 
     @BeforeAll
     static void setup() {
+        // create a RDF4JDataset
         final Statement st = TestModel.VF.createStatement(
             TestModel.S_RDF4J,
             TestModel.P_RDF4J,
@@ -60,25 +60,19 @@ class RDF4JRdfProcessorTest {
             TestModel.P1_RDF4J,
             TestModel.O1_RDF4J
         );
-
         final var repository = new SailRepository(new MemoryStore());
-
         try (final var conn = repository.getConnection()) {
             conn.add(st);
             conn.add(st1);
         }
         rdf4jDataset = new RDF4JDataset(repository);
 
+        // create a RDF4JGraph
         final var builder = new ModelBuilder();
-
-        // add a new named graph to the model
         builder.namedGraph(TestModel.G_RDF4J)
                 .subject(TestModel.S_VALUE)
                     .add(TestModel.P_VALUE, TestModel.O_VALUE);
-
-        // add a triple to the default graph (which is null and NOT RDF4J.NIL)
         builder.defaultGraph().subject(TestModel.S1_VALUE).add(TestModel.P_VALUE, TestModel.O1_VALUE);
-
         final var m = builder.build();
         rdf4jGraph = new RDF4JGraph(m);
     }
@@ -89,10 +83,31 @@ class RDF4JRdfProcessorTest {
     }
 
     @Test
-    void parseToDataset() throws IOException {
+    void parseToDatasetTurtle() throws IOException {
         try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final var dataset = processor.toDataset(Syntax.TRIG, input);
+            final var dataset = processor.toDataset(Syntax.TURTLE, input);
+            assertFalse(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(10, dataset.stream().count());
+        }
+    }
+
+    @Test
+    void parseToDatasetTrig() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
+            final var dataset = processor.toDataset(Syntax.TRIG, input);
+            assertTrue(dataset.stream().findFirst().get().getGraphName().isPresent());
+            assertEquals(
+                "http://example.com/graph",
+                dataset.stream().findFirst().get().getGraphName().get().getURI().toString()
+            );
+            assertEquals(1, dataset.stream().count());
+        }
+    }
+
+    @Test
+    void parsetoDatasetException() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
+            assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
         }
     }
 
@@ -104,47 +119,99 @@ class RDF4JRdfProcessorTest {
         }
     }
 
-    @Disabled("Fails on roundtrip having data")
     @Test
-    void serializeFromDatasetRoundtrip() throws IOException {
+    void parseToGraphException() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/invalid.ttl")) {
+            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
+        }
+    }
+
+    @Test
+    void serializeFromDatasetTRIGRoundtrip() throws IOException {
+        try (final var output = new ByteArrayOutputStream()) {
+            processor.fromDataset(rdf4jDataset, Syntax.TRIG, output);
+            final var input = new ByteArrayInputStream(output.toByteArray());
+            final var roundtrip = processor.toDataset(Syntax.TRIG, input);
+            assertEquals(2, roundtrip.stream().count());
+            assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
+            final var st = rdf4jDataset.stream(
+                            Optional.of(TestModel.G_RDFNode),
+                            null,
+                            null,
+                            null
+                            ).findFirst().get().getSubject().getURI().toString();
+            final var st1 = roundtrip.stream(
+                            Optional.of(TestModel.G_RDFNode),
+                            TestModel.S_RDFNode,
+                            TestModel.P_RDFNode,
+                            TestModel.O_RDFNode
+                            ).findFirst().get().getSubject().getURI().toString();
+            assertEquals(st, st1);
+        }
+    }
+
+    @Test
+    void serializeFromDatasetTURTLERoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
             processor.fromDataset(rdf4jDataset, Syntax.TURTLE, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
             final var roundtrip = processor.toDataset(Syntax.TURTLE, input);
-            assertEquals(2, rdf4jDataset.stream().count());
+
+            assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
-            assertEquals(rdf4jDataset.stream(
+            final var st = rdf4jDataset.stream(
                             Optional.of(TestModel.G_RDFNode),
+                            null,
+                            null,
+                            null
+                            ).findFirst().get().getSubject().getURI().toString();
+            final var st1 = roundtrip.stream(
+                            null,
                             TestModel.S_RDFNode,
                             TestModel.P_RDFNode,
                             TestModel.O_RDFNode
-                            ).findFirst().get().getSubject().toString(),
-                        roundtrip.stream(
-                            Optional.of(TestModel.G_RDFNode),
-                            TestModel.S_RDFNode,
-                            TestModel.P_RDFNode,
-                            TestModel.O_RDFNode
-                            ).findFirst().get().getSubject().toString()
-            );
+                            ).findFirst().get().getSubject().getURI().toString();
+            assertEquals(st, st1);
         }
     }
 
     @Test
-    void serializeFromDataset() throws IOException {
-
-        final var tmp = Files.createTempFile(null, null).toFile();
-        try (final var output = new FileOutputStream(tmp)) {
-            output.close();
-            assertThrows(IOException.class, () -> processor.fromDataset(rdf4jDataset,Syntax.TURTLE, output));
+    void serializeFromGraphRoundtrip() throws IOException {
+        try (final var output = new ByteArrayOutputStream()) {
+            processor.fromGraph(rdf4jGraph, Syntax.TURTLE, output);
+            final var input = new ByteArrayInputStream(output.toByteArray());
+            final var roundtrip = processor.toGraph(Syntax.TURTLE, input);
+            assertEquals(2, roundtrip.stream().count());
+            assertEquals(rdf4jGraph.stream().count(), roundtrip.stream().count());
+            final var st = rdf4jGraph.stream(
+                            TestModel.S_RDFNode,
+                            null,
+                            null
+                            ).findFirst().get().getSubject().getURI().toString();
+            final var st1 = roundtrip.stream(
+                            TestModel.S_RDFNode,
+                            TestModel.P_RDFNode,
+                            TestModel.O_RDFNode
+                            ).findFirst().get().getSubject().getURI().toString();
+            assertEquals(st, st1);
         }
     }
 
     @Test
-    void serializeFromGraph() throws IOException {
+    void serializeFromDatasetException() throws IOException {
         final var tmp = Files.createTempFile(null, null).toFile();
         try (final var output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(IOException.class, () -> processor.fromGraph(rdf4jGraph, Syntax.TRIG, output));
+            assertThrows(IOException.class, () -> processor.fromDataset(rdf4jDataset, Syntax.TRIG, output));
+        }
+    }
+
+    @Test
+    void serializeFromGraphException() throws IOException {
+        final var tmp = Files.createTempFile(null, null).toFile();
+        try (final var output = new FileOutputStream(tmp)) {
+            output.close();
+            assertThrows(IOException.class, () -> processor.fromGraph(rdf4jGraph, Syntax.TURTLE, output));
         }
     }
 

@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.rdf4j.common.exception.RDF4JException;
-import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -67,7 +66,6 @@ public class RDF4JRdfProcessor implements RdfProcessor {
         } catch (final RDFHandlerException ex) {
             throw new IOException("Error serializing dataset", ex);
         }
-
     }
 
     @Override
@@ -83,7 +81,6 @@ public class RDF4JRdfProcessor implements RdfProcessor {
         } catch (final RDFHandlerException ex) {
             throw new IOException("Error serializing graph", ex);
         }
-
     }
 
     @Override
@@ -92,13 +89,12 @@ public class RDF4JRdfProcessor implements RdfProcessor {
         final var repository = new SailRepository(new MemoryStore());
         try {
             try (final var conn = repository.getConnection()) {
-                conn.add(input, format, RDF4J.NIL);
+                conn.add(input, format); //if TTL, data is added to the 'null' graph
             }
             return new RDF4JDataset(repository);
         } catch (final RDF4JException ex) {
             throw new IOException("Error parsing dataset", ex);
         }
-
     }
 
     @Override

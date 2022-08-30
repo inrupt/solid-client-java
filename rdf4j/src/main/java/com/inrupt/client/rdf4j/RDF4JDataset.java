@@ -80,7 +80,7 @@ class RDF4JDataset implements Dataset {
         try (final var conn = repository.getConnection()) {
             final RepositoryResult<Statement> statements;
             if (g == null) {
-                //retrieves all statements in the repository
+                //retrieves all statements in the repository regadless of context
                 statements = conn.getStatements(s, p, o);
             } else {
                 statements = conn.getStatements(s, p, o, g);
