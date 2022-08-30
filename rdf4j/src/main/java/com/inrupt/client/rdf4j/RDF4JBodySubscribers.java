@@ -27,10 +27,8 @@ import java.net.http.HttpResponse;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
@@ -57,13 +55,6 @@ public final class RDF4JBodySubscribers {
      */
     public static HttpResponse.BodySubscriber<Model> ofModel(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        //RDFParser rdfParser = Rio.createParser(format);
-        /* BodySubscriber<RDF4JBodySubscribers> downstream  =
-        HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
-            try (InputSteram stream = input) {
-                return Rio.parse(stream, format);
-            }
-        }); */
         final HttpResponse.BodySubscriber<Model> downstream  = HttpResponse.BodySubscribers.mapping(
             upstream,
             (InputStream is) -> {
@@ -98,20 +89,23 @@ public final class RDF4JBodySubscribers {
      */
     public static HttpResponse.BodySubscriber<Repository> ofRepository(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
-            final var repository = new SailRepository(new MemoryStore());
-            try (final var conn = repository.getConnection()) {
-                conn.add(input, format);
-            } catch (final RDFParseException | RepositoryException ex) {
-                //TODO: maybe add throws RDF4JException to method
-            } catch (final IOException ex) {
-                throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream into a Repository",
-                    ex
-                );
-            }
-            return repository;
-        });
+        final HttpResponse.BodySubscriber<Repository> downstream = HttpResponse.BodySubscribers.mapping(
+            upstream,
+            (InputStream input) -> {
+                try (InputStream stream = input) {
+                    final var repository = new SailRepository(new MemoryStore());
+                    try (final var conn = repository.getConnection()) {
+                        conn.add(stream, format);
+                    }
+                    return repository;
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                        "An I/O error occurred while data was read from the InputStream into a Repository",
+                        ex
+                    );
+                }
+            });
+        return downstream;
     }
 
     private RDF4JBodySubscribers() {
