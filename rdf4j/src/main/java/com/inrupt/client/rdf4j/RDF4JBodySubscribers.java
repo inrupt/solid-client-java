@@ -68,7 +68,8 @@ public final class RDF4JBodySubscribers {
             upstream,
             (InputStream is) -> {
                 try (InputStream stream = is) {
-                    return Rio.parse(stream, format);
+                    final var model = Rio.parse(stream, format);
+                    return model;
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }

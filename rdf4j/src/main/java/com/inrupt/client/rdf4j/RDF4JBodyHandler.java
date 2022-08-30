@@ -41,13 +41,9 @@ public final class RDF4JBodyHandler {
     public static HttpResponse.BodyHandler<Model> ofModel() {
         return responseInfo -> {
             final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
-                    () -> extracted());
+                    () -> new RDFHandlerException("Missing content-type header from response"));
             return RDF4JBodySubscribers.ofModel(toRDF4JFormat(format));
         };
-    }
-
-    private static RDFHandlerException extracted() {
-        return new RDFHandlerException("Missing content-type header from response");
     }
 
     /**
@@ -58,7 +54,7 @@ public final class RDF4JBodyHandler {
     public static HttpResponse.BodyHandler<Repository> ofRepository() {
         return responseInfo -> {
             final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
-                    () -> extracted());
+                    () -> new RDFHandlerException("Missing content-type header from response"));
             return RDF4JBodySubscribers.ofRepository(toRDF4JFormat(format));
         };
     }

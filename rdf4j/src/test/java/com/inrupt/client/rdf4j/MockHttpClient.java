@@ -49,38 +49,39 @@ class MockHttpClient {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/turtle")
-                        //.withBody("@prefix ex: <http://example.com/> ex:subject ex:predicate ex:object .")));
+                        .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/getOneTriple"))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/turtle")
                         .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/turtle; charset=UTF-8")
+                        .withHeader("Content-Type", "text/turtle")
                         .withBody(getExampleTTL())));
+        wireMockServer.stubFor(get(urlEqualTo("/sparqlUpdate"))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/sparql-update")
+                        .withBody("<http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .")));
     }
 
     private String getExampleTTL() {
         return "" +
-            "@prefix : <#>." +
+            "@prefix : <http://example.com/>." +
             "\n @prefix foaf: <http://xmlns.com/foaf/0.1/>." +
             "\n @prefix schema: <http://schema.org/>." +
             "\n @prefix solid: <http://www.w3.org/ns/solid/terms#>." +
             "\n @prefix space: <http://www.w3.org/ns/pim/space#>." +
-            "\n @prefix prof: <./>." +
-            "\n @prefix tim: </>." +
-            "\n" +
-            "\n prof:card" +
-            "\n    a foaf:PersonalProfileDocument; " +
-            "\n    foaf:maker :me; " +
-            "\n    foaf:primaryTopic :me." +
             "\n" +
             "\n :me" +
             "\n    a schema:Person, foaf:Person;" +
-            "\n    space:preferencesFile </settings/prefs.ttl>;" +
-            "\n    space:storage tim:;" +
-            "\n    solid:account tim:;" +
-            "\n    solid:privateTypeIndex </settings/privateTypeIndex.ttl>;" +
-            "\n    solid:publicTypeIndex </settings/publicTypeIndex.ttl>;" +
+            "\n    space:preferencesFile <http://example.com//settings/prefs.ttl>;" +
+            "\n    solid:privateTypeIndex <http://example.com//settings/privateTypeIndex.ttl>;" +
+            "\n    solid:publicTypeIndex <http://example.com//settings/publicTypeIndex.ttl>;" +
             "\n    foaf:name \"Jane Doe\";" +
             "\n    solid:oidcIssuer <https://solidcommunity.net>.";
     }
