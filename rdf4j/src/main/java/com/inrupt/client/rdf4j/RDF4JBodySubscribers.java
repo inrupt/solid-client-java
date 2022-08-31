@@ -55,7 +55,7 @@ public final class RDF4JBodySubscribers {
      */
     public static HttpResponse.BodySubscriber<Model> ofModel(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        final HttpResponse.BodySubscriber<Model> downstream  = HttpResponse.BodySubscribers.mapping(
+        final HttpResponse.BodySubscriber<Model> downstream = HttpResponse.BodySubscribers.mapping(
             upstream,
             (InputStream is) -> {
                 try (InputStream stream = is) {

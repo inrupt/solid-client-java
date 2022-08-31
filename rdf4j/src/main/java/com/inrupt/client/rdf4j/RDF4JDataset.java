@@ -99,9 +99,10 @@ class RDF4JDataset implements Dataset {
     @Override
     public Stream<Quad> stream() {
         try (final var conn = repository.getConnection()) {
-            final var statements = conn.getStatements(null, null, null);
-            final var model = QueryResults.asModel(statements);
-            return model.stream().map(RDF4JQuad::new);
+            try (final var statements = conn.getStatements(null, null, null)) {
+                final var model = QueryResults.asModel(statements);
+                return model.stream().map(RDF4JQuad::new);
+            }
         }
     }
 

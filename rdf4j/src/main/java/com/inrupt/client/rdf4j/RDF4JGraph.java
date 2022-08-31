@@ -100,6 +100,7 @@ class RDF4JGraph implements Graph {
             if (subject.isNamedNode()) {
                 return VF.createIRI(subject.getURI().toString());
             }
+            //TODO consider mathcing on BNodes
             return VF.createBNode();
         }
         return null;
@@ -143,6 +144,7 @@ class RDF4JGraph implements Graph {
                     return VF.createLiteral(object.getLiteral());
                 }
             } else {
+                //TODO consider mathcing on BNodes
                 return VF.createBNode();
             }
         }

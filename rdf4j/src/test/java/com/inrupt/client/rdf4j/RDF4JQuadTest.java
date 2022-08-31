@@ -52,6 +52,29 @@ class RDF4JQuadTest {
     }
 
     @Test
+    void testGetBNodeGraphName() {
+        final var graph = TestModel.VF.createBNode("testID");
+        rdf4jQuad = new RDF4JQuad(
+            TestModel.VF.createStatement(
+                TestModel.S_RDF4J,
+                TestModel.P_RDF4J,
+                TestModel.O_RDF4J,
+                graph
+            )
+        );
+
+        assertAll("quad creation validation",
+            () -> assertTrue(rdf4jQuad.getGraphName().isPresent()),
+            () -> assertTrue(rdf4jQuad.getGraphName().get().isBlankNode())
+            //TODO missing creation of blank nodes with label so we can return it
+            /*() -> assertEquals(
+                "testID",
+                rdf4jQuad.getGraphName().get().get..().toString()
+            )*/
+        );
+    }
+
+    @Test
     void testNullGraphName() {
         rdf4jQuad = new RDF4JQuad(
             TestModel.VF.createStatement(TestModel.S_RDF4J, TestModel.P_RDF4J, TestModel.O_RDF4J, null)

@@ -54,6 +54,10 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
      */
     @Override
     public Optional<RDFNode> getGraphName() {
+        if (graphName != null && graphName.isBNode()) {
+            //TODO missing creation of blank nodes with label
+            return Optional.of(RDFNode.blankNode());
+        }
         return Optional.ofNullable(graphName).map(Resource::stringValue)
                 .map(URI::create).map(RDFNode::namedNode);
     }
