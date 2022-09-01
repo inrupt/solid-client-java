@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 
 class JenaDataset implements Dataset {
@@ -64,9 +65,17 @@ class JenaDataset implements Dataset {
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
-    static Node getGraphName(final Optional<RDFNode> graphName) {
-        if (graphName != null) {
-            return graphName.map(JenaGraph::getSubject).orElse(defaultGraphNodeGenerated);
+    static Node getGraphName(final Optional<RDFNode> graph) {
+        if (graph != null) {
+            if (graph.isPresent()) {
+                if (graph.get().isLiteral()) {
+                    throw new IllegalArgumentException("Graph cannot be an RDF literal");
+                }
+                if (graph.get().isNamedNode()) {
+                    return NodeFactory.createURI(graph.get().getURI().toString());
+                }
+                return defaultGraphNodeGenerated;
+            }
         }
         return Node.ANY;
     }

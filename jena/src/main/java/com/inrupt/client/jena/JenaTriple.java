@@ -55,7 +55,7 @@ class JenaTriple implements Triple {
         if (o.isURI()) {
             return RDFNode.namedNode(URI.create(o.getURI()));
         } else if (o.isLiteral()) {
-            if (o.getLiteralLanguage() != null) {
+            if (o.getLiteralLanguage() != null && !o.getLiteralLanguage().isBlank()) {
                 return RDFNode.literal(o.getLiteralLexicalForm(), o.getLiteralLanguage());
             } else if (o.getLiteralDatatypeURI() != null) {
                 return RDFNode.literal(o.getLiteralLexicalForm(), URI.create(o.getLiteralDatatypeURI()));
