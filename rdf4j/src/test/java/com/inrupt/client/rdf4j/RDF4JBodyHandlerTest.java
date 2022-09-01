@@ -68,6 +68,7 @@ class RDF4JBodyHandlerTest {
     void testBasic() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/test"))
+                .header("Connection", "close")
                 .GET()
                 .build();
 
@@ -81,6 +82,7 @@ class RDF4JBodyHandlerTest {
     void testBasicTTL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .header("Connection", "close")
                 .GET()
                 .build();
 
@@ -94,6 +96,7 @@ class RDF4JBodyHandlerTest {
     void testBasicModel() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .header("Connection", "close")
                 .GET()
                 .build();
         final var response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -109,6 +112,7 @@ class RDF4JBodyHandlerTest {
     void testBasicModelStream() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .header("Connection", "close")
                 .GET()
                 .build();
         final var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
@@ -124,6 +128,7 @@ class RDF4JBodyHandlerTest {
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .header("Connection", "close")
                 .GET()
                 .build();
 
@@ -144,6 +149,7 @@ class RDF4JBodyHandlerTest {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
                 .header("Accept", "text/turtle")
+                .header("Connection", "close")
                 .GET()
                 .build();
 
@@ -165,6 +171,7 @@ class RDF4JBodyHandlerTest {
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .header("Connection", "close")
                 .GET()
                 .build();
 
@@ -178,6 +185,7 @@ class RDF4JBodyHandlerTest {
     void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://id.inrupt.com/langsamu.ttl"))
+                .header("Connection", "close")
                 .GET()
                 .build();
 
@@ -201,6 +209,7 @@ class RDF4JBodyHandlerTest {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
+                .header("Connection", "close")
                 .POST(RDF4JBodyPublisher.ofModel(model))
                 .build();
 
@@ -232,6 +241,7 @@ class RDF4JBodyHandlerTest {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
+                .header("Connection", "close")
                 .POST(RDF4JBodyPublisher.ofRepository(repository))
                 .build();
 
@@ -258,6 +268,7 @@ class RDF4JBodyHandlerTest {
             final HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
+                    .header("Connection", "close")
                     .method("PATCH", RDF4JBodyPublisher.ofSparqlUpdate(sU))
                     .build();
             final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
