@@ -34,18 +34,40 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 
+/**
+ * The Jena implementation of a {@link Dataset}.
+ */
 class JenaDataset implements Dataset {
 
     private final DatasetGraph dataset;
 
+    /**
+     * Create a JenaDataset.
+     *
+     * @param dataset the RDF4J {@link DtasetGraph}
+     */
     public JenaDataset(final DatasetGraph dataset) {
         this.dataset = dataset;
     }
 
+    /**
+     * Return the JenaDataset {@code dataset} value.
+     *
+     * @return the dataser as a RDF4J {@link DatasetGraph}
+     */
     public DatasetGraph asJenaDatasetGraph() {
         return dataset;
     }
 
+    /**
+     * Return the matching sequential stream of Quads with this JenaDataset as its source.
+     *
+     * @param graph the RDFNode graph, may be {@code null}
+     * @param subject the RDFNode subject, may be {@code null}
+     * @param predicate the RDFNode predicate, may be {@code null}
+     * @param object the RDFNode object, may be {@code null}, may be {@code null}
+     * @return the matching quads as a sequential {@link Stream} of {@link Quad}s
+     */
     @Override
     public Stream<Quad> stream(final Optional<RDFNode> graphName, final RDFNode subject,
             final RDFNode predicate, final RDFNode object) {
@@ -59,12 +81,22 @@ class JenaDataset implements Dataset {
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
+    /**
+     * Return a sequential stream of Quads with this JenaDataset as its source.
+     *
+     * @return a sequential {@link Stream} of {@link Quad}
+     */
     @Override
     public Stream<Quad> stream() {
         final var iter = dataset.find();
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
+    /**
+     * Retrieve the Jena graph node from a RDFNode graph.
+     *
+     * @return the graph as a Jena {@link Node}, may be {@code null}
+     */
     static Node getGraphName(final Optional<RDFNode> graph) {
         if (graph != null) {
             if (graph.isPresent()) {
