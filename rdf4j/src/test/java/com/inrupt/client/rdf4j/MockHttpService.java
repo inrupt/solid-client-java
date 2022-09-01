@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -27,11 +27,11 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Map;
 
-class MockHttpClient {
+class MockHttpService {
 
     private final WireMockServer wireMockServer;
 
-    public MockHttpClient() {
+    public MockHttpService() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
                 .dynamicPort());
     }
@@ -51,22 +51,25 @@ class MockHttpClient {
                         .withHeader("Content-Type", "text/turtle")
                         .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
 
-        wireMockServer.stubFor(get(urlEqualTo("/getOneTriple"))
+        wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
+                    .withRequestBody(matching(
+                            ".*<http://example.com/subject>\\s+<http://example.com/predicate>\\s+\"object\"\\s+\\..*"))
+                    .withHeader("Content-Type", containing("text/turtle"))
                     .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/turtle")
-                        .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
+                        .withStatus(204)));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/turtle")
                         .withBody(getExampleTTL())));
-        wireMockServer.stubFor(get(urlEqualTo("/sparqlUpdate"))
+
+        wireMockServer.stubFor(patch(urlEqualTo("/sparqlUpdate"))
+                    .withHeader("Content-Type", containing("application/sparql-update"))
+                    .withRequestBody(containing(
+                        "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}"))
                     .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/sparql-update")
-                        .withBody("<http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .")));
+                        .withStatus(204)));
     }
 
     private String getExampleTTL() {
