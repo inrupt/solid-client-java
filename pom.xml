@@ -56,14 +56,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>${jackson.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
         <version>${antlr.version}</version>
@@ -82,46 +74,6 @@
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-arq</artifactId>
         <version>${jena.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-rio-api</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-model</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-query</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-repository-api</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-repository-sparql</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-common-exception</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-repository-sail</artifactId>
-        <version>${rdf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.rdf4j</groupId>
-        <artifactId>rdf4j-sail-memory</artifactId>
-        <version>${rdf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.bitbucket.b_c</groupId>

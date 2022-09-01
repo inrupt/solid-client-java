@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -28,11 +28,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,9 +38,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.eclipse.rdf4j.http.client.SPARQLProtocolSession;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.query.SPARQLUpdate;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -51,23 +46,22 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class RDF4JBodyHandlerTest {
+class RDF4JBodyHandlerTest {
 
-    private static final MockHttpClient mockHttpClient = new MockHttpClient();
+    private static final MockHttpService mockHttpService = new MockHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newHttpClient();
 
     @BeforeAll
     static void setup() {
-        config.putAll(mockHttpClient.start());
+        config.putAll(mockHttpService.start());
     }
 
     @AfterAll
     static void teardown() {
-        mockHttpClient.stop();
+        mockHttpService.stop();
     }
 
     @Test
@@ -125,9 +119,6 @@ public class RDF4JBodyHandlerTest {
         assertEquals(1, model.predicates().size());
     }
 
-    @Disabled("fails because HttpClient leaving connections in CLOSE_WAIT state until Java process ends " +
-        "see: https://bugs.openjdk.org/browse/JDK-8221395"
-    )
     @Test
     void testOfModelSubscriberAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -136,19 +127,14 @@ public class RDF4JBodyHandlerTest {
                 .GET()
                 .build();
 
-        final BodyHandler<Model> bodyHandler = (responseInfo) -> RDF4JBodySubscribers.ofModel();
+        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandler.ofModel());
 
-        final var asyncResponse = client.sendAsync(request, bodyHandler);
-
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).get();
-        //final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).get(5, TimeUnit.SECONDS);
-        //final var responseBody = asyncResponse.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).get();
+        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
 
         assertEquals(200, statusCode);
     }
 
-    @Disabled
     @Test
     void testOfModelSubscriberAsyncWithExecutor() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -161,24 +147,19 @@ public class RDF4JBodyHandlerTest {
                 .GET()
                 .build();
 
-        final BodyHandler<Model> bodyHandler = (responseInfo) -> RDF4JBodySubscribers.ofModel();
-
-        final CompletableFuture<HttpResponse<Model>> asyncResponse = HttpClient.newBuilder()
+        final var asyncResponse = HttpClient.newBuilder()
             .executor(executorService)
             .build()
-            .sendAsync(request, bodyHandler);
+            .sendAsync(request, RDF4JBodyHandler.ofModel());
 
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).get();
-        //final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).get(5, TimeUnit.SECONDS);
-        //final var responseBody = asyncResponse.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).get();
+        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
 
         executorService.shutdownNow();
 
         assertEquals(200, statusCode);
     }
 
-    @Disabled
     @Test
     void testOfModelSubscriber() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -187,15 +168,12 @@ public class RDF4JBodyHandlerTest {
                 .GET()
                 .build();
 
-        final BodyHandler<Model> bodyHandler = (responseInfo) -> RDF4JBodySubscribers.ofModel(RDFFormat.TRIG);
-
-        final var response = client.send(request, bodyHandler);
+        final var response = client.send(request, RDF4JBodyHandler.ofModel());
 
         assertEquals(200, response.statusCode());
         final var body = response.body();
     }
 
-    @Disabled
     @Test
     void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
@@ -210,7 +188,6 @@ public class RDF4JBodyHandlerTest {
     }
 
     //POST
-    @Disabled
     @Test
     void testOfModelPublisher() throws IOException, InterruptedException {
 
@@ -222,17 +199,16 @@ public class RDF4JBodyHandlerTest {
         final var model = builder.build();
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/getOneTriple"))
-                .header("Accept", "text/turtle")
+                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublisher.ofModel(model))
                 .build();
 
-        final HttpResponse<Model> response = client.send(request, RDF4JBodyHandler.ofModel());
+        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
 
-        assertEquals(200, response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
-    @Disabled
     @Test
     void testOfRepositoryPublisher() throws IOException, InterruptedException {
 
@@ -254,22 +230,21 @@ public class RDF4JBodyHandlerTest {
         }
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/getOneTriple"))
-                .header("Accept", "text/turtle")
+                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublisher.ofRepository(repository))
                 .build();
 
-        final HttpResponse<Repository> response = client.send(request, RDF4JBodyHandler.ofRepository());
+        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
 
-        assertEquals(200, response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
-    @Disabled("incomplete test case")
     @Test
     void testOfSPARQLUpdatePublisher() throws IOException, InterruptedException {
 
-        final var updateString = new StringBuilder();
-        updateString.append("INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}");
+        final var updateString =
+            "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}";
 
         final var executorService = Executors.newFixedThreadPool(2);
 
@@ -278,18 +253,15 @@ public class RDF4JBodyHandlerTest {
             final SPARQLUpdate sU = new SPARQLUpdate(
                 sparqlProtocolSession,
                 "http://example.com",
-                updateString.toString()
+                updateString
             );
             final HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
-                    .header("Accept", "application/sparql-update")
-                    .POST(RDF4JBodyPublisher.ofSparqlUpdate(sU))
+                    .header("Content-Type", "application/sparql-update")
+                    .method("PATCH", RDF4JBodyPublisher.ofSparqlUpdate(sU))
                     .build();
-            final HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+            final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            assertEquals(204, response.statusCode());
         }
-
-
     }
-
 }
