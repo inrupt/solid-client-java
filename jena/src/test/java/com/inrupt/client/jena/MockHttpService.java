@@ -27,11 +27,11 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Map;
 
-class MockHttpClient {
+class MockHttpService {
 
     private final WireMockServer wireMockServer;
 
-    public MockHttpClient() {
+    public MockHttpService() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
                 .dynamicPort());
     }
@@ -51,21 +51,25 @@ class MockHttpClient {
                         .withHeader("Content-Type", "text/turtle")
                         .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
 
-        wireMockServer.stubFor(get(urlEqualTo("/getOneTriple"))
+        wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
+                    .withRequestBody(matching(
+                            ".*<http://example.com/subject>\\s+<http://example.com/predicate>\\s+\"object\"\\s+\\..*"))
+                    .withHeader("Content-Type", containing("text/turtle"))
                     .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/turtle")
-                        .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
+                        .withStatus(204)));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/turtle")
                         .withBody(getExampleTTL())));
-        wireMockServer.stubFor(get(urlEqualTo("/sparqlUpdate"))
+
+        wireMockServer.stubFor(patch(urlEqualTo("/sparqlUpdate"))
+                    .withHeader("Content-Type", containing("application/sparql-update"))
+                    .withRequestBody(containing(
+                        "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}"))
                     .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/sparql-update")));
+                        .withStatus(204)));
     }
 
     private String getExampleTTL() {

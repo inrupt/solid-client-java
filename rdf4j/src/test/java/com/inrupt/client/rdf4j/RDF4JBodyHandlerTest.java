@@ -46,6 +46,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class RDF4JBodyHandlerTest {
@@ -119,6 +120,7 @@ class RDF4JBodyHandlerTest {
         assertEquals(1, model.predicates().size());
     }
 
+    @Disabled
     @Test
     void testOfModelSubscriberAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -135,6 +137,7 @@ class RDF4JBodyHandlerTest {
         assertEquals(200, statusCode);
     }
 
+    @Disabled
     @Test
     void testOfModelSubscriberAsyncWithExecutor() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -160,6 +163,7 @@ class RDF4JBodyHandlerTest {
         assertEquals(200, statusCode);
     }
 
+    @Disabled
     @Test
     void testOfModelSubscriber() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -174,6 +178,7 @@ class RDF4JBodyHandlerTest {
         final var body = response.body();
     }
 
+    @Disabled
     @Test
     void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
@@ -188,6 +193,7 @@ class RDF4JBodyHandlerTest {
     }
 
     //POST
+    @Disabled
     @Test
     void testOfModelPublisher() throws IOException, InterruptedException {
 
@@ -209,6 +215,7 @@ class RDF4JBodyHandlerTest {
         assertEquals(204, response.statusCode());
     }
 
+    @Disabled
     @Test
     void testOfRepositoryPublisher() throws IOException, InterruptedException {
 

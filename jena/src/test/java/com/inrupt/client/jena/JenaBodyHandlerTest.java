@@ -28,7 +28,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -39,11 +38,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.update.UpdateFactory;
-import org.apache.jena.update.UpdateRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -51,7 +48,7 @@ import org.junit.jupiter.api.Test;
 
 class JenaBodyHandlerTest {
 
-    private static final MockHttpClient mockHttpClient = new MockHttpClient();
+    private static final MockHttpService mockHttpClient = new MockHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newHttpClient();
 
@@ -76,9 +73,11 @@ class JenaBodyHandlerTest {
 
     @Disabled
     @Test
-    void testOfModelSubscriberAsync() throws IOException, InterruptedException, ExecutionException {
+    void testOfModelSubscriberAsync() throws IOException,
+            InterruptedException, ExecutionException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .header("Accept", "text/turtle")
                 .GET()
                 .build();
 
@@ -94,15 +93,14 @@ class JenaBodyHandlerTest {
 
     @Disabled
     @Test
-    void testOfModelSubscriber() throws IOException, InterruptedException {
+    void testOfModelSubscriber() throws IOException,
+            InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final BodyHandler<Model> bodyHandler = (responseInfo) -> JenaBodySubscribers.ofModel(Lang.TRIG);
-
-        final var response = client.send(request, bodyHandler);
+        final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
         final var body = response.body();
@@ -131,14 +129,14 @@ class JenaBodyHandlerTest {
         model.add(S1_JENA, P_JENA, O1_JENA);
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/getOneTriple"))
-                .header("Accept", "text/turtle")
+                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
 
-        final HttpResponse<Model> response = client.send(request, JenaBodyHandlers.ofModel());
+        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
 
-        assertEquals(200, response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
     @Disabled
@@ -158,33 +156,30 @@ class JenaBodyHandlerTest {
             );
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/getOneTriple"))
-                .header("Accept", "text/turtle")
-                .POST(JenaBodyPublishers.ofDataset((Dataset)dsg)) //TODO casting!
+                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .header("Content-Type", "text/turtle")
+                .POST(JenaBodyPublishers.ofDataset((Dataset)dsg)) //TODO casting?
                 .build();
 
-        final HttpResponse<Dataset> response = client.send(request, JenaBodyHandlers.ofDataset());
+        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
 
-        assertEquals(200, response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
     @Disabled("we receive 404")
     @Test
     void testOfUpdateRequestPublisher() throws IOException, InterruptedException {
 
-        final var ur = new UpdateRequest();
-        UpdateFactory.parse(
-            ur,
-            "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}"
-        );
+        final var ur = UpdateFactory.create();
+        ur.add("INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}");
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
-                .header("Accept", "application/sparql-update")
-                .POST(JenaBodyPublishers.ofUpdateRequest(ur))
-                .build();
-        final HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+                    .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
+                    .header("Content-Type", "application/sparql-update")
+                    .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur))
+                    .build();
+        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        assertEquals(204, response.statusCode());
     }
 
 }
