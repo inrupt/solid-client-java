@@ -34,7 +34,7 @@ import org.eclipse.rdf4j.rio.Rio;
 /**
  * {@link HttpRequest.BodyPublisher} implementations for use with RDF4J types.
  */
-public final class RDF4JBodyPublisher {
+public final class RDF4JBodyPublishers {
     /**
      * Serialize a RDF4J Model as an HTTP request body.
      *
@@ -100,7 +100,7 @@ public final class RDF4JBodyPublisher {
         return HttpRequest.BodyPublishers.ofString(sparql.toString());
     }
 
-    private RDF4JBodyPublisher() {
+    private RDF4JBodyPublishers() {
         // Prevent instantiation
     }
 }

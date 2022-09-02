@@ -87,7 +87,7 @@ class RDF4JQuadTest {
 
     @Test
     void testDefaultGraphName() {
-        final RDF4JQuad rdf4jQuad = new RDF4JQuad(
+        rdf4jQuad = new RDF4JQuad(
             TestModel.VF.createStatement(TestModel.S_RDF4J, TestModel.P_RDF4J, TestModel.O_RDF4J, RDF4J.NIL)
         );
 

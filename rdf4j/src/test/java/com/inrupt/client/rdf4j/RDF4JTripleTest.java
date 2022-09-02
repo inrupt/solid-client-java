@@ -31,29 +31,24 @@ class RDF4JTripleTest {
 
     @Test
     void testValidTriple() {
-        final var object = TestModel.VF.createLiteral("TestCase1");
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
+        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(
+            TestModel.S_RDF4J,
+            TestModel.P_RDF4J,
+            TestModel.O_RDF4J
+        ));
 
         assertAll("triple creation validation",
                 () -> assertTrue(rdf4jTriple.getSubject().isNamedNode()),
                 () -> assertEquals(TestModel.S_VALUE, rdf4jTriple.getSubject().getURI().toString()),
                 () -> assertTrue(rdf4jTriple.getPredicate().isNamedNode()),
                 () -> assertEquals(TestModel.P_VALUE, rdf4jTriple.getPredicate().getURI().toString()),
-                () -> assertEquals("TestCase1", rdf4jTriple.getObject().getLiteral()));
+                () -> assertEquals(TestModel.O_VALUE, rdf4jTriple.getObject().getLiteral()));
     }
 
     @Test
     void testInvalidTriple() {
         assertThrows(NullPointerException.class,
             () -> new RDF4JTriple(TestModel.VF.createTriple(null, null, null)));
-    }
-
-    @Test
-    void testLiteralObject() {
-        final var object = TestModel.VF.createLiteral("TestCase1");
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
-
-        assertEquals("TestCase1", rdf4jTriple.getObject().getLiteral());
     }
 
     @Test

@@ -52,7 +52,7 @@ public final class RDF4JBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Repository> ofRepository() {
+    public static HttpResponse.BodyHandler<Supplier<Repository>> ofRepository() {
         return responseInfo -> {
             final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
                     () -> new RDFHandlerException("Missing content-type header from response"));
