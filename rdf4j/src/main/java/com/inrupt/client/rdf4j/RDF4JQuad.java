@@ -38,7 +38,7 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
     private final Resource graphName;
 
     /**
-     * Create a RDF4JQuad.
+     * Create an RDF4JQuad.
      *
      * @param statement the RDF4J {@link Statement}
      */
