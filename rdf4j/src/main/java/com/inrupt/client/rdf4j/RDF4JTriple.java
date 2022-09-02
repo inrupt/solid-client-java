@@ -35,7 +35,7 @@ class RDF4JTriple implements Triple {
     private final org.eclipse.rdf4j.model.Triple triple;
 
     /**
-     * Create a RDF4JTriple.
+     * Create an RDF4JTriple.
      *
      * @param triple the RDF4J {@link org.eclipse.rdf4j.model.Triple}
      */
