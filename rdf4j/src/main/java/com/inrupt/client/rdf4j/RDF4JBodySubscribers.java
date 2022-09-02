@@ -20,11 +20,15 @@
  */
 package com.inrupt.client.rdf4j;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
 
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -58,7 +62,7 @@ public final class RDF4JBodySubscribers {
         final HttpResponse.BodySubscriber<Model> downstream = HttpResponse.BodySubscribers.mapping(
             upstream,
             (InputStream is) -> {
-                try (InputStream stream = is) {
+                try (var stream = new AutoClosingInputStream(is)) {
                     final var model = Rio.parse(stream, format);
                     return model;
                 } catch (IOException e) {
