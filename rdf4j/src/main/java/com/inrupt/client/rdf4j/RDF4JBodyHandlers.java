@@ -21,6 +21,7 @@
 package com.inrupt.client.rdf4j;
 
 import java.net.http.HttpResponse;
+import java.util.function.Supplier;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
@@ -31,14 +32,14 @@ import org.eclipse.rdf4j.rio.Rio;
 /**
  * {@link HttpResponse.BodyHandler} implementations for use with RDF4J types.
  */
-public final class RDF4JBodyHandler {
+public final class RDF4JBodyHandlers {
 
     /**
      * Populate a RDF4J {@link Model} with an HTTP response.
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Model> ofModel() {
+    public static HttpResponse.BodyHandler<Supplier<Model>> ofModel() {
         return responseInfo -> {
             final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
                     () -> new RDFHandlerException("Missing content-type header from response"));
@@ -63,7 +64,7 @@ public final class RDF4JBodyHandler {
         return Rio.getParserFormatForMIMEType(mediaType).orElse(RDFFormat.TURTLE);
     }
 
-    private RDF4JBodyHandler() {
+    private RDF4JBodyHandlers() {
         //Prevent instantiation
     }
 
