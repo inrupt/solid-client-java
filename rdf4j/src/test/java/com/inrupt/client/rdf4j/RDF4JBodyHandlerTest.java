@@ -182,7 +182,7 @@ class RDF4JBodyHandlerTest {
     @Test
     void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://id.inrupt.com/langsamu.ttl"))
+                .uri(URI.create(config.get("httpMock_uri") + "/example"))
                 .GET()
                 .build();
 
