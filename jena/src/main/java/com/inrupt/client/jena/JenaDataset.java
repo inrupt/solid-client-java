@@ -53,7 +53,7 @@ class JenaDataset implements Dataset {
     /**
      * Return the JenaDataset {@code dataset} value.
      *
-     * @return the dataser as a RDF4J {@link DatasetGraph}
+     * @return the dataset as a RDF4J {@link DatasetGraph}
      */
     public DatasetGraph asJenaDatasetGraph() {
         return dataset;
