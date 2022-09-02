@@ -46,7 +46,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class JenaBodyHandlerTest {
+class JenaBodyHandlersTest {
 
     private static final MockHttpService mockHttpClient = new MockHttpService();
     private static final Map<String, String> config = new HashMap<>();
