@@ -20,12 +20,18 @@
  */
 package com.inrupt.client.webid;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.IOException;
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class WebIdBodyHandlersTest {
 
@@ -41,5 +47,22 @@ class WebIdBodyHandlersTest {
     @AfterAll
     static void teardown() {
         mockHttpClient.stop();
+    }
+
+    @Disabled("Under construction")
+    @Test
+    void ofWebIdProfileTest() throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+            .uri(URI.create(config.get("webId_uri") + "/webId"))
+            .header("Accept", "text/turtle")
+            .GET()
+            .build();
+
+        final var response = client.send(
+            request,
+            WebIdBodyHandlers.ofWebIdProfile(URI.create(config.get("webId_uri") + "/webId"))
+        );
+
+        assertEquals(200, response.statusCode());
     }
 }

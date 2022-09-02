@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.webid;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
@@ -38,7 +40,22 @@ public class WebIdMockHttpService {
     }
 
     private void setupMocks() {
+        wireMockServer.stubFor(get(urlEqualTo("/webId"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withBody(getWebIdExample())
+            )
+        );
+    }
 
+    private String getWebIdExample() {
+        return "<https://id.inrupt.com/username> " + 
+                    " a <http://xmlns.com/foaf/0.1/Agent> ; " +
+                    " <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://storage.inrupt.com/storage-id/extendedProfile> ; " + 
+                    " <http://www.w3.org/ns/pim/space#storage> <https://storage.inrupt.com/storage-id/> ; " +
+                    " <http://www.w3.org/ns/solid/terms#oidcIssuer> <https://login.inrupt.com> ; " +
+                    " <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <https://storage.inrupt.com/storage-id/extendedProfile> . ";
     }
 
     public Map<String, String> start() {
