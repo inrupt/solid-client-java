@@ -49,7 +49,7 @@ class WebIdBodyHandlersTest {
         mockHttpClient.stop();
     }
 
-    @Disabled("Under construction")
+    //@Disabled("Under construction")
     @Test
     void ofWebIdProfileTest() throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
