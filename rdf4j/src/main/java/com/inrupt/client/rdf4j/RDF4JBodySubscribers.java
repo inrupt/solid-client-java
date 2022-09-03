@@ -44,7 +44,7 @@ public final class RDF4JBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Model>> ofModel() {
+    public static HttpResponse.BodySubscriber<Model> ofModel() {
         return ofModel(RDFFormat.TURTLE);
     }
 
@@ -54,7 +54,7 @@ public final class RDF4JBodySubscribers {
      * @param format the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Model>> ofModel(final RDFFormat format) {
+    public static HttpResponse.BodySubscriber<Model> ofModel(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         final HttpResponse.BodySubscriber<Supplier<Model>> downstream = HttpResponse.BodySubscribers.mapping(
             upstream,
@@ -69,7 +69,7 @@ public final class RDF4JBodySubscribers {
                 }
             }
         );
-        return downstream;
+        return HttpResponse.BodySubscribers.mapping(downstream, Supplier::get);
     }
 
     /**
@@ -79,7 +79,7 @@ public final class RDF4JBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Repository>> ofRepository() {
+    public static HttpResponse.BodySubscriber<Repository> ofRepository() {
         return ofRepository(RDFFormat.TRIG);
     }
 
@@ -89,7 +89,7 @@ public final class RDF4JBodySubscribers {
      * @param format the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Repository>> ofRepository(final RDFFormat format) {
+    public static HttpResponse.BodySubscriber<Repository> ofRepository(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         final HttpResponse.BodySubscriber<Supplier<Repository>> downstream = HttpResponse.BodySubscribers.mapping(
             upstream,
@@ -108,7 +108,7 @@ public final class RDF4JBodySubscribers {
                 }
             }
         );
-        return downstream;
+        return HttpResponse.BodySubscribers.mapping(downstream, Supplier::get);
     }
 
     private RDF4JBodySubscribers() {
