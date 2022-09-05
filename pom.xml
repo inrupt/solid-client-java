@@ -17,7 +17,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <antlr.version>4.10.1</antlr.version>
+    <antlr.version>4.11.1</antlr.version>
     <jackson.version>2.13.3</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.6.0</jena.version>
