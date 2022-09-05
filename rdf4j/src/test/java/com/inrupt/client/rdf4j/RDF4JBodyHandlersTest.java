@@ -266,7 +266,7 @@ class RDF4JBodyHandlersTest {
 
         final var executorService = Executors.newFixedThreadPool(2);
 
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+        try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
             final var sparqlProtocolSession = new SPARQLProtocolSession(httpclient, executorService);
             final SPARQLUpdate sU = new SPARQLUpdate(
                 sparqlProtocolSession,

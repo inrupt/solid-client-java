@@ -21,6 +21,8 @@
 package com.inrupt.client.jena;
 
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodySubscriber;
+import java.util.function.Supplier;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.graph.Graph;
@@ -40,7 +42,7 @@ public final class JenaBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Model> ofModel() {
+    public static HttpResponse.BodyHandler<Supplier<Model>> ofModel() {
         return responseInfo -> {
             final var lang = responseInfo.headers().firstValue("Content-Type")
                 .orElseThrow(() -> new RiotException("Missing content-type header from response"));
@@ -53,7 +55,7 @@ public final class JenaBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Graph> ofGraph() {
+    public static HttpResponse.BodyHandler<Supplier<Graph>> ofGraph() {
         return responseInfo -> {
             final var lang = responseInfo.headers().firstValue("Content-Type")
                 .orElseThrow(() -> new RiotException("Missing content-type header from response"));
@@ -66,10 +68,10 @@ public final class JenaBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Dataset> ofDataset() {
-        return new HttpResponse.BodyHandler<Dataset>() {
+    public static HttpResponse.BodyHandler<Supplier<Dataset>> ofDataset() {
+        return new HttpResponse.BodyHandler<Supplier<Dataset>>() {
             @Override
-            public HttpResponse.BodySubscriber<Dataset> apply(final HttpResponse.ResponseInfo responseInfo) {
+            public BodySubscriber<Supplier<Dataset>> apply(final HttpResponse.ResponseInfo responseInfo) {
                 final var lang = responseInfo.headers().firstValue("Content-Type")
                     .orElseThrow(() -> new RiotException("Missing content-type header from response"));
                 return JenaBodySubscribers.ofDataset(toJenaLang(lang));

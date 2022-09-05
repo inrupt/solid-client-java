@@ -41,9 +41,6 @@ class MockHttpService {
     }
 
     private void setupMocks() {
-        wireMockServer.stubFor(get(urlEqualTo("/test"))
-                    .willReturn(ok()
-                        .withBody("testResponse")));
 
         wireMockServer.stubFor(get(urlEqualTo("/oneTriple"))
                     .willReturn(aResponse()

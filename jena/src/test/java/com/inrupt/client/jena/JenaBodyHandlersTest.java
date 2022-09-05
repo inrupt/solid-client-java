@@ -20,26 +20,24 @@
  */
 package com.inrupt.client.jena;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.sparql.core.DatasetGraph;
-import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,6 +51,7 @@ class JenaBodyHandlersTest {
     private static final HttpClient client = HttpClient.newHttpClient();
 
     private static final Model model = ModelFactory.createDefaultModel();
+    private static Dataset ds;
 
     private static final Resource S_JENA = model.createResource(JenaTestModel.S_VALUE);
     private static final Literal O_JENA = model.createLiteral(JenaTestModel.O_VALUE);
@@ -71,7 +70,6 @@ class JenaBodyHandlersTest {
         mockHttpClient.stop();
     }
 
-    @Disabled
     @Test
     void testOfModelSubscriberAsync() throws IOException,
             InterruptedException, ExecutionException {
@@ -81,17 +79,20 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final BodyHandler<Model> bodyHandler = (responseInfo) -> JenaBodySubscribers.ofModel();
+        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel());
 
-        final var asyncResponse = client.sendAsync(request, bodyHandler);
-
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).get();
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).get();
-
+        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
         assertEquals(200, statusCode);
+
+        final Model responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+            ModelFactory.createDefaultModel().createResource("http://example.com/s"),
+            (Property)null,
+            (org.apache.jena.rdf.model.RDFNode)null)
+        );
     }
 
-    @Disabled
     @Test
     void testOfModelSubscriber() throws IOException,
             InterruptedException {
@@ -103,10 +104,15 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var body = response.body();
+        final var responseBody = response.body().get();
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+            ModelFactory.createDefaultModel().createResource("http://example.com/s"),
+            (Property)null,
+            (org.apache.jena.rdf.model.RDFNode)null)
+        );
     }
 
-    @Disabled
     @Test
     void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
@@ -117,11 +123,16 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
+        final var responseBody = response.body().get();
+        assertEquals(7, responseBody.size());
+        assertTrue(responseBody.contains(
+            (Resource)null,
+            (Property)ModelFactory.createDefaultModel()
+                .createProperty("http://www.w3.org/ns/pim/space#preferencesFile"),
+            (org.apache.jena.rdf.model.RDFNode)null)
+        );
     }
 
-    //POST
-    @Disabled
     @Test
     void testOfModelPublisher() throws IOException, InterruptedException {
 
@@ -132,6 +143,7 @@ class JenaBodyHandlersTest {
                 .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofModel(model))
+                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
         final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
@@ -139,26 +151,19 @@ class JenaBodyHandlersTest {
         assertEquals(204, response.statusCode());
     }
 
-    @Disabled
     @Test
     void testOfRepositoryPublisher() throws IOException, InterruptedException {
 
-        final DatasetGraph dsg = DatasetGraphFactory.create();
-        dsg.add(JenaTestModel.G_NODE,
-            JenaTestModel.S_NODE,
-            JenaTestModel.P_NODE,
-            JenaTestModel.O_NODE);
+        model.add(S_JENA, P_JENA, O_JENA);
+        model.add(S1_JENA, P_JENA, O1_JENA);
 
-        dsg.getDefaultGraph()
-            .add(JenaTestModel.S1_NODE,
-                JenaTestModel.P1_NODE,
-                JenaTestModel.O1_NODE
-            );
+        ds = DatasetFactory.create(model);
 
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
-                .POST(JenaBodyPublishers.ofDataset((Dataset)dsg)) //TODO casting?
+                .POST(JenaBodyPublishers.ofDataset(ds))
+                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
         final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
@@ -170,8 +175,8 @@ class JenaBodyHandlersTest {
     @Test
     void testOfUpdateRequestPublisher() throws IOException, InterruptedException {
 
-        final var ur = UpdateFactory.create();
-        ur.add("INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}");
+        final var ur = UpdateFactory.create(
+            "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> }");
 
         final HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
