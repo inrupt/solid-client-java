@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
-<<<<<<< HEAD
-=======
 import java.util.function.Supplier;
->>>>>>> main
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;

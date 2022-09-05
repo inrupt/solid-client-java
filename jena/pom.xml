@@ -33,9 +33,11 @@
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-arq</artifactId>
     </dependency>
+
+    <!-- test dependencies -->
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock</artifactId>
+      <artifactId>wiremock-jre8</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
