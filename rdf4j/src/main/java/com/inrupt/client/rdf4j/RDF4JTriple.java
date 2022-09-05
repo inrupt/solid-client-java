@@ -35,7 +35,7 @@ class RDF4JTriple implements Triple {
     private final org.eclipse.rdf4j.model.Triple triple;
 
     /**
-     * Create an RDF4JTriple.
+     * Create a RDF4JTriple.
      *
      * @param triple the RDF4J {@link org.eclipse.rdf4j.model.Triple}
      */
@@ -46,7 +46,7 @@ class RDF4JTriple implements Triple {
     /**
      * Retrieve the {@link RDFNode} subject.
      *
-     * @return the {@link RDFNode} subject from the {@code triple}
+     * @return the {@link RDFNode} subject from {@code triple}
      */
     @Override
     public RDFNode getSubject() {
@@ -60,7 +60,7 @@ class RDF4JTriple implements Triple {
     /**
      * Retrieve the {@link RDFNode} predicate.
      *
-     * @return the {@link RDFNode} predicate from the {@code triple}
+     * @return the {@link RDFNode} predicate from {@code triple}
      */
     @Override
     public RDFNode getPredicate() {
@@ -71,7 +71,7 @@ class RDF4JTriple implements Triple {
     /**
      * Retrieve the {@link RDFNode} object.
      *
-     * @return the {@link RDFNode} object from the {@code triple}
+     * @return the {@link RDFNode} object from {@code triple}
      */
     @Override
     public RDFNode getObject() {
