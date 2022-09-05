@@ -218,6 +218,7 @@ class RDF4JBodyHandlersTest {
                 .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofModel(model))
+                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
         final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
@@ -249,6 +250,7 @@ class RDF4JBodyHandlersTest {
                 .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofRepository(repository))
+                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
         final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
