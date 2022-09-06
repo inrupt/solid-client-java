@@ -47,15 +47,25 @@ public class WebIdMockHttpService {
                 .withBody(getWebIdExample())
             )
         );
+        wireMockServer.stubFor(post(urlEqualTo("/postWebId"))
+                    .withRequestBody(matching(
+                            ".*<http://example.com/subject>\\s+<http://example.com/predicate>\\s+\"object\"\\s+\\..*"))
+                    .withHeader("Content-Type", containing("text/turtle"))
+                    .willReturn(aResponse()
+                        .withStatus(204)
+                    )
+        );
     }
 
     private String getWebIdExample() {
-        return "<https://id.inrupt.com/username> " + 
+        return "<https://id.inrupt.com/username> " +
                     " a <http://xmlns.com/foaf/0.1/Agent> ; " +
-                    " <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://storage.inrupt.com/storage-id/extendedProfile> ; " + 
+                    " <http://www.w3.org/2000/01/rdf-schema#seeAlso> " +
+                        " <https://storage.inrupt.com/storage-id/extendedProfile> ; " +
                     " <http://www.w3.org/ns/pim/space#storage> <https://storage.inrupt.com/storage-id/> ; " +
                     " <http://www.w3.org/ns/solid/terms#oidcIssuer> <https://login.inrupt.com> ; " +
-                    " <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> <https://storage.inrupt.com/storage-id/extendedProfile> . ";
+                    " <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> " +
+                        " <https://storage.inrupt.com/storage-id/extendedProfile> . ";
     }
 
     public Map<String, String> start() {

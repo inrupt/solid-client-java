@@ -20,7 +20,8 @@
  */
 package com.inrupt.client.webid;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,7 +31,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class WebIdBodyHandlersTest {
@@ -49,9 +49,8 @@ class WebIdBodyHandlersTest {
         mockHttpClient.stop();
     }
 
-    //@Disabled("Under construction")
     @Test
-    void ofWebIdProfileTest() throws IOException, InterruptedException {
+    void testGetOfWebIdProfile() throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
             .uri(URI.create(config.get("webId_uri") + "/webId"))
             .header("Accept", "text/turtle")
@@ -60,9 +59,19 @@ class WebIdBodyHandlersTest {
 
         final var response = client.send(
             request,
-            WebIdBodyHandlers.ofWebIdProfile(URI.create(config.get("webId_uri") + "/webId"))
+            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://id.inrupt.com/username"))
         );
 
         assertEquals(200, response.statusCode());
+
+        final var responseBody = response.body().get();
+        assertEquals("https://id.inrupt.com/username", responseBody.getId().toString());
+        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.inrupt.com/storage-id/")));
+        assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.inrupt.com")));
+        assertTrue(responseBody.getType().contains(URI.create("http://xmlns.com/foaf/0.1/Agent")));
+        assertTrue(responseBody.getSeeAlso().contains(
+            URI.create("https://storage.inrupt.com/storage-id/extendedProfile"))
+        );
     }
+
 }

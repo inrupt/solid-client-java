@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.ServiceLoader;
+import java.util.function.Supplier;
 
 /**
  * Classes for reading HTTP responses as WebID Profile objects.
@@ -49,43 +50,46 @@ public final class WebIdBodySubscribers {
      * @param webid the WebID URI
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<WebIdProfile> ofWebIdProfile(final URI webid) {
+    public static HttpResponse.BodySubscriber<Supplier<WebIdProfile>> ofWebIdProfile(final URI webid) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return HttpResponse.BodySubscribers.mapping(upstream, (InputStream input) -> {
+        final HttpResponse.BodySubscriber<Supplier<WebIdProfile>> downstream = HttpResponse.BodySubscribers.mapping(
+            upstream,
+            (final InputStream is) -> () -> {
+                final var builder = WebIdProfile.newBuilder();
+                try (final var stream = is) {
+                    final var graph = processor.toGraph(Syntax.TURTLE, stream);
 
-            final var builder = WebIdProfile.newBuilder();
-            try {
-                final var graph = processor.toGraph(Syntax.TURTLE, input);
+                    graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(Solid.oidcIssuer), null)
+                        .map(Triple::getObject)
+                        .filter(RDFNode::isNamedNode)
+                        .map(RDFNode::getURI)
+                        .forEach(builder::oidcIssuer);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(Solid.oidcIssuer), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::oidcIssuer);
+                    graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDFS.seeAlso), null)
+                        .map(Triple::getObject)
+                        .filter(RDFNode::isNamedNode)
+                        .map(RDFNode::getURI)
+                        .forEach(builder::seeAlso);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDFS.seeAlso), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::seeAlso);
+                    graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(PIM.storage), null)
+                        .map(Triple::getObject)
+                        .filter(RDFNode::isNamedNode)
+                        .map(RDFNode::getURI)
+                        .forEach(builder::storage);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(PIM.storage), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::storage);
+                    graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDF.type), null)
+                        .map(Triple::getObject)
+                        .filter(RDFNode::isNamedNode)
+                        .map(RDFNode::getURI)
+                        .forEach(builder::type);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDF.type), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::type);
-            } catch (final IOException ex) {
-                throw new WebIdException("Error parsing WebId profile resource", ex);
+                } catch (final IOException ex) {
+                    throw new WebIdException("Error parsing WebId profile resource", ex);
+                }
+                return builder.build(webid);
             }
-
-            return builder.build(webid);
-        });
+        );
+        return downstream;
     }
 
     static RdfProcessor loadRdfProcessor() {

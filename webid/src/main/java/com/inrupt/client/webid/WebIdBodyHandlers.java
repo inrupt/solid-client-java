@@ -22,6 +22,7 @@ package com.inrupt.client.webid;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
+import java.util.function.Supplier;
 
 /**
  * Body handlers for WebID Profiles.
@@ -34,7 +35,7 @@ public final class WebIdBodyHandlers {
      * @param webid the WebID URI
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
+    public static HttpResponse.BodyHandler<Supplier<WebIdProfile>> ofWebIdProfile(final URI webid) {
         return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
     }
 
