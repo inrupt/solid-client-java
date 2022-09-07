@@ -52,25 +52,25 @@ class WebIdBodyHandlersTest {
     @Test
     void testGetOfWebIdProfile() throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
-            .uri(URI.create(config.get("webId_uri") + "/webId"))
+            .uri(URI.create(config.get("webid_uri") + "/webId"))
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
         final var response = client.send(
             request,
-            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://id.inrupt.com/username"))
+            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.com/username"))
         );
 
         assertEquals(200, response.statusCode());
 
         final var responseBody = response.body().get();
-        assertEquals("https://id.inrupt.com/username", responseBody.getId().toString());
-        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.inrupt.com/storage-id/")));
-        assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.inrupt.com")));
+        assertEquals("https://example.com/username", responseBody.getId().toString());
+        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.com/storage-id/")));
+        assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.example.com")));
         assertTrue(responseBody.getType().contains(URI.create("http://xmlns.com/foaf/0.1/Agent")));
         assertTrue(responseBody.getSeeAlso().contains(
-            URI.create("https://storage.inrupt.com/storage-id/extendedProfile"))
+            URI.create("https://storage.example.com/storage-id/extendedProfile"))
         );
     }
 
