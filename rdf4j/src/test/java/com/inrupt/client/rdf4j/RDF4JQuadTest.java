@@ -90,12 +90,7 @@ class RDF4JQuadTest {
         rdf4jQuad = new RDF4JQuad(
             TestModel.VF.createStatement(TestModel.S_RDF4J, TestModel.P_RDF4J, TestModel.O_RDF4J, RDF4J.NIL)
         );
-
-        assertAll("quad creation validation",
-            () -> assertTrue(rdf4jQuad.getGraphName().isPresent()),
-            () -> assertTrue(rdf4jQuad.getGraphName().get().isNamedNode()),
-            () -> assertEquals(RDF4J.NIL.toString(), rdf4jQuad.getGraphName().get().getURI().toString())
-        );
+        assertFalse(rdf4jQuad.getGraphName().isPresent());
     }
 
     @Test

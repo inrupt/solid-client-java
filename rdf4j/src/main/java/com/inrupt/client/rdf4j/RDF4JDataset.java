@@ -80,7 +80,7 @@ class RDF4JDataset implements Dataset {
         try (final var conn = repository.getConnection()) {
             final RepositoryResult<Statement> statements;
             if (g == null) {
-                //retrieves all statements in the repository regadless of context
+                //retrieves all statements in the repository regardless of context
                 statements = conn.getStatements(s, p, o);
             } else {
                 statements = conn.getStatements(s, p, o, g);
@@ -113,6 +113,7 @@ class RDF4JDataset implements Dataset {
      */
     static Resource getGraph(final Optional<RDFNode> graph) {
         if (graph != null) {
+            if (graph.isEmpty()) return null;
             if (graph.isPresent()) {
                 if (graph.get().isLiteral()) {
                     throw new IllegalArgumentException("Graph cannot be an RDF literal");
@@ -120,7 +121,10 @@ class RDF4JDataset implements Dataset {
                 if (graph.get().isNamedNode()) {
                     return SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString());
                 }
-                return RDF4J.NIL;
+                if (graph.get().isBlankNode()) {
+                    //TODO add blank node creation
+                    return null;
+                }
             }
         }
         return null;

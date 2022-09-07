@@ -39,6 +39,10 @@ final class JenaTestModel {
     public static final String P1_VALUE = TEST_NAMESPACE + "predicate1";
     public static final String O1_VALUE = "object1";
 
+    public static final String S2_VALUE = TEST_NAMESPACE + "subject2";
+    public static final String P2_VALUE = TEST_NAMESPACE + "predicate2";
+    public static final String O2_VALUE = "object2";
+
     //RDFNode properties
     public static final RDFNode S_RDFNode = RDFNode.namedNode(URI.create(S_VALUE));
     public static final RDFNode P_RDFNode = RDFNode.namedNode(URI.create(P_VALUE));
@@ -46,7 +50,12 @@ final class JenaTestModel {
     public static final RDFNode G_RDFNode = RDFNode.namedNode(URI.create(G_VALUE));
 
     public static final RDFNode S1_RDFNode = RDFNode.namedNode(URI.create(S1_VALUE));
+    public static final RDFNode P1_RDFNode = RDFNode.namedNode(URI.create(P1_VALUE));
     public static final RDFNode O1_RDFNode = RDFNode.literal(O1_VALUE);
+
+    public static final RDFNode S2_RDFNode = RDFNode.namedNode(URI.create(S2_VALUE));
+    public static final RDFNode P2_RDFNode = RDFNode.namedNode(URI.create(P2_VALUE));
+    public static final RDFNode O2_RDFNode = RDFNode.literal(O2_VALUE);
 
     //JenaNode properties
     public static final Node S_NODE = NodeFactory.createURI(S_VALUE);
@@ -57,6 +66,10 @@ final class JenaTestModel {
     public static final Node S1_NODE = NodeFactory.createURI(S1_VALUE);
     public static final Node P1_NODE = NodeFactory.createURI(P1_VALUE);
     public static final Node O1_NODE = NodeFactory.createURI(O1_VALUE);
+
+    public static final Node S2_NODE = NodeFactory.createURI(S2_VALUE);
+    public static final Node P2_NODE = NodeFactory.createURI(P2_VALUE);
+    public static final Node O2_NODE = NodeFactory.createURI(O2_VALUE);
 
     private JenaTestModel() {
         // Prevent instantiation

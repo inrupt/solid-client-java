@@ -42,8 +42,8 @@ class JenaGraphTest {
     private static final Model model = ModelFactory.createDefaultModel();
 
     private static final Resource S_JENA = model.createResource(JenaTestModel.S_VALUE);
-    private static final Literal O_JENA = model.createLiteral(JenaTestModel.O_VALUE);
     private static final Property P_JENA = model.createProperty(JenaTestModel.P_VALUE);
+    private static final Literal O_JENA = model.createLiteral(JenaTestModel.O_VALUE);
 
     private static final Resource S1_JENA = model.createResource(JenaTestModel.S1_VALUE);
     private static final Literal O1_JENA = model.createLiteral(JenaTestModel.O1_VALUE);
@@ -121,7 +121,7 @@ class JenaGraphTest {
     }
 
     @Test
-    void testWithContextStream() {
+    void testFullParamsStream() {
         assertTrue(jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
             .findFirst().isPresent()
         );
@@ -137,27 +137,7 @@ class JenaGraphTest {
     }
 
     @Test
-    void testEmptyContextStream() {
-        assertTrue(
-            jenaGraph.stream(
-                JenaTestModel.S1_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O1_RDFNode
-            ).findFirst().isPresent()
-        );
-        assertEquals(
-            1,
-            jenaGraph.stream(JenaTestModel.S1_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O1_RDFNode).count()
-        );
-        assertEquals(
-            JenaTestModel.P_RDFNode.getURI(),
-            jenaGraph.stream(JenaTestModel.S1_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O1_RDFNode)
-                .findFirst().get().getPredicate().getURI()
-        );
-    }
-
-    @Test
-    void testWithMoreContextStream() {
+    void testNullInStream() {
         assertEquals(2, jenaGraph.stream(null, JenaTestModel.P_RDFNode, null).count());
         assertEquals(2, jenaGraph.stream(null, null, null).count());
         assertTrue(jenaGraph.stream(null, JenaTestModel.P_RDFNode, null)

@@ -62,7 +62,7 @@ class JenaDataset implements Dataset {
     /**
      * Return the matching sequential stream of Quads with this JenaDataset as its source.
      *
-     * @param graph the RDFNode graph, may be {@code null}
+     * @param graphName the RDFNode graph, may be {@code null}
      * @param subject the RDFNode subject, may be {@code null}
      * @param predicate the RDFNode predicate, may be {@code null}
      * @param object the RDFNode object, may be {@code null}, may be {@code null}
@@ -99,6 +99,7 @@ class JenaDataset implements Dataset {
      */
     static Node getGraphName(final Optional<RDFNode> graph) {
         if (graph != null) {
+            if (graph.isEmpty()) return Node.ANY;
             if (graph.isPresent()) {
                 if (graph.get().isLiteral()) {
                     throw new IllegalArgumentException("Graph cannot be an RDF literal");
@@ -106,7 +107,10 @@ class JenaDataset implements Dataset {
                 if (graph.get().isNamedNode()) {
                     return NodeFactory.createURI(graph.get().getURI().toString());
                 }
-                return defaultGraphNodeGenerated;
+                if (graph.get().isBlankNode()) {
+                    //TODO add blank node creation
+                    return Node.ANY;
+                }
             }
         }
         return Node.ANY;

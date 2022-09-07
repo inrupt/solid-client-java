@@ -47,11 +47,14 @@ class JenaDatasetTest {
             JenaTestModel.S_NODE,
             JenaTestModel.P_NODE,
             JenaTestModel.O_NODE);
-
+        dsg.add(null,
+            JenaTestModel.S1_NODE,
+            JenaTestModel.P1_NODE,
+            JenaTestModel.O1_NODE);
         dsg.getDefaultGraph()
-            .add(JenaTestModel.S1_NODE,
-                JenaTestModel.P1_NODE,
-                JenaTestModel.O1_NODE
+            .add(JenaTestModel.S2_NODE,
+                JenaTestModel.P2_NODE,
+                JenaTestModel.O2_NODE
             );
 
         jenaDataset = new JenaDataset(dsg);
@@ -151,6 +154,14 @@ class JenaDatasetTest {
                 JenaTestModel.O_RDFNode
             ).findFirst().get().getGraphName().get().getURI()
         );
+        assertTrue(
+            jenaDataset.stream(
+                Optional.empty(),
+                JenaTestModel.S1_RDFNode,
+                JenaTestModel.P1_RDFNode,
+                JenaTestModel.O1_RDFNode
+            ).findFirst().get().getGraphName().isEmpty()
+        );
     }
 
     @Test
@@ -169,6 +180,10 @@ class JenaDatasetTest {
 
     @Test
     void testWithNullContextStream() {
+        assertTrue(
+            jenaDataset.stream(null, JenaTestModel.S1_RDFNode, JenaTestModel.P1_RDFNode, JenaTestModel.O1_RDFNode)
+                .findFirst().isPresent()
+        );
         assertTrue(
             jenaDataset.stream(null, JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
                 .findFirst().isPresent()
@@ -213,6 +228,91 @@ class JenaDatasetTest {
             )
         );
         assertEquals("Graph cannot be an RDF literal", exception.getMessage());
+    }
+
+    //hangs because dataset.find()...
+    @Test
+    void testStreamQuadWithGraph() {
+        assertEquals(JenaTestModel.G_VALUE, 
+            jenaDataset.stream(
+                Optional.of(JenaTestModel.G_RDFNode),
+                JenaTestModel.S_RDFNode,
+                JenaTestModel.P_RDFNode,
+                JenaTestModel.O_RDFNode
+                ).findFirst().get().getGraphName().get().getURI().toString()
+        );
+        //----- stream with null
+        assertTrue(jenaDataset.stream(
+            null,
+            JenaTestModel.S_RDFNode,
+            JenaTestModel.P_RDFNode,
+            JenaTestModel.O_RDFNode
+            ).findFirst().get().getGraphName().isPresent()
+        );
+        assertEquals(JenaTestModel.G_VALUE, jenaDataset.stream(
+            null,
+            JenaTestModel.S_RDFNode,
+            JenaTestModel.P_RDFNode,
+            JenaTestModel.O_RDFNode
+            ).findFirst().get().getGraphName().get().getURI().toString()
+        );
+        //---- stream with empty optional
+        assertEquals(JenaTestModel.G_VALUE, jenaDataset.stream(
+            Optional.empty(),
+            JenaTestModel.S_RDFNode,
+            JenaTestModel.P_RDFNode,
+            JenaTestModel.O_RDFNode
+            ).findFirst().get().getGraphName().get().getURI().toString()
+        );
+    }
+
+    //TODO need to implement query over all graphs
+    @Test
+    void testStreamQuadWithNULLGraph() {
+        //----- stream with null
+        assertFalse(jenaDataset.stream(
+            null,
+            JenaTestModel.S1_RDFNode,
+            JenaTestModel.P1_RDFNode,
+            JenaTestModel.O1_RDFNode
+            ).findFirst().get().getGraphName().isPresent()
+        );
+        //---- stream with empty optional
+        assertFalse(jenaDataset.stream(
+            Optional.empty(),
+            JenaTestModel.S1_RDFNode,
+            JenaTestModel.P1_RDFNode,
+            JenaTestModel.O1_RDFNode
+            ).findFirst().get().getGraphName().isPresent()
+        );
+    }
+
+    @Test
+    void testStreamQuadWithDefaultGraph() {
+        assertTrue(
+            jenaDataset.stream(
+                Optional.of(RDFNode.namedNode(URI.create(defaultGraphNodeGenerated.toString()))),
+                JenaTestModel.S2_RDFNode,
+                JenaTestModel.P2_RDFNode,
+                JenaTestModel.O2_RDFNode
+                ).findFirst().get().getGraphName().isEmpty()
+        );
+        //----- stream with null
+        assertTrue(jenaDataset.stream(
+            null,
+            JenaTestModel.S2_RDFNode,
+            JenaTestModel.P2_RDFNode,
+            JenaTestModel.O2_RDFNode
+            ).findFirst().get().getGraphName().isEmpty()
+        );
+        //---- stream with empty optional
+        assertTrue(jenaDataset.stream(
+            Optional.empty(),
+            JenaTestModel.S2_RDFNode,
+            JenaTestModel.P2_RDFNode,
+            JenaTestModel.O2_RDFNode
+            ).findFirst().get().getGraphName().isEmpty()
+        );
     }
 
 }

@@ -86,10 +86,10 @@ class JenaBodyHandlersTest {
 
         final Model responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
         assertEquals(1, responseBody.size());
-        assertTrue(responseBody.contains(
-            ModelFactory.createDefaultModel().createResource("http://example.com/s"),
-            (Property)null,
-            (org.apache.jena.rdf.model.RDFNode)null)
+        assertTrue(responseBody.containsLiteral(
+            null,
+            null,
+            "http://example.com/o")
         );
     }
 
@@ -107,9 +107,9 @@ class JenaBodyHandlersTest {
         final var responseBody = response.body().get();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-            ModelFactory.createDefaultModel().createResource("http://example.com/s"),
-            (Property)null,
-            (org.apache.jena.rdf.model.RDFNode)null)
+            null,
+            null,
+            "http://example.com/o")
         );
     }
 
@@ -171,7 +171,6 @@ class JenaBodyHandlersTest {
         assertEquals(204, response.statusCode());
     }
 
-    @Disabled("we receive 404")
     @Test
     void testOfUpdateRequestPublisher() throws IOException, InterruptedException {
 

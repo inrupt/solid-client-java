@@ -53,16 +53,16 @@ class JenaQuad extends JenaTriple implements Quad {
     @Override
     public Optional<RDFNode> getGraphName() {
         if (graphName != null && graphName.isBlank()) {
+            //TODO missing creation of blank nodes with label
             return Optional.of(RDFNode.blankNode());
         }
         return Optional.ofNullable(graphName).map(Node::getURI).map(URI::create).map(RDFNode::namedNode);
     }
 
     static Node getGraphName(final org.apache.jena.sparql.core.Quad quad) {
-        //TODO to be seen if ok or not -> align with RDF4J
-        /* if (quad.isDefaultGraph()) {
+        if (quad.isDefaultGraph()) {
             return null;
-        } */
+        }
         return quad.getGraph();
     }
 }

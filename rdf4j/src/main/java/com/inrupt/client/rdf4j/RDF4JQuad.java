@@ -29,6 +29,7 @@ import java.util.Optional;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 
 /**
  * The RDF4J implementation of a {@link Quad}.
@@ -44,7 +45,7 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
      */
     public RDF4JQuad(final Statement statement) {
         super(Values.triple(statement));
-        this.graphName = statement.getContext();
+        this.graphName = getGraphName(statement);
     }
 
     /**
@@ -60,6 +61,13 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
         }
         return Optional.ofNullable(graphName).map(Resource::stringValue)
                 .map(URI::create).map(RDFNode::namedNode);
+    }
+
+    static Resource getGraphName(final Statement statement) {
+        if (statement.getContext().stringValue().equals(RDF4J.NIL.stringValue())) {
+            return null;
+        }
+        return statement.getContext();
     }
 
 }

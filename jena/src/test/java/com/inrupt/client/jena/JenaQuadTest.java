@@ -92,12 +92,7 @@ class JenaQuadTest {
         jenaQuad = new JenaQuad(
             Quad.create(defaultGraphNodeGenerated, JenaTestModel.S_NODE, JenaTestModel.P_NODE, JenaTestModel.O_NODE)
         );
-
-        assertAll("quad creation validation",
-            () -> assertTrue(jenaQuad.getGraphName().isPresent()),
-            () -> assertTrue(jenaQuad.getGraphName().get().isNamedNode()),
-            () -> assertEquals(defaultGraphNodeGenerated.toString(), jenaQuad.getGraphName().get().getURI().toString())
-        );
+        assertFalse(jenaQuad.getGraphName().isPresent());
     }
 
     @Test
