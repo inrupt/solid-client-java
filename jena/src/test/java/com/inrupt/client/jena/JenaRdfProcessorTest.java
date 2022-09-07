@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.jena;
 
-import static org.apache.jena.sparql.core.Quad.defaultGraphIRI;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.rdf.Syntax;
@@ -93,11 +92,7 @@ class JenaRdfProcessorTest {
     void parseToDatasetTurtle() throws IOException {
         try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
             final var dataset = processor.toDataset(Syntax.TURTLE, input);
-            assertTrue(dataset.stream().findFirst().get().getGraphName().isPresent());
-            assertEquals(
-                defaultGraphIRI.toString(),
-                dataset.stream().findFirst().get().getGraphName().get().getURI().toString()
-            );
+            assertFalse(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(10, dataset.stream().count());
         }
     }
@@ -165,8 +160,6 @@ class JenaRdfProcessorTest {
         }
     }
 
-    @Disabled("throws RiotException: No dataset writer for Turtle/pretty " +
-        " because we need to send a dedicated graph ONLY, but which?")
     @Test
     void serializeFromDatasetTURTLERoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {

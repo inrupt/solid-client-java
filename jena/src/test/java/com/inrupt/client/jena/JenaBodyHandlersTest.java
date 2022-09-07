@@ -38,10 +38,10 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class JenaBodyHandlersTest {
@@ -86,10 +86,10 @@ class JenaBodyHandlersTest {
 
         final Model responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
         assertEquals(1, responseBody.size());
-        assertTrue(responseBody.containsLiteral(
+        assertTrue(responseBody.contains(
             null,
             null,
-            "http://example.com/o")
+            ResourceFactory.createResource("http://example.com/o"))
         );
     }
 
@@ -109,7 +109,7 @@ class JenaBodyHandlersTest {
         assertTrue(responseBody.contains(
             null,
             null,
-            "http://example.com/o")
+            ResourceFactory.createResource("http://example.com/o"))
         );
     }
 
@@ -126,10 +126,8 @@ class JenaBodyHandlersTest {
         final var responseBody = response.body().get();
         assertEquals(7, responseBody.size());
         assertTrue(responseBody.contains(
-            (Resource)null,
-            (Property)ModelFactory.createDefaultModel()
-                .createProperty("http://www.w3.org/ns/pim/space#preferencesFile"),
-            (org.apache.jena.rdf.model.RDFNode)null)
+            null,
+            ResourceFactory.createProperty("http://www.w3.org/ns/pim/space#preferencesFile"))
         );
     }
 

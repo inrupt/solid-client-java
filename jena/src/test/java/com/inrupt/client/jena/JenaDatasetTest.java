@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.jena;
 
-import static org.apache.jena.sparql.core.Quad.defaultGraphNodeGenerated;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.rdf.RDFNode;
@@ -32,6 +31,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class JenaDatasetTest {
@@ -47,10 +47,10 @@ class JenaDatasetTest {
             JenaTestModel.S_NODE,
             JenaTestModel.P_NODE,
             JenaTestModel.O_NODE);
-        dsg.add(null,
-            JenaTestModel.S1_NODE,
-            JenaTestModel.P1_NODE,
-            JenaTestModel.O1_NODE);
+        dsg.getDefaultGraph()
+            .add(JenaTestModel.S1_NODE,
+                JenaTestModel.P1_NODE,
+                JenaTestModel.O1_NODE);
         dsg.getDefaultGraph()
             .add(JenaTestModel.S2_NODE,
                 JenaTestModel.P2_NODE,
@@ -77,8 +77,8 @@ class JenaDatasetTest {
                 ),
             () -> assertFalse(JenaDataset.getGraphName(Optional.of(RDFNode.blankNode())).isBlank()),
             () -> assertEquals(
-                    defaultGraphNodeGenerated.toString(),
-                    JenaDataset.getGraphName(Optional.of(RDFNode.blankNode())).toString()
+                    Node.ANY,
+                    JenaDataset.getGraphName(Optional.of(RDFNode.blankNode()))
                 ),
             () -> assertEquals(Node.ANY, JenaDataset.getGraphName(null))
         );
@@ -116,7 +116,7 @@ class JenaDatasetTest {
     @Test
     void testWithoutContextStream() {
         assertTrue(jenaDataset.stream(
-            Optional.empty(),
+            null,
             JenaTestModel.S_RDFNode,
             JenaTestModel.P_RDFNode,
             JenaTestModel.O_RDFNode
@@ -124,7 +124,7 @@ class JenaDatasetTest {
         assertEquals(
             1,
             jenaDataset.stream(
-                Optional.empty(),
+                null,
                 JenaTestModel.S_RDFNode,
                 JenaTestModel.P_RDFNode,
                 JenaTestModel.O_RDFNode).count()
@@ -132,14 +132,14 @@ class JenaDatasetTest {
         assertEquals(
             JenaTestModel.P_RDFNode.getURI(),
             jenaDataset.stream(
-                Optional.empty(),
+                null,
                 JenaTestModel.S_RDFNode,
                 JenaTestModel.P_RDFNode,
                 JenaTestModel.O_RDFNode
             ).findFirst().get().getPredicate().getURI()
         );
         assertTrue(jenaDataset.stream(
-            Optional.empty(),
+            null,
             JenaTestModel.S_RDFNode,
             JenaTestModel.P_RDFNode,
             JenaTestModel.O_RDFNode
@@ -148,7 +148,7 @@ class JenaDatasetTest {
         assertEquals(
             JenaTestModel.G_RDFNode.getURI(),
             jenaDataset.stream(
-                Optional.empty(),
+                null,
                 JenaTestModel.S_RDFNode,
                 JenaTestModel.P_RDFNode,
                 JenaTestModel.O_RDFNode
@@ -156,7 +156,7 @@ class JenaDatasetTest {
         );
         assertTrue(
             jenaDataset.stream(
-                Optional.empty(),
+                null,
                 JenaTestModel.S1_RDFNode,
                 JenaTestModel.P1_RDFNode,
                 JenaTestModel.O1_RDFNode
@@ -165,7 +165,9 @@ class JenaDatasetTest {
     }
 
     @Test
+    @Disabled("Blank nodes support is not complete")
     void testBNodeContextStream() {
+        // TODO
         g_RDFNode = RDFNode.blankNode();
 
         assertFalse(
@@ -211,7 +213,7 @@ class JenaDatasetTest {
     @Test
     void testNoParamsStream() {
         assertTrue(jenaDataset.stream().findFirst().isPresent());
-        assertEquals(2, jenaDataset.stream().count());
+        assertEquals(3, jenaDataset.stream().count());
     }
 
     @Test
@@ -230,10 +232,9 @@ class JenaDatasetTest {
         assertEquals("Graph cannot be an RDF literal", exception.getMessage());
     }
 
-    //hangs because dataset.find()...
     @Test
     void testStreamQuadWithGraph() {
-        assertEquals(JenaTestModel.G_VALUE, 
+        assertEquals(JenaTestModel.G_VALUE,
             jenaDataset.stream(
                 Optional.of(JenaTestModel.G_RDFNode),
                 JenaTestModel.S_RDFNode,
@@ -256,9 +257,9 @@ class JenaDatasetTest {
             JenaTestModel.O_RDFNode
             ).findFirst().get().getGraphName().get().getURI().toString()
         );
-        //---- stream with empty optional
+        //---- stream with optional
         assertEquals(JenaTestModel.G_VALUE, jenaDataset.stream(
-            Optional.empty(),
+            Optional.of(JenaTestModel.G_RDFNode),
             JenaTestModel.S_RDFNode,
             JenaTestModel.P_RDFNode,
             JenaTestModel.O_RDFNode
@@ -289,14 +290,6 @@ class JenaDatasetTest {
 
     @Test
     void testStreamQuadWithDefaultGraph() {
-        assertTrue(
-            jenaDataset.stream(
-                Optional.of(RDFNode.namedNode(URI.create(defaultGraphNodeGenerated.toString()))),
-                JenaTestModel.S2_RDFNode,
-                JenaTestModel.P2_RDFNode,
-                JenaTestModel.O2_RDFNode
-                ).findFirst().get().getGraphName().isEmpty()
-        );
         //----- stream with null
         assertTrue(jenaDataset.stream(
             null,

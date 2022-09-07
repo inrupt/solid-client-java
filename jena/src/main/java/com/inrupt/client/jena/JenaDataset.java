@@ -44,7 +44,7 @@ class JenaDataset implements Dataset {
     /**
      * Create a JenaDataset.
      *
-     * @param dataset the RDF4J {@link DtasetGraph}
+     * @param dataset the Jena {@link DatasetGraph}
      */
     public JenaDataset(final DatasetGraph dataset) {
         this.dataset = dataset;
@@ -53,7 +53,7 @@ class JenaDataset implements Dataset {
     /**
      * Return the JenaDataset {@code dataset} value.
      *
-     * @return the dataset as a RDF4J {@link DatasetGraph}
+     * @return the dataset as a Jena {@link DatasetGraph}
      */
     public DatasetGraph asJenaDatasetGraph() {
         return dataset;
@@ -99,7 +99,6 @@ class JenaDataset implements Dataset {
      */
     static Node getGraphName(final Optional<RDFNode> graph) {
         if (graph != null) {
-            if (graph.isEmpty()) return Node.ANY;
             if (graph.isPresent()) {
                 if (graph.get().isLiteral()) {
                     throw new IllegalArgumentException("Graph cannot be an RDF literal");
@@ -111,6 +110,8 @@ class JenaDataset implements Dataset {
                     //TODO add blank node creation
                     return Node.ANY;
                 }
+            } else {
+                return defaultGraphNodeGenerated;
             }
         }
         return Node.ANY;

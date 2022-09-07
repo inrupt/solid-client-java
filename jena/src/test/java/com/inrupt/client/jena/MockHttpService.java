@@ -64,7 +64,8 @@ class MockHttpService {
         wireMockServer.stubFor(patch(urlEqualTo("/sparqlUpdate"))
                     .withHeader("Content-Type", containing("application/sparql-update"))
                     .withRequestBody(matching(
-                        "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}"))
+                            "INSERT DATA\\s+\\{\\s*<http://example.com/s1>\\s+" +
+                            "<http://example.com/p1>\\s+<http://example.com/o1>\\s*\\.\\s*\\}\\s*"))
                     .willReturn(aResponse()
                         .withStatus(204)));
     }

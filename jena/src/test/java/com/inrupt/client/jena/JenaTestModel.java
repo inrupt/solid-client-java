@@ -65,11 +65,11 @@ final class JenaTestModel {
 
     public static final Node S1_NODE = NodeFactory.createURI(S1_VALUE);
     public static final Node P1_NODE = NodeFactory.createURI(P1_VALUE);
-    public static final Node O1_NODE = NodeFactory.createURI(O1_VALUE);
+    public static final Node O1_NODE = NodeFactory.createLiteral(O1_VALUE);
 
     public static final Node S2_NODE = NodeFactory.createURI(S2_VALUE);
     public static final Node P2_NODE = NodeFactory.createURI(P2_VALUE);
-    public static final Node O2_NODE = NodeFactory.createURI(O2_VALUE);
+    public static final Node O2_NODE = NodeFactory.createLiteral(O2_VALUE);
 
     private JenaTestModel() {
         // Prevent instantiation
