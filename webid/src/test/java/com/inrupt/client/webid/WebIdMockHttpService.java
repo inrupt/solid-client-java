@@ -50,14 +50,14 @@ public class WebIdMockHttpService {
     }
 
     private String getWebIdExample() {
-        return "<https://example.com/username> " +
-                    " a <http://xmlns.com/foaf/0.1/Agent> ; " +
+        return "<https://example.test/username> " +
+                    " a <http://xmlns.test/foaf/0.1/Agent> ; " +
                     " <http://www.w3.org/2000/01/rdf-schema#seeAlso> " +
-                        " <https://storage.example.com/storage-id/extendedProfile> ; " +
-                    " <http://www.w3.org/ns/pim/space#storage> <https://storage.example.com/storage-id/> ; " +
-                    " <http://www.w3.org/ns/solid/terms#oidcIssuer> <https://login.example.com> ; " +
-                    " <http://xmlns.com/foaf/0.1/isPrimaryTopicOf> " +
-                        " <https://storage.example.com/storage-id/extendedProfile> . ";
+                        " <https://storage.example.test/storage-id/extendedProfile> ; " +
+                    " <http://www.w3.org/ns/pim/space#storage> <https://storage.example.test/storage-id/> ; " +
+                    " <http://www.w3.org/ns/solid/terms#oidcIssuer> <https://login.example.test> ; " +
+                    " <http://xmlns.test/foaf/0.1/isPrimaryTopicOf> " +
+                        " <https://storage.example.test/storage-id/extendedProfile> . ";
     }
 
     public Map<String, String> start() {
