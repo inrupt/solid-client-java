@@ -76,7 +76,7 @@
           <artifactId>maven-install-plugin</artifactId>
           <version>${install.plugin.version}</version>
         </plugin>
-         <plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>${jar.plugin.version}</version>
@@ -93,6 +93,7 @@
               <link>https://jena.apache.org/documentation/javadoc/jena/</link>
               <link>https://jena.apache.org/documentation/javadoc/arq/</link>
               <link>https://www.antlr.org/api/Java/</link>
+              <link>https://rdf4j.org/javadoc/latest/</link>
             </links>
             <tags>
               <tag>
@@ -211,8 +212,8 @@
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>${license.plugin.version}</version>
-         </plugin>
-         <plugin>
+        </plugin>
+        <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.plugin.version}</version>
@@ -266,37 +267,37 @@
               </configuration>
             </execution>
             <execution>
-                <id>report-aggregate-unit</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-                <configuration>
-                  <dataFileIncludes>*/jacoco.exec</dataFileIncludes>
-                  <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit</outputDirectory>
-                </configuration>
+              <id>report-aggregate-unit</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report-aggregate</goal>
+              </goals>
+              <configuration>
+                <dataFileIncludes>*/jacoco.exec</dataFileIncludes>
+                <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit</outputDirectory>
+              </configuration>
             </execution>
             <execution>
-                <id>report-aggregate-integration</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-                <configuration>
-                  <dataFileIncludes>*/jacoco-it.exec</dataFileIncludes>
-                  <outputDirectory>${project.reporting.outputDirectory}/jacoco-integration</outputDirectory>
-                </configuration>
+              <id>report-aggregate-integration</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report-aggregate</goal>
+              </goals>
+              <configuration>
+                <dataFileIncludes>*/jacoco-it.exec</dataFileIncludes>
+                <outputDirectory>${project.reporting.outputDirectory}/jacoco-integration</outputDirectory>
+              </configuration>
             </execution>
             <execution>
-                <id>report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-                <configuration>
-                  <dataFileIncludes>*/jacoco-merged.exec</dataFileIncludes>
-                  <outputDirectory>${project.reporting.outputDirectory}/jacoco-merged</outputDirectory>
-                </configuration>
+              <id>report-aggregate</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report-aggregate</goal>
+              </goals>
+              <configuration>
+                <dataFileIncludes>*/jacoco-merged.exec</dataFileIncludes>
+                <outputDirectory>${project.reporting.outputDirectory}/jacoco-merged</outputDirectory>
+              </configuration>
             </execution>
           </executions>
         </plugin>

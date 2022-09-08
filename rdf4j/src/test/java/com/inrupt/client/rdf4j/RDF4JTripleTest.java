@@ -31,40 +31,44 @@ class RDF4JTripleTest {
 
     @Test
     void testValidTriple() {
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(
-            TestModel.S_RDF4J,
-            TestModel.P_RDF4J,
-            TestModel.O_RDF4J
+        rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(
+            RDF4JTestModel.S_RDF4J,
+            RDF4JTestModel.P_RDF4J,
+            RDF4JTestModel.O_RDF4J
         ));
 
         assertAll("triple creation validation",
                 () -> assertTrue(rdf4jTriple.getSubject().isNamedNode()),
-                () -> assertEquals(TestModel.S_VALUE, rdf4jTriple.getSubject().getURI().toString()),
+                () -> assertEquals(RDF4JTestModel.S_VALUE, rdf4jTriple.getSubject().getURI().toString()),
                 () -> assertTrue(rdf4jTriple.getPredicate().isNamedNode()),
-                () -> assertEquals(TestModel.P_VALUE, rdf4jTriple.getPredicate().getURI().toString()),
-                () -> assertEquals(TestModel.O_VALUE, rdf4jTriple.getObject().getLiteral()));
+                () -> assertEquals(RDF4JTestModel.P_VALUE, rdf4jTriple.getPredicate().getURI().toString()),
+                () -> assertEquals(RDF4JTestModel.O_VALUE, rdf4jTriple.getObject().getLiteral()));
     }
 
     @Test
     void testInvalidTriple() {
         assertThrows(NullPointerException.class,
-            () -> new RDF4JTriple(TestModel.VF.createTriple(null, null, null)));
+            () -> new RDF4JTriple(RDF4JTestModel.VF.createTriple(null, null, null)));
     }
 
     @Test
     void testObjectAsIRI() {
-        final var object = TestModel.VF.createIRI("http://example.com/object");
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
+        final var object = RDF4JTestModel.VF.createIRI("http://example.test/object");
+        rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(
+            RDF4JTestModel.S_RDF4J, RDF4JTestModel.P_RDF4J, object
+            ));
 
         assertAll("object is a NamedNode",
                 () -> assertTrue(rdf4jTriple.getObject().isNamedNode()),
-                () -> assertEquals("http://example.com/object", rdf4jTriple.getObject().getURI().toString()));
+                () -> assertEquals("http://example.test/object", rdf4jTriple.getObject().getURI().toString()));
     }
 
     @Test
     void testObjectAsLiteral() {
-        final var object = TestModel.VF.createLiteral(42);
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
+        final var object = RDF4JTestModel.VF.createLiteral(42);
+        rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(
+            RDF4JTestModel.S_RDF4J, RDF4JTestModel.P_RDF4J, object
+            ));
 
         assertAll("object is literal",
                 () -> assertTrue(rdf4jTriple.getObject().isLiteral()),
@@ -73,8 +77,10 @@ class RDF4JTripleTest {
 
     @Test
     void testObjectWithDatatype() {
-        final var object = TestModel.VF.createLiteral("object", SKOS.CONCEPT);
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
+        final var object = RDF4JTestModel.VF.createLiteral("object", SKOS.CONCEPT);
+        rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(
+            RDF4JTestModel.S_RDF4J, RDF4JTestModel.P_RDF4J, object
+            ));
 
         assertAll("object is literal with datatype",
                 () -> assertEquals("object", rdf4jTriple.getObject().getLiteral()),
@@ -83,8 +89,10 @@ class RDF4JTripleTest {
 
     @Test
     void testObjectWithLanguage() {
-        final var object = TestModel.VF.createLiteral("object", "en");
-        rdf4jTriple = new RDF4JTriple(TestModel.VF.createTriple(TestModel.S_RDF4J, TestModel.P_RDF4J, object));
+        final var object = RDF4JTestModel.VF.createLiteral("object", "en");
+        rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(
+            RDF4JTestModel.S_RDF4J, RDF4JTestModel.P_RDF4J, object
+            ));
 
         assertAll("object is literal with language",
             () -> assertEquals("object", rdf4jTriple.getObject().getLiteral()),

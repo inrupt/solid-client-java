@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -49,11 +50,22 @@ public class JenaRdfProcessor implements RdfProcessor {
             Syntax.NTRIPLES, Lang.NTRIPLES,
             Syntax.NQUADS, Lang.NQUADS);
 
+    private static Set<Syntax> SUPPORTS_QUADS = Set.of(Syntax.JSONLD, Syntax.TRIG, Syntax.NQUADS);
+
     @Override
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         try {
-            RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+            if (SUPPORTS_QUADS.contains(syntax)) {
+                RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+            } else {
+                // Collapse all statements into a single union model
+                final var jds = ((JenaDataset) dataset).asJenaDatasetGraph();
+                final var union = ModelFactory.createUnion(
+                        ModelFactory.createModelForGraph(jds.getDefaultGraph()),
+                        ModelFactory.createModelForGraph(jds.getUnionGraph()));
+                RDFDataMgr.write(output, union, lang);
+            }
         } catch (final RiotException ex) {
             throw new IOException("Error serializing dataset", ex);
         }

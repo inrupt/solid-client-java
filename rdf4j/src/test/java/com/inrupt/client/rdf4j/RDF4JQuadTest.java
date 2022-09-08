@@ -31,12 +31,12 @@ class RDF4JQuadTest {
 
     @Test
     void testGetGraphName() {
-        final var graph = TestModel.VF.createIRI("http://example.com/graphContext");
+        final var graph = RDF4JTestModel.VF.createIRI("http://example.test/graphContext");
         rdf4jQuad = new RDF4JQuad(
-            TestModel.VF.createStatement(
-                TestModel.S_RDF4J,
-                TestModel.P_RDF4J,
-                TestModel.O_RDF4J,
+            RDF4JTestModel.VF.createStatement(
+                RDF4JTestModel.S_RDF4J,
+                RDF4JTestModel.P_RDF4J,
+                RDF4JTestModel.O_RDF4J,
                 graph
             )
         );
@@ -45,7 +45,7 @@ class RDF4JQuadTest {
             () -> assertTrue(rdf4jQuad.getGraphName().isPresent()),
             () -> assertTrue(rdf4jQuad.getGraphName().get().isNamedNode()),
             () -> assertEquals(
-                "http://example.com/graphContext",
+                "http://example.test/graphContext",
                 rdf4jQuad.getGraphName().get().getURI().toString()
             )
         );
@@ -53,12 +53,12 @@ class RDF4JQuadTest {
 
     @Test
     void testGetBNodeGraphName() {
-        final var graph = TestModel.VF.createBNode("testID");
+        final var graph = RDF4JTestModel.VF.createBNode("testID");
         rdf4jQuad = new RDF4JQuad(
-            TestModel.VF.createStatement(
-                TestModel.S_RDF4J,
-                TestModel.P_RDF4J,
-                TestModel.O_RDF4J,
+            RDF4JTestModel.VF.createStatement(
+                RDF4JTestModel.S_RDF4J,
+                RDF4JTestModel.P_RDF4J,
+                RDF4JTestModel.O_RDF4J,
                 graph
             )
         );
@@ -77,7 +77,12 @@ class RDF4JQuadTest {
     @Test
     void testNullGraphName() {
         rdf4jQuad = new RDF4JQuad(
-            TestModel.VF.createStatement(TestModel.S_RDF4J, TestModel.P_RDF4J, TestModel.O_RDF4J, null)
+            RDF4JTestModel.VF.createStatement(
+                RDF4JTestModel.S_RDF4J,
+                RDF4JTestModel.P_RDF4J,
+                RDF4JTestModel.O_RDF4J,
+                null
+            )
         );
 
         assertAll("graph exists",
@@ -88,20 +93,20 @@ class RDF4JQuadTest {
     @Test
     void testDefaultGraphName() {
         rdf4jQuad = new RDF4JQuad(
-            TestModel.VF.createStatement(TestModel.S_RDF4J, TestModel.P_RDF4J, TestModel.O_RDF4J, RDF4J.NIL)
+            RDF4JTestModel.VF.createStatement(
+                RDF4JTestModel.S_RDF4J,
+                RDF4JTestModel.P_RDF4J,
+                RDF4JTestModel.O_RDF4J,
+                RDF4J.NIL
+            )
         );
-
-        assertAll("quad creation validation",
-            () -> assertTrue(rdf4jQuad.getGraphName().isPresent()),
-            () -> assertTrue(rdf4jQuad.getGraphName().get().isNamedNode()),
-            () -> assertEquals(RDF4J.NIL.toString(), rdf4jQuad.getGraphName().get().getURI().toString())
-        );
+        assertFalse(rdf4jQuad.getGraphName().isPresent());
     }
 
     @Test
     void testInvalidQuad() {
         assertThrows(NullPointerException.class,
-            () -> new RDF4JQuad(TestModel.VF.createStatement(null, null, null, RDF4J.NIL))
+            () -> new RDF4JQuad(RDF4JTestModel.VF.createStatement(null, null, null, RDF4J.NIL))
         );
     }
 

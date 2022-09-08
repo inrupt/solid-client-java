@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.rdf4j;
+package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,28 +27,32 @@ import com.inrupt.client.rdf.RDFNode;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class RDF4JGraphTest {
+class JenaGraphTest {
 
-    private static RDF4JGraph rdf4jGraph;
+    private static JenaGraph jenaGraph;
+    private static final Model model = ModelFactory.createDefaultModel();
+
+    private static final Resource S_JENA = model.createResource(JenaTestModel.S_VALUE);
+    private static final Property P_JENA = model.createProperty(JenaTestModel.P_VALUE);
+    private static final Literal O_JENA = model.createLiteral(JenaTestModel.O_VALUE);
+
+    private static final Resource S1_JENA = model.createResource(JenaTestModel.S1_VALUE);
+    private static final Literal O1_JENA = model.createLiteral(JenaTestModel.O1_VALUE);
 
     @BeforeAll
     static void setup() {
-        final ModelBuilder builder = new ModelBuilder();
-
-        builder.namedGraph(RDF4JTestModel.G_RDF4J)
-                .subject(RDF4JTestModel.S_VALUE)
-                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
-
-        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
-
-        final Model m = builder.build();
-        rdf4jGraph = new RDF4JGraph(m);
+        model.add(S_JENA, P_JENA, O_JENA);
+        model.add(S1_JENA, P_JENA, O1_JENA);
+        jenaGraph = new JenaGraph(model);
     }
 
     @Test
@@ -56,13 +60,13 @@ class RDF4JGraphTest {
         assertAll("different versions of a subject",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JGraph.getSubject(RDFNode.literal("subject"))
+                    () -> JenaGraph.getSubject(RDFNode.literal("subject"))
                 );
                 assertEquals("Subject cannot be an RDF literal", exception.getMessage());
             },
-            () -> assertEquals(RDF4JTestModel.S_VALUE, RDF4JGraph.getSubject(RDF4JTestModel.S_RDFNode).toString()),
-            () -> assertTrue(RDF4JGraph.getSubject(RDFNode.blankNode()).isBNode()),
-            () -> assertNull(RDF4JGraph.getSubject(null))
+            () -> assertEquals(JenaTestModel.S_VALUE, JenaGraph.getSubject(JenaTestModel.S_RDFNode).toString()),
+            () -> assertTrue(JenaGraph.getSubject(RDFNode.blankNode()).isBlank()),
+            () -> assertEquals(Node.ANY, JenaGraph.getSubject(null))
         );
     }
 
@@ -71,18 +75,18 @@ class RDF4JGraphTest {
         assertAll("different versions of a predicate",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JGraph.getPredicate(RDFNode.literal("predicate"))
+                    () -> JenaGraph.getPredicate(RDFNode.literal("predicate"))
                 );
                 assertEquals("Predicate cannot be an RDF literal", exception.getMessage());
             },
-            () -> assertEquals(RDF4JTestModel.P_VALUE, RDF4JGraph.getPredicate(RDF4JTestModel.P_RDFNode).toString()),
+            () -> assertEquals(JenaTestModel.P_VALUE, JenaGraph.getPredicate(JenaTestModel.P_RDFNode).toString()),
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JGraph.getPredicate(RDFNode.blankNode())
+                    () -> JenaGraph.getPredicate(RDFNode.blankNode())
                 );
                 assertEquals("Predicate cannot be a blank node", exception.getMessage());
             },
-            () -> assertNull(RDF4JGraph.getPredicate(null))
+            () -> assertEquals(Node.ANY, JenaGraph.getPredicate(null))
         );
     }
 
@@ -91,95 +95,74 @@ class RDF4JGraphTest {
         assertAll("different versions of an object",
             () -> assertEquals(
                             "http://example.test/object",
-                            RDF4JGraph.getObject(RDFNode.namedNode(URI.create("http://example.test/object"))).toString()
+                            JenaGraph.getObject(RDFNode.namedNode(URI.create("http://example.test/object"))).toString()
                 ),
-            () -> assertEquals("object", ((Literal)RDF4JGraph.getObject(RDFNode.literal("object"))).getLabel()),
-            () -> assertTrue(RDF4JGraph.getObject(RDFNode.literal(
+            () -> assertEquals("object", JenaGraph.getObject(RDFNode.literal("object")).getLiteralLexicalForm()),
+            () -> assertTrue(JenaGraph.getObject(RDFNode.literal(
                                         "object",
                                         URI.create("http://www.w3.org/2004/02/skos/core#Concept")))
                                         .isLiteral()
                             ),
             () -> assertEquals(
                     "http://www.w3.org/2004/02/skos/core#Concept",
-                    ((Literal)RDF4JGraph.getObject(
+                    JenaGraph.getObject(
                                 RDFNode.literal(
                                     "object",
                                     URI.create("http://www.w3.org/2004/02/skos/core#Concept"))
-                                ))
-                                .getDatatype()
-                                .toString()),
+                                )
+                                .getLiteralDatatypeURI().toString()),
             () -> assertEquals(
                     "en",
-                    ((Literal)RDF4JGraph.getObject(RDFNode.literal("object", "en"))).getLanguage().get()
+                    JenaGraph.getObject(RDFNode.literal("object", "en")).getLiteralLanguage()
                 ),
-            () -> assertTrue(RDF4JGraph.getObject(RDFNode.blankNode()).isBNode()),
-            () -> assertNull(RDF4JGraph.getObject(null))
+            () -> assertTrue(JenaGraph.getObject(RDFNode.blankNode()).isBlank()),
+            () -> assertEquals(Node.ANY, JenaGraph.getObject(null))
         );
     }
 
     @Test
-    void testWithContextStream() {
-        assertTrue(rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
+    void testFullParamsStream() {
+        assertTrue(jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
             .findFirst().isPresent()
         );
         assertEquals(
             1,
-            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode).count()
+            jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode).count()
         );
         assertEquals(
-            RDF4JTestModel.P_RDFNode.getURI(),
-            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
+            JenaTestModel.P_RDFNode.getURI(),
+            jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
                 .findFirst().get().getPredicate().getURI()
         );
     }
 
     @Test
-    void testEmptyContextStream() {
-        assertTrue(
-            rdf4jGraph.stream(
-                RDF4JTestModel.S1_RDFNode,
-                RDF4JTestModel.P_RDFNode,
-                RDF4JTestModel.O1_RDFNode
-            ).findFirst().isPresent()
-        );
-        assertEquals(
-            1,
-            rdf4jGraph.stream(RDF4JTestModel.S1_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O1_RDFNode).count()
-        );
-        assertEquals(
-            RDF4JTestModel.P_RDFNode.getURI(),
-            rdf4jGraph.stream(RDF4JTestModel.S1_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O1_RDFNode)
-                .findFirst().get().getPredicate().getURI()
-        );
-    }
-
-    @Test
-    void testWithMoreContextStream() {
-        assertEquals(2, rdf4jGraph.stream(null, RDF4JTestModel.P_RDFNode, null).count());
-        assertEquals(2, rdf4jGraph.stream(null, null, null).count());
-        assertTrue(rdf4jGraph.stream(null, RDF4JTestModel.P_RDFNode, null)
+    void testNullInStream() {
+        assertEquals(2, jenaGraph.stream(null, JenaTestModel.P_RDFNode, null).count());
+        assertEquals(2, jenaGraph.stream(null, null, null).count());
+        assertTrue(jenaGraph.stream(null, JenaTestModel.P_RDFNode, null)
                             .map(r -> r.getSubject().getURI().toString())
                             .collect(Collectors.toList())
-                            .contains(RDF4JTestModel.S_VALUE)
+                            .contains(JenaTestModel.S_VALUE)
         );
-        assertTrue(rdf4jGraph.stream(null, RDF4JTestModel.P_RDFNode, null)
+        assertTrue(jenaGraph.stream(null, JenaTestModel.P_RDFNode, null)
                             .map(r -> r.getSubject().getURI().toString())
                             .collect(Collectors.toList())
-                            .contains(RDF4JTestModel.S1_VALUE)
+                            .contains(JenaTestModel.S1_VALUE)
         );
         assertEquals(
-            RDF4JTestModel.P_RDFNode.getURI(),
-            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
+            JenaTestModel.P_RDFNode.getURI(),
+            jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
                 .findFirst().get().getPredicate().getURI()
         );
         assertEquals(
-            RDF4JTestModel.S_RDFNode.getURI(),
-            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
+            JenaTestModel.S_RDFNode.getURI(),
+            jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
                 .findFirst().get().getSubject().getURI()
         );
         assertEquals(
-            RDF4JTestModel.O_RDFNode.getLiteral(),
-            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
+            JenaTestModel.O_RDFNode.getLiteral(),
+            jenaGraph.stream(JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
                 .findFirst().get().getObject().getLiteral()
         );
     }
@@ -191,7 +174,7 @@ class RDF4JGraphTest {
         assertAll("invalid subject in stream call",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> rdf4jGraph.stream(invalidSubject, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
+                    () -> jenaGraph.stream(invalidSubject, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
                 );
                 assertEquals("Subject cannot be an RDF literal", exception.getMessage());
             }
@@ -205,7 +188,7 @@ class RDF4JGraphTest {
         assertAll("invalid predicate in stream call",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, invalidPredicate, RDF4JTestModel.O_RDFNode)
+                    () -> jenaGraph.stream(JenaTestModel.S_RDFNode, invalidPredicate, JenaTestModel.O_RDFNode)
                 );
                 assertEquals("Predicate cannot be an RDF literal", exception.getMessage());
             }
@@ -214,11 +197,11 @@ class RDF4JGraphTest {
 
     @Test
     void testNoParamsStream() {
-        assertEquals(2, rdf4jGraph.stream().count());
-        assertTrue(rdf4jGraph.stream()
+        assertEquals(2, jenaGraph.stream().count());
+        assertTrue(jenaGraph.stream()
                     .map(r -> r.getSubject().getURI().toString())
                     .collect(Collectors.toList())
-                    .contains(RDF4JTestModel.S1_VALUE)
+                    .contains(JenaTestModel.S1_VALUE)
         );
     }
 

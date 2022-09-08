@@ -30,26 +30,18 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.eclipse.rdf4j.http.client.SPARQLProtocolSession;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.sparql.query.SPARQLUpdate;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class RDF4JBodyHandlersTest {
 
-    private static final MockHttpService mockHttpService = new MockHttpService();
+    private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newHttpClient();
 
@@ -64,10 +56,10 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfModelAsync() throws IOException,
+    void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -79,7 +71,7 @@ class RDF4JBodyHandlersTest {
         assertEquals(200, statusCode);
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
             null,
             null,
             (Resource)null)
@@ -87,10 +79,10 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfModel() throws IOException,
+    void testOfModelHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -100,7 +92,7 @@ class RDF4JBodyHandlersTest {
         final var responseBody = response.body().get();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
             null,
             null,
             (Resource)null)
@@ -108,9 +100,9 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfModel2() throws IOException, InterruptedException {
+    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/example"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -129,10 +121,10 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfRepositoryAsync() throws IOException,
+    void testOfRepositoryHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -145,7 +137,7 @@ class RDF4JBodyHandlersTest {
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
-                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
                 null,
                 null,
                 false,
@@ -156,10 +148,10 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfRepository() throws IOException,
+    void testOfRepositoryHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -170,7 +162,7 @@ class RDF4JBodyHandlersTest {
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
-                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
                 null,
                 null,
                 false,
@@ -181,9 +173,9 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfRepository2() throws IOException, InterruptedException {
+    void testOfRepositoryHandlerWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/example"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -204,82 +196,4 @@ class RDF4JBodyHandlersTest {
         }
     }
 
-    @Test
-    void testPostOfModel() throws IOException, InterruptedException {
-
-        final var builder = new ModelBuilder();
-        builder.namedGraph(TestModel.G_RDF4J)
-                .subject(TestModel.S_VALUE)
-                    .add(TestModel.P_VALUE, TestModel.O_VALUE);
-        builder.defaultGraph().subject(TestModel.S1_VALUE).add(TestModel.P_VALUE, TestModel.O1_VALUE);
-        final var model = builder.build();
-
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
-                .header("Content-Type", "text/turtle")
-                .POST(RDF4JBodyPublishers.ofModel(model))
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-
-        assertEquals(204, response.statusCode());
-    }
-
-    @Test
-    void testPostOfRepository() throws IOException, InterruptedException {
-
-        final var st = TestModel.VF.createStatement(
-            TestModel.S_RDF4J,
-            TestModel.P_RDF4J,
-            TestModel.O_RDF4J,
-            TestModel.G_RDF4J
-        );
-        final var st1 = TestModel.VF.createStatement(
-            TestModel.S1_RDF4J,
-            TestModel.P1_RDF4J,
-            TestModel.O1_RDF4J
-        );
-        final var repository = new SailRepository(new MemoryStore());
-        try (final var conn = repository.getConnection()) {
-            conn.add(st);
-            conn.add(st1);
-        }
-
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
-                .header("Content-Type", "text/turtle")
-                .POST(RDF4JBodyPublishers.ofRepository(repository))
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-
-        assertEquals(204, response.statusCode());
-    }
-
-    @Test
-    void testGetOfSPARQLUpdate() throws IOException, InterruptedException {
-
-        final var updateString =
-            "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}";
-
-        final var executorService = Executors.newFixedThreadPool(2);
-
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            final var sparqlProtocolSession = new SPARQLProtocolSession(httpclient, executorService);
-            final SPARQLUpdate sU = new SPARQLUpdate(
-                sparqlProtocolSession,
-                "http://example.com",
-                updateString
-            );
-            final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
-                    .header("Content-Type", "application/sparql-update")
-                    .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
-                    .build();
-            final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            assertEquals(204, response.statusCode());
-        }
-    }
 }

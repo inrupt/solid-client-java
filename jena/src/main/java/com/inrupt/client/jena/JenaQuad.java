@@ -28,17 +28,34 @@ import java.util.Optional;
 
 import org.apache.jena.graph.Node;
 
+/**
+ * The Jena implementation of a {@link Quad}.
+ */
 class JenaQuad extends JenaTriple implements Quad {
 
     private final Node graphName;
 
+    /**
+     * Create a JenaQuad.
+     *
+     * @param quad the Jena {@link org.apache.jena.sparql.core.Quad}
+     */
     public JenaQuad(final org.apache.jena.sparql.core.Quad quad) {
         super(quad.asTriple());
         this.graphName = getGraphName(quad);
     }
 
+    /**
+     * Retrieve the {@link RDFNode} graph name.
+     *
+     * @return the {@link RDFNode} graph name from {@code graphName}
+     */
     @Override
     public Optional<RDFNode> getGraphName() {
+        if (graphName != null && graphName.isBlank()) {
+            //TODO missing creation of blank nodes with label
+            return Optional.of(RDFNode.blankNode());
+        }
         return Optional.ofNullable(graphName).map(Node::getURI).map(URI::create).map(RDFNode::namedNode);
     }
 
