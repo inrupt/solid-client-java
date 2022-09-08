@@ -74,7 +74,7 @@ class JenaBodyHandlersTest {
     void testOfModelSubscriberAsync() throws IOException,
             InterruptedException, ExecutionException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .header("Accept", "text/turtle")
                 .GET()
                 .build();
@@ -97,7 +97,7 @@ class JenaBodyHandlersTest {
     void testOfModelSubscriber() throws IOException,
             InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -116,7 +116,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/example"))
+                .uri(URI.create(config.get("jena_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -138,7 +138,7 @@ class JenaBodyHandlersTest {
         model.add(S1_JENA, P_JENA, O1_JENA);
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofModel(model))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -158,7 +158,7 @@ class JenaBodyHandlersTest {
         ds = DatasetFactory.create(model);
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofDataset(ds))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -176,7 +176,7 @@ class JenaBodyHandlersTest {
             "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> }");
 
         final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
+                    .uri(URI.create(config.get("jena_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur))
                     .build();

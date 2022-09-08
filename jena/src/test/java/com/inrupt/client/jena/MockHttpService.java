@@ -93,7 +93,7 @@ class MockHttpService {
 
         setupMocks();
 
-        return Map.of("httpMock_uri", wireMockServer.baseUrl());
+        return Map.of("jena_uri", wireMockServer.baseUrl());
     }
 
     public void stop() {
