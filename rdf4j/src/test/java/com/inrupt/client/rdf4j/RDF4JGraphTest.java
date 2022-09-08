@@ -41,13 +41,11 @@ class RDF4JGraphTest {
     static void setup() {
         final ModelBuilder builder = new ModelBuilder();
 
-        // add a new named graph to the model
-        builder.namedGraph(TestModel.G_RDF4J)
-                .subject(TestModel.S_VALUE)
-                    .add(TestModel.P_VALUE, TestModel.O_VALUE);
+        builder.namedGraph(RDF4JTestModel.G_RDF4J)
+                .subject(RDF4JTestModel.S_VALUE)
+                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
 
-        // add a triple to the default graph (which is null and NOT RDF4J.NIL)
-        builder.defaultGraph().subject(TestModel.S1_VALUE).add(TestModel.P_VALUE, TestModel.O1_VALUE);
+        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
 
         final Model m = builder.build();
         rdf4jGraph = new RDF4JGraph(m);
@@ -62,7 +60,7 @@ class RDF4JGraphTest {
                 );
                 assertEquals("Subject cannot be an RDF literal", exception.getMessage());
             },
-            () -> assertEquals(TestModel.S_VALUE, RDF4JGraph.getSubject(TestModel.S_RDFNode).toString()),
+            () -> assertEquals(RDF4JTestModel.S_VALUE, RDF4JGraph.getSubject(RDF4JTestModel.S_RDFNode).toString()),
             () -> assertTrue(RDF4JGraph.getSubject(RDFNode.blankNode()).isBNode()),
             () -> assertNull(RDF4JGraph.getSubject(null))
         );
@@ -77,7 +75,7 @@ class RDF4JGraphTest {
                 );
                 assertEquals("Predicate cannot be an RDF literal", exception.getMessage());
             },
-            () -> assertEquals(TestModel.P_VALUE, RDF4JGraph.getPredicate(TestModel.P_RDFNode).toString()),
+            () -> assertEquals(RDF4JTestModel.P_VALUE, RDF4JGraph.getPredicate(RDF4JTestModel.P_RDFNode).toString()),
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
                     () -> RDF4JGraph.getPredicate(RDFNode.blankNode())
@@ -121,13 +119,16 @@ class RDF4JGraphTest {
 
     @Test
     void testWithContextStream() {
-        assertTrue(rdf4jGraph.stream(TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode)
+        assertTrue(rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
             .findFirst().isPresent()
         );
-        assertEquals(1, rdf4jGraph.stream(TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode).count());
         assertEquals(
-            TestModel.P_RDFNode.getURI(),
-            rdf4jGraph.stream(TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode)
+            1,
+            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode).count()
+        );
+        assertEquals(
+            RDF4JTestModel.P_RDFNode.getURI(),
+            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
                 .findFirst().get().getPredicate().getURI()
         );
     }
@@ -136,46 +137,49 @@ class RDF4JGraphTest {
     void testEmptyContextStream() {
         assertTrue(
             rdf4jGraph.stream(
-                TestModel.S1_RDFNode,
-                TestModel.P_RDFNode,
-                TestModel.O1_RDFNode
+                RDF4JTestModel.S1_RDFNode,
+                RDF4JTestModel.P_RDFNode,
+                RDF4JTestModel.O1_RDFNode
             ).findFirst().isPresent()
         );
-        assertEquals(1, rdf4jGraph.stream(TestModel.S1_RDFNode, TestModel.P_RDFNode, TestModel.O1_RDFNode).count());
         assertEquals(
-            TestModel.P_RDFNode.getURI(),
-            rdf4jGraph.stream(TestModel.S1_RDFNode, TestModel.P_RDFNode, TestModel.O1_RDFNode)
+            1,
+            rdf4jGraph.stream(RDF4JTestModel.S1_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O1_RDFNode).count()
+        );
+        assertEquals(
+            RDF4JTestModel.P_RDFNode.getURI(),
+            rdf4jGraph.stream(RDF4JTestModel.S1_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O1_RDFNode)
                 .findFirst().get().getPredicate().getURI()
         );
     }
 
     @Test
     void testWithMoreContextStream() {
-        assertEquals(2, rdf4jGraph.stream(null, TestModel.P_RDFNode, null).count());
+        assertEquals(2, rdf4jGraph.stream(null, RDF4JTestModel.P_RDFNode, null).count());
         assertEquals(2, rdf4jGraph.stream(null, null, null).count());
-        assertTrue(rdf4jGraph.stream(null, TestModel.P_RDFNode, null)
+        assertTrue(rdf4jGraph.stream(null, RDF4JTestModel.P_RDFNode, null)
                             .map(r -> r.getSubject().getURI().toString())
                             .collect(Collectors.toList())
-                            .contains(TestModel.S_VALUE)
+                            .contains(RDF4JTestModel.S_VALUE)
         );
-        assertTrue(rdf4jGraph.stream(null, TestModel.P_RDFNode, null)
+        assertTrue(rdf4jGraph.stream(null, RDF4JTestModel.P_RDFNode, null)
                             .map(r -> r.getSubject().getURI().toString())
                             .collect(Collectors.toList())
-                            .contains(TestModel.S1_VALUE)
+                            .contains(RDF4JTestModel.S1_VALUE)
         );
         assertEquals(
-            TestModel.P_RDFNode.getURI(),
-            rdf4jGraph.stream(TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode)
+            RDF4JTestModel.P_RDFNode.getURI(),
+            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
                 .findFirst().get().getPredicate().getURI()
         );
         assertEquals(
-            TestModel.S_RDFNode.getURI(),
-            rdf4jGraph.stream(TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode)
+            RDF4JTestModel.S_RDFNode.getURI(),
+            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
                 .findFirst().get().getSubject().getURI()
         );
         assertEquals(
-            TestModel.O_RDFNode.getLiteral(),
-            rdf4jGraph.stream(TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode)
+            RDF4JTestModel.O_RDFNode.getLiteral(),
+            rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
                 .findFirst().get().getObject().getLiteral()
         );
     }
@@ -187,7 +191,7 @@ class RDF4JGraphTest {
         assertAll("invalid subject in stream call",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> rdf4jGraph.stream(invalidSubject, TestModel.P_RDFNode, TestModel.O_RDFNode)
+                    () -> rdf4jGraph.stream(invalidSubject, RDF4JTestModel.P_RDFNode, RDF4JTestModel.O_RDFNode)
                 );
                 assertEquals("Subject cannot be an RDF literal", exception.getMessage());
             }
@@ -201,7 +205,7 @@ class RDF4JGraphTest {
         assertAll("invalid predicate in stream call",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> rdf4jGraph.stream(TestModel.S_RDFNode, invalidPredicate, TestModel.O_RDFNode)
+                    () -> rdf4jGraph.stream(RDF4JTestModel.S_RDFNode, invalidPredicate, RDF4JTestModel.O_RDFNode)
                 );
                 assertEquals("Predicate cannot be an RDF literal", exception.getMessage());
             }
@@ -214,7 +218,7 @@ class RDF4JGraphTest {
         assertTrue(rdf4jGraph.stream()
                     .map(r -> r.getSubject().getURI().toString())
                     .collect(Collectors.toList())
-                    .contains(TestModel.S1_VALUE)
+                    .contains(RDF4JTestModel.S1_VALUE)
         );
     }
 

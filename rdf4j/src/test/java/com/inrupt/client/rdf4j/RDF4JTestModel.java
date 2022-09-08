@@ -30,7 +30,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
-final class TestModel {
+final class RDF4JTestModel {
 
     private static final String TEST_NAMESPACE = "http://example.com/";
 
@@ -89,7 +89,7 @@ final class TestModel {
     public static final IRI P3_RDF4J = VF.createIRI(P3_VALUE);
     public static final Literal O3_RDF4J = VF.createLiteral(O3_VALUE);
 
-    private TestModel() {
+    private RDF4JTestModel() {
         // Prevent instantiation
     }
 }

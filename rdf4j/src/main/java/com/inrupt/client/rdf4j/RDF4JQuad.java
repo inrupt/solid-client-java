@@ -45,7 +45,7 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
      */
     public RDF4JQuad(final Statement statement) {
         super(Values.triple(statement));
-        this.graphName = getGraphName(statement);
+        this.graphName = getContext(statement);
     }
 
     /**
@@ -63,7 +63,7 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
                 .map(URI::create).map(RDFNode::namedNode);
     }
 
-    static Resource getGraphName(final Statement statement) {
+    static Resource getContext(final Statement statement) {
         final var ctx = statement.getContext();
         if (ctx == null || RDF4J.NIL.stringValue().equals(ctx.stringValue())) {
             return null;

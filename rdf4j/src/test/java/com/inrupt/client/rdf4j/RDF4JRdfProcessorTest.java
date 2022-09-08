@@ -49,16 +49,16 @@ class RDF4JRdfProcessorTest {
     @BeforeAll
     static void setup() {
         // create a RDF4JDataset
-        final Statement st = TestModel.VF.createStatement(
-            TestModel.S_RDF4J,
-            TestModel.P_RDF4J,
-            TestModel.O_RDF4J,
-            TestModel.G_RDF4J
+        final Statement st = RDF4JTestModel.VF.createStatement(
+            RDF4JTestModel.S_RDF4J,
+            RDF4JTestModel.P_RDF4J,
+            RDF4JTestModel.O_RDF4J,
+            RDF4JTestModel.G_RDF4J
         );
-        final Statement st1 = TestModel.VF.createStatement(
-            TestModel.S1_RDF4J,
-            TestModel.P1_RDF4J,
-            TestModel.O1_RDF4J
+        final Statement st1 = RDF4JTestModel.VF.createStatement(
+            RDF4JTestModel.S1_RDF4J,
+            RDF4JTestModel.P1_RDF4J,
+            RDF4JTestModel.O1_RDF4J
         );
         final var repository = new SailRepository(new MemoryStore());
         try (final var conn = repository.getConnection()) {
@@ -69,10 +69,10 @@ class RDF4JRdfProcessorTest {
 
         // create a RDF4JGraph
         final var builder = new ModelBuilder();
-        builder.namedGraph(TestModel.G_RDF4J)
-                .subject(TestModel.S_VALUE)
-                    .add(TestModel.P_VALUE, TestModel.O_VALUE);
-        builder.defaultGraph().subject(TestModel.S1_VALUE).add(TestModel.P_VALUE, TestModel.O1_VALUE);
+        builder.namedGraph(RDF4JTestModel.G_RDF4J)
+                .subject(RDF4JTestModel.S_VALUE)
+                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
+        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
         final var m = builder.build();
         rdf4jGraph = new RDF4JGraph(m);
     }
@@ -135,16 +135,16 @@ class RDF4JRdfProcessorTest {
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
             final var st = rdf4jDataset.stream(
-                            Optional.of(TestModel.G_RDFNode),
+                            Optional.of(RDF4JTestModel.G_RDFNode),
                             null,
                             null,
                             null
                             ).findFirst().get().getSubject().getURI().toString();
             final var st1 = roundtrip.stream(
-                            Optional.of(TestModel.G_RDFNode),
-                            TestModel.S_RDFNode,
-                            TestModel.P_RDFNode,
-                            TestModel.O_RDFNode
+                            Optional.of(RDF4JTestModel.G_RDFNode),
+                            RDF4JTestModel.S_RDFNode,
+                            RDF4JTestModel.P_RDFNode,
+                            RDF4JTestModel.O_RDFNode
                             ).findFirst().get().getSubject().getURI().toString();
             assertEquals(st, st1);
         }
@@ -160,16 +160,16 @@ class RDF4JRdfProcessorTest {
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
             final var st = rdf4jDataset.stream(
-                            Optional.of(TestModel.G_RDFNode),
+                            Optional.of(RDF4JTestModel.G_RDFNode),
                             null,
                             null,
                             null
                             ).findFirst().get().getSubject().getURI().toString();
             final var st1 = roundtrip.stream(
                             null,
-                            TestModel.S_RDFNode,
-                            TestModel.P_RDFNode,
-                            TestModel.O_RDFNode
+                            RDF4JTestModel.S_RDFNode,
+                            RDF4JTestModel.P_RDFNode,
+                            RDF4JTestModel.O_RDFNode
                             ).findFirst().get().getSubject().getURI().toString();
             assertEquals(st, st1);
         }
@@ -184,14 +184,14 @@ class RDF4JRdfProcessorTest {
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jGraph.stream().count(), roundtrip.stream().count());
             final var st = rdf4jGraph.stream(
-                            TestModel.S_RDFNode,
+                            RDF4JTestModel.S_RDFNode,
                             null,
                             null
                             ).findFirst().get().getSubject().getURI().toString();
             final var st1 = roundtrip.stream(
-                            TestModel.S_RDFNode,
-                            TestModel.P_RDFNode,
-                            TestModel.O_RDFNode
+                            RDF4JTestModel.S_RDFNode,
+                            RDF4JTestModel.P_RDFNode,
+                            RDF4JTestModel.O_RDFNode
                             ).findFirst().get().getSubject().getURI().toString();
             assertEquals(st, st1);
         }

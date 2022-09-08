@@ -74,8 +74,10 @@ class RDF4JDataset implements Dataset {
         final var p = RDF4JGraph.getPredicate(predicate);
         final var o = RDF4JGraph.getObject(object);
 
-        try (final var conn = repository.getConnection();
-                final var statements = conn.getStatements(s, p, o, c)) {
+        try (
+            final var conn = repository.getConnection();
+            final var statements = conn.getStatements(s, p, o, c)
+            ) {
             return QueryResults.asModel(statements).stream().map(RDF4JQuad::new);
         }
     }
@@ -96,9 +98,10 @@ class RDF4JDataset implements Dataset {
     }
 
     /**
-     * Retrieve the RDF4J graph from a RDFNode graph.
+     * Retrieve the RDF4J context from a RDFNode graph.
      *
-     * @return the graph as a RDF4J {@link Resource}, may be {@code null}
+     * @param graph the RDFNode graph, may be {@code null}
+     * @return the context as an Array of RDF4J {@link Resource}s
      */
     static Resource[] getContexts(final Optional<RDFNode> graph) {
         if (graph != null) {
@@ -116,11 +119,11 @@ class RDF4JDataset implements Dataset {
                     return new Resource[0];
                 }
             } else {
-                // a non-null but empty graph means the default graph
+                // a non-null but empty graph means the RDF4J default graph
                 return new Resource[] { null };
             }
         }
-        // a null graph means any graph
+        // a null graph means any context
         return new Resource[0];
     }
 }

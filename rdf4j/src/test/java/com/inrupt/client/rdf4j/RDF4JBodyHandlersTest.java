@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 
 class RDF4JBodyHandlersTest {
 
-    private static final MockHttpService mockHttpService = new MockHttpService();
+    private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newHttpClient();
 
@@ -67,7 +67,7 @@ class RDF4JBodyHandlersTest {
     void testGetOfModelAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -90,7 +90,7 @@ class RDF4JBodyHandlersTest {
     void testGetOfModel() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -110,7 +110,7 @@ class RDF4JBodyHandlersTest {
     @Test
     void testGetOfModel2() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/example"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -132,7 +132,7 @@ class RDF4JBodyHandlersTest {
     void testGetOfRepositoryAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -159,7 +159,7 @@ class RDF4JBodyHandlersTest {
     void testGetOfRepository() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -183,7 +183,7 @@ class RDF4JBodyHandlersTest {
     @Test
     void testGetOfRepository2() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/example"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -208,14 +208,14 @@ class RDF4JBodyHandlersTest {
     void testPostOfModel() throws IOException, InterruptedException {
 
         final var builder = new ModelBuilder();
-        builder.namedGraph(TestModel.G_RDF4J)
-                .subject(TestModel.S_VALUE)
-                    .add(TestModel.P_VALUE, TestModel.O_VALUE);
-        builder.defaultGraph().subject(TestModel.S1_VALUE).add(TestModel.P_VALUE, TestModel.O1_VALUE);
+        builder.namedGraph(RDF4JTestModel.G_RDF4J)
+                .subject(RDF4JTestModel.S_VALUE)
+                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
+        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
         final var model = builder.build();
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofModel(model))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -229,16 +229,16 @@ class RDF4JBodyHandlersTest {
     @Test
     void testPostOfRepository() throws IOException, InterruptedException {
 
-        final var st = TestModel.VF.createStatement(
-            TestModel.S_RDF4J,
-            TestModel.P_RDF4J,
-            TestModel.O_RDF4J,
-            TestModel.G_RDF4J
+        final var st = RDF4JTestModel.VF.createStatement(
+            RDF4JTestModel.S_RDF4J,
+            RDF4JTestModel.P_RDF4J,
+            RDF4JTestModel.O_RDF4J,
+            RDF4JTestModel.G_RDF4J
         );
-        final var st1 = TestModel.VF.createStatement(
-            TestModel.S1_RDF4J,
-            TestModel.P1_RDF4J,
-            TestModel.O1_RDF4J
+        final var st1 = RDF4JTestModel.VF.createStatement(
+            RDF4JTestModel.S1_RDF4J,
+            RDF4JTestModel.P1_RDF4J,
+            RDF4JTestModel.O1_RDF4J
         );
         final var repository = new SailRepository(new MemoryStore());
         try (final var conn = repository.getConnection()) {
@@ -247,7 +247,7 @@ class RDF4JBodyHandlersTest {
         }
 
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("httpMock_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofRepository(repository))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -274,7 +274,7 @@ class RDF4JBodyHandlersTest {
                 updateString
             );
             final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))
+                    .uri(URI.create(config.get("rdf4j_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
                     .build();

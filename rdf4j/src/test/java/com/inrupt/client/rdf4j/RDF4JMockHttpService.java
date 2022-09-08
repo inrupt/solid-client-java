@@ -27,11 +27,11 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Map;
 
-class MockHttpService {
+class RDF4JMockHttpService {
 
     private final WireMockServer wireMockServer;
 
-    public MockHttpService() {
+    public RDF4JMockHttpService() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
                 .dynamicPort());
     }
@@ -91,7 +91,7 @@ class MockHttpService {
 
         setupMocks();
 
-        return Map.of("httpMock_uri", wireMockServer.baseUrl());
+        return Map.of("rdf4j_uri", wireMockServer.baseUrl());
     }
 
     public void stop() {
