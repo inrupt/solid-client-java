@@ -28,14 +28,13 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class RDF4jJDatasetTest {
+class RDF4JDatasetTest {
 
     private static RDF4JDataset rdf4jDataset;
     private static RDFNode g_RDFNode;
@@ -59,12 +58,6 @@ class RDF4jJDatasetTest {
             TestModel.O2_RDF4J,
             null
         );
-        final Statement st3 = TestModel.VF.createStatement(
-            TestModel.S3_RDF4J,
-            TestModel.P3_RDF4J,
-            TestModel.O3_RDF4J,
-            RDF4J.NIL
-        );
 
         final var repository = new SailRepository(new MemoryStore());
 
@@ -72,7 +65,6 @@ class RDF4jJDatasetTest {
             conn.add(st);
             conn.add(st1);
             conn.add(st2);
-            conn.add(st3);
         }
         rdf4jDataset = new RDF4JDataset(repository);
     }
@@ -82,22 +74,23 @@ class RDF4jJDatasetTest {
         assertAll("different versions of a graph",
             () -> {
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JDataset.getGraph(Optional.of(RDFNode.literal("graph")))
+                    () -> RDF4JDataset.getContexts(Optional.of(RDFNode.literal("graph")))
                 );
                 assertEquals("Graph cannot be an RDF literal", exception.getMessage());
             },
             () -> assertEquals(
                 "http://example.com/graph",
-                RDF4JDataset.getGraph(Optional.of(RDFNode.namedNode(URI.create("http://example.com/graph")))).toString()
+                RDF4JDataset.getContexts(
+                    Optional.of(RDFNode.namedNode(URI.create("http://example.com/graph"))))[0].toString()
                 ),
-            /*() -> assertFalse(RDF4JDataset.getGraph(Optional.of(RDFNode.blankNode())).isBNode()),
+            /*() -> assertFalse(RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode())).isBNode()),
             //TODO handle blank nodes
             () -> assertEquals(
                     RDF4J.NIL.toString(),
-                    RDF4JDataset.getGraph(Optional.of(RDFNode.blankNode())).toString()
+                    RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode())).toString()
                 ),
                 */
-            () -> assertNull(RDF4JDataset.getGraph(null))
+            () -> assertEquals(0, RDF4JDataset.getContexts(null).length)
         );
     }
 
@@ -131,53 +124,50 @@ class RDF4jJDatasetTest {
     }
 
     @Test
-    void testWithoutContextStream() {
+    void testWithEmptyContextStream() {
         assertTrue(rdf4jDataset.stream(
             Optional.empty(),
-            TestModel.S_RDFNode,
-            TestModel.P_RDFNode,
-            TestModel.O_RDFNode
+            TestModel.S1_RDFNode,
+            TestModel.P1_RDFNode,
+            TestModel.O1_RDFNode
         ).findFirst().isPresent());
         assertEquals(
-            2,
+            1,
             rdf4jDataset.stream(
                 Optional.empty(),
-                TestModel.S_RDFNode,
-                TestModel.P_RDFNode,
-                TestModel.O_RDFNode).count()
+                TestModel.S2_RDFNode,
+                TestModel.P2_RDFNode,
+                TestModel.O2_RDFNode).count()
         );
         assertEquals(
-            TestModel.P_RDFNode.getURI(),
+            TestModel.P2_RDFNode.getURI(),
             rdf4jDataset.stream(
                 Optional.empty(),
-                TestModel.S_RDFNode,
-                TestModel.P_RDFNode,
-                TestModel.O_RDFNode
+                TestModel.S2_RDFNode,
+                TestModel.P2_RDFNode,
+                TestModel.O2_RDFNode
             ).findFirst().get().getPredicate().getURI()
         );
-        assertTrue(rdf4jDataset.stream(
+        assertFalse(rdf4jDataset.stream(
             Optional.empty(),
-            TestModel.S_RDFNode,
-            TestModel.P_RDFNode,
-            TestModel.O_RDFNode
-        ).findFirst().get().getGraphName().isPresent()
-        );
-        assertEquals(
-            TestModel.G_RDFNode.getURI(),
+            TestModel.S1_RDFNode,
+            TestModel.P1_RDFNode,
+            TestModel.O1_RDFNode
+        ).findFirst().get().getGraphName().isPresent());
+        assertFalse(
             rdf4jDataset.stream(
                 Optional.empty(),
-                TestModel.S_RDFNode,
-                TestModel.P_RDFNode,
-                TestModel.O_RDFNode
-            ).findFirst().get().getGraphName().get().getURI()
-        );
-        assertTrue(
+                TestModel.S2_RDFNode,
+                TestModel.P2_RDFNode,
+                TestModel.O2_RDFNode
+            ).findFirst().get().getGraphName().isPresent());
+        assertFalse(
             rdf4jDataset.stream(
                 Optional.empty(),
-                TestModel.S1_RDFNode,
-                TestModel.P1_RDFNode,
-                TestModel.O1_RDFNode
-            ).findFirst().get().getGraphName().isEmpty()
+                TestModel.S2_RDFNode,
+                TestModel.P2_RDFNode,
+                TestModel.O2_RDFNode
+            ).findFirst().get().getGraphName().isPresent()
         );
     }
 
@@ -207,7 +197,7 @@ class RDF4jJDatasetTest {
                 .findFirst().isPresent()
         );
         assertEquals(
-            2,
+            1,
             rdf4jDataset.stream(null, TestModel.S_RDFNode, TestModel.P_RDFNode, TestModel.O_RDFNode).count()
         );
         assertEquals(
@@ -269,14 +259,12 @@ class RDF4jJDatasetTest {
                 ).findFirst().get().getGraphName().get().getURI().toString()
         );
         //---- stream with empty optional
-        assertEquals(TestModel.G_VALUE,
-            rdf4jDataset.stream(
+        assertFalse(rdf4jDataset.stream(
                 Optional.empty(),
                 TestModel.S_RDFNode,
                 TestModel.P_RDFNode,
                 TestModel.O_RDFNode
-                ).findFirst().get().getGraphName().get().getURI().toString()
-        );
+                ).findFirst().isPresent());
     }
 
     @Test
@@ -321,30 +309,21 @@ class RDF4jJDatasetTest {
 
     @Test
     void testStreamQuadWithDefaultGraph() {
-        assertTrue(
-            rdf4jDataset.stream(
-                Optional.of(RDFNode.namedNode(URI.create(RDF4J.NIL.stringValue()))),
-                TestModel.S3_RDFNode,
-                TestModel.P3_RDFNode,
-                TestModel.O3_RDFNode
-                ).findFirst().get().getGraphName().isEmpty()
-        );
         //----- stream with null
         assertTrue(rdf4jDataset.stream(
             null,
-            TestModel.S3_RDFNode,
-            TestModel.P3_RDFNode,
-            TestModel.O3_RDFNode
+            TestModel.S2_RDFNode,
+            TestModel.P2_RDFNode,
+            TestModel.O2_RDFNode
             ).findFirst().get().getGraphName().isEmpty()
         );
         //---- stream with empty optional
         assertTrue(rdf4jDataset.stream(
             Optional.empty(),
-            TestModel.S3_RDFNode,
-            TestModel.P3_RDFNode,
-            TestModel.O3_RDFNode
+            TestModel.S2_RDFNode,
+            TestModel.P2_RDFNode,
+            TestModel.O2_RDFNode
             ).findFirst().get().getGraphName().isEmpty()
         );
     }
-
 }

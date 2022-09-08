@@ -64,10 +64,10 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
     }
 
     static Resource getGraphName(final Statement statement) {
-        if (statement.getContext().stringValue().equals(RDF4J.NIL.stringValue())) {
+        final var ctx = statement.getContext();
+        if (ctx == null || RDF4J.NIL.stringValue().equals(ctx.stringValue())) {
             return null;
         }
-        return statement.getContext();
+        return ctx;
     }
-
 }

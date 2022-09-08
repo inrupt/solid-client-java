@@ -28,11 +28,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
  * The RDF4J implementation of a {@link Dataset}.
@@ -71,22 +69,14 @@ class RDF4JDataset implements Dataset {
     @Override
     public Stream<Quad> stream(final Optional<RDFNode> graph, final RDFNode subject, final RDFNode predicate,
             final RDFNode object) {
-        final var g = getGraph(graph);
+        final var c = getContexts(graph);
         final var s = RDF4JGraph.getSubject(subject);
         final var p = RDF4JGraph.getPredicate(predicate);
         final var o = RDF4JGraph.getObject(object);
 
-        try (final var conn = repository.getConnection()) {
-            final RepositoryResult<Statement> statements;
-            if (g == null) {
-                //retrieves all statements in the repository regardless of context
-                statements = conn.getStatements(s, p, o);
-            } else {
-                statements = conn.getStatements(s, p, o, g);
-            }
-            final var model = QueryResults.asModel(statements);
-            statements.close();
-            return model.stream().map(RDF4JQuad::new);
+        try (final var conn = repository.getConnection();
+                final var statements = conn.getStatements(s, p, o, c)) {
+            return QueryResults.asModel(statements).stream().map(RDF4JQuad::new);
         }
     }
 
@@ -110,22 +100,27 @@ class RDF4JDataset implements Dataset {
      *
      * @return the graph as a RDF4J {@link Resource}, may be {@code null}
      */
-    static Resource getGraph(final Optional<RDFNode> graph) {
+    static Resource[] getContexts(final Optional<RDFNode> graph) {
         if (graph != null) {
-            if (graph.isEmpty()) return null;
             if (graph.isPresent()) {
                 if (graph.get().isLiteral()) {
                     throw new IllegalArgumentException("Graph cannot be an RDF literal");
                 }
                 if (graph.get().isNamedNode()) {
-                    return SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString());
+                    return new Resource[] {
+                        SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString())
+                    };
                 }
                 if (graph.get().isBlankNode()) {
                     //TODO add blank node creation
-                    return null;
+                    return new Resource[0];
                 }
+            } else {
+                // a non-null but empty graph means the default graph
+                return new Resource[] { null };
             }
         }
-        return null;
+        // a null graph means any graph
+        return new Resource[0];
     }
 }
