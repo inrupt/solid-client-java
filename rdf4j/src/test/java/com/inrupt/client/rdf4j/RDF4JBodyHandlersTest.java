@@ -30,19 +30,11 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.eclipse.rdf4j.http.client.SPARQLProtocolSession;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.sparql.query.SPARQLUpdate;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -64,7 +56,7 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfModelAsync() throws IOException,
+    void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
@@ -87,7 +79,7 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfModel() throws IOException,
+    void testOfModelHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
@@ -108,7 +100,7 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfModel2() throws IOException, InterruptedException {
+    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
@@ -129,7 +121,7 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfRepositoryAsync() throws IOException,
+    void testOfRepositoryHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
@@ -156,7 +148,7 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfRepository() throws IOException,
+    void testOfRepositoryHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
@@ -181,7 +173,7 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testGetOfRepository2() throws IOException, InterruptedException {
+    void testOfRepositoryHandlerWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
@@ -204,82 +196,4 @@ class RDF4JBodyHandlersTest {
         }
     }
 
-    @Test
-    void testPostOfModel() throws IOException, InterruptedException {
-
-        final var builder = new ModelBuilder();
-        builder.namedGraph(RDF4JTestModel.G_RDF4J)
-                .subject(RDF4JTestModel.S_VALUE)
-                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
-        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
-        final var model = builder.build();
-
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
-                .header("Content-Type", "text/turtle")
-                .POST(RDF4JBodyPublishers.ofModel(model))
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-
-        assertEquals(204, response.statusCode());
-    }
-
-    @Test
-    void testPostOfRepository() throws IOException, InterruptedException {
-
-        final var st = RDF4JTestModel.VF.createStatement(
-            RDF4JTestModel.S_RDF4J,
-            RDF4JTestModel.P_RDF4J,
-            RDF4JTestModel.O_RDF4J,
-            RDF4JTestModel.G_RDF4J
-        );
-        final var st1 = RDF4JTestModel.VF.createStatement(
-            RDF4JTestModel.S1_RDF4J,
-            RDF4JTestModel.P1_RDF4J,
-            RDF4JTestModel.O1_RDF4J
-        );
-        final var repository = new SailRepository(new MemoryStore());
-        try (final var conn = repository.getConnection()) {
-            conn.add(st);
-            conn.add(st1);
-        }
-
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
-                .header("Content-Type", "text/turtle")
-                .POST(RDF4JBodyPublishers.ofRepository(repository))
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-
-        assertEquals(204, response.statusCode());
-    }
-
-    @Test
-    void testGetOfSPARQLUpdate() throws IOException, InterruptedException {
-
-        final var updateString =
-            "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> .}";
-
-        final var executorService = Executors.newFixedThreadPool(2);
-
-        try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            final var sparqlProtocolSession = new SPARQLProtocolSession(httpclient, executorService);
-            final SPARQLUpdate sU = new SPARQLUpdate(
-                sparqlProtocolSession,
-                "http://example.test",
-                updateString
-            );
-            final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(config.get("rdf4j_uri") + "/sparqlUpdate"))
-                    .header("Content-Type", "application/sparql-update")
-                    .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
-                    .build();
-            final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            assertEquals(204, response.statusCode());
-        }
-    }
 }
