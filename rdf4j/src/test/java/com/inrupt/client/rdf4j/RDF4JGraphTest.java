@@ -90,8 +90,8 @@ class RDF4JGraphTest {
     void testGetObject() {
         assertAll("different versions of an object",
             () -> assertEquals(
-                            "http://example.com/object",
-                            RDF4JGraph.getObject(RDFNode.namedNode(URI.create("http://example.com/object"))).toString()
+                            "http://example.test/object",
+                            RDF4JGraph.getObject(RDFNode.namedNode(URI.create("http://example.test/object"))).toString()
                 ),
             () -> assertEquals("object", ((Literal)RDF4JGraph.getObject(RDFNode.literal("object"))).getLabel()),
             () -> assertTrue(RDF4JGraph.getObject(RDFNode.literal(

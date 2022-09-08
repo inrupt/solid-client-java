@@ -1,3 +1,3 @@
-<http://example.com/graph> { 
-    <http://example.com/subject> <http://example.com/predicate> <http://example.com/object> . 
+<http://example.test/graph> { 
+    <http://example.test/subject> <http://example.test/predicate> <http://example.test/object> . 
 }

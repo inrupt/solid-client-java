@@ -65,9 +65,9 @@ class JenaDatasetTest {
                 assertEquals("Graph cannot be an RDF literal", exception.getMessage());
             },
             () -> assertEquals(
-                "http://example.com/graph",
+                "http://example.test/graph",
                 JenaDataset.getGraphName(Optional.of(
-                        RDFNode.namedNode(URI.create("http://example.com/graph")))
+                        RDFNode.namedNode(URI.create("http://example.test/graph")))
                     ).toString()
                 ),
             () -> assertFalse(JenaDataset.getGraphName(Optional.of(RDFNode.blankNode())).isBlank()),

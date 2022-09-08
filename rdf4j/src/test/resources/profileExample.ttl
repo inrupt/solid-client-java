@@ -1,4 +1,4 @@
-@prefix : <http://example.com/>.
+@prefix : <http://example.test/>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 @prefix schema: <http://schema.org/>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
@@ -11,8 +11,8 @@
 
 :me
     a schema:Person, foaf:Person;
-    space:preferencesFile <http://example.com/settings/prefs.ttl>;
-    solid:privateTypeIndex <http://example.com/settings/privateTypeIndex.ttl>;
-    solid:publicTypeIndex <http://example.com/settings/publicTypeIndex.ttl>;
+    space:preferencesFile <http://example.test/settings/prefs.ttl>;
+    solid:privateTypeIndex <http://example.test/settings/privateTypeIndex.ttl>;
+    solid:publicTypeIndex <http://example.test/settings/publicTypeIndex.ttl>;
     foaf:name "Jane Doe";
     solid:oidcIssuer <https://solidcommunity.net>.

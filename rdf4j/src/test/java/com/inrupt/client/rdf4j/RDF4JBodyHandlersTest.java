@@ -79,7 +79,7 @@ class RDF4JBodyHandlersTest {
         assertEquals(200, statusCode);
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
             null,
             null,
             (Resource)null)
@@ -100,7 +100,7 @@ class RDF4JBodyHandlersTest {
         final var responseBody = response.body().get();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
             null,
             null,
             (Resource)null)
@@ -145,7 +145,7 @@ class RDF4JBodyHandlersTest {
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
-                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
                 null,
                 null,
                 false,
@@ -170,7 +170,7 @@ class RDF4JBodyHandlersTest {
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
-                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.com/s"),
+                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
                 null,
                 null,
                 false,
@@ -262,7 +262,7 @@ class RDF4JBodyHandlersTest {
     void testGetOfSPARQLUpdate() throws IOException, InterruptedException {
 
         final var updateString =
-            "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}";
+            "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> .}";
 
         final var executorService = Executors.newFixedThreadPool(2);
 
@@ -270,7 +270,7 @@ class RDF4JBodyHandlersTest {
             final var sparqlProtocolSession = new SPARQLProtocolSession(httpclient, executorService);
             final SPARQLUpdate sU = new SPARQLUpdate(
                 sparqlProtocolSession,
-                "http://example.com",
+                "http://example.test",
                 updateString
             );
             final HttpRequest request = HttpRequest.newBuilder()

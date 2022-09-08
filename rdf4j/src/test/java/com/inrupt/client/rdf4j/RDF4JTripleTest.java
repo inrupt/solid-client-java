@@ -53,14 +53,14 @@ class RDF4JTripleTest {
 
     @Test
     void testObjectAsIRI() {
-        final var object = RDF4JTestModel.VF.createIRI("http://example.com/object");
+        final var object = RDF4JTestModel.VF.createIRI("http://example.test/object");
         rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(
             RDF4JTestModel.S_RDF4J, RDF4JTestModel.P_RDF4J, object
             ));
 
         assertAll("object is a NamedNode",
                 () -> assertTrue(rdf4jTriple.getObject().isNamedNode()),
-                () -> assertEquals("http://example.com/object", rdf4jTriple.getObject().getURI().toString()));
+                () -> assertEquals("http://example.test/object", rdf4jTriple.getObject().getURI().toString()));
     }
 
     @Test

@@ -33,7 +33,7 @@ class JenaQuadTest {
 
     @Test
     void testGetGraphName() {
-        final var graph = NodeFactory.createURI("http://example.com/graphContext");
+        final var graph = NodeFactory.createURI("http://example.test/graphContext");
         jenaQuad = new JenaQuad(
             Quad.create(
                 graph,
@@ -47,7 +47,7 @@ class JenaQuadTest {
             () -> assertTrue(jenaQuad.getGraphName().isPresent()),
             () -> assertTrue(jenaQuad.getGraphName().get().isNamedNode()),
             () -> assertEquals(
-                "http://example.com/graphContext",
+                "http://example.test/graphContext",
                 jenaQuad.getGraphName().get().getURI().toString()
             )
         );

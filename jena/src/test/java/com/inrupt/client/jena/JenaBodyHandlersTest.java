@@ -89,7 +89,7 @@ class JenaBodyHandlersTest {
         assertTrue(responseBody.contains(
             null,
             null,
-            ResourceFactory.createResource("http://example.com/o"))
+            ResourceFactory.createResource("http://example.test/o"))
         );
     }
 
@@ -109,7 +109,7 @@ class JenaBodyHandlersTest {
         assertTrue(responseBody.contains(
             null,
             null,
-            ResourceFactory.createResource("http://example.com/o"))
+            ResourceFactory.createResource("http://example.test/o"))
         );
     }
 
@@ -173,7 +173,7 @@ class JenaBodyHandlersTest {
     void testOfUpdateRequestPublisher() throws IOException, InterruptedException {
 
         final var ur = UpdateFactory.create(
-            "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> }");
+            "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> }");
 
         final HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(config.get("httpMock_uri") + "/sparqlUpdate"))

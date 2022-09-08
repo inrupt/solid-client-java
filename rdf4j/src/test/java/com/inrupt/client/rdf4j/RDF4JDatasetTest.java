@@ -79,9 +79,9 @@ class RDF4JDatasetTest {
                 assertEquals("Graph cannot be an RDF literal", exception.getMessage());
             },
             () -> assertEquals(
-                "http://example.com/graph",
+                "http://example.test/graph",
                 RDF4JDataset.getContexts(
-                    Optional.of(RDFNode.namedNode(URI.create("http://example.com/graph"))))[0].toString()
+                    Optional.of(RDFNode.namedNode(URI.create("http://example.test/graph"))))[0].toString()
                 ),
             //TODO handle blank nodes
             /*() -> assertFalse(RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode())).isBNode()),

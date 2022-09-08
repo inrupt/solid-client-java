@@ -31,7 +31,7 @@ class RDF4JQuadTest {
 
     @Test
     void testGetGraphName() {
-        final var graph = RDF4JTestModel.VF.createIRI("http://example.com/graphContext");
+        final var graph = RDF4JTestModel.VF.createIRI("http://example.test/graphContext");
         rdf4jQuad = new RDF4JQuad(
             RDF4JTestModel.VF.createStatement(
                 RDF4JTestModel.S_RDF4J,
@@ -45,7 +45,7 @@ class RDF4JQuadTest {
             () -> assertTrue(rdf4jQuad.getGraphName().isPresent()),
             () -> assertTrue(rdf4jQuad.getGraphName().get().isNamedNode()),
             () -> assertEquals(
-                "http://example.com/graphContext",
+                "http://example.test/graphContext",
                 rdf4jQuad.getGraphName().get().getURI().toString()
             )
         );

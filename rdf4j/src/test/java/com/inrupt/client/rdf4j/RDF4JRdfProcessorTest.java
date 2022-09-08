@@ -97,7 +97,7 @@ class RDF4JRdfProcessorTest {
             final var dataset = processor.toDataset(Syntax.TRIG, input);
             assertTrue(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(
-                "http://example.com/graph",
+                "http://example.test/graph",
                 dataset.stream().findFirst().get().getGraphName().get().getURI().toString()
             );
             assertEquals(1, dataset.stream().count());

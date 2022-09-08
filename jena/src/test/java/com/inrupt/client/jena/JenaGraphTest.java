@@ -94,8 +94,8 @@ class JenaGraphTest {
     void testGetObject() {
         assertAll("different versions of an object",
             () -> assertEquals(
-                            "http://example.com/object",
-                            JenaGraph.getObject(RDFNode.namedNode(URI.create("http://example.com/object"))).toString()
+                            "http://example.test/object",
+                            JenaGraph.getObject(RDFNode.namedNode(URI.create("http://example.test/object"))).toString()
                 ),
             () -> assertEquals("object", JenaGraph.getObject(RDFNode.literal("object")).getLiteralLexicalForm()),
             () -> assertTrue(JenaGraph.getObject(RDFNode.literal(

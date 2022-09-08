@@ -46,11 +46,12 @@ class RDF4JMockHttpService {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/turtle")
-                        .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
+                        .withBody("<http://example.test/s> <http://example.test/p> <http://example.test/o> .")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .withRequestBody(matching(
-                            ".*<http://example.com/subject>\\s+<http://example.com/predicate>\\s+\"object\"\\s+\\..*"))
+                            ".*<http://example.test/subject>\\s+" +
+                            "<http://example.test/predicate>\\s+\"object\"\\s+\\..*"))
                     .withHeader("Content-Type", containing("text/turtle"))
                     .willReturn(aResponse()
                         .withStatus(204)));
@@ -64,14 +65,14 @@ class RDF4JMockHttpService {
         wireMockServer.stubFor(patch(urlEqualTo("/sparqlUpdate"))
                     .withHeader("Content-Type", containing("application/sparql-update"))
                     .withRequestBody(containing(
-                        "INSERT DATA { <http://example.com/s1> <http://example.com/p1> <http://example.com/o1> .}"))
+                        "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> .}"))
                     .willReturn(aResponse()
                         .withStatus(204)));
     }
 
     private String getExampleTTL() {
         return "" +
-            "@prefix : <http://example.com/>." +
+            "@prefix : <http://example.test/>." +
             "\n @prefix foaf: <http://xmlns.com/foaf/0.1/>." +
             "\n @prefix schema: <http://schema.org/>." +
             "\n @prefix solid: <http://www.w3.org/ns/solid/terms#>." +
@@ -79,9 +80,9 @@ class RDF4JMockHttpService {
             "\n" +
             "\n :me" +
             "\n    a schema:Person, foaf:Person;" +
-            "\n    space:preferencesFile <http://example.com//settings/prefs.ttl>;" +
-            "\n    solid:privateTypeIndex <http://example.com//settings/privateTypeIndex.ttl>;" +
-            "\n    solid:publicTypeIndex <http://example.com//settings/publicTypeIndex.ttl>;" +
+            "\n    space:preferencesFile <http://example.test//settings/prefs.ttl>;" +
+            "\n    solid:privateTypeIndex <http://example.test//settings/privateTypeIndex.ttl>;" +
+            "\n    solid:publicTypeIndex <http://example.test//settings/publicTypeIndex.ttl>;" +
             "\n    foaf:name \"Jane Doe\";" +
             "\n    solid:oidcIssuer <https://solidcommunity.net>.";
     }

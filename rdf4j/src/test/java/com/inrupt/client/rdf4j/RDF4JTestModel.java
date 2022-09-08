@@ -32,7 +32,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 final class RDF4JTestModel {
 
-    private static final String TEST_NAMESPACE = "http://example.com/";
+    private static final String TEST_NAMESPACE = "http://example.test/";
 
     public static final String S_VALUE = TEST_NAMESPACE + "subject";
     public static final String P_VALUE = TEST_NAMESPACE + "predicate";

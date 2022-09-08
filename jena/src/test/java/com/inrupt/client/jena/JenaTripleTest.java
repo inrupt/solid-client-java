@@ -52,12 +52,12 @@ class JenaTripleTest {
 
     @Test
     void testObjectAsIRI() {
-        final var object = NodeFactory.createURI("http://example.com/object");
+        final var object = NodeFactory.createURI("http://example.test/object");
         jenaTriple = new JenaTriple(Triple.create(JenaTestModel.S_NODE, JenaTestModel.P_NODE, object));
 
         assertAll("object is a NamedNode",
                 () -> assertTrue(jenaTriple.getObject().isNamedNode()),
-                () -> assertEquals("http://example.com/object", jenaTriple.getObject().getURI().toString()));
+                () -> assertEquals("http://example.test/object", jenaTriple.getObject().getURI().toString()));
     }
 
     @Test
