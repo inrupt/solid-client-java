@@ -64,7 +64,7 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             null,
@@ -87,7 +87,7 @@ class JenaBodyHandlersTest {
         final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             null,
@@ -106,7 +106,7 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(7, responseBody.size());
         assertTrue(responseBody.contains(
             null,
@@ -125,7 +125,7 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofDataset());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(1, responseBody.asDatasetGraph().stream().count());
         assertTrue(responseBody.asDatasetGraph().contains(
             null,
@@ -145,7 +145,7 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofDataset());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(7, responseBody.asDatasetGraph().stream().count());
         assertTrue(responseBody.asDatasetGraph().contains(
             null,
@@ -169,7 +169,7 @@ class JenaBodyHandlersTest {
         final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             NodeFactory.createURI("http://example.test/s"),
@@ -189,7 +189,7 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofGraph());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             NodeFactory.createURI("http://example.test/s"),
@@ -208,7 +208,7 @@ class JenaBodyHandlersTest {
         final var response = client.send(request, JenaBodyHandlers.ofGraph());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(7, responseBody.size());
         assertTrue(responseBody.contains(
             null,

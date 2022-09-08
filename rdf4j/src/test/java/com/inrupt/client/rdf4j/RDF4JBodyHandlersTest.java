@@ -66,7 +66,7 @@ class RDF4JBodyHandlersTest {
         final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofModel());
 
         final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
 
         assertEquals(200, statusCode);
         assertEquals(1, responseBody.size());
@@ -89,7 +89,7 @@ class RDF4JBodyHandlersTest {
         final var response = client.send(request, RDF4JBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
@@ -109,7 +109,7 @@ class RDF4JBodyHandlersTest {
         final var response = client.send(request, RDF4JBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals(7, responseBody.size());
         assertTrue(responseBody.contains(
                 null,
@@ -133,7 +133,7 @@ class RDF4JBodyHandlersTest {
         final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
@@ -158,7 +158,7 @@ class RDF4JBodyHandlersTest {
         final var response = client.send(request, RDF4JBodyHandlers.ofRepository());
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
@@ -182,7 +182,7 @@ class RDF4JBodyHandlersTest {
         final var response = client.send(request, RDF4JBodyHandlers.ofRepository());
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(

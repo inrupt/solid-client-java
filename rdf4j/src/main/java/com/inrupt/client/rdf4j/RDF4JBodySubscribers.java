@@ -20,11 +20,11 @@
  */
 package com.inrupt.client.rdf4j;
 
+import com.inrupt.client.core.InputStreamSubscriber;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
-import java.util.function.Supplier;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
@@ -44,7 +44,7 @@ public final class RDF4JBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Model>> ofModel() {
+    public static HttpResponse.BodySubscriber<Model> ofModel() {
         return ofModel(RDFFormat.TURTLE);
     }
 
@@ -54,22 +54,18 @@ public final class RDF4JBodySubscribers {
      * @param format the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Model>> ofModel(final RDFFormat format) {
+    public static HttpResponse.BodySubscriber<Model> ofModel(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        final HttpResponse.BodySubscriber<Supplier<Model>> downstream = HttpResponse.BodySubscribers.mapping(
-            upstream,
-            (InputStream is) -> () -> {
-                try (var stream = is) {
-                    return Rio.parse(stream, format);
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream into a Model",
-                        ex
-                    );
-                }
+        return InputStreamSubscriber.mapping(upstream, input -> {
+            try (var stream = input) {
+                return Rio.parse(stream, format);
+            } catch (final IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream",
+                    ex
+                );
             }
-        );
-        return downstream;
+        });
     }
 
     /**
@@ -79,7 +75,7 @@ public final class RDF4JBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Repository>> ofRepository() {
+    public static HttpResponse.BodySubscriber<Repository> ofRepository() {
         return ofRepository(RDFFormat.TRIG);
     }
 
@@ -89,26 +85,21 @@ public final class RDF4JBodySubscribers {
      * @param format the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Repository>> ofRepository(final RDFFormat format) {
+    public static HttpResponse.BodySubscriber<Repository> ofRepository(final RDFFormat format) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        final HttpResponse.BodySubscriber<Supplier<Repository>> downstream = HttpResponse.BodySubscribers.mapping(
-            upstream,
-            (InputStream in) -> () -> {
-                try (InputStream stream = in) {
-                    final var repository = new SailRepository(new MemoryStore());
-                    try (final var conn = repository.getConnection()) {
-                        conn.add(stream, format);
-                    }
-                    return repository;
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream into a Repository",
-                        ex
-                    );
-                }
+        return InputStreamSubscriber.mapping(upstream, input -> {
+            final var repository = new SailRepository(new MemoryStore());
+            try (final var stream = input;
+                final var conn = repository.getConnection()) {
+                conn.add(stream, format);
+            } catch (IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream",
+                    ex
+                );
             }
-        );
-        return downstream;
+            return repository;
+        });
     }
 
     private RDF4JBodySubscribers() {

@@ -20,11 +20,11 @@
  */
 package com.inrupt.client.jena;
 
+import com.inrupt.client.core.InputStreamSubscriber;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.http.HttpResponse;
-import java.util.function.Supplier;
 
 import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
@@ -47,7 +47,7 @@ public final class JenaBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Model>> ofModel() {
+    public static HttpResponse.BodySubscriber<Model> ofModel() {
         return ofModel(Lang.TURTLE);
     }
 
@@ -57,24 +57,20 @@ public final class JenaBodySubscribers {
      * @param lang the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Model>> ofModel(final Lang lang) {
+    public static HttpResponse.BodySubscriber<Model> ofModel(final Lang lang) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        final HttpResponse.BodySubscriber<Supplier<Model>> downstream = HttpResponse.BodySubscribers.mapping(
-            upstream,
-            (InputStream is) -> () -> {
-                try (var stream = is) {
-                    final var model = ModelFactory.createDefaultModel();
-                    RDFDataMgr.read(model, stream, lang);
-                    return model;
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream into a Model",
-                        ex
-                    );
-                }
+        return InputStreamSubscriber.mapping(upstream, input -> {
+            try (var stream = input) {
+                final var model = ModelFactory.createDefaultModel();
+                RDFDataMgr.read(model, stream, lang);
+                return model;
+            } catch (IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream into a Model",
+                    ex
+                );
             }
-            );
-        return downstream;
+        });
     }
 
     /**
@@ -84,7 +80,7 @@ public final class JenaBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Graph>> ofGraph() {
+    public static HttpResponse.BodySubscriber<Graph> ofGraph() {
         return ofGraph(Lang.TURTLE);
     }
 
@@ -94,24 +90,20 @@ public final class JenaBodySubscribers {
      * @param lang the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Graph>> ofGraph(final Lang lang) {
+    public static HttpResponse.BodySubscriber<Graph> ofGraph(final Lang lang) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        final HttpResponse.BodySubscriber<Supplier<Graph>> downstream = HttpResponse.BodySubscribers.mapping(
-            upstream,
-            (InputStream is) -> () -> {
-                try (var stream = is) {
-                    final var graph = Factory.createDefaultGraph();
-                    RDFDataMgr.read(graph, stream, lang);
-                    return graph;
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream into a Graph",
-                        ex
-                    );
-                }
+        return InputStreamSubscriber.mapping(upstream, input -> {
+            try (var stream = input) {
+                final var graph = Factory.createDefaultGraph();
+                RDFDataMgr.read(graph, stream, lang);
+                return graph;
+            } catch (IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream into a Graph",
+                    ex
+                );
             }
-        );
-        return downstream;
+        });
     }
 
     /**
@@ -121,7 +113,7 @@ public final class JenaBodySubscribers {
      *
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Dataset>> ofDataset() {
+    public static HttpResponse.BodySubscriber<Dataset> ofDataset() {
         return ofDataset(Lang.TRIG);
     }
 
@@ -131,23 +123,20 @@ public final class JenaBodySubscribers {
      * @param lang the RDF serialization of the HTTP response
      * @return the body subscriber
      */
-    public static HttpResponse.BodySubscriber<Supplier<Dataset>> ofDataset(final Lang lang) {
+    public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Lang lang) {
         final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        final HttpResponse.BodySubscriber<Supplier<Dataset>> downstream = HttpResponse.BodySubscribers.mapping(
-            upstream,
-            (InputStream is) -> () -> {
-                try (var stream = is) {
-                    final var dataset = DatasetFactory.create();
-                    RDFDataMgr.read(dataset, stream, lang);
-                    return dataset;
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream into a Dataset",
-                        ex
-                    );
-                }
-            });
-        return downstream;
+        return InputStreamSubscriber.mapping(upstream, input -> {
+            try (var stream = input) {
+                final var dataset = DatasetFactory.create();
+                RDFDataMgr.read(dataset, stream, lang);
+                return dataset;
+            } catch (IOException ex) {
+                throw new UncheckedIOException(
+                    "An I/O error occurred while data was read from the InputStream into a Dataset",
+                    ex
+                );
+            }
+        });
     }
 
     private JenaBodySubscribers() {
