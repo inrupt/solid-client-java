@@ -47,10 +47,6 @@ final class RDF4JTestModel {
     public static final String P2_VALUE = TEST_NAMESPACE + "predicate2";
     public static final String O2_VALUE = "object2";
 
-    public static final String S3_VALUE = TEST_NAMESPACE + "subject3";
-    public static final String P3_VALUE = TEST_NAMESPACE + "predicate3";
-    public static final String O3_VALUE = "object3";
-
     //RDFNode properties
     public static final RDFNode S_RDFNode = RDFNode.namedNode(URI.create(S_VALUE));
     public static final RDFNode P_RDFNode = RDFNode.namedNode(URI.create(P_VALUE));
@@ -64,10 +60,6 @@ final class RDF4JTestModel {
     public static final RDFNode S2_RDFNode = RDFNode.namedNode(URI.create(S2_VALUE));
     public static final RDFNode P2_RDFNode = RDFNode.namedNode(URI.create(P2_VALUE));
     public static final RDFNode O2_RDFNode = RDFNode.literal(O2_VALUE);
-
-    public static final RDFNode S3_RDFNode = RDFNode.namedNode(URI.create(S3_VALUE));
-    public static final RDFNode P3_RDFNode = RDFNode.namedNode(URI.create(P3_VALUE));
-    public static final RDFNode O3_RDFNode = RDFNode.literal(O3_VALUE);
 
     //RDF4J properties
     public static final ValueFactory VF = SimpleValueFactory.getInstance();
@@ -84,10 +76,6 @@ final class RDF4JTestModel {
     public static final Resource S2_RDF4J = VF.createIRI(S2_VALUE);
     public static final IRI P2_RDF4J = VF.createIRI(P2_VALUE);
     public static final Literal O2_RDF4J = VF.createLiteral(O2_VALUE);
-
-    public static final Resource S3_RDF4J = VF.createIRI(S3_VALUE);
-    public static final IRI P3_RDF4J = VF.createIRI(P3_VALUE);
-    public static final Literal O3_RDF4J = VF.createLiteral(O3_VALUE);
 
     private RDF4JTestModel() {
         // Prevent instantiation

@@ -95,7 +95,8 @@ class JenaDataset implements Dataset {
     /**
      * Retrieve the Jena graph node from a RDFNode graph.
      *
-     * @return the graph as a Jena {@link Node}, may be {@code null}
+     * @param graph the RDFNode graph, may be {@code null}
+     * @return the graph as a Jena {@link Node}
      */
     static Node getGraphName(final Optional<RDFNode> graph) {
         if (graph != null) {

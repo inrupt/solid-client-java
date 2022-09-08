@@ -68,7 +68,7 @@ class JenaQuadTest {
         assertAll("quad creation validation",
             () -> assertTrue(jenaQuad.getGraphName().isPresent()),
             () -> assertTrue(jenaQuad.getGraphName().get().isBlankNode())
-            //TODO missing creation of blank nodes with label so we can return it
+            //TODO missing creation of blank nodes with label
             /*() -> assertEquals(
                 "testID",
                 JenaQuad.getGraphName().get().get..().toString()
