@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.core.InputStreamSubscriber;
+import com.inrupt.client.core.InputStreamBodySubscribers;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -58,17 +58,14 @@ public final class JenaBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<Model> ofModel(final Lang lang) {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return InputStreamSubscriber.mapping(upstream, input -> {
-            try (var stream = input) {
+        return InputStreamBodySubscribers.mapping(input -> {
+            try (final var stream = input) {
                 final var model = ModelFactory.createDefaultModel();
                 RDFDataMgr.read(model, stream, lang);
                 return model;
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream into a Model",
-                    ex
-                );
+                    "An I/O error occurred while data was read from the InputStream into a Model", ex);
             }
         });
     }
@@ -91,17 +88,14 @@ public final class JenaBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<Graph> ofGraph(final Lang lang) {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return InputStreamSubscriber.mapping(upstream, input -> {
-            try (var stream = input) {
+        return InputStreamBodySubscribers.mapping(input -> {
+            try (final var stream = input) {
                 final var graph = Factory.createDefaultGraph();
                 RDFDataMgr.read(graph, stream, lang);
                 return graph;
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream into a Graph",
-                    ex
-                );
+                    "An I/O error occurred while data was read from the InputStream into a Graph", ex);
             }
         });
     }
@@ -124,17 +118,14 @@ public final class JenaBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<Dataset> ofDataset(final Lang lang) {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return InputStreamSubscriber.mapping(upstream, input -> {
-            try (var stream = input) {
+        return InputStreamBodySubscribers.mapping(input -> {
+            try (final var stream = input) {
                 final var dataset = DatasetFactory.create();
                 RDFDataMgr.read(dataset, stream, lang);
                 return dataset;
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream into a Dataset",
-                    ex
-                );
+                    "An I/O error occurred while data was read from the InputStream into a Dataset", ex);
             }
         });
     }

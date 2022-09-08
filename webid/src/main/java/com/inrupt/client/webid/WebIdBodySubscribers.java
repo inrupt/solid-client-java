@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.webid;
 
-import com.inrupt.client.core.InputStreamSubscriber;
+import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.rdf.*;
 import com.inrupt.client.spi.RdfProcessor;
 import com.inrupt.client.spi.ServiceLoadingException;
@@ -50,8 +50,7 @@ public final class WebIdBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<WebIdProfile> ofWebIdProfile(final URI webid) {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return InputStreamSubscriber.mapping(upstream, input -> {
+        return InputStreamBodySubscribers.mapping(input -> {
             final var builder = WebIdProfile.newBuilder();
             try (final var stream = input) {
                 final var graph = processor.toGraph(Syntax.TURTLE, stream);

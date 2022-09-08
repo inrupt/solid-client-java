@@ -41,11 +41,9 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static HttpResponse.BodyHandler<Model> ofModel() {
-        return responseInfo -> {
-            final var lang = responseInfo.headers().firstValue("Content-Type")
-                .orElseThrow(() -> new RiotException("Missing content-type header from response"));
-            return JenaBodySubscribers.ofModel(toJenaLang(lang));
-        };
+        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofModel)
+            .orElseThrow(() -> new RiotException("Missing content-type header from response"));
     }
 
     /**
@@ -54,11 +52,9 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static HttpResponse.BodyHandler<Graph> ofGraph() {
-        return responseInfo -> {
-            final var lang = responseInfo.headers().firstValue("Content-Type")
-                .orElseThrow(() -> new RiotException("Missing content-type header from response"));
-            return JenaBodySubscribers.ofGraph(toJenaLang(lang));
-        };
+        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofGraph)
+            .orElseThrow(() -> new RiotException("Missing content-type header from response"));
     }
 
     /**
@@ -67,11 +63,9 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static HttpResponse.BodyHandler<Dataset> ofDataset() {
-        return responseInfo -> {
-            final var lang = responseInfo.headers().firstValue("Content-Type")
-                .orElseThrow(() -> new RiotException("Missing content-type header from response"));
-            return JenaBodySubscribers.ofDataset(toJenaLang(lang));
-        };
+        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofDataset)
+            .orElseThrow(() -> new RiotException("Missing content-type header from response"));
     }
 
     static Lang toJenaLang(final String mediaType) {

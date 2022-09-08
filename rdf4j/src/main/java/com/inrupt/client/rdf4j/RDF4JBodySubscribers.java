@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.core.InputStreamSubscriber;
+import com.inrupt.client.core.InputStreamBodySubscribers;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -55,15 +55,12 @@ public final class RDF4JBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<Model> ofModel(final RDFFormat format) {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return InputStreamSubscriber.mapping(upstream, input -> {
-            try (var stream = input) {
+        return InputStreamBodySubscribers.mapping(input -> {
+            try (final var stream = input) {
                 return Rio.parse(stream, format);
             } catch (final IOException ex) {
                 throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream",
-                    ex
-                );
+                    "An I/O error occurred while data was read from the InputStream", ex);
             }
         });
     }
@@ -86,17 +83,13 @@ public final class RDF4JBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<Repository> ofRepository(final RDFFormat format) {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-        return InputStreamSubscriber.mapping(upstream, input -> {
+        return InputStreamBodySubscribers.mapping(input -> {
             final var repository = new SailRepository(new MemoryStore());
-            try (final var stream = input;
-                final var conn = repository.getConnection()) {
+            try (final var stream = input; final var conn = repository.getConnection()) {
                 conn.add(stream, format);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new UncheckedIOException(
-                    "An I/O error occurred while data was read from the InputStream",
-                    ex
-                );
+                    "An I/O error occurred while data was read from the InputStream", ex);
             }
             return repository;
         });
