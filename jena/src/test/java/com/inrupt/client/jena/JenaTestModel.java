@@ -18,21 +18,17 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.rdf4j;
+package com.inrupt.client.jena;
 
 import com.inrupt.client.rdf.RDFNode;
 
 import java.net.URI;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 
-final class TestModel {
-
-    private static final String TEST_NAMESPACE = "http://example.com/";
+final class JenaTestModel {
+    private static final String TEST_NAMESPACE = "http://example.test/";
 
     public static final String S_VALUE = TEST_NAMESPACE + "subject";
     public static final String P_VALUE = TEST_NAMESPACE + "predicate";
@@ -50,21 +46,20 @@ final class TestModel {
     public static final RDFNode G_RDFNode = RDFNode.namedNode(URI.create(G_VALUE));
 
     public static final RDFNode S1_RDFNode = RDFNode.namedNode(URI.create(S1_VALUE));
+    public static final RDFNode P1_RDFNode = RDFNode.namedNode(URI.create(P1_VALUE));
     public static final RDFNode O1_RDFNode = RDFNode.literal(O1_VALUE);
 
-    //RDF4J properties
-    public static final ValueFactory VF = SimpleValueFactory.getInstance();
+    //JenaNode properties
+    public static final Node S_NODE = NodeFactory.createURI(S_VALUE);
+    public static final Node P_NODE = NodeFactory.createURI(P_VALUE);
+    public static final Node O_NODE = NodeFactory.createLiteral(O_VALUE);
+    public static final Node G_NODE = NodeFactory.createURI(G_VALUE);
 
-    public static final Resource S_RDF4J = VF.createIRI(S_VALUE);
-    public static final IRI P_RDF4J = VF.createIRI(P_VALUE);
-    public static final Literal O_RDF4J = VF.createLiteral(O_VALUE);
-    public static final Resource G_RDF4J = VF.createIRI(G_VALUE);
+    public static final Node S1_NODE = NodeFactory.createURI(S1_VALUE);
+    public static final Node P1_NODE = NodeFactory.createURI(P1_VALUE);
+    public static final Node O1_NODE = NodeFactory.createLiteral(O1_VALUE);
 
-    public static final Resource S1_RDF4J = VF.createIRI(S1_VALUE);
-    public static final IRI P1_RDF4J = VF.createIRI(P1_VALUE);
-    public static final Literal O1_RDF4J = VF.createLiteral(O1_VALUE);
-
-    private TestModel() {
+    private JenaTestModel() {
         // Prevent instantiation
     }
 }

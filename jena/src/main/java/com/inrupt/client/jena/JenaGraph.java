@@ -33,18 +33,39 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
 
+/**
+ * The Jena implementation of a {@link Graph}.
+ */
 class JenaGraph implements Graph {
 
     private final Model model;
 
+    /**
+     * Create a JenaGraph.
+     *
+     * @param model the Jena {@link Model}
+     */
     public JenaGraph(final Model model) {
         this.model = model;
     }
 
+    /**
+     * Return the JenaGraph {@code model} value.
+     *
+     * @return the model as a Jena {@link Model}
+     */
     public Model asJenaModel() {
         return model;
     }
 
+    /**
+     * Return the matching sequential stream of Triple with this JenaDataset as its source.
+     *
+     * @param subject the RDFNode subject, may be {@code null}
+     * @param predicate the RDFNode predicate, may be {@code null}
+     * @param object the RDFNode object, may be {@code null}
+     * @return the matching quads as a sequential {@link Stream} of {@link Triple}s
+     */
     @Override
     public Stream<Triple> stream(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
 
@@ -56,13 +77,22 @@ class JenaGraph implements Graph {
         return Iter.asStream(iter).map(JenaTriple::new);
     }
 
+    /**
+     * Return a sequential stream of Triples with this JenaDataset as its source.
+     *
+     * @return a sequential {@link Stream} of {@link Triple}s
+     */
     @Override
     public Stream<Triple> stream() {
         final var iter = model.getGraph().find();
         return Iter.asStream(iter).map(JenaTriple::new);
     }
 
-
+    /**
+     * Retrieve the Jena subject from a RDFNode subject.
+     *
+     * @return the subject as a Jena {@link Node}, may be {@code null}
+     */
     static Node getSubject(final RDFNode subject) {
         if (subject != null) {
             if (subject.isLiteral()) {
@@ -77,6 +107,11 @@ class JenaGraph implements Graph {
         return Node.ANY;
     }
 
+    /**
+     * Retrieve the Jena predicate from a RDFNode predicate.
+     *
+     * @return the predicate as a Jena {@link Node}, may be {@code null}
+     */
     static Node getPredicate(final RDFNode predicate) {
         if (predicate != null) {
             if (predicate.isLiteral()) {
@@ -92,6 +127,11 @@ class JenaGraph implements Graph {
         return Node.ANY;
     }
 
+    /**
+     * Retrieve the Jena object from a RDFNode object.
+     *
+     * @return the object as a Jena {@link Node}, may be {@code null}
+     */
     static Node getObject(final RDFNode object) {
 
         if (object != null) {

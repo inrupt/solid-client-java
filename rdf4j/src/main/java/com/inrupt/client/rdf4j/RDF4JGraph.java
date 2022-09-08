@@ -63,7 +63,6 @@ class RDF4JGraph implements Graph {
     /**
      * Return the matching sequential stream of Triple with this RDF4JDataset as its source.
      *
-     * @param graph the RDFNode graph, may be {@code null}
      * @param subject the RDFNode subject, may be {@code null}
      * @param predicate the RDFNode predicate, may be {@code null}
      * @param object the RDFNode object, may be {@code null}

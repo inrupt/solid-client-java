@@ -397,7 +397,7 @@ public class Holder {
     //       }
     //     }
     //   ],
-    //   "domain": "credentials.example.com",
+    //   "domain": "credentials.example",
     //   "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f"
     // }
     public VerifiablePresentationRequest initiateExchange(final String exchangeId, final ExchangeRequest request) {

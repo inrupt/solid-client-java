@@ -37,12 +37,12 @@ class DefaultHeaderParserTest {
     @Test
     void parseWwwAuthenticateUmaBearerDpop() {
         final var parser = new DefaultHeaderParser();
-        final var header = "UMA as_uri=\"https://example.com\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"";
+        final var header = "UMA as_uri=\"https://example.test\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"";
         final var challenges = parser.wwwAuthenticate(header);
 
         assertEquals(challenges, List.of(
                     new Challenge("UMA", Map.of(
-                            "as_uri", "https://example.com",
+                            "as_uri", "https://example.test",
                             "ticket", "value")),
                     new Challenge("Bearer"),
                     new Challenge("DPoP", Map.of("algs", "ES256 RS256"))));
@@ -51,12 +51,12 @@ class DefaultHeaderParserTest {
     @Test
     void parseCaseInsensitive() {
         final var parser = new DefaultHeaderParser();
-        final var header = "uma as_uri=\"https://example.com\", ticket=value, dpop algs=\"ES256 RS256\"";
+        final var header = "uma as_uri=\"https://example.test\", ticket=value, dpop algs=\"ES256 RS256\"";
         final var challenges = parser.wwwAuthenticate(header);
 
         assertEquals(challenges, List.of(
                     new Challenge("UMA", Map.of(
-                            "as_uri", "https://example.com",
+                            "as_uri", "https://example.test",
                             "ticket", "value")),
                     new Challenge("DPoP", Map.of("algs", "ES256 RS256"))));
     }
@@ -64,12 +64,12 @@ class DefaultHeaderParserTest {
     @Test
     void parseBasic() {
         final var parser = new DefaultHeaderParser();
-        final var header = "UMA as_uri=\"https://example.com\", ticket=value, basic realm=\"protected\"";
+        final var header = "UMA as_uri=\"https://example.test\", ticket=value, basic realm=\"protected\"";
         final var challenges = parser.wwwAuthenticate(header);
 
         assertEquals(challenges, List.of(
                     new Challenge("UMA", Map.of(
-                            "as_uri", "https://example.com",
+                            "as_uri", "https://example.test",
                             "ticket", "value")),
                     new Challenge("Basic", Map.of("realm", "protected"))));
     }
@@ -77,12 +77,12 @@ class DefaultHeaderParserTest {
     @Test
     void parseWwwAuthenticateBearerUmaGnap() {
         final var parser = new DefaultHeaderParser();
-        final var header = "Bearer, UMA as_uri=\"https://example.com\", GNAP ticket=1234567890";
+        final var header = "Bearer, UMA as_uri=\"https://example.test\", GNAP ticket=1234567890";
         final var challenges = parser.wwwAuthenticate(header);
 
         assertEquals(challenges, List.of(
                     new Challenge("Bearer"),
-                    new Challenge("UMA", Map.of("as_uri", "https://example.com")),
+                    new Challenge("UMA", Map.of("as_uri", "https://example.test")),
                     new Challenge("GNAP", Map.of("ticket", "1234567890"))));
     }
 
@@ -96,15 +96,15 @@ class DefaultHeaderParserTest {
 
     private static Stream<Arguments> parseWwwAuthenticateParams() {
         return Stream.of(
-                Arguments.of("UMA as_uri=\"https://example.com\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"",
+                Arguments.of("UMA as_uri=\"https://example.test\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"",
                     List.of(
-                        new Challenge("UMA", Map.of("as_uri", "https://example.com", "ticket", "value")),
+                        new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
                         new Challenge("Bearer"),
                         new Challenge("DPoP", Map.of("algs", "ES256 RS256")))),
-                Arguments.of("Bearer, UMA as_uri=\"https://example.com\", GNAP ticket=1234567890",
+                Arguments.of("Bearer, UMA as_uri=\"https://example.test\", GNAP ticket=1234567890",
                     List.of(
                         new Challenge("Bearer"),
-                        new Challenge("UMA", Map.of("as_uri", "https://example.com")),
+                        new Challenge("UMA", Map.of("as_uri", "https://example.test")),
                         new Challenge("GNAP", Map.of("ticket", "1234567890"))))
             );
     }

@@ -25,14 +25,27 @@ import com.inrupt.client.rdf.Triple;
 
 import java.net.URI;
 
+/**
+ * The Jena implementation of a {@link Triple}.
+ */
 class JenaTriple implements Triple {
 
     private final org.apache.jena.graph.Triple triple;
 
+    /**
+     * Create a JenaTriple.
+     *
+     * @param triple the Jena {@link org.apache.jena.graph.Triple}
+     */
     public JenaTriple(final org.apache.jena.graph.Triple triple) {
         this.triple = triple;
     }
 
+    /**
+     * Retrieve the {@link RDFNode} subject.
+     *
+     * @return the {@link RDFNode} subject from the {@code triple}
+     */
     @Override
     public RDFNode getSubject() {
         final var s = triple.getSubject();
@@ -42,6 +55,11 @@ class JenaTriple implements Triple {
         return RDFNode.blankNode();
     }
 
+    /**
+     * Retrieve the {@link RDFNode} predicate.
+     *
+     * @return the {@link RDFNode} predicate from the {@code triple}
+     */
     @Override
     public RDFNode getPredicate() {
         final var p = triple.getPredicate();
@@ -49,13 +67,18 @@ class JenaTriple implements Triple {
 
     }
 
+    /**
+     * Retrieve the {@link RDFNode} object.
+     *
+     * @return the {@link RDFNode} object from the {@code triple}
+     */
     @Override
     public RDFNode getObject() {
         final var o = triple.getObject();
         if (o.isURI()) {
             return RDFNode.namedNode(URI.create(o.getURI()));
         } else if (o.isLiteral()) {
-            if (o.getLiteralLanguage() != null) {
+            if (o.getLiteralLanguage() != null && !o.getLiteralLanguage().isBlank()) {
                 return RDFNode.literal(o.getLiteralLexicalForm(), o.getLiteralLanguage());
             } else if (o.getLiteralDatatypeURI() != null) {
                 return RDFNode.literal(o.getLiteralLexicalForm(), URI.create(o.getLiteralDatatypeURI()));

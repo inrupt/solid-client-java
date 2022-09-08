@@ -31,20 +31,43 @@ import java.util.stream.Stream;
 
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 
+/**
+ * The Jena implementation of a {@link Dataset}.
+ */
 class JenaDataset implements Dataset {
 
     private final DatasetGraph dataset;
 
+    /**
+     * Create a JenaDataset.
+     *
+     * @param dataset the Jena {@link DatasetGraph}
+     */
     public JenaDataset(final DatasetGraph dataset) {
         this.dataset = dataset;
     }
 
+    /**
+     * Return the JenaDataset {@code dataset} value.
+     *
+     * @return the dataset as a Jena {@link DatasetGraph}
+     */
     public DatasetGraph asJenaDatasetGraph() {
         return dataset;
     }
 
+    /**
+     * Return the matching sequential stream of Quads with this JenaDataset as its source.
+     *
+     * @param graphName the RDFNode graph, may be {@code null}
+     * @param subject the RDFNode subject, may be {@code null}
+     * @param predicate the RDFNode predicate, may be {@code null}
+     * @param object the RDFNode object, may be {@code null}, may be {@code null}
+     * @return the matching quads as a sequential {@link Stream} of {@link Quad}s
+     */
     @Override
     public Stream<Quad> stream(final Optional<RDFNode> graphName, final RDFNode subject,
             final RDFNode predicate, final RDFNode object) {
@@ -58,15 +81,39 @@ class JenaDataset implements Dataset {
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
+    /**
+     * Return a sequential stream of Quads with this JenaDataset as its source.
+     *
+     * @return a sequential {@link Stream} of {@link Quad}
+     */
     @Override
     public Stream<Quad> stream() {
         final var iter = dataset.find();
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
-    static Node getGraphName(final Optional<RDFNode> graphName) {
-        if (graphName != null) {
-            return graphName.map(JenaGraph::getSubject).orElse(defaultGraphNodeGenerated);
+    /**
+     * Retrieve the Jena graph node from a RDFNode graph.
+     *
+     * @param graph the RDFNode graph, may be {@code null}
+     * @return the graph as a Jena {@link Node}
+     */
+    static Node getGraphName(final Optional<RDFNode> graph) {
+        if (graph != null) {
+            if (graph.isPresent()) {
+                if (graph.get().isLiteral()) {
+                    throw new IllegalArgumentException("Graph cannot be an RDF literal");
+                }
+                if (graph.get().isNamedNode()) {
+                    return NodeFactory.createURI(graph.get().getURI().toString());
+                }
+                if (graph.get().isBlankNode()) {
+                    //TODO add blank node creation
+                    return Node.ANY;
+                }
+            } else {
+                return defaultGraphNodeGenerated;
+            }
         }
         return Node.ANY;
     }
