@@ -31,15 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.update.UpdateFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -49,16 +42,6 @@ class JenaBodyHandlersTest {
     private static final MockHttpService mockHttpClient = new MockHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newHttpClient();
-
-    private static final Model model = ModelFactory.createDefaultModel();
-    private static Dataset ds;
-
-    private static final Resource S_JENA = model.createResource(JenaTestModel.S_VALUE);
-    private static final Literal O_JENA = model.createLiteral(JenaTestModel.O_VALUE);
-    private static final Property P_JENA = model.createProperty(JenaTestModel.P_VALUE);
-
-    private static final Resource S1_JENA = model.createResource(JenaTestModel.S1_VALUE);
-    private static final Literal O1_JENA = model.createLiteral(JenaTestModel.O1_VALUE);
 
     @BeforeAll
     static void setup() {
@@ -71,30 +54,7 @@ class JenaBodyHandlersTest {
     }
 
     @Test
-    void testOfModelSubscriberAsync() throws IOException,
-            InterruptedException, ExecutionException {
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
-                .header("Accept", "text/turtle")
-                .GET()
-                .build();
-
-        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel());
-
-        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
-        assertEquals(200, statusCode);
-
-        final Model responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
-        assertEquals(1, responseBody.size());
-        assertTrue(responseBody.contains(
-            null,
-            null,
-            ResourceFactory.createResource("http://example.test/o"))
-        );
-    }
-
-    @Test
-    void testOfModelSubscriber() throws IOException,
+    void testOfModelHandler() throws IOException,
             InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
@@ -114,7 +74,30 @@ class JenaBodyHandlersTest {
     }
 
     @Test
-    void testOfModelSubscriberWithURL() throws IOException, InterruptedException {
+    void testOfModelHandlerAsync() throws IOException,
+            InterruptedException, ExecutionException {
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .header("Accept", "text/turtle")
+                .GET()
+                .build();
+
+        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel());
+
+        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        assertEquals(200, statusCode);
+
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+            null,
+            null,
+            ResourceFactory.createResource("http://example.test/o"))
+        );
+    }
+
+    @Test
+    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/example"))
                 .GET()
@@ -132,56 +115,105 @@ class JenaBodyHandlersTest {
     }
 
     @Test
-    void testOfModelPublisher() throws IOException, InterruptedException {
-
-        model.add(S_JENA, P_JENA, O_JENA);
-        model.add(S1_JENA, P_JENA, O1_JENA);
-
+    void testOfDatasetHandler() throws IOException,
+            InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
-                .header("Content-Type", "text/turtle")
-                .POST(JenaBodyPublishers.ofModel(model))
-                .version(HttpClient.Version.HTTP_1_1)
+                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .GET()
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, JenaBodyHandlers.ofDataset());
 
-        assertEquals(204, response.statusCode());
+        assertEquals(200, response.statusCode());
+        final var responseBody = response.body().get();
+        assertEquals(1, responseBody.asDatasetGraph().stream().count());
+        assertTrue(responseBody.asDatasetGraph().contains(
+            null,
+            NodeFactory.createURI("http://example.test/s"),
+            null,
+            null)
+        );
     }
 
     @Test
-    void testOfRepositoryPublisher() throws IOException, InterruptedException {
-
-        model.add(S_JENA, P_JENA, O_JENA);
-        model.add(S1_JENA, P_JENA, O1_JENA);
-
-        ds = DatasetFactory.create(model);
-
+    void testOfDatasetHandlerWithURL() throws IOException, InterruptedException {
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
-                .header("Content-Type", "text/turtle")
-                .POST(JenaBodyPublishers.ofDataset(ds))
-                .version(HttpClient.Version.HTTP_1_1)
+                .uri(URI.create(config.get("jena_uri") + "/example"))
+                .GET()
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, JenaBodyHandlers.ofDataset());
 
-        assertEquals(204, response.statusCode());
+        assertEquals(200, response.statusCode());
+        final var responseBody = response.body().get();
+        assertEquals(7, responseBody.asDatasetGraph().stream().count());
+        assertTrue(responseBody.asDatasetGraph().contains(
+            null,
+            null,
+            NodeFactory.createURI("http://www.w3.org/ns/pim/space#preferencesFile"),
+            null)
+        );
     }
 
     @Test
-    void testOfUpdateRequestPublisher() throws IOException, InterruptedException {
-
-        final var ur = UpdateFactory.create(
-            "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> }");
-
+    void testOfGraphHandlerAsync() throws IOException,
+            InterruptedException, ExecutionException {
         final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(config.get("jena_uri") + "/sparqlUpdate"))
-                    .header("Content-Type", "application/sparql-update")
-                    .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur))
-                    .build();
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
-        assertEquals(204, response.statusCode());
+                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .header("Accept", "text/turtle")
+                .GET()
+                .build();
+
+        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofGraph());
+
+        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        assertEquals(200, statusCode);
+
+        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join().get();
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+            NodeFactory.createURI("http://example.test/s"),
+            null,
+            null)
+        );
     }
 
+    @Test
+    void testOfGraphHandler() throws IOException,
+            InterruptedException {
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .GET()
+                .build();
+
+        final var response = client.send(request, JenaBodyHandlers.ofGraph());
+
+        assertEquals(200, response.statusCode());
+        final var responseBody = response.body().get();
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+            NodeFactory.createURI("http://example.test/s"),
+            null,
+            null)
+        );
+    }
+
+    @Test
+    void testOfGraphHandlerWithURL() throws IOException, InterruptedException {
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(config.get("jena_uri") + "/example"))
+                .GET()
+                .build();
+
+        final var response = client.send(request, JenaBodyHandlers.ofGraph());
+
+        assertEquals(200, response.statusCode());
+        final var responseBody = response.body().get();
+        assertEquals(7, responseBody.size());
+        assertTrue(responseBody.contains(
+            null,
+            NodeFactory.createURI("http://www.w3.org/ns/pim/space#preferencesFile"),
+            null)
+        );
+    }
 }
