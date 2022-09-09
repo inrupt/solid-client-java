@@ -38,14 +38,16 @@ import java.util.function.Function;
  * <pre>{@code
  *     public static HttpResponse.BodySubscriber<VerifiablePresentation> ofVerifiablePresentation() {
  *         return InputStreamBodySubscribers.mapping(input -> {
- *             try (final var stream = input) {
+ *             try (var stream = input) {
  *                 return processor.fromJson(stream, VerifiablePresentation.class);
- *             } catch (final IOException ex) {
- *                  throw new UncheckedIOException("Error parsing presentation", ex);
+ *             } catch (IOException ex) {
+ *                 throw new UncheckedIOException("Error parsing presentation", ex);
  *             }
  *         });
  *     }
  * }</pre>
+ *
+ * <p>After consuming an {@link InputStream}, please be sure to close the resource.
  *
  * @param <T> the type into which the {@link InputStream} is mapped.
  */
