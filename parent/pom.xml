@@ -418,6 +418,59 @@
         <version>${projectinfo.plugin.version}</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+          <licenseMappings>
+            <licenseMapping>
+              <froms>
+                <from>Apache 2.0</from>
+                <from>Apache-2.0</from>
+                <from>Apache Software License - Version 2.0</from>
+                <from>The Apache License, Version 2.0</from>
+                <from>The Apache Software License, Version 2.0</from>
+              </froms>
+              <to>Apache License, Version 2.0</to>
+            </licenseMapping>
+            <licenseMapping>
+              <froms>
+                <from>MIT</from>
+                <from>The MIT License</from>
+              </froms>
+              <to>MIT License</to>
+            </licenseMapping>
+            <licenseMapping>
+              <froms>
+                <from>The BSD 3-Clause License</from>
+                <from>BSD-3-Clause</from>
+                <from>BSD License 3</from>
+              </froms>
+              <to>BSD 3-Clause License</to>
+            </licenseMapping>
+            <licenseMapping>
+              <froms>
+                <from>Eclipse Public License - Version 1.0</from>
+              </froms>
+              <to>Eclipse Public License 1.0</to>
+            </licenseMapping>
+            <licenseMapping>
+              <froms>
+                <from>Eclipse Public License v2.0</from>
+              </froms>
+              <to>Eclipse Public License 2.0</to>
+            </licenseMapping>
+            <licenseMapping>
+              <froms>
+                <from>EDL 1.0</from>
+                <from>Eclipse Distribution License - v 1.0</from>
+                <from>Eclipse Distribution License v1.0</from>
+              </froms>
+              <to>Eclipse Distribution License 1.0</to>
+            </licenseMapping>
+            <licenseMapping>
+              <froms>
+                <from>Eclipse Public License v2.0</from>
+              </froms>
+              <to>Eclipse Public License 2.0</to>
+            </licenseMapping>
+          </licenseMappings>
         </configuration>
         <reportSets>
           <reportSet>
