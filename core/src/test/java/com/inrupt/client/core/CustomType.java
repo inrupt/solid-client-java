@@ -18,27 +18,15 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.webid;
+package com.inrupt.client.core;
 
 import java.net.URI;
-import java.net.http.HttpResponse;
+import java.time.Instant;
+import java.util.List;
 
-/**
- * Body handlers for WebID Profiles.
- */
-public final class WebIdBodyHandlers {
-
-    /**
-     * Transform an HTTP response into a WebID Profile object.
-     *
-     * @param webid the WebID URI
-     * @return an HTTP body handler
-     */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
-        return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
-    }
-
-    private WebIdBodyHandlers() {
-        // Prevent instantiation
-    }
+public class CustomType {
+    public String id;
+    public List<String> type;
+    public URI issuer;
+    public Instant date;
 }
