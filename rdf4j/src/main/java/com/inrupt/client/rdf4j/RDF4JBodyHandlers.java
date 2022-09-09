@@ -21,7 +21,6 @@
 package com.inrupt.client.rdf4j;
 
 import java.net.http.HttpResponse;
-import java.util.function.Supplier;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
@@ -39,7 +38,7 @@ public final class RDF4JBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Supplier<Model>> ofModel() {
+    public static HttpResponse.BodyHandler<Model> ofModel() {
         return responseInfo -> {
             final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
                     () -> new RDFHandlerException("Missing content-type header from response"));
@@ -52,7 +51,7 @@ public final class RDF4JBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Supplier<Repository>> ofRepository() {
+    public static HttpResponse.BodyHandler<Repository> ofRepository() {
         return responseInfo -> {
             final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
                     () -> new RDFHandlerException("Missing content-type header from response"));

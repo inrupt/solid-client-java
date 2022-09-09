@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
@@ -159,9 +160,8 @@ public class Verifier {
     }
 
     private HttpResponse.BodyHandler<VerificationResponse> ofVerificationResponse() {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return responseInfo ->
-            HttpResponse.BodySubscribers.mapping(upstream, input -> {
+            InputStreamBodySubscribers.mapping(input -> {
                 try {
                     return processor.fromJson(input, VerificationResponse.class);
                 } catch (final IOException ex) {
