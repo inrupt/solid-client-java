@@ -38,6 +38,7 @@ public class JacksonProcessor implements JsonProcessor {
 
     public JacksonProcessor() {
         mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }

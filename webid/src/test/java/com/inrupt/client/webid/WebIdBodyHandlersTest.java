@@ -64,7 +64,7 @@ class WebIdBodyHandlersTest {
 
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body().get();
+        final var responseBody = response.body();
         assertEquals("https://example.test/username", responseBody.getId().toString());
         assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
         assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.example.test")));

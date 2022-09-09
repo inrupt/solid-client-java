@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -39,9 +40,7 @@ public final class VerifiableCredentialBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<VerifiableCredential> ofVerifiableCredential() {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-
-        return HttpResponse.BodySubscribers.mapping(upstream, input -> {
+        return InputStreamBodySubscribers.mapping(input -> {
             try {
                 return processor.fromJson(input, VerifiableCredential.class);
             } catch (final IOException ex) {
@@ -56,9 +55,7 @@ public final class VerifiableCredentialBodySubscribers {
      * @return the body subscriber
      */
     public static HttpResponse.BodySubscriber<VerifiablePresentation> ofVerifiablePresentation() {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
-
-        return HttpResponse.BodySubscribers.mapping(upstream, input -> {
+        return InputStreamBodySubscribers.mapping(input -> {
             try {
                 return processor.fromJson(input, VerifiablePresentation.class);
             } catch (final IOException ex) {

@@ -21,6 +21,7 @@
 package com.inrupt.client.vc;
 
 import com.inrupt.client.core.IOUtils;
+import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
@@ -518,9 +519,8 @@ public class Holder {
     }
 
     private HttpResponse.BodyHandler<VerifiablePresentationRequest> ofVerifiablePresentationRequest() {
-        final var upstream = HttpResponse.BodySubscribers.ofInputStream();
         return responseInfo ->
-            HttpResponse.BodySubscribers.mapping(upstream, input -> {
+            InputStreamBodySubscribers.mapping(input -> {
                 try {
                     return processor.fromJson(input, VerifiablePresentationRequest.class);
                 } catch (final IOException ex) {
