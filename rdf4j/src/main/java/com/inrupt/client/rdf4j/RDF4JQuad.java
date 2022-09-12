@@ -26,6 +26,7 @@ import com.inrupt.client.rdf.RDFNode;
 import java.net.URI;
 import java.util.Optional;
 
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Values;
@@ -56,8 +57,8 @@ class RDF4JQuad extends RDF4JTriple implements Quad {
     @Override
     public Optional<RDFNode> getGraphName() {
         if (graphName != null && graphName.isBNode()) {
-            //TODO missing creation of blank nodes with label
-            return Optional.of(RDFNode.blankNode());
+            final var nodeId = ((BNode)graphName).getID();
+            return Optional.of(RDFNode.blankNode(nodeId));
         }
         return Optional.ofNullable(graphName).map(Resource::stringValue)
                 .map(URI::create).map(RDFNode::namedNode);

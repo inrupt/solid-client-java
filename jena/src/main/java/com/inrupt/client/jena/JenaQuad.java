@@ -27,6 +27,7 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Node_Blank;
 
 /**
  * The Jena implementation of a {@link Quad}.
@@ -53,8 +54,8 @@ class JenaQuad extends JenaTriple implements Quad {
     @Override
     public Optional<RDFNode> getGraphName() {
         if (graphName != null && graphName.isBlank()) {
-            //TODO missing creation of blank nodes with label
-            return Optional.of(RDFNode.blankNode());
+            final var nodeId = ((Node_Blank)graphName).getBlankNodeId().getLabelString();
+            return Optional.of(RDFNode.blankNode(nodeId));
         }
         return Optional.ofNullable(graphName).map(Node::getURI).map(URI::create).map(RDFNode::namedNode);
     }

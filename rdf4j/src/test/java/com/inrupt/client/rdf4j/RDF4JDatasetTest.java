@@ -31,7 +31,6 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class RDF4JDatasetTest {
@@ -83,13 +82,13 @@ class RDF4JDatasetTest {
                 RDF4JDataset.getContexts(
                     Optional.of(RDFNode.namedNode(URI.create("http://example.test/graph"))))[0].toString()
                 ),
-            //TODO handle blank nodes
-            /*() -> assertFalse(RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode())).isBNode()),
+            () -> assertTrue(RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode()))[0].isBNode()),
+            () -> assertTrue(RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode("someID")))[0].isBNode()),
             () -> assertEquals(
-                    RDF4J.NIL.toString(),
-                    RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode())).toString()
+                "someID",
+                RDF4JDataset.getContexts(Optional.of(RDFNode.blankNode("someID")))[0]
+                    .stringValue()
                 ),
-                */
             () -> assertEquals(0, RDF4JDataset.getContexts(null).length)
         );
     }
@@ -171,7 +170,6 @@ class RDF4JDatasetTest {
         );
     }
 
-    @Disabled("until we can handle Blank nodes")
     @Test
     void testBNodeContextStream() {
         G_RDFNode = RDFNode.blankNode();
