@@ -82,7 +82,7 @@ public class JenaRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input) throws IOException {
+    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var dataset = DatasetFactory.create();
         try {
@@ -95,7 +95,7 @@ public class JenaRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input) throws IOException {
+    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var model = ModelFactory.createDefaultModel();
         try {

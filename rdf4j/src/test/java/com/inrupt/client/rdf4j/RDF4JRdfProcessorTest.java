@@ -120,6 +120,13 @@ class RDF4JRdfProcessorTest {
     }
 
     @Test
+    void parseToGraphRelativeURIs() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
+        }
+    }
+
+    @Test
     void parseToGraphException() throws IOException {
         try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/invalid.ttl")) {
             assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));

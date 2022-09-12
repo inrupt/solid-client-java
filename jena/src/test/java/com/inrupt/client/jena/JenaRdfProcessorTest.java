@@ -130,6 +130,13 @@ class JenaRdfProcessorTest {
         "See: https://stackoverflow.com/questions/47763738/jena-relative-uri-base")
     //TODO decide if we want to throw error and how to handle relative URIs
     @Test
+    void parseToGraphRelativeURIs() throws IOException {
+        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
+        }
+    }
+
+    @Test
     void parseToGraphException() throws IOException {
         try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/invalid.ttl")) {
             assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));

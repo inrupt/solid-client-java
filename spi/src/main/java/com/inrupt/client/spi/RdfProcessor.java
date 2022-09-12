@@ -58,10 +58,34 @@ public interface RdfProcessor {
      *
      * @param syntax the concrete RDF syntax
      * @param input the input stream
+     * @param baseURI the base URI to use in case of relative URIs, may be {@code null}
      * @return a dataset
      * @throws IOException when there is an error parsing the dataset
      */
-    Dataset toDataset(Syntax syntax, InputStream input) throws IOException;
+    Dataset toDataset(Syntax syntax, InputStream input, String baseURI) throws IOException;
+
+    /**
+     * Parse an input stream into a Dataset.
+     *
+     * @param syntax the concrete RDF syntax
+     * @param input the input stream
+     * @return a dataset
+     * @throws IOException when there is an error parsing the dataset
+     */
+    default Dataset toDataset(Syntax syntax, InputStream input) throws IOException {
+        return toDataset(syntax, input, null);
+    }
+
+    /**
+     * Parse an input stream into a Graph.
+     *
+     * @param syntax the concrete RDF syntax
+     * @param input the input stream
+     * @param baseURI the base URI to use in case of relative URIs, may be {@code null}
+     * @return a graph
+     * @throws IOException when there is an error parsing the graph
+     */
+    Graph toGraph(Syntax syntax, InputStream input, String baseURI) throws IOException;
 
     /**
      * Parse an input stream into a Graph.
@@ -71,5 +95,7 @@ public interface RdfProcessor {
      * @return a graph
      * @throws IOException when there is an error parsing the graph
      */
-    Graph toGraph(Syntax syntax, InputStream input) throws IOException;
+    default Graph toGraph(Syntax syntax, InputStream input) throws IOException {
+        return toGraph(syntax, input, null);
+    }
 }

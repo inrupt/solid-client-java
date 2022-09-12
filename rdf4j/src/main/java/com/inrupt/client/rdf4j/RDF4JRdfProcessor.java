@@ -84,7 +84,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input) throws IOException {
+    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
         final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
         final var repository = new SailRepository(new MemoryStore());
         try {
@@ -98,7 +98,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input) throws IOException {
+    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
         final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
 
         try {
