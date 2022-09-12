@@ -42,12 +42,46 @@ class MockHttpServer {
 
     private void setupMocks() {
 
-        wireMockServer.stubFor(get(urlEqualTo("/oneTriple"))
+        wireMockServer.stubFor(get(urlEqualTo("/file"))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBodyFile("clarissa-sample.txt")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/turtle")
-                        .withBody("<http://example.com/s> <http://example.com/p> <http://example.com/o> .")));
+                        .withBody(getExampleTTL())));
 
+        wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
+                    .withRequestBody(matching(
+                            ".*<http://example.test/s>\\s+" +
+                            "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
+                    .withHeader("Content-Type", containing("text/turtle"))
+                    .willReturn(aResponse()
+                        .withStatus(204)));
+
+        wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
+                    .willReturn(aResponse()
+                        .withStatus(200)));
+
+    }
+
+    private String getExampleTTL() {
+        return "" +
+            "@prefix : <http://example.test/>." +
+            "\n @prefix foaf: <http://xmlns.com/foaf/0.1/>." +
+            "\n @prefix schema: <http://schema.org/>." +
+            "\n @prefix solid: <http://www.w3.org/ns/solid/terms#>." +
+            "\n @prefix space: <http://www.w3.org/ns/pim/space#>." +
+            "\n" +
+            "\n :me" +
+            "\n    a schema:Person, foaf:Person;" +
+            "\n    space:preferencesFile <http://example.test//settings/prefs.ttl>;" +
+            "\n    solid:privateTypeIndex <http://example.test//settings/privateTypeIndex.ttl>;" +
+            "\n    solid:publicTypeIndex <http://example.test//settings/publicTypeIndex.ttl>;" +
+            "\n    foaf:name \"Jane Doe\";" +
+            "\n    solid:oidcIssuer <https://solidcommunity.net>.";
     }
 
     public Map<String, String> start() {
