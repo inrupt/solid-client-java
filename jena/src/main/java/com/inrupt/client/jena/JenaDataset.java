@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.jena.atlas.iterator.Iter;
+import org.apache.jena.graph.BlankNodeId;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -108,8 +109,7 @@ class JenaDataset implements Dataset {
                     return NodeFactory.createURI(graph.get().getURI().toString());
                 }
                 if (graph.get().isBlankNode()) {
-                    //TODO add blank node creation
-                    return Node.ANY;
+                    return NodeFactory.createBlankNode(BlankNodeId.create(graph.get().getNodeId()));
                 }
             } else {
                 return defaultGraphNodeGenerated;

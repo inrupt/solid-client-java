@@ -31,7 +31,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class JenaDatasetTest {
@@ -70,10 +69,12 @@ class JenaDatasetTest {
                         RDFNode.namedNode(URI.create("http://example.test/graph")))
                     ).toString()
                 ),
-            () -> assertFalse(JenaDataset.getGraphName(Optional.of(RDFNode.blankNode())).isBlank()),
+            () -> assertTrue(JenaDataset.getGraphName(Optional.of(RDFNode.blankNode())).isBlank()),
+            () -> assertTrue(JenaDataset.getGraphName(Optional.of(RDFNode.blankNode("someID"))).isBlank()),
             () -> assertEquals(
-                    Node.ANY,
-                    JenaDataset.getGraphName(Optional.of(RDFNode.blankNode()))
+                "someID",
+                JenaDataset.getGraphName(Optional.of(RDFNode.blankNode("someID"))
+                    ).toString()
                 ),
             () -> assertEquals(Node.ANY, JenaDataset.getGraphName(null))
         );
@@ -160,9 +161,7 @@ class JenaDatasetTest {
     }
 
     @Test
-    @Disabled("Blank nodes support is not complete")
     void testBNodeContextStream() {
-        // TODO
         G_RDFNode = RDFNode.blankNode();
 
         assertFalse(

@@ -115,8 +115,9 @@ class RDF4JDataset implements Dataset {
                     };
                 }
                 if (graph.get().isBlankNode()) {
-                    //TODO add blank node creation
-                    return new Resource[0];
+                    return new Resource[] {
+                        SimpleValueFactory.getInstance().createBNode(graph.get().getNodeId())
+                    };
                 }
             } else {
                 // a non-null but empty graph means the RDF4J default graph

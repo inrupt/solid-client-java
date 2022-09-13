@@ -98,11 +98,10 @@ class JenaGraph implements Graph {
             if (subject.isLiteral()) {
                 throw new IllegalArgumentException("Subject cannot be an RDF literal");
             }
-
             if (subject.isNamedNode()) {
                 return NodeFactory.createURI(subject.getURI().toString());
             }
-            return NodeFactory.createBlankNode();
+            return NodeFactory.createBlankNode(subject.getNodeId());
         }
         return Node.ANY;
     }
@@ -146,7 +145,7 @@ class JenaGraph implements Graph {
                     return NodeFactory.createLiteral(object.getLiteral());
                 }
             } else {
-                return NodeFactory.createBlankNode();
+                return NodeFactory.createBlankNode(object.getNodeId());
             }
         }
         return Node.ANY;
