@@ -23,6 +23,7 @@ package com.inrupt.client.spi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 
 /**
  * A JSON handling abstraction.
@@ -49,4 +50,16 @@ public interface JsonProcessor {
      * @throws IOException when there is a parsing error
      */
     <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+
+    /**
+     * Read JSON into a java object.
+     *
+     * @param <T> the object type
+     * @param input the input stream
+     * @param type the runtime type of the object
+     * @return the newly created object
+     * @throws IOException when there is a parsing error
+     */
+    <T> T fromJson(InputStream input, Type type) throws IOException;
+
 }

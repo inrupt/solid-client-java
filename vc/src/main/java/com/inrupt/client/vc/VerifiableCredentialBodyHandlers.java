@@ -20,6 +20,9 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.spi.VerifiablePresentation;
+
 import java.net.http.HttpResponse;
 
 /**
