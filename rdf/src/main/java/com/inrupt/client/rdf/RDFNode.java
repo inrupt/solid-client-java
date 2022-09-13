@@ -21,6 +21,7 @@
 package com.inrupt.client.rdf;
 
 import java.net.URI;
+import java.util.UUID;
 
 /**
  * An RDF node.
@@ -111,7 +112,7 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode() {
-        final var nodeId = java.util.UUID.randomUUID().toString();
+        final var nodeId = UUID.randomUUID().toString();
         return new RDFNode(null, null, null, null, nodeId);
     }
 
