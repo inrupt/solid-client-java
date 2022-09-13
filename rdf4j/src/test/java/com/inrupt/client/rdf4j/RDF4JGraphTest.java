@@ -62,6 +62,11 @@ class RDF4JGraphTest {
             },
             () -> assertEquals(RDF4JTestModel.S_VALUE, RDF4JGraph.getSubject(RDF4JTestModel.S_RDFNode).toString()),
             () -> assertTrue(RDF4JGraph.getSubject(RDFNode.blankNode()).isBNode()),
+            () -> assertTrue(RDF4JGraph.getSubject(RDFNode.blankNode("someID")).isBNode()),
+            () -> assertEquals(
+                "someID",
+                RDF4JGraph.getSubject(RDFNode.blankNode("someID")).stringValue()
+                ),
             () -> assertNull(RDF4JGraph.getSubject(null))
         );
     }
@@ -113,6 +118,11 @@ class RDF4JGraphTest {
                     ((Literal)RDF4JGraph.getObject(RDFNode.literal("object", "en"))).getLanguage().get()
                 ),
             () -> assertTrue(RDF4JGraph.getObject(RDFNode.blankNode()).isBNode()),
+            () -> assertTrue(RDF4JGraph.getObject(RDFNode.blankNode("someID")).isBNode()),
+            () -> assertEquals(
+                "someID",
+                RDF4JGraph.getObject(RDFNode.blankNode("someID")).stringValue()
+                ),
             () -> assertNull(RDF4JGraph.getObject(null))
         );
     }

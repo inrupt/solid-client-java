@@ -23,6 +23,7 @@ package com.inrupt.client.jena;
 import static org.apache.jena.sparql.core.Quad.defaultGraphNodeGenerated;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.apache.jena.graph.BlankNodeId;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Quad;
 import org.junit.jupiter.api.Test;
@@ -54,8 +55,31 @@ class JenaQuadTest {
     }
 
     @Test
+    void testGetBNodeWithIdGraphName() {
+        final var id = java.util.UUID.randomUUID().toString();
+        final var graph = NodeFactory.createBlankNode(BlankNodeId.create(id));
+        jenaQuad = new JenaQuad(
+            Quad.create(
+                graph,
+                JenaTestModel.S_NODE,
+                JenaTestModel.P_NODE,
+                JenaTestModel.O_NODE
+            )
+        );
+
+        assertAll("quad creation validation",
+            () -> assertTrue(jenaQuad.getGraphName().isPresent()),
+            () -> assertTrue(jenaQuad.getGraphName().get().isBlankNode()),
+            () -> assertEquals(
+                id,
+                jenaQuad.getGraphName().get().getNodeId()
+            )
+        );
+    }
+
+    @Test
     void testGetBNodeGraphName() {
-        final var graph = NodeFactory.createBlankNode("testID");
+        final var graph = NodeFactory.createBlankNode(BlankNodeId.create());
         jenaQuad = new JenaQuad(
             Quad.create(
                 graph,
@@ -68,11 +92,6 @@ class JenaQuadTest {
         assertAll("quad creation validation",
             () -> assertTrue(jenaQuad.getGraphName().isPresent()),
             () -> assertTrue(jenaQuad.getGraphName().get().isBlankNode())
-            //TODO missing creation of blank nodes with label
-            /*() -> assertEquals(
-                "testID",
-                JenaQuad.getGraphName().get().get..().toString()
-            )*/
         );
     }
 

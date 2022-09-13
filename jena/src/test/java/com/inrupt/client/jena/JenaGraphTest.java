@@ -66,6 +66,11 @@ class JenaGraphTest {
             },
             () -> assertEquals(JenaTestModel.S_VALUE, JenaGraph.getSubject(JenaTestModel.S_RDFNode).toString()),
             () -> assertTrue(JenaGraph.getSubject(RDFNode.blankNode()).isBlank()),
+            () -> assertTrue(JenaGraph.getSubject(RDFNode.blankNode("nodeID")).isBlank()),
+            () -> assertEquals(
+                "nodeID",
+                JenaGraph.getSubject(RDFNode.blankNode("nodeID")).toString()
+                ),
             () -> assertEquals(Node.ANY, JenaGraph.getSubject(null))
         );
     }
@@ -116,6 +121,11 @@ class JenaGraphTest {
                     JenaGraph.getObject(RDFNode.literal("object", "en")).getLiteralLanguage()
                 ),
             () -> assertTrue(JenaGraph.getObject(RDFNode.blankNode()).isBlank()),
+            () -> assertTrue(JenaGraph.getObject(RDFNode.blankNode("nodeID")).isBlank()),
+            () -> assertEquals(
+                "nodeID",
+                JenaGraph.getObject(RDFNode.blankNode("nodeID")).toString()
+                ),
             () -> assertEquals(Node.ANY, JenaGraph.getObject(null))
         );
     }

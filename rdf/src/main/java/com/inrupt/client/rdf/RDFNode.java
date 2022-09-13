@@ -21,6 +21,7 @@
 package com.inrupt.client.rdf;
 
 import java.net.URI;
+import java.util.UUID;
 
 /**
  * An RDF node.
@@ -31,6 +32,7 @@ public final class RDFNode {
     private final String lexicalValue;
     private final URI datatype;
     private final String language;
+    private final String nodeId;
 
     /**
      * Indicate whether this is a named node.
@@ -47,7 +49,7 @@ public final class RDFNode {
      * @return true if this is a blank node; false otherwise
      */
     public boolean isBlankNode() {
-        return uri == null && lexicalValue == null;
+        return uri == null && lexicalValue == null && nodeId != null;
     }
 
     /**
@@ -89,10 +91,19 @@ public final class RDFNode {
     /**
      * Return the language tag for this node.
      *
-     * @return the language tag assiciated with the node or {@code null}
+     * @return the language tag associated with the node or {@code null}
      */
     public String getLanguage() {
         return language;
+    }
+
+    /**
+     * Return the nodeId for this blank node.
+     *
+     * @return the nodeId associated with the node or {@code null}
+     */
+    public String getNodeId() {
+        return nodeId;
     }
 
     /**
@@ -101,7 +112,18 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode() {
-        return new RDFNode(null, null, null, null);
+        final var nodeId = UUID.randomUUID().toString();
+        return new RDFNode(null, null, null, null, nodeId);
+    }
+
+    /**
+     * Create a new blank node with specific id.
+     * @param nodeId the blank node id
+     *
+     * @return an RDF blank node
+     */
+    public static RDFNode blankNode(final String nodeId) {
+        return new RDFNode(null, null, null, null, nodeId);
     }
 
     /**
@@ -111,7 +133,7 @@ public final class RDFNode {
      * @return the RDF named node
      */
     public static RDFNode namedNode(final URI uri) {
-        return new RDFNode(uri, null, null, null);
+        return new RDFNode(uri, null, null, null, null);
     }
 
     /**
@@ -121,7 +143,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal) {
-        return new RDFNode(null, literal, null, null);
+        return new RDFNode(null, literal, null, null, null);
     }
 
     /**
@@ -132,7 +154,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final URI datatype) {
-        return new RDFNode(null, literal, null, datatype);
+        return new RDFNode(null, literal, null, datatype, null);
     }
 
     /**
@@ -143,13 +165,15 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final String language) {
-        return new RDFNode(null, literal, language, null);
+        return new RDFNode(null, literal, language, null, null);
     }
 
-    private RDFNode(final URI uri, final String literal, final String language, final URI datatype) {
+    private RDFNode(final URI uri, final String literal, final String language,
+        final URI datatype, final String nodeId) {
         this.uri = uri;
         this.lexicalValue = literal;
         this.language = language;
         this.datatype = datatype;
+        this.nodeId = nodeId;
     }
 }
