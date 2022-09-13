@@ -86,7 +86,7 @@ public class JenaRdfProcessor implements RdfProcessor {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var dataset = DatasetFactory.create();
         try {
-            RDFDataMgr.read(dataset, input, lang);
+            RDFDataMgr.read(dataset, input, baseURI, lang);
         } catch (final RiotException ex) {
             throw new IOException("Error parsing dataset", ex);
         }
@@ -99,7 +99,7 @@ public class JenaRdfProcessor implements RdfProcessor {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var model = ModelFactory.createDefaultModel();
         try {
-            RDFDataMgr.read(model, input, lang);
+            RDFDataMgr.read(model, input, baseURI, lang);
         } catch (final RiotException ex) {
             throw new IOException("Error parsing graph", ex);
         }

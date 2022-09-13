@@ -89,7 +89,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
         final var repository = new SailRepository(new MemoryStore());
         try {
             try (final var conn = repository.getConnection()) {
-                conn.add(input, format); //if TTL, data is added to the 'null' graph
+                conn.add(input, baseURI, format);
             }
             return new RDF4JDataset(repository);
         } catch (final RDF4JException ex) {
@@ -102,7 +102,7 @@ public class RDF4JRdfProcessor implements RdfProcessor {
         final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
 
         try {
-            final var model = Rio.parse(input, format);
+            final var model = Rio.parse(input, baseURI, format);
             return new RDF4JGraph(model);
         } catch (RDFParseException ex) {
             throw new IOException("Error parsing graph", ex);
