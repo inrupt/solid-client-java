@@ -42,7 +42,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class JenaRdfProcessorTest {
@@ -111,6 +110,28 @@ class JenaRdfProcessorTest {
     }
 
     @Test
+    void parseToDataserRelativeURIs() throws IOException {
+        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var dataset = processor.toDataset(Syntax.TURTLE, input, "http://example.test/");
+            assertEquals(2, dataset.stream().count());
+            assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
+                .contains("http://example.test/")
+            );
+        }
+    }
+
+    @Test
+    void parseToDatasetRelativeURIsButNoBaseURI() throws IOException {
+        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var dataset = processor.toDataset(Syntax.TURTLE, input);
+            assertEquals(2, dataset.stream().count());
+            assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
+                .contains("file://") //treats relative URIs like local files
+            );
+        }
+    }
+
+    @Test
     void parsetoDatasetException() throws IOException {
         try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
             assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
@@ -125,10 +146,17 @@ class JenaRdfProcessorTest {
         }
     }
 
-    @Disabled("does not throw eror (like RDF4J) because upon relative URIs Jena considers it as a local file." +
-        "We need code logic if we want an error. " +
-        "See: https://stackoverflow.com/questions/47763738/jena-relative-uri-base")
-    //TODO decide if we want to throw error and how to handle relative URIs
+    @Test
+    void parseToGraphRelativeURIs() throws IOException {
+        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var graph = processor.toGraph(Syntax.TURTLE, input, "http://example.test/");
+            assertEquals(2, graph.stream().count());
+            assertTrue(graph.stream().findFirst().get().getSubject().getURI().toString()
+                .contains("http://example.test/")
+            );
+        }
+    }
+
     @Test
     void parseToGraphException() throws IOException {
         try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/invalid.ttl")) {

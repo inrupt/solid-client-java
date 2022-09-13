@@ -1,7 +1,3 @@
-#use of relative URIs
-@prefix : <#>.
-@prefix foaf: <http://xmlns.com/foaf/0.1/>.
-@prefix schema: <http://schema.org/>.
-
-:me
-    a schema:Person, foaf:Person.
+<http://example.test/graph> { 
+    "http://example.test/subject" <http://example.test/predicate> <http://example.test/object> . 
+}

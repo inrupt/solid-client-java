@@ -105,7 +105,25 @@ class RDF4JRdfProcessorTest {
     }
 
     @Test
-    void parsetoDatasetException() throws IOException {
+    void parseToDataserRelativeURIs() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var dataset = processor.toDataset(Syntax.TURTLE, input, "http://example.test/");
+            assertEquals(2, dataset.stream().count());
+            assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
+                .contains("http://example.test/")
+            );
+        }
+    }
+
+    @Test
+    void parseToDatasetRelativeURIsButNoBaseURI() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
+        }
+    }
+
+    @Test
+    void parseToDatasetException() throws IOException {
         try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
             assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
         }
@@ -116,6 +134,24 @@ class RDF4JRdfProcessorTest {
         try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
             final var graph = processor.toGraph(Syntax.TURTLE, input);
             assertEquals(10, graph.stream().count());
+        }
+    }
+
+    @Test
+    void parseToGraphRelativeURIs() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var graph = processor.toGraph(Syntax.TURTLE, input, "http://example.test/");
+            assertEquals(2, graph.stream().count());
+            assertTrue(graph.stream().findFirst().get().getSubject().getURI().toString()
+                .contains("http://example.test/")
+            );
+        }
+    }
+
+    @Test
+    void parseToGraphRelativeURIsButNoBaseURI() throws IOException {
+        try (final var input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
         }
     }
 
