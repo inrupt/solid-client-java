@@ -84,12 +84,12 @@ public class RDF4JRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
+    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
         final var repository = new SailRepository(new MemoryStore());
         try {
             try (final var conn = repository.getConnection()) {
-                conn.add(input, baseURI, format);
+                conn.add(input, baseUri, format);
             }
             return new RDF4JDataset(repository);
         } catch (final RDF4JException ex) {
@@ -98,11 +98,11 @@ public class RDF4JRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
+    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
 
         try {
-            final var model = Rio.parse(input, baseURI, format);
+            final var model = Rio.parse(input, baseUri, format);
             return new RDF4JGraph(model);
         } catch (RDFParseException ex) {
             throw new IOException("Error parsing graph", ex);

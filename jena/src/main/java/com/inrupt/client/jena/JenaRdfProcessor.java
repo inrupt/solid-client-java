@@ -82,11 +82,11 @@ public class JenaRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
+    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var dataset = DatasetFactory.create();
         try {
-            RDFDataMgr.read(dataset, input, baseURI, lang);
+            RDFDataMgr.read(dataset, input, baseUri, lang);
         } catch (final RiotException ex) {
             throw new IOException("Error parsing dataset", ex);
         }
@@ -95,11 +95,11 @@ public class JenaRdfProcessor implements RdfProcessor {
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseURI) throws IOException {
+    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         final var model = ModelFactory.createDefaultModel();
         try {
-            RDFDataMgr.read(model, input, baseURI, lang);
+            RDFDataMgr.read(model, input, baseUri, lang);
         } catch (final RiotException ex) {
             throw new IOException("Error parsing graph", ex);
         }
