@@ -30,6 +30,7 @@
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-jena</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

@@ -50,10 +50,12 @@ import org.junit.jupiter.api.Test;
 
 class SolidClientTest {
 
-    private final SolidClient client = SolidClient.Builder.newBuilder().authenticator(new SolidAuthenticator()).build();
+    private static final SolidClient client = SolidClient.Builder.newBuilder()
+        .authenticator(new SolidAuthenticator())
+        .build();
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static List<CompletableFuture<Void>> pushPromisesMap = new ArrayList<CompletableFuture<Void>>();
+    private static final List<CompletableFuture<Void>> pushPromisesMap = new ArrayList<>();
     private static final List<CompletableFuture<Void>> asyncPushRequests = new CopyOnWriteArrayList<>();
 
     @BeforeAll
@@ -125,24 +127,14 @@ class SolidClientTest {
             final CompletableFuture<Void> pushcf =
                 acceptor.apply(HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenAccept((b) -> System.out.println(
-                    "\nPushed resource body:\n " + b));
-                asyncPushRequests.add(pushcf);
-                System.out.println("\nJust got promise push number: " +
-                    asyncPushRequests.size());
-                System.out.println("\nInitial push request: " +
-                    initiatingRequest.uri());
-                System.out.println("Initial push headers: " +
-                    initiatingRequest.headers());
-                System.out.println("Promise push request: " +
-                    pushPromiseRequest.uri());
-                System.out.println("Promise push headers: " +
-                    pushPromiseRequest.headers());
+                .thenAccept((b) -> { });
+
+            asyncPushRequests.add(pushcf);
         };
     }
 
     @Test
-    void testSendOfMdel() throws IOException, InterruptedException {
+    void testSendOfModel() throws IOException, InterruptedException {
 
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/example"))
@@ -186,7 +178,7 @@ class SolidClientTest {
     }
 
     @Test
-    void testSendAsyncWithPromise() throws IOException, InterruptedException {
+    void testSendOfModelAsyncWithPromise() throws IOException, InterruptedException {
 
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/example"))

@@ -21,10 +21,13 @@
 package com.inrupt.client.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 
 class MockHttpServer {
@@ -51,7 +54,7 @@ class MockHttpServer {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/turtle")
-                        .withBody(getExampleTTL())));
+                        .withBody(getProfileExampleTTL())));
 
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .withRequestBody(matching(
@@ -67,21 +70,12 @@ class MockHttpServer {
 
     }
 
-    private String getExampleTTL() {
-        return "" +
-            "@prefix : <http://example.test/>." +
-            "\n @prefix foaf: <http://xmlns.com/foaf/0.1/>." +
-            "\n @prefix schema: <http://schema.org/>." +
-            "\n @prefix solid: <http://www.w3.org/ns/solid/terms#>." +
-            "\n @prefix space: <http://www.w3.org/ns/pim/space#>." +
-            "\n" +
-            "\n :me" +
-            "\n    a schema:Person, foaf:Person;" +
-            "\n    space:preferencesFile <http://example.test//settings/prefs.ttl>;" +
-            "\n    solid:privateTypeIndex <http://example.test//settings/privateTypeIndex.ttl>;" +
-            "\n    solid:publicTypeIndex <http://example.test//settings/publicTypeIndex.ttl>;" +
-            "\n    foaf:name \"Jane Doe\";" +
-            "\n    solid:oidcIssuer <https://solidcommunity.net>.";
+    private static String getProfileExampleTTL() {
+        try (final var res = MockHttpServer.class.getResourceAsStream("/profileExample.ttl")) {
+            return new String(res.readAllBytes(), UTF_8);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Could not read class resource", ex);
+        }
     }
 
     public Map<String, String> start() {
