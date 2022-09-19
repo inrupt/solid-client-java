@@ -28,7 +28,7 @@
 
     <!-- testing -->
     <junit.version>5.9.0</junit.version>
-    <yasson.version>1.0.3</yasson.version>
+    <yasson.version>3.0.2</yasson.version>
     <wiremock.version>2.33.2</wiremock.version>
   </properties>
 
