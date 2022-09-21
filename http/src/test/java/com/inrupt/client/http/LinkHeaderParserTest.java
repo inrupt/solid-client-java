@@ -40,19 +40,8 @@ public class LinkHeaderParserTest {
                         "rel", "stylesheet"))));
     }
 
-   // @Test
-    /* void parseCaseInsensitive() {
-        final var parser = new DefaultHeaderParser();
-        final var header = "<https://example.com/%E8%8B%97%E6%9D%A1>; REL=\"preconnect\"";
-        final var linkValues = parser.link(header);
-
-        assertEquals(linkValues, List.of(
-                    new LinkValue("https://example.com/%E8%8B%97%E6%9D%A1", Map.of(
-                            "rel", "preconnect"))));
-    } */
-
-   // @Test
-    /* void parseRelativeReferenceLink() {
+    @Test
+    void parseRelativeReferenceLink() {
         final var parser = new DefaultHeaderParser();
         final var header = "</static/css/bootstrap.min.css>; rel=\"stylesheet\"";
         final var linkValues = parser.link(header);
@@ -60,7 +49,7 @@ public class LinkHeaderParserTest {
         assertEquals(linkValues, List.of(
                     new LinkValue("/static/css/bootstrap.min.css", Map.of(
                             "rel", "stylesheet"))));
-    } */
+    }
 
     @ParameterizedTest
     @MethodSource
@@ -122,7 +111,7 @@ public class LinkHeaderParserTest {
                     Collections.emptyList()),
                 Arguments.of("<https//bad.example>", //Problem Here
                     Collections.emptyList()),
-                Arguments.of("<notURI-Reference>", //Problem Here
+                Arguments.of("<notURI-Reference>",
                     Collections.emptyList()),    
                 Arguments.of("<https://example.com>; rel==\"preconnect\"",
                 List.of(
