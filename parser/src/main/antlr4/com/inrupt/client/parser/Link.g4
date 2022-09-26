@@ -29,30 +29,25 @@ grammar Link ;
 // --------------
 //  Parser Rules
 // --------------
-// Link  = #link-value
-link : linkValue (WS? ',' WS? linkValue)* ;
+linkHeader : link (',' link)* ;
 
 // link-value = "<" URI-Reference ">" *( OWS ";" OWS link-param )
-linkValue : '<' UriReference '>' (WS? ';' WS? LinkParam)* ;
+link : UriReference (WS? ';' WS? LinkParam)* ;
 
-//linkValue : '<' UriReference '>' ';' WS LinkParam WS ';' LinkParam;
- 
-//linkValue : '<' UriReference '>' (';' LinkParam ( WS? ';' WS? LinkParam )*)? ;
-
-//linkValue : ('<' UriReference '>' |'<' UriReference '>' WS? ';' WS? (LinkParam WS? ';')* WS? LinkParam );
 
 // -------------
 //  Lexer Rules
 // -------------
-// link-param = token BWS [ "=" BWS ( token / quoted-string ) ]
-LinkParam : Token WS? ('=' WS? ( Token | QuotedString ))? ;
+UriReference : '<' UriChar+ '>' ;
 
-UriReference : UriChar+ ;
+// URI characters -- this does not perform syntactic parsing of URIs; that is left to the Java URI parser
+fragment UriChar : ('\u0021'..'\u003b' | '=' | '\u003f'..'\u007e'| ObsText ); //3c 3e - exclude
+
+// link-param = token BWS [ "=" BWS ( token / quoted-string ) ]
+LinkParam : Token '=' ( Token | QuotedString ) ;
 
 // obs-text = %x80-FF
 fragment ObsText : '\u0080'..'\uFFFF' ;
-
-fragment UriChar : ('\u0021'..'\u003b' | '=' | '\u003f'..'\u007e'| ObsText );//3c 3e - exclude
 
 // qdtext = HTAB / SP / "!" / %x23-5B ; '#'-'[' / %x5D-7E ; ']'-'~' / obs-text
 fragment Qdtext : ( HTAB | SP | '!' | '\u0023'..'\u005B' | '\u005D'..'\u007E' | ObsText ) ;
@@ -61,8 +56,7 @@ fragment Qdtext : ( HTAB | SP | '!' | '\u0023'..'\u005B' | '\u005D'..'\u007E' | 
 fragment QuotedPair : '\\' ( HTAB | SP | VCHAR | ObsText ) ;
 
 // quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE
-fragment QuotedString : DQUOTE ( Qdtext | QuotedPair )* DQUOTE ; 
-
+fragment QuotedString : DQUOTE ( Qdtext | QuotedPair )* DQUOTE ;
 
 // tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
 fragment Tchar : ( '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | '^' | '_' | '`' | '|' | '~' | DIGIT | ALPHA ) ;
@@ -70,13 +64,10 @@ fragment Tchar : ( '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | 
 // token = 1*tchar
 fragment Token : ( Tchar )+ ;
 
-
-
 // Other constants (lexical entities)
 WS : ( SP | HTAB )+ ;
 
 // Other constants (lexical fragments)
-fragment HEXDIG: ('0' ..'9' | ( 'a'..'f' | 'A'..'F' )); //check antlr spec
 fragment SP : ' ' ;
 fragment DQUOTE : '\u0022' ;
 fragment HTAB : '\t' ;

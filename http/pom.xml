@@ -19,6 +19,8 @@
       <artifactId>inrupt-client-authentication</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -29,8 +31,6 @@
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- test dependencies -->
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>

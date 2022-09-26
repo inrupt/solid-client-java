@@ -21,52 +21,33 @@
 package com.inrupt.client.http;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Part of the HTTP Challenge and Response authentication framework, this class represents a
- * challenge object as represented in a WWW-Authenticate Response Header.
+ * A class for representing an HTTP Link header.
  *
- * @see <a href="https://httpwg.org/specs/rfc8288#header">RFC 7235 2.1</a>
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc8288">RFC 8288</a>
  */
-public class LinkValue{
+public final class Link {
 
-    private final URI uriReference;
+    private final URI uri;
     private final Map<String, String> parameters;
 
-    /**
-     * Create a new LinkValue object with a specific URI-Reference and no parameters.
-     *
-     * @param scheme the authentication scheme
-     * @throws URISyntaxException
-     */
-    public LinkValue(final String uriReference) {
-        this(uriReference, Collections.emptyMap());
-    }
-
-    /**
-     * Create a new LinkValue object with a specific URI-Reference and parameters.
-     *
-     * @param scheme the authentication scheme
-     * @param parameters the authentication parameters
-     * @throws URISyntaxException
-     */
-    public LinkValue(final String uriReference, final Map<String, String> parameters) {
-        this.uriReference = URI.create(Objects.requireNonNull(uriReference));
+    private Link(final URI uri, final Map<String, String> parameters) {
+        this.uri = Objects.requireNonNull(uri);
         this.parameters = Objects.requireNonNull(parameters);
     }
 
     /**
-     * Get the URI-Reference for this LinkValue.
+     * Get the URI-Reference for this Link.
      *
      * @return the scheme name
      */
     public URI getUri() {
-        return uriReference;
+        return uri;
     }
 
     /**
@@ -80,7 +61,7 @@ public class LinkValue{
     }
 
     /**
-     * Get all the parameters for this LinkHeader.
+     * Get all the parameters for this Link.
      *
      * @return the complete collection of parameters
      */
@@ -90,9 +71,12 @@ public class LinkValue{
 
     @Override
     public String toString() {
-        return getUri() + " " + parameters.entrySet().stream()
+        if (parameters.isEmpty()) {
+            return "<" + getUri() + ">";
+        }
+        return "<" + getUri() + ">; " + parameters.entrySet().stream()
             .map(e -> e.getKey() + "=\"" + e.getValue() + "\"")
-            .collect(Collectors.joining(", "));
+            .collect(Collectors.joining("; "));
     }
 
     @Override
@@ -101,11 +85,11 @@ public class LinkValue{
             return true;
         }
 
-        if (!(obj instanceof LinkValue)) {
+        if (!(obj instanceof Link)) {
             return false;
         }
 
-        final LinkValue c = (LinkValue) obj;
+        final var c = (Link) obj;
 
         if (!this.getUri().equals(c.getUri())) {
             return false;
@@ -118,5 +102,15 @@ public class LinkValue{
     public int hashCode() {
         return Objects.hash(this.getUri(), parameters);
     }
-    
+
+    /**
+     * Create a new Link object with a specific URI-Reference and parameters.
+     *
+     * @param uri the link URI
+     * @param parameters the link parameters
+     * @return the new {@link Link} object
+     */
+    public static Link of(final URI uri, final Map<String, String> parameters) {
+        return new Link(uri, parameters);
+    }
 }
