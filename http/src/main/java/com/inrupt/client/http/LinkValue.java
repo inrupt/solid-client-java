@@ -20,8 +20,9 @@
  */
 package com.inrupt.client.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,13 +35,14 @@ import java.util.stream.Collectors;
  */
 public class LinkValue{
 
-    private final String uriReference;
+    private final URI uriReference;
     private final Map<String, String> parameters;
 
     /**
      * Create a new LinkValue object with a specific URI-Reference and no parameters.
      *
      * @param scheme the authentication scheme
+     * @throws URISyntaxException
      */
     public LinkValue(final String uriReference) {
         this(uriReference, Collections.emptyMap());
@@ -51,9 +53,10 @@ public class LinkValue{
      *
      * @param scheme the authentication scheme
      * @param parameters the authentication parameters
+     * @throws URISyntaxException
      */
     public LinkValue(final String uriReference, final Map<String, String> parameters) {
-        this.uriReference = Objects.requireNonNull(uriReference);
+        this.uriReference = URI.create(Objects.requireNonNull(uriReference));
         this.parameters = Objects.requireNonNull(parameters);
     }
 
@@ -62,7 +65,7 @@ public class LinkValue{
      *
      * @return the scheme name
      */
-    public String geturiReference() {
+    public URI getUri() {
         return uriReference;
     }
 
@@ -87,7 +90,7 @@ public class LinkValue{
 
     @Override
     public String toString() {
-        return geturiReference() + " " + parameters.entrySet().stream()
+        return getUri() + " " + parameters.entrySet().stream()
             .map(e -> e.getKey() + "=\"" + e.getValue() + "\"")
             .collect(Collectors.joining(", "));
     }
@@ -104,7 +107,7 @@ public class LinkValue{
 
         final LinkValue c = (LinkValue) obj;
 
-        if (!uriReference.toLowerCase(Locale.ENGLISH).equals(c.uriReference.toLowerCase(Locale.ENGLISH))) {
+        if (!this.getUri().equals(c.getUri())) {
             return false;
         }
 
@@ -113,7 +116,7 @@ public class LinkValue{
 
     @Override
     public int hashCode() {
-        return Objects.hash(uriReference.toLowerCase(Locale.ENGLISH), parameters);
+        return Objects.hash(this.getUri(), parameters);
     }
     
 }

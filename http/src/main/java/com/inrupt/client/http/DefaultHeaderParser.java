@@ -24,18 +24,16 @@ import com.inrupt.client.parser.ConsumerErrorListener;
 import com.inrupt.client.parser.LinkBaseListener;
 import com.inrupt.client.parser.LinkLexer;
 import com.inrupt.client.parser.LinkParser;
-import com.inrupt.client.parser.WwwAuthenticateBaseListener;
-import com.inrupt.client.parser.WwwAuthenticateLexer;
-import com.inrupt.client.parser.WwwAuthenticateParser;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Collections;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,23 +66,34 @@ public class DefaultHeaderParser implements HeaderParser{
     }
 
     @Override
-    public List<LinkValue> link(String header) {
-        final var lexer = new LinkLexer(CharStreams.fromString(header));
-        final var tokens = new CommonTokenStream(lexer);
-        final var parser = new LinkParser(tokens);
+    public List<LinkValue> link(String header){
+        try {
+            final var lexer = new LinkLexer(CharStreams.fromString(header)); // turns into tokens
+            final var tokens = new CommonTokenStream(lexer);
+            final var parser = new LinkParser(tokens); // token stream into parser
+        
 
-        // Update error listeners
-        if (errorListener != null) {
-            parser.removeErrorListeners();
-            parser.addErrorListener(errorListener);
+            // Update error listeners
+            if (errorListener != null) {
+                parser.removeErrorListeners();
+                parser.addErrorListener(errorListener);
+            }
+
+            final var tree = parser.link(); // returns a link context
+            final var walker = new ParseTreeWalker();
+            final var listener = new LinkValueListener();
+
+            walker.walk(listener, tree);// exitLinkValue called here
+
+
+            return listener.getLinkValues();
+        } 
+        catch (IllegalArgumentException e) {
+            // TODO: handle exception
+            System.out.println(e);
+            return Collections.emptyList();
         }
-
-        final var tree = parser.link();
-        final var walker = new ParseTreeWalker();
-        final var listener = new LinkValueListener();
-        walker.walk(listener, tree);
-
-        return listener.getLinkValues();
+        
     }
 
     /**
@@ -93,6 +102,7 @@ public class DefaultHeaderParser implements HeaderParser{
     public static class LinkValueListener extends LinkBaseListener {
 
         private final List<LinkValue> linkValues = new ArrayList<>();
+        private final HashMap<String, String> linkParams = new HashMap<String, String>();
 
         /**
          * Get the list of Challenge objects from the parsed header.
@@ -116,6 +126,7 @@ public class DefaultHeaderParser implements HeaderParser{
                 linkValues.add(new LinkValue(ctx.UriReference().getText(), params));
             }
         }
+
 
         static String unwrap(final String value, final String character) {
             if (value.startsWith(character) && value.endsWith(character)) {
