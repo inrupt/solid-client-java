@@ -82,18 +82,24 @@ public class HeaderParser {
 
     private List<Link> parseLinkHeader(final String header) {
         final var lexer = new LinkLexer(CharStreams.fromString(header));
+        // Update lexer error listeners
+        if (errorListener != null) {
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(errorListener);
+        }
+
         final var tokens = new CommonTokenStream(lexer);
         final var parser = new LinkParser(tokens);
 
-        // Update error listeners
+        // Update parser error listeners
         if (errorListener != null) {
             parser.removeErrorListeners();
             parser.addErrorListener(errorListener);
         }
 
-        final var tree = parser.linkHeader();
-        final var walker = new ParseTreeWalker();
         final var listener = new LinkListener();
+        final var walker = new ParseTreeWalker();
+        final var tree = parser.linkHeader();
 
         try {
             walker.walk(listener, tree);
