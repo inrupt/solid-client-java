@@ -75,15 +75,6 @@ class HeadersTest {
                                 Map.of("rel", "param1", "type", "param2")))));
     }
 
-    @Test
-    void parseListedParamsTestCase() {
-        final var header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"param1\" ;type=\"param2\"";
-        final var linkValues = Headers.link(header);
-
-        assertEquals(List.of(
-                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
-                        Map.of("rel", "param1", "type", "param2"))), linkValues);
-    }
 
     @ParameterizedTest
     @MethodSource
@@ -115,24 +106,6 @@ class HeadersTest {
                         Link.of(URI.create("https://one.example.com"), Map.of("rel", "rel1", "type", "type1")),
                         Link.of(URI.create("https://two.example.com"), Map.of("rel", "rel2", "type", "type2")),
                         Link.of(URI.create("https://three.example.com"), Map.of("rel", "rel3", "type", "type3")))));
-    }
-
-
-    @ParameterizedTest
-    @MethodSource
-    void parseRelativeReferenceLink(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
-        assertEquals(expected, linkValues);
-    }
-
-    private static Stream<Arguments> parseRelativeReferenceLink() {
-        return Stream.of(
-                Arguments.of("<https://www.example.com/about/team/>",
-                    List.of(
-                        Link.of(URI.create("https://www.example.com/about/team/"), Collections.emptyMap()))),
-                Arguments.of("</about/team/>",
-                        List.of(
-                            Link.of(URI.create("/about/team/"), Collections.emptyMap()))));
     }
 
     @ParameterizedTest
@@ -176,6 +149,7 @@ class HeadersTest {
                             Map.of("rel", "previous", "title", "previous chapter"))))
                 );
     }
+    //add more cases
 
     @ParameterizedTest
     @MethodSource
@@ -199,5 +173,80 @@ class HeadersTest {
                 Arguments.of("rel=\"preconnect\"; rel=\"meta\"",
                     Collections.emptyList())
             );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void parseInvalidCharacters(final String header, final List<Link> expected) {
+        final var linkValues = Headers.link(header);
+        assertEquals(expected, linkValues, "Unexpected handling of invalid link header");
+    }
+
+    private static Stream<Arguments> parseInvalidCharacters() {
+        return Stream.of(
+                Arguments.of("<https://example.com/苗条>", // **
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/{}>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/^>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/`>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/||>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/\t>",
+                    Collections.emptyList()),   
+                Arguments.of("<https://example.com/     >",
+                    Collections.emptyList()), 
+                Arguments.of("<https://example.com/<<>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/<>/anglebracket>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/>/anglebracket>", // **
+                    Collections.emptyList())
+            );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void parseRelativeReferenceLink(final String header, final List<Link> expected) {
+        final var linkValues = Headers.link(header);
+        assertEquals(expected, linkValues);
+    }
+
+    private static Stream<Arguments> parseRelativeReferenceLink() {
+        return Stream.of(
+                Arguments.of("<https://www.example.com/about/team/>",
+                    List.of(
+                        Link.of(URI.create("https://www.example.com/about/team/"), Collections.emptyMap()))),
+                Arguments.of("</about/team/>",
+                        List.of(
+                            Link.of(URI.create("/about/team/"), Collections.emptyMap()))),
+                Arguments.of("<file:///users/foo/",
+                            List.of(
+                                Link.of(URI.create("file:///users/foo/"), Collections.emptyMap()))),
+                Arguments.of("<file:///users/foo/",
+                            List.of(
+                                Link.of(URI.create("file:///users/foo/"), Collections.emptyMap())))           
+                
+                            );
+    }
+    //add more cases
+
+    @ParameterizedTest
+    @MethodSource
+    void parseDids(final String header, final List<Link> expected) {
+        final var linkValues = Headers.link(header);
+        assertEquals(expected, linkValues);
+    }
+
+    private static Stream<Arguments> parseDids() {
+        return Stream.of(
+                Arguments.of("<did:example:123456789abcdefghi>",
+                    List.of(
+                        Link.of(URI.create("did:example:123456789abcdefghi"), Collections.emptyMap()))),
+                Arguments.of("<did:example:123456789abcdefghi#keys-1>",
+                        List.of(
+                            Link.of(URI.create("did:example:123456789abcdefghi#keys-1"), Collections.emptyMap()))));
     }
 }
