@@ -228,9 +228,6 @@ class HeadersTest {
                             Link.of(URI.create("/about/team/"), Collections.emptyMap()))),
                 Arguments.of("<file:///users/foo/",
                             List.of(
-                                Link.of(URI.create("file:///users/foo/"), Collections.emptyMap()))),
-                Arguments.of("<file:///users/foo/",
-                            List.of(
                                 Link.of(URI.create("file:///users/foo/"), Collections.emptyMap())))           
                 
                             );
