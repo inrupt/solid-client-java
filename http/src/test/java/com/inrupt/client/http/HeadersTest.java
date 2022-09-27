@@ -146,6 +146,10 @@ class HeadersTest {
                 Arguments.of("<http://example.com/TheBook/chapter2>; type==sdasd; rel=\"previous\";" +
                     "title=\"previous chapter\"",
                     List.of(Link.of(URI.create("http://example.com/TheBook/chapter2"),
+                            Map.of("rel", "previous", "title", "previous chapter")))),
+                Arguments.of("<http://example.com/TheBook/chapter2>; \"type\"=sdasd; rel=\"previous\";" +
+                    "title=\"previous chapter\"",
+                    List.of(Link.of(URI.create("http://example.com/TheBook/chapter2"),
                             Map.of("rel", "previous", "title", "previous chapter"))))
                 );
     }
