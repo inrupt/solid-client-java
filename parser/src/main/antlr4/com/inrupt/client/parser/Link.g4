@@ -41,7 +41,7 @@ link : UriReference (WS? ';' WS? LinkParam)* ;
 UriReference : '<' UriChar+ '>' ;
 
 // URI characters -- this does not perform syntactic parsing of URIs; that is left to the Java URI parser
-fragment UriChar : ('\u0021'..'\u003b' | '=' | '\u003f'..'\u007e'| ObsText ); //3c 3e - exclude
+fragment UriChar : ('\u0021'..'\u003B' | '=' | '\u003F'..'\u007E'| ObsText ) ; //3c 3e - exclude
 
 // link-param = token BWS [ "=" BWS ( token / quoted-string ) ]
 LinkParam : Token '=' ( Token | QuotedString ) ;

@@ -81,10 +81,9 @@ public class HeaderParser {
     }
 
     private List<Link> parseLinkHeader(final String header) {
-        final var lexer = new LinkLexer(CharStreams.fromString(header)); // turns into tokens
+        final var lexer = new LinkLexer(CharStreams.fromString(header));
         final var tokens = new CommonTokenStream(lexer);
-        final var parser = new LinkParser(tokens); // token stream into parser
-
+        final var parser = new LinkParser(tokens);
 
         // Update error listeners
         if (errorListener != null) {
@@ -92,7 +91,7 @@ public class HeaderParser {
             parser.addErrorListener(errorListener);
         }
 
-        final var tree = parser.linkHeader(); // returns a link context
+        final var tree = parser.linkHeader();
         final var walker = new ParseTreeWalker();
         final var listener = new LinkListener();
 
@@ -101,6 +100,7 @@ public class HeaderParser {
         } catch (final IllegalArgumentException ex) {
             parser.notifyErrorListeners("Link parsing error: " + ex.getMessage());
         }
+
         return listener.getLinks();
     }
 
