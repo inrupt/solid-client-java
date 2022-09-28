@@ -130,12 +130,12 @@ class HeadersTest {
 
     @ParameterizedTest
     @MethodSource
-    void parseLinkParams(final String header, final List<Link> expected) {
+    void parseLinkInOrder(final String header, final List<Link> expected) {
         final var linkValues = Headers.link(header);
         assertEquals(expected, linkValues);
     }
 
-    private static Stream<Arguments> parseLinkParams() {
+    private static Stream<Arguments> parseLinkInOrder() {
         return Stream.of(
                 Arguments.of("<https://one.example.com>; rel=\"preconnect\", " +
                     "<https://two.example.com>; rel=\"meta\", " +
@@ -152,26 +152,6 @@ class HeadersTest {
                     Link.of(URI.create("https://one.example.com"), Map.of("rel", "preconnect")),
                     Link.of(URI.create("https://three.example.com"), Map.of("rel", "stylesheet"))))
             );
-    }
-
-    @ParameterizedTest
-    @MethodSource
-    void parseIgnoreInvalidParams(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
-        assertEquals(expected, linkValues);
-    }
-
-    private static Stream<Arguments> parseIgnoreInvalidParams() {
-        return Stream.of(
-                Arguments.of("<http://example.com/TheBook/chapter2>; type==sdasd; rel=\"previous\";" +
-                    "title=\"previous chapter\"",
-                    List.of(Link.of(URI.create("http://example.com/TheBook/chapter2"),
-                            Map.of("rel", "previous", "title", "previous chapter")))),
-                Arguments.of("<http://example.com/TheBook/chapter2>; \"type\"=sdasd; rel=\"previous\";" +
-                    "title=\"previous chapter\"",
-                    List.of(Link.of(URI.create("http://example.com/TheBook/chapter2"),
-                            Map.of("rel", "previous", "title", "previous chapter"))))
-                );
     }
 
     @ParameterizedTest
@@ -208,6 +188,29 @@ class HeadersTest {
 
     @ParameterizedTest
     @MethodSource
+    void ignoreInvalidParams(final String header, final List<Link> expected) {
+        final var linkValues = Headers.link(header);
+        assertEquals(expected, linkValues);
+    }
+
+    private static Stream<Arguments> ignoreInvalidParams() {
+        return Stream.of(
+                Arguments.of("<https://example.com>; rel==\"previous\"",
+                    List.of(Link.of(URI.create("https://example.com"),
+                            Collections.emptyMap()))),
+                Arguments.of("<http://example.com>; type==text; rel=\"previous\";" +
+                    "title=\"previous chapter\"",
+                    List.of(Link.of(URI.create("http://example.com"),
+                            Map.of("rel", "previous", "title", "previous chapter")))),              
+                Arguments.of("<http://example.com>; \"type\"=\"text\"; rel=\"previous\";" +
+                    "title=\"previous chapter\"",
+                    List.of(Link.of(URI.create("http://example.com"),
+                            Map.of("rel", "previous", "title", "previous chapter"))))
+                );
+    }
+
+    @ParameterizedTest
+    @MethodSource
     void parseInvalidLinkHeader(final String header, final List<Link> expected) {
         final var linkValues = Headers.link(header);
         assertEquals(expected, linkValues, "Unexpected handling of invalid link header");
@@ -218,62 +221,67 @@ class HeadersTest {
         return Stream.of(
                 Arguments.of("https://bad.example",
                     Collections.emptyList()),
-                Arguments.of("<https:/bad example>",
+                Arguments.of("rel=\"missingUri\"; type=\"text\"",
                     Collections.emptyList()),
-                Arguments.of("<notURI|Reference>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com>; rel==\"preconnect\"",
-                    List.of(
-                        Link.of(URI.create("https://example.com"), Collections.emptyMap()))),
-                Arguments.of("rel=\"preconnect\"; rel=\"meta\"",
-                    Collections.emptyList())
-            );
-    }
-
-    @ParameterizedTest
-    @MethodSource
-    void parseInvalidCharacters(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
-        assertEquals(expected, linkValues, "Unexpected handling of invalid link header");
-    }
-
-    private static Stream<Arguments> parseInvalidCharacters() {
-        return Stream.of(
                 Arguments.of("<https://example.com/{}>",
                     Collections.emptyList()),
                 Arguments.of("<https://example.com/^>",
                     Collections.emptyList()),
                 Arguments.of("<https://example.com/`>",
                     Collections.emptyList()),
-                Arguments.of("<https://example.com/||>",
+                Arguments.of("<https://example.com/|>",
                     Collections.emptyList()),
                 Arguments.of("<https://example.com/\t>",
                     Collections.emptyList()),
                 Arguments.of("<https://example.com/     >",
                     Collections.emptyList()),
-                //Arguments.of("<https://example.com/<<>",
-                    //Collections.emptyList()),
-                Arguments.of("<https://example.com/<>/anglebracket>",
+                Arguments.of("<https://example.com />",
                     Collections.emptyList()),
-                Arguments.of("<https://example.com/>/anglebracket>", // **
+                Arguments.of("<https://example.com/<>/test>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/>/test>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/>/test/>/test>",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/>/test/>/test",
+                    Collections.emptyList()),
+
+                //not working
+                Arguments.of("<https://example.com/>/test",
+                    Collections.emptyList()),
+                Arguments.of("<https://example.com/>/test; rel=\"param\"",
+                    Collections.emptyList()),
+                Arguments.of("https://example.com/</test/>/test",
+                    Collections.emptyList()),
+                Arguments.of("<https:/badexample>",
+                    Collections.emptyList()),
+                Arguments.of("<notURIReference>",
                     Collections.emptyList())
+                
             );
     }
 
     @ParameterizedTest
     @MethodSource
-    void parseDids(final String header, final List<Link> expected) {
+    void ignoreInvalidLinks(final String header, final List<Link> expected) {
         final var linkValues = Headers.link(header);
         assertEquals(expected, linkValues);
     }
 
-    private static Stream<Arguments> parseDids() {
+    private static Stream<Arguments> ignoreInvalidLinks() {
         return Stream.of(
-                Arguments.of("<did:example:123456789abcdefghi>",
+                Arguments.of("<https://one.example.com>; title=\"valid\", " +
+                            "https://two.example.com; title=\"invalid\"",
                     List.of(
-                        Link.of(URI.create("did:example:123456789abcdefghi"), Collections.emptyMap()))),
-                Arguments.of("<did:example:123456789abcdefghi#keys-1>",
-                        List.of(
-                            Link.of(URI.create("did:example:123456789abcdefghi#keys-1"), Collections.emptyMap()))));
+                        Link.of(URI.create("https://one.example.com"), Map.of("title", "valid")))),
+                Arguments.of("<https://one.example.com>; title=\"valid\", " +
+                            "https://two.example.com; title=\"invalid\", " +
+                            "<https://three.example.com>; title=\"valid\"",
+                    List.of( 
+                        Link.of(URI.create("https://one.example.com"), Map.of("title", "valid")), 
+                        Link.of(URI.create("https://three.example.com"), Map.of("title", "valid"))))
+                );
     }
+
+    
 }
