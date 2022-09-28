@@ -201,7 +201,7 @@ class HeadersTest {
                 Arguments.of("<http://example.com>; type==text; rel=\"previous\";" +
                     "title=\"previous chapter\"",
                     List.of(Link.of(URI.create("http://example.com"),
-                            Map.of("rel", "previous", "title", "previous chapter")))),              
+                            Map.of("rel", "previous", "title", "previous chapter")))),
                 Arguments.of("<http://example.com>; \"type\"=\"text\"; rel=\"previous\";" +
                     "title=\"previous chapter\"",
                     List.of(Link.of(URI.create("http://example.com"),
@@ -244,10 +244,6 @@ class HeadersTest {
                 Arguments.of("<https://example.com/>/test/>/test>",
                     Collections.emptyList()),
                 Arguments.of("<https://example.com/>/test/>/test",
-                    Collections.emptyList())
-                
-            );
+                    Collections.emptyList()));
     }
-
-    
 }
