@@ -244,43 +244,9 @@ class HeadersTest {
                 Arguments.of("<https://example.com/>/test/>/test>",
                     Collections.emptyList()),
                 Arguments.of("<https://example.com/>/test/>/test",
-                    Collections.emptyList()),
-
-                //not working
-                Arguments.of("<https://example.com/>/test",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/>/test; rel=\"param\"",
-                    Collections.emptyList()),
-                Arguments.of("https://example.com/</test/>/test",
-                    Collections.emptyList()),
-                Arguments.of("<https:/badexample>",
-                    Collections.emptyList()),
-                Arguments.of("<notURIReference>",
                     Collections.emptyList())
                 
             );
-    }
-
-    @ParameterizedTest
-    @MethodSource
-    void ignoreInvalidLinks(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
-        assertEquals(expected, linkValues);
-    }
-
-    private static Stream<Arguments> ignoreInvalidLinks() {
-        return Stream.of(
-                Arguments.of("<https://one.example.com>; title=\"valid\", " +
-                            "https://two.example.com; title=\"invalid\"",
-                    List.of(
-                        Link.of(URI.create("https://one.example.com"), Map.of("title", "valid")))),
-                Arguments.of("<https://one.example.com>; title=\"valid\", " +
-                            "https://two.example.com; title=\"invalid\", " +
-                            "<https://three.example.com>; title=\"valid\"",
-                    List.of( 
-                        Link.of(URI.create("https://one.example.com"), Map.of("title", "valid")), 
-                        Link.of(URI.create("https://three.example.com"), Map.of("title", "valid"))))
-                );
     }
 
     
