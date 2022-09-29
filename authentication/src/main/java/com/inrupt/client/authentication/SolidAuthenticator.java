@@ -20,7 +20,9 @@
  */
 package com.inrupt.client.authentication;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -39,21 +41,45 @@ public class SolidAuthenticator {
 
     private final Map<String, SolidAuthenticationMechanism> registry = new HashMap<>();
     private final HeaderParser parser;
+    private final DPoP dpop;
 
     /**
-     * Create a {@link SolidAuthenticator} with the default header parser.
+     * Create a {@link SolidAuthenticator}.
      */
     public SolidAuthenticator() {
-        this(new DefaultHeaderParser());
+        this(new DPoP());
     }
 
     /**
-     * Create a {@link SolidAuthenticator} with a custom header parser.
+     * Create a {@link SolidAuthenticator} with an externally defined DPoP manager.
      *
+     * @param dpop a DPoP manager
+     */
+    public SolidAuthenticator(final DPoP dpop) {
+        this(dpop, new DefaultHeaderParser());
+    }
+
+    /**
+     * Create a {@link SolidAuthenticator} with an externally defined DPoP manager and a custom header parser.
+     *
+     * @param dpop a DPoP manager
      * @param parser a header parser
      */
-    public SolidAuthenticator(final HeaderParser parser) {
+    public SolidAuthenticator(final DPoP dpop, final HeaderParser parser) {
         this.parser = Objects.requireNonNull(parser);
+        this.dpop = Objects.requireNonNull(dpop);
+    }
+
+    /**
+     * Generate a DPoP proof for an HTTP request.
+     *
+     * @param algorithm the algorithm to use
+     * @param uri the HTTP URI
+     * @param method the HTTP method
+     * @return the DPoP proof
+     */
+    public String generateProof(final String algorithm, final URI uri, final String method) {
+        return dpop.generateProof(algorithm, uri, method);
     }
 
     /**
@@ -68,17 +94,31 @@ public class SolidAuthenticator {
     /**
      * Parse a WWW-Authenticate header and convert the challenges into callable authentication mechanisms.
      *
-     * @param header the WWW-Authenticate header
+     * @param headers the WWW-Authenticate headers to be evaluated
      * @return a sorted list of viable authentication mechanisms
      */
-    public List<SolidAuthenticationMechanism.Authenticator> challenge(final String header) {
-        final var challenges = parser.wwwAuthenticate(header);
+    public List<SolidAuthenticationMechanism.Authenticator> challenge(final String... headers) {
+        return challenge(List.of(headers));
+    }
+
+    /**
+     * Parse a collection of WWW-Authenticate headers and convert the challenges into callable
+     * authentication mechanisms.
+     *
+     * @param headers the WWW-Authenticate headers to be evaluated
+     * @return a sorted list of viable authentication mechanisms
+     */
+    public List<SolidAuthenticationMechanism.Authenticator> challenge(final Collection<String> headers) {
 
         final var mechanisms = new ArrayList<SolidAuthenticationMechanism.Authenticator>();
-        for (final var challenge : challenges) {
-            final var scheme = challenge.getScheme().toLowerCase(Locale.ENGLISH);
-            if (registry.containsKey(scheme)) {
-                mechanisms.add(registry.get(scheme).getAuthenticator(challenge));
+
+        for (final var header : headers) {
+            final var challenges = parser.wwwAuthenticate(header);
+            for (final var challenge : challenges) {
+                final var scheme = challenge.getScheme().toLowerCase(Locale.ENGLISH);
+                if (registry.containsKey(scheme)) {
+                    mechanisms.add(registry.get(scheme).getAuthenticator(challenge));
+                }
             }
         }
 

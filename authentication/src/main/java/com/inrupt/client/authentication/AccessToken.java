@@ -22,6 +22,7 @@ package com.inrupt.client.authentication;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface AccessToken {
 
@@ -32,4 +33,6 @@ public interface AccessToken {
     String getToken();
 
     String getScheme();
+
+    Optional<String> getProofAlgorithm();
 }

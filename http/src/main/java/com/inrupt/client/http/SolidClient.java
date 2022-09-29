@@ -20,19 +20,27 @@
  */
 package com.inrupt.client.http;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Expiry;
+import com.inrupt.client.authentication.AccessToken;
 import com.inrupt.client.authentication.SolidAuthenticator;
 
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.ProxySelector;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
@@ -49,6 +57,7 @@ public class SolidClient extends HttpClient {
 
     private final HttpClient client;
     private final SolidAuthenticator solidAuthenticator;
+    private final Cache<URI, AccessToken> tokenCache;
 
     /**
      * Create a new SolidClient.
@@ -57,8 +66,14 @@ public class SolidClient extends HttpClient {
      * @param authenticator the Solid authenticator
      */
     protected SolidClient(final HttpClient client, final SolidAuthenticator authenticator) {
-        this.client = client;
-        this.solidAuthenticator = authenticator;
+        this.client = Objects.requireNonNull(client);
+        this.solidAuthenticator = Objects.requireNonNull(authenticator);
+        this.tokenCache = Caffeine.newBuilder()
+            .expireAfter(new AccessTokenExpiry())
+            // TODO -- make these values configurable
+            .maximumSize(10000)
+            //.expireAfterWrite(Duration.ofMinutes(60))
+            .build();
     }
 
     @Override
@@ -109,12 +124,75 @@ public class SolidClient extends HttpClient {
     @Override
     public <T> HttpResponse<T> send(final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler)
             throws IOException, InterruptedException {
-        final var res = client.send(request, responseBodyHandler);
-        if (res.statusCode() == UNAUTHORIZED) {
-            // TODO -- make use of the authenticator
+        // if there is already an auth header, just pass the request directly through
+        if (request.headers().firstValue("Authorization").isPresent()) {
+            return client.send(request, responseBodyHandler);
+        }
 
+        // Check the internal token cache, using that if available
+        final var cachedToken = tokenCache.getIfPresent(request.uri());
+        if (cachedToken != null) {
+            return client.send(upgradeRequest(request, cachedToken), responseBodyHandler);
+        }
+
+        // First, send a downgraded request (no body)
+        final var res = client.send(downgradeRequest(request), responseBodyHandler);
+
+        if (res.statusCode() == UNAUTHORIZED) {
+            final var mechanisms = solidAuthenticator.challenge(res.headers().allValues("WWW-Authenticate"));
+            if (!mechanisms.isEmpty()) {
+                // Use the first mechanism
+                final var authenticator = mechanisms.get(0);
+                final var token = authenticator.authenticate();
+                tokenCache.put(request.uri(), token);
+                return client.send(upgradeRequest(request, token), responseBodyHandler);
+            }
         }
         return res;
+    }
+
+
+    HttpRequest downgradeRequest(final HttpRequest request) {
+        final var builder = HttpRequest.newBuilder()
+            .uri(request.uri())
+            .expectContinue(request.expectContinue())
+            .method(request.method(), HttpRequest.BodyPublishers.noBody());
+
+        request.version().ifPresent(builder::version);
+        request.timeout().ifPresent(builder::timeout);
+        request.headers().map().forEach((name, values) -> {
+            for (var value : values) {
+                builder.header(name, value);
+            }
+        });
+
+        return builder.build();
+    }
+
+    HttpRequest upgradeRequest(final HttpRequest request, final AccessToken token) {
+        final var builder = HttpRequest.newBuilder()
+            .uri(request.uri())
+            .expectContinue(request.expectContinue())
+            .method(request.method(), request.bodyPublisher().orElseGet(HttpRequest.BodyPublishers::noBody));
+
+        request.version().ifPresent(builder::version);
+        request.timeout().ifPresent(builder::timeout);
+        request.headers().map().forEach((name, values) -> {
+            for (var value : values) {
+                builder.header(name, value);
+            }
+        });
+
+        // Use setHeader to overwrite any possible existing authorization header
+        builder.setHeader("Authorization", String.join(" ", token.getScheme(), token.getToken()));
+        token.getProofAlgorithm().ifPresent(algorithm -> {
+            if ("DPoP".equalsIgnoreCase(token.getScheme())) {
+                builder.setHeader("DPoP",
+                        solidAuthenticator.generateProof(algorithm, request.uri(), request.method()));
+            }
+        });
+
+        return builder.build();
     }
 
     @Override
@@ -200,6 +278,26 @@ public class SolidClient extends HttpClient {
 
         private Builder() {
             // Prevent instantiation
+        }
+    }
+
+    static class AccessTokenExpiry implements Expiry<URI, AccessToken> {
+        @Override
+        public long expireAfterCreate(final URI key, final AccessToken value, final long currentTime) {
+            final var expiration = value.getExpiration().minusMillis(Instant.now().toEpochMilli()).getEpochSecond();
+            return TimeUnit.SECONDS.toNanos(expiration);
+        }
+
+        @Override
+        public long expireAfterRead(final URI key, final AccessToken value, final long currentTime,
+                final long currentDuration) {
+            return currentDuration;
+        }
+
+        @Override
+        public long expireAfterUpdate(final URI key, final AccessToken value, final long currentTime,
+                final long currentDuration) {
+            return currentDuration;
         }
     }
 }

@@ -20,15 +20,15 @@
  */
 package com.inrupt.client.authentication;
 
-import com.inrupt.client.uma.TokenRequest;
-import com.inrupt.client.uma.TokenResponse;
-import com.inrupt.client.uma.UmaClient;
+import com.inrupt.client.uma.*;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -47,9 +47,9 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
     private static final String AS_URI = "as_uri";
     private static final String TICKET = "ticket";
 
-    private String token;
     private final int priorityLevel;
     private final UmaClient umaClient;
+    private final NeedInfoHandler claimHandler;
 
     /**
      * Create a {@link UmaAuthenticationMechanism} with a defined priority.
@@ -68,7 +68,9 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
      */
     public UmaAuthenticationMechanism(final int priority, final UmaClient umaClient) {
         this.priorityLevel = priority;
-        this.umaClient = umaClient;
+        this.umaClient = Objects.requireNonNull(umaClient);
+        // TODO add specific handlers for VC and OpenId
+        this.claimHandler = new NeedInfoHandler();
     }
 
     @Override
@@ -79,7 +81,7 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
     @Override
     public SolidAuthenticationMechanism.Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
-        return new UmaAuthenticator(umaClient, challenge, priorityLevel);
+        return new UmaAuthenticator(umaClient, claimHandler, challenge, priorityLevel);
     }
 
     static void validate(final Challenge challenge) {
@@ -99,17 +101,25 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
         private final UmaClient umaClient;
         private final Challenge challenge;
         private final int priorityLevel;
+        private final NeedInfoHandler claimHandler;
 
         /**
          * The UmaAuthenticator with a defined challenge and priority.
          *
+         * @param umaClient the UMA client
          * @param challenge the resource server challenge
          * @param priority the priority of this authentication mechanism
          */
-        protected UmaAuthenticator(final UmaClient umaClient, final Challenge challenge, final int priority) {
+        protected UmaAuthenticator(final UmaClient umaClient, final NeedInfoHandler claimHandler,
+                final Challenge challenge, final int priority) {
             this.priorityLevel = priority;
             this.umaClient = umaClient;
             this.challenge = challenge;
+            this.claimHandler = claimHandler;
+        }
+
+        public void addHandler(final ClaimGatheringHandler handler) {
+            claimHandler.addHandler(Objects.requireNonNull(handler));
         }
 
         @Override
@@ -126,15 +136,14 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
         public AccessToken authenticate() {
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
-            // TODO populate scopes
-            final List<String> requestScopes = Collections.emptyList();
 
             final var metadata = umaClient.metadata(as);
-            final var request = new TokenRequest(ticket, null, null, null, requestScopes);
-            // TODO implement the mapping function
-            final var token = umaClient.token(metadata.tokenEndpoint, request, needInfo -> null);
-            return new UmaAccessToken(token.accessToken, token.tokenType,
-                    Instant.now().plusSeconds(token.expiresIn), getScopes(token));
+            final var request = new TokenRequest(ticket, null, null, null, Collections.emptyList());
+            // TODO add the dpop algorithm
+            final String proofAlgorithm = null;
+            final var token = umaClient.token(metadata.tokenEndpoint, request, claimHandler::sync);
+            return new UmaAccessToken(token.accessToken, token.tokenType, Instant.now().plusSeconds(token.expiresIn),
+                    getScopes(token), proofAlgorithm);
         }
 
         @Override
@@ -142,16 +151,50 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
 
-            // TODO populate scopes
-            final List<String> requestScopes = Collections.emptyList();
-            final var request = new TokenRequest(ticket, null, null, null, requestScopes);
+            final var request = new TokenRequest(ticket, null, null, null, Collections.emptyList());
+            // TODO add the dpop algorithm
+            final String proofAlgorithm = null;
 
             return umaClient.metadataAsync(as)
-                // TODO implement the mapping function
-                .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, request, needInfo ->
-                            CompletableFuture.completedFuture(null)))
+                .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, request,
+                            claimHandler::async))
                 .thenApply(token -> new UmaAccessToken(token.accessToken, token.tokenType,
-                            Instant.now().plusSeconds(token.expiresIn), getScopes(token)));
+                            Instant.now().plusSeconds(token.expiresIn), getScopes(token), proofAlgorithm));
+        }
+    }
+
+    static class NeedInfoHandler {
+
+        private final List<ClaimGatheringHandler> handlers = new ArrayList<>();
+
+        public NeedInfoHandler(final ClaimGatheringHandler... handlers) {
+            this.handlers.addAll(List.of(handlers));
+        }
+
+        public void addHandler(final ClaimGatheringHandler handler) {
+            this.handlers.add(handler);
+        }
+
+        public ClaimToken sync(final NeedInfo needInfo) {
+            for (final var requiredClaims : needInfo.getRequiredClaims()) {
+                for (final var handler : handlers) {
+                    if (handler.isCompatibleWith(requiredClaims)) {
+                        return handler.gather();
+                    }
+                }
+            }
+            return null;
+        }
+
+        public CompletionStage<ClaimToken> async(final NeedInfo needInfo) {
+            for (final var requiredClaims : needInfo.getRequiredClaims()) {
+                for (final var handler : handlers) {
+                    if (handler.isCompatibleWith(requiredClaims)) {
+                        return handler.gatherAsync();
+                    }
+                }
+            }
+            return CompletableFuture.completedFuture(null);
         }
     }
 
@@ -167,29 +210,40 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
         private final List<String> scopes;
         private final String token;
         private final String type;
+        private final String algorithm;
 
         protected UmaAccessToken(final String token, final String type, final Instant expiration,
-                final List<String> scopes) {
+                final List<String> scopes, final String algorithm) {
             this.token = Objects.requireNonNull(token);
             this.type = Objects.requireNonNull(type);
             this.expiration = Objects.requireNonNull(expiration);
             this.scopes = Objects.requireNonNull(scopes);
+            this.algorithm = algorithm;
         }
 
+        @Override
         public String getScheme() {
             return type;
         }
 
+        @Override
         public String getToken() {
             return token;
         }
 
+        @Override
         public Instant getExpiration() {
             return expiration;
         }
 
+        @Override
         public List<String> getScopes() {
             return scopes;
+        }
+
+        @Override
+        public Optional<String> getProofAlgorithm() {
+            return Optional.ofNullable(algorithm);
         }
     }
 }
