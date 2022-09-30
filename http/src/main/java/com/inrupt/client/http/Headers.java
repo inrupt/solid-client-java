@@ -24,10 +24,23 @@ import java.util.List;
 
 public final class Headers {
 
+    /** 
+     * Create a list of links based on a given header.
+     * 
+     * @param headers the values of the headers to be parsed
+     * @return arrayList of links from header
+     */
     public static List<Link> link(final String... headers) {
         return link(new HeaderParser(), headers);
     }
 
+    /** 
+     * Create a list of links based on a given header.
+     * 
+     * @param parser
+     * @param headers the values of the headers to be parsed
+     * @return arrayList of links from header
+     */
     public static List<Link> link(final HeaderParser parser, final String... headers) {
         return parser.parseLinkHeaders(headers);
     }

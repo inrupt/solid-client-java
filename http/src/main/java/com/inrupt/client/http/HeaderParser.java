@@ -44,9 +44,9 @@ public class HeaderParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Headers.class);
 
-    private static int PAIR = 2;
-    private static String DQUOTE = "\"";
-    private static String EQUALS = "=";
+    private static final int PAIR = 2;
+    private static final String DQUOTE = "\"";
+    private static final String EQUALS = "=";
 
     private final ANTLRErrorListener errorListener;
 
@@ -74,7 +74,7 @@ public class HeaderParser {
      */
     public List<Link> parseLinkHeaders(final String... headers) {
         final var links = new ArrayList<Link>();
-        for (final var header : headers ) {
+        for (final var header : headers) {
             links.addAll(parseLinkHeader(header));
         }
         return links;
@@ -113,10 +113,9 @@ public class HeaderParser {
     /**
      * An Antlr listener for use with walking over the parsed syntax tree of a Link header.
      */
-    public static class LinkListener extends LinkBaseListener {
+    static class LinkListener extends LinkBaseListener {
 
         private final List<Link> links = new ArrayList<>();
-        private final HashMap<String, String> linkParams = new HashMap<String, String>();
 
         /**
          * Get the list of Challenge objects from the parsed header.

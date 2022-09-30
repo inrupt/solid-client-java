@@ -40,9 +40,11 @@ class HeadersTest {
         final var header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
         final var linkValues = Headers.link(header);
 
-        assertEquals(List.of(
-                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"), Map.of(
-                            "rel", "preconnect"))), linkValues);
+        final var expected = List.of(
+                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"), 
+                    Map.of("rel", "preconnect")));
+
+        assertEquals(expected, linkValues);
     }
 
     @ParameterizedTest
@@ -177,6 +179,8 @@ class HeadersTest {
 
     private static Stream<Arguments> parseNonHttpUris() {
         return Stream.of(
+                Arguments.of("<urn:example:6e8bc430-9c3a-11d9>",
+                    List.of(Link.of(URI.create("urn:example:6e8bc430-9c3a-11d9"), Collections.emptyMap()))),
                 Arguments.of("<did:web:resource.example/path>",
                     List.of(Link.of(URI.create("did:web:resource.example/path"), Collections.emptyMap()))),
                 Arguments.of("<file:/path/to/file>",
@@ -211,39 +215,27 @@ class HeadersTest {
 
     @ParameterizedTest
     @MethodSource
-    void parseInvalidLinkHeader(final String header, final List<Link> expected) {
+    void parseInvalidLinkHeader(final String header) {
         final var linkValues = Headers.link(header);
-        assertEquals(expected, linkValues, "Unexpected handling of invalid link header");
+        final var empty = Collections.emptyList();
+        assertEquals(empty, linkValues, "Unexpected handling of invalid link header");
     }
 
 
-    private static Stream<Arguments> parseInvalidLinkHeader() {
+    private static Stream<String> parseInvalidLinkHeader() {
         return Stream.of(
-                Arguments.of("https://bad.example",
-                    Collections.emptyList()),
-                Arguments.of("rel=\"missingUri\"; type=\"text\"",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/{}>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/^>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/`>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/|>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/\t>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/     >",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com />",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/<>/test>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/>/test>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/>/test/>/test>",
-                    Collections.emptyList()),
-                Arguments.of("<https://example.com/>/test/>/test",
-                    Collections.emptyList()));
+                "https://bad.example",
+                "rel=\"missingUri\"; type=\"text\"",
+                "<https://example.com/{}>",
+                "<https://example.com/^>",
+                "<https://example.com/`>",
+                "<https://example.com/|>",
+                "<https://example.com/\t>",
+                "<https://example.com/     >",
+                "<https://example.com />",
+                "<https://example.com/<>/test>",
+                "<https://example.com/>/test>",
+                "<https://example.com/>/test/>/test>",
+                "<https://example.com/>/test/>/test");
     }
 }

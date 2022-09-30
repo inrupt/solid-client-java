@@ -22,6 +22,7 @@ package com.inrupt.client.http;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,11 +42,6 @@ public final class Link {
         this.parameters = Objects.requireNonNull(parameters);
     }
 
-    /**
-     * Get the URI-Reference for this Link.
-     *
-     * @return the scheme name
-     */
     public URI getUri() {
         return uri;
     }
@@ -95,12 +91,12 @@ public final class Link {
             return false;
         }
 
-        return Objects.equals(parameters, c.parameters);
+        return Objects.equals(new HashMap<>(parameters), new HashMap<>(c.parameters));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getUri(), parameters);
+        return Objects.hash(this.getUri(), new HashMap<>(parameters));
     }
 
     /**
