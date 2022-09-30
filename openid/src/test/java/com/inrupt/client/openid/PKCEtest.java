@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.openid;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ class PKCEtest {
         assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length >= 43);
         assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length <= 128);
         assertThrows(NullPointerException.class,() -> PKCE.createChallenge(null));
-        
+
     }
 
     @Test
