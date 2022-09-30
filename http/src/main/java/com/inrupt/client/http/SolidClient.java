@@ -70,9 +70,8 @@ public class SolidClient extends HttpClient {
         this.solidAuthenticator = Objects.requireNonNull(authenticator);
         this.tokenCache = Caffeine.newBuilder()
             .expireAfter(new AccessTokenExpiry())
-            // TODO -- make these values configurable
+            // TODO -- make this value configurable
             .maximumSize(10000)
-            //.expireAfterWrite(Duration.ofMinutes(60))
             .build();
     }
 
@@ -124,33 +123,47 @@ public class SolidClient extends HttpClient {
     @Override
     public <T> HttpResponse<T> send(final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler)
             throws IOException, InterruptedException {
+        return sendAsync(request, responseBodyHandler).join();
+    }
+
+    @Override
+    public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
+            final HttpResponse.BodyHandler<T> responseBodyHandler) {
+        return sendAsync(request, responseBodyHandler, null);
+    }
+
+    @Override
+    public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
+            final HttpResponse.BodyHandler<T> responseBodyHandler,
+            final HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
         // if there is already an auth header, just pass the request directly through
         if (request.headers().firstValue("Authorization").isPresent()) {
-            return client.send(request, responseBodyHandler);
+            return client.sendAsync(request, responseBodyHandler, pushPromiseHandler);
         }
 
         // Check the internal token cache, using that if available
         final var cachedToken = tokenCache.getIfPresent(request.uri());
         if (cachedToken != null) {
-            return client.send(upgradeRequest(request, cachedToken), responseBodyHandler);
+            return client.sendAsync(upgradeRequest(request, cachedToken), responseBodyHandler, pushPromiseHandler);
         }
 
         // First, send a downgraded request (no body)
-        final var res = client.send(downgradeRequest(request), responseBodyHandler);
-
-        if (res.statusCode() == UNAUTHORIZED) {
-            final var mechanisms = solidAuthenticator.challenge(res.headers().allValues("WWW-Authenticate"));
-            if (!mechanisms.isEmpty()) {
-                // Use the first mechanism
-                final var authenticator = mechanisms.get(0);
-                final var token = authenticator.authenticate();
-                tokenCache.put(request.uri(), token);
-                return client.send(upgradeRequest(request, token), responseBodyHandler);
-            }
-        }
-        return res;
+        return client.sendAsync(downgradeRequest(request), responseBodyHandler, pushPromiseHandler)
+            .thenCompose(res -> {
+                if (res.statusCode() == UNAUTHORIZED) {
+                    final var mechanisms = solidAuthenticator.challenge(res.headers().allValues("WWW-Authenticate"));
+                    if (!mechanisms.isEmpty()) {
+                        // Use the first mechanism
+                        final var authenticator = mechanisms.get(0);
+                        final var token = authenticator.authenticate();
+                        tokenCache.put(request.uri(), token);
+                        return client.sendAsync(upgradeRequest(request, token), responseBodyHandler,
+                                pushPromiseHandler);
+                    }
+                }
+                return CompletableFuture.completedFuture(res);
+            });
     }
-
 
     HttpRequest downgradeRequest(final HttpRequest request) {
         final var builder = HttpRequest.newBuilder()
@@ -184,41 +197,15 @@ public class SolidClient extends HttpClient {
         });
 
         // Use setHeader to overwrite any possible existing authorization header
-        builder.setHeader("Authorization", String.join(" ", token.getScheme(), token.getToken()));
+        builder.setHeader("Authorization", String.join(" ", token.getType(), token.getToken()));
         token.getProofAlgorithm().ifPresent(algorithm -> {
-            if ("DPoP".equalsIgnoreCase(token.getScheme())) {
+            if ("DPoP".equalsIgnoreCase(token.getType())) {
                 builder.setHeader("DPoP",
                         solidAuthenticator.generateProof(algorithm, request.uri(), request.method()));
             }
         });
 
         return builder.build();
-    }
-
-    @Override
-    public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
-            final HttpResponse.BodyHandler<T> responseBodyHandler) {
-        return client.sendAsync(request, responseBodyHandler)
-            .thenCompose(res -> {
-                if (res.statusCode() == UNAUTHORIZED) {
-                    // TODO -- make use of the authenticator
-                }
-                return CompletableFuture.completedFuture(res);
-            });
-    }
-
-    @Override
-    public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request,
-            final HttpResponse.BodyHandler<T> responseBodyHandler,
-            final HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
-        return client.sendAsync(request, responseBodyHandler, pushPromiseHandler)
-            .thenCompose(res -> {
-                if (res.statusCode() == UNAUTHORIZED) {
-                    // TODO -- make use of the authenticator
-
-                }
-                return CompletableFuture.completedFuture(res);
-            });
     }
 
     /**

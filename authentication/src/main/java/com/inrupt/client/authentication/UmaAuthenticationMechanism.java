@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -69,7 +68,7 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
     public UmaAuthenticationMechanism(final int priority, final UmaClient umaClient) {
         this.priorityLevel = priority;
         this.umaClient = Objects.requireNonNull(umaClient);
-        // TODO add specific handlers for VC and OpenId
+        // TODO add specific handlers for VC and OpenId once those modules are ready to be integrated
         this.claimHandler = new NeedInfoHandler();
     }
 
@@ -118,6 +117,11 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
             this.claimHandler = claimHandler;
         }
 
+        /**
+         * Add a claim gathering handler.
+         *
+         * @param handler the claim gathering handler
+         */
         public void addHandler(final ClaimGatheringHandler handler) {
             claimHandler.addHandler(Objects.requireNonNull(handler));
         }
@@ -142,7 +146,7 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
             // TODO add the dpop algorithm
             final String proofAlgorithm = null;
             final var token = umaClient.token(metadata.tokenEndpoint, request, claimHandler::sync);
-            return new UmaAccessToken(token.accessToken, token.tokenType, Instant.now().plusSeconds(token.expiresIn),
+            return new AccessToken(token.accessToken, token.tokenType, Instant.now().plusSeconds(token.expiresIn),
                     getScopes(token), proofAlgorithm);
         }
 
@@ -154,13 +158,19 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
             final var request = new TokenRequest(ticket, null, null, null, Collections.emptyList());
             // TODO add the dpop algorithm
             final String proofAlgorithm = null;
-
             return umaClient.metadataAsync(as)
                 .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, request,
                             claimHandler::async))
-                .thenApply(token -> new UmaAccessToken(token.accessToken, token.tokenType,
+                .thenApply(token -> new AccessToken(token.accessToken, token.tokenType,
                             Instant.now().plusSeconds(token.expiresIn), getScopes(token), proofAlgorithm));
         }
+    }
+
+    static List<String> getScopes(final TokenResponse token) {
+        if (token.scope != null) {
+            return List.of(token.scope.split(" "));
+        }
+        return Collections.emptyList();
     }
 
     static class NeedInfoHandler {
@@ -195,55 +205,6 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
                 }
             }
             return CompletableFuture.completedFuture(null);
-        }
-    }
-
-    static List<String> getScopes(final TokenResponse token) {
-        if (token.scope != null) {
-            return List.of(token.scope.split(" "));
-        }
-        return Collections.emptyList();
-    }
-
-    public class UmaAccessToken implements AccessToken {
-        private final Instant expiration;
-        private final List<String> scopes;
-        private final String token;
-        private final String type;
-        private final String algorithm;
-
-        protected UmaAccessToken(final String token, final String type, final Instant expiration,
-                final List<String> scopes, final String algorithm) {
-            this.token = Objects.requireNonNull(token);
-            this.type = Objects.requireNonNull(type);
-            this.expiration = Objects.requireNonNull(expiration);
-            this.scopes = Objects.requireNonNull(scopes);
-            this.algorithm = algorithm;
-        }
-
-        @Override
-        public String getScheme() {
-            return type;
-        }
-
-        @Override
-        public String getToken() {
-            return token;
-        }
-
-        @Override
-        public Instant getExpiration() {
-            return expiration;
-        }
-
-        @Override
-        public List<String> getScopes() {
-            return scopes;
-        }
-
-        @Override
-        public Optional<String> getProofAlgorithm() {
-            return Optional.ofNullable(algorithm);
         }
     }
 }

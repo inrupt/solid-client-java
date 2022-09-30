@@ -22,17 +22,83 @@ package com.inrupt.client.authentication;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-public interface AccessToken {
+/**
+ * A class containing information about an OAuth 2.0 access token.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc6749#section-1.4">OAuth 2.0 Authorization Framework.
+ * Section 1.4: Access Token</a>
+ */
+public class AccessToken {
 
-    List<String> getScopes();
+    private final Instant expiration;
+    private final List<String> scopes;
+    private final String token;
+    private final String type;
+    private final String algorithm;
 
-    Instant getExpiration();
+    /**
+     * Create a new {@link AccessToken}.
+     *
+     * @param token the access token value
+     * @param type the access token type, e.g. Bearer or DPoP
+     * @param expiration the access token expiration
+     * @param scopes a list of scopes for this access token
+     * @param algorithm the proofing algorithm used for this access token, may be {@code null}
+     */
+    public AccessToken(final String token, final String type, final Instant expiration,
+                final List<String> scopes, final String algorithm) {
+        this.token = Objects.requireNonNull(token);
+        this.type = Objects.requireNonNull(type);
+        this.expiration = Objects.requireNonNull(expiration);
+        this.scopes = Objects.requireNonNull(scopes);
+        this.algorithm = algorithm;
+    }
 
-    String getToken();
+    /**
+     * Retrieve a list of scopes for this token.
+     *
+     * @return the scopes
+     */
+    public List<String> getScopes() {
+        return scopes;
+    }
 
-    String getScheme();
+    /**
+     * Retrieve the expriation time for this token.
+     *
+     * @return the expiration time
+     */
+    public Instant getExpiration() {
+        return expiration;
+    }
 
-    Optional<String> getProofAlgorithm();
+    /**
+     * Retrieve the token value.
+     *
+     * @return the token value
+     */
+    public String getToken() {
+        return token;
+    }
+
+    /**
+     * Retrieve the token type (e.g., Bearer or DPoP).
+     *
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Retrieve the proofing algorithm, if present.
+     *
+     * @return the proofing algorithm
+     */
+    public Optional<String> getProofAlgorithm() {
+        return Optional.ofNullable(algorithm);
+    }
 }

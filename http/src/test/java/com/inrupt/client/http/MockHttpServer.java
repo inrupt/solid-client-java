@@ -61,8 +61,14 @@ class MockHttpServer {
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
                     .withHeader("Content-Type", containing("text/turtle"))
+                    .withHeader("Authorization", containing("Bearer "))
                     .willReturn(aResponse()
-                        .withStatus(204)));
+                        .withStatus(201)));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
