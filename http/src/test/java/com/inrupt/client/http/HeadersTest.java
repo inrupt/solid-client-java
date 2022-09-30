@@ -41,7 +41,7 @@ class HeadersTest {
         final var linkValues = Headers.link(header);
 
         final var expected = List.of(
-                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"), 
+                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
                     Map.of("rel", "preconnect")));
 
         assertEquals(expected, linkValues);
