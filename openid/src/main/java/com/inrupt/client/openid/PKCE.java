@@ -48,7 +48,7 @@ public final class PKCE {
     static String createChallenge(final String verifier) {
         try {
             final var digest = MessageDigest.getInstance("SHA-256");
-            return Base64.getUrlEncoder().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
         } catch (final NoSuchAlgorithmException ex) {
             throw new AuthenticationException("Error generating PKCE challenge", ex);
         }
@@ -61,7 +61,7 @@ public final class PKCE {
      */
     static String createVerifier() {
         final var rand = new BigInteger(32 * 8, new SecureRandom()).toByteArray();
-        return Base64.getUrlEncoder().encodeToString(rand);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(rand);
     }
 
     private PKCE() {
