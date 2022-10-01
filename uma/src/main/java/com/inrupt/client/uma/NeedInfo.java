@@ -31,6 +31,8 @@ import java.util.Optional;
  */
 public final class NeedInfo {
 
+    private static final String NEED_INFO = "need_info";
+
     private final String ticket;
     private final URI redirectUser;
     private final List<RequiredClaims> requiredClaims;
@@ -75,7 +77,7 @@ public final class NeedInfo {
      * @return the optional {@code need_info} data
      */
     public static Optional<NeedInfo> ofErrorResponse(final ErrorResponse error) {
-        if ("need_info".equals(error.error) && error.ticket != null) {
+        if (NEED_INFO.equals(error.error) && error.ticket != null) {
             final var requiredClaims = new ArrayList<RequiredClaims>();
             if (error.requiredClaims != null) {
                 for (var item : error.requiredClaims) {
@@ -86,5 +88,4 @@ public final class NeedInfo {
         }
         return Optional.empty();
     }
-
 }
