@@ -43,9 +43,9 @@ public class DefaultHeaderParser implements HeaderParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHeaderParser.class);
 
-    private static int PAIR = 2;
-    private static String DQUOTE = "\"";
-    private static String EQUALS = "=";
+    private static final int PAIR = 2;
+    private static final String DQUOTE = "\"";
+    private static final String EQUALS = "=";
 
     private final ANTLRErrorListener errorListener;
 
