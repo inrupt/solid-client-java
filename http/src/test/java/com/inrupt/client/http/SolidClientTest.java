@@ -23,6 +23,7 @@ package com.inrupt.client.http;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.authentication.SolidAuthenticator;
+import com.inrupt.client.authentication.UmaAuthenticationMechanism;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
 
@@ -51,8 +52,9 @@ import org.junit.jupiter.api.Test;
 
 class SolidClientTest {
 
+    private static final SolidAuthenticator authenticator = new SolidAuthenticator();
     private static final SolidClient client = SolidClient.Builder.newBuilder()
-        .authenticator(new SolidAuthenticator())
+        .authenticator(authenticator)
         .build();
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
@@ -62,6 +64,7 @@ class SolidClientTest {
     @BeforeAll
     static void setup() {
         config.putAll(mockHttpServer.start());
+        authenticator.register(new UmaAuthenticationMechanism(10));
     }
 
     @AfterAll
@@ -135,6 +138,26 @@ class SolidClientTest {
     }
 
     @Test
+    void testSendOfModelProtectedResource() throws IOException, InterruptedException {
+
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(config.get("http_uri") + "/protected/resource"))
+                .header("Accept", "text/turtle")
+                .GET()
+                .build();
+
+        final var response = client.send(request, JenaBodyHandlers.ofModel());
+        assertEquals(200, response.statusCode());
+
+        final var responseBody = response.body();
+        assertEquals(7, responseBody.size());
+        assertTrue(responseBody.contains(
+            ResourceFactory.createResource("http://example.test/me"),
+            null)
+        );
+    }
+
+    @Test
     void testSendOfModel() throws IOException, InterruptedException {
 
         final HttpRequest request = HttpRequest.newBuilder()
@@ -152,7 +175,6 @@ class SolidClientTest {
             ResourceFactory.createResource("http://example.test/me"),
             null)
         );
-
     }
 
     @Test
@@ -238,7 +260,8 @@ class SolidClientTest {
         final var response = client.sendAsync(request, HttpResponse.BodyHandlers.discarding()).join();
 
         assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("Bearer"), response.headers().firstValue("WWW-Authenticate"));
+        assertEquals(Optional.of("UMA ticket=\"ticket-12345\", as_uri=\"" + config.get("http_uri") + "\""),
+                response.headers().firstValue("WWW-Authenticate"));
     }
 
     @Test

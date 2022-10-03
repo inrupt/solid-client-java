@@ -45,6 +45,9 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * An HTTP client for interacting with Solid Resources.
  *
@@ -54,6 +57,7 @@ import javax.net.ssl.SSLParameters;
 public class SolidClient extends HttpClient {
 
     private static final int UNAUTHORIZED = 401;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolidClient.class);
 
     private final HttpClient client;
     private final SolidAuthenticator solidAuthenticator;
@@ -138,12 +142,14 @@ public class SolidClient extends HttpClient {
             final HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
         // if there is already an auth header, just pass the request directly through
         if (request.headers().firstValue("Authorization").isPresent()) {
+            LOGGER.debug("Sending user-supplied authorization, skipping Solid authorization handling");
             return client.sendAsync(request, responseBodyHandler, pushPromiseHandler);
         }
 
         // Check the internal token cache, using that if available
         final var cachedToken = tokenCache.getIfPresent(request.uri());
         if (cachedToken != null) {
+            LOGGER.debug("Using cached access token for request URI: {}", request.uri());
             return client.sendAsync(upgradeRequest(request, cachedToken), responseBodyHandler, pushPromiseHandler);
         }
 
@@ -155,6 +161,7 @@ public class SolidClient extends HttpClient {
                     if (!mechanisms.isEmpty()) {
                         // Use the first mechanism
                         final var authenticator = mechanisms.get(0);
+                        LOGGER.debug("Using authenticator with {} scheme", authenticator.getScheme());
                         final var token = authenticator.authenticate();
                         tokenCache.put(request.uri(), token);
                         return client.sendAsync(upgradeRequest(request, token), responseBodyHandler,

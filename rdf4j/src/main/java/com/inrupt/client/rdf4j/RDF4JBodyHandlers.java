@@ -25,7 +25,6 @@ import java.net.http.HttpResponse;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.Rio;
 
 /**
@@ -39,11 +38,8 @@ public final class RDF4JBodyHandlers {
      * @return an HTTP body handler
      */
     public static HttpResponse.BodyHandler<Model> ofModel() {
-        return responseInfo -> {
-            final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
-                    () -> new RDFHandlerException("Missing content-type header from response"));
-            return RDF4JBodySubscribers.ofModel(toRDF4JFormat(format));
-        };
+        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+            .map(RDF4JBodyHandlers::toRDF4JFormat).map(RDF4JBodySubscribers::ofModel).orElse(null);
     }
 
     /**
@@ -52,11 +48,8 @@ public final class RDF4JBodyHandlers {
      * @return an HTTP body handler
      */
     public static HttpResponse.BodyHandler<Repository> ofRepository() {
-        return responseInfo -> {
-            final var format = responseInfo.headers().firstValue("Content-Type").orElseThrow(
-                    () -> new RDFHandlerException("Missing content-type header from response"));
-            return RDF4JBodySubscribers.ofRepository(toRDF4JFormat(format));
-        };
+        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+            .map(RDF4JBodyHandlers::toRDF4JFormat).map(RDF4JBodySubscribers::ofRepository).orElse(null);
     }
 
     static RDFFormat toRDF4JFormat(final String mediaType) {

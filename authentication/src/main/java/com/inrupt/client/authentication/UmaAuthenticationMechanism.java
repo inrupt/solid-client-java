@@ -138,16 +138,7 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
 
         @Override
         public AccessToken authenticate() {
-            final URI as = URI.create(challenge.getParameter(AS_URI));
-            final String ticket = challenge.getParameter(TICKET);
-
-            final var metadata = umaClient.metadata(as);
-            final var request = new TokenRequest(ticket, null, null, null, Collections.emptyList());
-            // TODO add the dpop algorithm
-            final String proofAlgorithm = null;
-            final var token = umaClient.token(metadata.tokenEndpoint, request, claimHandler::sync);
-            return new AccessToken(token.accessToken, token.tokenType, Instant.now().plusSeconds(token.expiresIn),
-                    getScopes(token), proofAlgorithm);
+            return authenticateAsync().toCompletableFuture().join();
         }
 
         @Override
