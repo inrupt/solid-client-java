@@ -26,6 +26,7 @@ import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
@@ -65,7 +66,8 @@ public final class JenaBodyHandlers {
      */
     public static HttpResponse.BodyHandler<Dataset> ofDataset() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofDataset).orElse(null);
+            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofDataset)
+            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(DatasetFactory.create()));
     }
 
     static Lang toJenaLang(final String mediaType) {
