@@ -46,7 +46,6 @@ class DefaultHeaderParserTest {
                     new Challenge("DPoP", Map.of("algs", "ES256 RS256")));
 
         assertEquals(expected, challenges);
-
     }
 
     @Test
@@ -54,14 +53,13 @@ class DefaultHeaderParserTest {
         final var parser = new DefaultHeaderParser();
         final var header = "uma as_uri=\"https://example.test\", ticket=value, dpop algs=\"ES256 RS256\"";
         final var challenges = parser.wwwAuthenticate(header);
-
+        
         final var expected = List.of(
                     new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
                     new Challenge("DPoP", Map.of("algs", "ES256 RS256")));
 
 
         assertEquals(expected, challenges);
-
     }
 
     @Test
@@ -70,13 +68,11 @@ class DefaultHeaderParserTest {
         final var header = "UMA as_uri=\"https://example.test\", ticket=value, basic realm=\"protected\"";
         final var challenges = parser.wwwAuthenticate(header);
 
-
         final var expected = List.of(
                     new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
                     new Challenge("Basic", Map.of("realm", "protected")));
 
         assertEquals(expected, challenges);
-
     }
 
     @Test
@@ -91,7 +87,6 @@ class DefaultHeaderParserTest {
                     new Challenge("GNAP", Map.of("ticket", "1234567890")));
 
         assertEquals(expected, challenges);
-
     }
 
     @ParameterizedTest
@@ -99,7 +94,7 @@ class DefaultHeaderParserTest {
     void parseWwwAuthenticateParams(final String header, final List<Challenge> expected) {
         final var parser = new DefaultHeaderParser();
         final var challenges = parser.wwwAuthenticate(header);
-        assertEquals(challenges, expected);
+        assertEquals(expected, challenges);
     }
 
     private static Stream<Arguments> parseWwwAuthenticateParams() {
@@ -122,7 +117,7 @@ class DefaultHeaderParserTest {
     void parseWwwAuthenticateToken68(final String header, final List<Challenge> expected) {
         final var parser = new DefaultHeaderParser();
         final var challenges = parser.wwwAuthenticate(header);
-        assertEquals(challenges, expected);
+        assertEquals(expected, challenges);
     }
 
     private static Stream<Arguments> parseWwwAuthenticateToken68() {
@@ -138,7 +133,7 @@ class DefaultHeaderParserTest {
     void parseInvalidWwwAuthenticationHeader(final String header, final List<Challenge> expected) {
         final var parser = new DefaultHeaderParser();
         final var challenges = parser.wwwAuthenticate(header);
-        assertEquals(challenges, expected);
+        assertEquals(expected, challenges);
     }
 
     private static Stream<Arguments> parseInvalidWwwAuthenticationHeader() {
