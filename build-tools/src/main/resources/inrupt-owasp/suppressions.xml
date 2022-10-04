@@ -14,4 +14,11 @@
     <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
     <cve>CVE-2022-42003</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+        The client libraries are not vulnerable to this deserialization bug in Jackson
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+    <cve>CVE-2022-42004</cve>
+  </suppress>
 </suppressions>
