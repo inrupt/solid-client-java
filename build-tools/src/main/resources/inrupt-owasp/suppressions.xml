@@ -7,4 +7,11 @@
     <packageUrl regex="true">^pkg:maven/com\.inrupt/inrupt\-client\-openid@.*$</packageUrl>
     <cpe>cpe:/a:openid:openid</cpe>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+        The client libraries do not use Jackson with the UNWRAP_SINGLE_VALUE_ARRAYS feature enabled
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+    <cve>CVE-2022-42003</cve>
+  </suppress>
 </suppressions>
