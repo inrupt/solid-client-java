@@ -53,7 +53,7 @@ class DefaultHeaderParserTest {
         final var parser = new DefaultHeaderParser();
         final var header = "uma as_uri=\"https://example.test\", ticket=value, dpop algs=\"ES256 RS256\"";
         final var challenges = parser.wwwAuthenticate(header);
-        
+
         final var expected = List.of(
                     new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
                     new Challenge("DPoP", Map.of("algs", "ES256 RS256")));
