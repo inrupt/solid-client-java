@@ -40,12 +40,12 @@ class DefaultHeaderParserTest {
         final var header = "UMA as_uri=\"https://example.test\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"";
         final var challenges = parser.wwwAuthenticate(header);
 
-        assertEquals(List.of(
-                    new Challenge("UMA", Map.of(
-                            "as_uri", "https://example.test",
-                            "ticket", "value")),
+        final var expected = List.of(
+                    new Challenge("UMA", Map.of( "as_uri", "https://example.test","ticket", "value")),
                     new Challenge("Bearer"),
-                    new Challenge("DPoP", Map.of("algs", "ES256 RS256"))), challenges);
+                    new Challenge("DPoP", Map.of("algs", "ES256 RS256")));
+
+        assertEquals(expected, challenges);
     }
 
     @Test
@@ -54,11 +54,11 @@ class DefaultHeaderParserTest {
         final var header = "uma as_uri=\"https://example.test\", ticket=value, dpop algs=\"ES256 RS256\"";
         final var challenges = parser.wwwAuthenticate(header);
 
-        assertEquals(List.of(
-                    new Challenge("UMA", Map.of(
-                            "as_uri", "https://example.test",
-                            "ticket", "value")),
-                    new Challenge("DPoP", Map.of("algs", "ES256 RS256"))), challenges);
+        final var expected = List.of(
+                    new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
+                    new Challenge("DPoP", Map.of("algs", "ES256 RS256")));
+
+        assertEquals(expected, challenges);
     }
 
     @Test
@@ -67,11 +67,11 @@ class DefaultHeaderParserTest {
         final var header = "UMA as_uri=\"https://example.test\", ticket=value, basic realm=\"protected\"";
         final var challenges = parser.wwwAuthenticate(header);
 
-        assertEquals(List.of(
-                    new Challenge("UMA", Map.of(
-                            "as_uri", "https://example.test",
-                            "ticket", "value")),
-                    new Challenge("Basic", Map.of("realm", "protected"))), challenges);
+        final var expected = List.of(
+                    new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
+                    new Challenge("Basic", Map.of("realm", "protected")));
+
+        assertEquals(expected, challenges);
     }
 
     @Test
@@ -80,10 +80,12 @@ class DefaultHeaderParserTest {
         final var header = "Bearer, UMA as_uri=\"https://example.test\", GNAP ticket=1234567890";
         final var challenges = parser.wwwAuthenticate(header);
 
-        assertEquals(List.of(
+        final var expected = List.of(
                     new Challenge("Bearer"),
                     new Challenge("UMA", Map.of("as_uri", "https://example.test")),
-                    new Challenge("GNAP", Map.of("ticket", "1234567890"))), challenges);
+                    new Challenge("GNAP", Map.of("ticket", "1234567890")));
+
+        assertEquals(expected, challenges);
     }
 
     @ParameterizedTest
