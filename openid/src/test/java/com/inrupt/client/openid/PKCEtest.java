@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-class PKCEtest {
+class PKCETest {
 
     @Test
     void createChallengeTest() {
@@ -34,7 +34,7 @@ class PKCEtest {
         assertTrue(PKCE.createChallenge("🐶🐶🐶").getBytes(UTF_8).length <= 128);
         assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length >= 43);
         assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length <= 128);
-        assertThrows(NullPointerException.class,() -> PKCE.createChallenge(null));
+        assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null));
 
     }
 
