@@ -58,7 +58,6 @@ class DefaultHeaderParserTest {
                     new Challenge("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
                     new Challenge("DPoP", Map.of("algs", "ES256 RS256")));
 
-
         assertEquals(expected, challenges);
     }
 
