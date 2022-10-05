@@ -164,7 +164,7 @@ class OpenIdProviderTest {
     }
 
     @Test
-    void tokenNoClientSecreteTest() {
+    void tokenNoClientSecretTest() {
         final var tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
