@@ -202,7 +202,7 @@ class OpenIdProviderTest {
         final var tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
-            .clientSecret("myClientSecrete")
+            .clientSecret("myClientSecret")
             .authMethod("client_secret_post")
             .build(
                 "authorization_code",
