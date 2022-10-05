@@ -164,7 +164,7 @@ class OpenIdProviderTest {
     }
 
     @Test
-    void tokenNoClientSecreteTest() {
+    void tokenNoClientSecretTest() {
         final var tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
@@ -180,11 +180,11 @@ class OpenIdProviderTest {
     }
 
     @Test
-    void tokenWithClientSecreteBasicTest() {
+    void tokenWithClientSecretBasicTest() {
         final var tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
-            .clientSecret("myClientSecrete")
+            .clientSecret("myClientSecret")
             .authMethod("client_secret_basic")
             .build(
                 "authorization_code",
@@ -202,7 +202,7 @@ class OpenIdProviderTest {
         final var tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
-            .clientSecret("myClientSecrete")
+            .clientSecret("myClientSecret")
             .authMethod("client_secret_post")
             .build(
                 "authorization_code",
