@@ -180,7 +180,7 @@ class OpenIdProviderTest {
     }
 
     @Test
-    void tokenWithClientSecreteBasicTest() {
+    void tokenWithClientSecretBasicTest() {
         final var tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
