@@ -24,6 +24,7 @@ import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.spi.VerifiableCredential;
 
 import java.io.IOException;
 import java.net.URI;

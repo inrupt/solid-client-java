@@ -18,15 +18,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.vc;
+package com.inrupt.client.spi;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 /**
- * A data object for a Verifiable Presentation.
+ * A data object for a Verifiable Credential.
  */
-public class VerifiablePresentation {
+public class VerifiableCredential {
 
     /**
      * The JSON-LD Context values.
@@ -34,28 +35,42 @@ public class VerifiablePresentation {
     public List<String> context;
 
     /**
-     * The presentation identifier.
+     * The credential identifier.
      */
     public String id;
 
     /**
-     * The presentation types.
+     * The credential types.
      */
     public List<String> type;
 
     /**
-     * The presentation holder.
+     * The credential issuer.
      */
-    public String holder;
+    public String issuer;
 
     /**
-     * A collection of credentials.
+     * The credential issuance date.
      */
-    public List<VerifiableCredential> verifiableCredential;
+    public Instant issuanceDate;
 
     /**
-     * The signature for the presentation.
+     * The credential expiration date.
+     */
+    public Instant expirationDate;
+
+    /**
+     * The credential subject.
+     */
+    public Map<String, Object> credentialSubject;
+
+    /**
+     * The credential status.
+     */
+    public Map<String, Object> credentialStatus;
+
+    /**
+     * The credential signature.
      */
     public Map<String, Object> proof;
 }
-
