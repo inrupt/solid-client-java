@@ -1,0 +1,9 @@
+{
+    "checks": [
+        "good1",
+        "good2"
+    ],
+    "warnings": [
+        "could not check did"
+    ]
+}

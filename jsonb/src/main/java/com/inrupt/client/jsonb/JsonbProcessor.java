@@ -25,6 +25,7 @@ import com.inrupt.client.spi.JsonProcessor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 
 import javax.json.JsonException;
 import javax.json.bind.Jsonb;
@@ -44,8 +45,10 @@ public class JsonbProcessor implements JsonProcessor {
      * Create a JSON-B processor.
      */
     public JsonbProcessor() {
-        final var config = new JsonbConfig()
-            .withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);
+        final JsonbConfig config = new JsonbConfig();
+        config.withAdapters(new VCAdapter());
+        config.withAdapters(new VPAdapter());
+        config.withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);
         this.jsonb = JsonbBuilder.create(config);
     }
 
@@ -62,6 +65,15 @@ public class JsonbProcessor implements JsonProcessor {
     public <T> T fromJson(final InputStream input, final Class<T> clazz) throws IOException {
         try {
             return jsonb.fromJson(input, clazz);
+        } catch (final JsonbException | JsonException ex) {
+            throw new IOException("Error parsing JSON", ex);
+        }
+    }
+
+    @Override
+    public <T> T fromJson(final InputStream input, final Type type) throws IOException {
+        try {
+            return jsonb.fromJson(input, type);
         } catch (final JsonbException | JsonException ex) {
             throw new IOException("Error parsing JSON", ex);
         }
