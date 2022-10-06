@@ -25,12 +25,15 @@ import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +98,8 @@ public class Holder {
         final var req = HttpRequest.newBuilder(getCredentialListEndpoint(types)).build();
         try {
             final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            return processor.fromJson(res.body(), VerifiableCredentialList.class);
+            return processor.fromJson(res.body(),
+                    new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
         } catch (final InterruptedException | IOException ex) {
             throw new VerifiableCredentialException("Error listing credentials.", ex);
         }
@@ -121,7 +125,8 @@ public class Holder {
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
-                    return processor.fromJson(res.body(), VerifiableCredentialList.class);
+                    return processor.fromJson(res.body(),
+                            new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException("Error serializing credential list", ex);
                 }
@@ -239,7 +244,8 @@ public class Holder {
         final var req = HttpRequest.newBuilder(getPresentationListEndpoint(types)).build();
         try {
             final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            return processor.fromJson(res.body(), VerifiablePresentationList.class);
+            return processor.fromJson(res.body(),
+                    new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
         } catch (final InterruptedException | IOException ex) {
             throw new VerifiableCredentialException("Error listing credentials.", ex);
         }
@@ -265,7 +271,8 @@ public class Holder {
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
-                    return processor.fromJson(res.body(), VerifiablePresentationList.class);
+                    return processor.fromJson(res.body(),
+                            new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException("Error serializing presentation list", ex);
                 }
@@ -388,7 +395,7 @@ public class Holder {
     // {
     //   "query": [
     //     {
-    //       "type": "QueryByExample",
+    //       "type": ["QueryByExample"],
     //       "credentialQuery": {
     //         "frame": {
     //           "@context": [...],
@@ -570,11 +577,5 @@ public class Holder {
 
     private URI getExchangeEndpoint(final String exchangeId) {
         return URIBuilder.newBuilder(baseUri).path(EXCHANGES).path(exchangeId).build();
-    }
-
-    interface VerifiablePresentationList extends List<VerifiablePresentation> {
-    }
-
-    interface VerifiableCredentialList extends List<VerifiableCredential> {
     }
 }

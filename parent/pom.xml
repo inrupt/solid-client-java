@@ -94,6 +94,7 @@
               <link>https://jena.apache.org/documentation/javadoc/arq/</link>
               <link>https://www.antlr.org/api/Java/</link>
               <link>https://rdf4j.org/javadoc/latest/</link>
+              <link>https://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
             </links>
             <tags>
               <tag>

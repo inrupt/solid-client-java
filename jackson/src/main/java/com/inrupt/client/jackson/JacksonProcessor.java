@@ -22,12 +22,13 @@ package com.inrupt.client.jackson;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.inrupt.client.spi.JsonProcessor;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 
 /**
  * A {@link JsonProcessor} using the Jackson JSON library.
@@ -36,10 +37,13 @@ public class JacksonProcessor implements JsonProcessor {
 
     private final ObjectMapper mapper;
 
+    /**
+     * Create a Jackson processor.
+     */
     public JacksonProcessor() {
         mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -52,5 +56,9 @@ public class JacksonProcessor implements JsonProcessor {
     public <T> T fromJson(final InputStream input, final Class<T> clazz) throws IOException {
         return mapper.readValue(input, clazz);
     }
-}
 
+    @Override
+    public <T> T fromJson(final InputStream input, final Type type) throws IOException {
+        return mapper.readValue(input, mapper.getTypeFactory().constructType(type));
+    }
+}
