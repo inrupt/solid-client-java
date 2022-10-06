@@ -21,13 +21,10 @@
 package com.inrupt.client.vc;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Map;
 
 class VerifiableCredentialMockService {
@@ -48,13 +45,13 @@ class VerifiableCredentialMockService {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Accept", "application/json")
-                        .withBody(getVerifiableCredentialJson())));
+                        .withBodyFile("verifiableCredential.json")));
 
         vcMockService.stubFor(get(urlEqualTo("/vp"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Accept", "application/json")
-                        .withBody(getVerifiablePresentationJson())));
+                        .withBodyFile("verifiablePresentation.json")));
 
         vcMockService.stubFor(post(urlEqualTo("/postVc"))
                     .withHeader("Content-Type", containing("application/json"))
@@ -69,7 +66,7 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(post(urlEqualTo("/credentials/issue"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
-                        .withBody(getVerifiableCredentialJson())
+                        .withBodyFile("verifiableCredential.json")
                         .withStatus(201)));
 
         vcMockService.stubFor(post(urlEqualTo( "/credentials/status"))
@@ -82,24 +79,24 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
-                        .withBody(getVerificationResponseJson())
+                        .withBodyFile("verificationResponse.json")
                         .withStatus(200)));
         vcMockService.stubFor(post(urlEqualTo( "/presentations/verify"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
-                        .withBody(getVerificationResponseJson())
+                        .withBodyFile("verificationResponse.json")
                         .withStatus(200)));
 
         vcMockService.stubFor(get(urlPathMatching( "/credentials"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody(getVClistJson())
+                        .withBodyFile("verifiableCredentialList.json")
                         .withHeader("Accept", "application/json")));
         vcMockService.stubFor(get(urlPathMatching( "/credentials/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody(getVerifiableCredentialJson())
+                        .withBodyFile("verifiableCredential.json")
                         .withHeader("Accept", "application/json")));
         vcMockService.stubFor(delete(urlPathMatching( "/credentials/(.*)"))
                     .willReturn(aResponse()
@@ -107,19 +104,19 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(post(urlEqualTo( "/credentials/derive"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
-                        .withBody(getVerifiableCredentialJson())
+                        .withBodyFile("verifiableCredential.json")
                         .withStatus(200)));
 
         vcMockService.stubFor(get(urlPathMatching( "/presentations"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody(getVPlistJson())
+                        .withBodyFile("verifiablePresentationList.json")
                         .withHeader("Accept", "application/json")));
         vcMockService.stubFor(get(urlPathMatching( "/presentations/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody(getVerifiablePresentationJson())
+                        .withBodyFile("verifiablePresentation.json")
                         .withHeader("Accept", "application/json")));
         vcMockService.stubFor(delete(urlPathMatching( "/presentations/(.*)"))
                     .willReturn(aResponse()
@@ -127,69 +124,13 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(post(urlEqualTo( "/presentations/prove"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
-                        .withBody(getVerifiablePresentationJson())
+                        .withBodyFile("verifiablePresentation.json")
                         .withStatus(200)));
         vcMockService.stubFor(post(urlPathMatching( "/exchanges/(.*)"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
-                        .withBody(getVerifiablePresentationRequestJson())
+                        .withBodyFile("verifiablePresentationRequest.json")
                         .withStatus(200)));
-    }
-
-    private static String getVerifiableCredentialJson() {
-        try (final var res = VerifiableCredentialMockService.class.getResourceAsStream("/verifiableCredential.json")) {
-            return new String(res.readAllBytes(), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
-    }
-
-    private static String getVerifiablePresentationJson() {
-        try (final var res = VerifiableCredentialMockService.class.getResourceAsStream(
-                "/verifiablePresentation.json")) {
-            return new String(res.readAllBytes(), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
-    }
-
-    private String getVerificationResponseJson() {
-        try (final var res = VerifiableCredentialMockService.class.getResourceAsStream(
-                "/verificationResponse.json")) {
-            return new String(res.readAllBytes(), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
-    }
-
-    private String getVClistJson() {
-        try (final var res = VerifiableCredentialMockService.class.getResourceAsStream(
-            "/verifiableCredentialList.json"
-            )) {
-            return new String(res.readAllBytes(), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
-    }
-
-    private String getVPlistJson() {
-        try (final var res = VerifiableCredentialMockService.class.getResourceAsStream(
-            "/verifiablePresentationList.json"
-            )) {
-            return new String(res.readAllBytes(), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
-    }
-
-    private String getVerifiablePresentationRequestJson() {
-        try (final var res = VerifiableCredentialMockService.class.getResourceAsStream(
-            "/verifiablePresentationRequest.json"
-            )) {
-            return new String(res.readAllBytes(), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
     }
 
     public Map<String, String> start() {
