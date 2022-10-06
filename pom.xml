@@ -24,7 +24,7 @@
     <jose4j.version>0.8.0</jose4j.version>
     <json.bind.version>1.0.2</json.bind.version>
     <rdf4j.version>4.2.0</rdf4j.version>
-    <slf4j.version>1.7.36</slf4j.version>
+    <slf4j.version>2.0.3</slf4j.version>
 
     <!-- testing -->
     <junit.version>5.9.1</junit.version>
