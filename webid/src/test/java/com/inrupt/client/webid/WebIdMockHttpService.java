@@ -44,20 +44,9 @@ public class WebIdMockHttpService {
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
-                .withBody(getWebIdExample())
+                .withBodyFile("webIdExample.ttl")
             )
         );
-    }
-
-    private String getWebIdExample() {
-        return "<https://example.test/username> " +
-                    " a <http://xmlns.test/foaf/0.1/Agent> ; " +
-                    " <http://www.w3.org/2000/01/rdf-schema#seeAlso> " +
-                        " <https://storage.example.test/storage-id/extendedProfile> ; " +
-                    " <http://www.w3.org/ns/pim/space#storage> <https://storage.example.test/storage-id/> ; " +
-                    " <http://www.w3.org/ns/solid/terms#oidcIssuer> <https://login.example.test> ; " +
-                    " <http://xmlns.test/foaf/0.1/isPrimaryTopicOf> " +
-                        " <https://storage.example.test/storage-id/extendedProfile> . ";
     }
 
     public Map<String, String> start() {
