@@ -75,21 +75,4 @@ class WebIdBodyHandlersTest {
         );
     }
 
-    @Test
-    void testGetOfWebIdProfile2() throws IOException, InterruptedException {
-        final var request = HttpRequest.newBuilder()
-            .uri(URI.create(config.get("webid_uri") + "/webId"))
-            .header("Accept", "text/turtle")
-            .GET()
-            .build();
-
-        final var response = client.send(
-            request,
-            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username"))
-        );
-
-        assertEquals(200, response.statusCode());
-
-    }
-
 }
