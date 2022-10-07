@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpClient.Version;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ class WebIdBodyHandlersTest {
 
     private static final WebIdMockHttpService mockHttpClient = new WebIdMockHttpService();
     private static Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
 
     @BeforeAll
     static void setup() {
@@ -72,6 +73,23 @@ class WebIdBodyHandlersTest {
         assertTrue(responseBody.getSeeAlso().contains(
             URI.create("https://storage.example.test/storage-id/extendedProfile"))
         );
+    }
+
+    @Test
+    void testGetOfWebIdProfile2() throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+            .uri(URI.create(config.get("webid_uri") + "/webId"))
+            .header("Accept", "text/turtle")
+            .GET()
+            .build();
+
+        final var response = client.send(
+            request,
+            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username"))
+        );
+
+        assertEquals(200, response.statusCode());
+
     }
 
 }
