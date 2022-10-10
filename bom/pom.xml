@@ -20,7 +20,7 @@
     <dependencies>
       <dependency>
         <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-authentification</artifactId>
+        <artifactId>inrupt-client-authentication</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
