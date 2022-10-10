@@ -23,7 +23,7 @@ package com.inrupt.client.webid;
 import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.rdf.*;
 import com.inrupt.client.spi.RdfProcessor;
-import com.inrupt.client.spi.ServiceLoadingException;
+import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.vocabulary.RDFS;
@@ -32,14 +32,13 @@ import com.inrupt.client.vocabulary.Solid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpResponse;
-import java.util.ServiceLoader;
 
 /**
  * Classes for reading HTTP responses as WebID Profile objects.
  */
 public final class WebIdBodySubscribers {
 
-    private static final RdfProcessor processor = loadRdfProcessor();
+    private static final RdfProcessor processor = ServiceProvider.getRdfProcessor();
 
     /**
      * Process an HTTP response as a WebID Profile.
@@ -84,13 +83,6 @@ public final class WebIdBodySubscribers {
             }
             return builder.build(webid);
         });
-    }
-
-    static RdfProcessor loadRdfProcessor() {
-        return ServiceLoader.load(RdfProcessor.class).findFirst()
-            .orElseThrow(() -> new ServiceLoadingException(
-                        "Unable to load RDF processor. " +
-                        "Please ensure that an RDF processor module is available on the classpath"));
     }
 
     private WebIdBodySubscribers() {
