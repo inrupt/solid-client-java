@@ -22,9 +22,9 @@ package com.inrupt.client.jena;
 
 import static org.apache.jena.sparql.core.Quad.defaultGraphNodeGenerated;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.api.Dataset;
+import com.inrupt.client.api.Quad;
+import com.inrupt.client.api.RDFNode;
 
 import java.util.Optional;
 import java.util.stream.Stream;
