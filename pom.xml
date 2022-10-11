@@ -34,6 +34,7 @@
 
   <modules>
     <module>authentication</module>
+    <module>bom</module>
     <module>build-tools</module>
     <module>core</module>
     <module>http</module>
