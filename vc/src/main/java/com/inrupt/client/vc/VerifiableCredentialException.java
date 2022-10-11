@@ -22,30 +22,75 @@ package com.inrupt.client.vc;
 
 import com.inrupt.client.core.InruptClientException;
 
+import java.util.Optional;
+
 /**
  * A runtime exception for use with Verifiable Credential-related errors.
  */
 public class VerifiableCredentialException extends InruptClientException {
 
     private static final long serialVersionUID = 4828374653830284474L;
+    private static int status;
+    private static String body;
 
     /**
      * Create a Verifiable Credential exception.
      *
      * @param message the message
-     */
-    public VerifiableCredentialException(final String message) {
-        super(message);
-    }
-
-    /**
-     * Create a Verifiable Credential exception.
-     *
-     * @param message the message
+     * @param bodyContent the sent body content
+     * @param statusCode the HTTP sattus code
      * @param cause the cause
      */
-    public VerifiableCredentialException(final String message, final Throwable cause) {
+    public VerifiableCredentialException(final String message,
+        final String bodyContent,
+        final int statusCode,
+        final Throwable cause) {
         super(message, cause);
+        body = bodyContent;
+        status = statusCode;
+    }
+
+    public Optional<Integer> getStatus() {
+        return Optional.of(status);
+    }
+
+    public Optional<String> getBody() {
+        return Optional.of(body);
+    }
+
+    static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private int status;
+        private String body;
+        private String message;
+        private Throwable exception;
+
+        public Builder status(final int statusCode) {
+            this.status = statusCode;
+            return this;
+        }
+
+        public Builder body(final String bodyContent) {
+            this.body = bodyContent;
+            return this;
+        }
+
+        public Builder message(final String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder exception(final Throwable ex) {
+            this.exception = ex;
+            return this;
+        }
+
+        public VerifiableCredentialException build() {
+            return new VerifiableCredentialException(message, body, status, exception);
+        }
     }
 }
 

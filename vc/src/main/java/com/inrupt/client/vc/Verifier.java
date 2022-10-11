@@ -33,6 +33,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -44,6 +45,9 @@ public class Verifier {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
+    private static final int SUCCESS = 200;
+    private static final int INVALID_INPUT = 400;
+    private static final int ERROR = 500;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -77,16 +81,7 @@ public class Verifier {
      * @return a verification response
      */
     public VerificationResponse verify(final VerifiableCredential credential) {
-        final var req = HttpRequest.newBuilder(getCredentialVerifierUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
-            .build();
-
-        try {
-            return httpClient.send(req, ofVerificationResponse()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error verifying credential", ex);
-        }
+        return verifyAsync(credential).toCompletableFuture().join();
     }
 
     /**
@@ -101,8 +96,38 @@ public class Verifier {
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
-        return httpClient.sendAsync(req, ofVerificationResponse())
-            .thenApply(HttpResponse::body);
+        //return httpClient.sendAsync(req, ofVerificationResponse())
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+            //.thenApply(HttpResponse::body);
+            .thenCompose(res -> {
+                try {
+                    if (SUCCESS == res.statusCode()) {
+                        return CompletableFuture.completedFuture(
+                            processor.fromJson(res.body(), VerificationResponse.class));
+                    }
+                    if (INVALID_INPUT == res.statusCode()) {
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Invalid input")
+                            .status(res.statusCode())
+                            .build();
+                    }
+                    if (ERROR == res.statusCode()) {
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Internal server error")
+                            .status(res.statusCode())
+                            .build();
+                    }
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Unexpected error response while verifying a credential")
+                        .build();
+                } catch (final IOException ex) {
+                    //throw new VerifiableCredentialException("Error parsing verification response", ex);
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Unexpected I/O exception while verifying a credential")
+                        .exception(ex)
+                        .build();
+                }
+            });
     }
 
 
@@ -121,7 +146,11 @@ public class Verifier {
         try {
             return httpClient.send(req, ofVerificationResponse()).body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error verifying presentation", ex);
+            //throw new VerifiableCredentialException("Error verifying presentation", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error verifying presentation")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -167,7 +196,11 @@ public class Verifier {
                 try {
                     return processor.fromJson(input, VerificationResponse.class);
                 } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error parsing verification request", ex);
+                    //throw new VerifiableCredentialException("Error parsing verification response", ex);
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Error parsing verification response")
+                        .exception(ex)
+                        .build();
                 }
             });
     }

@@ -101,7 +101,11 @@ public class Holder {
             return processor.fromJson(res.body(),
                     new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error listing credentials.", ex);
+            //throw new VerifiableCredentialException("Error listing credentials.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error listing credentials.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -128,7 +132,11 @@ public class Holder {
                     return processor.fromJson(res.body(),
                             new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
                 } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error serializing credential list", ex);
+                    //throw new VerifiableCredentialException("Error serializing credential list", ex);
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Error serializing credentials.")
+                        .exception(ex)
+                        .build();
                 }
             });
     }
@@ -144,7 +152,11 @@ public class Holder {
         try {
             return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential()).body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error retrieving credential.", ex);
+            //throw new VerifiableCredentialException("Error retrieving credential.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error retrieving credentials.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -172,7 +184,11 @@ public class Holder {
         try {
             httpClient.send(req, HttpResponse.BodyHandlers.discarding());
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error retrieving credential.", ex);
+            //throw new VerifiableCredentialException("Error retrieving credential.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error retrieving credentials.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -205,7 +221,11 @@ public class Holder {
         try {
             return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential()).body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error deriving credential.", ex);
+            //throw new VerifiableCredentialException("Error deriving credential.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error deriving credentials.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -247,7 +267,11 @@ public class Holder {
             return processor.fromJson(res.body(),
                     new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error listing credentials.", ex);
+            //throw new VerifiableCredentialException("Error listing credentials.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error listing credentials.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -274,7 +298,11 @@ public class Holder {
                     return processor.fromJson(res.body(),
                             new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
                 } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error serializing presentation list", ex);
+                    //throw new VerifiableCredentialException("Error serializing presentation list", ex);
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Error serializing credentials.")
+                        .exception(ex)
+                        .build();
                 }
             });
     }
@@ -290,7 +318,11 @@ public class Holder {
         try {
             return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation()).body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error retrieving presentation.", ex);
+            //throw new VerifiableCredentialException("Error retrieving presentation.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                        .message("Error retrieving credentials.")
+                        .exception(ex)
+                        .build();
         }
     }
 
@@ -319,7 +351,11 @@ public class Holder {
         try {
             httpClient.send(req, HttpResponse.BodyHandlers.discarding());
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error deleting credential.", ex);
+            //throw new VerifiableCredentialException("Error deleting credential.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                        .message("Error deleting credentials.")
+                        .exception(ex)
+                        .build();
         }
     }
 
@@ -353,7 +389,11 @@ public class Holder {
         try {
             return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation()).body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error proving presentation.", ex);
+            //throw new VerifiableCredentialException("Error proving presentation.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error proving presentation.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -417,7 +457,11 @@ public class Holder {
         try {
             return httpClient.send(req, ofVerifiablePresentationRequest()).body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error proving presentation.", ex);
+            //throw new VerifiableCredentialException("Error proving presentation.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error proving presentation.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -531,7 +575,11 @@ public class Holder {
                 try {
                     return processor.fromJson(input, VerifiablePresentationRequest.class);
                 } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error parsing presentation request", ex);
+                    //throw new VerifiableCredentialException("Error parsing presentation request", ex);
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Error parsing presentation request.")
+                        .exception(ex)
+                        .build();
                 }
             });
     }
@@ -542,7 +590,11 @@ public class Holder {
                     try {
                         processor.toJson(request, out);
                     } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing JSON", ex);
+                        //throw new VerifiableCredentialException("Error serializing JSON", ex);
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Error serializing JSON.")
+                            .exception(ex)
+                            .build();
                     }
                 }));
     }

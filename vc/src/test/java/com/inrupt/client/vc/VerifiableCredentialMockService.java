@@ -76,6 +76,11 @@ class VerifiableCredentialMockService {
                         "\"type\": \"CredentialStatusList2017\" }")
                         .withStatus(201)));
 
+        /* vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(400))); */
+
         vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()

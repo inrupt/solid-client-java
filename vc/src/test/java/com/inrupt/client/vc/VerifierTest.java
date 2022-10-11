@@ -20,8 +20,7 @@
  */
 package com.inrupt.client.vc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -59,6 +58,21 @@ class VerifierTest {
         assertEquals("[could not check did]", verificationResponse.warnings.toString());
         assertNull(verificationResponse.errors);
     }
+
+
+    /*  @Test
+    void verifyStatusCodesTest() {
+        assertAll("Empty VC",
+        () -> {
+            final CompletionException exception = assertThrows(CompletionException.class,
+            () -> verifier.verify(new VerifiableCredential())
+            );
+            assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+            assertEquals("com.inrupt.client.vc.VerifiableCredentialException: Invalid input", exception.getMessage());
+            assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+        });
+    }
+    */
 
     @Test
     void verifyAsyncTest() {

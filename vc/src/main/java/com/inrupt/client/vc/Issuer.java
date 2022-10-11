@@ -87,7 +87,11 @@ public class Issuer {
                 .send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
                 .body();
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error issuing verifiable credential", ex);
+            //throw new VerifiableCredentialException("Error issuing verifiable credential", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error issuing verifiable credential")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -121,7 +125,11 @@ public class Issuer {
         try {
             httpClient.send(req, HttpResponse.BodyHandlers.discarding());
         } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error updating credential status.", ex);
+            //throw new VerifiableCredentialException("Error updating credential status.", ex);
+            throw VerifiableCredentialException.newBuilder()
+                .message("Error updating credential status.")
+                .exception(ex)
+                .build();
         }
     }
 
@@ -251,7 +259,11 @@ public class Issuer {
                     try {
                         processor.toJson(request, out);
                     } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing status request", ex);
+                        //throw new VerifiableCredentialException("Error serializing status request", ex);
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Error serializing status request.")
+                            .exception(ex)
+                            .build();
                     }
                 }));
     }

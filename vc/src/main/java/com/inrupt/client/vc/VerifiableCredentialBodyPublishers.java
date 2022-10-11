@@ -48,7 +48,11 @@ public final class VerifiableCredentialBodyPublishers {
                     try {
                         processor.toJson(vc, out);
                     } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing credential", ex);
+                        //throw new VerifiableCredentialException("Error serializing credential", ex);
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Error serializing credential.")
+                            .exception(ex)
+                            .build();
                     }
                 }));
     }
@@ -65,7 +69,11 @@ public final class VerifiableCredentialBodyPublishers {
                     try {
                         processor.toJson(vp, out);
                     } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing presentation", ex);
+                        //throw new VerifiableCredentialException("Error serializing presentation", ex);
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Error serializing presentation.")
+                            .exception(ex)
+                            .build();
                     }
                 }));
     }
