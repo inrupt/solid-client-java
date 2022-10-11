@@ -28,18 +28,13 @@
     <!-- test dependencies -->
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-jsonb</artifactId>
+      <artifactId>inrupt-client-jackson</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse</groupId>
-      <artifactId>yasson</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

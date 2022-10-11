@@ -67,14 +67,14 @@ class IssuerTest {
             "\"name\":\"Example University\"}," +
             " id=\"did:example:ebfeb1f712ebc6f1c276e12ec21\"}";
         assertEquals(vcCredentialSubject, vc.credentialSubject.toString());
-        final var vcCredentialStatus = "{type=\"CredentialStatusList2017\"," +
-            " id=\"https://example.test/status/24\"}";
+        final var vcCredentialStatus = "{id=\"https://example.test/status/24\", type=\"CredentialStatusList2017\"}";
         assertEquals(vcCredentialStatus, vc.credentialStatus.toString());
-        final var proof = "{proofPurpose=\"assertionMethod\"," +
+        final var proof = "{created=\"2017-06-18T21:19:10Z\"," +
+            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"," +
+            " proofPurpose=\"assertionMethod\"," +
             " type=\"RsaSignature2018\"," +
-            " verificationMethod=\"https://example.test/issuers/565049#key-1\"," +
-            " created=\"2017-06-18T21:19:10Z\"," +
-            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"}";
+            " verificationMethod=\"https://example.test/issuers/565049#key-1\"" +
+            "}";
         assertEquals(proof, vc.proof.toString());
     }
 
@@ -93,14 +93,14 @@ class IssuerTest {
             "\"name\":\"Example University\"}," +
             " id=\"did:example:ebfeb1f712ebc6f1c276e12ec21\"}";
         assertEquals(vcCredentialSubject, vc.credentialSubject.toString());
-        final var vcCredentialStatus = "{type=\"CredentialStatusList2017\"," +
-            " id=\"https://example.test/status/24\"}";
+        final var vcCredentialStatus = "{id=\"https://example.test/status/24\", type=\"CredentialStatusList2017\"}";
         assertEquals(vcCredentialStatus, vc.credentialStatus.toString());
-        final var proof = "{proofPurpose=\"assertionMethod\"," +
+        final var proof = "{created=\"2017-06-18T21:19:10Z\"," +
+            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"," +
+            " proofPurpose=\"assertionMethod\"," +
             " type=\"RsaSignature2018\"," +
-            " verificationMethod=\"https://example.test/issuers/565049#key-1\"," +
-            " created=\"2017-06-18T21:19:10Z\"," +
-            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"}";
+            " verificationMethod=\"https://example.test/issuers/565049#key-1\"" +
+            "}";
         assertEquals(proof, vc.proof.toString());
     }
 

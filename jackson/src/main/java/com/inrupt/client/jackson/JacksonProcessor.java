@@ -23,7 +23,10 @@ package com.inrupt.client.jackson;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +48,20 @@ public class JacksonProcessor implements JsonProcessor {
         mapper.findAndRegisterModules();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        final SimpleModule vcDeserializer = new SimpleModule();
+        vcDeserializer.addDeserializer(VerifiableCredential.class, new VCDeserializer());
+        mapper.registerModule(vcDeserializer);
+        final SimpleModule vcSerializer = new SimpleModule();
+        vcSerializer.addSerializer(VerifiableCredential.class, new VCSerializer());
+        mapper.registerModule(vcSerializer);
+
+        final SimpleModule vpDeserializer = new SimpleModule();
+        vpDeserializer.addDeserializer(VerifiablePresentation.class, new VPDeserializer());
+        mapper.registerModule(vpDeserializer);
+        final SimpleModule vpSerializer = new SimpleModule();
+        vpSerializer.addSerializer(VerifiablePresentation.class, new VPSerializer());
+        mapper.registerModule(vpSerializer);
     }
 
     @Override
