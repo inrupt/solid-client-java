@@ -103,25 +103,16 @@ public class Verifier {
                             processor.fromJson(res.body(), VerificationResponse.class));
                     }
                     if (INVALID_INPUT == res.statusCode()) {
-                        throw VerifiableCredentialException.newBuilder()
-                            .message("Invalid input")
-                            .status(res.statusCode())
-                            .build();
+                        throw new VerifiableCredentialException("Invalid input", res.statusCode());
                     }
                     if (ERROR == res.statusCode()) {
-                        throw VerifiableCredentialException.newBuilder()
-                            .message("Internal server error")
-                            .status(res.statusCode())
-                            .build();
+                        throw new VerifiableCredentialException("Internal server error", res.statusCode());
                     }
-                    throw VerifiableCredentialException.newBuilder()
-                        .message("Unexpected error response while verifying a credential")
-                        .build();
+                    throw new VerifiableCredentialException("Unexpected error response while verifying a credential");
                 } catch (final IOException ex) {
-                    throw VerifiableCredentialException.newBuilder()
-                        .message("Unexpected I/O exception while verifying a credential")
-                        .exception(ex)
-                        .build();
+                    throw new VerifiableCredentialException(
+                        "Unexpected I/O exception while verifying a credential",
+                        ex);
                 }
             });
     }
@@ -157,25 +148,16 @@ public class Verifier {
                             processor.fromJson(res.body(), VerificationResponse.class));
                     }
                     if (INVALID_INPUT == res.statusCode()) {
-                        throw VerifiableCredentialException.newBuilder()
-                            .message("Invalid input")
-                            .status(res.statusCode())
-                            .build();
+                        throw new VerifiableCredentialException("Invalid input", res.statusCode());
                     }
                     if (ERROR == res.statusCode()) {
-                        throw VerifiableCredentialException.newBuilder()
-                            .message("Internal server error")
-                            .status(res.statusCode())
-                            .build();
+                        throw new VerifiableCredentialException("Internal server error", res.statusCode());
                     }
-                    throw VerifiableCredentialException.newBuilder()
-                        .message("Unexpected error response while verifying a presentation")
-                        .build();
+                    throw new VerifiableCredentialException("Unexpected error response while verifying a presentation");
                 } catch (final IOException ex) {
-                    throw VerifiableCredentialException.newBuilder()
-                        .message("Unexpected I/O exception while verifying a presentation")
-                        .exception(ex)
-                        .build();
+                    throw new VerifiableCredentialException(
+                        "Unexpected I/O exception while verifying a presentation",
+                        ex);
                 }
             });
     }

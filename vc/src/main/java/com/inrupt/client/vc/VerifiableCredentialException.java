@@ -37,16 +37,29 @@ public class VerifiableCredentialException extends InruptClientException {
      * Create a Verifiable Credential exception.
      *
      * @param message the message
-     * @param bodyContent the sent body content
-     * @param statusCode the HTTP sattus code
+     */
+    public VerifiableCredentialException(final String message) {
+        super(message);
+    }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
      * @param cause the cause
      */
-    public VerifiableCredentialException(final String message,
-        final String bodyContent,
-        final int statusCode,
-        final Throwable cause) {
+    public VerifiableCredentialException(final String message, final Throwable cause) {
         super(message, cause);
-        body = bodyContent;
+    }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param statusCode the HTTP sattus code
+     */
+    public VerifiableCredentialException(final String message, final int statusCode) {
+        super(message);
         status = statusCode;
     }
 
@@ -58,39 +71,5 @@ public class VerifiableCredentialException extends InruptClientException {
         return Optional.of(body);
     }
 
-    static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        private int status;
-        private String body;
-        private String message;
-        private Throwable exception;
-
-        public Builder status(final int statusCode) {
-            this.status = statusCode;
-            return this;
-        }
-
-        public Builder body(final String bodyContent) {
-            this.body = bodyContent;
-            return this;
-        }
-
-        public Builder message(final String message) {
-            this.message = message;
-            return this;
-        }
-
-        public Builder exception(final Throwable ex) {
-            this.exception = ex;
-            return this;
-        }
-
-        public VerifiableCredentialException build() {
-            return new VerifiableCredentialException(message, body, status, exception);
-        }
-    }
 }
 

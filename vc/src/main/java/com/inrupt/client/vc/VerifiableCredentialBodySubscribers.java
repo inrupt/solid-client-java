@@ -46,11 +46,7 @@ public final class VerifiableCredentialBodySubscribers {
             try {
                 return processor.fromJson(input, VerifiableCredential.class);
             } catch (final IOException ex) {
-                //throw new VerifiableCredentialException("Error parsing credential", ex);
-                throw VerifiableCredentialException.newBuilder()
-                    .message("Error parsing credential.")
-                    .exception(ex)
-                    .build();
+                throw new VerifiableCredentialException("Error parsing credential", ex);
             }
         });
     }
@@ -65,11 +61,7 @@ public final class VerifiableCredentialBodySubscribers {
             try {
                 return processor.fromJson(input, VerifiablePresentation.class);
             } catch (final IOException ex) {
-                //throw new VerifiableCredentialException("Error parsing presentation", ex);
-                throw VerifiableCredentialException.newBuilder()
-                    .message("Error parsing presentation.")
-                    .exception(ex)
-                    .build();
+                throw new VerifiableCredentialException("Error parsing presentation", ex);
             }
         });
     }
