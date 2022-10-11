@@ -92,6 +92,19 @@ class VerifierTest {
         assertNull(verificationResponse.errors);
     }
 
+    /* @Test
+    void verifyStatusCodesTest() {
+        assertAll("Empty VC",
+        () -> {
+            final CompletionException exception = assertThrows(CompletionException.class,
+            () -> verifier.verify(new VerifiablePresentation())
+            );
+            assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+            assertEquals("com.inrupt.client.vc.VerifiableCredentialException: Invalid input", exception.getMessage());
+            assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+        });
+    } */
+
     @Test
     void verifyPresentationAsyncTest() {
         final var verificationResponse = verifier.verifyAsync(VCtestData.VP).toCompletableFuture().join();

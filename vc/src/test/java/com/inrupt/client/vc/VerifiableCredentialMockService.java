@@ -23,6 +23,7 @@ package com.inrupt.client.vc;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Map;
@@ -32,7 +33,7 @@ class VerifiableCredentialMockService {
     private final WireMockServer vcMockService;
 
     public VerifiableCredentialMockService() {
-        vcMockService = new WireMockServer(WireMockConfiguration.options()
+        vcMockService = new WireMockServer(WireMockConfiguration.options().notifier(new Slf4jNotifier(true))
             .dynamicPort());
     }
 
@@ -91,6 +92,10 @@ class VerifiableCredentialMockService {
                     .willReturn(aResponse()
                         .withBodyFile("verificationResponse.json")
                         .withStatus(200)));
+        /* vcMockService.stubFor(post(urlEqualTo( "/presentations/verify"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(400))); */
 
         vcMockService.stubFor(get(urlPathMatching( "/credentials"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))

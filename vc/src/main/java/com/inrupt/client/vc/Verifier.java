@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.vc;
 
-import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
@@ -96,9 +95,7 @@ public class Verifier {
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
-        //return httpClient.sendAsync(req, ofVerificationResponse())
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            //.thenApply(HttpResponse::body);
             .thenCompose(res -> {
                 try {
                     if (SUCCESS == res.statusCode()) {
@@ -121,7 +118,6 @@ public class Verifier {
                         .message("Unexpected error response while verifying a credential")
                         .build();
                 } catch (final IOException ex) {
-                    //throw new VerifiableCredentialException("Error parsing verification response", ex);
                     throw VerifiableCredentialException.newBuilder()
                         .message("Unexpected I/O exception while verifying a credential")
                         .exception(ex)
@@ -138,20 +134,7 @@ public class Verifier {
      * @return a verification response
      */
     public VerificationResponse verify(final VerifiablePresentation presentation) {
-        final var req = HttpRequest.newBuilder(getPresentationVerifierUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
-            .build();
-
-        try {
-            return httpClient.send(req, ofVerificationResponse()).body();
-        } catch (final InterruptedException | IOException ex) {
-            //throw new VerifiableCredentialException("Error verifying presentation", ex);
-            throw VerifiableCredentialException.newBuilder()
-                .message("Error verifying presentation")
-                .exception(ex)
-                .build();
-        }
+        return verifyAsync(presentation).toCompletableFuture().join();
     }
 
     /**
@@ -166,8 +149,35 @@ public class Verifier {
             .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
             .build();
 
-        return httpClient.sendAsync(req, ofVerificationResponse())
-            .thenApply(HttpResponse::body);
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+            .thenCompose( res -> {
+                try {
+                    if (SUCCESS == res.statusCode()) {
+                        return CompletableFuture.completedFuture(
+                            processor.fromJson(res.body(), VerificationResponse.class));
+                    }
+                    if (INVALID_INPUT == res.statusCode()) {
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Invalid input")
+                            .status(res.statusCode())
+                            .build();
+                    }
+                    if (ERROR == res.statusCode()) {
+                        throw VerifiableCredentialException.newBuilder()
+                            .message("Internal server error")
+                            .status(res.statusCode())
+                            .build();
+                    }
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Unexpected error response while verifying a presentation")
+                        .build();
+                } catch (final IOException ex) {
+                    throw VerifiableCredentialException.newBuilder()
+                        .message("Unexpected I/O exception while verifying a presentation")
+                        .exception(ex)
+                        .build();
+                }
+            });
     }
 
     /**
@@ -188,21 +198,6 @@ public class Verifier {
          * The verification errors that were discovered.
          */
         public List<String> errors;
-    }
-
-    private HttpResponse.BodyHandler<VerificationResponse> ofVerificationResponse() {
-        return responseInfo ->
-            InputStreamBodySubscribers.mapping(input -> {
-                try {
-                    return processor.fromJson(input, VerificationResponse.class);
-                } catch (final IOException ex) {
-                    //throw new VerifiableCredentialException("Error parsing verification response", ex);
-                    throw VerifiableCredentialException.newBuilder()
-                        .message("Error parsing verification response")
-                        .exception(ex)
-                        .build();
-                }
-            });
     }
 
     private URI getCredentialVerifierUrl() {
