@@ -18,6 +18,7 @@
 
   <properties>
     <antlr.version>4.11.1</antlr.version>
+    <caffeine.version>3.1.1</caffeine.version>
     <jackson.version>2.13.4</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.6.1</jena.version>
@@ -80,6 +81,11 @@
         <groupId>org.bitbucket.b_c</groupId>
         <artifactId>jose4j</artifactId>
         <version>${jose4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

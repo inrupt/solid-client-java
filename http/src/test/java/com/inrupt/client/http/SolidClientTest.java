@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -23,6 +23,7 @@ package com.inrupt.client.http;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.authentication.SolidAuthenticator;
+import com.inrupt.client.authentication.UmaAuthenticationMechanism;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
 
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -50,8 +52,9 @@ import org.junit.jupiter.api.Test;
 
 class SolidClientTest {
 
+    private static final SolidAuthenticator authenticator = new SolidAuthenticator();
     private static final SolidClient client = SolidClient.Builder.newBuilder()
-        .authenticator(new SolidAuthenticator())
+        .authenticator(authenticator)
         .build();
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
@@ -61,6 +64,7 @@ class SolidClientTest {
     @BeforeAll
     static void setup() {
         config.putAll(mockHttpServer.start());
+        authenticator.register(new UmaAuthenticationMechanism(10));
     }
 
     @AfterAll
@@ -134,6 +138,26 @@ class SolidClientTest {
     }
 
     @Test
+    void testSendOfModelProtectedResource() throws IOException, InterruptedException {
+
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(config.get("http_uri") + "/protected/resource"))
+                .header("Accept", "text/turtle")
+                .GET()
+                .build();
+
+        final var response = client.send(request, JenaBodyHandlers.ofModel());
+        assertEquals(200, response.statusCode());
+
+        final var responseBody = response.body();
+        assertEquals(7, responseBody.size());
+        assertTrue(responseBody.contains(
+            ResourceFactory.createResource("http://example.test/me"),
+            null)
+        );
+    }
+
+    @Test
     void testSendOfModel() throws IOException, InterruptedException {
 
         final HttpRequest request = HttpRequest.newBuilder()
@@ -151,7 +175,6 @@ class SolidClientTest {
             ResourceFactory.createResource("http://example.test/me"),
             null)
         );
-
     }
 
     @Test
@@ -234,10 +257,11 @@ class SolidClientTest {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.sendAsync(request, HttpResponse.BodyHandlers.discarding()).join();
 
-        final var statusCode = response.thenApply(HttpResponse::statusCode).join();
-        assertEquals(204, statusCode);
+        assertEquals(401, response.statusCode());
+        assertEquals(Optional.of("UMA ticket=\"ticket-12345\", as_uri=\"" + config.get("http_uri") + "\""),
+                response.headers().firstValue("WWW-Authenticate"));
     }
 
     @Test

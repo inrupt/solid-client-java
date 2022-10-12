@@ -20,45 +20,90 @@
  */
 package com.inrupt.client.uma;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+/**
+ * A class representing the required claims that are part of an UMA interactive exchange.
+ */
 public class RequiredClaims {
 
     private final Map<String, Object> data;
 
+    /**
+     * Create an object representing an UMA {@code required_claims} data structure.
+     *
+     * @param data the data formatted as a {@link Map}
+     */
     public RequiredClaims(final Map<String, Object> data) {
         this.data = data;
     }
 
-    public List<String> getClaimTokenFormats() {
+    /**
+     * Get a set of required {@code claim_token_format} values.
+     *
+     * @return the required claim token formats
+     */
+    public Set<String> getClaimTokenFormats() {
         return getValues("claim_token_format");
     }
 
-    public List<String> getIssuers() {
+    /**
+     * Get a set of required {@code issuer} values.
+     *
+     * @return the required issuer values
+     */
+    public Set<String> getIssuers() {
         return getValues("issuer");
     }
 
+    /**
+     * Get an optional {@code claim_type} value.
+     *
+     * @return an optional claim type value
+     */
     public Optional<String> getClaimType() {
         return Optional.ofNullable(getValue("claim_type"));
     }
 
+    /**
+     * Get an optional {@code friendly_name} value.
+     *
+     * @return an optional friendly name
+     */
     public Optional<String> getFriendlyName() {
         return Optional.ofNullable(getValue("friendly_name"));
     }
 
+    /**
+     * Get an optional {@code name} value.
+     *
+     * @return an optional name
+     */
     public Optional<String> getName() {
         return Optional.ofNullable(getValue("name"));
     }
 
+    /**
+     * Get an arbitrary String-based data property.
+     *
+     * @param name the property name
+     * @return a data property, if present
+     */
     public Optional<String> getProperty(final String name) {
         return Optional.ofNullable(getValue(name));
     }
 
-    public List<String> getProperties(final String name) {
+    /**
+     * Get an arbitrary Array-based data property.
+     *
+     * @param name the property name
+     * @return a data properties
+     */
+    public Set<String> getProperties(final String name) {
         return getValues(name);
     }
 
@@ -70,10 +115,10 @@ public class RequiredClaims {
         return null;
     }
 
-    private List<String> getValues(final String key) {
+    private Set<String> getValues(final String key) {
         final var values = data.get(key);
 
-        final var results = new ArrayList<String>();
+        final var results = new HashSet<String>();
         if (values instanceof Collection) {
             for (final var item : (Collection) values) {
                 if (item instanceof String) {

@@ -22,25 +22,48 @@ package com.inrupt.client.uma;
 
 import java.util.Objects;
 
+/**
+ * This class represents an UMA claim token and the associated type value.
+ *
+ * @see <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html#uma-grant-type">
+ * User-Managed Access 2.0: Client Request to Authorization Server for RPT</a>
+ */
 public final class ClaimToken {
 
-    private final String claimToken;
-    private final String claimTokenType;
+    private final String token;
+    private final String tokenType;
 
-    private ClaimToken(final String claimToken, final String claimTokenType) {
-        this.claimToken = Objects.requireNonNull(claimToken);
-        this.claimTokenType = Objects.requireNonNull(claimTokenType);
+    private ClaimToken(final String token, final String tokenType) {
+        this.token = Objects.requireNonNull(token);
+        this.tokenType = Objects.requireNonNull(tokenType);
     }
 
+    /**
+     * Get the claim token value.
+     *
+     * @return the claim token value
+     */
     public String getClaimToken() {
-        return claimToken;
+        return token;
     }
 
+    /**
+     * Get the claim token type.
+     *
+     * @return the claim token type
+     */
     public String getClaimTokenType() {
-        return claimTokenType;
+        return tokenType;
     }
 
-    public static ClaimToken of(final String claimToken, final String claimTokenType) {
-        return new ClaimToken(claimToken, claimTokenType);
+    /**
+     * Create a new {@link ClaimToken}.
+     *
+     * @param token the claim token value
+     * @param tokenType the claim token type
+     * @return the new claim token
+     */
+    public static ClaimToken of(final String token, final String tokenType) {
+        return new ClaimToken(token, tokenType);
     }
 }
