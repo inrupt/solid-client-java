@@ -56,11 +56,24 @@ public class VerifiableCredentialException extends InruptClientException {
      * Create a Verifiable Credential exception.
      *
      * @param message the message
-     * @param body the body content
+     * @param bodyContent the body content
+     */
+    public VerifiableCredentialException(final String message, final String bodyContent) {
+        super(message);
+        body = bodyContent;
+    }
+
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param bodyContent the body content
      * @param statusCode the HTTP status code
      */
     public VerifiableCredentialException(final String message, final String bodyContent, final int statusCode) {
         super(message);
+        body = bodyContent;
         status = statusCode;
     }
 
@@ -68,7 +81,7 @@ public class VerifiableCredentialException extends InruptClientException {
      * Create a Verifiable Credential exception.
      *
      * @param message the message
-     * @param body the body content
+     * @param bodyContent the body content
      * @param cause the cause
      */
     public VerifiableCredentialException(final String message, final String bodyContent, final Throwable cause) {
