@@ -34,6 +34,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -49,6 +50,11 @@ public class Issuer {
     private final URI baseUri;
     private final HttpClient httpClient;
     private final JsonProcessor processor;
+
+    private static final int SUCCESS = 201;
+    private static final int INVALID_INPUT = 400;
+    private static final int NOT_FOUND = 404;
+    private static final int ERROR = 500;
 
     /**
      * Create a new Issuer object.
@@ -78,17 +84,7 @@ public class Issuer {
      * @return a new Verifiable Credential
      */
     public VerifiableCredential issue(final VerifiableCredential credential) {
-        final var req = HttpRequest.newBuilder(getIssueUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
-            .build();
-        try {
-            return httpClient
-                .send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-                .body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error issuing verifiable credential", ex);
-        }
+        return issueAsync(credential).toCompletableFuture().join();
     }
 
     /**
@@ -102,9 +98,27 @@ public class Issuer {
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
-        return httpClient
-                .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-                .thenApply(HttpResponse::body);
+
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+            .thenCompose(res -> {
+                try {
+                    if (SUCCESS == res.statusCode()) {
+                        return CompletableFuture.completedFuture(
+                            processor.fromJson(res.body(), VerifiableCredential.class));
+                    }
+                    if (INVALID_INPUT == res.statusCode()) {
+                        throw new VerifiableCredentialException("Invalid input", res.statusCode());
+                    }
+                    if (ERROR == res.statusCode()) {
+                        throw new VerifiableCredentialException("Internal server error", res.statusCode());
+                    }
+                    throw new VerifiableCredentialException("Unexpected error response while issuing a credential");
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException(
+                        "Unexpected I/O exception while issuing a credential",
+                        ex);
+                }
+            });
     }
 
     /**
@@ -113,16 +127,7 @@ public class Issuer {
      * @param request the status request
      */
     public void status(final StatusRequest request) {
-        final var req = HttpRequest.newBuilder(getStatusUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(ofStatusRequest(request))
-            .build();
-
-        try {
-            httpClient.send(req, HttpResponse.BodyHandlers.discarding());
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error updating credential status.", ex);
-        }
+        statusAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -138,7 +143,22 @@ public class Issuer {
             .build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenApply(HttpResponse::body);
+            .thenCompose(res -> {
+                if (SUCCESS == res.statusCode()) {
+                    return CompletableFuture.completedFuture(res.body());
+                }
+                if (INVALID_INPUT == res.statusCode()) {
+                    throw new VerifiableCredentialException("Invalid input", res.statusCode());
+                }
+                if (NOT_FOUND == res.statusCode()) {
+                    throw new VerifiableCredentialException("Credential not found", res.statusCode());
+                }
+                if (ERROR == res.statusCode()) {
+                    throw new VerifiableCredentialException("Internal server error", res.statusCode());
+                }
+                throw new VerifiableCredentialException("Unexpected error while updating status of a credential");
+
+            });
     }
 
     /**

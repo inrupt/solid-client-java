@@ -56,7 +56,31 @@ public class VerifiableCredentialException extends InruptClientException {
      * Create a Verifiable Credential exception.
      *
      * @param message the message
-     * @param statusCode the HTTP sattus code
+     * @param body the body content
+     * @param statusCode the HTTP status code
+     */
+    public VerifiableCredentialException(final String message, final String bodyContent, final int statusCode) {
+        super(message);
+        status = statusCode;
+    }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param body the body content
+     * @param cause the cause
+     */
+    public VerifiableCredentialException(final String message, final String bodyContent, final Throwable cause) {
+        super(message, cause);
+        body = bodyContent;
+    }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param statusCode the HTTP status code
      */
     public VerifiableCredentialException(final String message, final int statusCode) {
         super(message);
@@ -64,11 +88,11 @@ public class VerifiableCredentialException extends InruptClientException {
     }
 
     public Optional<Integer> getStatus() {
-        return Optional.of(status);
+        return Optional.ofNullable(status);
     }
 
     public Optional<String> getBody() {
-        return Optional.of(body);
+        return Optional.ofNullable(body);
     }
 
 }
