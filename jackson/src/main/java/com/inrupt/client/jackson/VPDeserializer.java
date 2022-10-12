@@ -22,7 +22,6 @@ package com.inrupt.client.jackson;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -40,10 +39,10 @@ import java.util.Map;
 public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
 
     public VPDeserializer() {
-        this(null);
+        this((Class<VerifiablePresentation>)null);
     }
 
-    public VPDeserializer(final Class<?> vp) {
+    public VPDeserializer(final Class<VerifiablePresentation> vp) {
         super(vp);
     }
 
@@ -52,7 +51,7 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
             throws IOException, JacksonException {
 
         final JsonNode node = jp.getCodec().readTree(jp);
-        final var vp = new VerifiablePresentation();
+        final VerifiablePresentation vp = new VerifiablePresentation();
 
         if (node.get("@context") != null) {
             final ArrayNode contexts = (ArrayNode) node.get("@context");
@@ -81,24 +80,18 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
         if (node.get("verifiableCredential") != null) {
             final ArrayNode verifiableCredential = (ArrayNode) node.get("verifiableCredential");
             final List<VerifiableCredential> finalVerifiableCredential = new ArrayList<>();
-            verifiableCredential.forEach(oneType -> {
-                try {
-                    finalVerifiableCredential.add(
-                        (VerifiableCredential)jp.getCodec()
-                            .treeToValue(verifiableCredential, VerifiableCredential.class));
-                } catch (JsonProcessingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            });
+            for (final JsonNode oneVc: verifiableCredential) {
+                finalVerifiableCredential.add((VerifiableCredential)jp.getCodec()
+                    .treeToValue(oneVc, VerifiableCredential.class)
+                );
+            }
             vp.verifiableCredential = finalVerifiableCredential;
         }
 
         if (node.get("proof") != null) {
             final ObjectNode proof = (ObjectNode) node.get("proof");
             final Map<String, Object> finalProof = new HashMap<>();
-            final var fields = proof.fields();
-            fields.forEachRemaining(field -> {
+            proof.fields().forEachRemaining(field -> {
                 finalProof.put(field.getKey(), field.getValue());
             });
             vp.proof = finalProof;

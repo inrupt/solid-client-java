@@ -39,10 +39,10 @@ import java.util.Map;
 public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
     public VCDeserializer() {
-        this(null);
+        this((Class<VerifiableCredential>)null);
     }
 
-    public VCDeserializer(final Class<?> vc) {
+    public VCDeserializer(final Class<VerifiableCredential> vc) {
         super(vc);
     }
 
@@ -51,7 +51,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
             throws IOException, JacksonException {
         final JsonNode node = jp.getCodec().readTree(jp);
 
-        final var vc = new VerifiableCredential();
+        final VerifiableCredential vc = new VerifiableCredential();
 
         if (node.get("@context") != null) {
             final ArrayNode contexts = (ArrayNode) node.get("@context");
@@ -90,8 +90,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         if (node.get("credentialSubject") != null) {
             final ObjectNode credentialSubject = (ObjectNode) node.get("credentialSubject");
             final Map<String, Object> finalCredentialSubject = new HashMap<>();
-            final var fields = credentialSubject.fields();
-            fields.forEachRemaining(field -> {
+            credentialSubject.fields().forEachRemaining(field -> {
                 finalCredentialSubject.put(field.getKey(), field.getValue());
             });
             vc.credentialSubject = finalCredentialSubject;
@@ -100,8 +99,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         if (node.get("credentialStatus") != null) {
             final ObjectNode credentialStatus = (ObjectNode) node.path("credentialStatus");
             final Map<String, Object> finalCredentialStatus = new HashMap<>();
-            final var fields = credentialStatus.fields();
-            fields.forEachRemaining(field -> {
+            credentialStatus.fields().forEachRemaining(field -> {
                 finalCredentialStatus.put(field.getKey(), field.getValue());
             });
             vc.credentialStatus = finalCredentialStatus;
@@ -110,8 +108,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         if (node.get("proof") != null) {
             final ObjectNode proof = (ObjectNode) node.get("proof");
             final Map<String, Object> finalProof = new HashMap<>();
-            final var fields = proof.fields();
-            fields.forEachRemaining(field -> {
+            proof.fields().forEachRemaining(field -> {
                 finalProof.put(field.getKey(), field.getValue());
             });
             vc.proof = finalProof;

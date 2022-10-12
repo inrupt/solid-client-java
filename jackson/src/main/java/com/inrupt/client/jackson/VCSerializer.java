@@ -30,11 +30,11 @@ import java.io.IOException;
 public class VCSerializer extends StdSerializer<VerifiableCredential> {
 
     public VCSerializer() {
-        this(null);
+        this((Class<VerifiableCredential>)null);
     }
 
-    public VCSerializer(final Class<VerifiableCredential> t) {
-        super(t);
+    public VCSerializer(final Class<VerifiableCredential> vc) {
+        super(vc);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
 
         jgen.writeFieldName("@context");
         jgen.writeStartArray();
-        for (String context: vc.context) {
+        for (final String context: vc.context) {
             jgen.writeString(context);
         }
         jgen.writeEndArray();
@@ -54,7 +54,7 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
 
         jgen.writeFieldName("type");
         jgen.writeStartArray();
-        for (String type: vc.type) {
+        for (final String type: vc.type) {
             jgen.writeString(type);
         }
         jgen.writeEndArray();
