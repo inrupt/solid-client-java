@@ -90,7 +90,7 @@ class MockHttpServer {
         wireMockServer.stubFor(get(urlEqualTo("/uma/jwks"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody(getResource("/uma-jwks.json"))));
+                        .withBodyFile("uma-jwks.json")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
                     .withRequestBody(containing("ticket=ticket-12345"))

@@ -177,14 +177,7 @@ public class UmaAuthenticationMechanism implements SolidAuthenticationMechanism 
         }
 
         public ClaimToken sync(final NeedInfo needInfo) {
-            for (final var requiredClaims : needInfo.getRequiredClaims()) {
-                for (final var handler : handlers) {
-                    if (handler.isCompatibleWith(requiredClaims)) {
-                        return handler.gather();
-                    }
-                }
-            }
-            return null;
+            return async(needInfo).toCompletableFuture().join();
         }
 
         public CompletionStage<ClaimToken> async(final NeedInfo needInfo) {
