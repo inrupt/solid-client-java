@@ -21,14 +21,17 @@
 package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.spi.VerifiablePresentation;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -64,16 +67,17 @@ class VerifierTest {
     @Test
     void verifyStatusCodesTest() {
         assertAll("Empty VC",
-        () -> {
-            final CompletionException exception = assertThrows(CompletionException.class,
-            () -> verifier.verify(new VerifiableCredential())
-            );
-            assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                    assertEquals(
-                            "com.inrupt.client.vc.VerifiableCredentialException: Unexpected error response when verifying a resource.",
-                exception.getMessage());
-            assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
-        });
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> verifier.verify(new VerifiableCredential())
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when verifying a resource.",
+                    exception.getMessage());
+                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test
@@ -96,18 +100,18 @@ class VerifierTest {
 
     @Test
     void verifyPresentationStatusCodesTest() {
-        assertAll("Empty VC",
-        () -> {
-            final CompletionException exception = assertThrows(CompletionException.class,
-            () -> verifier.verify(new VerifiablePresentation())
-            );
-            assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                    assertEquals(
-                            
-                    "com.inrupt.client.vc.VerifiableCredentialException: Unexpected error response when verifying a resource.",
+        assertAll("Empty VP",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> verifier.verify(new VerifiablePresentation())
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when verifying a resource.",
                     exception.getMessage());
-            assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
-        });
+                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test

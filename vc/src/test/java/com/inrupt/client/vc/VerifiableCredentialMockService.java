@@ -65,10 +65,10 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
                     .withHeader("Content-Type", containing("application/json"))
                     .withRequestBody(containing("\"id\":\"http://example.test/credentials/1872\""))
-                        .atPriority(1)
-                        .willReturn(aResponse()
-                            .withBodyFile("verificationResponse.json")
-                            .withStatus(200))); 
+                    .atPriority(1)
+                    .willReturn(aResponse()
+                        .withBodyFile("verificationResponse.json")
+                        .withStatus(200)));
         vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
@@ -88,16 +88,30 @@ class VerifiableCredentialMockService {
 
         vcMockService.stubFor(post(urlEqualTo("/credentials/issue"))
                     .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"id\":\"http://example.test/credentials/1872\""))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withBodyFile("verifiableCredential.json")
                         .withStatus(201)));
+        vcMockService.stubFor(post(urlEqualTo("/credentials/issue"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withBodyFile("verifiableCredential.json")
+                        .withStatus(400)));
 
         vcMockService.stubFor(post(urlEqualTo( "/credentials/status"))
                     .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"credential_id\":\"http://example.test/credentials/1872\""))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withBody("{ \"id\": \"https://example.edu/status/24/\"," +
                         "\"type\": \"CredentialStatusList2017\" }")
                         .withStatus(201)));
+        vcMockService.stubFor(post(urlEqualTo( "/credentials/status"))
+                .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"credential_id\":\"http://example.test/credentials/0000\""))
+                    .willReturn(aResponse()
+                        .withStatus(404)));
 
         vcMockService.stubFor(get(urlPathMatching( "/credentials"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
@@ -105,19 +119,29 @@ class VerifiableCredentialMockService {
                         .withStatus(200)
                         .withBodyFile("verifiableCredentialList.json")
                         .withHeader("Accept", "application/json")));
-        vcMockService.stubFor(get(urlPathMatching( "/credentials/(.*)"))
+        vcMockService.stubFor(get(urlPathMatching("/credentials/http://example.test/credentials/1872"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withBodyFile("verifiableCredential.json")
                         .withHeader("Accept", "application/json")));
+        vcMockService.stubFor(get(urlPathMatching("/credentials/http://example.test/credentials/0000"))
+                    .willReturn(aResponse()
+                        .withStatus(400)));
         vcMockService.stubFor(delete(urlPathMatching( "/credentials/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)));
+
         vcMockService.stubFor(post(urlEqualTo( "/credentials/derive"))
                     .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"id\":\"http://example.test/credentials/1872\""))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withBodyFile("verifiableCredential.json")
                         .withStatus(201)));
+        vcMockService.stubFor(post(urlEqualTo( "/credentials/derive"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(400)));
 
         vcMockService.stubFor(get(urlPathMatching( "/presentations"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
@@ -133,16 +157,30 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(delete(urlPathMatching( "/presentations/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)));
+
         vcMockService.stubFor(post(urlEqualTo( "/presentations/prove"))
                     .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"id\":\"http://example.test/credentialVP/18\""))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withBodyFile("verifiablePresentation.json")
                         .withStatus(201)));
+        vcMockService.stubFor(post(urlEqualTo( "/presentations/prove"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(400)));
+
         vcMockService.stubFor(post(urlPathMatching( "/exchanges/(.*)"))
                     .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"type\":\"UniversityDegreeCredential\""))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withBodyFile("verifiablePresentationRequest.json")
                         .withStatus(200)));
+        vcMockService.stubFor(post(urlPathMatching( "/exchanges/(.*)"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(401)));
     }
 
     public Map<String, String> start() {

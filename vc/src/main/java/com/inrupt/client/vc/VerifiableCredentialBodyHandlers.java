@@ -30,13 +30,28 @@ import java.net.http.HttpResponse;
  */
 public final class VerifiableCredentialBodyHandlers {
 
+    private static final int SUCCESS = 200;
+    private static final int CREATED = 201;
+
     /**
      * Create a {@link VerifiableCredential} from an HTTP response.
      *
      * @return the body handler
      */
     public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiableCredential();
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerifiableCredential> bodySubscriber;
+            final int status = responseInfo.statusCode();
+            if (status == SUCCESS || status == CREATED) {
+                return VerifiableCredentialBodySubscribers.ofVerifiableCredential();
+            } else {
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when handling a verifiable credential.",
+                    status));
+            }
+            return bodySubscriber;
+        };
     }
 
     /**
@@ -45,7 +60,19 @@ public final class VerifiableCredentialBodyHandlers {
      * @return the body handler
      */
     public static HttpResponse.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerifiablePresentation> bodySubscriber;
+            final int status = responseInfo.statusCode();
+            if (status == SUCCESS || status == CREATED) {
+                return VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
+            } else {
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when handling a verifiable presentation.",
+                    status));
+            }
+            return bodySubscriber;
+        };
     }
 
     private VerifiableCredentialBodyHandlers() {

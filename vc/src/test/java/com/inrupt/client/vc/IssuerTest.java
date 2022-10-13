@@ -20,8 +20,9 @@
  */
 package com.inrupt.client.vc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.vc.Issuer.StatusRequest;
 
 import java.net.URI;
@@ -29,6 +30,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -88,20 +90,35 @@ class IssuerTest {
         assertEquals(VCtestData.VC.issuer, vc.issuer);
         assertEquals(VCtestData.VC.issuanceDate, vc.issuanceDate);
         assertEquals(VCtestData.VC.expirationDate, vc.expirationDate);
-        final var vcCredentialSubject = "{alumniOf=" +
-            "{\"id\":\"did:example:c276e12ec21ebfeb1f712ebc6f1\"," +
-            "\"name\":\"Example University\"}," +
-            " id=\"did:example:ebfeb1f712ebc6f1c276e12ec21\"}";
+        final var vcCredentialSubject =
+                "{alumniOf=" + "{\"id\":\"did:example:c276e12ec21ebfeb1f712ebc6f1\","
+                        + "\"name\":\"Example University\"},"
+                        + " id=\"did:example:ebfeb1f712ebc6f1c276e12ec21\"}";
         assertEquals(vcCredentialSubject, vc.credentialSubject.toString());
-        final var vcCredentialStatus = "{id=\"https://example.test/status/24\", type=\"CredentialStatusList2017\"}";
+        final var vcCredentialStatus =
+                "{id=\"https://example.test/status/24\", type=\"CredentialStatusList2017\"}";
         assertEquals(vcCredentialStatus, vc.credentialStatus.toString());
-        final var proof = "{created=\"2017-06-18T21:19:10Z\"," +
-            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"," +
-            " proofPurpose=\"assertionMethod\"," +
-            " type=\"RsaSignature2018\"," +
-            " verificationMethod=\"https://example.test/issuers/565049#key-1\"" +
-            "}";
+        final var proof = "{created=\"2017-06-18T21:19:10Z\","
+                + " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\","
+                + " proofPurpose=\"assertionMethod\"," + " type=\"RsaSignature2018\","
+                + " verificationMethod=\"https://example.test/issuers/565049#key-1\"" + "}";
         assertEquals(proof, vc.proof.toString());
+    }
+
+    @Test
+    void issueStatusCodesTest() {
+        assertAll("Empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> issuer.issue(new VerifiableCredential())
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when handling a verifiable credential.",
+                    exception.getMessage());
+                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test
@@ -117,10 +134,29 @@ class IssuerTest {
     @Test
     void statusAsyncTest() {
         final var statusRequest = StatusRequest.Builder.newBuilder()
-            .credentialStatus(URI.create("CredentialStatusList2017"), true)
-            .build("http://example.test/credentials/1872");
+                .credentialStatus(URI.create("CredentialStatusList2017"), true)
+                .build("http://example.test/credentials/1872");
 
         issuer.statusAsync(statusRequest);
+    }
+
+    @Test
+    void statusAsyncTestStatusCodesTest() {
+        final var statusRequest = StatusRequest.Builder.newBuilder()
+                .credentialStatus(URI.create("CredentialStatusList2017"), true)
+                .build("http://example.test/credentials/0000");
+        assertAll("Empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> issuer.status(statusRequest)
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when updating status.",
+                    exception.getMessage());
+                assertEquals(404, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
 }

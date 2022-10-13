@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodySubscribers;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -93,7 +92,7 @@ public class Verifier {
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
-            
+
         return httpClient.sendAsync(req, ofVerificationResponse())
             .thenApply(HttpResponse::body);
     }
@@ -160,8 +159,10 @@ public class Verifier {
                     }
                 });
             } else {
-                bodySubscriber = BodySubscribers.replacing(null);
-                bodySubscriber.onError(new VerifiableCredentialException("Unexpected error response when verifying a resource.", status));
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when verifying a resource.",
+                    status));
             }
             return bodySubscriber;
         };

@@ -20,7 +20,10 @@
  */
 package com.inrupt.client.vc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -79,9 +83,25 @@ class HolderTest {
     @Test
     void getCredentialAsyncTest() {
         final var vc = holder.getCredentialAsync("http://example.test/credentials/1872")
-            .toCompletableFuture().join();
+                .toCompletableFuture().join();
 
         assertEquals("http://example.test/credentials/1872", vc.id);
+    }
+
+    @Test
+    void getCredentialStatusCodesTest() {
+        assertAll("Empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> holder.getCredential("http://example.test/credentials/0000")
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when handling a verifiable credential.",
+                    exception.getMessage());
+                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test
@@ -106,6 +126,26 @@ class HolderTest {
         final var vc = holder.derive(derivationReq);
 
         assertEquals("http://example.test/credentials/1872", vc.id);
+    }
+
+    @Test
+    void deriveStatusCodesTest() {
+        final var derivationReq = new Holder.DerivationRequest();
+        derivationReq.verifiableCredential = new VerifiableCredential();
+        derivationReq.frame = Collections.emptyMap();
+        derivationReq.options = Collections.emptyMap();
+        assertAll("Empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> holder.derive(derivationReq)
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when handling a verifiable credential.",
+                    exception.getMessage());
+                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test
@@ -184,15 +224,36 @@ class HolderTest {
     @Test
     void proveAsyncTest() {
 
-        final var derivationReq = new Holder.ProveRequest();
-        derivationReq.presentation = VCtestData.VP;
-        derivationReq.options = Map.of("nonce",
+        final var proveReq = new Holder.ProveRequest();
+        proveReq.presentation = VCtestData.VP;
+        proveReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
-        final var vp = holder.proveAsync(derivationReq).toCompletableFuture().join();
+        final var vp = holder.proveAsync(proveReq).toCompletableFuture().join();
 
         assertEquals(VCtestData.VP.context, vp.context);
         assertEquals(VCtestData.VP.id, vp.id);
+    }
+
+    @Test
+    void proveAsyncStatusCodesTest() {
+        final var proveReq = new Holder.ProveRequest();
+        proveReq.presentation = new VerifiablePresentation();
+        proveReq.options = Collections.emptyMap();
+
+        assertAll("Empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(
+                        CompletionException.class,
+                        () -> holder.prove(proveReq)
+                    );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                        "com.inrupt.client.vc.VerifiableCredentialException: " +
+                        "Unexpected error response when handling a verifiable presentation.",
+                        exception.getMessage());
+                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test
@@ -221,19 +282,40 @@ class HolderTest {
         final var exchangeReq = new Holder.ExchangeRequest();
         exchangeReq.query = new Holder.Query();
         exchangeReq.query.type = URI.create("QueryByExample");
-        exchangeReq.query.credentialQuery = Map.of(
-                "reason", "We need to see your existing University Degree credential.",
-                "example", Map.of(
-                        "@context", List.of(
-                                "https://www.w3.org/2018/credentials/v1",
+        exchangeReq.query.credentialQuery = Map.of("reason",
+                "We need to see your existing University Degree credential.", "example",
+                Map.of("@context",
+                        List.of("https://www.w3.org/2018/credentials/v1",
                                 "https://www.w3.org/2018/credentials/examples/v1"),
                         "type", "UniversityDegreeCredential"));
 
         final var vpr = holder.initiateExchangeAsync("credential-refresh", exchangeReq)
-            .toCompletableFuture().join();
+                .toCompletableFuture().join();
 
         assertEquals("edu.example", vpr.domain);
         assertEquals("3182bdea-63d9-11ea-b6de-3b7c1404d57f", vpr.challenge);
+    }
+
+    @Test
+    void initiateExchangeAsyncStatusCodesTest() {
+        final var exchangeReq = new Holder.ExchangeRequest();
+        exchangeReq.query = new Holder.Query();
+        exchangeReq.query.type = URI.create("QueryByExample");
+        exchangeReq.query.credentialQuery = Collections.emptyMap();
+
+        assertAll("Empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> holder.initiateExchangeAsync("credential-refresh", exchangeReq)
+                    .toCompletableFuture().join()
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                assertEquals(
+                    "com.inrupt.client.vc.VerifiableCredentialException: " +
+                    "Unexpected error response when handling a verifiable presentation.",
+                    exception.getMessage());
+                assertEquals(401, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+            });
     }
 
     @Test

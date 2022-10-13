@@ -46,15 +46,11 @@ public class Issuer {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
+    private static final int SUCCESS = 201;
 
     private final URI baseUri;
     private final HttpClient httpClient;
     private final JsonProcessor processor;
-
-    private static final int SUCCESS = 201;
-    private static final int INVALID_INPUT = 400;
-    private static final int NOT_FOUND = 404;
-    private static final int ERROR = 500;
 
     /**
      * Create a new Issuer object.
@@ -99,26 +95,9 @@ public class Issuer {
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenCompose(res -> {
-                try {
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(
-                            processor.fromJson(res.body(), VerifiableCredential.class));
-                    }
-                    if (INVALID_INPUT == res.statusCode()) {
-                        throw new VerifiableCredentialException("Invalid input", res.statusCode());
-                    }
-                    if (ERROR == res.statusCode()) {
-                        throw new VerifiableCredentialException("Internal server error", res.statusCode());
-                    }
-                    throw new VerifiableCredentialException("Unexpected error response while issuing a credential");
-                } catch (final IOException ex) {
-                    throw new VerifiableCredentialException(
-                        "Unexpected I/O exception while issuing a credential",
-                        ex);
-                }
-            });
+        return httpClient
+                .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+                .thenApply(HttpResponse::body);
     }
 
     /**
@@ -143,22 +122,14 @@ public class Issuer {
             .build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenCompose(res -> {
-                if (SUCCESS == res.statusCode()) {
-                    return CompletableFuture.completedFuture(res.body());
-                }
-                if (INVALID_INPUT == res.statusCode()) {
-                    throw new VerifiableCredentialException("Invalid input", res.statusCode());
-                }
-                if (NOT_FOUND == res.statusCode()) {
-                    throw new VerifiableCredentialException("Credential not found", res.statusCode());
-                }
-                if (ERROR == res.statusCode()) {
-                    throw new VerifiableCredentialException("Internal server error", res.statusCode());
-                }
-                throw new VerifiableCredentialException("Unexpected error while updating status of a credential");
-
-            });
+                .thenCompose(res -> {
+                    if (SUCCESS == res.statusCode()) {
+                        return CompletableFuture.completedFuture(res.body());
+                    }
+                    throw new VerifiableCredentialException(
+                        "Unexpected error response when updating status.",
+                        res.statusCode());
+                });
     }
 
     /**
@@ -266,14 +237,13 @@ public class Issuer {
     }
 
     private HttpRequest.BodyPublisher ofStatusRequest(final StatusRequest request) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> {
-                    try {
-                        processor.toJson(request, out);
-                    } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing status request", ex);
-                    }
-                }));
+        return HttpRequest.BodyPublishers.ofInputStream(() -> IOUtils.pipe(out -> {
+            try {
+                processor.toJson(request, out);
+            } catch (final IOException ex) {
+                throw new VerifiableCredentialException("Error serializing status request", ex);
+            }
+        }));
     }
 
     private URI getIssueUrl() {
