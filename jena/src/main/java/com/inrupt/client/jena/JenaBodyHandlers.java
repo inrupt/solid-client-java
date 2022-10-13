@@ -23,12 +23,14 @@ package com.inrupt.client.jena;
 import java.net.http.HttpResponse;
 
 import org.apache.jena.atlas.web.ContentType;
+import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.riot.RiotException;
 
 /**
  * {@link HttpResponse.BodyHandler} implementations for use with Jena types.
@@ -43,7 +45,7 @@ public final class JenaBodyHandlers {
     public static HttpResponse.BodyHandler<Model> ofModel() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
             .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofModel)
-            .orElseThrow(() -> new RiotException("Missing content-type header from response"));
+            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(ModelFactory.createDefaultModel()));
     }
 
     /**
@@ -54,7 +56,7 @@ public final class JenaBodyHandlers {
     public static HttpResponse.BodyHandler<Graph> ofGraph() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
             .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofGraph)
-            .orElseThrow(() -> new RiotException("Missing content-type header from response"));
+            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(Factory.createDefaultGraph()));
     }
 
     /**
@@ -65,7 +67,7 @@ public final class JenaBodyHandlers {
     public static HttpResponse.BodyHandler<Dataset> ofDataset() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
             .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofDataset)
-            .orElseThrow(() -> new RiotException("Missing content-type header from response"));
+            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(DatasetFactory.create()));
     }
 
     static Lang toJenaLang(final String mediaType) {

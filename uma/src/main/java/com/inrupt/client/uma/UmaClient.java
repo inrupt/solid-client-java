@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class UmaClient {
@@ -45,7 +46,6 @@ public class UmaClient {
     private static final String JSON = "application/json";
     private static final String X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
     private static final int SUCCESS = 200;
-    private static final int FORBIDDEN = 403;
 
     /* UMA parameter names */
     private static final String CLAIM_TOKEN = "claim_token";
@@ -66,7 +66,6 @@ public class UmaClient {
     private static final String REQUEST_DENIED = "request_denied";
 
     // TODO add metadata cache
-
     private final HttpClient httpClient;
     private final JsonProcessor processor;
     private final int maxIterations;
@@ -131,8 +130,19 @@ public class UmaClient {
      */
     public TokenResponse token(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function<NeedInfo, ClaimToken> claimMapper) {
-        return token(Objects.requireNonNull(tokenEndpoint),
-                Objects.requireNonNull(tokenRequest), Objects.requireNonNull(claimMapper), 1);
+        final var mapper = Objects.requireNonNull(claimMapper);
+        try {
+            return negotiateToken(Objects.requireNonNull(tokenEndpoint),
+                    Objects.requireNonNull(tokenRequest),
+                    needInfo -> CompletableFuture.completedFuture(mapper.apply(needInfo)), 1)
+                .toCompletableFuture().get();
+        } catch (final InterruptedException ex) {
+            throw new UmaException("Error processing UMA token negotiation", ex);
+        } catch (final ExecutionException ex) {
+            // Handle any execution exceptions as runtime errors
+            sneakyThrow(ex.getCause());
+        }
+        throw new UmaException("Unable to negotiate UMA token");
     }
 
     /**
@@ -145,11 +155,11 @@ public class UmaClient {
      */
     public CompletionStage<TokenResponse> tokenAsync(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function<NeedInfo, CompletionStage<ClaimToken>> claimMapper) {
-        return tokenAsync(Objects.requireNonNull(tokenEndpoint),
+        return negotiateToken(Objects.requireNonNull(tokenEndpoint),
                 Objects.requireNonNull(tokenRequest), Objects.requireNonNull(claimMapper), 1);
     }
 
-    private CompletionStage<TokenResponse> tokenAsync(final URI tokenEndpoint, final TokenRequest tokenRequest,
+    private CompletionStage<TokenResponse> negotiateToken(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function<NeedInfo, CompletionStage<ClaimToken>> claimMapper, final int count) {
 
         if (count > maxIterations) {
@@ -184,7 +194,7 @@ public class UmaClient {
                                     }))
                                     .orElseThrow(() -> new RequestDeniedException("Invalid need_info error response"))
                                     .thenCompose(modifiedTokenRequest ->
-                                        tokenAsync(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));
+                                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));
 
                             case REQUEST_DENIED:
                                 throw new RequestDeniedException(
@@ -207,61 +217,8 @@ public class UmaClient {
             });
     }
 
-    private TokenResponse token(final URI tokenEndpoint, final TokenRequest tokenRequest,
-            final Function<NeedInfo, ClaimToken> claimMapper, final int count) {
-
-        if (count > maxIterations) {
-            throw new UmaException("Claim gathering stages exceeded configured maximum of " + maxIterations);
-        }
-
-        try {
-            final var req = buildTokenRequest(tokenEndpoint, tokenRequest);
-            final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-
-            // Successful terminal state
-            if (SUCCESS == res.statusCode()) {
-                return processor.fromJson(res.body(), TokenResponse.class);
-            }
-
-            // Everything else is a 4xx response
-            // Attempt to read the error response as JSON
-            final var err = processor.fromJson(res.body(), ErrorResponse.class);
-
-            if (err.error != null) {
-                switch (err.error) {
-                    case NEED_INFO:
-                        // recursive claims gathering
-                        return NeedInfo.ofErrorResponse(err)
-                            .map(needInfo -> {
-                                final var claimToken = claimMapper.apply(needInfo);
-                                if (claimToken == null) {
-                                    throw new RequestDeniedException(
-                                            "The client is unable to negotiate an access token");
-                                }
-
-                                final var modifiedTokenRequest = new TokenRequest(needInfo.getTicket(), null, null,
-                                        claimToken, tokenRequest.getScopes());
-                                return token(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1);
-                            })
-                            .orElseThrow(() ->
-                                new RequestDeniedException("Invalid need_info error response"));
-
-                    case REQUEST_DENIED:
-                        throw new RequestDeniedException("The client is not authorized for the requested permissions");
-
-                    case INVALID_GRANT:
-                        throw new InvalidGrantException("Invalid grant provided");
-
-                    case INVALID_SCOPE:
-                        throw new InvalidScopeException("Invalid scope provided");
-                }
-            }
-
-            throw new UmaException("Unexpected error response while performing token negotiation: " + res.statusCode());
-
-        } catch (final InterruptedException | IOException ex) {
-            throw new UmaException("Unexpected I/O Error while performing token negotiation", ex);
-        }
+    static <T extends Throwable> void sneakyThrow(final Throwable ex) throws T {
+        throw (T) ex;
     }
 
     private HttpRequest buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {

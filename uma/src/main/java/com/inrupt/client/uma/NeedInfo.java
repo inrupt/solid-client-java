@@ -26,7 +26,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A class representing a {@code need_info} error response from an UMA server.
+ */
 public final class NeedInfo {
+
+    private static final String NEED_INFO = "need_info";
 
     private final String ticket;
     private final URI redirectUser;
@@ -38,20 +43,41 @@ public final class NeedInfo {
         this.requiredClaims = Objects.requireNonNull(requiredClaims);
     }
 
+    /**
+     * Return a list of required claims.
+     *
+     * @return the required claims, never {@code null}
+     */
     public List<RequiredClaims> getRequiredClaims() {
         return requiredClaims;
     }
 
+    /**
+     * Return an optional redirect URI.
+     *
+     * @return a user redirection URI
+     */
     public Optional<URI> getRedirectUser() {
         return Optional.ofNullable(redirectUser);
     }
 
+    /**
+     * Return the ticket to be used when continuing this flow.
+     *
+     * @return the UMA ticket
+     */
     public String getTicket() {
         return ticket;
     }
 
+    /**
+     * Create an optional {@link NeedInfo} object from an {@link ErrorResponse}.
+     *
+     * @param error the error response
+     * @return the optional {@code need_info} data
+     */
     public static Optional<NeedInfo> ofErrorResponse(final ErrorResponse error) {
-        if ("need_info".equals(error.error) && error.ticket != null) {
+        if (NEED_INFO.equals(error.error) && error.ticket != null) {
             final var requiredClaims = new ArrayList<RequiredClaims>();
             if (error.requiredClaims != null) {
                 for (var item : error.requiredClaims) {
@@ -62,5 +88,4 @@ public final class NeedInfo {
         }
         return Optional.empty();
     }
-
 }
