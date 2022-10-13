@@ -23,7 +23,6 @@ package com.inrupt.client.vc;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Map;
@@ -33,8 +32,7 @@ class VerifiableCredentialMockService {
     private final WireMockServer vcMockService;
 
     public VerifiableCredentialMockService() {
-        vcMockService = new WireMockServer(WireMockConfiguration.options().notifier(new Slf4jNotifier(true))
-            .dynamicPort());
+        vcMockService = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
 
     public int getPort() {
@@ -64,6 +62,30 @@ class VerifiableCredentialMockService {
                     .willReturn(aResponse()
                         .withStatus(201)));
 
+        vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"id\":\"http://example.test/credentials/1872\""))
+                        .atPriority(1)
+                        .willReturn(aResponse()
+                            .withBodyFile("verificationResponse.json")
+                            .withStatus(200))); 
+        vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(400)));
+
+        vcMockService.stubFor(post(urlEqualTo( "/presentations/verify"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .withRequestBody(containing("\"id\":\"http://example.test/credentials/1872\""))
+                    .atPriority(1)
+                    .willReturn(aResponse()
+                            .withBodyFile("verificationResponse.json")
+                            .withStatus(200)));
+        vcMockService.stubFor(post(urlEqualTo( "/presentations/verify"))
+                    .withHeader("Content-Type", containing("application/json"))
+                    .willReturn(aResponse()
+                        .withStatus(400)));
+
         vcMockService.stubFor(post(urlEqualTo("/credentials/issue"))
                     .withHeader("Content-Type", containing("application/json"))
                     .willReturn(aResponse()
@@ -76,26 +98,6 @@ class VerifiableCredentialMockService {
                         .withBody("{ \"id\": \"https://example.edu/status/24/\"," +
                         "\"type\": \"CredentialStatusList2017\" }")
                         .withStatus(201)));
-
-        /* vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
-                    .withHeader("Content-Type", containing("application/json"))
-                    .willReturn(aResponse()
-                        .withStatus(400))); */
-
-        vcMockService.stubFor(post(urlEqualTo( "/credentials/verify"))
-                    .withHeader("Content-Type", containing("application/json"))
-                    .willReturn(aResponse()
-                        .withBodyFile("verificationResponse.json")
-                        .withStatus(200)));
-        vcMockService.stubFor(post(urlEqualTo( "/presentations/verify"))
-                    .withHeader("Content-Type", containing("application/json"))
-                    .willReturn(aResponse()
-                        .withBodyFile("verificationResponse.json")
-                        .withStatus(200)));
-        /* vcMockService.stubFor(post(urlEqualTo( "/presentations/verify"))
-                    .withHeader("Content-Type", containing("application/json"))
-                    .willReturn(aResponse()
-                        .withStatus(400))); */
 
         vcMockService.stubFor(get(urlPathMatching( "/credentials"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))

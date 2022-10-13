@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.core.InputStreamBodySubscribers;
 import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
@@ -31,8 +32,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodySubscribers;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -45,8 +46,6 @@ public class Verifier {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final int SUCCESS = 200;
-    private static final int INVALID_INPUT = 400;
-    private static final int ERROR = 500;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -94,27 +93,9 @@ public class Verifier {
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
-
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenCompose(res -> {
-                try {
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(
-                            processor.fromJson(res.body(), VerificationResponse.class));
-                    }
-                    if (INVALID_INPUT == res.statusCode()) {
-                        throw new VerifiableCredentialException("Invalid input", res.statusCode());
-                    }
-                    if (ERROR == res.statusCode()) {
-                        throw new VerifiableCredentialException("Internal server error", res.statusCode());
-                    }
-                    throw new VerifiableCredentialException("Unexpected error response while verifying a credential");
-                } catch (final IOException ex) {
-                    throw new VerifiableCredentialException(
-                        "Unexpected I/O exception while verifying a credential",
-                        ex);
-                }
-            });
+            
+        return httpClient.sendAsync(req, ofVerificationResponse())
+            .thenApply(HttpResponse::body);
     }
 
 
@@ -134,32 +115,15 @@ public class Verifier {
      * @param presentation the verifiable presentation
      * @return the next stage of completion, containing a verification response
      */
-    public CompletionStage<VerificationResponse> verifyAsync(final VerifiablePresentation presentation) {
+    public CompletionStage<VerificationResponse> verifyAsync(
+            final VerifiablePresentation presentation) {
         final var req = HttpRequest.newBuilder(getPresentationVerifierUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
-            .build();
+                .header(CONTENT_TYPE, APPLICATION_JSON)
+                .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
+                .build();
 
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenCompose( res -> {
-                try {
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(
-                            processor.fromJson(res.body(), VerificationResponse.class));
-                    }
-                    if (INVALID_INPUT == res.statusCode()) {
-                        throw new VerifiableCredentialException("Invalid input", res.statusCode());
-                    }
-                    if (ERROR == res.statusCode()) {
-                        throw new VerifiableCredentialException("Internal server error", res.statusCode());
-                    }
-                    throw new VerifiableCredentialException("Unexpected error response while verifying a presentation");
-                } catch (final IOException ex) {
-                    throw new VerifiableCredentialException(
-                        "Unexpected I/O exception while verifying a presentation",
-                        ex);
-                }
-            });
+        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(HttpResponse::body);
+
     }
 
     /**
@@ -180,6 +144,27 @@ public class Verifier {
          * The verification errors that were discovered.
          */
         public List<String> errors;
+    }
+
+    private HttpResponse.BodyHandler<VerificationResponse> ofVerificationResponse() {
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerificationResponse> bodySubscriber;
+            final int status = responseInfo.statusCode();
+            if (status == SUCCESS) {
+                bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
+                    try {
+                        return processor.fromJson(input, VerificationResponse.class);
+                    } catch (final IOException ex) {
+                        throw new VerifiableCredentialException(
+                                "Error parsing verification request", ex);
+                    }
+                });
+            } else {
+                bodySubscriber = BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException("Unexpected error response when verifying a resource.", status));
+            }
+            return bodySubscriber;
+        };
     }
 
     private URI getCredentialVerifierUrl() {
