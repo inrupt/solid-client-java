@@ -95,14 +95,7 @@ public class Holder {
      * @return a list of verifiable credentials
      */
     public List<VerifiableCredential> listCredentials(final List<URI> types) {
-        final var req = HttpRequest.newBuilder(getCredentialListEndpoint(types)).build();
-        try {
-            final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            return processor.fromJson(res.body(),
-                    new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error listing credentials.", ex);
-        }
+        return listCredentialsAsync(Objects.requireNonNull(types)).toCompletableFuture().join();
     }
 
     /**
@@ -125,10 +118,18 @@ public class Holder {
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
-                    return processor.fromJson(res.body(),
+                    final int httpStatus = res.statusCode();
+                    if (httpStatus >= 200 && httpStatus < 300) {
+                        return processor.fromJson(res.body(),
                             new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
+                    }
+                    throw new VerifiableCredentialException(
+                        "Unexpected error response while listing credentials",
+                        httpStatus);
                 } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error serializing credential list", ex);
+                    throw new VerifiableCredentialException(
+                        "Unexpected I/O exception while listing credentials",
+                        ex);
                 }
             });
     }
@@ -140,12 +141,7 @@ public class Holder {
      * @return the verifiable credential
      */
     public VerifiableCredential getCredential(final String credentialId) {
-        final var req = HttpRequest.newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId))).build();
-        try {
-            return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error retrieving credential.", ex);
-        }
+        return getCredentialAsync(Objects.requireNonNull(credentialId)).toCompletableFuture().join();
     }
 
     /**
@@ -155,9 +151,10 @@ public class Holder {
      * @return the next stage of completion, including a verifiable credential
      */
     public CompletionStage<VerifiableCredential> getCredentialAsync(final String credentialId) {
-        final var req = HttpRequest.newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId))).build();
+        final var req = HttpRequest
+                .newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId))).build();
         return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-            .thenApply(HttpResponse::body);
+                .thenApply(HttpResponse::body);
     }
 
     /**
@@ -166,14 +163,7 @@ public class Holder {
      * @param credentialId the credential identifier
      */
     public void deleteCredential(final String credentialId) {
-        final var req = HttpRequest.newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId)))
-            .DELETE().build();
-
-        try {
-            httpClient.send(req, HttpResponse.BodyHandlers.discarding());
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error retrieving credential.", ex);
-        }
+        deleteCredentialAsync(Objects.requireNonNull(credentialId)).toCompletableFuture().join();
     }
 
     /**
@@ -187,7 +177,15 @@ public class Holder {
             .DELETE().build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenApply(HttpResponse::body);
+            .thenApply(res -> {
+                final int httpStatus = res.statusCode();
+                if (httpStatus >= 200 && httpStatus < 300) {
+                    return res.body();
+                }
+                throw new VerifiableCredentialException(
+                    "Unexpected error while deleting credential",
+                    httpStatus);
+            });
     }
 
     /**
@@ -197,16 +195,7 @@ public class Holder {
      * @return the derived verifiable credential
      */
     public VerifiableCredential derive(final DerivationRequest request) {
-        final var req = HttpRequest.newBuilder(getDeriveEndpoint())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(serialize(request))
-            .build();
-
-        try {
-            return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error deriving credential.", ex);
-        }
+        return deriveAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -222,7 +211,7 @@ public class Holder {
             .build();
 
         return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-            .thenApply(HttpResponse::body);
+                .thenApply(HttpResponse::body);
     }
 
     /**
@@ -241,14 +230,7 @@ public class Holder {
      * @return a list of presentations
      */
     public List<VerifiablePresentation> listPresentations(final List<URI> types) {
-        final var req = HttpRequest.newBuilder(getPresentationListEndpoint(types)).build();
-        try {
-            final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            return processor.fromJson(res.body(),
-                    new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error listing credentials.", ex);
-        }
+        return listPresentationsAsync(Objects.requireNonNull(types)).toCompletableFuture().join();
     }
 
     /**
@@ -267,14 +249,22 @@ public class Holder {
      * @return the next stage of completion, including a list of presentations
      */
     public CompletionStage<List<VerifiablePresentation>> listPresentationsAsync(final List<URI> types) {
-        final var req = HttpRequest.newBuilder(getPresentationListEndpoint(types)).build();
+        final var req = HttpRequest.newBuilder(getPresentationListEndpoint(Objects.requireNonNull(types))).build();
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
-                    return processor.fromJson(res.body(),
+                    final int httpStatus = res.statusCode();
+                    if (httpStatus >= 200 && httpStatus < 300) {
+                        return processor.fromJson(res.body(),
                             new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
+                    }
+                    throw new VerifiableCredentialException(
+                        "Unexpected error response while listing presentations.",
+                        httpStatus);
                 } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error serializing presentation list", ex);
+                    throw new VerifiableCredentialException(
+                        "Unexpected I/O exception while listing presentations",
+                        ex);
                 }
             });
     }
@@ -286,12 +276,9 @@ public class Holder {
      * @return the verifiable presentation
      */
     public VerifiablePresentation getPresentation(final String presentationId) {
-        final var req = HttpRequest.newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId))).build();
-        try {
-            return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error retrieving presentation.", ex);
-        }
+        return getPresentationAsync(Objects.requireNonNull(presentationId))
+            .toCompletableFuture()
+            .join();
     }
 
     /**
@@ -301,9 +288,11 @@ public class Holder {
      * @return the next stage of completion, including the verifiable presentation
      */
     public CompletionStage<VerifiablePresentation> getPresentationAsync(final String presentationId) {
-        final var req = HttpRequest.newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId))).build();
+        final var req = HttpRequest
+            .newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId)))
+                .build();
         return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
-            .thenApply(HttpResponse::body);
+                .thenApply(HttpResponse::body);
     }
 
     /**
@@ -312,15 +301,7 @@ public class Holder {
      * @param presentationId the presentation identifier
      */
     public void deletePresentation(final String presentationId) {
-        final var uri = URIBuilder.newBuilder(baseUri).path("credentials")
-            .path(Objects.requireNonNull(presentationId)).build();
-        final var req = HttpRequest.newBuilder(uri).DELETE().build();
-
-        try {
-            httpClient.send(req, HttpResponse.BodyHandlers.discarding());
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error deleting credential.", ex);
-        }
+        deleteCredentialAsync(Objects.requireNonNull(presentationId)).toCompletableFuture().join();
     }
 
     /**
@@ -330,12 +311,19 @@ public class Holder {
      * @return the next stage of completion
      */
     public CompletionStage<Void> deletePresentationAsync(final String presentationId) {
-        final var uri = URIBuilder.newBuilder(baseUri).path("credentials")
-            .path(Objects.requireNonNull(presentationId)).build();
-        final var req = HttpRequest.newBuilder(uri).DELETE().build();
+        final var req = HttpRequest.newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId)))
+            .DELETE().build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenApply(HttpResponse::body);
+            .thenApply(res -> {
+                final int httpStatus = res.statusCode();
+                if (httpStatus >= 200 && httpStatus < 300) {
+                    return res.body();
+                }
+                throw new VerifiableCredentialException(
+                    "Unexpected error while deleting presentation",
+                    httpStatus);
+            });
     }
 
     /**
@@ -345,16 +333,7 @@ public class Holder {
      * @return the verifiable presentation
      */
     public VerifiablePresentation prove(final ProveRequest request) {
-        final var req = HttpRequest.newBuilder(getProveEndpoint())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(serialize(request))
-            .build();
-
-        try {
-            return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error proving presentation.", ex);
-        }
+        return proveAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -409,16 +388,7 @@ public class Holder {
     //   "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f"
     // }
     public VerifiablePresentationRequest initiateExchange(final String exchangeId, final ExchangeRequest request) {
-        final var req = HttpRequest.newBuilder(getExchangeEndpoint(exchangeId))
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(serialize(request))
-            .build();
-
-        try {
-            return httpClient.send(req, ofVerifiablePresentationRequest()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error proving presentation.", ex);
-        }
+        return initiateExchangeAsync(Objects.requireNonNull(exchangeId), request).toCompletableFuture().join();
     }
 
     /**
@@ -430,7 +400,7 @@ public class Holder {
      */
     public CompletionStage<VerifiablePresentationRequest> initiateExchangeAsync(final String exchangeId,
             final ExchangeRequest request) {
-        final var req = HttpRequest.newBuilder(getExchangeEndpoint(exchangeId))
+        final var req = HttpRequest.newBuilder(getExchangeEndpoint(Objects.requireNonNull(exchangeId)))
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(serialize(request))
             .build();
@@ -448,7 +418,11 @@ public class Holder {
      */
     public void continueExchange(final String exchangeId, final String transactionId,
             final VerifiablePresentation presentation) {
-        // TODO - implement
+        continueExchangeAsync(
+                Objects.requireNonNull(exchangeId),
+                Objects.requireNonNull(transactionId),
+                Objects.requireNonNull(presentation))
+                    .toCompletableFuture().join();
     }
 
     /**
@@ -526,14 +500,25 @@ public class Holder {
     }
 
     private HttpResponse.BodyHandler<VerifiablePresentationRequest> ofVerifiablePresentationRequest() {
-        return responseInfo ->
-            InputStreamBodySubscribers.mapping(input -> {
-                try {
-                    return processor.fromJson(input, VerifiablePresentationRequest.class);
-                } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error parsing presentation request", ex);
-                }
-            });
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerifiablePresentationRequest> bodySubscriber;
+            final int httpStatus = responseInfo.statusCode();
+            if (httpStatus >= 200 && httpStatus < 300) {
+                bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
+                    try {
+                        return processor.fromJson(input, VerifiablePresentationRequest.class);
+                    } catch (final IOException ex) {
+                        throw new VerifiableCredentialException("Error parsing presentation request", ex);
+                    }
+                });
+            } else {
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when handling a verifiable presentation.",
+                    httpStatus));
+            }
+            return bodySubscriber;
+        };
     }
 
     private <T> HttpRequest.BodyPublisher serialize(final T request) {

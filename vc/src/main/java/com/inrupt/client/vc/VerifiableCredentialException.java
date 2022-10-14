@@ -22,12 +22,16 @@ package com.inrupt.client.vc;
 
 import com.inrupt.client.core.InruptClientException;
 
+import java.util.Optional;
+
 /**
  * A runtime exception for use with Verifiable Credential-related errors.
  */
 public class VerifiableCredentialException extends InruptClientException {
 
     private static final long serialVersionUID = 4828374653830284474L;
+    private static int status;
+    private static String body;
 
     /**
      * Create a Verifiable Credential exception.
@@ -47,5 +51,72 @@ public class VerifiableCredentialException extends InruptClientException {
     public VerifiableCredentialException(final String message, final Throwable cause) {
         super(message, cause);
     }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param bodyContent the body content
+     */
+    public VerifiableCredentialException(final String message, final String bodyContent) {
+        super(message);
+        body = bodyContent;
+    }
+
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param bodyContent the body content
+     * @param statusCode the HTTP status code
+     */
+    public VerifiableCredentialException(final String message, final String bodyContent, final int statusCode) {
+        super(message);
+        body = bodyContent;
+        status = statusCode;
+    }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param bodyContent the body content
+     * @param cause the cause
+     */
+    public VerifiableCredentialException(final String message, final String bodyContent, final Throwable cause) {
+        super(message, cause);
+        body = bodyContent;
+    }
+
+    /**
+     * Create a Verifiable Credential exception.
+     *
+     * @param message the message
+     * @param statusCode the HTTP status code
+     */
+    public VerifiableCredentialException(final String message, final int statusCode) {
+        super(message);
+        status = statusCode;
+    }
+
+    /**
+     * Get the HTTP status code of the response if there is one.
+     *
+     * @return the HTTP status code
+     */
+    public Optional<Integer> getStatus() {
+        return Optional.ofNullable(status);
+    }
+
+    /**
+     * Get the body content of the response if there is one.
+     *
+     * @return the body content
+     */
+    public Optional<String> getBody() {
+        return Optional.ofNullable(body);
+    }
+
 }
 

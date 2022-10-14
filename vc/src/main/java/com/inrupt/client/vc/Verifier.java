@@ -77,16 +77,7 @@ public class Verifier {
      * @return a verification response
      */
     public VerificationResponse verify(final VerifiableCredential credential) {
-        final var req = HttpRequest.newBuilder(getCredentialVerifierUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
-            .build();
-
-        try {
-            return httpClient.send(req, ofVerificationResponse()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error verifying credential", ex);
-        }
+        return verifyAsync(credential).toCompletableFuture().join();
     }
 
     /**
@@ -113,16 +104,7 @@ public class Verifier {
      * @return a verification response
      */
     public VerificationResponse verify(final VerifiablePresentation presentation) {
-        final var req = HttpRequest.newBuilder(getPresentationVerifierUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
-            .build();
-
-        try {
-            return httpClient.send(req, ofVerificationResponse()).body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error verifying presentation", ex);
-        }
+        return verifyAsync(presentation).toCompletableFuture().join();
     }
 
     /**
@@ -131,14 +113,15 @@ public class Verifier {
      * @param presentation the verifiable presentation
      * @return the next stage of completion, containing a verification response
      */
-    public CompletionStage<VerificationResponse> verifyAsync(final VerifiablePresentation presentation) {
+    public CompletionStage<VerificationResponse> verifyAsync(
+            final VerifiablePresentation presentation) {
         final var req = HttpRequest.newBuilder(getPresentationVerifierUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
-            .build();
+                .header(CONTENT_TYPE, APPLICATION_JSON)
+                .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
+                .build();
 
-        return httpClient.sendAsync(req, ofVerificationResponse())
-            .thenApply(HttpResponse::body);
+        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(HttpResponse::body);
+
     }
 
     /**
@@ -162,14 +145,26 @@ public class Verifier {
     }
 
     private HttpResponse.BodyHandler<VerificationResponse> ofVerificationResponse() {
-        return responseInfo ->
-            InputStreamBodySubscribers.mapping(input -> {
-                try {
-                    return processor.fromJson(input, VerificationResponse.class);
-                } catch (final IOException ex) {
-                    throw new VerifiableCredentialException("Error parsing verification request", ex);
-                }
-            });
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerificationResponse> bodySubscriber;
+            final int httpStatus = responseInfo.statusCode();
+            if (httpStatus >= 200 && httpStatus < 300) {
+                bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
+                    try {
+                        return processor.fromJson(input, VerificationResponse.class);
+                    } catch (final IOException ex) {
+                        throw new VerifiableCredentialException(
+                                "Error parsing verification request", ex);
+                    }
+                });
+            } else {
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when verifying a resource.",
+                    httpStatus));
+            }
+            return bodySubscriber;
+        };
     }
 
     private URI getCredentialVerifierUrl() {

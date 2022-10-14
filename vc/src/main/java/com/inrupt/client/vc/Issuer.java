@@ -78,17 +78,7 @@ public class Issuer {
      * @return a new Verifiable Credential
      */
     public VerifiableCredential issue(final VerifiableCredential credential) {
-        final var req = HttpRequest.newBuilder(getIssueUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
-            .build();
-        try {
-            return httpClient
-                .send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-                .body();
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error issuing verifiable credential", ex);
-        }
+        return issueAsync(credential).toCompletableFuture().join();
     }
 
     /**
@@ -102,6 +92,7 @@ public class Issuer {
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
+
         return httpClient
                 .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
                 .thenApply(HttpResponse::body);
@@ -113,16 +104,7 @@ public class Issuer {
      * @param request the status request
      */
     public void status(final StatusRequest request) {
-        final var req = HttpRequest.newBuilder(getStatusUrl())
-            .header(CONTENT_TYPE, APPLICATION_JSON)
-            .POST(ofStatusRequest(request))
-            .build();
-
-        try {
-            httpClient.send(req, HttpResponse.BodyHandlers.discarding());
-        } catch (final InterruptedException | IOException ex) {
-            throw new VerifiableCredentialException("Error updating credential status.", ex);
-        }
+        statusAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -138,7 +120,15 @@ public class Issuer {
             .build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenApply(HttpResponse::body);
+                .thenApply(res -> {
+                    final int httpStatus = res.statusCode();
+                    if (httpStatus >= 200 && httpStatus < 300) {
+                        return res.body();
+                    }
+                    throw new VerifiableCredentialException(
+                        "Unexpected error response when updating status.",
+                        httpStatus);
+                });
     }
 
     /**
@@ -246,14 +236,13 @@ public class Issuer {
     }
 
     private HttpRequest.BodyPublisher ofStatusRequest(final StatusRequest request) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> {
-                    try {
-                        processor.toJson(request, out);
-                    } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing status request", ex);
-                    }
-                }));
+        return HttpRequest.BodyPublishers.ofInputStream(() -> IOUtils.pipe(out -> {
+            try {
+                processor.toJson(request, out);
+            } catch (final IOException ex) {
+                throw new VerifiableCredentialException("Error serializing status request", ex);
+            }
+        }));
     }
 
     private URI getIssueUrl() {
