@@ -71,27 +71,27 @@ class HolderTest {
 
     @Test
     void getCredentialTest() {
-        final var vc = holder.getCredential("http://example.test/credentials/1872");
+        final var vc = holder.getCredential(VCtestData.VC.id);
 
-        assertEquals("http://example.test/credentials/1872", vc.id);
+        assertEquals(VCtestData.VC.id, vc.id);
     }
 
     @Test
     void getCredentialAsyncTest() {
-        final var vc = holder.getCredentialAsync("http://example.test/credentials/1872")
+        final var vc = holder.getCredentialAsync(VCtestData.VC.id)
             .toCompletableFuture().join();
 
-        assertEquals("http://example.test/credentials/1872", vc.id);
+        assertEquals(VCtestData.VC.id, vc.id);
     }
 
     @Test
     void getDeleteCredentialTest() {
-        holder.deleteCredential("http://example.test/credentials/1872");
+        holder.deleteCredential(VCtestData.VC.id);
     }
 
     @Test
     void getDeleteCredentialAsyncTest() {
-        holder.deleteCredentialAsync("http://example.test/credentials/1872");
+        holder.deleteCredentialAsync(VCtestData.VC.id);
     }
 
     @Test
@@ -105,7 +105,7 @@ class HolderTest {
 
         final var vc = holder.derive(derivationReq);
 
-        assertEquals("http://example.test/credentials/1872", vc.id);
+        assertEquals(VCtestData.VC.id, vc.id);
     }
 
     @Test
@@ -119,7 +119,7 @@ class HolderTest {
 
         final var vc = holder.deriveAsync(derivationReq).toCompletableFuture().join();
 
-        assertEquals("http://example.test/credentials/1872", vc.id);
+        assertEquals(VCtestData.VC.id, vc.id);
     }
 
 
@@ -142,7 +142,7 @@ class HolderTest {
 
     @Test
     void getPresentationTest() {
-        final var vp = holder.getPresentation("http://example.test/credentials/1872");
+        final var vp = holder.getPresentation(VCtestData.VC.id);
 
         assertEquals(VCtestData.VP.context, vp.context);
         assertEquals(VCtestData.VP.id, vp.id);
@@ -150,7 +150,7 @@ class HolderTest {
 
     @Test
     void getPresentationAsyncTest() {
-        final var vp = holder.getPresentationAsync("http://example.test/credentials/1872")
+        final var vp = holder.getPresentationAsync(VCtestData.VC.id)
             .toCompletableFuture().join();
 
         assertEquals(VCtestData.VP.context, vp.context);
@@ -159,12 +159,12 @@ class HolderTest {
 
     @Test
     void deletePresentationTest() {
-        holder.deletePresentation("http://example.test/credentials/1872");
+        holder.deletePresentation(VCtestData.VP.id);
     }
 
     @Test
     void deletePresentationAsyncTest() {
-        holder.deletePresentationAsync("http://example.test/credentials/1872");
+        holder.deletePresentationAsync(VCtestData.VP.id);
     }
 
     @Test

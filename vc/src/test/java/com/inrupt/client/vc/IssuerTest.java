@@ -22,8 +22,11 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.vc.Issuer.StatusRequest;
-
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
@@ -40,11 +43,17 @@ class IssuerTest {
     private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
     private static final Map<String, String> config = new HashMap<>();
     private static Issuer issuer;
+    private static JsonProcessor processor;
+    private static VerifiableCredential testVC;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws IOException {
         config.putAll(vcMockService.start());
         issuer = new Issuer(URI.create(config.get("vc_uri")), client);
+        processor = ServiceProvider.getJsonProcessor();
+        try (final var res = IssuerTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
+            testVC = processor.fromJson(res, VerifiableCredential.class);
+        }
     }
 
     @AfterAll
@@ -53,55 +62,38 @@ class IssuerTest {
     }
 
     @Test
-    void issueTest() {
-        final var vc = issuer.issue(VCtestData.VC);
+    void issueTest() throws IOException {
+        /*  String filename = "verifialbleCredential.json";
+        
+        try (OutputStream out = new FileOutputStream(filename, true)) {
+            processor.toJson(VCtestData.VC, out);
+        } */
+        final var vc = issuer.issue(testVC);
 
-        assertEquals(VCtestData.VC.context, vc.context);
-        assertEquals(VCtestData.VC.id, vc.id);
-        assertEquals(VCtestData.VC.type, vc.type);
-        assertEquals(VCtestData.VC.issuer, vc.issuer);
-        assertEquals(VCtestData.VC.issuanceDate, vc.issuanceDate);
-        assertEquals(VCtestData.VC.expirationDate, vc.expirationDate);
-        final var vcCredentialSubject = "{alumniOf=" +
-            "{\"id\":\"did:example:c276e12ec21ebfeb1f712ebc6f1\"," +
-            "\"name\":\"Example University\"}," +
-            " id=\"did:example:ebfeb1f712ebc6f1c276e12ec21\"}";
-        assertEquals(vcCredentialSubject, vc.credentialSubject.toString());
-        final var vcCredentialStatus = "{id=\"https://example.test/status/24\", type=\"CredentialStatusList2017\"}";
-        assertEquals(vcCredentialStatus, vc.credentialStatus.toString());
-        final var proof = "{created=\"2017-06-18T21:19:10Z\"," +
-            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"," +
-            " proofPurpose=\"assertionMethod\"," +
-            " type=\"RsaSignature2018\"," +
-            " verificationMethod=\"https://example.test/issuers/565049#key-1\"" +
-            "}";
-        assertEquals(proof, vc.proof.toString());
+        assertEquals(testVC.context, vc.context);
+        assertEquals(testVC.id, vc.id);
+        assertEquals(testVC.type, vc.type);
+        assertEquals(testVC.issuer, vc.issuer);
+        assertEquals(testVC.issuanceDate, vc.issuanceDate);
+        assertEquals(testVC.expirationDate, vc.expirationDate);
+        assertEquals(testVC.credentialSubject, vc.credentialSubject);
+        assertEquals(testVC.credentialStatus, vc.credentialStatus);
+        assertEquals(testVC.proof, vc.proof);
     }
-
+    
     @Test
-    void issueAsyncTest() {
-        final var vc = issuer.issueAsync(VCtestData.VC).toCompletableFuture().join();
+    void issueAsyncTest() throws IOException {
+        final var vc = issuer.issueAsync(testVC).toCompletableFuture().join();
 
-        assertEquals(VCtestData.VC.context, vc.context);
-        assertEquals(VCtestData.VC.id, vc.id);
-        assertEquals(VCtestData.VC.type, vc.type);
-        assertEquals(VCtestData.VC.issuer, vc.issuer);
-        assertEquals(VCtestData.VC.issuanceDate, vc.issuanceDate);
-        assertEquals(VCtestData.VC.expirationDate, vc.expirationDate);
-        final var vcCredentialSubject = "{alumniOf=" +
-            "{\"id\":\"did:example:c276e12ec21ebfeb1f712ebc6f1\"," +
-            "\"name\":\"Example University\"}," +
-            " id=\"did:example:ebfeb1f712ebc6f1c276e12ec21\"}";
-        assertEquals(vcCredentialSubject, vc.credentialSubject.toString());
-        final var vcCredentialStatus = "{id=\"https://example.test/status/24\", type=\"CredentialStatusList2017\"}";
-        assertEquals(vcCredentialStatus, vc.credentialStatus.toString());
-        final var proof = "{created=\"2017-06-18T21:19:10Z\"," +
-            " jws=\"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19\"," +
-            " proofPurpose=\"assertionMethod\"," +
-            " type=\"RsaSignature2018\"," +
-            " verificationMethod=\"https://example.test/issuers/565049#key-1\"" +
-            "}";
-        assertEquals(proof, vc.proof.toString());
+        assertEquals(testVC.context, vc.context);
+        assertEquals(testVC.id, vc.id);
+        assertEquals(testVC.type, vc.type);
+        assertEquals(testVC.issuer, vc.issuer);
+        assertEquals(testVC.issuanceDate, vc.issuanceDate);
+        assertEquals(testVC.expirationDate, vc.expirationDate);
+        assertEquals(testVC.credentialSubject, vc.credentialSubject);
+        assertEquals(testVC.credentialStatus, vc.credentialStatus);
+        assertEquals(testVC.proof, vc.proof);
     }
 
     @Test
