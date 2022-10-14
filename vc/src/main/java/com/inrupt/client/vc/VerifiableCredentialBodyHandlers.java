@@ -30,10 +30,6 @@ import java.net.http.HttpResponse;
  */
 public final class VerifiableCredentialBodyHandlers {
 
-    private static final int SUCCESS = 200;
-    private static final int CREATED = 201;
-    private static final int NO_CONTENT = 204;
-
     /**
      * Create a {@link VerifiableCredential} from an HTTP response.
      *
@@ -43,7 +39,7 @@ public final class VerifiableCredentialBodyHandlers {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerifiableCredential> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
-            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+            if (httpStatus >= 200 && httpStatus < 300) {
                 return VerifiableCredentialBodySubscribers.ofVerifiableCredential();
             } else {
                 bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
@@ -64,7 +60,7 @@ public final class VerifiableCredentialBodyHandlers {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerifiablePresentation> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
-            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+            if (httpStatus >= 200 && httpStatus < 300) {
                 return VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
             } else {
                 bodySubscriber = HttpResponse.BodySubscribers.replacing(null);

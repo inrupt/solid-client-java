@@ -44,9 +44,6 @@ public class Verifier {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    private static final int SUCCESS = 200;
-    private static final int CREATED = 201;
-    private static final int NO_CONTENT = 204;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -151,7 +148,7 @@ public class Verifier {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerificationResponse> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
-            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+            if (httpStatus >= 200 && httpStatus < 300) {
                 bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
                     try {
                         return processor.fromJson(input, VerificationResponse.class);

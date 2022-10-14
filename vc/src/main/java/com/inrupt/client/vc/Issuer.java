@@ -45,9 +45,6 @@ public class Issuer {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    private static final int SUCCESS = 200;
-    private static final int CREATED = 201;
-    private static final int NO_CONTENT = 204;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -125,7 +122,7 @@ public class Issuer {
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
                 .thenApply(res -> {
                     final int httpStatus = res.statusCode();
-                    if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                    if (httpStatus >= 200 && httpStatus < 300) {
                         return res.body();
                     }
                     throw new VerifiableCredentialException(

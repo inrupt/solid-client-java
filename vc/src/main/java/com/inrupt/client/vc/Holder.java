@@ -53,9 +53,6 @@ public class Holder {
     private static final String CREDENTIALS = "credentials";
     private static final String PRESENTATIONS = "presentations";
     private static final String EXCHANGES = "exchanges";
-    private static final int SUCCESS = 200;
-    private static final int CREATED = 201;
-    private static final int NO_CONTENT = 204;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -122,7 +119,7 @@ public class Holder {
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
-                    if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                    if (httpStatus >= 200 && httpStatus < 300) {
                         return processor.fromJson(res.body(),
                             new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
                     }
@@ -182,7 +179,7 @@ public class Holder {
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
             .thenApply(res -> {
                 final int httpStatus = res.statusCode();
-                if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                if (httpStatus >= 200 && httpStatus < 300) {
                     return res.body();
                 }
                 throw new VerifiableCredentialException(
@@ -257,7 +254,7 @@ public class Holder {
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
-                    if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                    if (httpStatus >= 200 && httpStatus < 300) {
                         return processor.fromJson(res.body(),
                             new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
                     }
@@ -320,7 +317,7 @@ public class Holder {
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
             .thenApply(res -> {
                 final int httpStatus = res.statusCode();
-                if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                if (httpStatus >= 200 && httpStatus < 300) {
                     return res.body();
                 }
                 throw new VerifiableCredentialException(
@@ -506,7 +503,7 @@ public class Holder {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerifiablePresentationRequest> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
-            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+            if (httpStatus >= 200 && httpStatus < 300) {
                 bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
                     try {
                         return processor.fromJson(input, VerifiablePresentationRequest.class);
