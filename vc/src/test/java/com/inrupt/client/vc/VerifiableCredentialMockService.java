@@ -47,13 +47,11 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(get(urlEqualTo("/vc"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader(ACCEPT, APPLICATION_JSON)
                         .withBodyFile("verifiableCredential.json")));
 
         vcMockService.stubFor(get(urlEqualTo("/vp"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader(ACCEPT, APPLICATION_JSON)
                         .withBodyFile("verifiablePresentation.json")));
 
         vcMockService.stubFor(post(urlEqualTo("/postVc"))
@@ -119,16 +117,15 @@ class VerifiableCredentialMockService {
 
         vcMockService.stubFor(get(urlPathMatching( "/credentials"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiableCredentialList.json")
-                        .withHeader("Accept", "application/json")));
+                        .withBodyFile("verifiableCredentialList.json")));
 
-        vcMockService.stubFor(get(urlPathMatching("/credentials/http://example.test/credentials/1872"))
+        vcMockService.stubFor(get(urlPathMatching("/credentials/(.*)" + VCtestData.VC.id))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiableCredential.json")
-                        .withHeader(ACCEPT, APPLICATION_JSON)));
+                        .withBodyFile("verifiableCredential.json")));
         vcMockService.stubFor(get(urlPathMatching("/credentials/http://example.test/credentials/0000"))
                     .willReturn(aResponse()
                         .withStatus(400)));
@@ -148,17 +145,16 @@ class VerifiableCredentialMockService {
                     .willReturn(aResponse()
                         .withStatus(400)));
 
-        vcMockService.stubFor(get(urlPathMatching( "/presentations"))
+        vcMockService.stubFor(get(urlPathMatching("/presentations"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiablePresentationList.json")
-                        .withHeader(ACCEPT, APPLICATION_JSON)));
-        vcMockService.stubFor(get(urlPathMatching( "/presentations/(.*)"))
+                        .withBodyFile("verifiablePresentationList.json")));
+        vcMockService.stubFor(get(urlPathMatching("/presentations/(.*)"))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiablePresentation.json")
-                        .withHeader(ACCEPT, APPLICATION_JSON)));
+                        .withBodyFile("verifiablePresentation.json")));
         vcMockService.stubFor(delete(urlPathMatching( "/presentations/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)));
