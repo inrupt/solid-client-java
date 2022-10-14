@@ -101,7 +101,7 @@ public final class Request {
      *
      * @return the builder
      */
-    public Builder newBuilder() {
+    public static Builder newBuilder() {
         return new Builder();
     }
 
@@ -111,7 +111,7 @@ public final class Request {
      * @param uri the request URI
      * @return the builder
      */
-    public Builder newBuilder(final URI uri) {
+    public static Builder newBuilder(final URI uri) {
         return new Builder().uri(uri);
     }
 

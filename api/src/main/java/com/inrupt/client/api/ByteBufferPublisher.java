@@ -30,7 +30,7 @@ class ByteBufferPublisher implements Request.BodyPublisher {
     private final ByteBuffer buf;
 
     public ByteBufferPublisher(final byte[] buf) {
-        this.buf = ByteBuffer.wrap(Objects.requireNonNull(buf)).asReadOnlyBuffer();
+        this.buf = ByteBuffer.wrap(Objects.requireNonNull(buf));
     }
 
     @Override

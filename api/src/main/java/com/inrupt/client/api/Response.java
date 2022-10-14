@@ -116,7 +116,7 @@ public interface Response<T> {
          *
          * @return the body handler
          */
-        public BodyHandler<byte[]> ofByteArray() {
+        public static BodyHandler<byte[]> ofByteArray() {
             return responseInfo -> responseInfo.body().array();
         }
 
@@ -125,7 +125,7 @@ public interface Response<T> {
          *
          * @return the body handler
          */
-        public BodyHandler<String> ofString() {
+        public static BodyHandler<String> ofString() {
             return responseInfo -> new String(responseInfo.body().array(), UTF_8);
         }
 
@@ -134,7 +134,7 @@ public interface Response<T> {
          *
          * @return the body handler
          */
-        public BodyHandler<InputStream> ofInputStream() {
+        public static BodyHandler<InputStream> ofInputStream() {
             return responseInfo -> new ByteArrayInputStream(responseInfo.body().array());
         }
 
@@ -143,7 +143,7 @@ public interface Response<T> {
          *
          * @return the body handler
          */
-        public BodyHandler<Void> discarding() {
+        public static BodyHandler<Void> discarding() {
             return responseInfo -> null;
         }
 

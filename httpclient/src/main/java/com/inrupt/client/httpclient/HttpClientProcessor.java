@@ -42,7 +42,11 @@ public class HttpClientProcessor implements HttpProcessor {
     private final HttpClient client;
 
     public HttpClientProcessor() {
-        this.client = HttpClient.newHttpClient();
+        this(HttpClient.newHttpClient());
+    }
+
+    public HttpClientProcessor(final HttpClient client) {
+        this.client = client;
     }
 
     @Override

@@ -28,8 +28,11 @@ import com.inrupt.client.api.Response;
 import com.inrupt.client.spi.HttpProcessor;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -42,10 +45,15 @@ import okhttp3.RequestBody;
 
 public class OkHttpProcessor implements HttpProcessor {
 
+    private static final Set<String> NO_BODY_METHODS = new HashSet<>(Arrays.asList("GET", "HEAD", "DELETE"));
     private final OkHttpClient client;
 
     public OkHttpProcessor() {
-        this.client = new OkHttpClient();
+        this(new OkHttpClient());
+    }
+
+    public OkHttpProcessor(final OkHttpClient client) {
+        this.client = client;
     }
 
     @Override
@@ -79,21 +87,26 @@ public class OkHttpProcessor implements HttpProcessor {
         return future;
     }
 
-    static okhttp3.Request prepareRequest(final Request request) {
-        final Headers headers = buildHeaders(request.headers());
+    static RequestBody prepareBody(final Request request, final MediaType mediaType) {
+        if (NO_BODY_METHODS.contains(request.method())) {
+            return null;
+        }
+        return RequestBody.Companion.create(request.bodyPublisher()
+                .orElseGet(Request.BodyPublishers::noBody).getBytes().array(), mediaType);
+    }
 
-        final RequestBody body = RequestBody.Companion.create(request.bodyPublisher()
-                .orElseGet(Request.BodyPublishers::noBody).getBytes().array(),
-                MediaType.parse(headers.get("Content-Type")));
+    static okhttp3.Request prepareRequest(final Request request) {
+        final Headers headers = prepareHeaders(request.headers());
+        final MediaType mediaType = getContentType(headers);
 
         return new okhttp3.Request.Builder()
             .url(request.uri().toString())
             .headers(headers)
-            .method(request.method(), body)
+            .method(request.method(), prepareBody(request, mediaType))
             .build();
     }
 
-    static Headers buildHeaders(final Map<String, List<String>> headers) {
+    static Headers prepareHeaders(final Map<String, List<String>> headers) {
         final Headers.Builder builder = Headers.of().newBuilder();
         for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
             for (final String value : entry.getValue()) {
@@ -101,6 +114,14 @@ public class OkHttpProcessor implements HttpProcessor {
             }
         }
         return builder.build();
+    }
+
+    static MediaType getContentType(final Headers headers) {
+        final String ct = headers.get("Content-Type");
+        if (ct != null) {
+            return MediaType.parse(ct);
+        }
+        return MediaType.parse("application/octet-stream");
     }
 
 }
