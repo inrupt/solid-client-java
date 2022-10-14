@@ -20,17 +20,22 @@
  */
 package com.inrupt.client.vc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.spi.VerifiablePresentation;
 import com.inrupt.client.vc.Verifier.VerificationResponse;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,6 +74,21 @@ class VerifierTest {
         assertNull(verificationResponse.errors);
     }
 
+
+    @Test
+    void verifyStatusCodesTest() {
+        assertAll("Invalid or malformed input because of empty VC",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> verifier.verify(new VerifiableCredential())
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                final var cause = (VerifiableCredentialException) exception.getCause();
+                assertEquals("Unexpected error response when verifying a resource.", cause.getMessage());
+                assertEquals(Optional.of(400), cause.getStatus());
+            });
+    }
+
     @Test
     void verifyAsyncTest() {
         final var verificationResponse = verifier.verifyAsync(VCtestData.VC).toCompletableFuture().join();
@@ -85,6 +105,20 @@ class VerifierTest {
         assertEquals(verificationResponse.checks, verificationResponse.checks);
         assertEquals(verificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
+    }
+
+    @Test
+    void verifyPresentationStatusCodesTest() {
+        assertAll("Invalid of malformed input because of empty VP",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> verifier.verify(new VerifiablePresentation())
+                );
+                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
+                final var cause = (VerifiableCredentialException) exception.getCause();
+                assertEquals("Unexpected error response when verifying a resource.", cause.getMessage());
+                assertEquals(Optional.of(400), cause.getStatus());
+            });
     }
 
     @Test

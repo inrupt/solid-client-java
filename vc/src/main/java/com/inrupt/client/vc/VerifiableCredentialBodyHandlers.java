@@ -36,7 +36,19 @@ public final class VerifiableCredentialBodyHandlers {
      * @return the body handler
      */
     public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiableCredential();
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerifiableCredential> bodySubscriber;
+            final int httpStatus = responseInfo.statusCode();
+            if (httpStatus >= 200 && httpStatus < 300) {
+                return VerifiableCredentialBodySubscribers.ofVerifiableCredential();
+            } else {
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when handling a verifiable credential.",
+                    httpStatus));
+            }
+            return bodySubscriber;
+        };
     }
 
     /**
@@ -45,7 +57,19 @@ public final class VerifiableCredentialBodyHandlers {
      * @return the body handler
      */
     public static HttpResponse.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
-        return reponseInfo -> VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
+        return responseInfo -> {
+            final HttpResponse.BodySubscriber<VerifiablePresentation> bodySubscriber;
+            final int httpStatus = responseInfo.statusCode();
+            if (httpStatus >= 200 && httpStatus < 300) {
+                return VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
+            } else {
+                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
+                bodySubscriber.onError(new VerifiableCredentialException(
+                    "Unexpected error response when handling a verifiable presentation.",
+                    httpStatus));
+            }
+            return bodySubscriber;
+        };
     }
 
     private VerifiableCredentialBodyHandlers() {
