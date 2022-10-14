@@ -100,10 +100,20 @@ public class VerifiableCredentialException extends InruptClientException {
         status = statusCode;
     }
 
+    /**
+     * Get the HTTP status code of the response if there is one.
+     *
+     * @return the HTTP status code
+     */
     public Optional<Integer> getStatus() {
         return Optional.ofNullable(status);
     }
 
+    /**
+     * Get the body content of the response if there is one.
+     *
+     * @return the body content
+     */
     public Optional<String> getBody() {
         return Optional.ofNullable(body);
     }

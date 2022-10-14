@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -55,6 +54,8 @@ public class Holder {
     private static final String PRESENTATIONS = "presentations";
     private static final String EXCHANGES = "exchanges";
     private static final int SUCCESS = 200;
+    private static final int CREATED = 201;
+    private static final int NO_CONTENT = 204;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -118,15 +119,16 @@ public class Holder {
     public CompletionStage<List<VerifiableCredential>> listCredentialsAsync(final List<URI> types) {
         final var req = HttpRequest.newBuilder(getCredentialListEndpoint(Objects.requireNonNull(types))).build();
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenCompose(res -> {
+            .thenApply(res -> {
                 try {
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(processor.fromJson(res.body(),
-                            new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass()));
+                    final int httpStatus = res.statusCode();
+                    if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                        return processor.fromJson(res.body(),
+                            new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
                     }
                     throw new VerifiableCredentialException(
                         "Unexpected error response while listing credentials",
-                        res.statusCode());
+                        httpStatus);
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException(
                         "Unexpected I/O exception while listing credentials",
@@ -178,13 +180,14 @@ public class Holder {
             .DELETE().build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenCompose(res -> {
-                if (SUCCESS == res.statusCode()) {
-                    return CompletableFuture.completedFuture(res.body());
+            .thenApply(res -> {
+                final int httpStatus = res.statusCode();
+                if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                    return res.body();
                 }
                 throw new VerifiableCredentialException(
                     "Unexpected error while deleting credential",
-                    res.statusCode());
+                    httpStatus);
             });
     }
 
@@ -251,15 +254,16 @@ public class Holder {
     public CompletionStage<List<VerifiablePresentation>> listPresentationsAsync(final List<URI> types) {
         final var req = HttpRequest.newBuilder(getPresentationListEndpoint(Objects.requireNonNull(types))).build();
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
-            .thenCompose(res -> {
+            .thenApply(res -> {
                 try {
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(processor.fromJson(res.body(),
-                            new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass()));
+                    final int httpStatus = res.statusCode();
+                    if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                        return processor.fromJson(res.body(),
+                            new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
                     }
                     throw new VerifiableCredentialException(
                         "Unexpected error response while listing presentations.",
-                        res.statusCode());
+                        httpStatus);
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException(
                         "Unexpected I/O exception while listing presentations",
@@ -314,13 +318,14 @@ public class Holder {
             .DELETE().build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-            .thenCompose(res -> {
-                if (SUCCESS == res.statusCode()) {
-                    return CompletableFuture.completedFuture(res.body());
+            .thenApply(res -> {
+                final int httpStatus = res.statusCode();
+                if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                    return res.body();
                 }
                 throw new VerifiableCredentialException(
                     "Unexpected error while deleting presentation",
-                    res.statusCode());
+                    httpStatus);
             });
     }
 
@@ -500,8 +505,8 @@ public class Holder {
     private HttpResponse.BodyHandler<VerifiablePresentationRequest> ofVerifiablePresentationRequest() {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerifiablePresentationRequest> bodySubscriber;
-            final int status = responseInfo.statusCode();
-            if (status == SUCCESS) {
+            final int httpStatus = responseInfo.statusCode();
+            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
                 bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
                     try {
                         return processor.fromJson(input, VerifiablePresentationRequest.class);
@@ -513,7 +518,7 @@ public class Holder {
                 bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
                 bodySubscriber.onError(new VerifiableCredentialException(
                     "Unexpected error response when handling a verifiable presentation.",
-                    status));
+                    httpStatus));
             }
             return bodySubscriber;
         };

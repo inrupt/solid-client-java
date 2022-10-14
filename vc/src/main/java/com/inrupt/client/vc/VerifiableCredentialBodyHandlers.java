@@ -32,6 +32,7 @@ public final class VerifiableCredentialBodyHandlers {
 
     private static final int SUCCESS = 200;
     private static final int CREATED = 201;
+    private static final int NO_CONTENT = 204;
 
     /**
      * Create a {@link VerifiableCredential} from an HTTP response.
@@ -41,14 +42,14 @@ public final class VerifiableCredentialBodyHandlers {
     public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerifiableCredential> bodySubscriber;
-            final int status = responseInfo.statusCode();
-            if (status == SUCCESS || status == CREATED) {
+            final int httpStatus = responseInfo.statusCode();
+            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
                 return VerifiableCredentialBodySubscribers.ofVerifiableCredential();
             } else {
                 bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
                 bodySubscriber.onError(new VerifiableCredentialException(
                     "Unexpected error response when handling a verifiable credential.",
-                    status));
+                    httpStatus));
             }
             return bodySubscriber;
         };
@@ -62,14 +63,14 @@ public final class VerifiableCredentialBodyHandlers {
     public static HttpResponse.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
         return responseInfo -> {
             final HttpResponse.BodySubscriber<VerifiablePresentation> bodySubscriber;
-            final int status = responseInfo.statusCode();
-            if (status == SUCCESS || status == CREATED) {
+            final int httpStatus = responseInfo.statusCode();
+            if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
                 return VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
             } else {
                 bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
                 bodySubscriber.onError(new VerifiableCredentialException(
                     "Unexpected error response when handling a verifiable presentation.",
-                    status));
+                    httpStatus));
             }
             return bodySubscriber;
         };

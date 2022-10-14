@@ -34,7 +34,6 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -46,7 +45,9 @@ public class Issuer {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    private static final int SUCCESS = 201;
+    private static final int SUCCESS = 200;
+    private static final int CREATED = 201;
+    private static final int NO_CONTENT = 204;
 
     private final URI baseUri;
     private final HttpClient httpClient;
@@ -122,13 +123,14 @@ public class Issuer {
             .build();
 
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
-                .thenCompose(res -> {
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(res.body());
+                .thenApply(res -> {
+                    final int httpStatus = res.statusCode();
+                    if (SUCCESS == httpStatus || CREATED == httpStatus || NO_CONTENT == httpStatus ) {
+                        return res.body();
                     }
                     throw new VerifiableCredentialException(
                         "Unexpected error response when updating status.",
-                        res.statusCode());
+                        httpStatus);
                 });
     }
 

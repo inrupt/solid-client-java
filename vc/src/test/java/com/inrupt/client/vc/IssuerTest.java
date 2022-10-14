@@ -30,6 +30,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
@@ -107,17 +108,15 @@ class IssuerTest {
 
     @Test
     void issueStatusCodesTest() {
-        assertAll("Empty VC",
+        assertAll("Bad request because of empty VC",
             () -> {
                 final CompletionException exception = assertThrows(CompletionException.class,
                     () -> issuer.issue(new VerifiableCredential())
                 );
                 assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                assertEquals(
-                    "com.inrupt.client.vc.VerifiableCredentialException: " +
-                    "Unexpected error response when handling a verifiable credential.",
-                    exception.getMessage());
-                assertEquals(400, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+                final var cause = (VerifiableCredentialException) exception.getCause();
+                assertEquals("Unexpected error response when handling a verifiable credential.", cause.getMessage());
+                assertEquals(Optional.of(400), cause.getStatus());
             });
     }
 
@@ -145,17 +144,15 @@ class IssuerTest {
         final var statusRequest = StatusRequest.Builder.newBuilder()
                 .credentialStatus(URI.create("CredentialStatusList2017"), true)
                 .build("http://example.test/credentials/0000");
-        assertAll("Empty VC",
+        assertAll("Not found because of non existent credentialID",
             () -> {
                 final CompletionException exception = assertThrows(CompletionException.class,
                     () -> issuer.status(statusRequest)
                 );
                 assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                assertEquals(
-                    "com.inrupt.client.vc.VerifiableCredentialException: " +
-                    "Unexpected error response when updating status.",
-                    exception.getMessage());
-                assertEquals(404, ((VerifiableCredentialException)exception.getCause()).getStatus().get());
+                final var cause = (VerifiableCredentialException) exception.getCause();
+                assertEquals("Unexpected error response when updating status.", cause.getMessage());
+                assertEquals(Optional.of(404), cause.getStatus());
             });
     }
 
