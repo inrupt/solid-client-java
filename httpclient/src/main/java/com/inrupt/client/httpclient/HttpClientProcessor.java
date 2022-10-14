@@ -35,7 +35,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.SubmissionPublisher;
 
 public class HttpClientProcessor implements HttpProcessor {
 
@@ -60,10 +59,10 @@ public class HttpClientProcessor implements HttpProcessor {
             throws IOException {
         final var builder = HttpRequest.newBuilder(request.uri());
 
-        final var publisher = new SubmissionPublisher<ByteBuffer>();
-        builder.method(request.method(), HttpRequest.BodyPublishers.fromPublisher(publisher));
-
-        request.bodyPublisher().map(Request.BodyPublisher::getBytes).ifPresent(publisher::submit);
+        final var publisher = request.bodyPublisher().map(p -> p.getBytes())
+            .map(buf -> HttpRequest.BodyPublishers.ofByteArray(buf.array()))
+            .orElseGet(HttpRequest.BodyPublishers::noBody);
+        builder.method(request.method(), publisher);
 
         for (final Map.Entry<String, List<String>> entry : request.headers().entrySet()) {
             for (final String value : entry.getValue()) {
