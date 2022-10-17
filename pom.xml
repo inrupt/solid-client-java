@@ -19,11 +19,13 @@
   <properties>
     <antlr.version>4.11.1</antlr.version>
     <caffeine.version>3.1.1</caffeine.version>
+    <commons.io.version>2.11.0</commons.io.version>
     <jackson.version>2.13.4</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.6.1</jena.version>
     <jose4j.version>0.9.0</jose4j.version>
     <json.bind.version>1.0.2</json.bind.version>
+    <okhttp.version>4.10.0</okhttp.version>
     <rdf4j.version>4.2.0</rdf4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
@@ -34,18 +36,20 @@
   </properties>
 
   <modules>
+    <module>api</module>
     <module>authentication</module>
     <module>bom</module>
     <module>build-tools</module>
     <module>core</module>
     <module>http</module>
+    <module>httpclient</module>
     <module>jackson</module>
     <module>jena</module>
     <module>jsonb</module>
+    <module>okhttp</module>
     <module>openid</module>
     <module>parent</module>
     <module>parser</module>
-    <module>rdf</module>
     <module>rdf4j</module>
     <module>reports</module>
     <module>spi</module>
@@ -88,9 +92,19 @@
         <version>${caffeine.version}</version>
       </dependency>
       <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons.io.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>4.10.0</version>
       </dependency>
 
       <!-- testing -->
