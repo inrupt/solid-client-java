@@ -30,7 +30,6 @@ import java.util.Map;
 class VerifiableCredentialMockService {
 
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final String ACCEPT = "Accept";
     private static final String APPLICATION_JSON = "application/json";
 
     private final WireMockServer vcMockService;

@@ -27,6 +27,8 @@ import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 public class VPSerializer extends StdSerializer<VerifiablePresentation> {
 
@@ -44,32 +46,47 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
 
         jgen.writeStartObject();
 
-        jgen.writeFieldName("@context");
-        jgen.writeStartArray();
-        for (final String context: vp.context) {
-            jgen.writeString(context);
+        if (vp.context != null) {
+            jgen.writeFieldName("@context");
+            jgen.writeStartArray();
+            for (final String context : vp.context) {
+                jgen.writeString(context);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
         jgen.writeStringField("id", vp.id);
 
-        jgen.writeFieldName("type");
-        jgen.writeStartArray();
-        for (final String type: vp.type) {
-            jgen.writeString(type);
+        if (vp.type != null) {
+            jgen.writeFieldName("type");
+            jgen.writeStartArray();
+            for (final String type : vp.type) {
+                jgen.writeString(type);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
         jgen.writeStringField("holder", vp.holder);
 
-        jgen.writeFieldName("verifiableCredential");
-        jgen.writeStartArray();
-        for (final VerifiableCredential vc: vp.verifiableCredential) {
-            jgen.writeObject(vc);
+        if (vp.verifiableCredential != null) {
+            jgen.writeFieldName("verifiableCredential");
+            jgen.writeStartArray();
+            for (final VerifiableCredential vc : vp.verifiableCredential) {
+                jgen.writePOJO(vc);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
-        jgen.writeStringField("proof", vp.proof.toString());
+        if (vp.proof != null) {
+            jgen.writeFieldName("proof");
+            jgen.writeStartObject();
+            final Iterator<Entry<String, Object>> itProof = vp.proof.entrySet().iterator();
+            while (itProof.hasNext()) {
+                final Entry<String, Object> entry = itProof.next();
+                jgen.writeObjectField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+        }
 
         jgen.writeEndObject();
 

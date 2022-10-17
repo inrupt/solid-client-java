@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.inrupt.client.spi.VerifiableCredential;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 public class VCSerializer extends StdSerializer<VerifiableCredential> {
 
@@ -43,31 +45,62 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
 
         jgen.writeStartObject();
 
-        jgen.writeFieldName("@context");
-        jgen.writeStartArray();
-        for (final String context: vc.context) {
-            jgen.writeString(context);
+        if (vc.type != null) {
+            jgen.writeFieldName("@context");
+            jgen.writeStartArray();
+            for (final String context : vc.context) {
+                jgen.writeString(context);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
         jgen.writeStringField("id", vc.id);
 
-        jgen.writeFieldName("type");
-        jgen.writeStartArray();
-        for (final String type: vc.type) {
-            jgen.writeString(type);
+        if (vc.type != null) {
+            jgen.writeFieldName("type");
+            jgen.writeStartArray();
+            for (final String type : vc.type) {
+                jgen.writeString(type);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
         jgen.writeStringField("issuer", vc.issuer);
 
         jgen.writeStringField("issuanceDate", vc.issuanceDate.toString());
 
-        jgen.writeStringField("credentialSubject", vc.credentialSubject.toString());
+        if (vc.credentialSubject != null) {
+            jgen.writeFieldName("credentialSubject");
+            jgen.writeStartObject();
+            final Iterator<Entry<String, Object>> itCSubject = vc.credentialSubject.entrySet().iterator();
+            while (itCSubject.hasNext()) {
+                final Entry<String, Object> entry = itCSubject.next();
+                jgen.writeObjectField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+        }
 
-        jgen.writeStringField("credentialStatus", vc.credentialStatus.toString());
+        if (vc.credentialStatus != null) {
+            jgen.writeFieldName("credentialStatus");
+            jgen.writeStartObject();
+            final Iterator<Entry<String, Object>> itCStatus = vc.credentialStatus.entrySet().iterator();
+            while (itCStatus.hasNext()) {
+                final Entry<String, Object> entry = itCStatus.next();
+                jgen.writeObjectField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+        }
 
-        jgen.writeStringField("proof", vc.proof.toString());
+        if (vc.proof != null) {
+            jgen.writeFieldName("proof");
+            jgen.writeStartObject();
+            final Iterator<Entry<String, Object>> itProof = vc.proof.entrySet().iterator();
+            while (itProof.hasNext()) {
+                final Entry<String, Object> entry = itProof.next();
+                jgen.writeObjectField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+        }
 
         jgen.writeEndObject();
 
