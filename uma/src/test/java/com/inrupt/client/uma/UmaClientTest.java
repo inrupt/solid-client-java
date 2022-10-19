@@ -55,6 +55,7 @@ class UmaClientTest {
     @Test
     void testMetadata() {
         final var asUri = URI.create(config.get("as_uri"));
+        System.out.println("-----> AS URI: " + asUri + " <-------");
         final var client = new UmaClient();
         final var metadata = client.metadata(asUri);
         checkMetadata(metadata);

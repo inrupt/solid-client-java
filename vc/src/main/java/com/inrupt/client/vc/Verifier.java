@@ -20,18 +20,19 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
 import com.inrupt.client.api.URIBuilder;
-import com.inrupt.client.core.InputStreamBodySubscribers;
+import com.inrupt.client.api.VerifiableCredential;
+import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.spi.VerifiableCredential;
-import com.inrupt.client.spi.VerifiablePresentation;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -46,7 +47,7 @@ public class Verifier {
     private static final String APPLICATION_JSON = "application/json";
 
     private final URI baseUri;
-    private final HttpClient httpClient;
+    private final HttpProcessor httpClient;
     private final JsonProcessor processor;
 
     /**
@@ -55,7 +56,7 @@ public class Verifier {
      * @param baseUri the base URI for the VC-API
      */
     public Verifier(final URI baseUri) {
-        this(baseUri, HttpClient.newHttpClient());
+        this(baseUri, ServiceProvider.getHttpProcessor());
     }
 
     /**
@@ -64,7 +65,7 @@ public class Verifier {
      * @param baseUri the base URI for the VC-API
      * @param httpClient an HTTP client
      */
-    public Verifier(final URI baseUri, final HttpClient httpClient) {
+    public Verifier(final URI baseUri, final HttpProcessor httpClient) {
         this.baseUri = baseUri;
         this.httpClient = httpClient;
         this.processor = ServiceProvider.getJsonProcessor();
@@ -87,13 +88,13 @@ public class Verifier {
      * @return the next stage of completion, containing a verification response
      */
     public CompletionStage<VerificationResponse> verifyAsync(final VerifiableCredential credential) {
-        final var req = HttpRequest.newBuilder(getCredentialVerifierUrl())
+        final var req = Request.newBuilder(getCredentialVerifierUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
         return httpClient.sendAsync(req, ofVerificationResponse())
-            .thenApply(HttpResponse::body);
+            .thenApply(Response::body);
     }
 
 
@@ -115,12 +116,12 @@ public class Verifier {
      */
     public CompletionStage<VerificationResponse> verifyAsync(
             final VerifiablePresentation presentation) {
-        final var req = HttpRequest.newBuilder(getPresentationVerifierUrl())
+        final var req = Request.newBuilder(getPresentationVerifierUrl())
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
                 .build();
 
-        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(HttpResponse::body);
+        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(Response::body);
 
     }
 
@@ -144,26 +145,20 @@ public class Verifier {
         public List<String> errors;
     }
 
-    private HttpResponse.BodyHandler<VerificationResponse> ofVerificationResponse() {
+    private Response.BodyHandler<VerificationResponse> ofVerificationResponse() {
         return responseInfo -> {
-            final HttpResponse.BodySubscriber<VerificationResponse> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
-                bodySubscriber = InputStreamBodySubscribers.mapping(input -> {
-                    try {
-                        return processor.fromJson(input, VerificationResponse.class);
-                    } catch (final IOException ex) {
-                        throw new VerifiableCredentialException(
-                                "Error parsing verification request", ex);
-                    }
-                });
-            } else {
-                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
-                bodySubscriber.onError(new VerifiableCredentialException(
-                    "Unexpected error response when verifying a resource.",
-                    httpStatus));
+                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    return processor.fromJson(input, VerificationResponse.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException(
+                            "Error parsing verification request", ex);
+                }
             }
-            return bodySubscriber;
+            throw new VerifiableCredentialException(
+                    "Unexpected error response when verifying a resource.",
+                    httpStatus);
         };
     }
 

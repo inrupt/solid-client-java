@@ -50,6 +50,5 @@ public interface HttpProcessor {
      * @param <T> the response type
      * @return the next stage of completion, containing the response
      */
-    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler)
-            throws IOException;
+    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler);
 }

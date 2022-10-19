@@ -22,11 +22,13 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
+import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +45,7 @@ class RDF4JBodyHandlersTest {
 
     private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
 
     @BeforeAll
     static void setup() {
@@ -58,15 +60,15 @@ class RDF4JBodyHandlersTest {
     @Test
     void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofModel());
+        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture();
 
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
+        final var statusCode = asyncResponse.thenApply(Response::statusCode).join();
+        final var responseBody = asyncResponse.thenApply(Response::body).join();
 
         assertEquals(200, statusCode);
         assertEquals(1, responseBody.size());
@@ -81,7 +83,7 @@ class RDF4JBodyHandlersTest {
     @Test
     void testOfModelHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
@@ -101,7 +103,7 @@ class RDF4JBodyHandlersTest {
 
     @Test
     void testOfModelHandlerWithURL() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
                 .build();
@@ -123,17 +125,17 @@ class RDF4JBodyHandlersTest {
     @Test
     void testOfRepositoryHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofRepository());
+        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofRepository()).toCompletableFuture();
 
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final var statusCode = asyncResponse.thenApply(Response::statusCode).join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
+        final var responseBody = asyncResponse.thenApply(Response::body).join();
         assertTrue(responseBody instanceof Repository);
         try (final var conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
@@ -150,7 +152,7 @@ class RDF4JBodyHandlersTest {
     @Test
     void testOfRepositoryHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
                 .GET()
                 .build();
@@ -174,7 +176,7 @@ class RDF4JBodyHandlersTest {
 
     @Test
     void testOfRepositoryHandlerWithURL() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/example"))
                 .GET()
                 .build();

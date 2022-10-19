@@ -22,6 +22,8 @@ package com.inrupt.client.http;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
 import com.inrupt.client.authentication.SolidAuthenticator;
 import com.inrupt.client.authentication.UmaAuthenticationMechanism;
 import com.inrupt.client.jena.JenaBodyHandlers;
@@ -29,21 +31,10 @@ import com.inrupt.client.jena.JenaBodyPublishers;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.PushPromiseHandler;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -53,13 +44,9 @@ import org.junit.jupiter.api.Test;
 class SolidClientTest {
 
     private static final SolidAuthenticator authenticator = new SolidAuthenticator();
-    private static final SolidClient client = SolidClient.Builder.newBuilder()
-        .authenticator(authenticator)
-        .build();
+    private static final SolidClient client = new SolidClient(authenticator);
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static final List<CompletableFuture<Void>> pushPromisesMap = new ArrayList<>();
-    private static final List<CompletableFuture<Void>> asyncPushRequests = new CopyOnWriteArrayList<>();
 
     @BeforeAll
     static void setup() {
@@ -74,12 +61,12 @@ class SolidClientTest {
 
     @Test
     void testSendOfString() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/file"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        final var response = client.send(request, Response.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
@@ -87,60 +74,24 @@ class SolidClientTest {
 
     @Test
     void testSendOfStringAsync() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/file"))
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        final var asyncResponse = client.sendAsync(request, Response.BodyHandlers.ofString());
 
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final var statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
         assertEquals(200, statusCode);
 
-        final var body = asyncResponse.thenApply(HttpResponse::body).join();
+        final var body = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
         assertTrue(body.contains("Julie C. Sparks and David Widger"));
-    }
-
-    @Test
-    void testSendOfStringAsyncWithPromise() throws IOException, InterruptedException {
-
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("http_uri") + "/file"))
-                .GET()
-                .build();
-
-        final var asyncResponse = client.sendAsync(request,
-            HttpResponse.BodyHandlers.ofString(),
-            stringPromiseHandler()
-        );
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
-        assertEquals(200, statusCode);
-
-        final var body = asyncResponse.thenApply(HttpResponse::body).join();
-        assertTrue(body.contains("Julie C. Sparks and David Widger"));
-
-        asyncPushRequests.forEach(CompletableFuture::join);
-        assertEquals(0, asyncPushRequests.size());
-    }
-
-    private static PushPromiseHandler<String> stringPromiseHandler() {
-        return (HttpRequest initiatingRequest,
-            HttpRequest pushPromiseRequest,
-            Function<HttpResponse.BodyHandler<String>,
-            CompletableFuture<HttpResponse<String>>> acceptor) -> {
-            final CompletableFuture<Void> pushcf =
-                acceptor.apply(HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept((b) -> { });
-
-            asyncPushRequests.add(pushcf);
-        };
     }
 
     @Test
     void testSendOfModelProtectedResource() throws IOException, InterruptedException {
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/protected/resource"))
                 .header("Accept", "text/turtle")
                 .GET()
@@ -160,7 +111,7 @@ class SolidClientTest {
     @Test
     void testSendOfModel() throws IOException, InterruptedException {
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/example"))
                 .header("Accept", "text/turtle")
                 .GET()
@@ -178,9 +129,8 @@ class SolidClientTest {
     }
 
     @Test
-    void testSendOfModelAsync() throws IOException,
-            InterruptedException, ExecutionException {
-        final HttpRequest request = HttpRequest.newBuilder()
+    void testSendOfModelAsync() throws IOException {
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/example"))
                 .header("Accept", "text/turtle")
                 .GET()
@@ -188,56 +138,16 @@ class SolidClientTest {
 
         final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel());
 
-        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
+        final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
         assertEquals(7, responseBody.size());
         assertTrue(responseBody.contains(
             null,
             null,
             ResourceFactory.createResource("http://example.test//settings/prefs.ttl"))
         );
-    }
-
-    @Test
-    void testSendOfModelAsyncWithPromise() throws IOException, InterruptedException {
-
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.get("http_uri") + "/example"))
-                .GET()
-                .build();
-
-        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel(), pushPromiseHandler());
-
-        final var statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
-        assertEquals(200, statusCode);
-
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
-        assertEquals(7, responseBody.size());
-        assertTrue(responseBody.contains(
-            null,
-            null,
-            ResourceFactory.createResource("http://example.test//settings/prefs.ttl"))
-        );
-
-        pushPromisesMap.forEach(CompletableFuture::join);
-        assertEquals(0, pushPromisesMap.size());
-
-    }
-
-    private static PushPromiseHandler<Model> pushPromiseHandler() {
-        return (HttpRequest initiatingRequest,
-            HttpRequest pushPromiseRequest,
-            Function<HttpResponse.BodyHandler<Model>,
-            CompletableFuture<HttpResponse<Model>>> acceptor) -> {
-                final CompletableFuture<Void> pushcf =
-                    acceptor.apply(JenaBodyHandlers.ofModel())
-                        .thenApply(HttpResponse::body)
-                        .thenAccept(body -> { });
-
-                pushPromisesMap.add(pushcf);
-            };
     }
 
     @Test
@@ -250,14 +160,13 @@ class SolidClientTest {
             model.createLiteral("object")
         );
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofModel(model))
-                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.sendAsync(request, HttpResponse.BodyHandlers.discarding()).join();
+        final var response = client.sendAsync(request, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
         assertEquals(Optional.of("UMA ticket=\"ticket-12345\", as_uri=\"" + config.get("http_uri") + "\""),
@@ -266,12 +175,12 @@ class SolidClientTest {
 
     @Test
     void testSendRequestImage() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("http_uri") + "/solid.png"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+        final var response = client.send(request, Response.BodyHandlers.ofByteArray());
 
         assertEquals(200, response.statusCode());
     }

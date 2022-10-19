@@ -20,27 +20,32 @@
  */
 package com.inrupt.client.uma;
 
-import com.inrupt.client.api.URIBuilder;
-import com.inrupt.client.core.OAuthBodyPublishers;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import com.inrupt.client.api.*;
+import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class UmaClient {
 
     /* HTTP */
+    private static final String EQUALS = "=";
+    private static final String ETC = "&";
     private static final String ACCEPT = "Accept";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String JSON = "application/json";
@@ -66,7 +71,7 @@ public class UmaClient {
     private static final String REQUEST_DENIED = "request_denied";
 
     // TODO add metadata cache
-    private final HttpClient httpClient;
+    private final HttpProcessor httpClient;
     private final JsonProcessor processor;
     private final int maxIterations;
 
@@ -78,7 +83,7 @@ public class UmaClient {
     }
 
     public UmaClient(final int maxIterations) {
-        this(HttpClient.newHttpClient(), maxIterations);
+        this(ServiceProvider.getHttpProcessor(), maxIterations);
     }
 
     /**
@@ -87,7 +92,7 @@ public class UmaClient {
      * @param httpClient the externally configured HTTP client
      * @param maxIterations the maximum number of claims gathering stages
      */
-    public UmaClient(final HttpClient httpClient, final int maxIterations) {
+    public UmaClient(final HttpProcessor httpClient, final int maxIterations) {
         this.httpClient = httpClient;
         this.maxIterations = maxIterations;
         this.processor = ServiceProvider.getJsonProcessor();
@@ -98,13 +103,16 @@ public class UmaClient {
      *
      * @param authorizationServer the authorization server URI
      * @return the authorization server discovery metadata
+     * @throws IOException in the case of an error negotiating a token
      */
     public Metadata metadata(final URI authorizationServer) {
-        final var req = HttpRequest.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
         try {
-            return processMetadataResponse(httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream()));
-        } catch (final InterruptedException | IOException ex) {
-            throw new UmaException("Error performing UMA discovery", ex);
+            return metadataAsync(authorizationServer).toCompletableFuture().join();
+        } catch (final CompletionException ex) {
+            if (ex.getCause() instanceof UmaException) {
+                sneakyThrow(ex.getCause());
+            }
+            throw new UmaException("Error performing UMA metadata discovery", ex);
         }
     }
 
@@ -115,8 +123,8 @@ public class UmaClient {
      * @return the next stage of completion, containing the authorization server discovery metadata
      */
     public CompletionStage<Metadata> metadataAsync(final URI authorizationServer) {
-        final var req = HttpRequest.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+        final var req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
+        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
             .thenApply(this::processMetadataResponse);
     }
 
@@ -167,7 +175,7 @@ public class UmaClient {
         }
 
         final var req = buildTokenRequest(tokenEndpoint, tokenRequest);
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
             .thenCompose(res -> {
                 try {
                     // Successful terminal state
@@ -221,7 +229,7 @@ public class UmaClient {
         throw (T) ex;
     }
 
-    private HttpRequest buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {
+    private Request buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {
         final var data = new HashMap<String, String>();
         data.put(GRANT_TYPE, UMA_TICKET);
         data.put(TICKET, request.getTicket());
@@ -236,13 +244,24 @@ public class UmaClient {
         }
 
         // TODO add dpop support, if available
-        return HttpRequest.newBuilder(tokenEndpoint)
+        return Request.newBuilder(tokenEndpoint)
             .header(CONTENT_TYPE, X_WWW_FORM_URLENCODED)
-            .POST(OAuthBodyPublishers.ofFormData(data))
+            .POST(ofFormData(data))
             .build();
     }
 
-    private Metadata processMetadataResponse(final HttpResponse<InputStream> response) {
+    private static Request.BodyPublisher ofFormData(final Map<String, String> data) {
+        final var form = data.entrySet().stream().map(entry -> {
+            final var name = URLEncoder.encode(entry.getKey(), UTF_8);
+            final var value = URLEncoder.encode(entry.getValue(), UTF_8);
+            return String.join(EQUALS, name, value);
+        }).collect(Collectors.joining(ETC));
+
+        return Request.BodyPublishers.ofString(form);
+    }
+
+
+    private Metadata processMetadataResponse(final Response<InputStream> response) {
         if (response.statusCode() == SUCCESS) {
             try {
                 return processor.fromJson(response.body(), Metadata.class);

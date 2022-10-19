@@ -26,8 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 /**
  * An HTTP Response.
@@ -50,7 +48,7 @@ public interface Response<T> {
      *
      * @return the response headers
      */
-    Map<String, List<String>> headers();
+    Headers headers();
 
     /**
      * The URI from which the response was received.
@@ -75,7 +73,7 @@ public interface Response<T> {
          *
          * @return the response headers
          */
-        Map<String, List<String>> headers();
+        Headers headers();
 
         /**
          * Retrieve the status code from the response.

@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,11 +22,13 @@ package com.inrupt.client.webid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
+import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,29 +38,29 @@ import org.junit.jupiter.api.Test;
 
 class WebIdBodyHandlersTest {
 
-    private static final WebIdMockHttpService mockHttpClient = new WebIdMockHttpService();
+    private static final WebIdMockHttpService mockHttpServer = new WebIdMockHttpService();
     private static Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
 
     @BeforeAll
     static void setup() {
-        config.putAll(mockHttpClient.start());
+        config.putAll(mockHttpServer.start());
     }
 
     @AfterAll
     static void teardown() {
-        mockHttpClient.stop();
+        mockHttpServer.stop();
     }
 
     @Test
     void testGetOfWebIdProfile() throws IOException, InterruptedException {
-        final var request = HttpRequest.newBuilder()
+        final var request = Request.newBuilder()
             .uri(URI.create(config.get("webid_uri") + "/webId"))
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
-        final var response = client.send(
+        final Response<WebIdProfile> response = client.send(
             request,
             WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username"))
         );

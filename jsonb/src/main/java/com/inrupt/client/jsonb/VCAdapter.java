@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jsonb;
 
-import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.api.VerifiableCredential;
 
 import java.time.Instant;
 import java.util.ArrayList;

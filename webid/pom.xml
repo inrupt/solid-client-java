@@ -38,6 +38,12 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-httpclient</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-rdf4j</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

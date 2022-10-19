@@ -20,9 +20,8 @@
  */
 package com.inrupt.client.jena;
 
+import com.inrupt.client.api.Request;
 import com.inrupt.client.core.IOUtils;
-
-import java.net.http.HttpRequest;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
@@ -32,7 +31,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.update.UpdateRequest;
 
 /**
- * {@link HttpRequest.BodyPublisher} implementations for use with Jena types.
+ * {@link Request.BodyPublisher} implementations for use with Jena types.
  */
 public final class JenaBodyPublishers {
 
@@ -44,7 +43,7 @@ public final class JenaBodyPublishers {
      * @param model the model
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofModel(final Model model) {
+    public static Request.BodyPublisher ofModel(final Model model) {
         return ofModel(model, Lang.TURTLE);
     }
 
@@ -55,9 +54,8 @@ public final class JenaBodyPublishers {
      * @param lang the serialization language
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofModel(final Model model, final Lang lang) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> RDFDataMgr.write(out, model, lang)));
+    public static Request.BodyPublisher ofModel(final Model model, final Lang lang) {
+        return IOUtils.buffer(out -> RDFDataMgr.write(out, model, lang));
     }
 
     /**
@@ -68,7 +66,7 @@ public final class JenaBodyPublishers {
      * @param graph the graph
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofGraph(final Graph graph) {
+    public static Request.BodyPublisher ofGraph(final Graph graph) {
         return ofGraph(graph, Lang.TURTLE);
     }
 
@@ -79,9 +77,8 @@ public final class JenaBodyPublishers {
      * @param lang the serialization language
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofGraph(final Graph graph, final Lang lang) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> RDFDataMgr.write(out, graph, lang)));
+    public static Request.BodyPublisher ofGraph(final Graph graph, final Lang lang) {
+        return IOUtils.buffer(out -> RDFDataMgr.write(out, graph, lang));
     }
 
     /**
@@ -92,7 +89,7 @@ public final class JenaBodyPublishers {
      * @param dataset the dataset
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset) {
+    public static Request.BodyPublisher ofDataset(final Dataset dataset) {
         return ofDataset(dataset, Lang.TRIG);
     }
 
@@ -103,9 +100,8 @@ public final class JenaBodyPublishers {
      * @param lang the serialization language
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofDataset(final Dataset dataset, final Lang lang) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> RDFDataMgr.write(out, dataset, lang)));
+    public static Request.BodyPublisher ofDataset(final Dataset dataset, final Lang lang) {
+        return IOUtils.buffer(out -> RDFDataMgr.write(out, dataset, lang));
     }
 
     /**
@@ -114,11 +110,12 @@ public final class JenaBodyPublishers {
      * @param sparql the SPARQL Update request
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofUpdateRequest(final UpdateRequest sparql) {
-        return HttpRequest.BodyPublishers.ofString(sparql.toString());
+    public static Request.BodyPublisher ofUpdateRequest(final UpdateRequest sparql) {
+        return Request.BodyPublishers.ofString(sparql.toString());
     }
 
     private JenaBodyPublishers() {
         // Prevent instantiation
     }
 }
+

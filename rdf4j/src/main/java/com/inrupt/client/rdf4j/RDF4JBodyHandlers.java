@@ -20,7 +20,12 @@
  */
 package com.inrupt.client.rdf4j;
 
-import java.net.http.HttpResponse;
+import com.inrupt.client.api.Response;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.DynamicModelFactory;
@@ -31,7 +36,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 /**
- * {@link HttpResponse.BodyHandler} implementations for use with RDF4J types.
+ * {@link Response.BodyHandler} implementations for use with RDF4J types.
  */
 public final class RDF4JBodyHandlers {
 
@@ -40,10 +45,17 @@ public final class RDF4JBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Model> ofModel() {
+    public static Response.BodyHandler<Model> ofModel() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(RDF4JBodyHandlers::toRDF4JFormat).map(RDF4JBodySubscribers::ofModel)
-            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(new DynamicModelFactory().createEmptyModel()));
+            .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
+                try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array())) {
+                    return Rio.parse(stream, format);
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                        "An I/O error occurred while data was read from the InputStream", ex);
+                }
+            })
+            .orElseGet(() -> new DynamicModelFactory().createEmptyModel());
     }
 
     /**
@@ -51,10 +63,20 @@ public final class RDF4JBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Repository> ofRepository() {
+    public static Response.BodyHandler<Repository> ofRepository() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(RDF4JBodyHandlers::toRDF4JFormat).map(RDF4JBodySubscribers::ofRepository)
-            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(new SailRepository(new MemoryStore())));
+            .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
+                final Repository repository = new SailRepository(new MemoryStore());
+                try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array());
+                        final var conn = repository.getConnection()) {
+                    conn.add(stream, format);
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                        "An I/O error occurred while data was read from the InputStream", ex);
+                }
+                return repository;
+            })
+            .orElseGet(() -> new SailRepository(new MemoryStore()));
     }
 
     static RDFFormat toRDF4JFormat(final String mediaType) {
@@ -64,5 +86,4 @@ public final class RDF4JBodyHandlers {
     private RDF4JBodyHandlers() {
         //Prevent instantiation
     }
-
 }

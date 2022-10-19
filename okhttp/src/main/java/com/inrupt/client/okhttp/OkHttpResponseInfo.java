@@ -20,13 +20,12 @@
  */
 package com.inrupt.client.okhttp;
 
+import com.inrupt.client.api.Headers;
 import com.inrupt.client.api.Response.ResponseInfo;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.Response;
 
@@ -39,8 +38,8 @@ class OkHttpResponseInfo implements ResponseInfo {
     }
 
     @Override
-    public Map<String, List<String>> headers() {
-        return response.headers().toMultimap();
+    public Headers headers() {
+        return Headers.of(response.headers().toMultimap());
     }
 
     @Override

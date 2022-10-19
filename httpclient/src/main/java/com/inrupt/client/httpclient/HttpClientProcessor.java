@@ -44,7 +44,8 @@ public class HttpClientProcessor implements HttpProcessor {
         this(HttpClient.newHttpClient());
     }
 
-    public HttpClientProcessor(final HttpClient client) {
+    private HttpClientProcessor(final HttpClient client) {
+        // TODO log that this was initialized at DEBUG level
         this.client = client;
     }
 
@@ -55,16 +56,16 @@ public class HttpClientProcessor implements HttpProcessor {
     }
 
     @Override
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request, final Response.BodyHandler<T> handler)
-            throws IOException {
+    public <T> CompletionStage<Response<T>> sendAsync(final Request request, final Response.BodyHandler<T> handler) {
         final var builder = HttpRequest.newBuilder(request.uri());
 
-        final var publisher = request.bodyPublisher().map(p -> p.getBytes())
+        final var publisher = request.bodyPublisher().map(Request.BodyPublisher::getBytes)
             .map(buf -> HttpRequest.BodyPublishers.ofByteArray(buf.array()))
             .orElseGet(HttpRequest.BodyPublishers::noBody);
+
         builder.method(request.method(), publisher);
 
-        for (final Map.Entry<String, List<String>> entry : request.headers().entrySet()) {
+        for (final Map.Entry<String, List<String>> entry : request.headers().asMap().entrySet()) {
             for (final String value : entry.getValue()) {
                 builder.header(entry.getKey(), value);
             }
@@ -75,5 +76,9 @@ public class HttpClientProcessor implements HttpProcessor {
                 final var info = new HttpClientResponseInfo(res, ByteBuffer.wrap(res.body()));
                 return new HttpClientResponse<>(res.uri(), info, handler.apply(info));
             });
+    }
+
+    public static HttpClientProcessor ofHttpClient(final HttpClient client) {
+        return new HttpClientProcessor(client);
     }
 }
