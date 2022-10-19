@@ -30,15 +30,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-public class JacksonVCs {
+public class JacksonVCTest {
 
     private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
     private static VerifiableCredential vc;
@@ -46,20 +43,20 @@ public class JacksonVCs {
 
     @Test
     void roundtripVC() throws IOException {
-        try (final var res = JacksonVCs.class.getResourceAsStream("/verifiableCredential.json")) {
+        try (final var res = JacksonVCTest.class.getResourceAsStream("/verifiableCredential.json")) {
             vc = processor.fromJson(res, VerifiableCredential.class);
         }
 
-        final Path target = new File("target").toPath();
-        final String folderName = UUID.randomUUID().toString();
-        final Path folderLocation = Files.createTempDirectory(target, folderName);
-        final Path file = Files.createTempFile(folderLocation, UUID.randomUUID().toString(), ".json");
+        final var targetPath = new File("target").toPath();
+        final var testFolderName = UUID.randomUUID().toString();
+        final var testFolderPath = Files.createTempDirectory(targetPath, testFolderName);
+        final var testFile = Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
 
-        try (OutputStream out = new FileOutputStream(file.toString())) {
+        try (final var out = new FileOutputStream(testFile.toString())) {
             processor.toJson(vc, out);
         }
 
-        try (final InputStream in = new FileInputStream(file.toString())) {
+        try (final var in = new FileInputStream(testFile.toString())) {
             vcCopy = processor.fromJson(in, VerifiableCredential.class);
         }
 
@@ -73,8 +70,8 @@ public class JacksonVCs {
         assertEquals(vc.credentialStatus, vcCopy.credentialStatus);
         assertEquals(vc.proof, vcCopy.proof);
 
-        Files.deleteIfExists(file);
-        Files.deleteIfExists(folderLocation);
+        Files.deleteIfExists(testFile);
+        Files.deleteIfExists(testFolderPath);
 
     }
 }
