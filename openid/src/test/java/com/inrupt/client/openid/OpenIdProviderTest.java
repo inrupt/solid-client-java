@@ -20,8 +20,7 @@
  */
 package com.inrupt.client.openid;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.authentication.DPoP;
 
@@ -31,6 +30,8 @@ import java.net.http.HttpClient.Version;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,14 +66,10 @@ class OpenIdProviderTest {
 
     @Test
     void metadataAsyncTest() {
-        assertEquals(
-            "http://example.test",
-            openIdProvider.metadataAsync().toCompletableFuture().join().issuer.toString()
-        );
-        assertEquals(
-            "http://example.test/oauth/jwks",
-            openIdProvider.metadataAsync().toCompletableFuture().join().jwksUri.toString()
-        );
+        assertEquals("http://example.test",
+                openIdProvider.metadataAsync().toCompletableFuture().join().issuer.toString());
+        assertEquals("http://example.test/oauth/jwks",
+                openIdProvider.metadataAsync().toCompletableFuture().join().jwksUri.toString());
     }
 
     @Test
@@ -115,7 +112,9 @@ class OpenIdProviderTest {
                 "myClientId",
                 URI.create("myRedirectUri")
             );
-        assertThrows(NullPointerException.class, () -> openIdProvider.token(tokenReq));
+        final var err =
+                assertThrows(CompletionException.class, () -> openIdProvider.token(tokenReq));
+        assertTrue(err.getCause() instanceof NullPointerException);
     }
 
     @Test
@@ -217,19 +216,34 @@ class OpenIdProviderTest {
 
     @Test
     void tokenAsyncTest() {
-        final var tokenReq = TokenRequest.newBuilder()
-            .code("someCode")
-            .codeVerifier("myCodeverifier")
-            .build(
-                "authorization_code",
-                "myClientId",
-                URI.create("https://example.test/redirectUri")
-            );
+        final var tokenReq = TokenRequest.newBuilder().code("someCode")
+                .codeVerifier("myCodeverifier").build("authorization_code", "myClientId",
+                        URI.create("https://example.test/redirectUri"));
         final var token = openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join();
         assertEquals("token-from-id-token", token.accessToken);
         assertEquals("123456", token.idToken);
         assertEquals("Bearer", token.tokenType);
 
+    }
+
+    @Test
+    void tokenAsyncStatusCodesTest() {
+        final var tokenReq = TokenRequest.newBuilder().code("none")
+                .codeVerifier("none").build("authorization_code", "none",
+                        URI.create("none"));
+
+        assertAll("Not found",
+            () -> {
+                final CompletionException exception = assertThrows(CompletionException.class,
+                    () -> openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join()
+                );
+                assertTrue(exception.getCause() instanceof OpenIdException);
+                final var cause = (OpenIdException) exception.getCause();
+                assertEquals(
+                    "Unexpected error while interacting with the OpenID Provider's token endpoint.",
+                    cause.getMessage());
+                assertEquals(Optional.of(404), cause.getStatus());
+            });
     }
 
     @Test

@@ -36,96 +36,80 @@ public class Metadata {
     /**
      * A list of scopes supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("scopes_supported")
     public List<String> scopesSupported;
 
     /**
      * A list of response types supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("response_types_supported")
     public List<String> responseTypesSupported;
 
     /**
      * A list of grant types supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("grant_types_supported")
     public List<String> grantTypesSupported;
 
     /**
      * The location of the end session endpoint for the given OpenID Connect provider, if supported.
      */
-    //@JsonbProperty("end_session_endpoint")
     public URI endSessionEndpoint;
 
     /**
      * The location of the authorization endpoint for the given OpenID Connect provider.
      */
-    //@JsonbProperty("authorization_endpoint")
     public URI authorizationEndpoint;
 
     /**
      * The location of the token endpoint for the given OpenID Connect provider.
      */
-    //@JsonbProperty("token_endpoint")
     public URI tokenEndpoint;
 
     /**
      * A list of authentication methods supported by the token endpoint of the given OpenID Connect provider.
      */
-    //@JsonbProperty("token_endpoint_auth_methods_supported")
     public List<String> tokenEndpointAuthMethodsSupported;
 
     /**
      * The location of the userinfo endpoint for the given OpenID Connect provider.
      */
-    //@JsonbProperty("userinfo_endpoint")
     public URI userinfoEndpoint;
 
     /**
      * A list of claims supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("claims_supported")
     public List<String> claimsSupported;
 
     /**
      * A list of subject types supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("subject_types_supported")
     public List<String> subjectTypesSupported;
 
     /**
      * A list of code challenge methods supported by the given OpentID Connect provider.
      */
-    //@JsonbProperty("code_challenge_methods_supported")
     public List<String> codeChallengeMethodsSupported;
 
     /**
      * The location of the JSON Web Key Set endpoint for the given OpenID Connect provider.
      */
-    //@JsonbProperty("jwks_uri")
     public URI jwksUri;
 
     /**
      * The registration endpoint for the given OpenID Connect provider.
      */
-    //@JsonbProperty("registration_endpoint")
     public URI registrationEndpoint;
 
     /**
      * The revocation endpoint for the given OpenID Connect provider.
      */
-    //@JsonbProperty("revocation_endpoint")
     public URI revocationEndpoint;
 
     /**
      * A list of ID Token signing algorithm values supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("id_token_signing_alg_values_supported")
     public List<String> idTokenSigningAlgValuesSupported;
 
     /**
      * A list of DPoP signing algorithm values supported by the given OpenID Connect provider.
      */
-    //@JsonbProperty("dpop_signing_alg_values_supported")
     public List<String> dpopSigningAlgValuesSupported;
 }
