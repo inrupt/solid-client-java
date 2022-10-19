@@ -47,7 +47,7 @@ class IssuerTest {
     private static final Map<String, String> config = new HashMap<>();
     private static Issuer issuer;
     private static JsonProcessor processor;
-    private static VerifiableCredential testVC;
+    private static VerifiableCredential expectedVC;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -55,7 +55,7 @@ class IssuerTest {
         issuer = new Issuer(URI.create(config.get("vc_uri")), client);
         processor = ServiceProvider.getJsonProcessor();
         try (final var res = IssuerTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
-            testVC = processor.fromJson(res, VerifiableCredential.class);
+            expectedVC = processor.fromJson(res, VerifiableCredential.class);
         }
     }
 
@@ -66,32 +66,32 @@ class IssuerTest {
 
     @Test
     void issueTest() throws IOException {
-        final var vc = issuer.issue(testVC);
+        final var vc = issuer.issue(expectedVC);
 
-        assertEquals(testVC.context, vc.context);
-        assertEquals(testVC.id, vc.id);
-        assertEquals(testVC.type, vc.type);
-        assertEquals(testVC.issuer, vc.issuer);
-        assertEquals(testVC.issuanceDate, vc.issuanceDate);
-        assertEquals(testVC.expirationDate, vc.expirationDate);
-        assertEquals(testVC.credentialSubject, vc.credentialSubject);
-        assertEquals(testVC.credentialStatus, vc.credentialStatus);
-        assertEquals(testVC.proof, vc.proof);
+        assertEquals(expectedVC.context, vc.context);
+        assertEquals(expectedVC.id, vc.id);
+        assertEquals(expectedVC.type, vc.type);
+        assertEquals(expectedVC.issuer, vc.issuer);
+        assertEquals(expectedVC.issuanceDate, vc.issuanceDate);
+        assertEquals(expectedVC.expirationDate, vc.expirationDate);
+        assertEquals(expectedVC.credentialSubject, vc.credentialSubject);
+        assertEquals(expectedVC.credentialStatus, vc.credentialStatus);
+        assertEquals(expectedVC.proof, vc.proof);
     }
 
     @Test
     void issueAsyncTest() throws IOException {
-        final var vc = issuer.issueAsync(testVC).toCompletableFuture().join();
+        final var vc = issuer.issueAsync(expectedVC).toCompletableFuture().join();
 
-        assertEquals(testVC.context, vc.context);
-        assertEquals(testVC.id, vc.id);
-        assertEquals(testVC.type, vc.type);
-        assertEquals(testVC.issuer, vc.issuer);
-        assertEquals(testVC.issuanceDate, vc.issuanceDate);
-        assertEquals(testVC.expirationDate, vc.expirationDate);
-        assertEquals(testVC.credentialSubject, vc.credentialSubject);
-        assertEquals(testVC.credentialStatus, vc.credentialStatus);
-        assertEquals(testVC.proof, vc.proof);
+        assertEquals(expectedVC.context, vc.context);
+        assertEquals(expectedVC.id, vc.id);
+        assertEquals(expectedVC.type, vc.type);
+        assertEquals(expectedVC.issuer, vc.issuer);
+        assertEquals(expectedVC.issuanceDate, vc.issuanceDate);
+        assertEquals(expectedVC.expirationDate, vc.expirationDate);
+        assertEquals(expectedVC.credentialSubject, vc.credentialSubject);
+        assertEquals(expectedVC.credentialStatus, vc.credentialStatus);
+        assertEquals(expectedVC.proof, vc.proof);
     }
 
     @Test

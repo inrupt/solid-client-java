@@ -22,9 +22,12 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.spi.VerifiablePresentation;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
@@ -45,11 +48,22 @@ class HolderTest {
     private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
     private static final Map<String, String> config = new HashMap<>();
     private static Holder holder;
+    private static JsonProcessor processor;
+    private static VerifiableCredential expectedVC;
+    private static VerifiablePresentation expectedVP;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws IOException {
         config.putAll(vcMockService.start());
         holder = new Holder(URI.create(config.get("vc_uri")), client);
+        processor = ServiceProvider.getJsonProcessor();
+        try (final var res =
+                HolderTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
+            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+        }
+        try (final var res = HolderTest.class.getResourceAsStream("/__files/verifiablePresentation.json")) {
+            expectedVP = processor.fromJson(res, VerifiablePresentation.class);
+        }
     }
 
     @AfterAll
@@ -76,17 +90,17 @@ class HolderTest {
 
     @Test
     void getCredentialTest() {
-        final var vc = holder.getCredential(VCtestData.VC.id);
+        final var vc = holder.getCredential(expectedVC.id);
 
-        assertEquals(VCtestData.VC.id, vc.id);
+        assertEquals(expectedVC.id, vc.id);
     }
 
     @Test
     void getCredentialAsyncTest() {
-        final var vc = holder.getCredentialAsync(VCtestData.VC.id)
+        final var vc = holder.getCredentialAsync(expectedVC.id)
             .toCompletableFuture().join();
 
-        assertEquals(VCtestData.VC.id, vc.id);
+        assertEquals(expectedVC.id, vc.id);
     }
 
     @Test
@@ -105,26 +119,26 @@ class HolderTest {
 
     @Test
     void getDeleteCredentialTest() {
-        holder.deleteCredential(VCtestData.VC.id);
+        holder.deleteCredential(expectedVC.id);
     }
 
     @Test
     void getDeleteCredentialAsyncTest() {
-        holder.deleteCredentialAsync(VCtestData.VC.id);
+        holder.deleteCredentialAsync(expectedVC.id);
     }
 
     @Test
     void getDeriveTest() {
 
         final var derivationReq = new Holder.DerivationRequest();
-        derivationReq.verifiableCredential = VCtestData.VC;
+        derivationReq.verifiableCredential = expectedVC;
         derivationReq.frame = Collections.emptyMap();
         derivationReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
         final var vc = holder.derive(derivationReq);
 
-        assertEquals(VCtestData.VC.id, vc.id);
+        assertEquals(expectedVC.id, vc.id);
     }
 
     @Test
@@ -149,14 +163,14 @@ class HolderTest {
     void getDeriveAsyncTest() {
 
         final var derivationReq = new Holder.DerivationRequest();
-        derivationReq.verifiableCredential = VCtestData.VC;
+        derivationReq.verifiableCredential = expectedVC;
         derivationReq.frame = Collections.emptyMap();
         derivationReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
         final var vc = holder.deriveAsync(derivationReq).toCompletableFuture().join();
 
-        assertEquals(VCtestData.VC.id, vc.id);
+        assertEquals(expectedVC.id, vc.id);
     }
 
 
@@ -179,57 +193,57 @@ class HolderTest {
 
     @Test
     void getPresentationTest() {
-        final var vp = holder.getPresentation(VCtestData.VC.id);
+        final var vp = holder.getPresentation(expectedVC.id);
 
-        assertEquals(VCtestData.VP.context, vp.context);
-        assertEquals(VCtestData.VP.id, vp.id);
+        assertEquals(expectedVP.context, vp.context);
+        assertEquals(expectedVP.id, vp.id);
     }
 
     @Test
     void getPresentationAsyncTest() {
-        final var vp = holder.getPresentationAsync(VCtestData.VC.id)
+        final var vp = holder.getPresentationAsync(expectedVC.id)
             .toCompletableFuture().join();
 
-        assertEquals(VCtestData.VP.context, vp.context);
-        assertEquals(VCtestData.VP.id, vp.id);
+        assertEquals(expectedVP.context, vp.context);
+        assertEquals(expectedVP.id, vp.id);
     }
 
     @Test
     void deletePresentationTest() {
-        holder.deletePresentation(VCtestData.VP.id);
+        holder.deletePresentation(expectedVP.id);
     }
 
     @Test
     void deletePresentationAsyncTest() {
-        holder.deletePresentationAsync(VCtestData.VP.id);
+        holder.deletePresentationAsync(expectedVP.id);
     }
 
     @Test
     void proveTest() {
 
         final var derivationReq = new Holder.ProveRequest();
-        derivationReq.presentation = VCtestData.VP;
+        derivationReq.presentation = expectedVP;
         derivationReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
         final var vp = holder.prove(derivationReq);
 
-        assertEquals(VCtestData.VP.context, vp.context);
-        assertEquals(VCtestData.VP.id, vp.id);
+        assertEquals(expectedVP.context, vp.context);
+        assertEquals(expectedVP.id, vp.id);
     }
 
     @Test
     void proveAsyncTest() {
 
         final var proveReq = new Holder.ProveRequest();
-        proveReq.presentation = VCtestData.VP;
+        proveReq.presentation = expectedVP;
         proveReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
         final var vp = holder.proveAsync(proveReq).toCompletableFuture().join();
 
-        assertEquals(VCtestData.VP.context, vp.context);
-        assertEquals(VCtestData.VP.id, vp.id);
+        assertEquals(expectedVP.context, vp.context);
+        assertEquals(expectedVP.id, vp.id);
     }
 
     @Test

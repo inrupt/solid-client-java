@@ -48,15 +48,24 @@ class VerifierTest {
     private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
     private static Verifier verifier;
     private static JsonProcessor processor;
-    private static VerificationResponse verificationResponse;
+    private static VerificationResponse expectedVerificationResponse;
+    private static VerifiableCredential expectedVC;
+    private static VerifiablePresentation expectedVP;
 
     @BeforeAll
     static void setup() throws IOException {
         config.putAll(vcMockService.start());
         verifier = new Verifier(URI.create(config.get("vc_uri")), client);
         processor = ServiceProvider.getJsonProcessor();
-        try (final var res = IssuerTest.class.getResourceAsStream("/__files/verificationResponse.json")) {
-            verificationResponse = processor.fromJson(res, VerificationResponse.class);
+        try (final var res = VerifierTest.class.getResourceAsStream("/__files/verificationResponse.json")) {
+            expectedVerificationResponse = processor.fromJson(res, VerificationResponse.class);
+        }
+        try (final var res =
+                VerifierTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
+            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+        }
+        try (final var res = VerifierTest.class.getResourceAsStream("/__files/verifiablePresentation.json")) {
+            expectedVP = processor.fromJson(res, VerifiablePresentation.class);
         }
     }
 
@@ -67,13 +76,12 @@ class VerifierTest {
 
     @Test
     void verifyTest() {
-        final var verificationResponse = verifier.verify(VCtestData.VC);
+        final var verificationResponse = verifier.verify(expectedVC);
 
-        assertEquals(verificationResponse.checks, verificationResponse.checks);
-        assertEquals(verificationResponse.warnings, verificationResponse.warnings);
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
-
 
     @Test
     void verifyStatusCodesTest() {
@@ -91,19 +99,19 @@ class VerifierTest {
 
     @Test
     void verifyAsyncTest() {
-        final var verificationResponse = verifier.verifyAsync(VCtestData.VC).toCompletableFuture().join();
+        final var verificationResponse = verifier.verifyAsync(expectedVC).toCompletableFuture().join();
 
-        assertEquals(verificationResponse.checks, verificationResponse.checks);
-        assertEquals(verificationResponse.warnings, verificationResponse.warnings);
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
 
     @Test
     void verifyPresentationTest() {
-        final var verificationResponse = verifier.verify(VCtestData.VP);
+        final var verificationResponse = verifier.verify(expectedVP);
 
-        assertEquals(verificationResponse.checks, verificationResponse.checks);
-        assertEquals(verificationResponse.warnings, verificationResponse.warnings);
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
 
@@ -123,10 +131,10 @@ class VerifierTest {
 
     @Test
     void verifyPresentationAsyncTest() {
-        final var verificationResponse = verifier.verifyAsync(VCtestData.VP).toCompletableFuture().join();
+        final var verificationResponse = verifier.verifyAsync(expectedVP).toCompletableFuture().join();
 
-        assertEquals(verificationResponse.checks, verificationResponse.checks);
-        assertEquals(verificationResponse.warnings, verificationResponse.warnings);
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
 
