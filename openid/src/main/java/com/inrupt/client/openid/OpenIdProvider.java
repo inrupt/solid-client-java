@@ -93,14 +93,7 @@ public class OpenIdProvider {
      * @return the OpenID Provider's metadata resource
      */
     public Metadata metadata() {
-        // consider caching this response
-        final var req = HttpRequest.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
-        try {
-            final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            return processor.fromJson(res.body(), Metadata.class);
-        } catch (final InterruptedException | IOException ex) {
-            throw new OpenIdException("Error fetching OpenID metadata resource", ex);
-        }
+        return metadataAsync().toCompletableFuture().join();
     }
 
     /**
@@ -110,13 +103,22 @@ public class OpenIdProvider {
      */
     public CompletionStage<Metadata> metadataAsync() {
         // consider caching this response
-        final var req = HttpRequest.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
+        final var req = HttpRequest.newBuilder(getMetadataUrl())
+            .header("Accept", "application/json").build();
+
         return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
-                    return processor.fromJson(res.body(), Metadata.class);
+                    final int httpStatus = res.statusCode();
+                    if (httpStatus >= 200 && httpStatus < 300) {
+                        return processor.fromJson(res.body(), Metadata.class);
+                    }
+                        throw new OpenIdException("Unexpected error while fetching the OpenID metadata resource.",
+                        httpStatus);
                 } catch (final IOException ex) {
-                    throw new OpenIdException("Error parsing OpenID Metadata resource", ex);
+                    throw new OpenIdException(
+                        "Unexpected I/O exception while fetching the OpenID metadata resource.",
+                        ex);
                 }
             });
     }
@@ -132,8 +134,7 @@ public class OpenIdProvider {
      * @return the URI for performing the authorization request
      */
     public URI authorize(final AuthorizationRequest request) {
-        final var metadata = metadata();
-        return authorize(metadata.authorizationEndpoint, request);
+        return authorizeAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -168,15 +169,7 @@ public class OpenIdProvider {
      * @return the token response
      */
     public TokenResponse token(final TokenRequest request) {
-        final var metadata = metadata();
-        final var req = tokenRequest(metadata, request);
-
-        try {
-            final var res = httpClient.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            return processor.fromJson(res.body(), TokenResponse.class);
-        } catch (final InterruptedException | IOException ex) {
-            throw new OpenIdException("Error fetching OpenID token", ex);
-        }
+        return tokenAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -191,9 +184,13 @@ public class OpenIdProvider {
             .thenCompose(req -> httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream()))
             .thenApply(res -> {
                 try {
-                    return processor.fromJson(res.body(), TokenResponse.class);
+                    final int httpStatus = res.statusCode();
+                    if (httpStatus >= 200 && httpStatus < 300) {
+                        return processor.fromJson(res.body(), TokenResponse.class);
+                    }
+                    throw new OpenIdException("Unexpected error while interacting with the OpenID Provider's token endpoint.", httpStatus);
                 } catch (final IOException ex) {
-                    throw new OpenIdException("Error parsing token response", ex);
+                    throw new OpenIdException("Unexpected I/O exception while interacting with the OpenID Provider's token endpoint.", ex);
                 }
             });
     }
@@ -250,11 +247,7 @@ public class OpenIdProvider {
      * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
      */
     public URI endSession(final EndSessionRequest request) {
-        final var metadata = metadata();
-        if (metadata.endSessionEndpoint != null) {
-            return endSession(metadata.endSessionEndpoint, request);
-        }
-        return null;
+        return endSessionAsync(request).toCompletableFuture().join();
     }
 
     /**

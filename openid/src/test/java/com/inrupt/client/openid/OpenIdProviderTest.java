@@ -22,7 +22,7 @@ package com.inrupt.client.openid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.inrupt.client.authentication.DPoP;
 
 import java.net.URI;
@@ -31,7 +31,7 @@ import java.net.http.HttpClient.Version;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.concurrent.CompletionException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -115,7 +115,9 @@ class OpenIdProviderTest {
                 "myClientId",
                 URI.create("myRedirectUri")
             );
-        assertThrows(NullPointerException.class, () -> openIdProvider.token(tokenReq));
+        final var err =
+                assertThrows(CompletionException.class, () -> openIdProvider.token(tokenReq));
+        assertTrue(err.getCause() instanceof NullPointerException);
     }
 
     @Test
