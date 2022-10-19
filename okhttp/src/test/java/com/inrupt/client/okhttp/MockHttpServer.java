@@ -24,13 +24,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-
+import java.util.HashMap;
 import java.util.Map;
+
 
 class MockHttpServer {
 
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_TURTLE = "text/turtle";
 
     private final WireMockServer wireMockServer;
@@ -90,8 +90,11 @@ class MockHttpServer {
         wireMockServer.start();
 
         setupMocks();
-
-        return Map.of("http_uri", wireMockServer.baseUrl());
+        return new HashMap<String, String>() {
+            {
+                put("http_uri", wireMockServer.baseUrl());
+            }
+        };
     }
 
     public void stop() {

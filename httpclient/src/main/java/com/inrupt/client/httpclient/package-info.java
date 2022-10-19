@@ -21,4 +21,4 @@
 /**
  * OkHttp bindings for the Inrupt client libraries.
  */
-package com.inrupt.client.okhttp;
+package com.inrupt.client.httpclient;

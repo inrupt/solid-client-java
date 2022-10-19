@@ -67,7 +67,7 @@ public final class URIBuilder {
      * @return this builder
      */
     public URIBuilder path(final String path) {
-        if (path != null && !path.isBlank()) {
+        if (path != null && !path.isEmpty() && !path.trim().isEmpty()) {
             if (schemeSpecificPart.charAt(schemeSpecificPart.length() - 1) == '/') {
                 schemeSpecificPart.append(path.startsWith("/") ? path.substring(1) : path);
             } else {
