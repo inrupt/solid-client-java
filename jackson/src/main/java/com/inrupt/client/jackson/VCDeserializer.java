@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.inrupt.client.spi.VerifiableCredential;
 
 import java.io.IOException;
@@ -88,7 +87,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         }
 
         if (node.get("credentialSubject") != null) {
-            final ObjectNode credentialSubject = (ObjectNode) node.get("credentialSubject");
+            final JsonNode credentialSubject = node.get("credentialSubject");
             final Map<String, Object> finalCredentialSubject = new HashMap<>();
             credentialSubject.fields().forEachRemaining(field -> {
                 finalCredentialSubject.put(field.getKey(), field.getValue());
@@ -97,7 +96,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         }
 
         if (node.get("credentialStatus") != null) {
-            final ObjectNode credentialStatus = (ObjectNode) node.path("credentialStatus");
+            final JsonNode credentialStatus = node.path("credentialStatus");
             final Map<String, Object> finalCredentialStatus = new HashMap<>();
             credentialStatus.fields().forEachRemaining(field -> {
                 finalCredentialStatus.put(field.getKey(), field.getValue());
@@ -106,7 +105,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         }
 
         if (node.get("proof") != null) {
-            final ObjectNode proof = (ObjectNode) node.get("proof");
+            final JsonNode proof = node.get("proof");
             final Map<String, Object> finalProof = new HashMap<>();
             proof.fields().forEachRemaining(field -> {
                 finalProof.put(field.getKey(), field.getValue());

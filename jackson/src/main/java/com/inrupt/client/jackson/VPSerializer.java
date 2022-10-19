@@ -23,7 +23,6 @@ package com.inrupt.client.jackson;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.io.IOException;
@@ -44,32 +43,51 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
 
         jgen.writeStartObject();
 
-        jgen.writeFieldName("@context");
-        jgen.writeStartArray();
-        for (final String context: vp.context) {
-            jgen.writeString(context);
+        if (vp.context != null) {
+            jgen.writeFieldName("@context");
+            jgen.writeStartArray();
+            for (final var context : vp.context) {
+                jgen.writeString(context);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
-        jgen.writeStringField("id", vp.id);
-
-        jgen.writeFieldName("type");
-        jgen.writeStartArray();
-        for (final String type: vp.type) {
-            jgen.writeString(type);
+        if (vp.id != null) {
+            jgen.writeStringField("id", vp.id);
         }
-        jgen.writeEndArray();
 
-        jgen.writeStringField("holder", vp.holder);
-
-        jgen.writeFieldName("verifiableCredential");
-        jgen.writeStartArray();
-        for (final VerifiableCredential vc: vp.verifiableCredential) {
-            jgen.writeObject(vc);
+        if (vp.type != null) {
+            jgen.writeFieldName("type");
+            jgen.writeStartArray();
+            for (final var type : vp.type) {
+                jgen.writeString(type);
+            }
+            jgen.writeEndArray();
         }
-        jgen.writeEndArray();
 
-        jgen.writeStringField("proof", vp.proof.toString());
+        if (vp.holder != null) {
+            jgen.writeStringField("holder", vp.holder);
+        }
+
+        if (vp.verifiableCredential != null) {
+            jgen.writeFieldName("verifiableCredential");
+            jgen.writeStartArray();
+            for (final var vc : vp.verifiableCredential) {
+                jgen.writePOJO(vc);
+            }
+            jgen.writeEndArray();
+        }
+
+        if (vp.proof != null) {
+            jgen.writeFieldName("proof");
+            jgen.writeStartObject();
+            final var itProof = vp.proof.entrySet().iterator();
+            while (itProof.hasNext()) {
+                final var entry = itProof.next();
+                jgen.writeObjectField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+        }
 
         jgen.writeEndObject();
 
