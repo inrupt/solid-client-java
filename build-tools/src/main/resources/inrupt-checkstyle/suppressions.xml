@@ -12,5 +12,7 @@
   <suppress checks="MultipleVariableDeclarations" files="src[/\\]test[/\\]java"/>
   <suppress checks="[a-zA-Z0-9]+" files="target[/\\]generated-sources"/>
   <suppress checks="[a-zA-Z0-9]+" files="target[/\\]generated-test-sources"/>
+  <!-- allow GET/HEAD/POST methods -->
+  <suppress checks="MethodName" files="src/main/java/com/inrupt/client/api/Request.java"/>
 </suppressions>
 

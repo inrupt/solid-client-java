@@ -22,7 +22,7 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.api.RDFNode;
 
 import java.net.URI;
 import java.util.Optional;

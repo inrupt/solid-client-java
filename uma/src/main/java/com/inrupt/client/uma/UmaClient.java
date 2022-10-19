@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.uma;
 
+import com.inrupt.client.api.URIBuilder;
 import com.inrupt.client.core.OAuthBodyPublishers;
-import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 

@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.api.URIBuilder;
 import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.core.InputStreamBodySubscribers;
-import com.inrupt.client.core.URIBuilder;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.spi.VerifiableCredential;

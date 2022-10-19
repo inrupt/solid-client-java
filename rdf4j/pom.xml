@@ -37,7 +37,7 @@
   <dependencies>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-core</artifactId>
+      <artifactId>inrupt-client-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -47,7 +47,7 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-rdf</artifactId>
+      <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
