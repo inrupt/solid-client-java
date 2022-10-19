@@ -113,7 +113,8 @@ public class OpenIdProvider {
                     if (httpStatus >= 200 && httpStatus < 300) {
                         return processor.fromJson(res.body(), Metadata.class);
                     }
-                        throw new OpenIdException("Unexpected error while fetching the OpenID metadata resource.",
+                    throw new OpenIdException(
+                        "Unexpected error while fetching the OpenID metadata resource.",
                         httpStatus);
                 } catch (final IOException ex) {
                     throw new OpenIdException(
@@ -188,9 +189,13 @@ public class OpenIdProvider {
                     if (httpStatus >= 200 && httpStatus < 300) {
                         return processor.fromJson(res.body(), TokenResponse.class);
                     }
-                    throw new OpenIdException("Unexpected error while interacting with the OpenID Provider's token endpoint.", httpStatus);
+                    throw new OpenIdException(
+                        "Unexpected error while interacting with the OpenID Provider's token endpoint.",
+                        httpStatus);
                 } catch (final IOException ex) {
-                    throw new OpenIdException("Unexpected I/O exception while interacting with the OpenID Provider's token endpoint.", ex);
+                    throw new OpenIdException(
+                        "Unexpected I/O exception while interacting with the OpenID Provider's token endpoint.",
+                        ex);
                 }
             });
     }
