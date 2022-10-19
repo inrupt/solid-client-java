@@ -22,9 +22,13 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.spi.VerifiablePresentation;
+import com.inrupt.client.vc.Verifier.VerificationResponse;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
@@ -43,11 +47,26 @@ class VerifierTest {
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
     private static Verifier verifier;
+    private static JsonProcessor processor;
+    private static VerificationResponse expectedVerificationResponse;
+    private static VerifiableCredential expectedVC;
+    private static VerifiablePresentation expectedVP;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws IOException {
         config.putAll(vcMockService.start());
         verifier = new Verifier(URI.create(config.get("vc_uri")), client);
+        processor = ServiceProvider.getJsonProcessor();
+        try (final var res = VerifierTest.class.getResourceAsStream("/__files/verificationResponse.json")) {
+            expectedVerificationResponse = processor.fromJson(res, VerificationResponse.class);
+        }
+        try (final var res =
+                VerifierTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
+            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+        }
+        try (final var res = VerifierTest.class.getResourceAsStream("/__files/verifiablePresentation.json")) {
+            expectedVP = processor.fromJson(res, VerifiablePresentation.class);
+        }
     }
 
     @AfterAll
@@ -57,13 +76,12 @@ class VerifierTest {
 
     @Test
     void verifyTest() {
-        final var verificationResponse = verifier.verify(VCtestData.VC);
+        final var verificationResponse = verifier.verify(expectedVC);
 
-        assertEquals("[good1, good2]", verificationResponse.checks.toString());
-        assertEquals("[could not check did]", verificationResponse.warnings.toString());
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
-
 
     @Test
     void verifyStatusCodesTest() {
@@ -81,19 +99,19 @@ class VerifierTest {
 
     @Test
     void verifyAsyncTest() {
-        final var verificationResponse = verifier.verifyAsync(VCtestData.VC).toCompletableFuture().join();
+        final var verificationResponse = verifier.verifyAsync(expectedVC).toCompletableFuture().join();
 
-        assertEquals("[good1, good2]", verificationResponse.checks.toString());
-        assertEquals("[could not check did]", verificationResponse.warnings.toString());
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
 
     @Test
     void verifyPresentationTest() {
-        final var verificationResponse = verifier.verify(VCtestData.VP);
+        final var verificationResponse = verifier.verify(expectedVP);
 
-        assertEquals("[good1, good2]", verificationResponse.checks.toString());
-        assertEquals("[could not check did]", verificationResponse.warnings.toString());
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
 
@@ -113,10 +131,10 @@ class VerifierTest {
 
     @Test
     void verifyPresentationAsyncTest() {
-        final var verificationResponse = verifier.verifyAsync(VCtestData.VP).toCompletableFuture().join();
+        final var verificationResponse = verifier.verifyAsync(expectedVP).toCompletableFuture().join();
 
-        assertEquals("[good1, good2]", verificationResponse.checks.toString());
-        assertEquals("[could not check did]", verificationResponse.warnings.toString());
+        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
+        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
     }
 

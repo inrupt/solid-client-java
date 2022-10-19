@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.inrupt.client.spi.VerifiableCredential;
 import com.inrupt.client.spi.VerifiablePresentation;
 
@@ -89,7 +88,7 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
         }
 
         if (node.get("proof") != null) {
-            final ObjectNode proof = (ObjectNode) node.get("proof");
+            final JsonNode proof = node.get("proof");
             final Map<String, Object> finalProof = new HashMap<>();
             proof.fields().forEachRemaining(field -> {
                 finalProof.put(field.getKey(), field.getValue());

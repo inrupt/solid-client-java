@@ -22,6 +22,11 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.spi.VerifiableCredential;
+import com.inrupt.client.spi.VerifiablePresentation;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -40,10 +45,22 @@ class VerifiableCredentialBodyPublishersTest {
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
+    private static JsonProcessor processor;
+    private static VerifiableCredential expectedVC;
+    private static VerifiablePresentation expectedVP;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws IOException {
         config.putAll(vcMockService.start());
+        processor = ServiceProvider.getJsonProcessor();
+        try (final var res = VerifiableCredentialBodyPublishersTest.class
+                .getResourceAsStream("/__files/verifiableCredential.json")) {
+            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+        }
+        try (final var res = VerifiableCredentialBodyPublishersTest.class
+            .getResourceAsStream("/__files/verifiablePresentation.json")) {
+            expectedVP = processor.fromJson(res, VerifiablePresentation.class);
+        }
     }
 
     @AfterAll
@@ -56,7 +73,7 @@ class VerifiableCredentialBodyPublishersTest {
         final var request = HttpRequest.newBuilder()
             .uri(URI.create(config.get("vc_uri") + "/postVc"))
             .header("Content-Type", "application/json")
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(VCtestData.VC))
+            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(expectedVC))
             .build();
 
         final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
@@ -69,7 +86,7 @@ class VerifiableCredentialBodyPublishersTest {
         final var request = HttpRequest.newBuilder()
             .uri(URI.create(config.get("vc_uri") + "/postVp"))
             .header("Content-Type", "application/json")
-            .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(VCtestData.VP))
+            .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(expectedVP))
             .build();
 
         final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
