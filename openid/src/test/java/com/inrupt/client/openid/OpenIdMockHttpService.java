@@ -46,20 +46,28 @@ class OpenIdMockHttpService {
     private void setupMocks() {
 
         wireMockServer.stubFor(get(urlEqualTo("/.well-known/openid-configuration"))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(getMetadataJSON()
                                     .replace(
                                         "/oauth/oauth20/token",
-                                        wireMockServer.baseUrl() +  "/oauth/oauth20/token"))));
+                                        wireMockServer.baseUrl() + "/oauth/oauth20/token"))));
 
         wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
                     .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
+                    .withRequestBody(containing("myCodeverifier"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(getTokenResponseJSON())));
+        wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
+                .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
+                    .atPriority(1)
+                    .withRequestBody(matching("code=none"))
+                    .willReturn(aResponse()
+                        .withStatus(404)));
     }
 
     private String getMetadataJSON() {
