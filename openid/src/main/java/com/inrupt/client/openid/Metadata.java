@@ -41,7 +41,6 @@ public class Metadata {
     /**
      * A list of response types supported by the given OpenID Connect provider.
      */
-    //@("response_types_supported")
     public List<String> responseTypesSupported;
 
     /**
