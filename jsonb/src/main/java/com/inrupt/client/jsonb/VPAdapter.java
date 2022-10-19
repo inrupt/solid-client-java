@@ -25,33 +25,62 @@ import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
 public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObject> {
 
     @Override
     public JsonObject adaptToJson(final VerifiablePresentation vp) throws Exception {
-        final var builder = Json.createArrayBuilder();
+        final var result = Json.createObjectBuilder();
 
-        vp.context.forEach(oneContext -> builder.add(oneContext));
-        final JsonArray context = builder.build();
+        if (vp.context != null) {
+            final var arrayBuilder = Json.createArrayBuilder();
+            vp.context.forEach(oneContext -> arrayBuilder.add(oneContext));
+            result.add("@context", arrayBuilder.build());
+        }
 
-        vp.type.forEach(oneType -> builder.add(oneType));
-        final JsonArray type = builder.build();
+        if (vp.type != null) {
+            final var arrayBuilder = Json.createArrayBuilder();
+            vp.type.forEach(oneType -> arrayBuilder.add(oneType));
+            result.add("type", arrayBuilder.build());
+        }
 
-        return Json.createObjectBuilder()
-            .add("@context", context)
-            .add("id", vp.id)
-            .add("type", type)
-            .add("holder", vp.holder)
-            .add("verifiableCredential", vp.verifiableCredential.toString())
-            .add("proof", vp.proof.toString())
-            .build();
+        if (vp.id != null) {
+            result.add("id", vp.id);
+        }
+
+        if (vp.holder != null) {
+            result.add("holder", vp.holder);
+        }
+
+        if (vp.verifiableCredential != null) {
+            final var arrayBuilder = Json.createArrayBuilder();
+            final var itVC = vp.verifiableCredential.iterator();
+            while (itVC.hasNext()) {
+                arrayBuilder.add(new VCAdapter().adaptToJson(itVC.next()));
+            }
+            result.add("verifiableCredential", arrayBuilder.build());
+        }
+
+        if (vp.proof != null) {
+            final var itProof = vp.proof.entrySet().iterator();
+            final var objectBuilder = Json.createObjectBuilder();
+            while (itProof.hasNext()) {
+                addRightJsonType(objectBuilder, itProof.next());
+            }
+            result.add("proof", objectBuilder.build());
+        }
+
+        return result.build();
     }
 
     @Override
@@ -60,8 +89,8 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
 
         if (adapted.containsKey("@context")) {
             vp.context = new ArrayList<String>();
-            final JsonArray jsonArrayContext = adapted.getJsonArray("@context");
-            jsonArrayContext.forEach(value -> vp.context.add(((JsonString)value).getString()));
+            final var jsonArrayContext = adapted.getJsonArray("@context");
+            jsonArrayContext.forEach(value -> vp.context.add(((JsonString) value).getString()));
         }
 
         if (adapted.containsKey("id")) {
@@ -69,9 +98,9 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
         }
 
         if (adapted.containsKey("type")) {
-            final JsonArray jsonArrayType = adapted.getJsonArray("type");
+            final var jsonArrayType = adapted.getJsonArray("type");
             vp.type = new ArrayList<String>();
-            jsonArrayType.forEach(value -> vp.type.add(((JsonString)value).getString()));
+            jsonArrayType.forEach(value -> vp.type.add(((JsonString) value).getString()));
         }
 
         if (adapted.containsKey("holder")) {
@@ -80,19 +109,45 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
 
         if (adapted.containsKey("verifiableCredential")) {
             vp.verifiableCredential = new ArrayList<VerifiableCredential>();
-            final JsonArray jsonArrayContext = adapted.getJsonArray("verifiableCredential");
+            final var jsonArrayContext = adapted.getJsonArray("verifiableCredential");
             for (final var value : jsonArrayContext) {
                 vp.verifiableCredential.add(new VCAdapter().adaptFromJson(value.asJsonObject()));
             }
         }
 
         if (adapted.containsKey("proof")) {
-            vp.proof = new HashMap<String,Object>();
-            final JsonObject jsonObject = adapted.getJsonObject("proof");
+            vp.proof = new HashMap<String, Object>();
+            final var jsonObject = adapted.getJsonObject("proof");
             vp.proof.putAll(jsonObject);
         }
 
         return vp;
+    }
+
+    private <T> void addRightJsonType(final JsonObjectBuilder objectBuilder, final Entry<String, T> entry) {
+        if (entry.getValue() instanceof JsonString) {
+            objectBuilder.add(entry.getKey(), (JsonString) entry.getValue());
+        }
+        if (entry.getValue() instanceof JsonNumber) {
+            objectBuilder.add(entry.getKey(), (JsonNumber) entry.getValue());
+        }
+        if (entry.getValue() instanceof JsonArray) {
+            final var arrayBuilder = Json.createArrayBuilder();
+            ((JsonArray) entry.getValue()).forEach(oneValue -> arrayBuilder.add(oneValue));
+            final var jsonArray = arrayBuilder.build();
+            objectBuilder.add(entry.getKey(), jsonArray);
+        }
+        if (entry.getValue() instanceof JsonValue) {
+            objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());
+        }
+        if (entry.getValue() instanceof JsonObject) {
+            final var object = Json.createObjectBuilder();
+            final var it = ((JsonObject) entry.getValue()).entrySet().iterator();
+            while (it.hasNext()) {
+                addRightJsonType(object, it.next());
+            }
+            objectBuilder.add(entry.getKey(), object);
+        }
     }
 
 }

@@ -29,6 +29,9 @@ import java.util.Map;
 
 class VerifiableCredentialMockService {
 
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String APPLICATION_JSON = "application/json";
+
     private final WireMockServer vcMockService;
 
     public VerifiableCredentialMockService() {
@@ -43,22 +46,20 @@ class VerifiableCredentialMockService {
         vcMockService.stubFor(get(urlEqualTo("/vc"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Accept", "application/json")
                         .withBodyFile("verifiableCredential.json")));
 
         vcMockService.stubFor(get(urlEqualTo("/vp"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Accept", "application/json")
                         .withBodyFile("verifiablePresentation.json")));
 
         vcMockService.stubFor(post(urlEqualTo("/postVc"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .willReturn(aResponse()
                         .withStatus(201)));
 
         vcMockService.stubFor(post(urlEqualTo("/postVp"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .willReturn(aResponse()
                         .withStatus(201)));
 
@@ -94,13 +95,13 @@ class VerifiableCredentialMockService {
                         .withBodyFile("verifiableCredential.json")
                         .withStatus(200)));
         vcMockService.stubFor(post(urlEqualTo("/credentials/issue"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .willReturn(aResponse()
                         .withBodyFile("verifiableCredential.json")
                         .withStatus(400)));
 
         vcMockService.stubFor(post(urlEqualTo( "/credentials/status"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .withRequestBody(containing("http://example.test/credentials/1872"))
                     .atPriority(1)
                     .willReturn(aResponse()
@@ -108,22 +109,22 @@ class VerifiableCredentialMockService {
                         "\"type\": \"CredentialStatusList2017\" }")
                         .withStatus(200)));
         vcMockService.stubFor(post(urlEqualTo( "/credentials/status"))
-                .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .withRequestBody(containing("http://example.test/credentials/0000"))
                     .willReturn(aResponse()
                         .withStatus(404)));
 
         vcMockService.stubFor(get(urlPathMatching( "/credentials"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiableCredentialList.json")
-                        .withHeader("Accept", "application/json")));
-        vcMockService.stubFor(get(urlPathMatching("/credentials/http://example.test/credentials/1872"))
+                        .withBodyFile("verifiableCredentialList.json")));
+
+        vcMockService.stubFor(get(urlPathMatching("/credentials/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiableCredential.json")
-                        .withHeader("Accept", "application/json")));
+                        .withBodyFile("verifiableCredential.json")));
         vcMockService.stubFor(get(urlPathMatching("/credentials/http://example.test/credentials/0000"))
                     .willReturn(aResponse()
                         .withStatus(400)));
@@ -132,28 +133,27 @@ class VerifiableCredentialMockService {
                         .withStatus(200)));
 
         vcMockService.stubFor(post(urlEqualTo( "/credentials/derive"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .withRequestBody(containing("http://example.test/credentials/1872"))
                     .atPriority(1)
                     .willReturn(aResponse()
                         .withBodyFile("verifiableCredential.json")
                         .withStatus(201)));
         vcMockService.stubFor(post(urlEqualTo( "/credentials/derive"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .willReturn(aResponse()
                         .withStatus(400)));
 
-        vcMockService.stubFor(get(urlPathMatching( "/presentations"))
+        vcMockService.stubFor(get(urlPathMatching("/presentations"))
                     .withQueryParam("type", matching("([A-Za-z0-9.,-:]*)"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiablePresentationList.json")
-                        .withHeader("Accept", "application/json")));
-        vcMockService.stubFor(get(urlPathMatching( "/presentations/(.*)"))
+                        .withBodyFile("verifiablePresentationList.json")));
+        vcMockService.stubFor(get(urlPathMatching("/presentations/(.*)"))
+                    .atPriority(1)
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withBodyFile("verifiablePresentation.json")
-                        .withHeader("Accept", "application/json")));
+                        .withBodyFile("verifiablePresentation.json")));
         vcMockService.stubFor(delete(urlPathMatching( "/presentations/(.*)"))
                     .willReturn(aResponse()
                         .withStatus(200)));
@@ -166,7 +166,7 @@ class VerifiableCredentialMockService {
                         .withBodyFile("verifiablePresentation.json")
                         .withStatus(201)));
         vcMockService.stubFor(post(urlEqualTo( "/presentations/prove"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .willReturn(aResponse()
                         .withStatus(400)));
 
@@ -178,7 +178,7 @@ class VerifiableCredentialMockService {
                         .withBodyFile("verifiablePresentationRequest.json")
                         .withStatus(200)));
         vcMockService.stubFor(post(urlPathMatching( "/exchanges/(.*)"))
-                    .withHeader("Content-Type", containing("application/json"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
                     .willReturn(aResponse()
                         .withStatus(400)));
     }
