@@ -103,7 +103,6 @@ public class UmaClient {
      *
      * @param authorizationServer the authorization server URI
      * @return the authorization server discovery metadata
-     * @throws IOException in the case of an error negotiating a token
      */
     public Metadata metadata(final URI authorizationServer) {
         try {
