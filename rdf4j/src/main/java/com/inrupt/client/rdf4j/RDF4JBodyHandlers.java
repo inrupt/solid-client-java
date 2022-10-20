@@ -49,7 +49,7 @@ public final class RDF4JBodyHandlers {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
             .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
                 try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array())) {
-                    return Rio.parse(stream, format);
+                    return Rio.parse(stream, responseInfo.uri().toString(), format);
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(
                         "An I/O error occurred while data was read from the InputStream", ex);
@@ -69,7 +69,7 @@ public final class RDF4JBodyHandlers {
                 final Repository repository = new SailRepository(new MemoryStore());
                 try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array());
                         final var conn = repository.getConnection()) {
-                    conn.add(stream, format);
+                    conn.add(stream, responseInfo.uri().toString(), format);
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(
                         "An I/O error occurred while data was read from the InputStream", ex);
