@@ -52,7 +52,7 @@ public final class JenaBodyHandlers {
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var model = ModelFactory.createDefaultModel();
-                    RDFDataMgr.read(model, input, lang);
+                    RDFDataMgr.read(model, input, responseInfo.uri().toString(), lang);
                     return model;
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(
@@ -72,7 +72,7 @@ public final class JenaBodyHandlers {
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var graph = Factory.createDefaultGraph();
-                    RDFDataMgr.read(graph, input, lang);
+                    RDFDataMgr.read(graph, input, responseInfo.uri().toString(), lang);
                     return graph;
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(
@@ -92,7 +92,7 @@ public final class JenaBodyHandlers {
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var dataset = DatasetFactory.create();
-                    RDFDataMgr.read(dataset, input, lang);
+                    RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);
                     return dataset;
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(

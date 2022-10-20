@@ -76,6 +76,13 @@ public interface Response<T> {
         Headers headers();
 
         /**
+         * Retrieve the URI of the response.
+         *
+         * @return the response URI
+         */
+        URI uri();
+
+        /**
          * Retrieve the status code from the response.
          * @return the response status
          */

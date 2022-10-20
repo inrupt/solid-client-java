@@ -25,6 +25,7 @@ import com.inrupt.client.api.Response.ResponseInfo;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 
 import okhttp3.Response;
@@ -45,6 +46,11 @@ class OkHttpResponseInfo implements ResponseInfo {
     @Override
     public int statusCode() {
         return response.code();
+    }
+
+    @Override
+    public URI uri() {
+        return response.request().url().uri();
     }
 
     @Override

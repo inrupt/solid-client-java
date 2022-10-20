@@ -41,7 +41,7 @@ public class HttpClientProcessor implements HttpProcessor {
     private final HttpClient client;
 
     public HttpClientProcessor() {
-        this(HttpClient.newHttpClient());
+        this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build());
     }
 
     private HttpClientProcessor(final HttpClient client) {

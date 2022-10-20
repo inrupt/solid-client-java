@@ -321,8 +321,7 @@ public class Holder {
                     return res.body();
                 }
                 throw new VerifiableCredentialException(
-                    "Unexpected error while deleting presentation "
-                    + res.uri() + " " + httpStatus,
+                    "Unexpected error while deleting presentation ",
                     httpStatus);
             });
     }
