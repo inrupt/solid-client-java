@@ -27,13 +27,14 @@
  *
  * <p>The following example reads a Solid WebID profile and presents it as a {@code WebIdProfile} Java object:
  *
- * <pre>{@code             final Request request = Request.newBuilder()
+ * <pre>{@code     
+        Request request = Request.newBuilder()
             .uri(URI.create("https://webidserver.example/"))
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
-        final Response<WebIdProfile> response = client.send(
+        Response<WebIdProfile> response = client.send(
             request,
             WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.example/username"))
         );
