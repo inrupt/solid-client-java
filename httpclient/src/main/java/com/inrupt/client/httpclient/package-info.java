@@ -19,6 +19,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * OkHttp bindings for the Inrupt client libraries.
+ * {@link java.net.http.HttpClient} bindings for the Inrupt client libraries.
  */
 package com.inrupt.client.httpclient;
