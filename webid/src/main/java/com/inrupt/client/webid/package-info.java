@@ -23,9 +23,9 @@
  * <h2>WebID Profile support for the Inrupt client libraries.</h2>
  *
  * <p>This module contains a BodyHandler which consumes the actual response body bytes
- *  and converts them into a {@code WebIdProfile} Java object.
+ *  and converts them into a {@link WebIdProfile} Java object.
  *
- * <p>The following example reads a Solid WebID profile and presents it as a {@code WebIdProfile} Java object:
+ * <p>The following example reads a Solid WebID profile and presents it as a {@link WebIdProfile} Java object:
  *
  * <pre>{@code
         Request request = Request.newBuilder()
