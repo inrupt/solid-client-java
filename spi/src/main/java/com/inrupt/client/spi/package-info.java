@@ -55,7 +55,7 @@
  * }</pre>
  * 
  * <h3>Example of using the RDF processor toDataset() method to read triples
- *  from a trig file into a {@code Dataset}:</h3>
+ * from a trig file into a {@code Dataset}:</h3>
  *
  * <pre>{@code
        RdfProcessor processor = ServiceProvider.getRdfProcessor();
