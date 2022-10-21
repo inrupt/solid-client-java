@@ -30,6 +30,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -62,8 +63,10 @@ class HttpClientProcessorTest {
         final Response<String> response = client.send(request, Response.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals(Arrays.asList("text/plain"), response.headers().get("content-type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().get("Content-Type"));
+        assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
+        assertEquals(Optional.of("text/plain"), response.headers().firstValue("Content-Type"));
+        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("content-type"));
+        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("Content-Type"));
         assertEquals(uri, response.uri());
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
@@ -81,8 +84,10 @@ class HttpClientProcessorTest {
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Arrays.asList("text/plain"), response.headers().get("content-type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().get("Content-Type"));
+        assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
+        assertEquals(Optional.of("text/plain"), response.headers().firstValue("Content-Type"));
+        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("content-type"));
+        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("Content-Type"));
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
@@ -98,8 +103,10 @@ class HttpClientProcessorTest {
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Arrays.asList("image/png"), response.headers().get("Content-Type"));
-        assertEquals(Arrays.asList("image/png"), response.headers().get("content-type"));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue("Content-Type"));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue("content-type"));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("content-type"));
     }
 
     @Test
@@ -116,7 +123,7 @@ class HttpClientProcessorTest {
 
         assertEquals(201, response.statusCode());
         assertEquals(uri, response.uri());
-        assertNull(response.headers().get("Content-Type"));
+        assertFalse(response.headers().firstValue("Content-Type").isPresent());
     }
 
     @Test
@@ -134,7 +141,7 @@ class HttpClientProcessorTest {
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
-        assertNull(response.headers().get("Content-Type"));
+        assertFalse(response.headers().firstValue("Content-Type").isPresent());
     }
 
     @Test
@@ -149,6 +156,6 @@ class HttpClientProcessorTest {
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
-        assertNull(response.headers().get("Content-Type"));
+        assertFalse(response.headers().firstValue("Content-Type").isPresent());
     }
 }

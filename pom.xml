@@ -33,6 +33,12 @@
     <junit.version>5.9.1</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.34.0</wiremock.version>
+
+    <!-- sonar -->
+    <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.host.url>https://sonarqube.dev.inrupt.com</sonar.host.url>
+    <sonar.projectKey>solid-client-java</sonar.projectKey>
+    <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
   </properties>
 
   <modules>

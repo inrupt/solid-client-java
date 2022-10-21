@@ -20,12 +20,12 @@
  */
 package com.inrupt.client.httpclient;
 
+import com.inrupt.client.api.Headers;
 import com.inrupt.client.api.Response.ResponseInfo;
 
+import java.net.URI;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 class HttpClientResponseInfo implements ResponseInfo {
 
@@ -38,8 +38,13 @@ class HttpClientResponseInfo implements ResponseInfo {
     }
 
     @Override
-    public Map<String, List<String>> headers() {
-        return response.headers().map();
+    public Headers headers() {
+        return Headers.of(response.headers().map());
+    }
+
+    @Override
+    public URI uri() {
+        return response.uri();
     }
 
     @Override

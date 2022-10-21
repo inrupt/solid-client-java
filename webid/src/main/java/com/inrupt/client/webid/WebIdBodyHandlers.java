@@ -20,13 +20,24 @@
  */
 package com.inrupt.client.webid;
 
+import com.inrupt.client.api.*;
+import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.vocabulary.RDF;
+import com.inrupt.client.vocabulary.RDFS;
+import com.inrupt.client.vocabulary.Solid;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpResponse;
 
 /**
  * Body handlers for WebID Profiles.
  */
 public final class WebIdBodyHandlers {
+
+    private static final RdfProcessor processor = ServiceProvider.getRdfProcessor();
 
     /**
      * Transform an HTTP response into a WebID Profile object.
@@ -34,8 +45,41 @@ public final class WebIdBodyHandlers {
      * @param webid the WebID URI
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
-        return responseInfo -> WebIdBodySubscribers.ofWebIdProfile(webid);
+    public static Response.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
+        return responseInfo -> {
+            final var builder = WebIdProfile.newBuilder();
+            try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                final var graph = processor.toGraph(Syntax.TURTLE, input);
+
+                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(Solid.oidcIssuer), null)
+                    .map(Triple::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::oidcIssuer);
+
+                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDFS.seeAlso), null)
+                    .map(Triple::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::seeAlso);
+
+                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(PIM.storage), null)
+                    .map(Triple::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::storage);
+
+                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDF.type), null)
+                    .map(Triple::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::type);
+
+            } catch (final IOException ex) {
+                throw new WebIdException("Error parsing WebId profile resource", ex);
+            }
+            return builder.build(webid);
+        };
     }
 
     private WebIdBodyHandlers() {

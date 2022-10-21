@@ -22,22 +22,23 @@ package com.inrupt.client.openid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.inrupt.client.api.URIBuilder;
+import com.inrupt.client.api.*;
 import com.inrupt.client.authentication.DPoP;
-import com.inrupt.client.core.OAuthBodyPublishers;
+import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 /**
  * A class for interacting with an OpenID Provider.
@@ -48,10 +49,12 @@ public class OpenIdProvider {
 
     private static final String CLIENT_ID = "client_id";
     private static final String REDIRECT_URI = "redirect_uri";
+    private static final String EQUALS = "=";
+    private static final String ETC = "&";
 
     private final URI issuer;
     private final DPoP dpop;
-    private final HttpClient httpClient;
+    private final HttpProcessor httpClient;
     private final JsonProcessor processor;
 
     /**
@@ -70,7 +73,7 @@ public class OpenIdProvider {
      * @param dpop a DPoP proof generator
      */
     public OpenIdProvider(final URI issuer, final DPoP dpop) {
-        this(issuer, dpop, HttpClient.newHttpClient());
+        this(issuer, dpop, ServiceProvider.getHttpProcessor());
     }
 
     /**
@@ -80,7 +83,7 @@ public class OpenIdProvider {
      * @param dpop a DPoP proof generator
      * @param httpClient an HTTP client
      */
-    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpClient httpClient) {
+    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpProcessor httpClient) {
         this.issuer = Objects.requireNonNull(issuer);
         this.dpop = Objects.requireNonNull(dpop);
         this.httpClient = Objects.requireNonNull(httpClient);
@@ -93,7 +96,11 @@ public class OpenIdProvider {
      * @return the OpenID Provider's metadata resource
      */
     public Metadata metadata() {
-        return metadataAsync().toCompletableFuture().join();
+        try {
+            return metadataAsync().toCompletableFuture().join();
+        } catch (final CompletionException ex) {
+            throw new OpenIdException("Error fetching OpenID metadata resoruce", ex);
+        }
     }
 
     /**
@@ -103,10 +110,8 @@ public class OpenIdProvider {
      */
     public CompletionStage<Metadata> metadataAsync() {
         // consider caching this response
-        final var req = HttpRequest.newBuilder(getMetadataUrl())
-            .header("Accept", "application/json").build();
-
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream())
+        final var req = Request.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
+        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
@@ -170,7 +175,11 @@ public class OpenIdProvider {
      * @return the token response
      */
     public TokenResponse token(final TokenRequest request) {
-        return tokenAsync(request).toCompletableFuture().join();
+        try {
+            return tokenAsync(request).toCompletableFuture().join();
+        } catch (final CompletionException ex) {
+            throw new OpenIdException("Error fetching OpenID token", ex);
+        }
     }
 
     /**
@@ -182,7 +191,7 @@ public class OpenIdProvider {
     public CompletionStage<TokenResponse> tokenAsync(final TokenRequest request) {
         return metadataAsync()
             .thenApply(metadata -> tokenRequest(metadata, request))
-            .thenCompose(req -> httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofInputStream()))
+            .thenCompose(req -> httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()))
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
@@ -200,7 +209,7 @@ public class OpenIdProvider {
             });
     }
 
-    private HttpRequest tokenRequest(final Metadata metadata, final TokenRequest request) {
+    private Request tokenRequest(final Metadata metadata, final TokenRequest request) {
         final var data = new HashMap<String, String>();
         data.put("grant_type", request.getGrantType());
         data.put("code", request.getCode());
@@ -223,9 +232,9 @@ public class OpenIdProvider {
             authHeader = Optional.empty();
         }
 
-        final var req = HttpRequest.newBuilder(metadata.tokenEndpoint)
+        final var req = Request.newBuilder(metadata.tokenEndpoint)
             .header("Content-Type", "application/x-www-form-urlencoded")
-            .POST(OAuthBodyPublishers.ofFormData(data));
+            .POST(ofFormData(data));
 
         // Add auth header, if relevant
         authHeader.ifPresent(header -> req.header("Authorization", header));
@@ -269,6 +278,16 @@ public class OpenIdProvider {
                 }
                 return null;
             });
+    }
+
+    static Request.BodyPublisher ofFormData(final Map<String, String> data) {
+        final var form = data.entrySet().stream().map(entry -> {
+            final var name = URLEncoder.encode(entry.getKey(), UTF_8);
+            final var value = URLEncoder.encode(entry.getValue() != null ? entry.getValue() : "", UTF_8);
+            return String.join(EQUALS, name, value);
+        }).collect(Collectors.joining(ETC));
+
+        return Request.BodyPublishers.ofString(form);
     }
 
     private URI endSession(final URI endSessionEndpoint, final EndSessionRequest request) {

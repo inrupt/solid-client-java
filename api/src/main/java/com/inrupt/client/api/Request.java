@@ -29,7 +29,6 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +46,7 @@ public final class Request {
 
     private final String method;
     private final URI uri;
-    private final Map<String, List<String>> headers;
+    private final Headers headers;
     private final BodyPublisher publisher;
     private final Duration timeout;
 
@@ -83,8 +82,8 @@ public final class Request {
      *
      * @return the HTTP headers
      */
-    public Map<String, List<String>> headers() {
-        return Collections.unmodifiableMap(headers);
+    public Headers headers() {
+        return headers;
     }
 
     /**
@@ -119,7 +118,7 @@ public final class Request {
             final BodyPublisher publisher, final Duration timeout) {
         this.uri = Objects.requireNonNull(uri, "Request URI may not be null!");
         this.method = Objects.requireNonNull(method, "Request method may not be null!");
-        this.headers = Objects.requireNonNull(headers, "Request headers may not be null!");
+        this.headers = Headers.of(Objects.requireNonNull(headers, "Request headers may not be null!"));
         this.publisher = publisher;
         this.timeout = timeout;
     }
@@ -202,9 +201,9 @@ public final class Request {
      */
     public static final class Builder {
         private URI uri;
-        private String method;
+        private String method = "GET";
         private Duration timeout;
-        private BodyPublisher publisher;
+        private BodyPublisher publisher = BodyPublishers.noBody();
         private final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         /**

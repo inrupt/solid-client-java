@@ -53,6 +53,7 @@ public class OkHttpProcessor implements HttpProcessor {
     }
 
     public OkHttpProcessor(final OkHttpClient client) {
+        // TODO -- Log that this was initialized at DEBUG level
         this.client = client;
     }
 
@@ -66,8 +67,7 @@ public class OkHttpProcessor implements HttpProcessor {
     }
 
     @Override
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request, final Response.BodyHandler<T> handler)
-            throws IOException {
+    public <T> CompletionStage<Response<T>> sendAsync(final Request request, final Response.BodyHandler<T> handler) {
         final CompletableFuture<Response<T>> future = new CompletableFuture<>();
         client.newCall(prepareRequest(request)).enqueue(new Callback() {
             @Override
@@ -96,7 +96,7 @@ public class OkHttpProcessor implements HttpProcessor {
     }
 
     static okhttp3.Request prepareRequest(final Request request) {
-        final Headers headers = prepareHeaders(request.headers());
+        final Headers headers = prepareHeaders(request.headers().asMap());
         final MediaType mediaType = getContentType(headers);
 
         return new okhttp3.Request.Builder()
