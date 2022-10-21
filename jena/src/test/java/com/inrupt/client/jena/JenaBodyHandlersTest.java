@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,11 +22,13 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
+import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -39,24 +41,24 @@ import org.junit.jupiter.api.Test;
 
 class JenaBodyHandlersTest {
 
-    private static final MockHttpService mockHttpClient = new MockHttpService();
+    private static final MockHttpService mockHttpServer = new MockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
 
     @BeforeAll
     static void setup() {
-        config.putAll(mockHttpClient.start());
+        config.putAll(mockHttpServer.start());
     }
 
     @AfterAll
     static void teardown() {
-        mockHttpClient.stop();
+        mockHttpServer.stop();
     }
 
     @Test
     void testOfModelHandler() throws IOException,
             InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .GET()
                 .build();
@@ -76,7 +78,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .header("Accept", "text/turtle")
                 .GET()
@@ -84,10 +86,10 @@ class JenaBodyHandlersTest {
 
         final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel());
 
-        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
+        final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             null,
@@ -98,7 +100,7 @@ class JenaBodyHandlersTest {
 
     @Test
     void testOfModelHandlerWithURL() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/example"))
                 .GET()
                 .build();
@@ -117,7 +119,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfDatasetHandler() throws IOException,
             InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .GET()
                 .build();
@@ -137,7 +139,7 @@ class JenaBodyHandlersTest {
 
     @Test
     void testOfDatasetHandlerWithURL() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/example"))
                 .GET()
                 .build();
@@ -158,7 +160,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfGraphHandlerAsync() throws IOException,
             InterruptedException, ExecutionException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .header("Accept", "text/turtle")
                 .GET()
@@ -166,10 +168,10 @@ class JenaBodyHandlersTest {
 
         final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofGraph());
 
-        final int statusCode = asyncResponse.thenApply(HttpResponse::statusCode).join();
+        final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(HttpResponse::body).join();
+        final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             NodeFactory.createURI("http://example.test/s"),
@@ -181,7 +183,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfGraphHandler() throws IOException,
             InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
                 .GET()
                 .build();
@@ -200,7 +202,7 @@ class JenaBodyHandlersTest {
 
     @Test
     void testOfGraphHandlerWithURL() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/example"))
                 .GET()
                 .build();

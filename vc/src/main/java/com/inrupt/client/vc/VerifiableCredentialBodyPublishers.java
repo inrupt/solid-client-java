@@ -20,17 +20,17 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.VerifiableCredential;
+import com.inrupt.client.api.VerifiablePresentation;
 import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.spi.VerifiableCredential;
-import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
 
 /**
- * {@link HttpRequest.BodyPublisher} implementations for use with Verifiable Credential types.
+ * {@link Request.BodyPublisher} implementations for use with Verifiable Credential types.
  */
 public final class VerifiableCredentialBodyPublishers {
 
@@ -42,15 +42,14 @@ public final class VerifiableCredentialBodyPublishers {
      * @param vc the verifiable credential
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofVerifiableCredential(final VerifiableCredential vc) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> {
-                    try {
-                        processor.toJson(vc, out);
-                    } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing credential", ex);
-                    }
-                }));
+    public static Request.BodyPublisher ofVerifiableCredential(final VerifiableCredential vc) {
+        return IOUtils.buffer(out -> {
+            try {
+                processor.toJson(vc, out);
+            } catch (final IOException ex) {
+                throw new VerifiableCredentialException("Error serializing credential", ex);
+            }
+        });
     }
 
     /**
@@ -59,15 +58,14 @@ public final class VerifiableCredentialBodyPublishers {
      * @param vp the verifiable presentation
      * @return the body publisher
      */
-    public static HttpRequest.BodyPublisher ofVerifiablePresentation(final VerifiablePresentation vp) {
-        return HttpRequest.BodyPublishers.ofInputStream(() ->
-                IOUtils.pipe(out -> {
-                    try {
-                        processor.toJson(vp, out);
-                    } catch (final IOException ex) {
-                        throw new VerifiableCredentialException("Error serializing presentation", ex);
-                    }
-                }));
+    public static Request.BodyPublisher ofVerifiablePresentation(final VerifiablePresentation vp) {
+        return IOUtils.buffer(out -> {
+            try {
+                processor.toJson(vp, out);
+            } catch (final IOException ex) {
+                throw new VerifiableCredentialException("Error serializing presentation", ex);
+            }
+        });
     }
 
     private VerifiableCredentialBodyPublishers() {

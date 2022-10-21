@@ -20,17 +20,17 @@
  */
 package com.inrupt.client.vc;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
 import com.inrupt.client.api.URIBuilder;
+import com.inrupt.client.api.VerifiableCredential;
 import com.inrupt.client.core.IOUtils;
+import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.spi.VerifiableCredential;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -47,7 +47,7 @@ public class Issuer {
     private static final String APPLICATION_JSON = "application/json";
 
     private final URI baseUri;
-    private final HttpClient httpClient;
+    private final HttpProcessor httpClient;
     private final JsonProcessor processor;
 
     /**
@@ -56,7 +56,7 @@ public class Issuer {
      * @param baseUri the base URL for the VC-API
      */
     public Issuer(final URI baseUri) {
-        this(baseUri, HttpClient.newHttpClient());
+        this(baseUri, ServiceProvider.getHttpProcessor());
     }
 
     /**
@@ -65,7 +65,7 @@ public class Issuer {
      * @param baseUri the base URI for the VC-API
      * @param httpClient an HTTP client
      */
-    public Issuer(final URI baseUri, final HttpClient httpClient) {
+    public Issuer(final URI baseUri, final HttpProcessor httpClient) {
         this.baseUri = baseUri;
         this.httpClient = httpClient;
         this.processor = ServiceProvider.getJsonProcessor();
@@ -88,14 +88,14 @@ public class Issuer {
      * @return the next stage of completion, containing the new Verifiable Credential
      */
     public CompletionStage<VerifiableCredential> issueAsync(final VerifiableCredential credential) {
-        final var req = HttpRequest.newBuilder(getIssueUrl())
+        final var req = Request.newBuilder(getIssueUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
         return httpClient
                 .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-                .thenApply(HttpResponse::body);
+                .thenApply(Response::body);
     }
 
     /**
@@ -114,12 +114,12 @@ public class Issuer {
      * @return the next stage of completion
      */
     public CompletionStage<Void> statusAsync(final StatusRequest request) {
-        final var req = HttpRequest.newBuilder(getStatusUrl())
+        final var req = Request.newBuilder(getStatusUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(ofStatusRequest(request))
             .build();
 
-        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
+        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())
                 .thenApply(res -> {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
@@ -235,14 +235,14 @@ public class Issuer {
         }
     }
 
-    private HttpRequest.BodyPublisher ofStatusRequest(final StatusRequest request) {
-        return HttpRequest.BodyPublishers.ofInputStream(() -> IOUtils.pipe(out -> {
+    private Request.BodyPublisher ofStatusRequest(final StatusRequest request) {
+        return IOUtils.buffer(out -> {
             try {
                 processor.toJson(request, out);
             } catch (final IOException ex) {
                 throw new VerifiableCredentialException("Error serializing status request", ex);
             }
-        }));
+        });
     }
 
     private URI getIssueUrl() {

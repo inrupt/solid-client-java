@@ -29,8 +29,12 @@ import java.util.Objects;
 class ByteBufferPublisher implements Request.BodyPublisher {
     private final ByteBuffer buf;
 
+    public ByteBufferPublisher(final ByteBuffer buffer) {
+        this.buf = buffer;
+    }
+
     public ByteBufferPublisher(final byte[] buf) {
-        this.buf = ByteBuffer.wrap(Objects.requireNonNull(buf));
+        this(ByteBuffer.wrap(Objects.requireNonNull(buf)));
     }
 
     @Override

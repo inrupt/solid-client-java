@@ -51,6 +51,13 @@ public final class ServiceProvider {
                         "Please ensure that an RDF processor is available on the classpath"));
     }
 
+    public static HttpProcessor getHttpProcessor() {
+        return ServiceLoader.load(HttpProcessor.class).findFirst()
+            .orElseThrow(() -> new ServiceLoadingException(
+                        "Unable to load HTTP processor. " +
+                        "Please ensure that an HTTP processor is available on the classpath"));
+    }
+
     private ServiceProvider() {
         // Prevent instantiation
     }

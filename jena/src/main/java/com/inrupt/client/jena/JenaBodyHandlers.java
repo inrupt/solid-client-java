@@ -20,7 +20,11 @@
  */
 package com.inrupt.client.jena;
 
-import java.net.http.HttpResponse;
+import com.inrupt.client.api.Response;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.graph.Factory;
@@ -30,22 +34,32 @@ import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 
 /**
- * {@link HttpResponse.BodyHandler} implementations for use with Jena types.
+ * {@link Response.BodyHandler} implementations for use with Jena types.
  */
 public final class JenaBodyHandlers {
 
     /**
-     * Populate a Jena {@link Model} with an HTTP response.
+     * Populate a Jena {@link Model} with an HTTP response body.
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Model> ofModel() {
+    public static Response.BodyHandler<Model> ofModel() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofModel)
-            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(ModelFactory.createDefaultModel()));
+            .map(JenaBodyHandlers::toJenaLang).map(lang -> {
+                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    final var model = ModelFactory.createDefaultModel();
+                    RDFDataMgr.read(model, input, responseInfo.uri().toString(), lang);
+                    return model;
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                            "An I/O error occurred while data was read from the InputStream into a Model", ex);
+                }
+            })
+            .orElseGet(ModelFactory::createDefaultModel);
     }
 
     /**
@@ -53,10 +67,19 @@ public final class JenaBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Graph> ofGraph() {
+    public static Response.BodyHandler<Graph> ofGraph() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofGraph)
-            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(Factory.createDefaultGraph()));
+            .map(JenaBodyHandlers::toJenaLang).map(lang -> {
+                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    final var graph = Factory.createDefaultGraph();
+                    RDFDataMgr.read(graph, input, responseInfo.uri().toString(), lang);
+                    return graph;
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                            "An I/O error occurred while data was read from the InputStream into a Graph", ex);
+                }
+            })
+            .orElseGet(Factory::createDefaultGraph);
     }
 
     /**
@@ -64,10 +87,19 @@ public final class JenaBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static HttpResponse.BodyHandler<Dataset> ofDataset() {
+    public static Response.BodyHandler<Dataset> ofDataset() {
         return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(JenaBodyHandlers::toJenaLang).map(JenaBodySubscribers::ofDataset)
-            .orElseGet(() -> HttpResponse.BodySubscribers.replacing(DatasetFactory.create()));
+            .map(JenaBodyHandlers::toJenaLang).map(lang -> {
+                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    final var dataset = DatasetFactory.create();
+                    RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);
+                    return dataset;
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                            "An I/O error occurred while data was read from the InputStream into a Dataset", ex);
+                }
+            })
+            .orElseGet(DatasetFactory::create);
     }
 
     static Lang toJenaLang(final String mediaType) {

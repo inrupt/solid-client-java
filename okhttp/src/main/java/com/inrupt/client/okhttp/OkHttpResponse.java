@@ -20,11 +20,10 @@
  */
 package com.inrupt.client.okhttp;
 
+import com.inrupt.client.api.Headers;
 import com.inrupt.client.api.Response;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 class OkHttpResponse<T> implements Response<T> {
     private final URI responseUri;
@@ -43,7 +42,7 @@ class OkHttpResponse<T> implements Response<T> {
     }
 
     @Override
-    public Map<String, List<String>> headers() {
+    public Headers headers() {
         return info.headers();
     }
 

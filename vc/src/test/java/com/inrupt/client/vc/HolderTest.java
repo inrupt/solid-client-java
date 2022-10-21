@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,15 +22,14 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.VerifiableCredential;
+import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.spi.VerifiableCredential;
-import com.inrupt.client.spi.VerifiablePresentation;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Version;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,7 @@ import org.junit.jupiter.api.Test;
 class HolderTest {
 
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
-    private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
     private static final Map<String, String> config = new HashMap<>();
     private static Holder holder;
     private static JsonProcessor processor;
@@ -90,14 +89,14 @@ class HolderTest {
 
     @Test
     void getCredentialTest() {
-        final var vc = holder.getCredential(expectedVC.id);
+        final var vc = holder.getCredential(getId(expectedVC.id));
 
         assertEquals(expectedVC.id, vc.id);
     }
 
     @Test
     void getCredentialAsyncTest() {
-        final var vc = holder.getCredentialAsync(expectedVC.id)
+        final var vc = holder.getCredentialAsync(getId(expectedVC.id))
             .toCompletableFuture().join();
 
         assertEquals(expectedVC.id, vc.id);
@@ -119,12 +118,12 @@ class HolderTest {
 
     @Test
     void getDeleteCredentialTest() {
-        holder.deleteCredential(expectedVC.id);
+        holder.deleteCredential(getId(expectedVC.id));
     }
 
     @Test
     void getDeleteCredentialAsyncTest() {
-        holder.deleteCredentialAsync(expectedVC.id);
+        holder.deleteCredentialAsync(getId(expectedVC.id));
     }
 
     @Test
@@ -149,13 +148,10 @@ class HolderTest {
         derivationReq.options = Collections.emptyMap();
         assertAll("Invalid request because of empty request",
             () -> {
-                final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> holder.derive(derivationReq)
-                );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when handling a verifiable credential.", cause.getMessage());
-                assertEquals(Optional.of(400), cause.getStatus());
+                final VerifiableCredentialException ex = assertThrows(VerifiableCredentialException.class,
+                    () -> holder.derive(derivationReq));
+                assertEquals("Unexpected error response when handling a verifiable credential.", ex.getMessage());
+                assertEquals(Optional.of(400), ex.getStatus());
             });
     }
 
@@ -193,7 +189,7 @@ class HolderTest {
 
     @Test
     void getPresentationTest() {
-        final var vp = holder.getPresentation(expectedVC.id);
+        final var vp = holder.getPresentation(getId(expectedVC.id));
 
         assertEquals(expectedVP.context, vp.context);
         assertEquals(expectedVP.id, vp.id);
@@ -201,7 +197,7 @@ class HolderTest {
 
     @Test
     void getPresentationAsyncTest() {
-        final var vp = holder.getPresentationAsync(expectedVC.id)
+        final var vp = holder.getPresentationAsync(getId(expectedVC.id))
             .toCompletableFuture().join();
 
         assertEquals(expectedVP.context, vp.context);
@@ -210,12 +206,12 @@ class HolderTest {
 
     @Test
     void deletePresentationTest() {
-        holder.deletePresentation(expectedVP.id);
+        assertDoesNotThrow(() -> holder.deletePresentation(getId(expectedVP.id)));
     }
 
     @Test
     void deletePresentationAsyncTest() {
-        holder.deletePresentationAsync(expectedVP.id);
+        assertDoesNotThrow(() -> holder.deletePresentationAsync(getId(expectedVP.id)).toCompletableFuture().join());
     }
 
     @Test
@@ -247,21 +243,17 @@ class HolderTest {
     }
 
     @Test
-    void proveAsyncStatusCodesTest() {
+    void proveStatusCodesTest() {
         final var proveReq = new Holder.ProveRequest();
         proveReq.presentation = new VerifiablePresentation();
         proveReq.options = Collections.emptyMap();
 
         assertAll("Invalid input becuase of empty request",
             () -> {
-                final CompletionException exception = assertThrows(
-                        CompletionException.class,
-                        () -> holder.prove(proveReq)
-                    );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when handling a verifiable presentation.", cause.getMessage());
-                assertEquals(Optional.of(400), cause.getStatus());
+                final VerifiableCredentialException ex = assertThrows(VerifiableCredentialException.class,
+                        () -> holder.prove(proveReq));
+                assertEquals("Unexpected error response when handling a verifiable presentation.", ex.getMessage());
+                assertEquals(Optional.of(400), ex.getStatus());
             });
     }
 
@@ -337,4 +329,9 @@ class HolderTest {
         // TODO - implement
     }
 
+    static String getId(final String uri) {
+        final String path = URI.create(uri).getPath();
+        final String[] segments = path.split("/");
+        return segments[segments.length - 1];
+    }
 }

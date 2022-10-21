@@ -20,34 +20,41 @@
  */
 package com.inrupt.client.vc;
 
-import com.inrupt.client.spi.VerifiableCredential;
-import com.inrupt.client.spi.VerifiablePresentation;
+import com.inrupt.client.api.Response;
+import com.inrupt.client.api.VerifiableCredential;
+import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.ServiceProvider;
 
-import java.net.http.HttpResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * {@link HttpResponse.BodyHandler} implementations for use with Verifiable Credential types.
+ * {@link Response.BodyHandler} implementations for use with Verifiable Credential types.
  */
 public final class VerifiableCredentialBodyHandlers {
+
+    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
 
     /**
      * Create a {@link VerifiableCredential} from an HTTP response.
      *
      * @return the body handler
      */
-    public static HttpResponse.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
+    public static Response.BodyHandler<VerifiableCredential> ofVerifiableCredential() {
         return responseInfo -> {
-            final HttpResponse.BodySubscriber<VerifiableCredential> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
-                return VerifiableCredentialBodySubscribers.ofVerifiableCredential();
-            } else {
-                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
-                bodySubscriber.onError(new VerifiableCredentialException(
-                    "Unexpected error response when handling a verifiable credential.",
-                    httpStatus));
+                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    return processor.fromJson(input, VerifiableCredential.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException("Error parsing credential", ex);
+                }
             }
-            return bodySubscriber;
+            throw new VerifiableCredentialException(
+                "Unexpected error response when handling a verifiable credential.",
+                httpStatus);
         };
     }
 
@@ -56,19 +63,19 @@ public final class VerifiableCredentialBodyHandlers {
      *
      * @return the body handler
      */
-    public static HttpResponse.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
+    public static Response.BodyHandler<VerifiablePresentation> ofVerifiablePresentation() {
         return responseInfo -> {
-            final HttpResponse.BodySubscriber<VerifiablePresentation> bodySubscriber;
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
-                return VerifiableCredentialBodySubscribers.ofVerifiablePresentation();
-            } else {
-                bodySubscriber = HttpResponse.BodySubscribers.replacing(null);
-                bodySubscriber.onError(new VerifiableCredentialException(
-                    "Unexpected error response when handling a verifiable presentation.",
-                    httpStatus));
+                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    return processor.fromJson(input, VerifiablePresentation.class);
+                } catch (final IOException ex) {
+                    throw new VerifiableCredentialException("Error parsing presentation", ex);
+                }
             }
-            return bodySubscriber;
+            throw new VerifiableCredentialException(
+                "Unexpected error response when handling a verifiable presentation.",
+                httpStatus);
         };
     }
 

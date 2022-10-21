@@ -20,6 +20,9 @@
  */
 package com.inrupt.client.core;
 
+import com.inrupt.client.api.Request;
+
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +72,30 @@ public final class IOUtils {
             stream.close();
         } catch (final IOException ex) {
             throw new UncheckedIOException("Error closing I/O stream", ex);
+        }
+    }
+
+    public static Request.BodyPublisher stream(final Consumer<OutputStream> function) {
+        try {
+            final var sink = new PipedInputStream();
+            final var source = new PipedOutputStream(sink);
+
+            CompletableFuture
+                .runAsync(() -> function.accept(source))
+                .whenComplete((x, err) -> closeUnchecked(source));
+
+            return Request.BodyPublishers.ofInputStream(sink);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error piping data across threads", ex);
+        }
+    }
+
+    public static Request.BodyPublisher buffer(final Consumer<OutputStream> function) {
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            function.accept(out);
+            return Request.BodyPublishers.ofByteArray(out.toByteArray());
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Error serializing Jena Model", ex);
         }
     }
 

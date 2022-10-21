@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,11 +22,12 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.*;
+import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ class JenaBodyPublishersTest {
 
     private static final MockHttpService mockHttpClient = new MockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
 
     private static Dataset ds;
     private static Graph graph;
@@ -78,14 +79,13 @@ class JenaBodyPublishersTest {
         model.add(S_JENA, P_JENA, O_JENA);
         model.add(S1_JENA, P_JENA, O1_JENA);
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofModel(model))
-                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
     }
@@ -99,14 +99,13 @@ class JenaBodyPublishersTest {
 
         ds = DatasetFactory.create(model);
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofDataset(ds))
-                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
     }
@@ -117,12 +116,12 @@ class JenaBodyPublishersTest {
         final var ur = UpdateFactory.create(
             "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> }");
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                     .uri(URI.create(config.get("jena_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur))
                     .build();
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding());
         assertEquals(204, response.statusCode());
     }
 
@@ -133,14 +132,13 @@ class JenaBodyPublishersTest {
         graph.add(JenaTestModel.S_NODE, JenaTestModel.P_NODE, JenaTestModel.O_NODE);
         graph.add(JenaTestModel.S1_NODE, JenaTestModel.P1_NODE, JenaTestModel.O1_NODE);
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofGraph(graph))
-                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
     }

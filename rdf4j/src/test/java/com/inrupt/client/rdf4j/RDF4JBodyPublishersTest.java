@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,11 +22,13 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.api.Response;
+import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -46,7 +48,7 @@ class RDF4JBodyPublishersTest {
 
     private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
 
     @BeforeAll
     static void setup() {
@@ -68,14 +70,13 @@ class RDF4JBodyPublishersTest {
         builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
         final var model = builder.build();
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofModel(model))
-                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
     }
@@ -100,14 +101,13 @@ class RDF4JBodyPublishersTest {
             conn.add(st1);
         }
 
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofRepository(repository))
-                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
-        final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
     }
@@ -127,12 +127,12 @@ class RDF4JBodyPublishersTest {
                 "http://example.test",
                 updateString
             );
-            final HttpRequest request = HttpRequest.newBuilder()
+            final Request request = Request.newBuilder()
                     .uri(URI.create(config.get("rdf4j_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
                     .build();
-            final var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            final var response = client.send(request, Response.BodyHandlers.discarding());
             assertEquals(204, response.statusCode());
         }
     }

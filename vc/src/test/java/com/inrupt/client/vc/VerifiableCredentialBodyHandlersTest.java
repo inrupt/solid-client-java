@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,11 +22,12 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.inrupt.client.api.Request;
+import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.ServiceProvider;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,11 +35,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class VerifiableCredetialBodyHandlersTest {
+class VerifiableCredentialBodyHandlersTest {
 
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpClient client = HttpClient.newBuilder().version(Version.HTTP_1_1).build();
+    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
+
     @BeforeAll
     static void setup() {
         config.putAll(vcMockService.start());
@@ -51,7 +53,7 @@ class VerifiableCredetialBodyHandlersTest {
 
     @Test
     void ofVerifiableCredentialTest() throws IOException, InterruptedException {
-        final var request = HttpRequest.newBuilder()
+        final var request = Request.newBuilder()
             .uri(URI.create(config.get("vc_uri") + "/vc"))
             .GET()
             .build();
@@ -66,7 +68,7 @@ class VerifiableCredetialBodyHandlersTest {
 
     @Test
     void ofVerifiablePresentationTest() throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
+        final Request request = Request.newBuilder()
             .uri(URI.create(config.get("vc_uri") + "/vp"))
             .GET()
             .build();
