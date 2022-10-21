@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -27,10 +27,16 @@ import com.inrupt.client.api.RDFNode;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
  * The RDF4J implementation of a {@link Dataset}.
@@ -69,15 +75,13 @@ class RDF4JDataset implements Dataset {
     @Override
     public Stream<Quad> stream(final Optional<RDFNode> graph, final RDFNode subject, final RDFNode predicate,
             final RDFNode object) {
-        final var c = getContexts(graph);
-        final var s = RDF4JGraph.getSubject(subject);
-        final var p = RDF4JGraph.getPredicate(predicate);
-        final var o = RDF4JGraph.getObject(object);
+        final Resource[] c = getContexts(graph);
+        final Resource s = RDF4JGraph.getSubject(subject);
+        final IRI p = RDF4JGraph.getPredicate(predicate);
+        final Value o = RDF4JGraph.getObject(object);
 
-        try (
-            final var conn = repository.getConnection();
-            final var statements = conn.getStatements(s, p, o, c)
-            ) {
+        try (final RepositoryConnection conn = repository.getConnection();
+                final RepositoryResult<Statement> statements = conn.getStatements(s, p, o, c)) {
             return QueryResults.asModel(statements).stream().map(RDF4JQuad::new);
         }
     }
@@ -89,9 +93,9 @@ class RDF4JDataset implements Dataset {
      */
     @Override
     public Stream<Quad> stream() {
-        try (final var conn = repository.getConnection()) {
-            try (final var statements = conn.getStatements(null, null, null)) {
-                final var model = QueryResults.asModel(statements);
+        try (final RepositoryConnection conn = repository.getConnection()) {
+            try (final RepositoryResult<Statement> statements = conn.getStatements(null, null, null)) {
+                final Model model = QueryResults.asModel(statements);
                 return model.stream().map(RDF4JQuad::new);
             }
         }

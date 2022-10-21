@@ -32,12 +32,16 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.rdf4j.common.exception.RDF4JException;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
@@ -46,7 +50,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public class RDF4JRdfProcessor implements RdfProcessor {
 
-    private static Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = Map.of(
+    private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = Map.of(
             Syntax.TURTLE, RDFFormat.TURTLE,
             Syntax.TRIG, RDFFormat.TRIG,
             Syntax.JSONLD, RDFFormat.JSONLD,
@@ -55,12 +59,12 @@ public class RDF4JRdfProcessor implements RdfProcessor {
 
     @Override
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
-        final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
+        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
         try {
             try (final RepositoryConnection conn = ((RDF4JDataset) dataset)
                     .asRDF4JRepository()
                     .getConnection()) {
-                final var m = QueryResults.asModel(conn.getStatements(null, null, null));
+                final Model m = QueryResults.asModel(conn.getStatements(null, null, null));
                 Rio.write(m, output, format);
             }
         } catch (final RDFHandlerException ex) {
@@ -70,11 +74,11 @@ public class RDF4JRdfProcessor implements RdfProcessor {
 
     @Override
     public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
-        final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
-        final var writer = Rio.createWriter(format, output);
+        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
+        final RDFWriter writer = Rio.createWriter(format, output);
         try {
             writer.startRDF();
-            for (final var st : ((RDF4JGraph) graph).asRDF4JModel()) {
+            for (final Statement st : ((RDF4JGraph) graph).asRDF4JModel()) {
                 writer.handleStatement(st);
             }
             writer.endRDF();
@@ -85,10 +89,10 @@ public class RDF4JRdfProcessor implements RdfProcessor {
 
     @Override
     public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
-        final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
-        final var repository = new SailRepository(new MemoryStore());
+        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
+        final Repository repository = new SailRepository(new MemoryStore());
         try {
-            try (final var conn = repository.getConnection()) {
+            try (final RepositoryConnection conn = repository.getConnection()) {
                 conn.add(input, baseUri, format);
             }
             return new RDF4JDataset(repository);
@@ -99,16 +103,15 @@ public class RDF4JRdfProcessor implements RdfProcessor {
 
     @Override
     public Graph toGraph(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
-        final var format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
+        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
 
         try {
-            final var model = Rio.parse(input, baseUri, format);
+            final Model model = Rio.parse(input, baseUri, format);
             return new RDF4JGraph(model);
-        } catch (RDFParseException ex) {
+        } catch (final RDFParseException ex) {
             throw new IOException("Error parsing graph", ex);
-        } catch (RDFHandlerException ex) {
+        } catch (final RDFHandlerException ex) {
             throw new IOException("Error parsing graph", ex);
         }
     }
-
 }

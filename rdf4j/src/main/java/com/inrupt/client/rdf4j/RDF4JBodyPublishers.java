@@ -26,6 +26,7 @@ import com.inrupt.client.core.IOUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.query.SPARQLUpdate;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -78,8 +79,8 @@ public final class RDF4JBodyPublishers {
      */
     public static Request.BodyPublisher ofRepository(final Repository repository, final RDFFormat format) {
         return IOUtils.buffer(out -> {
-            try (final var conn = repository.getConnection()) {
-                final var m = QueryResults.asModel(conn.getStatements(null, null, null));
+            try (final RepositoryConnection conn = repository.getConnection()) {
+                final Model m = QueryResults.asModel(conn.getStatements(null, null, null));
                 Rio.write(m, out, format);
             }
         });
