@@ -27,7 +27,7 @@
  *
  * <p>The following example reads a Solid WebID profile and presents it as a {@code WebIdProfile} Java object:
  *
- * <pre>{@code     
+ * <pre>{@code
         Request request = Request.newBuilder()
             .uri(URI.create("https://webidserver.example/"))
             .header("Accept", "text/turtle")
