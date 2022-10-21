@@ -19,6 +19,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * RDF4J RDF support for the Inrupt client libraries.
+ * <h2>RDF4J RDF support for the Inrupt client libraries.</h2>
+ *
+ * <p>
  */
 package com.inrupt.client.rdf4j;

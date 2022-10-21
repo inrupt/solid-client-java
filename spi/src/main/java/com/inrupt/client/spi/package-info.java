@@ -54,7 +54,8 @@
        System.out.println("The Verifiable Credential Id is: " + vc.id);
  * }</pre>
  * 
- * <h3>Example of using the RDF processor toDataset() method to read triples from a trig file into a {@code Dataset}:</h3>
+ * <h3>Example of using the RDF processor toDataset() method to read triples
+ *  from a trig file into a {@code Dataset}:</h3>
  *
  * <pre>{@code
        RdfProcessor processor = ServiceProvider.getRdfProcessor();
