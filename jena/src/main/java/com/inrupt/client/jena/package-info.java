@@ -36,17 +36,6 @@
     System.out.println("Number of triples in file: " + dataset.stream().count());
  * }</pre>
  *
- * <p>A user of the {@code JenaRdfProcessor} should ensure that this implementation is
- * available on the classpath by adding the following dependency:
- *
- * <pre>
- *     &lt;dependency&gt;
- *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
- *            &lt;artifactId&gt;inrupt-client-jena&lt;/artifactId&gt;
- *            &lt;version&gt;${project.version}&lt;/version&gt;
- *     &lt;/dependency&gt;
- * </pre>
- *
  * <h3>Example of using the Jena BodyHandler ofModel() method to read the triples
  * from the same trig file into a {@code Model}:</h3>
  * <pre>{@code
@@ -81,5 +70,16 @@
 
     System.out.println("HTTP status code: " + response.statusCode());
  * }</pre>
+ * 
+ * <p>A user of the {@code JenaRdfProcessor} should ensure that this implementation is
+ * available on the classpath by adding the following dependency:
+ *
+ * <pre>
+ *     &lt;dependency&gt;
+ *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
+ *            &lt;artifactId&gt;inrupt-client-jena&lt;/artifactId&gt;
+ *            &lt;version&gt;${project.version}&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ * </pre>
  */
 package com.inrupt.client.jena;
