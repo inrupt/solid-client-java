@@ -122,7 +122,7 @@ public class UmaClient {
      * @return the next stage of completion, containing the authorization server discovery metadata
      */
     public CompletionStage<Metadata> metadataAsync(final URI authorizationServer) {
-        final var req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
+        final Request req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
         return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
             .thenApply(this::processMetadataResponse);
     }
@@ -137,7 +137,7 @@ public class UmaClient {
      */
     public TokenResponse token(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function<NeedInfo, ClaimToken> claimMapper) {
-        final var mapper = Objects.requireNonNull(claimMapper);
+        final Function<NeedInfo, ClaimToken> mapper = Objects.requireNonNull(claimMapper);
         try {
             return negotiateToken(Objects.requireNonNull(tokenEndpoint),
                     Objects.requireNonNull(tokenRequest),
@@ -173,7 +173,7 @@ public class UmaClient {
             throw new UmaException("Claim gathering stages exceeded configured maximum of " + maxIterations);
         }
 
-        final var req = buildTokenRequest(tokenEndpoint, tokenRequest);
+        final Request req = buildTokenRequest(tokenEndpoint, tokenRequest);
         return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
             .thenCompose(res -> {
                 try {
@@ -184,7 +184,7 @@ public class UmaClient {
 
                     // Everything else is a 4xx response
                     // Attempt to read the error response as JSON
-                    final var err = processor.fromJson(res.body(), ErrorResponse.class);
+                    final ErrorResponse err = processor.fromJson(res.body(), ErrorResponse.class);
 
                     if (err.error != null) {
                         switch (err.error) {
@@ -229,7 +229,7 @@ public class UmaClient {
     }
 
     private Request buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {
-        final var data = new HashMap<String, String>();
+        final Map<String, String> data = new HashMap<>();
         data.put(GRANT_TYPE, UMA_TICKET);
         data.put(TICKET, request.getTicket());
         request.getPersistedClaimToken().ifPresent(pct -> data.put(PCT, pct));
@@ -250,9 +250,9 @@ public class UmaClient {
     }
 
     private static Request.BodyPublisher ofFormData(final Map<String, String> data) {
-        final var form = data.entrySet().stream().map(entry -> {
-            final var name = URLEncoder.encode(entry.getKey(), UTF_8);
-            final var value = URLEncoder.encode(entry.getValue(), UTF_8);
+        final String form = data.entrySet().stream().map(entry -> {
+            final String name = URLEncoder.encode(entry.getKey(), UTF_8);
+            final String value = URLEncoder.encode(entry.getValue(), UTF_8);
             return String.join(EQUALS, name, value);
         }).collect(Collectors.joining(ETC));
 

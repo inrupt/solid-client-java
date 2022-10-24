@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -22,6 +22,9 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.UUID;
+
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.RDF4J;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +34,7 @@ class RDF4JQuadTest {
 
     @Test
     void testGetGraphName() {
-        final var graph = RDF4JTestModel.VF.createIRI("http://example.test/graphContext");
+        final Resource graph = RDF4JTestModel.VF.createIRI("http://example.test/graphContext");
         rdf4jQuad = new RDF4JQuad(
             RDF4JTestModel.VF.createStatement(
                 RDF4JTestModel.S_RDF4J,
@@ -53,8 +56,8 @@ class RDF4JQuadTest {
 
     @Test
     void testGetBNodeWithIDGraphName() {
-        final var nodeId = java.util.UUID.randomUUID().toString();
-        final var graph = RDF4JTestModel.VF.createBNode(nodeId);
+        final String nodeId = UUID.randomUUID().toString();
+        final Resource graph = RDF4JTestModel.VF.createBNode(nodeId);
         rdf4jQuad = new RDF4JQuad(
             RDF4JTestModel.VF.createStatement(
                 RDF4JTestModel.S_RDF4J,
@@ -76,7 +79,7 @@ class RDF4JQuadTest {
 
     @Test
     void testGetBNodeGraphName() {
-        final var graph = RDF4JTestModel.VF.createBNode();
+        final Resource graph = RDF4JTestModel.VF.createBNode();
         rdf4jQuad = new RDF4JQuad(
             RDF4JTestModel.VF.createStatement(
                 RDF4JTestModel.S_RDF4J,

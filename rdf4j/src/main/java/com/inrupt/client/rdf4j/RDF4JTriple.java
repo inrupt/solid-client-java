@@ -25,7 +25,10 @@ import com.inrupt.client.api.Triple;
 
 import java.net.URI;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * The RDF4J implementation of a {@link Triple}.
@@ -50,7 +53,7 @@ class RDF4JTriple implements Triple {
      */
     @Override
     public RDFNode getSubject() {
-        final var s = triple.getSubject();
+        final Resource s = triple.getSubject();
         if (s.isIRI()) {
             return RDFNode.namedNode(URI.create(s.stringValue()));
         }
@@ -64,7 +67,7 @@ class RDF4JTriple implements Triple {
      */
     @Override
     public RDFNode getPredicate() {
-        final var p = triple.getPredicate();
+        final IRI p = triple.getPredicate();
         return RDFNode.namedNode(URI.create(p.stringValue()));
     }
 
@@ -75,11 +78,11 @@ class RDF4JTriple implements Triple {
      */
     @Override
     public RDFNode getObject() {
-        final var o = triple.getObject();
+        final Value o = triple.getObject();
         if (o.isIRI()) {
             return RDFNode.namedNode(URI.create(o.stringValue()));
         } else if (o.isLiteral()) {
-            final var lo = (Literal) o;
+            final Literal lo = (Literal) o;
             if (lo.getLanguage().isPresent()) {
                 return RDFNode.literal(lo.getLabel(), lo.getLanguage().get());
             } else if (lo.getDatatype() != null) {

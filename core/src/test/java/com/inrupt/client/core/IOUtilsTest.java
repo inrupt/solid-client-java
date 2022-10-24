@@ -38,10 +38,10 @@ class IOUtilsTest {
 
     @Test
     void testAsyncOutputPipe() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final var data = res.readAllBytes();
+        try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final byte[] data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
+            final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
             CompletableFuture.runAsync(() -> consume(sink, data, Speed.FAST)).join();
         }
@@ -49,10 +49,10 @@ class IOUtilsTest {
 
     @Test
     void testAsyncOutputPipeSlowReader() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final var data = res.readAllBytes();
+        try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final byte[] data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
+            final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
             CompletableFuture.runAsync(() -> consume(sink, data, Speed.SLOW)).join();
         }
@@ -60,10 +60,10 @@ class IOUtilsTest {
 
     @Test
     void testAsyncOutputPipeSlowWriter() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final var data = res.readAllBytes();
+        try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final byte[] data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
+            final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
 
             CompletableFuture.runAsync(() -> consume(sink, data, Speed.FAST)).join();
         }
@@ -71,10 +71,10 @@ class IOUtilsTest {
 
     @Test
     void testSyncOutputPipe() throws IOException {
-        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final var data = res.readAllBytes();
+        try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final byte[] data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
+            final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
             consume(sink, data, Speed.FAST);
         }
@@ -82,10 +82,10 @@ class IOUtilsTest {
 
     @Test
     void testSyncOutputPipeSlowReader() throws Exception {
-        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final var data = res.readAllBytes();
+        try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final byte[] data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
+            final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
             consume(sink, data, Speed.SLOW);
         }
@@ -93,10 +93,10 @@ class IOUtilsTest {
 
     @Test
     void testSyncOutputPipeSlowWriter() throws Exception {
-        try (final var res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final var data = res.readAllBytes();
+        try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
+            final byte[] data = res.readAllBytes();
 
-            final var sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
+            final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
 
             consume(sink, data, Speed.FAST);
         }
@@ -104,7 +104,7 @@ class IOUtilsTest {
 
     void produce(final OutputStream out, final byte[] data, final Speed speed) {
         try {
-            for (var i = 0; i < data.length; i++) {
+            for (int i = 0; i < data.length; i++) {
                 if (Speed.SLOW.equals(speed) && i % 100 == 0) {
                     // Simulate a slow producer
                     Thread.sleep(1);
@@ -120,7 +120,7 @@ class IOUtilsTest {
 
     void consume(final InputStream in, final byte[] data, final Speed speed) {
         try {
-            for (var i = 0; i < data.length; i++) {
+            for (int i = 0; i < data.length; i++) {
                 if (Speed.SLOW.equals(speed) && i % 100 == 0) {
                     // Simulate a slow consumer
                     Thread.sleep(1);

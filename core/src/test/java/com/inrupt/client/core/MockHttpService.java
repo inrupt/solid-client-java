@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 
@@ -59,7 +60,7 @@ class MockHttpService {
     }
 
     private static String getCustomTypeJson() {
-        try (final var res = MockHttpService.class.getResourceAsStream("/customType.json")) {
+        try (final InputStream res = MockHttpService.class.getResourceAsStream("/customType.json")) {
             return new String(res.readAllBytes(), UTF_8);
         } catch (final IOException ex) {
             throw new UncheckedIOException("Could not read class resource", ex);
