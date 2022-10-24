@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jsonb;
 
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,16 +35,16 @@ import javax.json.bind.JsonbException;
 import javax.json.bind.config.PropertyNamingStrategy;
 
 /**
- * A {@link JsonProcessor} using the JakartaEE JSON Bind API.
+ * A {@link JsonService} using the JakartaEE JSON Bind API.
  */
-public class JsonbProcessor implements JsonProcessor {
+public class JsonbService implements JsonService {
 
     private final Jsonb jsonb;
 
     /**
-     * Create a JSON-B processor.
+     * Create a JSON-B service.
      */
-    public JsonbProcessor() {
+    public JsonbService() {
         final JsonbConfig config = new JsonbConfig();
         config.withAdapters(new VCAdapter());
         config.withAdapters(new VPAdapter());

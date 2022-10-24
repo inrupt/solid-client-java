@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ class WebIdBodyHandlersTest {
 
     private static final WebIdMockHttpService mockHttpServer = new WebIdMockHttpService();
     private static Map<String, String> config = new HashMap<>();
-    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
+    private static final HttpService client = ServiceProvider.getHttpService();
 
     @BeforeAll
     static void setup() {

@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vc.Verifier.VerificationResponse;
 
@@ -44,9 +44,9 @@ class VerifierTest {
 
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
+    private static final HttpService client = ServiceProvider.getHttpService();
     private static Verifier verifier;
-    private static JsonProcessor processor;
+    private static JsonService service;
     private static VerificationResponse expectedVerificationResponse;
     private static VerifiableCredential expectedVC;
     private static VerifiablePresentation expectedVP;
@@ -55,16 +55,16 @@ class VerifierTest {
     static void setup() throws IOException {
         config.putAll(vcMockService.start());
         verifier = new Verifier(URI.create(config.get("vc_uri")), client);
-        processor = ServiceProvider.getJsonProcessor();
+        service = ServiceProvider.getJsonService();
         try (final var res = VerifierTest.class.getResourceAsStream("/__files/verificationResponse.json")) {
-            expectedVerificationResponse = processor.fromJson(res, VerificationResponse.class);
+            expectedVerificationResponse = service.fromJson(res, VerificationResponse.class);
         }
         try (final var res =
                 VerifierTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
-            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+            expectedVC = service.fromJson(res, VerifiableCredential.class);
         }
         try (final var res = VerifierTest.class.getResourceAsStream("/__files/verifiablePresentation.json")) {
-            expectedVP = processor.fromJson(res, VerifiablePresentation.class);
+            expectedVP = service.fromJson(res, VerifiablePresentation.class);
         }
     }
 

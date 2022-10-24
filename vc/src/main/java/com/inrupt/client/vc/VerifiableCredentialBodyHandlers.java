@@ -23,7 +23,7 @@ package com.inrupt.client.vc;
 import com.inrupt.client.Response;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +35,7 @@ import java.io.InputStream;
  */
 public final class VerifiableCredentialBodyHandlers {
 
-    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private static final JsonService jsonService = ServiceProvider.getJsonService();
 
     /**
      * Create a {@link VerifiableCredential} from an HTTP response.
@@ -47,7 +47,7 @@ public final class VerifiableCredentialBodyHandlers {
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
                 try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                    return processor.fromJson(input, VerifiableCredential.class);
+                    return jsonService.fromJson(input, VerifiableCredential.class);
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException("Error parsing credential", ex);
                 }
@@ -68,7 +68,7 @@ public final class VerifiableCredentialBodyHandlers {
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
                 try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                    return processor.fromJson(input, VerifiablePresentation.class);
+                    return jsonService.fromJson(input, VerifiablePresentation.class);
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException("Error parsing presentation", ex);
                 }

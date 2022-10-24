@@ -28,62 +28,62 @@ import java.util.ServiceLoader;
  */
 public final class ServiceProvider {
 
-    private static volatile JsonProcessor jsonProcessor = null;
-    private static volatile RdfProcessor rdfProcessor = null;
-    private static volatile HttpProcessor httpProcessor = null;
+    private static volatile JsonService jsonService = null;
+    private static volatile RdfService rdfService = null;
+    private static volatile HttpService httpService = null;
 
     /**
-     * Get the {@link JsonProcessor} for this application.
+     * Get the {@link JsonService} for this application.
      *
      * @return an object for processing JSON
      */
-    public static JsonProcessor getJsonProcessor() {
-        if (jsonProcessor == null) {
+    public static JsonService getJsonService() {
+        if (jsonService == null) {
             synchronized (ServiceProvider.class) {
-                if (jsonProcessor != null) {
-                    return jsonProcessor;
+                if (jsonService != null) {
+                    return jsonService;
                 }
-                jsonProcessor = loadSpi(JsonProcessor.class, ServiceProvider.class.getClassLoader());
+                jsonService = loadSpi(JsonService.class, ServiceProvider.class.getClassLoader());
             }
 
         }
-        return jsonProcessor;
+        return jsonService;
     }
 
     /**
-     * Get the {@link RdfProcessor} for this application.
+     * Get the {@link RdfService} for this application.
      *
      * @return an object for processing RDF
      */
-    public static RdfProcessor getRdfProcessor() {
-        if (rdfProcessor == null) {
+    public static RdfService getRdfService() {
+        if (rdfService == null) {
             synchronized (ServiceProvider.class) {
-                if (rdfProcessor != null) {
-                    return rdfProcessor;
+                if (rdfService != null) {
+                    return rdfService;
                 }
-                rdfProcessor = loadSpi(RdfProcessor.class, ServiceProvider.class.getClassLoader());
+                rdfService = loadSpi(RdfService.class, ServiceProvider.class.getClassLoader());
             }
 
         }
-        return rdfProcessor;
+        return rdfService;
     }
 
     /**
-     * Get the {@link HttpProcessor} for this application.
+     * Get the {@link HttpService} for this application.
      *
      * @return an object for processing HTTP
      */
-    public static HttpProcessor getHttpProcessor() {
-        if (httpProcessor == null) {
+    public static HttpService getHttpService() {
+        if (httpService == null) {
             synchronized (ServiceProvider.class) {
-                if (httpProcessor != null) {
-                    return httpProcessor;
+                if (httpService != null) {
+                    return httpService;
                 }
-                httpProcessor = loadSpi(HttpProcessor.class, ServiceProvider.class.getClassLoader());
+                httpService = loadSpi(HttpService.class, ServiceProvider.class.getClassLoader());
             }
 
         }
-        return httpProcessor;
+        return httpService;
     }
 
     static <T> T loadSpi(final Class<T> clazz, final ClassLoader cl) {

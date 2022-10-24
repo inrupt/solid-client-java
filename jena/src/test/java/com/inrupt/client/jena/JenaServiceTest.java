@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -23,7 +23,7 @@ package com.inrupt.client.jena;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Syntax;
-import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -44,9 +44,9 @@ import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class JenaRdfProcessorTest {
+class JenaServiceTest {
 
-    private final RdfProcessor processor = ServiceProvider.getRdfProcessor();
+    private final RdfService service = ServiceProvider.getRdfService();
     private static JenaDataset jenaDataset;
     private static JenaGraph jenaGraph;
 
@@ -84,13 +84,13 @@ class JenaRdfProcessorTest {
 
     @Test
     void checkInstance() {
-        assertTrue(processor instanceof JenaRdfProcessor);
+        assertTrue(service instanceof JenaService);
     }
 
     @Test
     void parseToDatasetTurtle() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final var dataset = processor.toDataset(Syntax.TURTLE, input);
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/profileExample.ttl")) {
+            final var dataset = service.toDataset(Syntax.TURTLE, input);
             assertFalse(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(10, dataset.stream().count());
         }
@@ -98,8 +98,8 @@ class JenaRdfProcessorTest {
 
     @Test
     void parseToDatasetTrig() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
-            final var dataset = processor.toDataset(Syntax.TRIG, input);
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/oneTriple.trig")) {
+            final var dataset = service.toDataset(Syntax.TRIG, input);
             assertTrue(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(
                 "http://example.test/graph",
@@ -111,8 +111,8 @@ class JenaRdfProcessorTest {
 
     @Test
     void parseToDataserRelativeURIs() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final var dataset = processor.toDataset(Syntax.TURTLE, input, "http://example.test/");
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var dataset = service.toDataset(Syntax.TURTLE, input, "http://example.test/");
             assertEquals(2, dataset.stream().count());
             assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
                 .contains("http://example.test/")
@@ -122,8 +122,8 @@ class JenaRdfProcessorTest {
 
     @Test
     void parseToDatasetRelativeURIsButNoBaseURI() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final var dataset = processor.toDataset(Syntax.TURTLE, input);
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var dataset = service.toDataset(Syntax.TURTLE, input);
             assertEquals(2, dataset.stream().count());
             assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
                 .contains("file://") //treats relative URIs like local files
@@ -133,23 +133,23 @@ class JenaRdfProcessorTest {
 
     @Test
     void parsetoDatasetException() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
-            assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/oneTriple.trig")) {
+            assertThrows(IOException.class, () -> service.toDataset(Syntax.TURTLE, input));
         }
     }
 
     @Test
     void parseToGraph() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final var graph = processor.toGraph(Syntax.TURTLE, input);
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/profileExample.ttl")) {
+            final var graph = service.toGraph(Syntax.TURTLE, input);
             assertEquals(10, graph.stream().count());
         }
     }
 
     @Test
     void parseToGraphRelativeURIs() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final var graph = processor.toGraph(Syntax.TURTLE, input, "http://example.test/");
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final var graph = service.toGraph(Syntax.TURTLE, input, "http://example.test/");
             assertEquals(2, graph.stream().count());
             assertTrue(graph.stream().findFirst().get().getSubject().getURI().toString()
                 .contains("http://example.test/")
@@ -159,17 +159,17 @@ class JenaRdfProcessorTest {
 
     @Test
     void parseToGraphException() throws IOException {
-        try (final var input = JenaRdfProcessorTest.class.getResourceAsStream("/invalid.ttl")) {
-            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
+        try (final var input = JenaServiceTest.class.getResourceAsStream("/invalid.ttl")) {
+            assertThrows(IOException.class, () -> service.toGraph(Syntax.TURTLE, input));
         }
     }
 
     @Test
     void serializeFromDatasetTRIGRoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
-            processor.fromDataset(jenaDataset, Syntax.TRIG, output);
+            service.fromDataset(jenaDataset, Syntax.TRIG, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = processor.toDataset(Syntax.TRIG, input);
+            final var roundtrip = service.toDataset(Syntax.TRIG, input);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(jenaDataset.stream().count(), roundtrip.stream().count());
             final var st = jenaDataset.stream(
@@ -191,9 +191,9 @@ class JenaRdfProcessorTest {
     @Test
     void serializeFromDatasetTURTLERoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
-            processor.fromDataset(jenaDataset, Syntax.TURTLE, output);
+            service.fromDataset(jenaDataset, Syntax.TURTLE, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = processor.toDataset(Syntax.TURTLE, input);
+            final var roundtrip = service.toDataset(Syntax.TURTLE, input);
 
             assertEquals(2, roundtrip.stream().count());
             assertEquals(jenaDataset.stream().count(), roundtrip.stream().count());
@@ -216,9 +216,9 @@ class JenaRdfProcessorTest {
     @Test
     void serializeFromGraphRoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
-            processor.fromGraph(jenaGraph, Syntax.TURTLE, output);
+            service.fromGraph(jenaGraph, Syntax.TURTLE, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = processor.toGraph(Syntax.TURTLE, input);
+            final var roundtrip = service.toGraph(Syntax.TURTLE, input);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(jenaGraph.stream().count(), roundtrip.stream().count());
             final var st = jenaGraph.stream(
@@ -240,7 +240,7 @@ class JenaRdfProcessorTest {
         final var tmp = Files.createTempFile(null, null).toFile();
         try (final var output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(RuntimeIOException.class, () -> processor.fromDataset(jenaDataset, Syntax.TRIG, output));
+            assertThrows(RuntimeIOException.class, () -> service.fromDataset(jenaDataset, Syntax.TRIG, output));
         }
     }
 
@@ -249,7 +249,7 @@ class JenaRdfProcessorTest {
         final var tmp = Files.createTempFile(null, null).toFile();
         try (final var output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(RuntimeIOException.class, () -> processor.fromGraph(jenaGraph, Syntax.TURTLE, output));
+            assertThrows(RuntimeIOException.class, () -> service.fromGraph(jenaGraph, Syntax.TURTLE, output));
         }
     }
 

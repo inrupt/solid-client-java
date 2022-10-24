@@ -23,7 +23,7 @@ package com.inrupt.client.jena;
 import com.inrupt.client.Dataset;
 import com.inrupt.client.Graph;
 import com.inrupt.client.Syntax;
-import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.RdfService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +39,9 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotException;
 
 /**
- * An {@link RdfProcessor} that uses the Jena library.
+ * An {@link RdfService} that uses the Jena library.
  */
-public class JenaRdfProcessor implements RdfProcessor {
+public class JenaService implements RdfService {
 
     private static Map<Syntax, Lang> SYNTAX_TO_LANG = Map.of(
             Syntax.TURTLE, Lang.TURTLE,

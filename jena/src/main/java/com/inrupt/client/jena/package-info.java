@@ -21,17 +21,17 @@
 /**
  * <h2>Jena RDF support for the Inrupt client libraries.</h2>
  *
- * <p>The Jena module gives two possibilities to read RDF data: through the Processor {@link JenaRdfProcessor}
+ * <p>The Jena module gives two possibilities to read RDF data: through the Service {@link JenaService}
  * and through the BodyHandler {@link JenaBodyHandlers}.
  *
- * <h3>Example of using the Jena Processor toDataset() method to read triples
+ * <h3>Example of using the Jena Service toDataset() method to read triples
  * from a trig file into a {@code Dataset}:</h3>
  *
  * <pre>{@code
-    RdfProcessor processor = ServiceProvider.getRdfProcessor();
+    RdfService service = ServiceProvider.getRdfService();
     Dataset dataset;
     try (InputStream input = Test.class.getResourceAsStream("/tripleExamples.trig")) {
-        dataset = processor.toDataset(Syntax.TRIG, input);
+        dataset = service.toDataset(Syntax.TRIG, input);
     }
     System.out.println("Number of triples in file: " + dataset.stream().count());
  * }</pre>

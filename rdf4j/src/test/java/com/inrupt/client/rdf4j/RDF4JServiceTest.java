@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.inrupt.client.Dataset;
 import com.inrupt.client.Graph;
 import com.inrupt.client.Syntax;
-import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -48,9 +48,9 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class RDF4JRdfProcessorTest {
+class RDF4JServiceTest {
 
-    private final RdfProcessor processor = ServiceProvider.getRdfProcessor();
+    private final RdfService service = ServiceProvider.getRdfService();
     private static RDF4JDataset rdf4jDataset;
     private static RDF4JGraph rdf4jGraph;
 
@@ -87,13 +87,13 @@ class RDF4JRdfProcessorTest {
 
     @Test
     void checkInstance() {
-        assertTrue(processor instanceof RDF4JRdfProcessor);
+        assertTrue(service instanceof RDF4JService);
     }
 
     @Test
     void parseToDatasetTurtle() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final Dataset dataset = processor.toDataset(Syntax.TURTLE, input);
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/profileExample.ttl")) {
+            final Dataset dataset = service.toDataset(Syntax.TURTLE, input);
             assertFalse(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(10, dataset.stream().count());
         }
@@ -101,8 +101,8 @@ class RDF4JRdfProcessorTest {
 
     @Test
     void parseToDatasetTrig() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
-            final Dataset dataset = processor.toDataset(Syntax.TRIG, input);
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/oneTriple.trig")) {
+            final Dataset dataset = service.toDataset(Syntax.TRIG, input);
             assertTrue(dataset.stream().findFirst().get().getGraphName().isPresent());
             assertEquals(
                 "http://example.test/graph",
@@ -114,8 +114,8 @@ class RDF4JRdfProcessorTest {
 
     @Test
     void parseToDataserRelativeURIs() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final Dataset dataset = processor.toDataset(Syntax.TURTLE, input, "http://example.test/");
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final Dataset dataset = service.toDataset(Syntax.TURTLE, input, "http://example.test/");
             assertEquals(2, dataset.stream().count());
             assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
                 .contains("http://example.test/")
@@ -125,30 +125,30 @@ class RDF4JRdfProcessorTest {
 
     @Test
     void parseToDatasetRelativeURIsButNoBaseURI() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            assertThrows(IOException.class, () -> service.toDataset(Syntax.TURTLE, input));
         }
     }
 
     @Test
     void parseToDatasetException() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/oneTriple.trig")) {
-            assertThrows(IOException.class, () -> processor.toDataset(Syntax.TURTLE, input));
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/oneTriple.trig")) {
+            assertThrows(IOException.class, () -> service.toDataset(Syntax.TURTLE, input));
         }
     }
 
     @Test
     void parseToGraph() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final Graph graph = processor.toGraph(Syntax.TURTLE, input);
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/profileExample.ttl")) {
+            final Graph graph = service.toGraph(Syntax.TURTLE, input);
             assertEquals(10, graph.stream().count());
         }
     }
 
     @Test
     void parseToGraphRelativeURIs() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final Graph graph = processor.toGraph(Syntax.TURTLE, input, "http://example.test/");
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            final Graph graph = service.toGraph(Syntax.TURTLE, input, "http://example.test/");
             assertEquals(2, graph.stream().count());
             assertTrue(graph.stream().findFirst().get().getSubject().getURI().toString()
                 .contains("http://example.test/")
@@ -158,24 +158,24 @@ class RDF4JRdfProcessorTest {
 
     @Test
     void parseToGraphRelativeURIsButNoBaseURI() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+            assertThrows(IOException.class, () -> service.toGraph(Syntax.TURTLE, input));
         }
     }
 
     @Test
     void parseToGraphException() throws IOException {
-        try (final InputStream input = RDF4JRdfProcessorTest.class.getResourceAsStream("/invalid.ttl")) {
-            assertThrows(IOException.class, () -> processor.toGraph(Syntax.TURTLE, input));
+        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/invalid.ttl")) {
+            assertThrows(IOException.class, () -> service.toGraph(Syntax.TURTLE, input));
         }
     }
 
     @Test
     void serializeFromDatasetTRIGRoundtrip() throws IOException {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            processor.fromDataset(rdf4jDataset, Syntax.TRIG, output);
+            service.fromDataset(rdf4jDataset, Syntax.TRIG, output);
             final InputStream input = new ByteArrayInputStream(output.toByteArray());
-            final Dataset roundtrip = processor.toDataset(Syntax.TRIG, input);
+            final Dataset roundtrip = service.toDataset(Syntax.TRIG, input);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
             final String st = rdf4jDataset.stream(
@@ -197,9 +197,9 @@ class RDF4JRdfProcessorTest {
     @Test
     void serializeFromDatasetTURTLERoundtrip() throws IOException {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            processor.fromDataset(rdf4jDataset, Syntax.TURTLE, output);
+            service.fromDataset(rdf4jDataset, Syntax.TURTLE, output);
             final InputStream input = new ByteArrayInputStream(output.toByteArray());
-            final Dataset roundtrip = processor.toDataset(Syntax.TURTLE, input);
+            final Dataset roundtrip = service.toDataset(Syntax.TURTLE, input);
 
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
@@ -222,9 +222,9 @@ class RDF4JRdfProcessorTest {
     @Test
     void serializeFromGraphRoundtrip() throws IOException {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            processor.fromGraph(rdf4jGraph, Syntax.TURTLE, output);
+            service.fromGraph(rdf4jGraph, Syntax.TURTLE, output);
             final InputStream input = new ByteArrayInputStream(output.toByteArray());
-            final Graph roundtrip = processor.toGraph(Syntax.TURTLE, input);
+            final Graph roundtrip = service.toGraph(Syntax.TURTLE, input);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jGraph.stream().count(), roundtrip.stream().count());
             final String st = rdf4jGraph.stream(
@@ -246,7 +246,7 @@ class RDF4JRdfProcessorTest {
         final File tmp = Files.createTempFile(null, null).toFile();
         try (final OutputStream output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(IOException.class, () -> processor.fromDataset(rdf4jDataset, Syntax.TRIG, output));
+            assertThrows(IOException.class, () -> service.fromDataset(rdf4jDataset, Syntax.TRIG, output));
         }
     }
 
@@ -255,7 +255,7 @@ class RDF4JRdfProcessorTest {
         final File tmp = Files.createTempFile(null, null).toFile();
         try (final OutputStream output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(IOException.class, () -> processor.fromGraph(rdf4jGraph, Syntax.TURTLE, output));
+            assertThrows(IOException.class, () -> service.fromGraph(rdf4jGraph, Syntax.TURTLE, output));
         }
     }
 }

@@ -25,8 +25,8 @@ import com.inrupt.client.Response;
 import com.inrupt.client.URIBuilder;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.core.IOUtils;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -47,8 +47,8 @@ public class Issuer {
     private static final String APPLICATION_JSON = "application/json";
 
     private final URI baseUri;
-    private final HttpProcessor httpClient;
-    private final JsonProcessor processor;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
 
     /**
      * Create a new Issuer object.
@@ -56,7 +56,7 @@ public class Issuer {
      * @param baseUri the base URL for the VC-API
      */
     public Issuer(final URI baseUri) {
-        this(baseUri, ServiceProvider.getHttpProcessor());
+        this(baseUri, ServiceProvider.getHttpService());
     }
 
     /**
@@ -65,10 +65,10 @@ public class Issuer {
      * @param baseUri the base URI for the VC-API
      * @param httpClient an HTTP client
      */
-    public Issuer(final URI baseUri, final HttpProcessor httpClient) {
+    public Issuer(final URI baseUri, final HttpService httpClient) {
         this.baseUri = baseUri;
         this.httpClient = httpClient;
-        this.processor = ServiceProvider.getJsonProcessor();
+        this.jsonService = ServiceProvider.getJsonService();
     }
 
     /**
@@ -238,7 +238,7 @@ public class Issuer {
     private Request.BodyPublisher ofStatusRequest(final StatusRequest request) {
         return IOUtils.buffer(out -> {
             try {
-                processor.toJson(request, out);
+                jsonService.toJson(request, out);
             } catch (final IOException ex) {
                 throw new VerifiableCredentialException("Error serializing status request", ex);
             }

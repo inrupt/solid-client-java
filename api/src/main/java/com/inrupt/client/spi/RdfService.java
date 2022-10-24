@@ -31,7 +31,7 @@ import java.io.OutputStream;
 /**
  * A generic abstraction for interacting with different underlying RDF libraries.
  */
-public interface RdfProcessor {
+public interface RdfService {
 
     /**
      * Serialize a dataset to an output stream.

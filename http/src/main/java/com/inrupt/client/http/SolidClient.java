@@ -27,7 +27,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.authentication.AccessToken;
 import com.inrupt.client.authentication.SolidAuthenticator;
-import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class SolidClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolidClient.class);
 
     private final SolidAuthenticator solidAuthenticator;
-    private final HttpProcessor client;
+    private final HttpService client;
     private final Cache<URI, AccessToken> tokenCache;
 
     /**
@@ -62,7 +62,7 @@ public class SolidClient {
      * @param authenticator the Solid authenticator
      */
     public SolidClient(final SolidAuthenticator authenticator) {
-        this.client = ServiceProvider.getHttpProcessor();
+        this.client = ServiceProvider.getHttpService();
         this.solidAuthenticator = Objects.requireNonNull(authenticator);
         this.tokenCache = Caffeine.newBuilder()
             .expireAfter(new AccessTokenExpiry())

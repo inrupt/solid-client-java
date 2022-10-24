@@ -23,8 +23,8 @@ package com.inrupt.client.uma;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.*;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -71,8 +71,8 @@ public class UmaClient {
     private static final String REQUEST_DENIED = "request_denied";
 
     // TODO add metadata cache
-    private final HttpProcessor httpClient;
-    private final JsonProcessor processor;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
     private final int maxIterations;
 
     /**
@@ -83,7 +83,7 @@ public class UmaClient {
     }
 
     public UmaClient(final int maxIterations) {
-        this(ServiceProvider.getHttpProcessor(), maxIterations);
+        this(ServiceProvider.getHttpService(), maxIterations);
     }
 
     /**
@@ -92,10 +92,10 @@ public class UmaClient {
      * @param httpClient the externally configured HTTP client
      * @param maxIterations the maximum number of claims gathering stages
      */
-    public UmaClient(final HttpProcessor httpClient, final int maxIterations) {
+    public UmaClient(final HttpService httpClient, final int maxIterations) {
         this.httpClient = httpClient;
         this.maxIterations = maxIterations;
-        this.processor = ServiceProvider.getJsonProcessor();
+        this.jsonService = ServiceProvider.getJsonService();
     }
 
     /**
@@ -179,12 +179,12 @@ public class UmaClient {
                 try {
                     // Successful terminal state
                     if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(processor.fromJson(res.body(), TokenResponse.class));
+                        return CompletableFuture.completedFuture(jsonService.fromJson(res.body(), TokenResponse.class));
                     }
 
                     // Everything else is a 4xx response
                     // Attempt to read the error response as JSON
-                    final ErrorResponse err = processor.fromJson(res.body(), ErrorResponse.class);
+                    final ErrorResponse err = jsonService.fromJson(res.body(), ErrorResponse.class);
 
                     if (err.error != null) {
                         switch (err.error) {
@@ -263,7 +263,7 @@ public class UmaClient {
     private Metadata processMetadataResponse(final Response<InputStream> response) {
         if (response.statusCode() == SUCCESS) {
             try {
-                return processor.fromJson(response.body(), Metadata.class);
+                return jsonService.fromJson(response.body(), Metadata.class);
             } catch (final IOException ex) {
                 throw new UmaException("Error while processing UMA metadata response", ex);
             }

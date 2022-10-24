@@ -23,7 +23,7 @@ package com.inrupt.client.jsonb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.File;
@@ -37,14 +37,14 @@ import org.junit.jupiter.api.Test;
 
 public class JsonbVPAdapterTest {
 
-    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private static final JsonService service = ServiceProvider.getJsonService();
     private static VerifiablePresentation vp;
     private static VerifiablePresentation vpCopy;
 
     @Test
     void roundtripVP() throws IOException {
         try (final var res = JsonbVPAdapterTest.class.getResourceAsStream("/verifiablePresentation.json")) {
-            vp = processor.fromJson(res, VerifiablePresentation.class);
+            vp = service.fromJson(res, VerifiablePresentation.class);
         }
 
         final var targetPath = new File("target").toPath();
@@ -53,11 +53,11 @@ public class JsonbVPAdapterTest {
         final var testFile = Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
 
         try (final var out = new FileOutputStream(testFile.toString())) {
-            processor.toJson(vp, out);
+            service.toJson(vp, out);
         }
 
         try (final var in = new FileInputStream(testFile.toString())) {
-            vpCopy = processor.fromJson(in, VerifiablePresentation.class);
+            vpCopy = service.fromJson(in, VerifiablePresentation.class);
         }
 
         assertEquals(vp.context, vpCopy.context);

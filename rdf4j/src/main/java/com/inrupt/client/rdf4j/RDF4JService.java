@@ -23,7 +23,7 @@ package com.inrupt.client.rdf4j;
 import com.inrupt.client.Dataset;
 import com.inrupt.client.Graph;
 import com.inrupt.client.Syntax;
-import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.RdfService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,9 +46,9 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 /**
- * An {@link RdfProcessor} that uses the RDF4J library.
+ * An {@link RdfService} that uses the RDF4J library.
  */
-public class RDF4JRdfProcessor implements RdfProcessor {
+public class RDF4JService implements RdfService {
 
     private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = Map.of(
             Syntax.TURTLE, RDFFormat.TURTLE,
