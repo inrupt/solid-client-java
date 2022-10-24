@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.spi;
 
+import java.util.Iterator;
 import java.util.ServiceLoader;
 
 /**
@@ -27,16 +28,26 @@ import java.util.ServiceLoader;
  */
 public final class ServiceProvider {
 
+    private static volatile JsonProcessor jsonProcessor = null;
+    private static volatile RdfProcessor rdfProcessor = null;
+    private static volatile HttpProcessor httpProcessor = null;
+
     /**
      * Get the {@link JsonProcessor} for this application.
      *
      * @return an object for processing JSON
      */
     public static JsonProcessor getJsonProcessor() {
-        return ServiceLoader.load(JsonProcessor.class).findFirst()
-            .orElseThrow(() -> new ServiceLoadingException(
-                        "Unable to load JSON processor. " +
-                        "Please ensure that a JSON processor is available on the classpath"));
+        if (jsonProcessor == null) {
+            synchronized (ServiceProvider.class) {
+                if (jsonProcessor != null) {
+                    return jsonProcessor;
+                }
+                jsonProcessor = loadSpi(JsonProcessor.class, ServiceProvider.class.getClassLoader());
+            }
+
+        }
+        return jsonProcessor;
     }
 
     /**
@@ -45,17 +56,44 @@ public final class ServiceProvider {
      * @return an object for processing RDF
      */
     public static RdfProcessor getRdfProcessor() {
-        return ServiceLoader.load(RdfProcessor.class).findFirst()
-            .orElseThrow(() -> new ServiceLoadingException(
-                        "Unable to load RDF processor. " +
-                        "Please ensure that an RDF processor is available on the classpath"));
+        if (rdfProcessor == null) {
+            synchronized (ServiceProvider.class) {
+                if (rdfProcessor != null) {
+                    return rdfProcessor;
+                }
+                rdfProcessor = loadSpi(RdfProcessor.class, ServiceProvider.class.getClassLoader());
+            }
+
+        }
+        return rdfProcessor;
     }
 
+    /**
+     * Get the {@link HttpProcessor} for this application.
+     *
+     * @return an object for processing HTTP
+     */
     public static HttpProcessor getHttpProcessor() {
-        return ServiceLoader.load(HttpProcessor.class).findFirst()
-            .orElseThrow(() -> new ServiceLoadingException(
-                        "Unable to load HTTP processor. " +
-                        "Please ensure that an HTTP processor is available on the classpath"));
+        if (httpProcessor == null) {
+            synchronized (ServiceProvider.class) {
+                if (httpProcessor != null) {
+                    return httpProcessor;
+                }
+                httpProcessor = loadSpi(HttpProcessor.class, ServiceProvider.class.getClassLoader());
+            }
+
+        }
+        return httpProcessor;
+    }
+
+    static <T> T loadSpi(final Class<T> clazz, final ClassLoader cl) {
+        final ServiceLoader<T> loader = ServiceLoader.load(clazz, cl);
+        final Iterator<T> iterator = loader.iterator();
+        if (iterator.hasNext()) {
+            return iterator.next();
+        }
+        throw new IllegalStateException("No implementation found for " + clazz.getName() + "! " +
+                "Please add an implementation to the classpath");
     }
 
     private ServiceProvider() {
