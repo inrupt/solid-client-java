@@ -27,7 +27,16 @@
  *
  * <p>This module depends on the JakartaEE APIs. A user of this module should
  * ensure that the relevant JakartaEE JSON implementations are available on the
- * classpath.
+ * classpath in addition to Jsonb.
+ * Example:
+ *
+ * <pre>
+ *     &lt;dependency&gt;
+ *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
+ *            &lt;artifactId&gt;inrupt-client-jsonb&lt;/artifactId&gt;
+ *            &lt;version&gt;${project.version}&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ * </pre>
  *
  * <h3>Example of using the JSON processor fromJson() method to read a {@code VerifiableCredential}:</h3>
  *

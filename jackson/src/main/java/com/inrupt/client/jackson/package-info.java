@@ -25,6 +25,17 @@
  * JSON parser. In the Java ecosystem, there are several widely used JSON
  * parsing libraries. This package adds support for the Jackson JSON libraries.
  *
+ * <p>A user of this module should ensure that the the Jackson implementation is
+ * available on the classpath by adding the following dependency:
+ *
+ * <pre>
+ *     &lt;dependency&gt;
+ *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
+ *            &lt;artifactId&gt;inrupt-client-jackson&lt;/artifactId&gt;
+ *            &lt;version&gt;${project.version}&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ * </pre>
+ *
  * <h3>Example of using the JSON processor fromJson() method to read a {@code VerifiableCredential}:</h3>
  *
  * <pre>{@code
