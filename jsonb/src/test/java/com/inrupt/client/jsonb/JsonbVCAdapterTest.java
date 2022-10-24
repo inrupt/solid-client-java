@@ -23,7 +23,7 @@ package com.inrupt.client.jsonb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.VerifiableCredential;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.File;
@@ -37,14 +37,14 @@ import org.junit.jupiter.api.Test;
 
 public class JsonbVCAdapterTest {
 
-    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private static final JsonService service = ServiceProvider.getJsonService();
     private static VerifiableCredential vc;
     private static VerifiableCredential vcCopy;
 
     @Test
     void roundtripVC() throws IOException {
         try (final var res = JsonbVCAdapterTest.class.getResourceAsStream("/verifiableCredential.json")) {
-            vc = processor.fromJson(res, VerifiableCredential.class);
+            vc = service.fromJson(res, VerifiableCredential.class);
         }
 
         final var targetPath = new File("target").toPath();
@@ -53,11 +53,11 @@ public class JsonbVCAdapterTest {
         final var testFile = Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
 
         try (final var out = new FileOutputStream(testFile.toString())) {
-            processor.toJson(vc, out);
+            service.toJson(vc, out);
         }
 
         try (final var in = new FileInputStream(testFile.toString())) {
-            vcCopy = processor.fromJson(in, VerifiableCredential.class);
+            vcCopy = service.fromJson(in, VerifiableCredential.class);
         }
 
         assertEquals(vc.context, vcCopy.context);

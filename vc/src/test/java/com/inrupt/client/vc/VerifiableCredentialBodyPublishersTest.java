@@ -26,8 +26,8 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -43,22 +43,22 @@ class VerifiableCredentialBodyPublishersTest {
 
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
-    private static JsonProcessor processor;
+    private static final HttpService client = ServiceProvider.getHttpService();
+    private static JsonService jsonService;
     private static VerifiableCredential expectedVC;
     private static VerifiablePresentation expectedVP;
 
     @BeforeAll
     static void setup() throws IOException {
         config.putAll(vcMockService.start());
-        processor = ServiceProvider.getJsonProcessor();
+        jsonService = ServiceProvider.getJsonService();
         try (final var res = VerifiableCredentialBodyPublishersTest.class
                 .getResourceAsStream("/__files/verifiableCredential.json")) {
-            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+            expectedVC = jsonService.fromJson(res, VerifiableCredential.class);
         }
         try (final var res = VerifiableCredentialBodyPublishersTest.class
             .getResourceAsStream("/__files/verifiablePresentation.json")) {
-            expectedVP = processor.fromJson(res, VerifiablePresentation.class);
+            expectedVP = jsonService.fromJson(res, VerifiablePresentation.class);
         }
     }
 

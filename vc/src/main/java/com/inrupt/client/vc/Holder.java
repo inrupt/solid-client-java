@@ -26,8 +26,8 @@ import com.inrupt.client.URIBuilder;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.core.IOUtils;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -57,8 +57,8 @@ public class Holder {
     private static final String EXCHANGES = "exchanges";
 
     private final URI baseUri;
-    private final HttpProcessor httpClient;
-    private final JsonProcessor processor;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
 
     /**
      * Create a new Holder object for interacting with a VC-API.
@@ -66,7 +66,7 @@ public class Holder {
      * @param baseUri the base URI for the VC-API
      */
     public Holder(final URI baseUri) {
-        this(baseUri, ServiceProvider.getHttpProcessor());
+        this(baseUri, ServiceProvider.getHttpService());
     }
 
     /**
@@ -75,10 +75,10 @@ public class Holder {
      * @param baseUri the base URI for the VC-API
      * @param httpClient an HTTP client
      */
-    public Holder(final URI baseUri, final HttpProcessor httpClient) {
+    public Holder(final URI baseUri, final HttpService httpClient) {
         this.baseUri = baseUri;
         this.httpClient = httpClient;
-        this.processor = ServiceProvider.getJsonProcessor();
+        this.jsonService = ServiceProvider.getJsonService();
     }
 
     /**
@@ -122,7 +122,7 @@ public class Holder {
                 try {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
-                        return processor.fromJson(res.body(),
+                        return jsonService.fromJson(res.body(),
                             new ArrayList<VerifiableCredential>(){}.getClass().getGenericSuperclass());
                     }
                     throw new VerifiableCredentialException(
@@ -257,7 +257,7 @@ public class Holder {
                 try {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
-                        return processor.fromJson(res.body(),
+                        return jsonService.fromJson(res.body(),
                             new ArrayList<VerifiablePresentation>(){}.getClass().getGenericSuperclass());
                     }
                     throw new VerifiableCredentialException(
@@ -512,7 +512,7 @@ public class Holder {
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
                 try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                    return processor.fromJson(input, VerifiablePresentationRequest.class);
+                    return jsonService.fromJson(input, VerifiablePresentationRequest.class);
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException("Error parsing presentation request", ex);
                 }
@@ -526,7 +526,7 @@ public class Holder {
     private <T> Request.BodyPublisher serialize(final T request) {
         return IOUtils.buffer(out -> {
             try {
-                processor.toJson(request, out);
+                jsonService.toJson(request, out);
             } catch (final IOException ex) {
                 throw new VerifiableCredentialException("Error serializing JSON", ex);
             }

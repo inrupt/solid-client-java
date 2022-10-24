@@ -24,8 +24,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.*;
 import com.inrupt.client.authentication.DPoP;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -54,8 +54,8 @@ public class OpenIdProvider {
 
     private final URI issuer;
     private final DPoP dpop;
-    private final HttpProcessor httpClient;
-    private final JsonProcessor processor;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
 
     /**
      * Create an OpenID Provider client.
@@ -73,7 +73,7 @@ public class OpenIdProvider {
      * @param dpop a DPoP proof generator
      */
     public OpenIdProvider(final URI issuer, final DPoP dpop) {
-        this(issuer, dpop, ServiceProvider.getHttpProcessor());
+        this(issuer, dpop, ServiceProvider.getHttpService());
     }
 
     /**
@@ -83,11 +83,11 @@ public class OpenIdProvider {
      * @param dpop a DPoP proof generator
      * @param httpClient an HTTP client
      */
-    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpProcessor httpClient) {
+    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpService httpClient) {
         this.issuer = Objects.requireNonNull(issuer);
         this.dpop = Objects.requireNonNull(dpop);
         this.httpClient = Objects.requireNonNull(httpClient);
-        this.processor = ServiceProvider.getJsonProcessor();
+        this.jsonService = ServiceProvider.getJsonService();
     }
 
     /**
@@ -116,7 +116,7 @@ public class OpenIdProvider {
                 try {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
-                        return processor.fromJson(res.body(), Metadata.class);
+                        return jsonService.fromJson(res.body(), Metadata.class);
                     }
                     throw new OpenIdException(
                         "Unexpected error while fetching the OpenID metadata resource.",
@@ -196,7 +196,7 @@ public class OpenIdProvider {
                 try {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
-                        return processor.fromJson(res.body(), TokenResponse.class);
+                        return jsonService.fromJson(res.body(), TokenResponse.class);
                     }
                     throw new OpenIdException(
                         "Unexpected error while interacting with the OpenID Provider's token endpoint.",

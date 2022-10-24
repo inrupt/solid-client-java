@@ -25,7 +25,7 @@ package com.inrupt.client.httpclient;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.HttpService;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -36,15 +36,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
-public class HttpClientProcessor implements HttpProcessor {
+public class HttpClientService implements HttpService {
 
     private final HttpClient client;
 
-    public HttpClientProcessor() {
+    public HttpClientService() {
         this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build());
     }
 
-    private HttpClientProcessor(final HttpClient client) {
+    private HttpClientService(final HttpClient client) {
         // TODO log that this was initialized at DEBUG level
         this.client = client;
     }
@@ -78,7 +78,7 @@ public class HttpClientProcessor implements HttpProcessor {
             });
     }
 
-    public static HttpClientProcessor ofHttpClient(final HttpClient client) {
-        return new HttpClientProcessor(client);
+    public static HttpClientService ofHttpClient(final HttpClient client) {
+        return new HttpClientService(client);
     }
 }

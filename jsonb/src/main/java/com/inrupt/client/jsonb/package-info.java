@@ -38,13 +38,13 @@
  *     &lt;/dependency&gt;
  * </pre>
  *
- * <h3>Example of using the JSON processor fromJson() method to read a {@code VerifiableCredential}:</h3>
+ * <h3>Example of using the JSON service fromJson() method to read a {@code VerifiableCredential}:</h3>
  *
  * <pre>{@code
-    JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    JsonService service = ServiceProvider.getJsonService();
     VerifiableCredential vc;
     try (InputStream is = Test.class.getResourceAsStream("verifiableCredential.json")) {
-        vc = processor.fromJson(is, VerifiableCredential.class);
+        vc = service.fromJson(is, VerifiableCredential.class);
     }
     System.out.println("The Verifiable Credential Id is: " + vc.id);
  * }</pre>

@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,16 +34,16 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 /**
- * A {@link JsonProcessor} using the Jackson JSON library.
+ * A {@link JsonService} using the Jackson JSON library.
  */
-public class JacksonProcessor implements JsonProcessor {
+public class JacksonService implements JsonService {
 
     private final ObjectMapper mapper;
 
     /**
-     * Create a Jackson processor.
+     * Create a Jackson service.
      */
-    public JacksonProcessor() {
+    public JacksonService() {
         mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);

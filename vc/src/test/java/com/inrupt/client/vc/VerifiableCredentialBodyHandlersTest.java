@@ -23,7 +23,7 @@ package com.inrupt.client.vc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ class VerifiableCredentialBodyHandlersTest {
 
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
+    private static final HttpService client = ServiceProvider.getHttpService();
 
     @BeforeAll
     static void setup() {

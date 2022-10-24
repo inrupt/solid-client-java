@@ -23,8 +23,8 @@ package com.inrupt.client.vc;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.VerifiableCredential;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vc.Issuer.StatusRequest;
 
@@ -42,19 +42,19 @@ import org.junit.jupiter.api.Test;
 class IssuerTest {
 
     private static final VerifiableCredentialMockService vcMockService = new VerifiableCredentialMockService();
-    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
+    private static final HttpService client = ServiceProvider.getHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static Issuer issuer;
-    private static JsonProcessor processor;
+    private static JsonService jsonService;
     private static VerifiableCredential expectedVC;
 
     @BeforeAll
     static void setup() throws IOException {
         config.putAll(vcMockService.start());
         issuer = new Issuer(URI.create(config.get("vc_uri")), client);
-        processor = ServiceProvider.getJsonProcessor();
+        jsonService = ServiceProvider.getJsonService();
         try (final var res = IssuerTest.class.getResourceAsStream("/__files/verifiableCredential.json")) {
-            expectedVC = processor.fromJson(res, VerifiableCredential.class);
+            expectedVC = jsonService.fromJson(res, VerifiableCredential.class);
         }
     }
 

@@ -21,7 +21,7 @@
 package com.inrupt.client.webid;
 
 import com.inrupt.client.*;
-import com.inrupt.client.spi.RdfProcessor;
+import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.RDF;
@@ -37,7 +37,7 @@ import java.net.URI;
  */
 public final class WebIdBodyHandlers {
 
-    private static final RdfProcessor processor = ServiceProvider.getRdfProcessor();
+    private static final RdfService service = ServiceProvider.getRdfService();
 
     /**
      * Transform an HTTP response into a WebID Profile object.
@@ -49,7 +49,7 @@ public final class WebIdBodyHandlers {
         return responseInfo -> {
             final var builder = WebIdProfile.newBuilder();
             try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final var graph = processor.toGraph(Syntax.TURTLE, input);
+                final var graph = service.toGraph(Syntax.TURTLE, input);
 
                 graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(Solid.oidcIssuer), null)
                     .map(Triple::getObject)
