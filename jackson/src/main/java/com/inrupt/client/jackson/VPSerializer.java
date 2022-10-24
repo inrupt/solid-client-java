@@ -23,7 +23,7 @@ package com.inrupt.client.jackson;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.VerifiablePresentation;
 
 import java.io.IOException;
 

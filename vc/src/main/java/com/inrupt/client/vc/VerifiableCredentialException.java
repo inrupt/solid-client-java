@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.vc;
 
-import com.inrupt.client.api.InruptClientException;
+import com.inrupt.client.InruptClientException;
 
 import java.util.Optional;
 

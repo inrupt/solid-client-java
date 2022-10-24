@@ -18,46 +18,37 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.api;
+package com.inrupt.client.spi;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+
+import java.io.IOException;
+import java.util.concurrent.CompletionStage;
 
 /**
- * The names of concrete RDF Syntaxes.
+ * An HTTP handling abstraction.
  */
-public enum Syntax {
+public interface HttpProcessor {
 
     /**
-     * Turtle.
+     * Perform a synchonous HTTP request.
      *
-     * @see <a href="https://www.w3.org/TR/turtle/">RDF 1.1 Turtle</a>
+     * @param request the request
+     * @param responseBodyHandler the response body handler
+     * @param <T> the response type
+     * @return the response
+     * @throws IOException when there is an I/O error
      */
-    TURTLE,
+    <T> Response<T> send(Request request, Response.BodyHandler<T> responseBodyHandler) throws IOException;
 
     /**
-     * N-Triples.
+     * Perform an asynchonous HTTP request.
      *
-     * @see <a href="https://www.w3.org/TR/n-triples/">RDF 1.1 N-Triples</a>
+     * @param request the request
+     * @param responseBodyHandler the response body handler
+     * @param <T> the response type
+     * @return the next stage of completion, containing the response
      */
-    NTRIPLES,
-
-    /**
-     * TriG.
-     *
-     * @see <a href="https://www.w3.org/TR/trig/">RDF 1.1 TriG</a>
-     */
-    TRIG,
-
-    /**
-     * N-Quads.
-     *
-     * @see <a href="https://www.w3.org/TR/n-quads/">RDF 1.1 N-Quads</a>
-     */
-    NQUADS,
-
-    /**
-     * JSON-LD.
-     *
-     * @see <a href="https://www.w3.org/TR/json-ld/">JSON-LD 1.1</a>
-     */
-    JSONLD;
-
+    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler);
 }

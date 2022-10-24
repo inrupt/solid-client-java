@@ -20,11 +20,11 @@
  */
 package com.inrupt.client.vc;
 
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.Response;
-import com.inrupt.client.api.URIBuilder;
-import com.inrupt.client.api.VerifiableCredential;
-import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.URIBuilder;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;

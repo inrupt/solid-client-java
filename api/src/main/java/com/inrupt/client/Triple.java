@@ -18,37 +18,31 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
-
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.Response;
-
-import java.io.IOException;
-import java.util.concurrent.CompletionStage;
+package com.inrupt.client;
 
 /**
- * An HTTP handling abstraction.
+ * An RDF Triple.
  */
-public interface HttpProcessor {
+public interface Triple {
 
     /**
-     * Perform a synchonous HTTP request.
+     * Get the subject of the triple.
      *
-     * @param request the request
-     * @param responseBodyHandler the response body handler
-     * @param <T> the response type
-     * @return the response
-     * @throws IOException when there is an I/O error
+     * @return the subject node
      */
-    <T> Response<T> send(Request request, Response.BodyHandler<T> responseBodyHandler) throws IOException;
+    RDFNode getSubject();
 
     /**
-     * Perform an asynchonous HTTP request.
+     * Get the predicate of the triple.
      *
-     * @param request the request
-     * @param responseBodyHandler the response body handler
-     * @param <T> the response type
-     * @return the next stage of completion, containing the response
+     * @return the predicate node
      */
-    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler);
+    RDFNode getPredicate();
+
+    /**
+     * Get the object of the triple.
+     *
+     * @return the object node
+     */
+    RDFNode getObject();
 }

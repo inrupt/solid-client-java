@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.webid;
 
-import com.inrupt.client.api.InruptClientException;
+import com.inrupt.client.InruptClientException;
 
 /**
  * A runtime exception for use with WebId-related errors.

@@ -22,7 +22,7 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.RDFNode;
+import com.inrupt.client.RDFNode;
 
 import java.net.URI;
 import java.util.stream.Collectors;

@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.webid;
 
-import com.inrupt.client.api.*;
+import com.inrupt.client.*;
 import com.inrupt.client.spi.RdfProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;

@@ -26,11 +26,6 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-spi</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-httpclient</artifactId>
       <version>${project.version}</version>
     </dependency>

@@ -23,8 +23,8 @@
  */
 package com.inrupt.client.okhttp;
 
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.Response;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpProcessor;
 
 import java.io.IOException;

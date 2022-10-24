@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.api.Dataset;
-import com.inrupt.client.api.Quad;
-import com.inrupt.client.api.RDFNode;
+import com.inrupt.client.Dataset;
+import com.inrupt.client.Quad;
+import com.inrupt.client.RDFNode;
 
 import java.util.Optional;
 import java.util.stream.Stream;

@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.api.Response;
+import com.inrupt.client.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

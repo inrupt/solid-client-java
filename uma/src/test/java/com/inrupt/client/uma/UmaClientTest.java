@@ -22,7 +22,7 @@ package com.inrupt.client.uma;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.URIBuilder;
+import com.inrupt.client.URIBuilder;
 
 import java.net.URI;
 import java.util.HashMap;

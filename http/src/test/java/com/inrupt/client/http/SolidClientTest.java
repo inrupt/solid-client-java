@@ -22,8 +22,8 @@ package com.inrupt.client.http;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.Response;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.authentication.SolidAuthenticator;
 import com.inrupt.client.authentication.UmaAuthenticationMechanism;
 import com.inrupt.client.jena.JenaBodyHandlers;

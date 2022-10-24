@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.api.RDFNode;
+import com.inrupt.client.RDFNode;
 
 import java.net.URI;
 

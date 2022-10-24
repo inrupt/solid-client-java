@@ -18,32 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.api;
+package com.inrupt.client;
+
+import java.util.stream.Stream;
 
 /**
- * A generic Inrupt runtime exception for use as a superclass.
+ * A simple RDF graph abstraction.
  */
-public class InruptClientException extends RuntimeException {
-
-    private static final long serialVersionUID = -6044908162372507932L;
+public interface Graph {
 
     /**
-     * Create an InruptClientException exception.
+     * Stream all matched triples.
      *
-     * @param message the message
+     * <p>Using {@code null} acts as a wildcard.
+     *
+     * @param subject the subject node. May be {@code null}
+     * @param predicate the predicate node. May be {@code null}
+     * @param object the object node. May be {@code null}
+     * @return a stream of matched triples
      */
-    public InruptClientException(final String message) {
-        super(message);
-    }
+    Stream<Triple> stream(RDFNode subject, RDFNode predicate, RDFNode object);
 
     /**
-     * Create an InruptClientException exception.
+     * Stream all triples from the graph.
      *
-     * @param message the message
-     * @param cause the cause
+     * @return a stream of all triples
      */
-    public InruptClientException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
+    Stream<Triple> stream();
 
 }

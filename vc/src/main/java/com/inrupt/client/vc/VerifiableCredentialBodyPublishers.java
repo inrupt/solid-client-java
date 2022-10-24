@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.vc;
 
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.VerifiableCredential;
-import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.Request;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
