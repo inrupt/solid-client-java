@@ -23,6 +23,7 @@ package com.inrupt.client.uma;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -78,9 +79,9 @@ public final class NeedInfo {
      */
     public static Optional<NeedInfo> ofErrorResponse(final ErrorResponse error) {
         if (NEED_INFO.equals(error.error) && error.ticket != null) {
-            final var requiredClaims = new ArrayList<RequiredClaims>();
+            final List<RequiredClaims> requiredClaims = new ArrayList<>();
             if (error.requiredClaims != null) {
-                for (var item : error.requiredClaims) {
+                for (final Map<String, Object> item : error.requiredClaims) {
                     requiredClaims.add(new RequiredClaims(item));
                 }
             }

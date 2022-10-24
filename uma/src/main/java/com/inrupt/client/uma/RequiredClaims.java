@@ -108,7 +108,7 @@ public class RequiredClaims {
     }
 
     private String getValue(final String key) {
-        final var value = data.get(key);
+        final Object value = data.get(key);
         if (value instanceof String) {
             return (String) value;
         }
@@ -116,11 +116,11 @@ public class RequiredClaims {
     }
 
     private Set<String> getValues(final String key) {
-        final var values = data.get(key);
+        final Object values = data.get(key);
 
-        final var results = new HashSet<String>();
+        final Set<String> results = new HashSet<>();
         if (values instanceof Collection) {
-            for (final var item : (Collection) values) {
+            for (final Object item : (Collection) values) {
                 if (item instanceof String) {
                     results.add((String) item);
                 }
