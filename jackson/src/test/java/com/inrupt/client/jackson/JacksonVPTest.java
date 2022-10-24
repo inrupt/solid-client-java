@@ -23,7 +23,7 @@ package com.inrupt.client.jackson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.File;
@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 
 public class JacksonVPTest {
 
-    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private static final JsonService processor = ServiceProvider.getJsonService();
     private static VerifiablePresentation vp;
     private static VerifiablePresentation vpCopy;
 

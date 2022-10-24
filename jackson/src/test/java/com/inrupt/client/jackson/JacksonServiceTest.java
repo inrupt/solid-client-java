@@ -22,7 +22,7 @@ package com.inrupt.client.jackson;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -36,18 +36,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class JacksonProcessorTest {
+class JacksonServiceTest {
 
-    private final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private final JsonService processor = ServiceProvider.getJsonService();
 
     @Test
     void testInstance() {
-        assertTrue(processor instanceof JacksonProcessor);
+        assertTrue(processor instanceof JacksonService);
     }
 
     @Test
     void parseJsonInput() throws IOException {
-        try (final var input = JacksonProcessorTest.class.getResourceAsStream("/myobject.json")) {
+        try (final var input = JacksonServiceTest.class.getResourceAsStream("/myobject.json")) {
             final var obj = processor.fromJson(input, MyObject.class);
             assertEquals("Quinn", obj.name);
             assertEquals(25, obj.age);
@@ -89,7 +89,7 @@ class JacksonProcessorTest {
     @ParameterizedTest
     @ValueSource(strings = {"/invalid.json", "/malformed.json"})
     void parseInvalidJson(final String resource) throws IOException {
-        try (final var input = JacksonProcessorTest.class.getResourceAsStream(resource)) {
+        try (final var input = JacksonServiceTest.class.getResourceAsStream(resource)) {
             assertThrows(IOException.class, () -> processor.fromJson(input, MyObject.class));
         }
     }

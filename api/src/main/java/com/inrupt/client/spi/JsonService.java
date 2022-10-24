@@ -20,35 +20,46 @@
  */
 package com.inrupt.client.spi;
 
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
-
 import java.io.IOException;
-import java.util.concurrent.CompletionStage;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Type;
 
 /**
- * An HTTP handling abstraction.
+ * A JSON handling abstraction.
  */
-public interface HttpProcessor {
+public interface JsonService {
 
     /**
-     * Perform a synchonous HTTP request.
+     * Write object data into JSON.
      *
-     * @param request the request
-     * @param responseBodyHandler the response body handler
-     * @param <T> the response type
-     * @return the response
-     * @throws IOException when there is an I/O error
+     * @param <T> the object type
+     * @param object the object to serialize
+     * @param output the output stream
+     * @throws IOException when there is a serialization error
      */
-    <T> Response<T> send(Request request, Response.BodyHandler<T> responseBodyHandler) throws IOException;
+    <T> void toJson(T object, OutputStream output) throws IOException;
 
     /**
-     * Perform an asynchonous HTTP request.
+     * Read JSON into a java object.
      *
-     * @param request the request
-     * @param responseBodyHandler the response body handler
-     * @param <T> the response type
-     * @return the next stage of completion, containing the response
+     * @param <T> the object type
+     * @param input the input stream
+     * @param clazz the object class
+     * @return the newly created object
+     * @throws IOException when there is a parsing error
      */
-    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler);
+    <T> T fromJson(InputStream input, Class<T> clazz) throws IOException;
+
+    /**
+     * Read JSON into a java object.
+     *
+     * @param <T> the object type
+     * @param input the input stream
+     * @param type the runtime type of the object
+     * @return the newly created object
+     * @throws IOException when there is a parsing error
+     */
+    <T> T fromJson(InputStream input, Type type) throws IOException;
+
 }

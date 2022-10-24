@@ -25,7 +25,7 @@ package com.inrupt.client.okhttp;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.HttpService;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,16 +43,16 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 
-public class OkHttpProcessor implements HttpProcessor {
+public class OkHttpService implements HttpService {
 
     private static final Set<String> NO_BODY_METHODS = new HashSet<>(Arrays.asList("GET", "HEAD", "DELETE"));
     private final OkHttpClient client;
 
-    public OkHttpProcessor() {
+    public OkHttpService() {
         this(new OkHttpClient());
     }
 
-    public OkHttpProcessor(final OkHttpClient client) {
+    public OkHttpService(final OkHttpClient client) {
         // TODO -- Log that this was initialized at DEBUG level
         this.client = client;
     }

@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.spi.HttpProcessor;
+import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ class RDF4JBodyHandlersTest {
 
     private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpProcessor client = ServiceProvider.getHttpProcessor();
+    private static final HttpService client = ServiceProvider.getHttpService();
 
     @BeforeAll
     static void setup() {

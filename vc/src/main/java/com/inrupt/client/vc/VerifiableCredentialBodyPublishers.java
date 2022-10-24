@@ -24,7 +24,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.core.IOUtils;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public final class VerifiableCredentialBodyPublishers {
 
-    private static final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private static final JsonService jsonService = ServiceProvider.getJsonService();
 
     /**
      * Serialize a {@link VerifiableCredential} as an HTTP request body.
@@ -45,7 +45,7 @@ public final class VerifiableCredentialBodyPublishers {
     public static Request.BodyPublisher ofVerifiableCredential(final VerifiableCredential vc) {
         return IOUtils.buffer(out -> {
             try {
-                processor.toJson(vc, out);
+                jsonService.toJson(vc, out);
             } catch (final IOException ex) {
                 throw new VerifiableCredentialException("Error serializing credential", ex);
             }
@@ -61,7 +61,7 @@ public final class VerifiableCredentialBodyPublishers {
     public static Request.BodyPublisher ofVerifiablePresentation(final VerifiablePresentation vp) {
         return IOUtils.buffer(out -> {
             try {
-                processor.toJson(vp, out);
+                jsonService.toJson(vp, out);
             } catch (final IOException ex) {
                 throw new VerifiableCredentialException("Error serializing presentation", ex);
             }

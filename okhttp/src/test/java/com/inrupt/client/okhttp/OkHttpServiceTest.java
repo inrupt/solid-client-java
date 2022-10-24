@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.httpclient;
+package com.inrupt.client.okhttp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,11 +36,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class HttpClientProcessorTest {
+class OkHttpServiceTest {
 
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpClientProcessor client = new HttpClientProcessor();
+    private static final OkHttpService client = new OkHttpService();
 
     @BeforeAll
     static void setup() {
@@ -103,10 +103,10 @@ class HttpClientProcessorTest {
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Optional.of("image/png"), response.headers().firstValue("Content-Type"));
         assertEquals(Optional.of("image/png"), response.headers().firstValue("content-type"));
-        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue("Content-Type"));
         assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("content-type"));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("Content-Type"));
     }
 
     @Test

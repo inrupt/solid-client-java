@@ -25,8 +25,8 @@ import com.inrupt.client.Response;
 import com.inrupt.client.URIBuilder;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.spi.HttpProcessor;
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -47,8 +47,8 @@ public class Verifier {
     private static final String APPLICATION_JSON = "application/json";
 
     private final URI baseUri;
-    private final HttpProcessor httpClient;
-    private final JsonProcessor processor;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
 
     /**
      * Create a new Verifier object for interacting with a VC-API.
@@ -56,7 +56,7 @@ public class Verifier {
      * @param baseUri the base URI for the VC-API
      */
     public Verifier(final URI baseUri) {
-        this(baseUri, ServiceProvider.getHttpProcessor());
+        this(baseUri, ServiceProvider.getHttpService());
     }
 
     /**
@@ -65,10 +65,10 @@ public class Verifier {
      * @param baseUri the base URI for the VC-API
      * @param httpClient an HTTP client
      */
-    public Verifier(final URI baseUri, final HttpProcessor httpClient) {
+    public Verifier(final URI baseUri, final HttpService httpClient) {
         this.baseUri = baseUri;
         this.httpClient = httpClient;
-        this.processor = ServiceProvider.getJsonProcessor();
+        this.jsonService = ServiceProvider.getJsonService();
     }
 
     /**
@@ -150,7 +150,7 @@ public class Verifier {
             final int httpStatus = responseInfo.statusCode();
             if (httpStatus >= 200 && httpStatus < 300) {
                 try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                    return processor.fromJson(input, VerificationResponse.class);
+                    return jsonService.fromJson(input, VerificationResponse.class);
                 } catch (final IOException ex) {
                     throw new VerifiableCredentialException(
                             "Error parsing verification request", ex);

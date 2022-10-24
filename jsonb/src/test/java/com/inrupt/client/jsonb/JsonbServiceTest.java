@@ -22,7 +22,7 @@ package com.inrupt.client.jsonb;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.spi.JsonProcessor;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
@@ -36,19 +36,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class JsonbProcessorTest {
+class JsonbServiceTest {
 
-    private final JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    private final JsonService service = ServiceProvider.getJsonService();
 
     @Test
     void checkInstance() {
-        assertTrue(processor instanceof JsonbProcessor);
+        assertTrue(service instanceof JsonbService);
     }
 
     @Test
     void parseJsonInput() throws IOException {
-        try (final var input = JsonbProcessorTest.class.getResourceAsStream("/myobject.json")) {
-            final var obj = processor.fromJson(input, MyObject.class);
+        try (final var input = JsonbServiceTest.class.getResourceAsStream("/myobject.json")) {
+            final var obj = service.fromJson(input, MyObject.class);
             assertEquals("Quinn", obj.name);
             assertEquals(25, obj.age);
             assertEquals(List.of("Dog", "Goldfish"), obj.pets);
@@ -63,9 +63,9 @@ class JsonbProcessorTest {
         obj.pets = List.of("Dog", "Goldfish");
 
         try (final var output = new ByteArrayOutputStream()) {
-            processor.toJson(obj, output);
+            service.toJson(obj, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = processor.fromJson(input, MyObject.class);
+            final var roundtrip = service.fromJson(input, MyObject.class);
             assertEquals(obj.name, roundtrip.name);
             assertEquals(obj.age, roundtrip.age);
             assertEquals(obj.pets, roundtrip.pets);
@@ -82,15 +82,15 @@ class JsonbProcessorTest {
         final var tmp = Files.createTempFile(null, null).toFile();
         try (final var output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(IOException.class, () -> processor.toJson(obj, output));
+            assertThrows(IOException.class, () -> service.toJson(obj, output));
         }
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"/invalid.json", "/malformed.json"})
     void parseInvalidJson(final String resource) throws IOException {
-        try (final var input = JsonbProcessorTest.class.getResourceAsStream(resource)) {
-            assertThrows(IOException.class, () -> processor.fromJson(input, MyObject.class));
+        try (final var input = JsonbServiceTest.class.getResourceAsStream(resource)) {
+            assertThrows(IOException.class, () -> service.fromJson(input, MyObject.class));
         }
     }
 

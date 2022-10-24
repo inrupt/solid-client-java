@@ -21,22 +21,22 @@
 /**
  * <h2>RDF4J RDF support for the Inrupt client libraries.</h2>
  *
- * <p>The RDF4J module gives two possibilities to read RDF data: through the Processor {@link RDF4JRdfProcessor}
+ * <p>The RDF4J module gives two possibilities to read RDF data: through the Service {@link RDF4JService}
  * and through the BodyHandler {@link RDF4JBodyHandlers}.
  *
- * <h3>Example of using the RDF4J Processor toDataset() method to read triples
+ * <h3>Example of using the RDF4J Service toDataset() method to read triples
  * from a trig file into a {@code Dataset}:</h3>
  *
  * <pre>{@code
-    RdfProcessor processor = ServiceProvider.getRdfProcessor();
+    RdfService service = ServiceProvider.getRdfService();
     Dataset dataset;
     try (InputStream input = Test.class.getResourceAsStream("/tripleExamples.trig")) {
-        dataset = processor.toDataset(Syntax.TRIG, input);
+        dataset = service.toDataset(Syntax.TRIG, input);
     }
     System.out.println("Number of triples in file: " + dataset.stream().count());
  * }</pre>
  *
- * <p>A user of {@code RDF4JRdfProcessor} should ensure that this implementation is
+ * <p>A user of {@code RDF4JService} should ensure that this implementation is
  * available on the classpath by adding the following dependency:
  *
  * <pre>
