@@ -28,13 +28,24 @@
  * from a trig file into a {@code Dataset}:</h3>
  *
  * <pre>{@code
-    Rdf4JRdfProcessor processor = ServiceProvider.getRdfProcessor();
+    RdfProcessor processor = ServiceProvider.getRdfProcessor();
     Dataset dataset;
     try (InputStream input = Test.class.getResourceAsStream("/tripleExamples.trig")) {
         dataset = processor.toDataset(Syntax.TRIG, input);
     }
     System.out.println("Number of triples in file: " + dataset.stream().count());
  * }</pre>
+ *
+ * <p>A user of {@code RDF4JRdfProcessor} should ensure that this implementation is
+ * available on the classpath by adding the following dependency:
+ *
+ * <pre>
+ *     &lt;dependency&gt;
+ *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
+ *            &lt;artifactId&gt;inrupt-client-rdf4j&lt;/artifactId&gt;
+ *            &lt;version&gt;${project.version}&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ * </pre>
  *
  * <h3>Example of using the RDF4J BodyHandler ofModel() method to read the triples
  * from the same trig file into a {@code Model}:</h3>
@@ -50,8 +61,8 @@
     System.out.println("Number of triples in file: " + response.body().size());
  * }</pre>
  *
- * <p>The {@link RDF4JBodyPublishers} can be used to write triples. An example that uses the
- * POST method to write a {@code Model}:
+ * <h3>The {@link RDF4JBodyPublishers} can be used to write triples. An example that uses the
+ * POST method to write a {@code Model}:</h3>
  *
  * <pre>{@code
     ModelBuilder builder = new ModelBuilder();
