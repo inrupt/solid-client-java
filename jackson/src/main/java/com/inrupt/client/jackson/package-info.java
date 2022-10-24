@@ -24,5 +24,16 @@
  * <p>Many of the high-level APIs in the Inrupt client libraries make use of a
  * JSON parser. In the Java ecosystem, there are several widely used JSON
  * parsing libraries. This package adds support for the Jackson JSON libraries.
+ *
+ * <h3>Example of using the JSON processor fromJson() method to read a {@code VerifiableCredential}:</h3>
+ *
+ * <pre>{@code
+    JsonProcessor processor = ServiceProvider.getJsonProcessor();
+    VerifiableCredential vc;
+    try (InputStream is = Test.class.getResourceAsStream("verifiableCredential.json")) {
+        vc = processor.fromJson(is, VerifiableCredential.class);
+    }
+    System.out.println("The Verifiable Credential Id is: " + vc.id);
+ * }</pre>
  */
 package com.inrupt.client.jackson;
