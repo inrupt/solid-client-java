@@ -47,8 +47,8 @@ public final class IOUtils {
     public static InputStream pipe(final Consumer<OutputStream> function) {
 
         try {
-            final var sink = new PipedInputStream();
-            final var source = new PipedOutputStream(sink);
+            final PipedInputStream sink = new PipedInputStream();
+            final OutputStream source = new PipedOutputStream(sink);
 
             CompletableFuture
                 .runAsync(() -> function.accept(source))
@@ -77,8 +77,8 @@ public final class IOUtils {
 
     public static Request.BodyPublisher stream(final Consumer<OutputStream> function) {
         try {
-            final var sink = new PipedInputStream();
-            final var source = new PipedOutputStream(sink);
+            final PipedInputStream sink = new PipedInputStream();
+            final OutputStream source = new PipedOutputStream(sink);
 
             CompletableFuture
                 .runAsync(() -> function.accept(source))

@@ -30,6 +30,7 @@ import java.io.UncheckedIOException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.DynamicModelFactory;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -68,7 +69,7 @@ public final class RDF4JBodyHandlers {
             .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
                 final Repository repository = new SailRepository(new MemoryStore());
                 try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array());
-                        final var conn = repository.getConnection()) {
+                        final RepositoryConnection conn = repository.getConnection()) {
                     conn.add(stream, responseInfo.uri().toString(), format);
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(

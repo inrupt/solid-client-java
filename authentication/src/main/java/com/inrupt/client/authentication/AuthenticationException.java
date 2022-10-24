@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.authentication;
 
-import com.inrupt.client.core.InruptClientException;
+import com.inrupt.client.api.InruptClientException;
 
 /**
  * A runtime exception for use with authentication-related errors.

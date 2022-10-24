@@ -34,9 +34,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -65,10 +67,10 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture();
+        final Response<Model> res = client.sendAsync(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture().join();
 
-        final var statusCode = asyncResponse.thenApply(Response::statusCode).join();
-        final var responseBody = asyncResponse.thenApply(Response::body).join();
+        final int statusCode = res.statusCode();
+        final Model responseBody = res.body();
 
         assertEquals(200, statusCode);
         assertEquals(1, responseBody.size());
@@ -88,10 +90,10 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, RDF4JBodyHandlers.ofModel());
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
+        final Model responseBody = response.body();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
             (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
@@ -108,10 +110,10 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, RDF4JBodyHandlers.ofModel());
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel());
 
         assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
+        final Model responseBody = response.body();
         assertEquals(7, responseBody.size());
         assertTrue(responseBody.contains(
                 null,
@@ -130,14 +132,14 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, RDF4JBodyHandlers.ofRepository()).toCompletableFuture();
+        final Response<Repository> res = client.sendAsync(request, RDF4JBodyHandlers.ofRepository())
+            .toCompletableFuture().join();
 
-        final var statusCode = asyncResponse.thenApply(Response::statusCode).join();
+        final int statusCode = res.statusCode();
         assertEquals(200, statusCode);
 
-        final var responseBody = asyncResponse.thenApply(Response::body).join();
-        assertTrue(responseBody instanceof Repository);
-        try (final var conn = responseBody.getConnection()) {
+        final Repository responseBody = res.body();
+        try (final RepositoryConnection conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
                 (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
                 null,
@@ -157,12 +159,11 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, RDF4JBodyHandlers.ofRepository());
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository());
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body();
-        assertTrue(responseBody instanceof Repository);
-        try (final var conn = responseBody.getConnection()) {
+        final Repository responseBody = response.body();
+        try (final RepositoryConnection conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
                 (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
                 null,
@@ -181,12 +182,11 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, RDF4JBodyHandlers.ofRepository());
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository());
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body();
-        assertTrue(responseBody instanceof Repository);
-        try (final var conn = responseBody.getConnection()) {
+        final Repository responseBody = response.body();
+        try (final RepositoryConnection conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
                 null,
                 SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/pim/space#preferencesFile"),
@@ -197,5 +197,4 @@ class RDF4JBodyHandlersTest {
             );
         }
     }
-
 }
