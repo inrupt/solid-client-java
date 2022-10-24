@@ -35,24 +35,24 @@
  *
  * <p>For example, parsing a {@code WWW-Authenticate} header might take this form in code:
  *
- * <pre>{@code    
+ * <pre>{@code
     WwwAuthenticateLexer lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));
     WwwAuthenticateParser parser = new WwwAuthenticateParser(new CommonTokenStream(lexer));
     List<Challenge> tree = parser.wwwAuthenticate();
 
-    System.out.println(tree.toStringTree(parser));  
+    System.out.println(tree.toStringTree(parser));
  * }</pre>
  *
  * <p>Alternatively, this is an example using a
  * <a href="https://github.com/antlr/antlr4/blob/master/doc/listeners.md">custom listener</a>:
- * <pre>{@code    
+ * <pre>{@code
     WwwAuthenticateLexer lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));
     WwwAuthenticateParser parser = new WwwAuthenticateParser(new CommonTokenStream(lexer));
     List<Challenge> tree = parser.wwwAuthenticate();
 
     ParseTreeWalker walker = new ParseTreeWalker();
     MyCustomListener listener = new MyCustomListener();
-    walker.walk(listener, tree);  
+    walker.walk(listener, tree);
  *  }</pre>
  *
  */
