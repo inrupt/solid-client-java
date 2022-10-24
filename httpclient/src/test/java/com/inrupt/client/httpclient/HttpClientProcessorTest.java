@@ -22,8 +22,8 @@ package com.inrupt.client.httpclient;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.Response;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 
 import java.io.IOException;
 import java.net.URI;

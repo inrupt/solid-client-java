@@ -22,7 +22,7 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.inrupt.client.api.Request;
+import com.inrupt.client.Request;
 import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 

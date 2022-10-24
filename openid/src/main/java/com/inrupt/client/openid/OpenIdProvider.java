@@ -22,7 +22,7 @@ package com.inrupt.client.openid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.inrupt.client.api.*;
+import com.inrupt.client.*;
 import com.inrupt.client.authentication.DPoP;
 import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;

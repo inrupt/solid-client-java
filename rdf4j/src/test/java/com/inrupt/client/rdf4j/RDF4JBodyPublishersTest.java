@@ -22,8 +22,8 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.Request;
-import com.inrupt.client.api.Response;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 

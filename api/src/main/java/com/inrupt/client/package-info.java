@@ -18,32 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.api;
-
-import java.util.stream.Stream;
-
 /**
- * A simple RDF graph abstraction.
+ * Application interfaces for the Inrupt client libraries.
  */
-public interface Graph {
-
-    /**
-     * Stream all matched triples.
-     *
-     * <p>Using {@code null} acts as a wildcard.
-     *
-     * @param subject the subject node. May be {@code null}
-     * @param predicate the predicate node. May be {@code null}
-     * @param object the object node. May be {@code null}
-     * @return a stream of matched triples
-     */
-    Stream<Triple> stream(RDFNode subject, RDFNode predicate, RDFNode object);
-
-    /**
-     * Stream all triples from the graph.
-     *
-     * @return a stream of all triples
-     */
-    Stream<Triple> stream();
-
-}
+package com.inrupt.client;

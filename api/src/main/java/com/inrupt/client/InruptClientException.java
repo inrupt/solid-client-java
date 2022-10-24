@@ -18,44 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.api;
-
-import java.util.List;
-import java.util.Map;
+package com.inrupt.client;
 
 /**
- * A data object for a Verifiable Presentation.
+ * A generic Inrupt runtime exception for use as a superclass.
  */
-public class VerifiablePresentation {
+public class InruptClientException extends RuntimeException {
+
+    private static final long serialVersionUID = -6044908162372507932L;
 
     /**
-     * The JSON-LD Context values.
+     * Create an InruptClientException exception.
+     *
+     * @param message the message
      */
-    public List<String> context;
+    public InruptClientException(final String message) {
+        super(message);
+    }
 
     /**
-     * The presentation identifier.
+     * Create an InruptClientException exception.
+     *
+     * @param message the message
+     * @param cause the cause
      */
-    public String id;
+    public InruptClientException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 
-    /**
-     * The presentation types.
-     */
-    public List<String> type;
-
-    /**
-     * The presentation holder.
-     */
-    public String holder;
-
-    /**
-     * A collection of credentials.
-     */
-    public List<VerifiableCredential> verifiableCredential;
-
-    /**
-     * The signature for the presentation.
-     */
-    public Map<String, Object> proof;
 }
-

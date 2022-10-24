@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.core;
 
-import com.inrupt.client.api.Request;
+import com.inrupt.client.Request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;

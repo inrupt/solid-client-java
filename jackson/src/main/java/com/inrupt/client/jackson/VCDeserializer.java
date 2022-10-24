@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.inrupt.client.api.VerifiableCredential;
+import com.inrupt.client.VerifiableCredential;
 
 import java.io.IOException;
 import java.time.Instant;

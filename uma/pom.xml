@@ -21,12 +21,12 @@
   <dependencies>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-core</artifactId>
+      <artifactId>inrupt-client-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-spi</artifactId>
+      <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

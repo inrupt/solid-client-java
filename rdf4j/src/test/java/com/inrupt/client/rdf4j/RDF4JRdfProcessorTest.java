@@ -22,9 +22,9 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.Dataset;
-import com.inrupt.client.api.Graph;
-import com.inrupt.client.api.Syntax;
+import com.inrupt.client.Dataset;
+import com.inrupt.client.Graph;
+import com.inrupt.client.Syntax;
 import com.inrupt.client.spi.RdfProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 

@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.httpclient;
 
-import com.inrupt.client.api.Headers;
-import com.inrupt.client.api.Response.ResponseInfo;
+import com.inrupt.client.Headers;
+import com.inrupt.client.Response.ResponseInfo;
 
 import java.net.URI;
 import java.net.http.HttpResponse;

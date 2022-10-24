@@ -22,7 +22,7 @@ package com.inrupt.client.vc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.VerifiableCredential;
+import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;

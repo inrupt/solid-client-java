@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.okhttp;
 
-import com.inrupt.client.api.Headers;
-import com.inrupt.client.api.Response.ResponseInfo;
+import com.inrupt.client.Headers;
+import com.inrupt.client.Response.ResponseInfo;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

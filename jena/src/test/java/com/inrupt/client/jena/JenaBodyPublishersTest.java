@@ -22,7 +22,7 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.api.*;
+import com.inrupt.client.*;
 import com.inrupt.client.spi.HttpProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 

@@ -24,8 +24,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.inrupt.client.api.VerifiableCredential;
-import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.spi.JsonProcessor;
 
 import java.io.IOException;

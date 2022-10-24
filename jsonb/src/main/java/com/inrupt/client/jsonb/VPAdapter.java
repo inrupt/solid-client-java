@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.jsonb;
 
-import com.inrupt.client.api.VerifiableCredential;
-import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

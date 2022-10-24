@@ -18,34 +18,46 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.api;
-
-import java.util.Optional;
-import java.util.stream.Stream;
+package com.inrupt.client;
 
 /**
- * A simple RDF dataset abstraction.
+ * The names of concrete RDF Syntaxes.
  */
-public interface Dataset {
+public enum Syntax {
 
     /**
-     * Stream all matched quads.
+     * Turtle.
      *
-     * <p>Using {@code null} acts as a wildcard.
-     *
-     * @param graph the graph name. May be {@code null}
-     * @param subject the subject node. May be {@code null}
-     * @param predicate the predicate node. May be {@code null}
-     * @param object the object node. May be {@code null}
-     * @return a stream of matched quads
+     * @see <a href="https://www.w3.org/TR/turtle/">RDF 1.1 Turtle</a>
      */
-    Stream<Quad> stream(Optional<RDFNode> graph, RDFNode subject, RDFNode predicate, RDFNode object);
+    TURTLE,
 
     /**
-     * Stream all quads from the dataset.
+     * N-Triples.
      *
-     * @return a stream of all quads
+     * @see <a href="https://www.w3.org/TR/n-triples/">RDF 1.1 N-Triples</a>
      */
-    Stream<Quad> stream();
+    NTRIPLES,
+
+    /**
+     * TriG.
+     *
+     * @see <a href="https://www.w3.org/TR/trig/">RDF 1.1 TriG</a>
+     */
+    TRIG,
+
+    /**
+     * N-Quads.
+     *
+     * @see <a href="https://www.w3.org/TR/n-quads/">RDF 1.1 N-Quads</a>
+     */
+    NQUADS,
+
+    /**
+     * JSON-LD.
+     *
+     * @see <a href="https://www.w3.org/TR/json-ld/">JSON-LD 1.1</a>
+     */
+    JSONLD;
 
 }

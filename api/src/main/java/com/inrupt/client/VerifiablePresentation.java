@@ -18,7 +18,44 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+package com.inrupt.client;
+
+import java.util.List;
+import java.util.Map;
+
 /**
- * Application interfaces for the Inrupt client libraries.
+ * A data object for a Verifiable Presentation.
  */
-package com.inrupt.client.api;
+public class VerifiablePresentation {
+
+    /**
+     * The JSON-LD Context values.
+     */
+    public List<String> context;
+
+    /**
+     * The presentation identifier.
+     */
+    public String id;
+
+    /**
+     * The presentation types.
+     */
+    public List<String> type;
+
+    /**
+     * The presentation holder.
+     */
+    public String holder;
+
+    /**
+     * A collection of credentials.
+     */
+    public List<VerifiableCredential> verifiableCredential;
+
+    /**
+     * The signature for the presentation.
+     */
+    public Map<String, Object> proof;
+}
+

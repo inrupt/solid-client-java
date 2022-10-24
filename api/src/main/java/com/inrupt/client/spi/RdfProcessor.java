@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.spi;
 
-import com.inrupt.client.api.Dataset;
-import com.inrupt.client.api.Graph;
-import com.inrupt.client.api.Syntax;
+import com.inrupt.client.Dataset;
+import com.inrupt.client.Graph;
+import com.inrupt.client.Syntax;
 
 import java.io.IOException;
 import java.io.InputStream;

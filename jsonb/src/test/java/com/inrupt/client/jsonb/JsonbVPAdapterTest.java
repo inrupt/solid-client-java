@@ -22,7 +22,7 @@ package com.inrupt.client.jsonb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.inrupt.client.api.VerifiablePresentation;
+import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.spi.JsonProcessor;
 import com.inrupt.client.spi.ServiceProvider;
 
