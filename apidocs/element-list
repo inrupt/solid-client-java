@@ -1,4 +1,4 @@
-com.inrupt.client.api
+com.inrupt.client
 com.inrupt.client.authentication
 com.inrupt.client.core
 com.inrupt.client.http
