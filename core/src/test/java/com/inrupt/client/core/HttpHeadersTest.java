@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.http;
+package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,14 +33,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class HeadersTest {
+class HttpHeadersTest {
 
     @Test
     void parseSingleLink() {
-        final var header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
-        final var linkValues = Headers.link(header);
+        final String header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
+        final List<Link> linkValues = HttpHeaders.link(header);
 
-        final var expected = List.of(
+        final List<Link> expected = List.of(
                     Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
                     Map.of("rel", "preconnect")));
 
@@ -50,7 +50,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseListedParams(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues);
     }
 
@@ -81,7 +81,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseListedLinks(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues);
     }
 
@@ -113,7 +113,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseRelativeReferenceLink(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues);
     }
 
@@ -133,7 +133,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseLinkInOrder(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues);
     }
 
@@ -159,7 +159,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseIRIs(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues, "Unexpected handling of IRI values");
     }
 
@@ -173,7 +173,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseNonHttpUris(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues, "Unexpected handling of invalid link header");
     }
 
@@ -193,7 +193,7 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void ignoreInvalidParams(final String header, final List<Link> expected) {
-        final var linkValues = Headers.link(header);
+        final List<Link> linkValues = HttpHeaders.link(header);
         assertEquals(expected, linkValues);
     }
 
@@ -216,8 +216,8 @@ class HeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseInvalidLinkHeader(final String header) {
-        final var linkValues = Headers.link(header);
-        final var empty = Collections.emptyList();
+        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> empty = Collections.emptyList();
         assertEquals(empty, linkValues, "Unexpected handling of invalid link header");
     }
 
