@@ -71,7 +71,7 @@
     System.out.println("HTTP status code: " + response.statusCode());
  * }</pre>
  * 
- * <p>A user of the {@code JenaRdfService} should ensure that this implementation is
+ * <p>A user of the {@code JenaService} should ensure that this implementation is
  * available on the classpath by adding the following dependency:
  *
  * <pre>
