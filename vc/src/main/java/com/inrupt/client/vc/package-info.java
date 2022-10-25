@@ -34,13 +34,15 @@
         .GET()
         .build();
 
-    Response<VerifiableCredential> response = client.send(request, VerifiableCredentialBodyHandlers.ofVerifiableCredential());
+    Response<VerifiableCredential> response = client.send(
+      request,
+      VerifiableCredentialBodyHandlers.ofVerifiableCredential());
 
     System.out.println("HTTP status code: " + response.statusCode());
     System.out.println("Verifiable Credential issuer is: " + response.body().issuer);
  * }</pre>
  * 
- * <p>This module also contains dedicated Java Objects for: 
+ * <p>This module also contains dedicated Java Objects for:
  * <ul>
  * <li>interacting with a VC-API Issuer endpoint through {@link Issuer};</li>
  * <li>interacting with a VC-API Verifier endpoint through {@link Verifier};</li>
@@ -50,9 +52,10 @@
  * <h3>Interacting with the VC-API Issuer endpoint</h3>
  *
  * <p>Reading along the <a href="https://w3c-ccg.github.io/vc-api/">Verifiable Credential API spec v0.3</a>
- * a few code examples can be seen as follows.
+ * a few code examples can be seen as follows:
  * 
- * <p>Issuing a Verifiable Credential asynchronously is shown in the next example:
+ * <p>Issuing a Verifiable Credential asynchronously is shown in the next example.
+ * 
  * <pre>{@code
     HttpProcessor client = ServiceProvider.getHttpProcessor();
     Issuer issuer = new Issuer(URI.create("https://example.example"), client);
@@ -60,6 +63,7 @@
  * }</pre>
  * 
  * <p>To update the status of a Verifiable Crednetial we would call:
+ * 
  * <pre>{@code
     StatusRequest statusRequest = StatusRequest.Builder.newBuilder()
         .credentialStatus(URI.create("CredentialStatusList2017"), true)
@@ -70,6 +74,90 @@
  * 
  * <h3>Interacting with the VC-API Verifier endpoint</h3>
  * 
+ * <p>To verify a credential (or similar a presentation) we can use the following:
+ * <pre>{@code
+   HttpService client = ServiceProvider.getHttpService();
+   Verifier verifier = new Verifier(URI.create("https://example.example"), client);
+
+   VerificationResponse verificationResponse = verifier.verify(myVC);
+
+   System.out.println("The verification checks are: " + verificationResponse.checks);
+   System.out.println("The verification warnings are: " + verificationResponse.warnings);
+   System.out.println("The verification errors are: " + verificationResponse.errors);
+ * }</pre>
+ * 
  * <h3>Interacting with the VC-API Holder endpoint</h3>
+ * 
+ * <p>To list Verifiable Credentials (and similar Verifiable Presentations) of a certain type we use:
+ * 
+ * <pre>{@code
+   HttpService client = ServiceProvider.getHttpService();
+   Holder holder = new Holder(URI.create("https://example.example"), client);
+
+   List<VerifiableCredential> vcList = holder.listCredentials(List.of(
+      URI.create("VerifiableCredential"), URI.create("UniversityDegreeCredential")));
+
+   System.out.println("We found exactly " + vcList.size() + " VCs")
+ * }</pre>
+ * 
+ * <p>To retrieve a certain credential (and similar a presentation) one needs a credentialId:
+ * 
+ * <pre>{@code
+   HttpService client = ServiceProvider.getHttpService();
+   Holder holder = new Holder(URI.create("https://example.example"), client);
+
+   VerifiableCredential vc = holder.getCredential(aVCid);
+
+   System.out.println("The retrieved Verifiable Credential's issuer is: " + vc.issuer);
+ * }</pre>
+ * 
+ * <p>To delete a credential (and similar a presentation) asynchronously one can call:
+ * <pre>{@code
+   holder.deleteCredentialAsync(aVCid));
+ * }</pre>
+ * 
+ * <p>To derive a credential one can call:
+ * <pre>{@code
+   DerivationRequest derivationReq = new Holder.DerivationRequest();
+   derivationReq.verifiableCredential = myVC;
+   derivationReq.frame = Collections.emptyMap();
+   derivationReq.options = Map.of("nonce",
+            "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
+
+   VerifiableCredential vc = holder.derive(derivationReq);
+
+   System.out.println("The retrieved Verifiable Credential's issuer is: " + vc.issuer);
+ * }</pre>
+ * 
+ * <p>To prove a presentation asynchronously, one would call:
+ * <pre>{@code
+   ProveRequest derivationReq = new Holder.ProveRequest();
+   derivationReq.presentation = myVP;
+   derivationReq.options = Map.of("nonce",
+            "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
+
+   VerifiablePresentation vp = holder.prove(derivationReq);
+
+   System.out.println("The retrieved Verifiable Presentation's holder is: " + vp.holder);
+ * }</pre>
+ * 
+ * <p>To initiate a presentation exchange, one would use:
+ * <pre>{@code
+   ExchangeRequest exchangeReq = new Holder.ExchangeRequest();
+   exchangeReq.query = new Holder.Query();
+   exchangeReq.query.type = URI.create("QueryByExample");
+   exchangeReq.query.credentialQuery = Map.of(
+            "reason", "We need to see your existing University Degree credential.",
+            "example", Map.of(
+               "@context", List.of(
+                           "https://www.w3.org/2018/credentials/v1",
+                           "https://www.w3.org/2018/credentials/examples/v1"),
+               "type", "UniversityDegreeCredential"));
+
+   VerifiablePresentationRequest vpr = holder.initiateExchange("credential-refresh", exchangeReq);
+
+   System.out.println("The Verifiable Presentation Request domain: " + vpr.domain);
+   System.out.println("The Verifiable Presentation Request challenge: " + vpr.challenge);
+ * }</pre>
  */
 package com.inrupt.client.vc;
