@@ -41,6 +41,21 @@
  *            &lt;version&gt;${project.version}&lt;/version&gt;
  *     &lt;/dependency&gt;
  * </pre>
+ * 
+ * <h3>Example of using the HTTP service send() method to request the Solid logo:</h3>
+ *
+ * <pre>{@code
+       HttpService processor = ServiceProvider.getHttpService();
+       Request request = Request.newBuilder()
+              .uri("https://example.example/solid.png")
+              .GET()
+              .build();
+       Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+
+       System.out.println("HTTP status code: " + response.statusCode());
+       System.out.println("Response uri: " + response.uri());
+       System.out.println("Content type: " + response.headers().get("Content-Type"));
+ * }</pre>
  *
  * <h3>Example of using the JSON processor fromJson() method to read a {@code VerifiableCredential}:</h3>
  *
@@ -64,21 +79,6 @@
               dataset = processor.toDataset(Syntax.TRIG, input);
        }
        System.out.println("Number of triples in file: " + dataset.stream().count());
- * }</pre>
- *
- * <h3>Example of using the HTTP service send() method to request the Solid logo:</h3>
- *
- * <pre>{@code
-       HttpService processor = ServiceProvider.getHttpService();
-       Request request = Request.newBuilder()
-              .uri("https://example.example/solid.png")
-              .GET()
-              .build();
-       Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
-
-       System.out.println("HTTP status code: " + response.statusCode());
-       System.out.println("Response uri: " + response.uri());
-       System.out.println("Content type: " + response.headers().get("Content-Type"));
  * }</pre>
  */
 package com.inrupt.client.spi;
