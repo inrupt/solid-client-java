@@ -28,9 +28,10 @@ import java.util.ServiceLoader;
  */
 public final class ServiceProvider {
 
-    private static volatile JsonService jsonService = null;
-    private static volatile RdfService rdfService = null;
-    private static volatile HttpService httpService = null;
+    private static JsonService jsonService;
+    private static RdfService rdfService;
+    private static HttpService httpService;
+    private static DpopService dpopService;
 
     /**
      * Get the {@link JsonService} for this application.
@@ -84,6 +85,18 @@ public final class ServiceProvider {
 
         }
         return httpService;
+    }
+
+    public static DpopService getDpopService() {
+        if (dpopService == null) {
+            synchronized (ServiceProvider.class) {
+                if (dpopService != null) {
+                    return dpopService;
+                }
+                dpopService = loadSpi(DpopService.class, ServiceProvider.class.getClassLoader());
+            }
+        }
+        return dpopService;
     }
 
     static <T> T loadSpi(final Class<T> clazz, final ClassLoader cl) {

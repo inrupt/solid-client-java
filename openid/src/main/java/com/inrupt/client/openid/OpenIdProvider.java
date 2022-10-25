@@ -23,7 +23,6 @@ package com.inrupt.client.openid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.*;
-import com.inrupt.client.authentication.DPoP;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -53,7 +52,6 @@ public class OpenIdProvider {
     private static final String ETC = "&";
 
     private final URI issuer;
-    private final DPoP dpop;
     private final HttpService httpClient;
     private final JsonService jsonService;
 
@@ -63,29 +61,17 @@ public class OpenIdProvider {
      * @param issuer the OpenID provider issuer
      */
     public OpenIdProvider(final URI issuer) {
-        this(issuer, new DPoP());
+        this(issuer, ServiceProvider.getHttpService());
     }
 
     /**
      * Create an OpenID Provider client.
      *
      * @param issuer the OpenID provider issuer
-     * @param dpop a DPoP proof generator
-     */
-    public OpenIdProvider(final URI issuer, final DPoP dpop) {
-        this(issuer, dpop, ServiceProvider.getHttpService());
-    }
-
-    /**
-     * Create an OpenID Provider client.
-     *
-     * @param issuer the OpenID provider issuer
-     * @param dpop a DPoP proof generator
      * @param httpClient an HTTP client
      */
-    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpService httpClient) {
+    public OpenIdProvider(final URI issuer, final HttpService httpClient) {
         this.issuer = Objects.requireNonNull(issuer);
-        this.dpop = Objects.requireNonNull(dpop);
         this.httpClient = Objects.requireNonNull(httpClient);
         this.jsonService = ServiceProvider.getJsonService();
     }
@@ -238,18 +224,6 @@ public class OpenIdProvider {
 
         // Add auth header, if relevant
         authHeader.ifPresent(header -> req.header("Authorization", header));
-
-        // Add dpop header, if relevant
-        if (dpop != null && metadata.dpopSigningAlgValuesSupported != null) {
-            final var algorithms = dpop.algorithms();
-            metadata.dpopSigningAlgValuesSupported.stream()
-                .filter(algorithms::contains)
-                .findFirst()
-                .ifPresent(algorithm -> {
-                    final var proof = dpop.generateProof(algorithm, metadata.tokenEndpoint, "POST");
-                    req.header("DPoP", proof);
-                });
-        }
 
         return req.build();
     }

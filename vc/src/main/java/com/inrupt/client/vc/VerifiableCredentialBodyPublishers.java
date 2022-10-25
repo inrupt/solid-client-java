@@ -23,7 +23,7 @@ package com.inrupt.client.vc;
 import com.inrupt.client.Request;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.core.IOUtils;
+import com.inrupt.client.spi.IOUtils;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 

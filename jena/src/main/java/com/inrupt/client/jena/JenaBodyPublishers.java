@@ -21,7 +21,7 @@
 package com.inrupt.client.jena;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.core.IOUtils;
+import com.inrupt.client.spi.IOUtils;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;

@@ -25,8 +25,8 @@ import com.inrupt.client.Response;
 import com.inrupt.client.URIBuilder;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
-import com.inrupt.client.core.IOUtils;
 import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.IOUtils;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 

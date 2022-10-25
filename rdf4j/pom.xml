@@ -46,11 +46,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.rdf4j</groupId>
       <artifactId>rdf4j-rio-api</artifactId>
     </dependency>
