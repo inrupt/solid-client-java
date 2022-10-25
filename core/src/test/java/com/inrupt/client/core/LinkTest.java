@@ -33,12 +33,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class HttpHeadersTest {
+class LinkTest {
 
     @Test
     void parseSingleLink() {
         final String header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
 
         final List<Link> expected = List.of(
                     Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
@@ -47,10 +47,23 @@ class HttpHeadersTest {
         assertEquals(expected, linkValues);
     }
 
+    @Test
+    void parseMultipleLinks() {
+        final String header1 = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
+        final String header2 = "<https://example.com/Type>; rel=\"type\"";
+        final List<Link> linkValues = Link.parse(header1, header2);
+
+        final List<Link> expected = List.of(
+                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"), Map.of("rel", "preconnect")),
+                    Link.of(URI.create("https://example.com/Type"), Map.of("rel", "type")));
+
+        assertEquals(expected, linkValues);
+    }
+
     @ParameterizedTest
     @MethodSource
     void parseListedParams(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues);
     }
 
@@ -81,7 +94,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseListedLinks(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues);
     }
 
@@ -113,7 +126,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseRelativeReferenceLink(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues);
     }
 
@@ -133,7 +146,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseLinkInOrder(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues);
     }
 
@@ -159,7 +172,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseIRIs(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues, "Unexpected handling of IRI values");
     }
 
@@ -173,7 +186,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseNonHttpUris(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues, "Unexpected handling of invalid link header");
     }
 
@@ -193,7 +206,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void ignoreInvalidParams(final String header, final List<Link> expected) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         assertEquals(expected, linkValues);
     }
 
@@ -216,7 +229,7 @@ class HttpHeadersTest {
     @ParameterizedTest
     @MethodSource
     void parseInvalidLinkHeader(final String header) {
-        final List<Link> linkValues = HttpHeaders.link(header);
+        final List<Link> linkValues = Link.parse(header);
         final List<Link> empty = Collections.emptyList();
         assertEquals(empty, linkValues, "Unexpected handling of invalid link header");
     }
