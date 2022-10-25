@@ -35,7 +35,7 @@
  * <h3>Example of using the HTTP service send() method to request the Solid logo:</h3>
  *
  * <pre>{@code
-    HttpService processor = ServiceProvider.getHttpService();
+    HttpService client = ServiceProvider.getHttpService();
     Request request = Request.newBuilder()
         .uri("https://example.example/solid.png")
         .GET()
