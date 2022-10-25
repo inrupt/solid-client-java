@@ -18,25 +18,25 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.http;
+package com.inrupt.client.core;
 
 import java.util.List;
 
-public final class Headers {
+public final class HttpHeaders {
 
-    /** 
+    /**
      * Create a list of links based on a given header.
-     * 
+     *
      * @param headers the values of the headers to be parsed
      * @return arrayList of links from header
      */
     public static List<Link> link(final String... headers) {
-        return link(new HeaderParser(), headers);
+        return link(new DefaultHeaderParser(), headers);
     }
 
-    /** 
+    /**
      * Create a list of links based on a given header.
-     * 
+     *
      * @param parser
      * @param headers the values of the headers to be parsed
      * @return arrayList of links from header
@@ -45,7 +45,7 @@ public final class Headers {
         return parser.parseLinkHeaders(headers);
     }
 
-    private Headers() {
+    private HttpHeaders() {
         // Prevent instantiation
     }
 }
