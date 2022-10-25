@@ -21,7 +21,7 @@
 /**
  * <h2>OkHttp bindings for the Inrupt client libraries.</h2>
  * 
- * <p>A user of the {@code OKClientService} should ensure that this implementation is
+ * <p>A user of the {@code OkHttpService} should ensure that this implementation is
  * available on the classpath by adding the following dependency:
  *
  * <pre>
