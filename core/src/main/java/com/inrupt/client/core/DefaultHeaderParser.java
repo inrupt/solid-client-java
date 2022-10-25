@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.http;
+package com.inrupt.client.core;
 
 import com.inrupt.client.parser.ConsumerErrorListener;
 import com.inrupt.client.parser.LinkBaseListener;
@@ -29,20 +29,19 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * A class for parsing HTTP headers with ANTLR.
- */
-public class HeaderParser {
+public class DefaultHeaderParser implements HeaderParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Headers.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeaderParser.class);
 
     private static final int PAIR = 2;
     private static final String DQUOTE = "\"";
@@ -53,7 +52,7 @@ public class HeaderParser {
     /**
      * Create a header parser with a default error handler.
      */
-    public HeaderParser() {
+    public DefaultHeaderParser() {
         this(new ConsumerErrorListener(msg -> LOGGER.debug("Header parse error: {}", msg)));
     }
 
@@ -62,34 +61,29 @@ public class HeaderParser {
      *
      * @param errorListener the error handler
      */
-    public HeaderParser(final ANTLRErrorListener errorListener) {
+    public DefaultHeaderParser(final ANTLRErrorListener errorListener) {
         this.errorListener = errorListener;
     }
 
-    /**
-     * Parse the supplied link headers.
-     *
-     * @param headers the link headers to parse
-     * @return a list of parsed link headers
-     */
+    @Override
     public List<Link> parseLinkHeaders(final String... headers) {
-        final var links = new ArrayList<Link>();
-        for (final var header : headers) {
+        final List<Link> links = new ArrayList<>();
+        for (final String header : headers) {
             links.addAll(parseLinkHeader(header));
         }
         return links;
     }
 
     private List<Link> parseLinkHeader(final String header) {
-        final var lexer = new LinkLexer(CharStreams.fromString(header));
+        final LinkLexer lexer = new LinkLexer(CharStreams.fromString(header));
         // Update lexer error listeners
         if (errorListener != null) {
             lexer.removeErrorListeners();
             lexer.addErrorListener(errorListener);
         }
 
-        final var tokens = new CommonTokenStream(lexer);
-        final var parser = new LinkParser(tokens);
+        final CommonTokenStream tokens = new CommonTokenStream(lexer);
+        final LinkParser parser = new LinkParser(tokens);
 
         // Update parser error listeners
         if (errorListener != null) {
@@ -97,9 +91,9 @@ public class HeaderParser {
             parser.addErrorListener(errorListener);
         }
 
-        final var listener = new LinkListener();
-        final var walker = new ParseTreeWalker();
-        final var tree = parser.linkHeader();
+        final LinkListener listener = new LinkListener();
+        final ParseTreeWalker walker = new ParseTreeWalker();
+        final LinkParser.LinkHeaderContext tree = parser.linkHeader();
 
         try {
             walker.walk(listener, tree);
@@ -129,9 +123,9 @@ public class HeaderParser {
         @Override
         public void exitLink(final LinkParser.LinkContext ctx) {
             if (ctx.UriReference() != null && !ctx.UriReference().getText().isBlank()) {
-                final var params = new HashMap<String, String>();
-                for (var p : ctx.LinkParam()) {
-                    final var parts = p.getText().split(EQUALS, PAIR);
+                final Map<String, String> params = new HashMap<>();
+                for (final TerminalNode p : ctx.LinkParam()) {
+                    final String[] parts = p.getText().split(EQUALS, PAIR);
                     if (parts.length == PAIR) {
                         params.put(parts[0], unwrap(parts[1], DQUOTE));
                     }
@@ -156,4 +150,3 @@ public class HeaderParser {
         }
     }
 }
-

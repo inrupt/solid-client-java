@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.http;
+package com.inrupt.client.core;
 
 import java.net.URI;
 import java.util.Collections;
@@ -85,7 +85,7 @@ public final class Link {
             return false;
         }
 
-        final var c = (Link) obj;
+        final Link c = (Link) obj;
 
         if (!this.getUri().equals(c.getUri())) {
             return false;
