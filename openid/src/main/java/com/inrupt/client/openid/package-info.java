@@ -24,7 +24,7 @@
  * <p>This modules uses the {@code OpenIdProvider} to interact with a OpenId Provider
  * as described in the <a href="https://solidproject.org/TR/oidc-primer"> Solid-OIDC Primer v 0.1.0</a>
  * 
- * <p>To retrieve the OpenId Provider configuration one can make use of the methadata() method as in the next example:
+ * <p>To retrieve the OpenId Provider configuration one can make use of the metadata() method as in the next example:
  *
  * <pre>{@code
     DPoP dpop = new DPoP();
