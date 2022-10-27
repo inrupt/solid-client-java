@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.jsonb;
+package com.inrupt.client.test.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,25 +32,31 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class JsonbVPAdapterTest {
+public class JsonVPSerializeDeserializeTest {
 
     private static final JsonService service = ServiceProvider.getJsonService();
     private static VerifiablePresentation vp;
     private static VerifiablePresentation vpCopy;
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("jsonServices")
     void roundtripVP() throws IOException {
-        try (final var res = JsonbVPAdapterTest.class.getResourceAsStream("/verifiablePresentation.json")) {
+        try (final var res = JsonVPSerializeDeserializeTest.class
+                .getResourceAsStream("/json/verifiablePresentation.json")) {
             vp = service.fromJson(res, VerifiablePresentation.class);
         }
 
         final var targetPath = new File("target").toPath();
         final var testFolderName = UUID.randomUUID().toString();
         final var testFolderPath = Files.createTempDirectory(targetPath, testFolderName);
-        final var testFile = Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
+        final var testFile =
+                Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
 
         try (final var out = new FileOutputStream(testFile.toString())) {
             service.toJson(vp, out);
@@ -71,4 +77,9 @@ public class JsonbVPAdapterTest {
         Files.deleteIfExists(testFolderPath);
 
     }
+
+    private static Stream<Arguments> jsonServices() throws IOException {
+        return Stream.of(Arguments.of(ServiceProvider.getJsonService()));
+    }
+
 }

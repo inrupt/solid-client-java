@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.jackson;
+package com.inrupt.client.test.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,32 +32,38 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class JacksonVCTest {
+public class JsonVCSerializeDeserializeTest {
 
-    private static final JsonService processor = ServiceProvider.getJsonService();
+    private static final JsonService service = ServiceProvider.getJsonService();
     private static VerifiableCredential vc;
     private static VerifiableCredential vcCopy;
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("jsonServices")
     void roundtripVC() throws IOException {
-        try (final var res = JacksonVCTest.class.getResourceAsStream("/verifiableCredential.json")) {
-            vc = processor.fromJson(res, VerifiableCredential.class);
+        try (final var res = JsonVCSerializeDeserializeTest.class
+                .getResourceAsStream("/json/verifiableCredential.json")) {
+            vc = service.fromJson(res, VerifiableCredential.class);
         }
 
         final var targetPath = new File("target").toPath();
         final var testFolderName = UUID.randomUUID().toString();
         final var testFolderPath = Files.createTempDirectory(targetPath, testFolderName);
-        final var testFile = Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
+        final var testFile =
+                Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
 
         try (final var out = new FileOutputStream(testFile.toString())) {
-            processor.toJson(vc, out);
+            service.toJson(vc, out);
         }
 
         try (final var in = new FileInputStream(testFile.toString())) {
-            vcCopy = processor.fromJson(in, VerifiableCredential.class);
+            vcCopy = service.fromJson(in, VerifiableCredential.class);
         }
 
         assertEquals(vc.context, vcCopy.context);
@@ -74,4 +80,9 @@ public class JacksonVCTest {
         Files.deleteIfExists(testFolderPath);
 
     }
+
+    private static Stream<Arguments> jsonServices() throws IOException {
+        return Stream.of(Arguments.of(ServiceProvider.getJsonService()));
+    }
+
 }
