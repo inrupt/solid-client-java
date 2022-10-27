@@ -30,6 +30,7 @@ import com.inrupt.client.util.URIBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -252,8 +253,14 @@ public class UmaClient {
 
     private static Request.BodyPublisher ofFormData(final Map<String, String> data) {
         final String form = data.entrySet().stream().map(entry -> {
-            final String name = URLEncoder.encode(entry.getKey(), UTF_8);
-            final String value = URLEncoder.encode(entry.getValue(), UTF_8);
+            String name = "";
+            String value = "";
+            try {
+                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
+                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
+            } catch (UnsupportedEncodingException e) {
+                sneakyThrow(e.getCause());
+            }
             return String.join(EQUALS, name, value);
         }).collect(Collectors.joining(ETC));
 

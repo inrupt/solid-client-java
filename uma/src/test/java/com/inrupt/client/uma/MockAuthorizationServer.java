@@ -26,7 +26,9 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MockAuthorizationServer {
@@ -47,7 +49,7 @@ public class MockAuthorizationServer {
                 .dynamicPort());
     }
 
-    private void setupMocks() {
+    private void setupMocks() throws UnsupportedEncodingException {
         wireMockServer.stubFor(WireMock.get(WireMock.urlEqualTo(DISCOVERY_ENDPOINT))
                 .willReturn(WireMock.aResponse()
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -141,7 +143,9 @@ public class MockAuthorizationServer {
                 .withRequestBody(WireMock.containing("ticket=ticket-request-id-token"))
                 .withRequestBody(WireMock.containing("claim_token=oidc-id-token"))
                 .withRequestBody(WireMock.containing("claim_token_format=" +
-                        URLEncoder.encode("http://openid.net/specs/openid-connect-core-1_0.html#IDToken", UTF_8)))
+                        URLEncoder.encode(
+                                "http://openid.net/specs/openid-connect-core-1_0.html#IDToken",
+                            UTF_8.toString())))
                 .willReturn(WireMock.aResponse()
                     .withStatus(200)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -191,12 +195,15 @@ public class MockAuthorizationServer {
                     .withBody("NOT JSON")));
     }
 
-    public Map<String, String> start() {
+    public Map<String, String> start() throws UnsupportedEncodingException {
         wireMockServer.start();
 
         setupMocks();
 
-        return Map.of("as_uri", wireMockServer.baseUrl());
+        return new HashMap<String, String>() {
+            {
+                put("as_uri", wireMockServer.baseUrl());
+            }};
     }
 
     public void stop() {

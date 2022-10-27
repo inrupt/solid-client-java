@@ -45,7 +45,7 @@ class DefaultClientTest {
 
     static final MockHttpService mockHttpServer = new MockHttpService();
     static final Client client = ClientProvider.getClient();
-    static final AtomicReference<String> baseUri = new AtomicReference();
+    static final AtomicReference<String> baseUri = new AtomicReference<>();
 
     @BeforeAll
     static void setup() {

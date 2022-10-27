@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
+import java.util.HashMap;
 import java.util.Map;
 
 class RDF4JMockHttpService {
@@ -92,7 +93,11 @@ class RDF4JMockHttpService {
 
         setupMocks();
 
-        return Map.of("rdf4j_uri", wireMockServer.baseUrl());
+        return new HashMap<String, String>() {
+            {
+                put("rdf4j_uri", wireMockServer.baseUrl());
+            }
+        };
     }
 
     public void stop() {

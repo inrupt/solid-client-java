@@ -24,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Authenticator.Challenge;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -35,16 +37,32 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class WwwAuthenticateTest {
+    static final Map<String, String> DPOP_MAP = new HashMap<String, String>() {
+        {
+            put("algs", "ES256 RS256");
+        }
+    };
+    static final Map<String, String> UMA_MAP = new HashMap<String, String>() {
+        {
+            put("as_uri", "https://example.test");
+            put("ticket", "value");
+        }
+    };
+    static final Map<String, String> GNAP_MAP = new HashMap<String,String>() {
+        {
+            put("ticket", "1234567890");
+        }
+    };
 
     @Test
     void parseWwwAuthenticateUmaBearerDpop() {
         final String header = "UMA as_uri=\"https://example.test\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"";
         final List<Challenge> challenges = WwwAuthenticate.parse(header).getChallenges();
 
-        final List<Challenge> expected = List.of(
-                    Challenge.of("UMA", Map.of( "as_uri", "https://example.test","ticket", "value")),
+        final List<Challenge> expected = Arrays.asList(
+                    Challenge.of("UMA", UMA_MAP),
                     Challenge.of("Bearer"),
-                    Challenge.of("DPoP", Map.of("algs", "ES256 RS256")));
+                    Challenge.of("DPoP", DPOP_MAP));
 
         assertEquals(expected, challenges);
     }
@@ -54,9 +72,9 @@ class WwwAuthenticateTest {
         final String header = "uma as_uri=\"https://example.test\", ticket=value, dpop algs=\"ES256 RS256\"";
         final List<Challenge> challenges = WwwAuthenticate.parse(header).getChallenges();
 
-        final List<Challenge> expected = List.of(
-                    Challenge.of("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
-                    Challenge.of("DPoP", Map.of("algs", "ES256 RS256")));
+        final List<Challenge> expected = Arrays.asList(
+                    Challenge.of("UMA", UMA_MAP),
+                    Challenge.of("DPoP", DPOP_MAP));
 
         assertEquals(expected, challenges);
     }
@@ -66,9 +84,14 @@ class WwwAuthenticateTest {
         final String header = "UMA as_uri=\"https://example.test\", ticket=value, basic realm=\"protected\"";
         final List<Challenge> challenges = WwwAuthenticate.parse(header).getChallenges();
 
-        final List<Challenge> expected = List.of(
-                    Challenge.of("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
-                    Challenge.of("Basic", Map.of("realm", "protected")));
+        final List<Challenge> expected = Arrays.asList(
+                    Challenge.of("UMA", UMA_MAP),
+                    Challenge.of("Basic", new HashMap<String, String>() {
+                        {
+                            put("realm", "protected");
+                        }
+                    })
+        );
 
         assertEquals(expected, challenges);
     }
@@ -78,10 +101,14 @@ class WwwAuthenticateTest {
         final String header = "Bearer, UMA as_uri=\"https://example.test\", GNAP ticket=1234567890";
         final List<Challenge> challenges = WwwAuthenticate.parse(header).getChallenges();
 
-        final List<Challenge> expected = List.of(
+        final List<Challenge> expected = Arrays.asList(
                     Challenge.of("Bearer"),
-                    Challenge.of("UMA", Map.of("as_uri", "https://example.test")),
-                    Challenge.of("GNAP", Map.of("ticket", "1234567890")));
+                    Challenge.of("UMA", new HashMap<String, String>() {
+                        {
+                            put("as_uri", "https://example.test");
+                        }
+                    }),
+                    Challenge.of("GNAP", GNAP_MAP));
 
         assertEquals(expected, challenges);
     }
@@ -96,15 +123,19 @@ class WwwAuthenticateTest {
     private static Stream<Arguments> parseWwwAuthenticateParams() {
         return Stream.of(
                 Arguments.of("UMA as_uri=\"https://example.test\", ticket=value, Bearer, DPoP algs=\"ES256 RS256\"",
-                    List.of(
-                        Challenge.of("UMA", Map.of("as_uri", "https://example.test", "ticket", "value")),
+                    Arrays.asList(
+                        Challenge.of("UMA", UMA_MAP),
                         Challenge.of("Bearer"),
-                        Challenge.of("DPoP", Map.of("algs", "ES256 RS256")))),
+                        Challenge.of("DPoP", DPOP_MAP))),
                 Arguments.of("Bearer, UMA as_uri=\"https://example.test\", GNAP ticket=1234567890",
-                    List.of(
+                    Arrays.asList(
                         Challenge.of("Bearer"),
-                        Challenge.of("UMA", Map.of("as_uri", "https://example.test")),
-                        Challenge.of("GNAP", Map.of("ticket", "1234567890"))))
+                        Challenge.of("UMA", new HashMap<String, String>() {
+                            {
+                                put("as_uri", "https://example.test");
+                            }
+                        }),
+                        Challenge.of("GNAP", GNAP_MAP)))
             );
     }
 
@@ -118,8 +149,13 @@ class WwwAuthenticateTest {
     private static Stream<Arguments> parseWwwAuthenticateToken68() {
         return Stream.of(
                 Arguments.of("Basic abcdef== realm=basic key=\"a value\"",
-                    List.of(
-                        Challenge.of("Basic", Map.of("realm", "basic", "key", "a value"))))
+                    Arrays.asList(
+                                Challenge.of("Basic", new HashMap<String, String>() {
+                                    {
+                                        put("realm", "basic");
+                                        put("key", "a value");
+                                    }
+                                })))
             );
     }
 
@@ -133,7 +169,7 @@ class WwwAuthenticateTest {
     private static Stream<Arguments> parseInvalidWwwAuthenticationHeader() {
         return Stream.of(
                 Arguments.of("Basic realm==basic, UMA =not =valid",
-                    List.of(
+                    Arrays.asList(
                         Challenge.of("Basic"))),
                 Arguments.of("In=Valid realm=\"basic\"",
                     Collections.emptyList())

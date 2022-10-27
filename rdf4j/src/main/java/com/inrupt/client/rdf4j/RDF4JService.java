@@ -28,6 +28,7 @@ import com.inrupt.client.spi.RdfService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -50,12 +51,14 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public class RDF4JService implements RdfService {
 
-    private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = Map.of(
-            Syntax.TURTLE, RDFFormat.TURTLE,
-            Syntax.TRIG, RDFFormat.TRIG,
-            Syntax.JSONLD, RDFFormat.JSONLD,
-            Syntax.NTRIPLES, RDFFormat.NTRIPLES,
-            Syntax.NQUADS, RDFFormat.NQUADS);
+    private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = new HashMap<Syntax, RDFFormat>() {{
+            put(Syntax.TURTLE, RDFFormat.TURTLE);
+            put(Syntax.TRIG, RDFFormat.TRIG);
+            put(Syntax.JSONLD, RDFFormat.JSONLD);
+            put(Syntax.NTRIPLES, RDFFormat.NTRIPLES);
+            put(Syntax.NQUADS, RDFFormat.NQUADS);
+        }
+    };
 
     @Override
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
