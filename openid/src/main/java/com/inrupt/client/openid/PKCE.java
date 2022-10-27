@@ -22,8 +22,6 @@ package com.inrupt.client.openid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.inrupt.client.authentication.AuthenticationException;
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,7 +48,7 @@ public final class PKCE {
             final var digest = MessageDigest.getInstance("SHA-256");
             return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
         } catch (final NoSuchAlgorithmException ex) {
-            throw new AuthenticationException("Error generating PKCE challenge", ex);
+            throw new OpenIdException("Error generating PKCE challenge", ex);
         }
     }
 

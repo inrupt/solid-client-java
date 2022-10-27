@@ -22,7 +22,6 @@ package com.inrupt.client.openid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.authentication.DPoP;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -41,7 +40,6 @@ class OpenIdProviderTest {
 
     private static final HttpService client = ServiceProvider.getHttpService();
     private static OpenIdProvider openIdProvider;
-    private static DPoP dpop;
     private static final OpenIdMockHttpService mockHttpService = new OpenIdMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
 
@@ -49,8 +47,7 @@ class OpenIdProviderTest {
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException {
         config.putAll(mockHttpService.start());
-        dpop = new DPoP();
-        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")), dpop, client);
+        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")), client);
     }
 
     @AfterAll

@@ -20,17 +20,12 @@
     <dependencies>
       <dependency>
         <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-authentication</artifactId>
+        <artifactId>inrupt-client-api</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.inrupt</groupId>
         <artifactId>inrupt-client-core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-http</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

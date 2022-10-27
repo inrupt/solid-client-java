@@ -20,12 +20,27 @@
  */
 package com.inrupt.client.core;
 
+import com.inrupt.client.parser.ConsumerErrorListener;
+import com.inrupt.client.parser.LinkBaseListener;
+import com.inrupt.client.parser.LinkLexer;
+import com.inrupt.client.parser.LinkParser;
+
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class for representing an HTTP Link header.
@@ -108,5 +123,128 @@ public final class Link {
      */
     public static Link of(final URI uri, final Map<String, String> parameters) {
         return new Link(uri, parameters);
+    }
+
+    /**
+     * A parser to convert link header string representations into a collection of links.
+     *
+     * @param headers the link headers
+     * @return a list of links
+     */
+    public static List<Link> parse(final String... headers) {
+        final Parser parser = new Parser();
+        final List<Link> links = new ArrayList<>();
+        for (final String header : headers) {
+            links.addAll(parser.parse(header));
+        }
+        return links;
+    }
+
+    static final class Parser {
+        private static final Logger LOGGER = LoggerFactory.getLogger(Link.class);
+
+        private static final int PAIR = 2;
+        private static final String DQUOTE = "\"";
+        private static final String EQUALS = "=";
+
+        private final ANTLRErrorListener errorListener;
+
+        /**
+         * Create a parser with a default error handler.
+         */
+        public Parser() {
+            this(new ConsumerErrorListener(msg -> LOGGER.debug("Header parse error: {}", msg)));
+        }
+
+        /**
+         * Create a parser with a custom error handler.
+         *
+         * @param errorListener the error handler
+         */
+        public Parser(final ANTLRErrorListener errorListener) {
+            this.errorListener = errorListener;
+        }
+
+        /**
+         * Parse a link header.
+         *
+         * @param header the link header string
+         * @return a list of links
+         */
+        public List<Link> parse(final String header) {
+            final LinkLexer lexer = new LinkLexer(CharStreams.fromString(header));
+            // Update lexer error listeners
+            if (errorListener != null) {
+                lexer.removeErrorListeners();
+                lexer.addErrorListener(errorListener);
+            }
+
+            final CommonTokenStream tokens = new CommonTokenStream(lexer);
+            final LinkParser parser = new LinkParser(tokens);
+
+            // Update parser error listeners
+            if (errorListener != null) {
+                parser.removeErrorListeners();
+                parser.addErrorListener(errorListener);
+            }
+
+            final LinkListener listener = new LinkListener();
+            final ParseTreeWalker walker = new ParseTreeWalker();
+            final LinkParser.LinkHeaderContext tree = parser.linkHeader();
+
+            try {
+                walker.walk(listener, tree);
+            } catch (final IllegalArgumentException ex) {
+                parser.notifyErrorListeners("Link parsing error: " + ex.getMessage());
+            }
+
+            return listener.getLinks();
+        }
+
+        /**
+         * An Antlr listener for use with walking over the parsed syntax tree of a Link header.
+         */
+        static class LinkListener extends LinkBaseListener {
+
+            private final List<Link> links = new ArrayList<>();
+
+            /**
+             * Get the list of Challenge objects from the parsed header.
+             *
+             * @return the challenges
+             */
+            public List<Link> getLinks() {
+                return links;
+            }
+
+            @Override
+            public void exitLink(final LinkParser.LinkContext ctx) {
+                if (ctx.UriReference() != null && !ctx.UriReference().getText().isBlank()) {
+                    final Map<String, String> params = new HashMap<>();
+                    for (final TerminalNode p : ctx.LinkParam()) {
+                        final String[] parts = p.getText().split(EQUALS, PAIR);
+                        if (parts.length == PAIR) {
+                            params.put(parts[0], unwrap(parts[1], DQUOTE));
+                        }
+                    }
+                    links.add(Link.of(toURI(ctx.UriReference().getText()), params));
+                }
+            }
+
+
+            static String unwrap(final String value, final String character) {
+                if (value.startsWith(character) && value.endsWith(character)) {
+                    return value.substring(1, value.length() - 1);
+                }
+                return value;
+            }
+
+            static URI toURI(final String uri) {
+                if (uri.startsWith("<") && uri.endsWith(">")) {
+                    return URI.create(uri.substring(1, uri.length() - 1));
+                }
+                return URI.create(uri);
+            }
+        }
     }
 }
