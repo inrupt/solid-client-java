@@ -26,6 +26,7 @@ import com.inrupt.client.*;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.URIBuilder;
 
 import java.io.IOException;
 import java.net.URI;

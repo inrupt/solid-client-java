@@ -22,12 +22,12 @@ package com.inrupt.client.vc;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.URIBuilder;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.URIBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

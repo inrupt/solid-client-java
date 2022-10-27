@@ -21,7 +21,7 @@
 package com.inrupt.client.rdf4j;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.spi.IOUtils;
+import com.inrupt.client.util.IOUtils;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.query.QueryResults;
