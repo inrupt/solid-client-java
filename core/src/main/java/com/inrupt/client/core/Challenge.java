@@ -21,15 +21,15 @@
 package com.inrupt.client.core;
 
 import com.inrupt.client.parser.ConsumerErrorListener;
-import com.inrupt.client.parser.LinkBaseListener;
-import com.inrupt.client.parser.LinkLexer;
-import com.inrupt.client.parser.LinkParser;
+import com.inrupt.client.parser.WwwAuthenticateBaseListener;
+import com.inrupt.client.parser.WwwAuthenticateLexer;
+import com.inrupt.client.parser.WwwAuthenticateParser;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,22 +43,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class for representing an HTTP Link header.
+ * Part of the HTTP Challenge and Response authentication framework, this class represents a
+ * challenge object as represented in a WWW-Authenticate Response Header.
  *
- * @see <a href="https://www.rfc-editor.org/rfc/rfc8288">RFC 8288</a>
+ * @see <a href="https://httpwg.org/specs/rfc7235.html#challenge.and.response">RFC 7235 2.1</a>
  */
-public final class Link {
+public final class Challenge {
 
-    private final URI uri;
+    private final String scheme;
     private final Map<String, String> parameters;
 
-    private Link(final URI uri, final Map<String, String> parameters) {
-        this.uri = Objects.requireNonNull(uri);
+    private Challenge(final String scheme, final Map<String, String> parameters) {
+        this.scheme = Objects.requireNonNull(scheme);
         this.parameters = Objects.requireNonNull(parameters);
     }
 
-    public URI getUri() {
-        return uri;
+    /**
+     * Get the authentication scheme for this challenge.
+     *
+     * @return the scheme name
+     */
+    public String getScheme() {
+        return scheme;
     }
 
     /**
@@ -72,7 +78,7 @@ public final class Link {
     }
 
     /**
-     * Get all the parameters for this Link.
+     * Get all the parameters for this challenge.
      *
      * @return the complete collection of parameters
      */
@@ -82,12 +88,9 @@ public final class Link {
 
     @Override
     public String toString() {
-        if (parameters.isEmpty()) {
-            return "<" + getUri() + ">";
-        }
-        return "<" + getUri() + ">; " + parameters.entrySet().stream()
+        return getScheme() + " " + parameters.entrySet().stream()
             .map(e -> e.getKey() + "=\"" + e.getValue() + "\"")
-            .collect(Collectors.joining("; "));
+            .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -96,53 +99,63 @@ public final class Link {
             return true;
         }
 
-        if (!(obj instanceof Link)) {
+        if (!(obj instanceof Challenge)) {
             return false;
         }
 
-        final Link c = (Link) obj;
+        final Challenge c = (Challenge) obj;
 
-        if (!this.getUri().equals(c.getUri())) {
+        if (!scheme.toLowerCase(Locale.ENGLISH).equals(c.scheme.toLowerCase(Locale.ENGLISH))) {
             return false;
         }
 
-        return Objects.equals(new HashMap<>(parameters), new HashMap<>(c.parameters));
+        return Objects.equals(parameters, c.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getUri(), new HashMap<>(parameters));
+        return Objects.hash(scheme.toLowerCase(Locale.ENGLISH), parameters);
     }
 
     /**
-     * Create a new Link object with a specific URI-Reference and parameters.
+     * Create a new Challenge object with a specific authentication scheme.
      *
-     * @param uri the link URI
-     * @param parameters the link parameters
-     * @return the new {@link Link} object
+     * @param scheme the authentication scheme
+     * @return the challenge
      */
-    public static Link of(final URI uri, final Map<String, String> parameters) {
-        return new Link(uri, parameters);
+    public static Challenge of(final String scheme) {
+        return of(scheme, Collections.emptyMap());
     }
 
     /**
-     * A parser to convert link header string representations into a collection of links.
+     * Create a new Challenge object with a specific authentication scheme and parameters.
      *
-     * @param headers the link headers
-     * @return a list of links
+     * @param scheme the authentication scheme
+     * @param parameters the authentication parameters
+     * @return the challenge
      */
-    public static List<Link> parse(final String... headers) {
+    public static Challenge of(final String scheme, final Map<String, String> parameters) {
+        return new Challenge(scheme, parameters);
+    }
+
+    /**
+     * Parse header strings into a list of Challenge objects.
+     *
+     * @param headers the header strings
+     * @return the challenge objects
+     */
+    public static List<Challenge> parse(final String... headers) {
         final Parser parser = new Parser();
-        final List<Link> links = new ArrayList<>();
+        final List<Challenge> challenges = new ArrayList<>();
         for (final String header : headers) {
-            links.addAll(parser.parse(header));
+            challenges.addAll(parser.parse(header));
         }
-        return links;
+        return challenges;
     }
 
     static final class Parser {
-        private static final Logger LOGGER = LoggerFactory.getLogger(Link.class);
 
+        private static final Logger LOGGER = LoggerFactory.getLogger(Challenge.class);
         private static final int PAIR = 2;
         private static final String DQUOTE = "\"";
         private static final String EQUALS = "=";
@@ -150,29 +163,23 @@ public final class Link {
         private final ANTLRErrorListener errorListener;
 
         /**
-         * Create a parser with a default error handler.
+         * Create a challenge parser with an error listener that records syntax exceptions to a DEBUG log.
          */
         public Parser() {
-            this(new ConsumerErrorListener(msg -> LOGGER.debug("Header parse error: {}", msg)));
+            this(new ConsumerErrorListener(msg -> LOGGER.debug("WWW-Authenticate parse error: {}", msg)));
         }
 
         /**
-         * Create a parser with a custom error handler.
+         * Create a challenge parser with a custom error listener.
          *
-         * @param errorListener the error handler
+         * @param errorListener the error listener
          */
         public Parser(final ANTLRErrorListener errorListener) {
             this.errorListener = errorListener;
         }
 
-        /**
-         * Parse a link header.
-         *
-         * @param header the link header string
-         * @return a list of links
-         */
-        public List<Link> parse(final String header) {
-            final LinkLexer lexer = new LinkLexer(CharStreams.fromString(header));
+        public List<Challenge> parse(final String header) {
+            final WwwAuthenticateLexer lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));
             // Update lexer error listeners
             if (errorListener != null) {
                 lexer.removeErrorListeners();
@@ -180,70 +187,59 @@ public final class Link {
             }
 
             final CommonTokenStream tokens = new CommonTokenStream(lexer);
-            final LinkParser parser = new LinkParser(tokens);
+            final WwwAuthenticateParser parser = new WwwAuthenticateParser(tokens);
 
-            // Update parser error listeners
+            // Update error listeners
             if (errorListener != null) {
                 parser.removeErrorListeners();
                 parser.addErrorListener(errorListener);
             }
 
-            final LinkListener listener = new LinkListener();
+
+            final ChallengeListener listener = new ChallengeListener();
             final ParseTreeWalker walker = new ParseTreeWalker();
-            final LinkParser.LinkHeaderContext tree = parser.linkHeader();
+            final WwwAuthenticateParser.WwwAuthenticateContext tree = parser.wwwAuthenticate();
 
-            try {
-                walker.walk(listener, tree);
-            } catch (final IllegalArgumentException ex) {
-                parser.notifyErrorListeners("Link parsing error: " + ex.getMessage());
-            }
+            walker.walk(listener, tree);
 
-            return listener.getLinks();
+            return listener.getChallenges();
         }
 
         /**
-         * An Antlr listener for use with walking over the parsed syntax tree of a Link header.
+         * An Antlr listener for use with walking over the parsed syntax tree of a WWW-Authenticate header.
          */
-        static class LinkListener extends LinkBaseListener {
+        public static class ChallengeListener extends WwwAuthenticateBaseListener {
 
-            private final List<Link> links = new ArrayList<>();
+            private final List<Challenge> challenges = new ArrayList<>();
 
             /**
              * Get the list of Challenge objects from the parsed header.
              *
              * @return the challenges
              */
-            public List<Link> getLinks() {
-                return links;
+            public List<Challenge> getChallenges() {
+                return challenges;
             }
 
             @Override
-            public void exitLink(final LinkParser.LinkContext ctx) {
-                if (ctx.UriReference() != null && !ctx.UriReference().getText().isBlank()) {
+            public void exitChallenge(final WwwAuthenticateParser.ChallengeContext ctx) {
+                if (ctx.AuthScheme() != null) {
                     final Map<String, String> params = new HashMap<>();
-                    for (final TerminalNode p : ctx.LinkParam()) {
+                    for (final TerminalNode p : ctx.AuthParam()) {
                         final String[] parts = p.getText().split(EQUALS, PAIR);
                         if (parts.length == PAIR) {
                             params.put(parts[0], unwrap(parts[1], DQUOTE));
                         }
                     }
-                    links.add(Link.of(toURI(ctx.UriReference().getText()), params));
+                    challenges.add(Challenge.of(ctx.AuthScheme().getText(), params));
                 }
             }
-
 
             static String unwrap(final String value, final String character) {
                 if (value.startsWith(character) && value.endsWith(character)) {
                     return value.substring(1, value.length() - 1);
                 }
                 return value;
-            }
-
-            static URI toURI(final String uri) {
-                if (uri.startsWith("<") && uri.endsWith(">")) {
-                    return URI.create(uri.substring(1, uri.length() - 1));
-                }
-                return URI.create(uri);
             }
         }
     }
