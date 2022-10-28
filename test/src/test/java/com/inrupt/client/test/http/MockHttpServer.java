@@ -18,14 +18,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.httpclient;
+package com.inrupt.client.test.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
+import java.util.Collections;
 import java.util.Map;
+
 
 class MockHttpServer {
 
@@ -49,13 +51,13 @@ class MockHttpServer {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, "text/plain")
-                        .withBodyFile("clarissa-sample.txt")));
+                        .withBodyFile("http/clarissa-sample.txt")));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
-                        .withBodyFile("profileExample.ttl")));
+                        .withBodyFile("http/profileExample.ttl")));
 
         wireMockServer.stubFor(post(urlEqualTo("/rdf"))
                     .withRequestBody(equalTo(
@@ -68,7 +70,7 @@ class MockHttpServer {
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, "image/png")
-                        .withBodyFile("SolidOS.png")
+                        .withBodyFile("http/SolidOS.png")
                         .withStatus(200)));
 
         wireMockServer.stubFor(patch(urlEqualTo("/rdf"))
@@ -89,8 +91,7 @@ class MockHttpServer {
         wireMockServer.start();
 
         setupMocks();
-
-        return Map.of("http_uri", wireMockServer.baseUrl());
+        return Collections.singletonMap("http_uri", wireMockServer.baseUrl());
     }
 
     public void stop() {

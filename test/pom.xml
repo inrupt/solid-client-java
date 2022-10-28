@@ -39,6 +39,16 @@
       <artifactId>inrupt-client-jackson</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-okhttp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-httpclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- test -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

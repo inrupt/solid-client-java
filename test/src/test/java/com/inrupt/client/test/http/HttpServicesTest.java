@@ -18,12 +18,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.okhttp;
+package com.inrupt.client.test.http;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.httpclient.HttpClientService;
+import com.inrupt.client.okhttp.OkHttpService;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,16 +35,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-class OkHttpServiceTest {
+class HttpServicesTest {
 
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static final OkHttpService client = new OkHttpService();
 
     @BeforeAll
     static void setup() {
@@ -52,15 +58,22 @@ class OkHttpServiceTest {
         mockHttpServer.stop();
     }
 
-    @Test
-    void testSendOfString() throws IOException {
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testInstance(final HttpService httpService) {
+        assertTrue(httpService instanceof OkHttpService || httpService instanceof HttpClientService);
+    }
+
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testSendOfString(final HttpService httpService) throws IOException {
         final URI uri = URI.create(config.get("http_uri") + "/file");
         final Request request = Request.newBuilder()
             .uri(uri)
             .GET()
             .build();
 
-        final Response<String> response = client.send(request, Response.BodyHandlers.ofString());
+        final Response<String> response = httpService.send(request, Response.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
         assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
@@ -71,15 +84,16 @@ class OkHttpServiceTest {
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
-    @Test
-    void testSendOfStringAsync() throws IOException {
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testSendOfStringAsync(final HttpService httpService) throws IOException {
         final URI uri = URI.create(config.get("http_uri") + "/file");
         final Request request = Request.newBuilder()
             .uri(uri)
             .GET()
             .build();
 
-        final Response<String> response = client.sendAsync(request,
+        final Response<String> response = httpService.sendAsync(request,
                 Response.BodyHandlers.ofString()).toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -91,15 +105,16 @@ class OkHttpServiceTest {
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
-    @Test
-    void testSendRequestImage() throws IOException {
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testSendRequestImage(final HttpService httpService) throws IOException {
         final URI uri = URI.create(config.get("http_uri") + "/solid.png");
         final Request request = Request.newBuilder()
                 .uri(uri)
                 .GET()
                 .build();
 
-        final Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+        final Response<byte[]> response = httpService.send(request, Response.BodyHandlers.ofByteArray());
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
@@ -109,8 +124,9 @@ class OkHttpServiceTest {
         assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("Content-Type"));
     }
 
-    @Test
-    void testPostTriple() throws IOException {
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testPostTriple(final HttpService httpService) throws IOException {
         final URI uri = URI.create(config.get("http_uri") + "/rdf");
         final String triple = "<http://example.test/s> <http://example.test/p> \"object\" .";
         final Request request = Request.newBuilder()
@@ -119,15 +135,16 @@ class OkHttpServiceTest {
                 .POST(Request.BodyPublishers.ofString(triple))
                 .build();
 
-        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(201, response.statusCode());
         assertEquals(uri, response.uri());
         assertFalse(response.headers().firstValue("Content-Type").isPresent());
     }
 
-    @Test
-    void testPatchTriple() throws IOException {
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testPatchTriple(final HttpService httpService) throws IOException {
         final URI uri = URI.create(config.get("http_uri") + "/rdf");
         final String triple = "INSERT DATA { <http://example.test/s> <http://example.test/p> \"data\" . }";
         final Request request = Request.newBuilder()
@@ -136,7 +153,7 @@ class OkHttpServiceTest {
                 .PATCH(Request.BodyPublishers.ofString(triple))
                 .build();
 
-        final Response<Void> response = client.sendAsync(request, Response.BodyHandlers.discarding())
+        final Response<Void> response = httpService.sendAsync(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
@@ -144,18 +161,20 @@ class OkHttpServiceTest {
         assertFalse(response.headers().firstValue("Content-Type").isPresent());
     }
 
-    @Test
-    void testDeleteResource() throws IOException {
+    @ParameterizedTest
+    @MethodSource("httpServices")
+    void testDeleteResource(final HttpService httpService) throws IOException {
         final URI uri = URI.create(config.get("http_uri") + "/rdf");
-        final Request request = Request.newBuilder()
-                .uri(uri)
-                .DELETE()
-                .build();
+        final Request request = Request.newBuilder().uri(uri).DELETE().build();
 
-        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
         assertFalse(response.headers().firstValue("Content-Type").isPresent());
+    }
+
+    private static Stream<Arguments> httpServices() throws IOException {
+        return Stream.of(Arguments.of(ServiceProvider.getHttpService()));
     }
 }
