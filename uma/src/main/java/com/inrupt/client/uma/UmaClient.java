@@ -259,7 +259,7 @@ public class UmaClient {
                 name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
                 value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
             } catch (UnsupportedEncodingException e) {
-                sneakyThrow(e.getCause());
+                throw new UmaException(e.getMessage());
             }
             return String.join(EQUALS, name, value);
         }).collect(Collectors.joining(ETC));

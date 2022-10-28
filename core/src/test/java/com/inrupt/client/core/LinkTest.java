@@ -37,27 +37,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class LinkTest {
 
-    static final Map<String, String> REL_PRECONNECT = new HashMap<String, String>(){
-        {
-            put("rel", "preconnect");
-        }
-    };
-
+    static final Map<String, String> REL_PRECONNECT = Collections.singletonMap("rel", "preconnect");
+    static final Map<String, String> REL_META = Collections.singletonMap("rel", "meta");
+    static final Map<String, String> REL_STYLESHEET = Collections.singletonMap("rel", "stylesheet");
     static final Map<String, String> REL_PARAM = new HashMap<String, String>(){
         {
             put("rel", "param1");
             put("type", "param2");
-        }
-    };
-
-    static final Map<String, String> REL_META = new HashMap<String, String>(){
-        {
-            put("rel", "meta");
-        }
-    };
-    static final Map<String, String> REL_STYLESHEET = new HashMap<String, String>(){
-        {
-            put("rel", "stylesheet");
         }
     };
     static final Map<String, String> REL_PREVIOUS = new HashMap<String, String>(){

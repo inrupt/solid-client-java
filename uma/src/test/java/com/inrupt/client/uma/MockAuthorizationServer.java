@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public class MockAuthorizationServer {
@@ -200,10 +200,7 @@ public class MockAuthorizationServer {
 
         setupMocks();
 
-        return new HashMap<String, String>() {
-            {
-                put("as_uri", wireMockServer.baseUrl());
-            }};
+        return Collections.singletonMap("as_uri", wireMockServer.baseUrl());
     }
 
     public void stop() {

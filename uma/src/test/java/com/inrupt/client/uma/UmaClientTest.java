@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.util.URIBuilder;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,7 +43,7 @@ class UmaClientTest {
         "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
 
     @BeforeAll
-    static void setup() throws UnsupportedEncodingException {
+    static void setup() throws Exception {
         config.putAll(as.start());
     }
 

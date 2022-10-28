@@ -37,20 +37,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class WwwAuthenticateTest {
-    static final Map<String, String> DPOP_MAP = new HashMap<String, String>() {
-        {
-            put("algs", "ES256 RS256");
-        }
-    };
+    static final Map<String, String> DPOP_MAP = Collections.singletonMap("algs", "ES256 RS256");
+    static final Map<String, String> GNAP_MAP = Collections.singletonMap("ticket", "1234567890");
     static final Map<String, String> UMA_MAP = new HashMap<String, String>() {
         {
             put("as_uri", "https://example.test");
             put("ticket", "value");
-        }
-    };
-    static final Map<String, String> GNAP_MAP = new HashMap<String,String>() {
-        {
-            put("ticket", "1234567890");
         }
     };
 
@@ -86,11 +78,7 @@ class WwwAuthenticateTest {
 
         final List<Challenge> expected = Arrays.asList(
                     Challenge.of("UMA", UMA_MAP),
-                    Challenge.of("Basic", new HashMap<String, String>() {
-                        {
-                            put("realm", "protected");
-                        }
-                    })
+                    Challenge.of("Basic", Collections.singletonMap("realm", "protected"))
         );
 
         assertEquals(expected, challenges);
@@ -130,11 +118,7 @@ class WwwAuthenticateTest {
                 Arguments.of("Bearer, UMA as_uri=\"https://example.test\", GNAP ticket=1234567890",
                     Arrays.asList(
                         Challenge.of("Bearer"),
-                        Challenge.of("UMA", new HashMap<String, String>() {
-                            {
-                                put("as_uri", "https://example.test");
-                            }
-                        }),
+                        Challenge.of("UMA", Collections.singletonMap("as_uri", "https://example.test")),
                         Challenge.of("GNAP", GNAP_MAP)))
             );
     }
