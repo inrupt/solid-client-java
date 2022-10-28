@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.inrupt.client.util.URIBuilder;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -43,7 +43,7 @@ class UmaClientTest {
         "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws Exception {
         config.putAll(as.start());
     }
 
@@ -145,7 +145,7 @@ class UmaClientTest {
         final UmaClient client = new UmaClient();
         final Metadata metadata = client.metadata(asUri);
         final String ticket = "ticket-invalid-scope";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, List.of("invalid-scope"));
+        final TokenRequest req = new TokenRequest(ticket, null, null, null, Arrays.asList("invalid-scope"));
 
         assertThrows(InvalidScopeException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
             throw new UmaException("Unable to negotiation a token");
@@ -348,7 +348,7 @@ class UmaClientTest {
         final URI asUri = URI.create(config.get("as_uri"));
         final UmaClient client = new UmaClient();
         final String ticket = "ticket-invalid-scope";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, List.of("invalid-scope"));
+        final TokenRequest req = new TokenRequest(ticket, null, null, null, Arrays.asList("invalid-scope"));
 
         final CompletionException err = assertThrows(CompletionException.class,
                 client.metadataAsync(asUri)
@@ -453,13 +453,13 @@ class UmaClientTest {
         final URI jwksEndpoint = URIBuilder.newBuilder(asUri).path("jwks").build();
         final URI tokenEndpoint = URIBuilder.newBuilder(asUri).path("token").build();
 
-        assertEquals(List.of("ES256", "RS256"), metadata.dpopSigningAlgValuesSupported);
-        assertEquals(List.of("urn:ietf:params:oauth:grant-type:uma-ticket"),
+        assertEquals(Arrays.asList("ES256", "RS256"), metadata.dpopSigningAlgValuesSupported);
+        assertEquals(Arrays.asList("urn:ietf:params:oauth:grant-type:uma-ticket"),
                 metadata.grantTypesSupported);
         assertEquals(asUri, metadata.issuer);
         assertEquals(jwksEndpoint, metadata.jwksUri);
         assertEquals(tokenEndpoint, metadata.tokenEndpoint);
-        assertEquals(List.of(
+        assertEquals(Arrays.asList(
                     URI.create("https://www.w3.org/TR/vc-data-model/#json-ld"),
                     URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken")),
                 metadata.umaProfilesSupported);

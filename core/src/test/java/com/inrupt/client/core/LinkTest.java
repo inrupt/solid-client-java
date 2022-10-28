@@ -23,7 +23,9 @@ package com.inrupt.client.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -35,14 +37,30 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class LinkTest {
 
+    static final Map<String, String> REL_PRECONNECT = Collections.singletonMap("rel", "preconnect");
+    static final Map<String, String> REL_META = Collections.singletonMap("rel", "meta");
+    static final Map<String, String> REL_STYLESHEET = Collections.singletonMap("rel", "stylesheet");
+    static final Map<String, String> REL_PARAM = new HashMap<String, String>(){
+        {
+            put("rel", "param1");
+            put("type", "param2");
+        }
+    };
+    static final Map<String, String> REL_PREVIOUS = new HashMap<String, String>(){
+        {
+            put("rel", "previous");
+            put("title", "previous chapter");
+        }
+    };
+
     @Test
     void parseSingleLink() {
         final String header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
         final List<Link> linkValues = Link.parse(header);
 
-        final List<Link> expected = List.of(
+        final List<Link> expected = Arrays.asList(
                     Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
-                    Map.of("rel", "preconnect")));
+                    REL_PRECONNECT));
 
         assertEquals(expected, linkValues);
     }
@@ -53,9 +71,13 @@ class LinkTest {
         final String header2 = "<https://example.com/Type>; rel=\"type\"";
         final List<Link> linkValues = Link.parse(header1, header2);
 
-        final List<Link> expected = List.of(
-                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"), Map.of("rel", "preconnect")),
-                    Link.of(URI.create("https://example.com/Type"), Map.of("rel", "type")));
+        final List<Link> expected = Arrays.asList(
+                    Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"), REL_PRECONNECT),
+                Link.of(URI.create("https://example.com/Type"), new HashMap<String, String>() {
+                    {
+                        put("rel", "type");
+                    }
+                }));
 
         assertEquals(expected, linkValues);
     }
@@ -70,24 +92,24 @@ class LinkTest {
     private static Stream<Arguments> parseListedParams() {
         return Stream.of(
                 Arguments.of("<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"param1\" ; type=\"param2\"",
-                    List.of(
+                    Arrays.asList(
                         Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
-                            Map.of("rel", "param1", "type", "param2")))),
+                            REL_PARAM))),
 
                 Arguments.of("<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"param1\" ;type=\"param2\"",
-                        List.of(
+                        Arrays.asList(
                             Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
-                                Map.of("rel", "param1", "type", "param2")))),
+                                REL_PARAM))),
 
                 Arguments.of("<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"param1\"; type=\"param2\"",
-                        List.of(
+                        Arrays.asList(
                             Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
-                                Map.of("rel", "param1", "type", "param2")))),
+                                REL_PARAM))),
 
                 Arguments.of("<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"param1\";type=\"param2\"",
-                        List.of(
+                        Arrays.asList(
                             Link.of(URI.create("https://example.com/%E8%8B%97%E6%9D%A1"),
-                                Map.of("rel", "param1", "type", "param2")))));
+                                REL_PARAM))));
     }
 
 
@@ -101,7 +123,7 @@ class LinkTest {
     private static Stream<Arguments> parseListedLinks() {
         return Stream.of(
                 Arguments.of("<https://one.example.com>, <https://two.example.com>, <https://three.example.com>",
-                    List.of(
+                    Arrays.asList(
                         Link.of(URI.create("https://one.example.com"), Collections.emptyMap()),
                         Link.of(URI.create("https://two.example.com"), Collections.emptyMap()),
                         Link.of(URI.create("https://three.example.com"), Collections.emptyMap()))),
@@ -109,18 +131,40 @@ class LinkTest {
                 Arguments.of("<https://one.example.com>; rel=\"preconnect\" ," +
                     "<https://two.example.com>; rel=\"meta\"," +
                     "<https://three.example.com>; rel=\"stylesheet\"",
-                    List.of(
-                        Link.of(URI.create("https://one.example.com"), Map.of("rel", "preconnect")),
-                        Link.of(URI.create("https://two.example.com"), Map.of("rel", "meta")),
-                        Link.of(URI.create("https://three.example.com"), Map.of("rel", "stylesheet")))),
+                    Arrays.asList(
+                        Link.of(URI.create("https://one.example.com"), REL_PRECONNECT),
+                        Link.of(URI.create("https://two.example.com"), REL_META),
+                        Link.of(URI.create("https://three.example.com"), REL_STYLESHEET)),
 
                 Arguments.of("<https://one.example.com>; rel=\"rel1\" ; type=\"type1\" ," +
                     "<https://two.example.com>; rel=\"rel2\" ; type=\"type2\" ," +
                     "<https://three.example.com>; rel=\"rel3\" ; type=\"type3\"",
-                    List.of(
-                        Link.of(URI.create("https://one.example.com"), Map.of("rel", "rel1", "type", "type1")),
-                        Link.of(URI.create("https://two.example.com"), Map.of("rel", "rel2", "type", "type2")),
-                        Link.of(URI.create("https://three.example.com"), Map.of("rel", "rel3", "type", "type3")))));
+                    Arrays.asList(
+                        Link.of(URI.create("https://one.example.com"),
+                            new HashMap<String, String>() {
+                                {
+                                    put("rel", "rel1");
+                                    put("type", "type1");
+                                }
+                            }
+                        ),
+                        Link.of(URI.create("https://two.example.com"),
+                            new HashMap<String, String>() {
+                                {
+                                    put("rel", "rel2");
+                                    put("type", "type2");
+                                }
+                            }
+                        ),
+                        Link.of(URI.create("https://three.example.com"),
+                            new HashMap<String, String>() {
+                                {
+                                    put("rel", "rel3");
+                                    put("type", "type3");
+                                }
+                            }
+                        )
+                ))));
     }
 
     @ParameterizedTest
@@ -133,14 +177,14 @@ class LinkTest {
     private static Stream<Arguments> parseRelativeReferenceLink() {
         return Stream.of(
                 Arguments.of("<../../team/>",
-                    List.of(
+                    Arrays.asList(
                         Link.of(URI.create("../../team/"), Collections.emptyMap()))),
                 Arguments.of("<../about/./team/>",
-                    List.of(
+                    Arrays.asList(
                         Link.of(URI.create("../about/./team/"), Collections.emptyMap()))),
                 Arguments.of("</about/team/>",
-                        List.of(
-                            Link.of(URI.create("/about/team/"), Collections.emptyMap()))));
+                    Arrays.asList(
+                        Link.of(URI.create("/about/team/"), Collections.emptyMap()))));
     }
 
     @ParameterizedTest
@@ -155,18 +199,18 @@ class LinkTest {
                 Arguments.of("<https://one.example.com>; rel=\"preconnect\", " +
                     "<https://two.example.com>; rel=\"meta\", " +
                     "<https://three.example.com>; rel=\"stylesheet\"",
-                List.of(
-                    Link.of(URI.create("https://one.example.com"), Map.of("rel", "preconnect")),
-                    Link.of(URI.create("https://two.example.com"), Map.of("rel", "meta")),
-                    Link.of(URI.create("https://three.example.com"), Map.of("rel", "stylesheet")))),
+                Arrays.asList(
+                    Link.of(URI.create("https://one.example.com"), REL_PRECONNECT),
+                    Link.of(URI.create("https://two.example.com"), REL_META),
+                    Link.of(URI.create("https://three.example.com"), REL_STYLESHEET)),
                 Arguments.of("<https://two.example.com>; rel=\"meta\", " +
                     "<https://one.example.com>; rel=\"preconnect\"," +
                     "<https://three.example.com>; rel=\"stylesheet\"",
-                List.of(
-                    Link.of(URI.create("https://two.example.com"), Map.of("rel", "meta")),
-                    Link.of(URI.create("https://one.example.com"), Map.of("rel", "preconnect")),
-                    Link.of(URI.create("https://three.example.com"), Map.of("rel", "stylesheet"))))
-            );
+                Arrays.asList(
+                    Link.of(URI.create("https://two.example.com"), REL_META),
+                    Link.of(URI.create("https://one.example.com"), REL_PRECONNECT),
+                    Link.of(URI.create("https://three.example.com"), REL_STYLESHEET))
+            )));
     }
 
     @ParameterizedTest
@@ -179,7 +223,7 @@ class LinkTest {
     private static Stream<Arguments> parseIRIs() {
         return Stream.of(
                 Arguments.of("<https://example.com/苗条>",
-                    List.of(Link.of(URI.create("https://example.com/苗条"), Collections.emptyMap())))
+                    Arrays.asList(Link.of(URI.create("https://example.com/苗条"), Collections.emptyMap())))
                 );
     }
 
@@ -193,13 +237,13 @@ class LinkTest {
     private static Stream<Arguments> parseNonHttpUris() {
         return Stream.of(
                 Arguments.of("<urn:example:6e8bc430-9c3a-11d9>",
-                    List.of(Link.of(URI.create("urn:example:6e8bc430-9c3a-11d9"), Collections.emptyMap()))),
+                    Arrays.asList(Link.of(URI.create("urn:example:6e8bc430-9c3a-11d9"), Collections.emptyMap()))),
                 Arguments.of("<did:web:resource.example/path>",
-                    List.of(Link.of(URI.create("did:web:resource.example/path"), Collections.emptyMap()))),
+                    Arrays.asList(Link.of(URI.create("did:web:resource.example/path"), Collections.emptyMap()))),
                 Arguments.of("<file:/path/to/file>",
-                    List.of(Link.of(URI.create("file:/path/to/file"), Collections.emptyMap()))),
+                    Arrays.asList(Link.of(URI.create("file:/path/to/file"), Collections.emptyMap()))),
                 Arguments.of("<file:///path/to/file>",
-                    List.of(Link.of(URI.create("file:///path/to/file"), Collections.emptyMap())))
+                    Arrays.asList(Link.of(URI.create("file:///path/to/file"), Collections.emptyMap())))
                 );
     }
 
@@ -213,16 +257,16 @@ class LinkTest {
     private static Stream<Arguments> ignoreInvalidParams() {
         return Stream.of(
                 Arguments.of("<https://example.com>; rel==\"previous\"",
-                    List.of(Link.of(URI.create("https://example.com"),
+                    Arrays.asList(Link.of(URI.create("https://example.com"),
                             Collections.emptyMap()))),
                 Arguments.of("<http://example.com>; type==text; rel=\"previous\";" +
                     "title=\"previous chapter\"",
-                    List.of(Link.of(URI.create("http://example.com"),
-                            Map.of("rel", "previous", "title", "previous chapter")))),
+                    Arrays.asList(Link.of(URI.create("http://example.com"),
+                            REL_PREVIOUS))),
                 Arguments.of("<http://example.com>; \"type\"=\"text\"; rel=\"previous\";" +
                     "title=\"previous chapter\"",
-                    List.of(Link.of(URI.create("http://example.com"),
-                            Map.of("rel", "previous", "title", "previous chapter"))))
+                    Arrays.asList(Link.of(URI.create("http://example.com"),
+                            REL_PREVIOUS)))
                 );
     }
 

@@ -39,7 +39,7 @@ class IOUtilsTest {
     @Test
     void testAsyncOutputPipe() throws IOException {
         try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final byte[] data = res.readAllBytes();
+            final byte[] data = org.apache.commons.io.IOUtils.toByteArray(res);
 
             final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
@@ -50,7 +50,7 @@ class IOUtilsTest {
     @Test
     void testAsyncOutputPipeSlowReader() throws IOException {
         try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final byte[] data = res.readAllBytes();
+            final byte[] data = org.apache.commons.io.IOUtils.toByteArray(res);
 
             final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
@@ -61,7 +61,7 @@ class IOUtilsTest {
     @Test
     void testAsyncOutputPipeSlowWriter() throws IOException {
         try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final byte[] data = res.readAllBytes();
+            final byte[] data = org.apache.commons.io.IOUtils.toByteArray(res);
 
             final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
 
@@ -72,7 +72,7 @@ class IOUtilsTest {
     @Test
     void testSyncOutputPipe() throws IOException {
         try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final byte[] data = res.readAllBytes();
+            final byte[] data = org.apache.commons.io.IOUtils.toByteArray(res);
 
             final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
@@ -83,7 +83,7 @@ class IOUtilsTest {
     @Test
     void testSyncOutputPipeSlowReader() throws Exception {
         try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final byte[] data = res.readAllBytes();
+            final byte[] data = org.apache.commons.io.IOUtils.toByteArray(res);
 
             final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.FAST));
 
@@ -94,7 +94,7 @@ class IOUtilsTest {
     @Test
     void testSyncOutputPipeSlowWriter() throws Exception {
         try (final InputStream res = IOUtilsTest.class.getResourceAsStream(INPUT_DOC)) {
-            final byte[] data = res.readAllBytes();
+            final byte[] data = org.apache.commons.io.IOUtils.toByteArray(res);
 
             final InputStream sink = IOUtils.pipe(source -> produce(source, data, Speed.SLOW));
 

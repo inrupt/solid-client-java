@@ -219,7 +219,7 @@ public final class Link {
 
             @Override
             public void exitLink(final LinkParser.LinkContext ctx) {
-                if (ctx.UriReference() != null && !ctx.UriReference().getText().isBlank()) {
+                if (ctx.UriReference() != null && !isBlank(ctx.UriReference().getText())) {
                     final Map<String, String> params = new HashMap<>();
                     for (final TerminalNode p : ctx.LinkParam()) {
                         final String[] parts = p.getText().split(EQUALS, PAIR);
@@ -244,6 +244,10 @@ public final class Link {
                     return URI.create(uri.substring(1, uri.length() - 1));
                 }
                 return URI.create(uri);
+            }
+
+            private boolean isBlank(final String value) {
+                return (value == null || value.isEmpty() || value.trim().isEmpty());
             }
         }
     }
