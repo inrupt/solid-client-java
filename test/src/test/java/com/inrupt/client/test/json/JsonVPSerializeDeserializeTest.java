@@ -40,13 +40,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public class JsonVPSerializeDeserializeTest {
 
-    private static final JsonService service = ServiceProvider.getJsonService();
     private static VerifiablePresentation vp;
     private static VerifiablePresentation vpCopy;
 
     @ParameterizedTest
     @MethodSource("jsonServices")
-    void roundtripVP() throws IOException {
+    void roundtripVP(final JsonService service) throws IOException {
         try (final var res = JsonVPSerializeDeserializeTest.class
                 .getResourceAsStream("/json/verifiablePresentation.json")) {
             vp = service.fromJson(res, VerifiablePresentation.class);

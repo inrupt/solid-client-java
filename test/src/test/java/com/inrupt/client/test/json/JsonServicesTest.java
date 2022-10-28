@@ -41,11 +41,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class JsonServicesTest {
 
-    private final JsonService processor = ServiceProvider.getJsonService();
-
     @ParameterizedTest
     @MethodSource("jsonServices")
-    void testInstance() {
+    void testInstance(final JsonService processor) {
         assertTrue(processor instanceof JacksonService || processor instanceof JsonbService);
     }
 
@@ -62,7 +60,7 @@ class JsonServicesTest {
 
     @ParameterizedTest
     @MethodSource("jsonServices")
-    void serializeJsonObject() throws IOException {
+    void serializeJsonObject(final JsonService processor) throws IOException {
         final var obj = new MyObject();
         obj.name = "Quinn";
         obj.age = 25;
@@ -80,7 +78,7 @@ class JsonServicesTest {
 
     @ParameterizedTest
     @MethodSource("jsonServices")
-    void serializeToClosedOutputStream() throws IOException {
+    void serializeToClosedOutputStream(final JsonService processor) throws IOException {
         final var obj = new MyObject();
         obj.name = "Quinn";
         obj.age = 25;
