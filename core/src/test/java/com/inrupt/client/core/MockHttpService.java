@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
+import org.apache.commons.compress.utils.IOUtils;
+
 class MockHttpService {
 
     private static final String CONTENT_TYPE = "Content-Type";
@@ -125,7 +127,7 @@ class MockHttpService {
 
     private static String getResource(final String path) {
         try (final InputStream res = MockHttpService.class.getResourceAsStream(path)) {
-            return new String(res.readAllBytes(), UTF_8);
+            return new String(IOUtils.toByteArray(res), UTF_8);
         } catch (final IOException ex) {
             throw new UncheckedIOException("Could not read class resource", ex);
         }

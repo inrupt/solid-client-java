@@ -26,6 +26,7 @@ import com.inrupt.client.uma.*;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -160,7 +161,7 @@ public class UmaAuthenticationProvider implements Authenticator.Provider {
 
     static List<String> getScopes(final TokenResponse token) {
         if (token.scope != null) {
-            return List.of(token.scope.split(" "));
+            return Arrays.asList(token.scope.split(" "));
         }
         return Collections.emptyList();
     }
@@ -170,7 +171,7 @@ public class UmaAuthenticationProvider implements Authenticator.Provider {
         private final List<ClaimGatheringHandler> handlers = new ArrayList<>();
 
         public NeedInfoHandler(final ClaimGatheringHandler... handlers) {
-            this.handlers.addAll(List.of(handlers));
+            this.handlers.addAll(Arrays.asList(handlers));
         }
 
         public void addHandler(final ClaimGatheringHandler handler) {

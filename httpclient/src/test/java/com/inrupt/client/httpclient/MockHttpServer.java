@@ -30,7 +30,6 @@ import java.util.Map;
 class MockHttpServer {
 
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_TURTLE = "text/turtle";
 
     private final WireMockServer wireMockServer;
