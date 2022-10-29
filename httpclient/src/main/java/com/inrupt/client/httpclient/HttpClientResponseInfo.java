@@ -29,10 +29,10 @@ import java.nio.ByteBuffer;
 
 class HttpClientResponseInfo implements ResponseInfo {
 
-    private final HttpResponse response;
+    private final HttpResponse<?> response;
     private final ByteBuffer body;
 
-    public HttpClientResponseInfo(final HttpResponse response, final ByteBuffer body) {
+    public HttpClientResponseInfo(final HttpResponse<?> response, final ByteBuffer body) {
         this.response = response;
         this.body = body;
     }
