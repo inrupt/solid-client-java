@@ -176,7 +176,7 @@ public final class TokenRequest {
          */
         public TokenRequest build(final String grantType, final String clientId, final URI redirectUri) {
 
-            final var grant = Objects.requireNonNull(grantType);
+            final String grant = Objects.requireNonNull(grantType);
 
             if ("authorization_code".equals(grantType)) {
                 if (builderCode == null) {
@@ -190,7 +190,7 @@ public final class TokenRequest {
                 }
             }
 
-            final var req = new TokenRequest();
+            final TokenRequest req = new TokenRequest();
             req.redirectUri = Objects.requireNonNull(redirectUri);
             req.clientId = Objects.requireNonNull(clientId);
             req.grantType = grant;

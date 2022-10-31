@@ -296,7 +296,7 @@ public interface Authenticator {
      *
      * @see <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop">DPoP draft specification</a>
      */
-    abstract class DPoP {
+    interface DPoP {
 
         /**
          * Generate a DPoP proof for a given URI and method pair.
@@ -306,21 +306,21 @@ public interface Authenticator {
          * @param method the HTTP method
          * @return the DPoP Proof, serialized as a Base64-encoded string, suitable for use with HTTP headers
          */
-        public abstract String generateProof(String algorithm, URI uri, String method);
+        String generateProof(String algorithm, URI uri, String method);
 
         /**
          * Return a collection of the supported algorithm names.
          *
          * @return the algorithm names
          */
-        public abstract Set<String> algorithms();
+        Set<String> algorithms();
 
         /**
          * Create a DPoP manager with a default algorithm and keypair.
          *
          * @return the DPoP manager
          */
-        public static DPoP of() {
+        static DPoP of() {
             return of(Collections.emptyMap());
         }
 
@@ -331,7 +331,7 @@ public interface Authenticator {
          * @param keypair the keypair
          * @return the DPoP manager
          */
-        public static DPoP of(final String algorithm, final KeyPair keypair) {
+        static DPoP of(final String algorithm, final KeyPair keypair) {
             return of(Collections.singletonMap(algorithm, keypair));
         }
 
@@ -341,7 +341,7 @@ public interface Authenticator {
          * @param keypairs the algorithm-keypair combinations
          * @return the DPoP manager
          */
-        public static DPoP of(final Map<String, KeyPair> keypairs) {
+        static DPoP of(final Map<String, KeyPair> keypairs) {
             return ServiceProvider.getDpopService().ofKeyPairs(keypairs);
         }
     }
