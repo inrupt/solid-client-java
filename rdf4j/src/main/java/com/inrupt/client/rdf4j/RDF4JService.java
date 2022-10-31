@@ -28,6 +28,7 @@ import com.inrupt.client.spi.RdfService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,8 +41,6 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFHandlerException;
-import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
@@ -51,14 +50,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public class RDF4JService implements RdfService {
 
-    private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = new HashMap<Syntax, RDFFormat>() {{
-            put(Syntax.TURTLE, RDFFormat.TURTLE);
-            put(Syntax.TRIG, RDFFormat.TRIG);
-            put(Syntax.JSONLD, RDFFormat.JSONLD);
-            put(Syntax.NTRIPLES, RDFFormat.NTRIPLES);
-            put(Syntax.NQUADS, RDFFormat.NQUADS);
-        }
-    };
+    private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = buildSyntaxMapping();
 
     @Override
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
@@ -70,7 +62,7 @@ public class RDF4JService implements RdfService {
                 final Model m = QueryResults.asModel(conn.getStatements(null, null, null));
                 Rio.write(m, output, format);
             }
-        } catch (final RDFHandlerException ex) {
+        } catch (final RDF4JException ex) {
             throw new IOException("Error serializing dataset", ex);
         }
     }
@@ -85,7 +77,7 @@ public class RDF4JService implements RdfService {
                 writer.handleStatement(st);
             }
             writer.endRDF();
-        } catch (final RDFHandlerException ex) {
+        } catch (final RDF4JException ex) {
             throw new IOException("Error serializing graph", ex);
         }
     }
@@ -111,10 +103,18 @@ public class RDF4JService implements RdfService {
         try {
             final Model model = Rio.parse(input, baseUri, format);
             return new RDF4JGraph(model);
-        } catch (final RDFParseException ex) {
-            throw new IOException("Error parsing graph", ex);
-        } catch (final RDFHandlerException ex) {
+        } catch (final RDF4JException ex) {
             throw new IOException("Error parsing graph", ex);
         }
+    }
+
+    static Map<Syntax, RDFFormat> buildSyntaxMapping() {
+        final Map<Syntax, RDFFormat> mapping = new HashMap<>();
+        mapping.put(Syntax.TURTLE, RDFFormat.TURTLE);
+        mapping.put(Syntax.TRIG, RDFFormat.TRIG);
+        mapping.put(Syntax.JSONLD, RDFFormat.JSONLD);
+        mapping.put(Syntax.NTRIPLES, RDFFormat.NTRIPLES);
+        mapping.put(Syntax.NQUADS, RDFFormat.NQUADS);
+        return Collections.unmodifiableMap(mapping);
     }
 }
