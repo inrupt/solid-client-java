@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>inrupt-client-bom</artifactId>
-  <name>Inrupt Java Client Libraries - BOM</name>
+  <name>Inrupt Solid Client - BOM</name>
   <packaging>pom</packaging>
   <description>
     A Maven BOM for use with the Inrupt Java Client Libraries.
