@@ -25,12 +25,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
 
 class WacAllowTest {
 
@@ -54,18 +56,18 @@ class WacAllowTest {
 
     @Test
     void parseEmptyAccessMode() {
-        final String header = "WAC-Allow: user\"\"";
+        final String header = "WAC-Allow: user=\"\"";
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
-        final Map<String, Set<String>> expected = new HashMap<>();
+        final Map<String, Set<String>> expected = Map.of("user", new HashSet<String>());
 
         assertEquals(expected, accessParams);
     }
 
     @Test
     void parseWhiteSpaceAccessMode() {
-        final String header = "WAC-Allow: user\" \"";
+        final String header = "WAC-Allow: user=\" \"";
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
-        final Map<String, Set<String>> expected = new HashMap<>();
+        final Map<String, Set<String>> expected = Map.of("user", new HashSet<String>());
 
         assertEquals(expected, accessParams);
     }
@@ -156,10 +158,7 @@ class WacAllowTest {
                 Arguments.of("WAC-Allow: user=\"read\",, public=\"read\"",
                     Map.of("user", Set.of("read"),
                             "public", Set.of("read"))),
-                Arguments.of("WAC-Allow: ,user=\"read\" , public=\"read\"",
-                    Map.of("user", Set.of("read"),
-                            "public", Set.of("read"))),
-                Arguments.of("WAC-Allow: ,,user=\"read\" ,   public=\"read\"",
+                Arguments.of("WAC-Allow: ,,user=\"read\", public=\"read\"",
                     Map.of("user", Set.of("read"),
                             "public", Set.of("read")))
                         
