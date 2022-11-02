@@ -41,10 +41,22 @@ public final class DefaultClient implements Client {
 
     private final HttpService httpClient;
     private final Authenticator.Registry registry;
+    private final Client.Session session;
 
     private DefaultClient(final HttpService httpClient) {
+        this(httpClient, new DefaultRegistry(), Client.Session.anonymous());
+    }
+
+    private DefaultClient(final HttpService httpClient, final Authenticator.Registry registry,
+            final Client.Session session) {
         this.httpClient = httpClient;
-        this.registry = new DefaultRegistry();
+        this.registry = registry;
+        this.session = session;
+    }
+
+    @Override
+    public Client session(final Session session) {
+        return new DefaultClient(this.httpClient, this.registry, session);
     }
 
     @Override
@@ -61,23 +73,27 @@ public final class DefaultClient implements Client {
             return httpClient.sendAsync(request, responseBodyHandler);
         }
 
-        // First, send a regular request
-        return httpClient.sendAsync(request, responseBodyHandler)
-            .thenCompose(res -> {
-                if (res.statusCode() == UNAUTHORIZED) {
-                    final List<Authenticator> authenticators = registry
-                        .challenge(res.headers().allValues("WWW-Authenticate"));
-                    if (!authenticators.isEmpty()) {
-                        // Use the first mechanism
-                        final Authenticator authenticator = authenticators.get(0);
-                        LOGGER.debug("Using {} authenticator", authenticator.getName());
-                        final Authenticator.AccessToken token = authenticator.authenticate();
-                        return httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler);
+        // Check session cache for a relevant access token
+        return session.fromCache(request)
+            // Use that token, if present
+            .map(token -> httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler))
+            // Otherwise perform the regular HTTP authorization dance
+            .orElseGet(() -> httpClient.sendAsync(request, responseBodyHandler)
+                .thenCompose(res -> {
+                    if (res.statusCode() == UNAUTHORIZED) {
+                        final List<Authenticator> authenticators = registry
+                            .challenge(res.headers().allValues("WWW-Authenticate"));
+                        if (!authenticators.isEmpty()) {
+                            // Use the first mechanism
+                            final Authenticator authenticator = authenticators.get(0);
+                            LOGGER.debug("Using {} authenticator", authenticator.getName());
+                            return session.negotiate(authenticator, request)
+                                .thenCompose(token ->
+                                        httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler));
+                        }
                     }
-                }
-                return CompletableFuture.completedFuture(res);
-            });
-
+                    return CompletableFuture.completedFuture(res);
+                }));
     }
 
     Request upgradeRequest(final Request request, final Authenticator.AccessToken token) {

@@ -212,7 +212,7 @@ public final class AuthorizationRequest {
          * @return the authorization request
          */
         public AuthorizationRequest build(final String clientId, final URI redirectUri) {
-            final var req = new AuthorizationRequest();
+            final AuthorizationRequest req = new AuthorizationRequest();
             req.redirectUri = Objects.requireNonNull(redirectUri);
             req.clientId = Objects.requireNonNull(clientId);
             req.responseType = builderResponseType;
