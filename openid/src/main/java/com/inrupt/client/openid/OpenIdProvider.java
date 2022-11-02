@@ -97,7 +97,7 @@ public class OpenIdProvider {
      */
     public CompletionStage<Metadata> metadataAsync() {
         // consider caching this response
-        final var req = Request.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
+        final Request req = Request.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
         return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
@@ -142,7 +142,7 @@ public class OpenIdProvider {
     }
 
     private URI authorize(final URI authorizationEndpoint, final AuthorizationRequest request) {
-        final var builder = URIBuilder.newBuilder(authorizationEndpoint)
+        final URIBuilder builder = URIBuilder.newBuilder(authorizationEndpoint)
             .queryParam(CLIENT_ID, request.getClientId())
             .queryParam(REDIRECT_URI, request.getRedirectUri().toString())
             .queryParam("response_type", request.getResponseType());
@@ -197,7 +197,7 @@ public class OpenIdProvider {
     }
 
     private Request tokenRequest(final Metadata metadata, final TokenRequest request) {
-        final var data = new HashMap<String, String>();
+        final Map<String, String> data = new HashMap<>();
         data.put("grant_type", request.getGrantType());
         data.put("code", request.getCode());
         data.put("code_verifier", request.getCodeVerifier());
@@ -219,7 +219,7 @@ public class OpenIdProvider {
             authHeader = Optional.empty();
         }
 
-        final var req = Request.newBuilder(metadata.tokenEndpoint)
+        final Request.Builder req = Request.newBuilder(metadata.tokenEndpoint)
             .header("Content-Type", "application/x-www-form-urlencoded")
             .POST(ofFormData(data));
 
@@ -256,9 +256,9 @@ public class OpenIdProvider {
     }
 
     static Request.BodyPublisher ofFormData(final Map<String, String> data) {
-        final var form = data.entrySet().stream().map(entry -> {
-            final var name = URLEncoder.encode(entry.getKey(), UTF_8);
-            final var value = URLEncoder.encode(entry.getValue() != null ? entry.getValue() : "", UTF_8);
+        final String form = data.entrySet().stream().map(entry -> {
+            final String name = URLEncoder.encode(entry.getKey(), UTF_8);
+            final String value = URLEncoder.encode(entry.getValue() != null ? entry.getValue() : "", UTF_8);
             return String.join(EQUALS, name, value);
         }).collect(Collectors.joining(ETC));
 
@@ -276,7 +276,7 @@ public class OpenIdProvider {
 
     static Optional<String> getBasicAuthHeader(final String clientId, final String clientSecret) {
         if (clientSecret != null) {
-            final var raw = String.join(":", clientId, clientSecret);
+            final String raw = String.join(":", clientId, clientSecret);
             return Optional.of("Basic " + Base64.getEncoder().encodeToString(raw.getBytes(UTF_8)));
         }
         return Optional.empty();
