@@ -28,9 +28,10 @@ import com.inrupt.client.parser.WacAllowParser;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
+
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStreams;
@@ -85,10 +86,10 @@ public final class WacAllow {
         for (final String header : headers) {
             final Map<String, Set<String>> accessParamEntry = parser.parse(header);
 
-            for(Entry<String, Set<String>> entry : accessParamEntry.entrySet()){
-                if(accessParams.get(entry.getKey()) == null){
+            for (Entry<String, Set<String>> entry : accessParamEntry.entrySet()) {
+                if (accessParams.get(entry.getKey()) == null) {
                     accessParams.put(entry.getKey(), entry.getValue());
-                }else{
+                } else {
                     accessParams.get(entry.getKey()).addAll(entry.getValue());
                 }
             }
@@ -176,13 +177,13 @@ public final class WacAllow {
                 for (final TerminalNode p : ctx.AccessParam()) {
                     final String[] parts = p.getText().split(EQUALS, PAIR);
                     if (parts.length == PAIR) {
-                        if(accessParams.get(parts[0]) == null){
+                        if (accessParams.get(parts[0]) == null) {
                             accessParams.put(parts[0], Set.of((unwrap(parts[1], DQUOTE)).split(WS)));
-                        }else{
+                        } else {
                             accessParams.get(parts[0]).addAll(Set.of((unwrap(parts[1], DQUOTE)).split(WS)));
-                        }                            
+                        }
                     }
-                }          
+                }
             }
 
             static String unwrap(final String value, final String character) {

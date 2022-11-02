@@ -23,10 +23,9 @@ package com.inrupt.client.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -86,11 +85,9 @@ class WacAllowTest {
                     Map.of("user", Set.of("read", "write"))),
 
                 Arguments.of("WAC-Allow: user=\"read write append\"",
-                    Map.of("user", Set.of("read", "write", "append")))
-                        
-        ); 
+                    Map.of("user", Set.of("read", "write", "append"))));
     }
-    
+
     @ParameterizedTest
     @MethodSource
     void parseListedAccessParams(final String header, final Map<String, Set<String>> expected) {
@@ -109,9 +106,7 @@ class WacAllowTest {
                 Arguments.of("WAC-Allow: user=\"read\", public=\"read\", other=\"read\"",
                     Map.of("user", Set.of("read"),
                             "public", Set.of("read"),
-                            "other", Set.of("read")))
-                        
-        ); 
+                            "other", Set.of("read"))));
     }
 
     @ParameterizedTest
@@ -133,9 +128,7 @@ class WacAllowTest {
                 Arguments.of("WAC-Allow: user=\"read\", public=\"read write\", other=\"read write append\"",
                     Map.of("user", Set.of("read"),
                             "public", Set.of("read", "write"),
-                            "other", Set.of("read", "write", "append")))
-                        
-        ); 
+                            "other", Set.of("read", "write", "append"))));
     }
 
     @ParameterizedTest
@@ -161,9 +154,7 @@ class WacAllowTest {
                             "public", Set.of("read"))),
                 Arguments.of("WAC-Allow: ,,user=\"read\", public=\"read\"",
                     Map.of("user", Set.of("read"),
-                            "public", Set.of("read")))
-                        
-        ); 
+                            "public", Set.of("read"))));
     }
 
 }
