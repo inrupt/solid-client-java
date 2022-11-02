@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
@@ -60,7 +61,7 @@ class WacAllowTest {
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
         final Map<String, Set<String>> expected = Map.of("user", new HashSet<String>());
 
-        assertEquals(expected, accessParams);
+        assertEquals(expected.toString(), accessParams.toString());
     }
 
     @Test
