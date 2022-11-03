@@ -23,6 +23,8 @@ package com.inrupt.client.test.http;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Collections;
@@ -38,11 +40,27 @@ class MockHttpServer {
 
     public MockHttpServer() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .dynamicPort());
-                //.usingFilesUnderClasspath(MockHttpServer.class.getProtectionDomain()
-                //.getCodeSource().getLocation().getPath()));
-        System.out.println("------------" + MockHttpServer.class.getProtectionDomain()
-                .getCodeSource().getLocation().getPath());
+                .dynamicPort()
+                .fileSource(new ClasspathFileSourceWithoutLeadingSlash()));
+    }
+
+    /*
+    * Without this class Wiremock tries to find the mappings directory under /__files
+    * and the classloader will not find this directory because of the leading slash.
+    * This class removes the leading slash and as a consequence the classloader will
+    * find the mappings directory.
+    * See: https://github.com/wiremock/wiremock/issues/504#issuecomment-383869098
+    */
+    class ClasspathFileSourceWithoutLeadingSlash extends ClasspathFileSource {
+
+        ClasspathFileSourceWithoutLeadingSlash() {
+            super("");
+        }
+
+        @Override
+        public FileSource child(final String subDirectoryName) {
+            return new ClasspathFileSource(subDirectoryName);
+        }
     }
 
     public int getPort() {
