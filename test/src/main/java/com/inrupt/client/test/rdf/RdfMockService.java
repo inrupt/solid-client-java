@@ -34,9 +34,7 @@ class RdfMockService {
 
     public RdfMockService() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .dynamicPort()
-                .usingFilesUnderClasspath(RdfMockService.class.getProtectionDomain()
-                    .getCodeSource().getLocation().getPath()));
+                .dynamicPort());
     }
 
     public int getPort() {

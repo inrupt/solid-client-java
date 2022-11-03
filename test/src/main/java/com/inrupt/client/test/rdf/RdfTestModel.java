@@ -24,7 +24,7 @@ import com.inrupt.client.RDFNode;
 
 import java.net.URI;
 
-final class RdfTestModel {
+public final class RdfTestModel {
 
     private static final String TEST_NAMESPACE = "http://example.test/";
 
