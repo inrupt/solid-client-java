@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.httpclient.HttpClientService;
-import com.inrupt.client.okhttp.OkHttpService;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -35,18 +33,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 
-class HttpServicesTest {
+public class HttpServices {
 
     private static final MockHttpServer mockHttpServer = new MockHttpServer();
     private static final Map<String, String> config = new HashMap<>();
+    private static final HttpService httpService = ServiceProvider.getHttpService();
+
+    private static final String HTTP_URI = "http_uri";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_TYPE_LOWERCASE = "content-type";
+    private static final String TEXT_PLAIN = "text/plain";
 
     @BeforeAll
     static void setup() {
@@ -58,16 +59,10 @@ class HttpServicesTest {
         mockHttpServer.stop();
     }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testInstance(final HttpService httpService) {
-        assertTrue(httpService instanceof OkHttpService || httpService instanceof HttpClientService);
-    }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testSendOfString(final HttpService httpService) throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/file");
+    @Test
+    void testSendOfString() throws IOException {
+        final URI uri = URI.create(config.get(HTTP_URI) + "/file");
         final Request request = Request.newBuilder()
             .uri(uri)
             .GET()
@@ -76,18 +71,17 @@ class HttpServicesTest {
         final Response<String> response = httpService.send(request, Response.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("Content-Type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("content-type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE));
         assertEquals(uri, response.uri());
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testSendOfStringAsync(final HttpService httpService) throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/file");
+    @Test
+    void testSendOfStringAsync() throws IOException {
+        final URI uri = URI.create(config.get(HTTP_URI) + "/file");
         final Request request = Request.newBuilder()
             .uri(uri)
             .GET()
@@ -98,17 +92,16 @@ class HttpServicesTest {
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("Content-Type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("content-type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE));
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testSendRequestImage(final HttpService httpService) throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/solid.png");
+    @Test
+    void testSendRequestImage() throws IOException {
+        final URI uri = URI.create(config.get(HTTP_URI) + "/solid.png");
         final Request request = Request.newBuilder()
                 .uri(uri)
                 .GET()
@@ -118,20 +111,19 @@ class HttpServicesTest {
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Optional.of("image/png"), response.headers().firstValue("content-type"));
-        assertEquals(Optional.of("image/png"), response.headers().firstValue("Content-Type"));
-        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("content-type"));
-        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue(CONTENT_TYPE));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get(CONTENT_TYPE));
     }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testPostTriple(final HttpService httpService) throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/rdf");
+    @Test
+    void testPostTriple() throws IOException {
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
         final String triple = "<http://example.test/s> <http://example.test/p> \"object\" .";
         final Request request = Request.newBuilder()
                 .uri(uri)
-                .header("Content-Type", "text/turtle")
+                .header(CONTENT_TYPE, "text/turtle")
                 .POST(Request.BodyPublishers.ofString(triple))
                 .build();
 
@@ -139,17 +131,16 @@ class HttpServicesTest {
 
         assertEquals(201, response.statusCode());
         assertEquals(uri, response.uri());
-        assertFalse(response.headers().firstValue("Content-Type").isPresent());
+        assertFalse(response.headers().firstValue(CONTENT_TYPE).isPresent());
     }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testPatchTriple(final HttpService httpService) throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/rdf");
+    @Test
+    void testPatchTriple() throws IOException {
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
         final String triple = "INSERT DATA { <http://example.test/s> <http://example.test/p> \"data\" . }";
         final Request request = Request.newBuilder()
                 .uri(uri)
-                .header("Content-Type", "application/sparql-update")
+                .header(CONTENT_TYPE, "application/sparql-update")
                 .PATCH(Request.BodyPublishers.ofString(triple))
                 .build();
 
@@ -158,23 +149,19 @@ class HttpServicesTest {
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
-        assertFalse(response.headers().firstValue("Content-Type").isPresent());
+        assertFalse(response.headers().firstValue(CONTENT_TYPE).isPresent());
     }
 
-    @ParameterizedTest
-    @MethodSource("httpServices")
-    void testDeleteResource(final HttpService httpService) throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/rdf");
+    @Test
+    void testDeleteResource() throws IOException {
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
         final Request request = Request.newBuilder().uri(uri).DELETE().build();
 
         final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
-        assertFalse(response.headers().firstValue("Content-Type").isPresent());
+        assertFalse(response.headers().firstValue(CONTENT_TYPE).isPresent());
     }
 
-    private static Stream<Arguments> httpServices() throws IOException {
-        return Stream.of(Arguments.of(ServiceProvider.getHttpService()));
-    }
 }

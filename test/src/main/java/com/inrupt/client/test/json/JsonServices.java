@@ -22,8 +22,6 @@ package com.inrupt.client.test.json;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.jackson.JacksonService;
-import com.inrupt.client.jsonb.JsonbService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -33,24 +31,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 
-class JsonServicesTest {
+public class JsonServices {
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
-    void testInstance(final JsonService processor) {
-        assertTrue(processor instanceof JacksonService || processor instanceof JsonbService);
-    }
+    private static final JsonService processor = ServiceProvider.getJsonService();
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
-    void parseJsonInput(final JsonService processor) throws IOException {
-        try (final var input = JsonServicesTest.class.getResourceAsStream("/json/myobject.json")) {
+    @Test
+    void parseJsonInput() throws IOException {
+        try (final var input = JsonServices.class.getResourceAsStream("/json/myobject.json")) {
             final var obj = processor.fromJson(input, MyObject.class);
             assertEquals("Quinn", obj.name);
             assertEquals(25, obj.age);
@@ -58,9 +48,8 @@ class JsonServicesTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
-    void serializeJsonObject(final JsonService processor) throws IOException {
+    @Test
+    void serializeJsonObject() throws IOException {
         final var obj = new MyObject();
         obj.name = "Quinn";
         obj.age = 25;
@@ -76,9 +65,8 @@ class JsonServicesTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
-    void serializeToClosedOutputStream(final JsonService processor) throws IOException {
+    @Test
+    void serializeToClosedOutputStream() throws IOException {
         final var obj = new MyObject();
         obj.name = "Quinn";
         obj.age = 25;
@@ -91,18 +79,16 @@ class JsonServicesTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
-    void parseInvalidJson(final JsonService processor) throws IOException {
-        try (final var input = JsonServicesTest.class.getResourceAsStream("/json/invalid.json")) {
+    @Test
+    void parseInvalidJson() throws IOException {
+        try (final var input = JsonServices.class.getResourceAsStream("/json/invalid.json")) {
             assertThrows(IOException.class, () -> processor.fromJson(input, MyObject.class));
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
-    void parseMalformedJson(final JsonService processor) throws IOException {
-        try (final var input = JsonServicesTest.class.getResourceAsStream("/json/malformed.json")) {
+    @Test
+    void parseMalformedJson() throws IOException {
+        try (final var input = JsonServices.class.getResourceAsStream("/json/malformed.json")) {
             assertThrows(IOException.class, () -> processor.fromJson(input, MyObject.class));
         }
     }
@@ -111,10 +97,6 @@ class JsonServicesTest {
         public String name;
         public List<String> pets;
         public Integer age;
-    }
-
-    private static Stream<Arguments> jsonServices() throws IOException {
-        return Stream.of(Arguments.of(ServiceProvider.getJsonService()));
     }
 
 }

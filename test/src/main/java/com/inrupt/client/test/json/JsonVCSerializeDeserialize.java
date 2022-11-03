@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,21 +31,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.UUID;
-import java.util.stream.Stream;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 
-public class JsonVCSerializeDeserializeTest {
+public class JsonVCSerializeDeserialize {
 
     private static VerifiableCredential vc;
     private static VerifiableCredential vcCopy;
 
-    @ParameterizedTest
-    @MethodSource("jsonServices")
+    @Test
     void roundtripVC(final JsonService service) throws IOException {
-        try (final var res = JsonVCSerializeDeserializeTest.class
+        try (final var res = JsonVCSerializeDeserialize.class
                 .getResourceAsStream("/json/verifiableCredential.json")) {
             vc = service.fromJson(res, VerifiableCredential.class);
         }
@@ -78,10 +73,6 @@ public class JsonVCSerializeDeserializeTest {
         Files.deleteIfExists(testFile);
         Files.deleteIfExists(testFolderPath);
 
-    }
-
-    private static Stream<Arguments> jsonServices() throws IOException {
-        return Stream.of(Arguments.of(ServiceProvider.getJsonService()));
     }
 
 }

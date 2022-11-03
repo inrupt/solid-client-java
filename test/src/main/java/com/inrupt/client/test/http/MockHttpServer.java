@@ -39,6 +39,10 @@ class MockHttpServer {
     public MockHttpServer() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
                 .dynamicPort());
+                //.usingFilesUnderClasspath(MockHttpServer.class.getProtectionDomain()
+                //.getCodeSource().getLocation().getPath()));
+        System.out.println("------------" + MockHttpServer.class.getProtectionDomain()
+                .getCodeSource().getLocation().getPath());
     }
 
     public int getPort() {
@@ -51,13 +55,13 @@ class MockHttpServer {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, "text/plain")
-                        .withBodyFile("http/clarissa-sample.txt")));
+                        .withBodyFile("clarissa-sample.txt")));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
-                        .withBodyFile("http/profileExample.ttl")));
+                        .withBodyFile("profileExample.ttl")));
 
         wireMockServer.stubFor(post(urlEqualTo("/rdf"))
                     .withRequestBody(equalTo(
@@ -70,7 +74,7 @@ class MockHttpServer {
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, "image/png")
-                        .withBodyFile("http/SolidOS.png")
+                        .withBodyFile("SolidOS.png")
                         .withStatus(200)));
 
         wireMockServer.stubFor(patch(urlEqualTo("/rdf"))
