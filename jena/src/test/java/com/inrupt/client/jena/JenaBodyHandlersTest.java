@@ -26,6 +26,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.test.rdf.RdfMockService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -41,7 +42,7 @@ import org.junit.jupiter.api.Test;
 
 class JenaBodyHandlersTest {
 
-    private static final MockHttpService mockHttpServer = new MockHttpService();
+    private static final RdfMockService mockHttpServer = new RdfMockService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpService client = ServiceProvider.getHttpService();
 
@@ -59,7 +60,7 @@ class JenaBodyHandlersTest {
     void testOfModelHandler() throws IOException,
             InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -79,7 +80,7 @@ class JenaBodyHandlersTest {
     void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .header("Accept", "text/turtle")
                 .GET()
                 .build();
@@ -101,7 +102,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfModelHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/example"))
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -120,7 +121,7 @@ class JenaBodyHandlersTest {
     void testOfDatasetHandler() throws IOException,
             InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -140,7 +141,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfDatasetHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/example"))
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -161,7 +162,7 @@ class JenaBodyHandlersTest {
     void testOfGraphHandlerAsync() throws IOException,
             InterruptedException, ExecutionException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .header("Accept", "text/turtle")
                 .GET()
                 .build();
@@ -184,7 +185,7 @@ class JenaBodyHandlersTest {
     void testOfGraphHandler() throws IOException,
             InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -203,7 +204,7 @@ class JenaBodyHandlersTest {
     @Test
     void testOfGraphHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/example"))
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 

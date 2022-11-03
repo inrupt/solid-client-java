@@ -1,3 +1,0 @@
-<http://example.test/graph> { 
-    <http://example.test/subject> <http://example.test/predicate> <http://example.test/object> . 
-}

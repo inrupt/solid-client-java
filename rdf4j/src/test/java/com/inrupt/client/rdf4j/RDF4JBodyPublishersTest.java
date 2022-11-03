@@ -26,6 +26,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.test.rdf.RdfMockService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,7 +52,7 @@ import org.junit.jupiter.api.Test;
 
 class RDF4JBodyPublishersTest {
 
-    private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
+    private static final RdfMockService mockHttpService = new RdfMockService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpService client = ServiceProvider.getHttpService();
 
@@ -76,7 +77,7 @@ class RDF4JBodyPublishersTest {
         final Model model = builder.build();
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofModel(model))
                 .build();
@@ -107,7 +108,7 @@ class RDF4JBodyPublishersTest {
         }
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofRepository(repository))
                 .build();
@@ -133,7 +134,7 @@ class RDF4JBodyPublishersTest {
                 updateString
             );
             final Request request = Request.newBuilder()
-                    .uri(URI.create(config.get("rdf4j_uri") + "/sparqlUpdate"))
+                    .uri(URI.create(config.get("rdf_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
                     .build();

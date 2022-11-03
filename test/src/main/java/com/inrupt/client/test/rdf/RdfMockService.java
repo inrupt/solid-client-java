@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.util.Collections;
 import java.util.Map;
 
-class RdfMockService {
+public class RdfMockService {
 
     private final WireMockServer wireMockServer;
 
@@ -65,8 +65,9 @@ class RdfMockService {
 
         wireMockServer.stubFor(patch(urlEqualTo("/sparqlUpdate"))
                     .withHeader("Content-Type", containing("application/sparql-update"))
-                    .withRequestBody(containing(
-                        "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> .}"))
+                    .withRequestBody(matching(
+                            "INSERT DATA\\s+\\{\\s*<http://example.test/s1>\\s+" +
+                            "<http://example.test/p1>\\s+<http://example.test/o1>\\s*\\.\\s*\\}\\s*"))
                     .willReturn(aResponse()
                         .withStatus(204)));
     }
@@ -93,7 +94,7 @@ class RdfMockService {
 
         setupMocks();
 
-        return Collections.singletonMap("rdf4j_uri", wireMockServer.baseUrl());
+        return Collections.singletonMap("rdf_uri", wireMockServer.baseUrl());
     }
 
     public void stop() {

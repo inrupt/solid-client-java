@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.inrupt.client.*;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.test.rdf.RdfMockService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -47,7 +48,7 @@ import org.junit.jupiter.api.Test;
 
 class JenaBodyPublishersTest {
 
-    private static final MockHttpService mockHttpClient = new MockHttpService();
+    private static final RdfMockService mockHttpClient = new RdfMockService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpService client = ServiceProvider.getHttpService();
 
@@ -80,7 +81,7 @@ class JenaBodyPublishersTest {
         model.add(S1_JENA, P_JENA, O1_JENA);
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
@@ -100,7 +101,7 @@ class JenaBodyPublishersTest {
         ds = DatasetFactory.create(model);
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofDataset(ds))
                 .build();
@@ -117,7 +118,7 @@ class JenaBodyPublishersTest {
             "INSERT DATA { <http://example.test/s1> <http://example.test/p1> <http://example.test/o1> }");
 
         final Request request = Request.newBuilder()
-                    .uri(URI.create(config.get("jena_uri") + "/sparqlUpdate"))
+                    .uri(URI.create(config.get("rdf_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur))
                     .build();
@@ -133,7 +134,7 @@ class JenaBodyPublishersTest {
         graph.add(JenaTestModel.S1_NODE, JenaTestModel.P1_NODE, JenaTestModel.O1_NODE);
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("jena_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(JenaBodyPublishers.ofGraph(graph))
                 .build();
