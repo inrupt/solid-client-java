@@ -23,6 +23,7 @@ package com.inrupt.client.jena;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.RDFNode;
+import com.inrupt.client.test.rdf.RdfTestModel;
 
 import java.net.URI;
 import java.util.Optional;
@@ -83,28 +84,28 @@ class JenaDatasetTest {
     @Test
     void testWithContextStream() {
         assertTrue(jenaDataset.stream(
-            Optional.of(JenaTestModel.G_RDFNode),
-            JenaTestModel.S_RDFNode,
-            JenaTestModel.P_RDFNode,
-            JenaTestModel.O_RDFNode
+            Optional.of(RdfTestModel.G_RDFNode),
+            RdfTestModel.S_RDFNode,
+            RdfTestModel.P_RDFNode,
+            RdfTestModel.O_RDFNode
             ).findFirst().isPresent()
         );
         assertEquals(
             1,
             jenaDataset.stream(
-                Optional.of(JenaTestModel.G_RDFNode),
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                Optional.of(RdfTestModel.G_RDFNode),
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
             ).count()
         );
         assertEquals(
-            JenaTestModel.P_RDFNode.getURI(),
+            RdfTestModel.P_RDFNode.getURI(),
             jenaDataset.stream(
-                Optional.of(JenaTestModel.G_RDFNode),
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                Optional.of(RdfTestModel.G_RDFNode),
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
             ).findFirst().get().getPredicate().getURI()
         );
     }
@@ -113,49 +114,49 @@ class JenaDatasetTest {
     void testWithoutContextStream() {
         assertTrue(jenaDataset.stream(
             null,
-            JenaTestModel.S_RDFNode,
-            JenaTestModel.P_RDFNode,
-            JenaTestModel.O_RDFNode
+            RdfTestModel.S_RDFNode,
+            RdfTestModel.P_RDFNode,
+            RdfTestModel.O_RDFNode
         ).findFirst().isPresent());
         assertEquals(
             1,
             jenaDataset.stream(
                 null,
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode).count()
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode).count()
         );
         assertEquals(
-            JenaTestModel.P_RDFNode.getURI(),
+            RdfTestModel.P_RDFNode.getURI(),
             jenaDataset.stream(
                 null,
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
             ).findFirst().get().getPredicate().getURI()
         );
         assertTrue(jenaDataset.stream(
             null,
-            JenaTestModel.S_RDFNode,
-            JenaTestModel.P_RDFNode,
-            JenaTestModel.O_RDFNode
+            RdfTestModel.S_RDFNode,
+            RdfTestModel.P_RDFNode,
+            RdfTestModel.O_RDFNode
         ).findFirst().get().getGraphName().isPresent()
         );
         assertEquals(
-            JenaTestModel.G_RDFNode.getURI(),
+            RdfTestModel.G_RDFNode.getURI(),
             jenaDataset.stream(
                 null,
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
             ).findFirst().get().getGraphName().get().getURI()
         );
         assertTrue(
             jenaDataset.stream(
                 null,
-                JenaTestModel.S1_RDFNode,
-                JenaTestModel.P1_RDFNode,
-                JenaTestModel.O1_RDFNode
+                RdfTestModel.S1_RDFNode,
+                RdfTestModel.P1_RDFNode,
+                RdfTestModel.O1_RDFNode
             ).findFirst().get().getGraphName().isEmpty()
         );
     }
@@ -167,9 +168,9 @@ class JenaDatasetTest {
         assertFalse(
             jenaDataset.stream(
                 Optional.of(G_RDFNode),
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
             ).findFirst().isPresent()
         );
     }
@@ -177,29 +178,29 @@ class JenaDatasetTest {
     @Test
     void testWithNullContextStream() {
         assertTrue(
-            jenaDataset.stream(null, JenaTestModel.S1_RDFNode, JenaTestModel.P1_RDFNode, JenaTestModel.O1_RDFNode)
+            jenaDataset.stream(null, RdfTestModel.S1_RDFNode, RdfTestModel.P1_RDFNode, RdfTestModel.O1_RDFNode)
                 .findFirst().isPresent()
         );
         assertTrue(
-            jenaDataset.stream(null, JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
+            jenaDataset.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
                 .findFirst().isPresent()
         );
         assertEquals(
             1,
-            jenaDataset.stream(null, JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode).count()
+            jenaDataset.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode).count()
         );
         assertEquals(
-            JenaTestModel.P_RDFNode.getURI(),
-            jenaDataset.stream(null, JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
+            RdfTestModel.P_RDFNode.getURI(),
+            jenaDataset.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
                 .findFirst().get().getPredicate().getURI()
         );
         assertTrue(
-            jenaDataset.stream(null, JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
+            jenaDataset.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
                 .findFirst().get().getGraphName().isPresent()
         );
         assertEquals(
-            JenaTestModel.G_RDFNode.getURI(),
-            jenaDataset.stream(null, JenaTestModel.S_RDFNode, JenaTestModel.P_RDFNode, JenaTestModel.O_RDFNode)
+            RdfTestModel.G_RDFNode.getURI(),
+            jenaDataset.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
                 .findFirst().get().getGraphName().get().getURI()
         );
     }
@@ -218,9 +219,9 @@ class JenaDatasetTest {
             IllegalArgumentException.class,
             () -> jenaDataset.stream(
                 Optional.of(G_RDFNode),
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
             )
         );
         assertEquals("Graph cannot be an RDF literal", exception.getMessage());
@@ -228,27 +229,27 @@ class JenaDatasetTest {
 
     @Test
     void testStreamQuadWithGraph() {
-        assertEquals(JenaTestModel.G_VALUE,
+        assertEquals(RdfTestModel.G_VALUE,
             jenaDataset.stream(
-                Optional.of(JenaTestModel.G_RDFNode),
-                JenaTestModel.S_RDFNode,
-                JenaTestModel.P_RDFNode,
-                JenaTestModel.O_RDFNode
+                Optional.of(RdfTestModel.G_RDFNode),
+                RdfTestModel.S_RDFNode,
+                RdfTestModel.P_RDFNode,
+                RdfTestModel.O_RDFNode
                 ).findFirst().get().getGraphName().get().getURI().toString()
         );
         //----- stream with null
         assertTrue(jenaDataset.stream(
             null,
-            JenaTestModel.S_RDFNode,
-            JenaTestModel.P_RDFNode,
-            JenaTestModel.O_RDFNode
+            RdfTestModel.S_RDFNode,
+            RdfTestModel.P_RDFNode,
+            RdfTestModel.O_RDFNode
             ).findFirst().get().getGraphName().isPresent()
         );
-        assertEquals(JenaTestModel.G_VALUE, jenaDataset.stream(
+        assertEquals(RdfTestModel.G_VALUE, jenaDataset.stream(
             null,
-            JenaTestModel.S_RDFNode,
-            JenaTestModel.P_RDFNode,
-            JenaTestModel.O_RDFNode
+            RdfTestModel.S_RDFNode,
+            RdfTestModel.P_RDFNode,
+            RdfTestModel.O_RDFNode
             ).findFirst().get().getGraphName().get().getURI().toString()
         );
     }
@@ -258,17 +259,17 @@ class JenaDatasetTest {
         //----- stream with null
         assertTrue(jenaDataset.stream(
             null,
-            JenaTestModel.S1_RDFNode,
-            JenaTestModel.P1_RDFNode,
-            JenaTestModel.O1_RDFNode
+            RdfTestModel.S1_RDFNode,
+            RdfTestModel.P1_RDFNode,
+            RdfTestModel.O1_RDFNode
             ).findFirst().get().getGraphName().isEmpty()
         );
         //---- stream with empty optional
         assertTrue(jenaDataset.stream(
             Optional.empty(),
-            JenaTestModel.S1_RDFNode,
-            JenaTestModel.P1_RDFNode,
-            JenaTestModel.O1_RDFNode
+            RdfTestModel.S1_RDFNode,
+            RdfTestModel.P1_RDFNode,
+            RdfTestModel.O1_RDFNode
             ).findFirst().get().getGraphName().isEmpty()
         );
     }

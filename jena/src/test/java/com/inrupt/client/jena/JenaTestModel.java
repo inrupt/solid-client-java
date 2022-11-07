@@ -20,44 +20,37 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.RDFNode;
-
-import java.net.URI;
+import com.inrupt.client.test.rdf.RdfTestModel;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
 
 final class JenaTestModel {
-    private static final String TEST_NAMESPACE = "http://example.test/";
-
-    public static final String S_VALUE = TEST_NAMESPACE + "subject";
-    public static final String P_VALUE = TEST_NAMESPACE + "predicate";
-    public static final String O_VALUE = "object";
-    public static final String G_VALUE = TEST_NAMESPACE + "graph";
-
-    public static final String S1_VALUE = TEST_NAMESPACE + "subject1";
-    public static final String P1_VALUE = TEST_NAMESPACE + "predicate1";
-    public static final String O1_VALUE = "object1";
-
-    //RDFNode properties
-    public static final RDFNode S_RDFNode = RDFNode.namedNode(URI.create(S_VALUE));
-    public static final RDFNode P_RDFNode = RDFNode.namedNode(URI.create(P_VALUE));
-    public static final RDFNode O_RDFNode = RDFNode.literal(O_VALUE);
-    public static final RDFNode G_RDFNode = RDFNode.namedNode(URI.create(G_VALUE));
-
-    public static final RDFNode S1_RDFNode = RDFNode.namedNode(URI.create(S1_VALUE));
-    public static final RDFNode P1_RDFNode = RDFNode.namedNode(URI.create(P1_VALUE));
-    public static final RDFNode O1_RDFNode = RDFNode.literal(O1_VALUE);
 
     //JenaNode properties
-    public static final Node S_NODE = NodeFactory.createURI(S_VALUE);
-    public static final Node P_NODE = NodeFactory.createURI(P_VALUE);
-    public static final Node O_NODE = NodeFactory.createLiteral(O_VALUE);
-    public static final Node G_NODE = NodeFactory.createURI(G_VALUE);
+    public static final Node S_NODE = NodeFactory.createURI(RdfTestModel.S_VALUE);
+    public static final Node P_NODE = NodeFactory.createURI(RdfTestModel.P_VALUE);
+    public static final Node O_NODE = NodeFactory.createLiteral(RdfTestModel.O_VALUE);
+    public static final Node G_NODE = NodeFactory.createURI(RdfTestModel.G_VALUE);
 
-    public static final Node S1_NODE = NodeFactory.createURI(S1_VALUE);
-    public static final Node P1_NODE = NodeFactory.createURI(P1_VALUE);
-    public static final Node O1_NODE = NodeFactory.createLiteral(O1_VALUE);
+    public static final Node S1_NODE = NodeFactory.createURI(RdfTestModel.S1_VALUE);
+    public static final Node P1_NODE = NodeFactory.createURI(RdfTestModel.P1_VALUE);
+    public static final Node O1_NODE = NodeFactory.createLiteral(RdfTestModel.O1_VALUE);
+
+    //Jena Resources
+    public static Model model = ModelFactory.createDefaultModel();
+    public static final Resource S_JENA = model.createResource(RdfTestModel.S_VALUE);
+    public static final Literal O_JENA = model.createLiteral(RdfTestModel.O_VALUE);
+    public static final Property P_JENA = model.createProperty(RdfTestModel.P_VALUE);
+
+    public static final Resource S1_JENA = model.createResource(RdfTestModel.S1_VALUE);
+    public static final Literal O1_JENA = model.createLiteral(RdfTestModel.O1_VALUE);
+
 
     private JenaTestModel() {
         // Prevent instantiation

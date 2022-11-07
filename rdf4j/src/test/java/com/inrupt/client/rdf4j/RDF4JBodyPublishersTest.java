@@ -27,6 +27,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.test.rdf.RdfMockService;
+import com.inrupt.client.test.rdf.RdfTestModel;
 
 import java.io.IOException;
 import java.net.URI;
@@ -71,9 +72,9 @@ class RDF4JBodyPublishersTest {
 
         final ModelBuilder builder = new ModelBuilder();
         builder.namedGraph(RDF4JTestModel.G_RDF4J)
-                .subject(RDF4JTestModel.S_VALUE)
-                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
-        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
+                .subject(RdfTestModel.S_VALUE)
+                    .add(RdfTestModel.P_VALUE, RdfTestModel.O_VALUE);
+        builder.defaultGraph().subject(RdfTestModel.S1_VALUE).add(RdfTestModel.P_VALUE, RdfTestModel.O1_VALUE);
         final Model model = builder.build();
 
         final Request request = Request.newBuilder()

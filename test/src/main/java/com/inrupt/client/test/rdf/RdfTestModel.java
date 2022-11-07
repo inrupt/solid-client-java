@@ -55,22 +55,6 @@ public final class RdfTestModel {
     public static final RDFNode P2_RDFNode = RDFNode.namedNode(URI.create(P2_VALUE));
     public static final RDFNode O2_RDFNode = RDFNode.literal(O2_VALUE);
 
-   /*  //RDF4J properties
-    public static final ValueFactory VF = SimpleValueFactory.getInstance();
-
-    public static final Resource S_RDF4J = VF.createIRI(S_VALUE);
-    public static final IRI P_RDF4J = VF.createIRI(P_VALUE);
-    public static final Literal O_RDF4J = VF.createLiteral(O_VALUE);
-    public static final Resource G_RDF4J = VF.createIRI(G_VALUE);
-
-    public static final Resource S1_RDF4J = VF.createIRI(S1_VALUE);
-    public static final IRI P1_RDF4J = VF.createIRI(P1_VALUE);
-    public static final Literal O1_RDF4J = VF.createLiteral(O1_VALUE);
-
-    public static final Resource S2_RDF4J = VF.createIRI(S2_VALUE);
-    public static final IRI P2_RDF4J = VF.createIRI(P2_VALUE);
-    public static final Literal O2_RDF4J = VF.createLiteral(O2_VALUE);
- */
     private RdfTestModel() {
         // Prevent instantiation
     }

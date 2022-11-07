@@ -40,10 +40,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Optional;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -63,32 +60,19 @@ class RDF4JServiceTest extends RdfServices {
 
     public static final ValueFactory VF = SimpleValueFactory.getInstance();
 
-    public static final Resource S_RDF4J = VF.createIRI(RdfTestModel.S_VALUE);
-    public static final IRI P_RDF4J = VF.createIRI(RdfTestModel.P_VALUE);
-    public static final Literal O_RDF4J = VF.createLiteral(RdfTestModel.O_VALUE);
-    public static final Resource G_RDF4J = VF.createIRI(RdfTestModel.G_VALUE);
-
-    public static final Resource S1_RDF4J = VF.createIRI(RdfTestModel.S1_VALUE);
-    public static final IRI P1_RDF4J = VF.createIRI(RdfTestModel.P1_VALUE);
-    public static final Literal O1_RDF4J = VF.createLiteral(RdfTestModel.O1_VALUE);
-
-    public static final Resource S2_RDF4J = VF.createIRI(RdfTestModel.S2_VALUE);
-    public static final IRI P2_RDF4J = VF.createIRI(RdfTestModel.P2_VALUE);
-    public static final Literal O2_RDF4J = VF.createLiteral(RdfTestModel.O2_VALUE);
-
     @BeforeAll
     static void setup() {
         // create a RDF4JDataset
         final Statement st = VF.createStatement(
-            S_RDF4J,
-            P_RDF4J,
-            O_RDF4J,
-            G_RDF4J
+            RDF4JTestModel.S_RDF4J,
+            RDF4JTestModel.P_RDF4J,
+            RDF4JTestModel.O_RDF4J,
+            RDF4JTestModel.G_RDF4J
         );
         final Statement st1 = VF.createStatement(
-            S1_RDF4J,
-            P1_RDF4J,
-            O1_RDF4J
+            RDF4JTestModel.S1_RDF4J,
+            RDF4JTestModel.P1_RDF4J,
+            RDF4JTestModel.O1_RDF4J
         );
         final Repository repository = new SailRepository(new MemoryStore());
         try (final RepositoryConnection conn = repository.getConnection()) {
@@ -99,7 +83,7 @@ class RDF4JServiceTest extends RdfServices {
 
         // create a RDF4JGraph
         final ModelBuilder builder = new ModelBuilder();
-        builder.namedGraph(G_RDF4J)
+        builder.namedGraph(RDF4JTestModel.G_RDF4J)
                 .subject(RdfTestModel.S_VALUE)
                     .add(RdfTestModel.P_VALUE, RdfTestModel.O_VALUE);
         builder.defaultGraph().subject(RdfTestModel.S1_VALUE).add(RdfTestModel.P_VALUE, RdfTestModel.O1_VALUE);

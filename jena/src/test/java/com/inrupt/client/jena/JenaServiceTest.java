@@ -36,13 +36,8 @@ import java.nio.file.Files;
 import java.util.Optional;
 
 import org.apache.jena.atlas.RuntimeIOException;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,42 +51,26 @@ class JenaServiceTest extends RdfServices {
 
     private static final Model model = ModelFactory.createDefaultModel();
 
-    private static final Resource S_JENA = model.createResource(RdfTestModel.S_VALUE);
-    private static final Literal O_JENA = model.createLiteral(RdfTestModel.O_VALUE);
-    private static final Property P_JENA = model.createProperty(RdfTestModel.P_VALUE);
-
-    private static final Resource S1_JENA = model.createResource(RdfTestModel.S1_VALUE);
-    private static final Literal O1_JENA = model.createLiteral(RdfTestModel.O1_VALUE);
-
-    public static final Node S_NODE = NodeFactory.createURI(RdfTestModel.S_VALUE);
-    public static final Node P_NODE = NodeFactory.createURI(RdfTestModel.P_VALUE);
-    public static final Node O_NODE = NodeFactory.createLiteral(RdfTestModel.O_VALUE);
-    public static final Node G_NODE = NodeFactory.createURI(RdfTestModel.G_VALUE);
-
-    public static final Node S1_NODE = NodeFactory.createURI(RdfTestModel.S1_VALUE);
-    public static final Node P1_NODE = NodeFactory.createURI(RdfTestModel.P1_VALUE);
-    public static final Node O1_NODE = NodeFactory.createLiteral(RdfTestModel.O1_VALUE);
-
     @BeforeAll
     static void setup() {
         // create a JenaDataset
         final DatasetGraph dsg = DatasetGraphFactory.create();
-        dsg.add(G_NODE,
-            S_NODE,
-            P_NODE,
-            O_NODE);
+        dsg.add(JenaTestModel.G_NODE,
+            JenaTestModel.S_NODE,
+            JenaTestModel.P_NODE,
+            JenaTestModel.O_NODE);
 
         dsg.getDefaultGraph()
-            .add(S1_NODE,
-                P1_NODE,
-                O1_NODE
+            .add(JenaTestModel.S1_NODE,
+                JenaTestModel.P1_NODE,
+                JenaTestModel.O1_NODE
             );
 
         jenaDataset = new JenaDataset(dsg);
 
         // create a JenaGraph
-        model.add(S_JENA, P_JENA, O_JENA);
-        model.add(S1_JENA, P_JENA, O1_JENA);
+        model.add(JenaTestModel.S_JENA, JenaTestModel.P_JENA, JenaTestModel.O_JENA);
+        model.add(JenaTestModel.S1_JENA, JenaTestModel.P_JENA, JenaTestModel.O1_JENA);
         jenaGraph = new JenaGraph(model);
     }
 

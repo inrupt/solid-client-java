@@ -36,11 +36,8 @@ import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.update.UpdateFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -54,14 +51,7 @@ class JenaBodyPublishersTest {
 
     private static Dataset ds;
     private static Graph graph;
-
-    private static Model model = ModelFactory.createDefaultModel();
-    private static final Resource S_JENA = model.createResource(JenaTestModel.S_VALUE);
-    private static final Literal O_JENA = model.createLiteral(JenaTestModel.O_VALUE);
-    private static final Property P_JENA = model.createProperty(JenaTestModel.P_VALUE);
-
-    private static final Resource S1_JENA = model.createResource(JenaTestModel.S1_VALUE);
-    private static final Literal O1_JENA = model.createLiteral(JenaTestModel.O1_VALUE);
+    private static Model model;
 
     @BeforeAll
     static void setup() {
@@ -77,8 +67,8 @@ class JenaBodyPublishersTest {
     void testOfModelPublisher() throws IOException, InterruptedException {
         model = ModelFactory.createDefaultModel();
 
-        model.add(S_JENA, P_JENA, O_JENA);
-        model.add(S1_JENA, P_JENA, O1_JENA);
+        model.add(JenaTestModel.S_JENA, JenaTestModel.P_JENA, JenaTestModel.O_JENA);
+        model.add(JenaTestModel.S1_JENA, JenaTestModel.P_JENA, JenaTestModel.O1_JENA);
 
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
@@ -95,8 +85,8 @@ class JenaBodyPublishersTest {
     void testOfDatasetPublisher() throws IOException, InterruptedException {
         model = ModelFactory.createDefaultModel();
 
-        model.add(S_JENA, P_JENA, O_JENA);
-        model.add(S1_JENA, P_JENA, O1_JENA);
+        model.add(JenaTestModel.S_JENA, JenaTestModel.P_JENA, JenaTestModel.O_JENA);
+        model.add(JenaTestModel.S1_JENA, JenaTestModel.P_JENA, JenaTestModel.O1_JENA);
 
         ds = DatasetFactory.create(model);
 
