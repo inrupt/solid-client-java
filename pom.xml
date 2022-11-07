@@ -32,7 +32,7 @@
     <!-- testing -->
     <junit.version>5.9.1</junit.version>
     <yasson.version>1.0.3</yasson.version>
-    <wiremock.version>2.34.0</wiremock.version>
+    <wiremock.version>2.35.0</wiremock.version>
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
