@@ -73,6 +73,26 @@ public final class WacAllow {
         return Collections.unmodifiableMap(accessParams);
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof WacAllow)) {
+            return false;
+        }
+
+        final WacAllow c = (WacAllow) obj;
+
+        return Objects.equals(new HashMap<>(accessParams), new HashMap<>(c.accessParams));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getAccessParams());
+    }
+
     /**
      * Parse header strings into a WacAllow object.
      *
@@ -177,16 +197,20 @@ public final class WacAllow {
                 for (final TerminalNode p : ctx.AccessParam()) {
                     final String[] parts = p.getText().split(EQUALS, PAIR);
                     if (parts.length == PAIR) {
-                        if (accessParams.get(parts[0]) == null) {
-                            accessParams.put(parts[0], Set.of((unwrap(parts[1], DQUOTE)).split(WS)));
-                        } else {
-                            accessParams.get(parts[0]).addAll(Set.of((unwrap(parts[1], DQUOTE)).split(WS)));
+                        final String[] accessModes = unwrap(parts[1], DQUOTE).trim().split(WS);
+                        if (accessModes[0].length() > 0 ) {
+                            if (accessParams.get(parts[0]) == null) {
+                                accessParams.put(parts[0],Set.of(accessModes));
+                            } else {
+                                accessParams.get(parts[0]).addAll(Set.of(accessModes));
+                            }
                         }
                     }
                 }
             }
 
             static String unwrap(final String value, final String character) {
+
                 if (value.startsWith(character) && value.endsWith(character)) {
                     return value.substring(1, value.length() - 1);
                 }

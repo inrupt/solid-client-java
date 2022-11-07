@@ -33,7 +33,7 @@ grammar WacAllow ;
 //wacAllow : 'WAC-Allow' ':' WS? ((','| accessParam) (WS? ',' (WS? accessParam))*)? WS?;
     //wac-allow = "WAC-Allow" ":" OWS #access-param OWS
     //#element => [ ( "," / element ) *( OWS "," [ OWS element ] ) ]
-wacAllow : 'WAC-Allow' ':' WS? (( ',' | AccessParam ) (WS? ',' (WS? AccessParam)?)*)? WS?; 
+wacAllow : AccessParam ( WS? ',' WS? AccessParam)* ; 
 
 
 // -------------
@@ -43,7 +43,7 @@ wacAllow : 'WAC-Allow' ':' WS? (( ',' | AccessParam ) (WS? ',' (WS? AccessParam)
 //access-param = permission-group OWS "=" OWS DQUOTE OWS *1(access-mode *(RWS access-mode)) OWS DQUOTE
     //access-param = permission-group OWS "=" OWS access-modes
     //access-modes = DQUOTE OWS *1(access-mode *(RWS access-mode)) OWS DQUOTE
-AccessParam : PermissionGroup WS? '=' WS? DQUOTE WS? (AccessMode (WS AccessMode)*)? WS? DQUOTE;
+AccessParam : PermissionGroup WS? '=' WS? DQUOTE WS? (AccessMode (WS AccessMode)*)? WS? DQUOTE ;
 
 // access-mode = "read" / "write" / "append" / "control"
 fragment AccessMode : ALPHA+ ;

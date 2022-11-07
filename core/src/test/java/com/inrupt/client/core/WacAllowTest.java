@@ -23,7 +23,6 @@ package com.inrupt.client.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -58,19 +57,27 @@ class WacAllowTest {
     void parseEmptyAccessMode() {
         final String header = "WAC-Allow: user=\"\"";
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
-        final Map<String, Set<String>> expected = Map.of("user", new HashSet<String>());
 
-        assertEquals(expected.toString(), accessParams.toString());
+        assertTrue(!accessParams.containsKey("user"));
     }
 
     @Test
     void parseWhiteSpaceAccessMode() {
         final String header = "WAC-Allow: user=\" \"";
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
-        final Map<String, Set<String>> expected = Map.of("user", new HashSet<String>());
+
+        assertTrue(!accessParams.containsKey("user"));
+    }
+
+    @Test
+    void trimAccessMode() {
+        final String header = "WAC-Allow: user=\"    read   \"";
+        final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
+        final Map<String, Set<String>> expected = Map.of("user", Set.of("read"));
 
         assertEquals(expected, accessParams);
     }
+
 
     @ParameterizedTest
     @MethodSource
@@ -83,8 +90,11 @@ class WacAllowTest {
         return Stream.of(
                 Arguments.of("WAC-Allow: user=\"read write\"",
                     Map.of("user", Set.of("read", "write"))),
-
+                Arguments.of("WAC-Allow: user=\" read write \"",
+                    Map.of("user", Set.of("read", "write"))),
                 Arguments.of("WAC-Allow: user=\"read write append\"",
+                    Map.of("user", Set.of("read", "write", "append"))),
+                Arguments.of("WAC-Allow: user=\"    read write append   \"",
                     Map.of("user", Set.of("read", "write", "append"))));
     }
 
@@ -156,5 +166,4 @@ class WacAllowTest {
                     Map.of("user", Set.of("read"),
                             "public", Set.of("read"))));
     }
-
 }
