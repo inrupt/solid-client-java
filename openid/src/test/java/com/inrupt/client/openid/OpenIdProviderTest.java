@@ -46,7 +46,7 @@ class OpenIdProviderTest {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException {
-        config.putAll(mockHttpService.start());
+        config.put("openid_uri", mockHttpService.start());
         openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")), client);
     }
 
@@ -148,7 +148,7 @@ class OpenIdProviderTest {
 
     @Test
     void tokenNoClientSecretTest() {
-        final var tokenReq = TokenRequest.newBuilder()
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
             .build(
@@ -156,7 +156,7 @@ class OpenIdProviderTest {
                 "myClientId",
                 URI.create("https://example.test/redirectUri")
             );
-        final var token = openIdProvider.token(tokenReq);
+        final TokenResponse token = openIdProvider.token(tokenReq);
         assertEquals("token-from-id-token", token.accessToken);
         assertEquals("123456", token.idToken);
         assertEquals("Bearer", token.tokenType);
@@ -164,7 +164,7 @@ class OpenIdProviderTest {
 
     @Test
     void tokenWithClientSecretBasicTest() {
-        final var tokenReq = TokenRequest.newBuilder()
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
@@ -174,7 +174,7 @@ class OpenIdProviderTest {
                 "myClientId",
                 URI.create("https://example.test/redirectUri")
             );
-        final var token = openIdProvider.token(tokenReq);
+        final TokenResponse token = openIdProvider.token(tokenReq);
         assertEquals("token-from-id-token", token.accessToken);
         assertEquals("123456", token.idToken);
         assertEquals("Bearer", token.tokenType);
@@ -182,7 +182,7 @@ class OpenIdProviderTest {
 
     @Test
     void tokenWithClientSecretePostTest() {
-        final var tokenReq = TokenRequest.newBuilder()
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
@@ -192,7 +192,7 @@ class OpenIdProviderTest {
                 "myClientId",
                 URI.create("https://example.test/redirectUri")
             );
-        final var token = openIdProvider.token(tokenReq);
+        final TokenResponse token = openIdProvider.token(tokenReq);
         assertEquals("token-from-id-token", token.accessToken);
         assertEquals("123456", token.idToken);
         assertEquals("Bearer", token.tokenType);
@@ -200,10 +200,10 @@ class OpenIdProviderTest {
 
     @Test
     void tokenAsyncTest() {
-        final var tokenReq = TokenRequest.newBuilder().code("someCode")
+        final TokenRequest tokenReq = TokenRequest.newBuilder().code("someCode")
                 .codeVerifier("myCodeverifier").build("authorization_code", "myClientId",
                         URI.create("https://example.test/redirectUri"));
-        final var token = openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join();
+        final TokenResponse token = openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join();
         assertEquals("token-from-id-token", token.accessToken);
         assertEquals("123456", token.idToken);
         assertEquals("Bearer", token.tokenType);
@@ -212,7 +212,7 @@ class OpenIdProviderTest {
 
     @Test
     void tokenAsyncStatusCodesTest() {
-        final var tokenReq = TokenRequest.newBuilder().code("none")
+        final TokenRequest tokenReq = TokenRequest.newBuilder().code("none")
                 .codeVerifier("none").build("authorization_code", "none",
                         URI.create("none"));
 
@@ -222,7 +222,7 @@ class OpenIdProviderTest {
                     () -> openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join()
                 );
                 assertTrue(exception.getCause() instanceof OpenIdException);
-                final var cause = (OpenIdException) exception.getCause();
+                final OpenIdException cause = (OpenIdException) exception.getCause();
                 assertEquals(
                     "Unexpected error while interacting with the OpenID Provider's token endpoint.",
                     cause.getMessage());
@@ -237,7 +237,7 @@ class OpenIdProviderTest {
             .clientId("myClientId")
             .state("solid")
             .build();
-        final var uri = openIdProvider.endSession(endReq);
+        final URI uri = openIdProvider.endSession(endReq);
         assertEquals(
             "http://example.test/endSession?" +
             "client_id=myClientId&post_logout_redirect_uri=https://example.test/redirectUri&id_token_hint=&state=solid",
@@ -252,7 +252,7 @@ class OpenIdProviderTest {
             .clientId("myClientId")
             .state("solid")
             .build();
-        final var uri = openIdProvider.endSessionAsync(endReq).toCompletableFuture().join();
+        final URI uri = openIdProvider.endSessionAsync(endReq).toCompletableFuture().join();
         assertEquals(
             "http://example.test/endSession?" +
             "client_id=myClientId&post_logout_redirect_uri=https://example.test/redirectUri&id_token_hint=&state=solid",

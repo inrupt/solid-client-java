@@ -53,7 +53,7 @@ public class DefaultDpopService implements DpopService {
         return new DPoPManager(keypairs);
     }
 
-    public class DPoPManager extends Authenticator.DPoP {
+    public class DPoPManager implements Authenticator.DPoP {
         private final Map<String, KeyPair> keypairs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         public DPoPManager(final Map<String, KeyPair> keypairs) {
