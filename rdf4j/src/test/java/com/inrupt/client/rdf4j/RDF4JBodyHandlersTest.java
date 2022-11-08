@@ -26,6 +26,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.HttpConfig;
 
 import java.io.IOException;
 import java.net.URI;
@@ -47,7 +48,10 @@ class RDF4JBodyHandlersTest {
 
     private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final HttpService client = ServiceProvider.getHttpService();
+    private static final HttpService client =
+            ServiceProvider
+                    .getHttpService()
+                    .config(HttpConfig.newBuilder().redirects(2).build());
 
     @BeforeAll
     static void setup() {
