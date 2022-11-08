@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.util;
 
-public class HttpConfig implements Options {
+public final class HttpConfig implements Options {
 
     private final long retryRedirects;
 

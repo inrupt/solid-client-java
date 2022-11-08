@@ -22,5 +22,5 @@ package com.inrupt.client.util;
 
 public interface Options {
 
-    static final int DEFAULT_RETRY_REDIRECTS = 5;
+    int DEFAULT_RETRY_REDIRECTS = 5;
 }

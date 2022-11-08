@@ -64,7 +64,7 @@ public class OkHttpService implements HttpService {
         this.client = client;
     }
 
-    @Override 
+    @Override
     public HttpService config(final HttpConfig config) {
         return new OkHttpService(config);
     }

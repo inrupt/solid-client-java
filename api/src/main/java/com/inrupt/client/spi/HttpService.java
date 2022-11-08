@@ -33,7 +33,7 @@ import java.util.concurrent.CompletionStage;
 public interface HttpService {
 
     /**
-     * Set configuration for the HttpService
+     * Set configuration for the HttpService.
      *
      * @param config the {@link HttpConfig}
      * @return the HttpService

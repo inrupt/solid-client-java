@@ -55,8 +55,8 @@ public class HttpClientService implements HttpService {
         // TODO log that this was initialized at DEBUG level
         this.client = client;
     }
-    
-    @Override 
+
+    @Override
     public HttpService config(final HttpConfig config) {
         return new HttpClientService(config);
     }
