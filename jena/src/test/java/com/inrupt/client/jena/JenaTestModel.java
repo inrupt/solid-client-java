@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.test.rdf.RdfTestModel;
+import com.inrupt.client.test.RdfTestModel;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;

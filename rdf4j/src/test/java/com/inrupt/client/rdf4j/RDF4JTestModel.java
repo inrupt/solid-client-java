@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.test.rdf.RdfTestModel;
+import com.inrupt.client.test.RdfTestModel;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;

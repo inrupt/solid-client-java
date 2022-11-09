@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.httpclient;
 
-import com.inrupt.client.test.http.HttpServices;
+import com.inrupt.client.test.HttpServices;
 
 class HttpclientServiceTest extends HttpServices {
 

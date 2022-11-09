@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.inrupt.client.*;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.test.rdf.RdfMockService;
+import com.inrupt.client.test.RdfMockService;
 
 import java.io.IOException;
 import java.net.URI;

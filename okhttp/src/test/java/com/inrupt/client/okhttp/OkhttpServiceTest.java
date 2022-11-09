@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.okhttp;
 
-import com.inrupt.client.test.http.HttpServices;
+import com.inrupt.client.test.HttpServices;
 
 class OkhttpServiceTest extends HttpServices {
 

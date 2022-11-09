@@ -22,7 +22,7 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.test.rdf.RdfTestModel;
+import com.inrupt.client.test.RdfTestModel;
 
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;

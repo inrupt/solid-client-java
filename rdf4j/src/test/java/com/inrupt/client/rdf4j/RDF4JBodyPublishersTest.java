@@ -26,8 +26,8 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.test.rdf.RdfMockService;
-import com.inrupt.client.test.rdf.RdfTestModel;
+import com.inrupt.client.test.RdfMockService;
+import com.inrupt.client.test.RdfTestModel;
 
 import java.io.IOException;
 import java.net.URI;

@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.inrupt.client.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.test.rdf.RdfServices;
-import com.inrupt.client.test.rdf.RdfTestModel;
+import com.inrupt.client.test.RdfServices;
+import com.inrupt.client.test.RdfTestModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

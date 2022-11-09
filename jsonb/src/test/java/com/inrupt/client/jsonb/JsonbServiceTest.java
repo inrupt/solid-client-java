@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.jsonb;
 
-import com.inrupt.client.test.json.JsonServices;
+import com.inrupt.client.test.JsonServices;
 
 class JsonbServiceTest extends JsonServices {
 
