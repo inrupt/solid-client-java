@@ -90,9 +90,24 @@ class WacAllowTest {
         return Stream.of(
                 Arguments.of("WAC-Allow: user=\"read write\"",
                     Map.of("user", Set.of("read", "write"))),
-                Arguments.of("WAC-Allow: user=\" read write \"",
-                    Map.of("user", Set.of("read", "write"))),
                 Arguments.of("WAC-Allow: user=\"read write append\"",
+                    Map.of("user", Set.of("read", "write", "append"))));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void parseWhiteSpaceEdgeCases(final String header, final Map<String, Set<String>> expected) {
+        final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
+        assertEquals(expected, accessParams);
+    }
+
+    private static Stream<Arguments> parseWhiteSpaceEdgeCases() {
+        return Stream.of(
+                Arguments.of("WAC-Allow: user=\"read    write\"",
+                    Map.of("user", Set.of("read", "write"))),
+                Arguments.of("WAC-Allow: user=\"    read write    \"",
+                    Map.of("user", Set.of("read", "write"))),
+                Arguments.of("WAC-Allow: user=\"read    write      append\"",
                     Map.of("user", Set.of("read", "write", "append"))),
                 Arguments.of("WAC-Allow: user=\"    read write append   \"",
                     Map.of("user", Set.of("read", "write", "append"))));

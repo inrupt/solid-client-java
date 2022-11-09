@@ -25,8 +25,10 @@ import com.inrupt.client.parser.WacAllowBaseListener;
 import com.inrupt.client.parser.WacAllowLexer;
 import com.inrupt.client.parser.WacAllowParser;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -107,11 +109,8 @@ public final class WacAllow {
             final Map<String, Set<String>> accessParamEntry = parser.parse(header);
 
             for (Entry<String, Set<String>> entry : accessParamEntry.entrySet()) {
-                if (!accessParams.containsKey(entry.getKey())) {
-                    accessParams.put(entry.getKey(), entry.getValue());
-                } else {
-                    accessParams.get(entry.getKey()).addAll(entry.getValue());
-                }
+                accessParams.computeIfAbsent(entry.getKey(), k -> new HashSet<>())
+                            .addAll(entry.getValue());
             }
         }
         return WacAllow.of(accessParams);
@@ -197,13 +196,11 @@ public final class WacAllow {
                 for (final TerminalNode p : ctx.AccessParam()) {
                     final String[] parts = p.getText().split(EQUALS, PAIR);
                     if (parts.length == PAIR) {
-                        final String[] accessModes = unwrap(parts[1], DQUOTE).trim().split(WS);
-                        if (accessModes[0].length() > 0 ) {
-                            if (!accessParams.containsKey(parts[0])) {
-                                accessParams.put(parts[0],Set.of(accessModes));
-                            } else {
-                                accessParams.get(parts[0]).addAll(Set.of(accessModes));
-                            }
+                        final String[] accessModes = Arrays.stream(unwrap(parts[1], DQUOTE).split(WS))
+                                                            .filter(s -> !s.isEmpty()).toArray(String[]::new);
+                        if (accessModes.length > 0) {
+                            accessParams.computeIfAbsent(parts[0], k -> new HashSet<>())
+                                        .addAll(Set.of(accessModes));
                         }
                     }
                 }
