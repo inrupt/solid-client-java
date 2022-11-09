@@ -27,6 +27,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * A class for generating values for Proof Key for Code Exchange (PKCE) interactions.
@@ -42,11 +43,13 @@ public final class PKCE {
      *
      * @param verifier the PKCE verifier
      * @return the Base64URL-encoded challenge value
+     * @throws NullPointerException when verifier is null
      */
     static String createChallenge(final String verifier) {
+        final String v = Objects.requireNonNull(verifier, "PKCE Verifier Cannot be Null");
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(v.getBytes(UTF_8)));
         } catch (final NoSuchAlgorithmException ex) {
             throw new OpenIdException("Error generating PKCE challenge", ex);
         }
