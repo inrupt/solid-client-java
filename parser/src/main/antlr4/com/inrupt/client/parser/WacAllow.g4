@@ -22,17 +22,15 @@
 grammar WacAllow ;
 
 // ------------------------------------
-//  Grammar adapted from Solid TR Web Access Control: Section 6.1
+//  Grammar adapted from Solid TR Web Access Control
+//  See https://solidproject.org/TR/wac#wac-allow
 // ------------------------------------
-
 
 // --------------
 //  Parser Rules
 // --------------
 
 //wacAllow : 'WAC-Allow' ':' WS? ((','| accessParam) (WS? ',' (WS? accessParam))*)? WS?;
-    //wac-allow = "WAC-Allow" ":" OWS #access-param OWS
-    //#element => [ ( "," / element ) *( OWS "," [ OWS element ] ) ]
 wacAllow : AccessParam ( WS? ',' WS? AccessParam)* ; 
 
 
@@ -41,8 +39,6 @@ wacAllow : AccessParam ( WS? ',' WS? AccessParam)* ;
 // -------------
 
 //access-param = permission-group OWS "=" OWS DQUOTE OWS *1(access-mode *(RWS access-mode)) OWS DQUOTE
-    //access-param = permission-group OWS "=" OWS access-modes
-    //access-modes = DQUOTE OWS *1(access-mode *(RWS access-mode)) OWS DQUOTE
 AccessParam : PermissionGroup WS? '=' WS? DQUOTE WS? (AccessMode (WS AccessMode)*)? WS? DQUOTE ;
 
 // access-mode = "read" / "write" / "append" / "control"

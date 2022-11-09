@@ -107,7 +107,7 @@ public final class WacAllow {
             final Map<String, Set<String>> accessParamEntry = parser.parse(header);
 
             for (Entry<String, Set<String>> entry : accessParamEntry.entrySet()) {
-                if (accessParams.get(entry.getKey()) == null) {
+                if (!accessParams.containsKey(entry.getKey())) {
                     accessParams.put(entry.getKey(), entry.getValue());
                 } else {
                     accessParams.get(entry.getKey()).addAll(entry.getValue());
@@ -199,7 +199,7 @@ public final class WacAllow {
                     if (parts.length == PAIR) {
                         final String[] accessModes = unwrap(parts[1], DQUOTE).trim().split(WS);
                         if (accessModes[0].length() > 0 ) {
-                            if (accessParams.get(parts[0]) == null) {
+                            if (!accessParams.containsKey(parts[0])) {
                                 accessParams.put(parts[0],Set.of(accessModes));
                             } else {
                                 accessParams.get(parts[0]).addAll(Set.of(accessModes));
