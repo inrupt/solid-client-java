@@ -21,7 +21,6 @@
 package com.inrupt.client.openid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
