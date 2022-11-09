@@ -33,12 +33,6 @@
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.github.jknack</groupId>
-          <artifactId>handlebars</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
