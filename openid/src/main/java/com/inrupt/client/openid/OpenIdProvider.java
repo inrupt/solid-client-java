@@ -264,7 +264,7 @@ public class OpenIdProvider {
                 name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
                 value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
             } catch (UnsupportedEncodingException e) {
-                throw new OpenIdException(e.getMessage());
+                throw new OpenIdException("Error encoding form data", e);
             }
             return String.join(EQUALS, name, value);
         }).collect(Collectors.joining(ETC));
