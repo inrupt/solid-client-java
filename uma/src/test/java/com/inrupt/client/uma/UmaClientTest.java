@@ -30,10 +30,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class UmaClientTest {
 
@@ -74,6 +78,27 @@ class UmaClientTest {
         assertThrows(UmaException.class, () -> client.metadata(asUri));
     }
 
+    @ParameterizedTest
+    @MethodSource
+    void testSimpleTokenError(final String ticket) {
+        final URI asUri = URI.create(config.get("as_uri"));
+        final UmaClient client = new UmaClient();
+        final Metadata metadata = client.metadata(asUri);
+        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
+
+        assertThrows(UmaException.class,
+                () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
+                    throw new UmaException("Unable to negotiation a token");
+                }));
+    }
+
+    private static Stream<Arguments> testSimpleTokenError() {
+        return Stream.of(
+            Arguments.of("ticket-unknown-error"),
+            Arguments.of("ticket-malformed-response"),
+            Arguments.of("ticket-invalid-response"));
+    }
+
     @Test
     void testSimpleTokenNegotiationInvalidTicket() {
         final URI asUri = URI.create(config.get("as_uri"));
@@ -82,9 +107,10 @@ class UmaClientTest {
         final String ticket = "ticket-invalid-grant";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
-        assertThrows(InvalidGrantException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiation a token");
-        }));
+        assertThrows(InvalidGrantException.class,
+                () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
+                    throw new UmaException("Unable to negotiation a token");
+                }));
     }
 
     @Test
@@ -96,45 +122,6 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         assertThrows(RequestDeniedException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiation a token");
-        }));
-    }
-
-    @Test
-    void testSimpleTokenUnknownError() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-unknown-error";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(UmaException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiation a token");
-        }));
-    }
-
-    @Test
-    void testSimpleTokenMalformedResponse() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-malformed-response";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(UmaException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiation a token");
-        }));
-    }
-
-    @Test
-    void testSimpleTokenInvalidJsonResponse() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-invalid-response";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(UmaException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
             throw new UmaException("Unable to negotiation a token");
         }));
     }
@@ -289,58 +276,27 @@ class UmaClientTest {
         assertTrue(err.getCause() instanceof RequestDeniedException);
     }
 
-    @Test
-    void testSimpleTokenUnknownErrorAsync() {
+    @ParameterizedTest
+    @MethodSource
+    void testSimpleTokenErrorAsync(final String ticket) {
         final URI asUri = URI.create(config.get("as_uri"));
         final UmaClient client = new UmaClient();
-        final String ticket = "ticket-unknown-error";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
-        final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
-                    .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+        final CompletionException err =
+                assertThrows(CompletionException.class, client.metadataAsync(asUri).thenCompose(
+                        metadata -> client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
                             throw new UmaException("Unable to negotiation a token");
-                        }))
-                    .toCompletableFuture()::join);
+                        })).toCompletableFuture()::join);
 
         assertTrue(err.getCause() instanceof UmaException);
     }
 
-    @Test
-    void testSimpleTokenMalformedResponseAsync() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final String ticket = "ticket-malformed-response";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
-                    .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
-                            throw new UmaException("Unable to negotiation a token");
-                        }))
-                    .toCompletableFuture()::join);
-
-        assertTrue(err.getCause() instanceof UmaException);
-    }
-
-    @Test
-    void testSimpleTokenInvalidJsonResponseAsync() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final String ticket = "ticket-invalid-response";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
-                    .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
-                            throw new UmaException("Unable to negotiate a token");
-                        }))
-                    .toCompletableFuture()::join);
-
-        assertTrue(err.getCause() instanceof UmaException);
+    private static Stream<Arguments> testSimpleTokenErrorAsync() {
+        return Stream.of(
+            Arguments.of("ticket-unknown-error"),
+            Arguments.of("ticket-malformed-response"),
+            Arguments.of("ticket-invalid-response"));
     }
 
     @Test
