@@ -18,25 +18,49 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.httpclient;
+package com.inrupt.client.test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
+import java.util.Collections;
 import java.util.Map;
 
-class MockHttpServer {
+
+class HttpMockService {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String TEXT_TURTLE = "text/turtle";
 
     private final WireMockServer wireMockServer;
 
-    public MockHttpServer() {
+    public HttpMockService() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .dynamicPort());
+                .dynamicPort()
+                .fileSource(new ClasspathFileSourceWithoutLeadingSlash()));
+    }
+
+    /*
+    * Without this class Wiremock tries to find the mappings directory under /__files
+    * and the classloader will not find this directory because of the leading slash.
+    * This class removes the leading slash and as a consequence the classloader will
+    * find the mappings directory.
+    * See: https://github.com/wiremock/wiremock/issues/504#issuecomment-383869098
+    */
+    class ClasspathFileSourceWithoutLeadingSlash extends ClasspathFileSource {
+
+        ClasspathFileSourceWithoutLeadingSlash() {
+            super("");
+        }
+
+        @Override
+        public FileSource child(final String subDirectoryName) {
+            return new ClasspathFileSource(subDirectoryName);
+        }
     }
 
     public int getPort() {
@@ -89,8 +113,7 @@ class MockHttpServer {
         wireMockServer.start();
 
         setupMocks();
-
-        return Map.of("http_uri", wireMockServer.baseUrl());
+        return Collections.singletonMap("http_uri", wireMockServer.baseUrl());
     }
 
     public void stop() {

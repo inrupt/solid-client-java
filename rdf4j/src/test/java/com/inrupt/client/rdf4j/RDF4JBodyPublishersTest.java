@@ -26,6 +26,8 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.test.RdfMockService;
+import com.inrupt.client.test.RdfTestModel;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,7 +53,7 @@ import org.junit.jupiter.api.Test;
 
 class RDF4JBodyPublishersTest {
 
-    private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
+    private static final RdfMockService mockHttpService = new RdfMockService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpService client = ServiceProvider.getHttpService();
 
@@ -70,13 +72,13 @@ class RDF4JBodyPublishersTest {
 
         final ModelBuilder builder = new ModelBuilder();
         builder.namedGraph(RDF4JTestModel.G_RDF4J)
-                .subject(RDF4JTestModel.S_VALUE)
-                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
-        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
+                .subject(RdfTestModel.S_VALUE)
+                    .add(RdfTestModel.P_VALUE, RdfTestModel.O_VALUE);
+        builder.defaultGraph().subject(RdfTestModel.S1_VALUE).add(RdfTestModel.P_VALUE, RdfTestModel.O1_VALUE);
         final Model model = builder.build();
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofModel(model))
                 .build();
@@ -107,7 +109,7 @@ class RDF4JBodyPublishersTest {
         }
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/postOneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/postOneTriple"))
                 .header("Content-Type", "text/turtle")
                 .POST(RDF4JBodyPublishers.ofRepository(repository))
                 .build();
@@ -133,7 +135,7 @@ class RDF4JBodyPublishersTest {
                 updateString
             );
             final Request request = Request.newBuilder()
-                    .uri(URI.create(config.get("rdf4j_uri") + "/sparqlUpdate"))
+                    .uri(URI.create(config.get("rdf_uri") + "/sparqlUpdate"))
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
                     .build();
