@@ -116,7 +116,6 @@ public interface Client {
         /**
          * Set the number of retry redirects.
          *
-         * @param retryRedirects the number of retry redirects
          * @return the number of retry redirects
          */
         long getRetryRedirects();

@@ -57,7 +57,7 @@ public final class DefaultClient implements Client {
     }
 
     @Override
-    public Client config(Config config) {
+    public Client config(final Config config) {
         return new DefaultClient(this.httpClient, this.registry, this.session, config);
     }
 
