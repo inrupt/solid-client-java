@@ -26,7 +26,6 @@ package com.inrupt.client.okhttp;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
-import com.inrupt.client.util.HttpConfig;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -50,23 +49,12 @@ public class OkHttpService implements HttpService {
     private final OkHttpClient client;
 
     public OkHttpService() {
-        this(HttpConfig.newBuilder().build());
-    }
-
-    private OkHttpService(final HttpConfig config) {
-        //default is true but we add it for completeness
-        this.client = new OkHttpClient.Builder().followRedirects(true).build();
-        //OkHttp does not have a way to set number of retires
+        this(new OkHttpClient());
     }
 
     public OkHttpService(final OkHttpClient client) {
         // TODO -- Log that this was initialized at DEBUG level
         this.client = client;
-    }
-
-    @Override
-    public HttpService config(final HttpConfig config) {
-        return new OkHttpService(config);
     }
 
     @Override

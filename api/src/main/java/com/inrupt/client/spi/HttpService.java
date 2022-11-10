@@ -22,7 +22,6 @@ package com.inrupt.client.spi;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.util.HttpConfig;
 
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
@@ -31,14 +30,6 @@ import java.util.concurrent.CompletionStage;
  * An HTTP handling abstraction.
  */
 public interface HttpService {
-
-    /**
-     * Set configuration for the HttpService.
-     *
-     * @param config the {@link HttpConfig}
-     * @return the HttpService
-     */
-    HttpService config(HttpConfig config);
 
     /**
      * Perform a synchonous HTTP request.

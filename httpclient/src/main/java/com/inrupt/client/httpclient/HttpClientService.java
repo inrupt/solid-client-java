@@ -26,7 +26,6 @@ package com.inrupt.client.httpclient;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
-import com.inrupt.client.util.HttpConfig;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -42,23 +41,12 @@ public class HttpClientService implements HttpService {
     private final HttpClient client;
 
     public HttpClientService() {
-        this(HttpConfig.newBuilder().build());
-    }
-
-    private HttpClientService(final HttpConfig config) {
-        this.client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
-        System.setProperty("java.net.httpclient.redirects.retrylimit",
-                "" + config.retryRedirects());
+        this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build());
     }
 
     private HttpClientService(final HttpClient client) {
         // TODO log that this was initialized at DEBUG level
         this.client = client;
-    }
-
-    @Override
-    public HttpService config(final HttpConfig config) {
-        return new HttpClientService(config);
     }
 
     @Override
@@ -93,5 +81,4 @@ public class HttpClientService implements HttpService {
     public static HttpClientService ofHttpClient(final HttpClient client) {
         return new HttpClientService(client);
     }
-
 }

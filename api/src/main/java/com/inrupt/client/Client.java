@@ -56,6 +56,14 @@ public interface Client {
     Client session(Session session);
 
     /**
+     * Create a configured client.
+     *
+     * @param config the client configuration
+     * @return the configured client
+     */
+    Client config(Config config);
+
+    /**
      * A session abstraction for managing access tokens for an agent.
      */
     interface Session {
@@ -98,6 +106,36 @@ public interface Client {
         }
     }
 
+    /**
+     * A configuration abstraction for managing client configurations.
+     */
+    interface Config {
+
+        long DEFAULT_RETRY_REDIRECTS = 5;
+
+        /**
+         * Set the number of retry redirects.
+         *
+         * @param retryRedirects the number of retry redirects
+         * @return the number of retry redirects
+         */
+        long getRetryRedirects();
+
+        /**
+         * Creates a default client configuration.
+         *
+         * @return a default {@link Config} for the client
+         */
+        static Config buildDefault() {
+            return new Config() {
+                @Override
+                public long getRetryRedirects() {
+                    return DEFAULT_RETRY_REDIRECTS;
+                }
+            };
+        }
+    }
+
     interface Builder {
 
         /**
@@ -107,6 +145,14 @@ public interface Client {
          * @return this builder
          */
         Builder withInstance(HttpService instance);
+
+        /**
+         * Add a specific {@link Config} to the builder.
+         *
+         * @param config the client configuration
+         * @return this builder
+         */
+        Builder withConfig(Config config);
 
         /**
          * Build the client.

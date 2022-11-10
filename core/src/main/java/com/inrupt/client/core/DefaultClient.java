@@ -42,21 +42,28 @@ public final class DefaultClient implements Client {
     private final HttpService httpClient;
     private final Authenticator.Registry registry;
     private final Client.Session session;
+    private final Client.Config config;
 
     private DefaultClient(final HttpService httpClient) {
-        this(httpClient, new DefaultRegistry(), Client.Session.anonymous());
+        this(httpClient, new DefaultRegistry(), Client.Session.anonymous(), Client.Config.buildDefault());
     }
 
     private DefaultClient(final HttpService httpClient, final Authenticator.Registry registry,
-            final Client.Session session) {
+            final Client.Session session, final Client.Config config) {
         this.httpClient = httpClient;
         this.registry = registry;
         this.session = session;
+        this.config = config;
+    }
+
+    @Override
+    public Client config(Config config) {
+        return new DefaultClient(this.httpClient, this.registry, this.session, config);
     }
 
     @Override
     public Client session(final Session session) {
-        return new DefaultClient(this.httpClient, this.registry, session);
+        return new DefaultClient(this.httpClient, this.registry, session, this.config);
     }
 
     @Override
@@ -129,6 +136,7 @@ public final class DefaultClient implements Client {
     public static class Builder implements Client.Builder {
 
         private HttpService instance;
+        private Client.Config config;
 
         @Override
         public Client.Builder withInstance(final HttpService instance) {
@@ -143,5 +151,12 @@ public final class DefaultClient implements Client {
             }
             return new DefaultClient(instance);
         }
+
+        @Override
+        public Client.Builder withConfig(final Client.Config config) {
+            this.config = config;
+            return this;
+        }
     }
+
 }
