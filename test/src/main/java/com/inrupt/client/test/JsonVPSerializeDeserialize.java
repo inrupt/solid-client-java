@@ -18,13 +18,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.jackson;
+package com.inrupt.client.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,43 +34,42 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-public class JacksonVCTest {
+public class JsonVPSerializeDeserialize {
 
-    private static final JsonService processor = ServiceProvider.getJsonService();
-    private static VerifiableCredential vc;
-    private static VerifiableCredential vcCopy;
+    private static VerifiablePresentation vp;
+    private static VerifiablePresentation vpCopy;
 
     @Test
-    void roundtripVC() throws IOException {
-        try (final var res = JacksonVCTest.class.getResourceAsStream("/verifiableCredential.json")) {
-            vc = processor.fromJson(res, VerifiableCredential.class);
+    void roundtripVP(final JsonService service) throws IOException {
+        try (final var res = JsonVPSerializeDeserialize.class
+                .getResourceAsStream("/json/verifiablePresentation.json")) {
+            vp = service.fromJson(res, VerifiablePresentation.class);
         }
 
         final var targetPath = new File("target").toPath();
         final var testFolderName = UUID.randomUUID().toString();
         final var testFolderPath = Files.createTempDirectory(targetPath, testFolderName);
-        final var testFile = Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
+        final var testFile =
+                Files.createTempFile(testFolderPath, UUID.randomUUID().toString(), ".json");
 
         try (final var out = new FileOutputStream(testFile.toString())) {
-            processor.toJson(vc, out);
+            service.toJson(vp, out);
         }
 
         try (final var in = new FileInputStream(testFile.toString())) {
-            vcCopy = processor.fromJson(in, VerifiableCredential.class);
+            vpCopy = service.fromJson(in, VerifiablePresentation.class);
         }
 
-        assertEquals(vc.context, vcCopy.context);
-        assertEquals(vc.id, vcCopy.id);
-        assertEquals(vc.type, vcCopy.type);
-        assertEquals(vc.issuer, vcCopy.issuer);
-        assertEquals(vc.issuanceDate, vcCopy.issuanceDate);
-        assertEquals(vc.expirationDate, vcCopy.expirationDate);
-        assertEquals(vc.credentialSubject, vcCopy.credentialSubject);
-        assertEquals(vc.credentialStatus, vcCopy.credentialStatus);
-        assertEquals(vc.proof, vcCopy.proof);
+        assertEquals(vp.context, vpCopy.context);
+        assertEquals(vp.id, vpCopy.id);
+        assertEquals(vp.type, vpCopy.type);
+        assertEquals(vp.holder, vpCopy.holder);
+        assertEquals(vp.verifiableCredential.size(), vpCopy.verifiableCredential.size());
+        assertEquals(vp.proof, vpCopy.proof);
 
         Files.deleteIfExists(testFile);
         Files.deleteIfExists(testFolderPath);
 
     }
+
 }

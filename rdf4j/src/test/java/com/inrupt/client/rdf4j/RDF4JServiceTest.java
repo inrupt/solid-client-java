@@ -27,6 +27,8 @@ import com.inrupt.client.Graph;
 import com.inrupt.client.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.test.RdfServices;
+import com.inrupt.client.test.RdfTestModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,6 +42,8 @@ import java.util.Optional;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -48,22 +52,24 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class RDF4JServiceTest {
+class RDF4JServiceTest extends RdfServices {
 
     private final RdfService service = ServiceProvider.getRdfService();
     private static RDF4JDataset rdf4jDataset;
     private static RDF4JGraph rdf4jGraph;
 
+    public static final ValueFactory VF = SimpleValueFactory.getInstance();
+
     @BeforeAll
     static void setup() {
         // create a RDF4JDataset
-        final Statement st = RDF4JTestModel.VF.createStatement(
+        final Statement st = VF.createStatement(
             RDF4JTestModel.S_RDF4J,
             RDF4JTestModel.P_RDF4J,
             RDF4JTestModel.O_RDF4J,
             RDF4JTestModel.G_RDF4J
         );
-        final Statement st1 = RDF4JTestModel.VF.createStatement(
+        final Statement st1 = VF.createStatement(
             RDF4JTestModel.S1_RDF4J,
             RDF4JTestModel.P1_RDF4J,
             RDF4JTestModel.O1_RDF4J
@@ -78,9 +84,9 @@ class RDF4JServiceTest {
         // create a RDF4JGraph
         final ModelBuilder builder = new ModelBuilder();
         builder.namedGraph(RDF4JTestModel.G_RDF4J)
-                .subject(RDF4JTestModel.S_VALUE)
-                    .add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O_VALUE);
-        builder.defaultGraph().subject(RDF4JTestModel.S1_VALUE).add(RDF4JTestModel.P_VALUE, RDF4JTestModel.O1_VALUE);
+                .subject(RdfTestModel.S_VALUE)
+                    .add(RdfTestModel.P_VALUE, RdfTestModel.O_VALUE);
+        builder.defaultGraph().subject(RdfTestModel.S1_VALUE).add(RdfTestModel.P_VALUE, RdfTestModel.O1_VALUE);
         final Model m = builder.build();
         rdf4jGraph = new RDF4JGraph(m);
     }
@@ -91,82 +97,9 @@ class RDF4JServiceTest {
     }
 
     @Test
-    void parseToDatasetTurtle() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final Dataset dataset = service.toDataset(Syntax.TURTLE, input);
-            assertFalse(dataset.stream().findFirst().get().getGraphName().isPresent());
-            assertEquals(10, dataset.stream().count());
-        }
-    }
-
-    @Test
-    void parseToDatasetTrig() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/oneTriple.trig")) {
-            final Dataset dataset = service.toDataset(Syntax.TRIG, input);
-            assertTrue(dataset.stream().findFirst().get().getGraphName().isPresent());
-            assertEquals(
-                "http://example.test/graph",
-                dataset.stream().findFirst().get().getGraphName().get().getURI().toString()
-            );
-            assertEquals(1, dataset.stream().count());
-        }
-    }
-
-    @Test
-    void parseToDataserRelativeURIs() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final Dataset dataset = service.toDataset(Syntax.TURTLE, input, "http://example.test/");
-            assertEquals(2, dataset.stream().count());
-            assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
-                .contains("http://example.test/")
-            );
-        }
-    }
-
-    @Test
     void parseToDatasetRelativeURIsButNoBaseURI() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
+        try (final InputStream input = RdfServices.class.getResourceAsStream("/relativeURIs.ttl")) {
             assertThrows(IOException.class, () -> service.toDataset(Syntax.TURTLE, input));
-        }
-    }
-
-    @Test
-    void parseToDatasetException() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/oneTriple.trig")) {
-            assertThrows(IOException.class, () -> service.toDataset(Syntax.TURTLE, input));
-        }
-    }
-
-    @Test
-    void parseToGraph() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/profileExample.ttl")) {
-            final Graph graph = service.toGraph(Syntax.TURTLE, input);
-            assertEquals(10, graph.stream().count());
-        }
-    }
-
-    @Test
-    void parseToGraphRelativeURIs() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final Graph graph = service.toGraph(Syntax.TURTLE, input, "http://example.test/");
-            assertEquals(2, graph.stream().count());
-            assertTrue(graph.stream().findFirst().get().getSubject().getURI().toString()
-                .contains("http://example.test/")
-            );
-        }
-    }
-
-    @Test
-    void parseToGraphRelativeURIsButNoBaseURI() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            assertThrows(IOException.class, () -> service.toGraph(Syntax.TURTLE, input));
-        }
-    }
-
-    @Test
-    void parseToGraphException() throws IOException {
-        try (final InputStream input = RDF4JServiceTest.class.getResourceAsStream("/invalid.ttl")) {
-            assertThrows(IOException.class, () -> service.toGraph(Syntax.TURTLE, input));
         }
     }
 
@@ -179,16 +112,16 @@ class RDF4JServiceTest {
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
             final String st = rdf4jDataset.stream(
-                            Optional.of(RDF4JTestModel.G_RDFNode),
+                            Optional.of(RdfTestModel.G_RDFNode),
                             null,
                             null,
                             null
                             ).findFirst().get().getSubject().getURI().toString();
             final String st1 = roundtrip.stream(
-                            Optional.of(RDF4JTestModel.G_RDFNode),
-                            RDF4JTestModel.S_RDFNode,
-                            RDF4JTestModel.P_RDFNode,
-                            RDF4JTestModel.O_RDFNode
+                            Optional.of(RdfTestModel.G_RDFNode),
+                            RdfTestModel.S_RDFNode,
+                            RdfTestModel.P_RDFNode,
+                            RdfTestModel.O_RDFNode
                             ).findFirst().get().getSubject().getURI().toString();
             assertEquals(st, st1);
         }
@@ -204,16 +137,16 @@ class RDF4JServiceTest {
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
             final String st = rdf4jDataset.stream(
-                            Optional.of(RDF4JTestModel.G_RDFNode),
+                            Optional.of(RdfTestModel.G_RDFNode),
                             null,
                             null,
                             null
                             ).findFirst().get().getSubject().getURI().toString();
             final String st1 = roundtrip.stream(
                             null,
-                            RDF4JTestModel.S_RDFNode,
-                            RDF4JTestModel.P_RDFNode,
-                            RDF4JTestModel.O_RDFNode
+                            RdfTestModel.S_RDFNode,
+                            RdfTestModel.P_RDFNode,
+                            RdfTestModel.O_RDFNode
                             ).findFirst().get().getSubject().getURI().toString();
             assertEquals(st, st1);
         }
@@ -227,16 +160,11 @@ class RDF4JServiceTest {
             final Graph roundtrip = service.toGraph(Syntax.TURTLE, input);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(rdf4jGraph.stream().count(), roundtrip.stream().count());
-            final String st = rdf4jGraph.stream(
-                            RDF4JTestModel.S_RDFNode,
-                            null,
-                            null
-                            ).findFirst().get().getSubject().getURI().toString();
-            final String st1 = roundtrip.stream(
-                            RDF4JTestModel.S_RDFNode,
-                            RDF4JTestModel.P_RDFNode,
-                            RDF4JTestModel.O_RDFNode
-                            ).findFirst().get().getSubject().getURI().toString();
+            final String st = rdf4jGraph.stream(RdfTestModel.S_RDFNode, null, null).findFirst()
+                    .get().getSubject().getURI().toString();
+            final String st1 = roundtrip
+                    .stream(RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
+                    .findFirst().get().getSubject().getURI().toString();
             assertEquals(st, st1);
         }
     }
@@ -255,7 +183,8 @@ class RDF4JServiceTest {
         final File tmp = Files.createTempFile(null, null).toFile();
         try (final OutputStream output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(IOException.class, () -> service.fromGraph(rdf4jGraph, Syntax.TURTLE, output));
+            assertThrows(IOException.class,
+                    () -> service.fromGraph(rdf4jGraph, Syntax.TURTLE, output));
         }
     }
 }
