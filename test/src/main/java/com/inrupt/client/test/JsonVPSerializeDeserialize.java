@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.VerifiablePresentation;
 import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,11 +39,12 @@ public class JsonVPSerializeDeserialize {
 
     private static VerifiablePresentation vp;
     private static VerifiablePresentation vpCopy;
+    private static JsonService service = ServiceProvider.getJsonService();
 
     @Test
-    void roundtripVP(final JsonService service) throws IOException {
+    void roundtripVP() throws IOException {
         try (final var res = JsonVPSerializeDeserialize.class
-                .getResourceAsStream("/json/verifiablePresentation.json")) {
+                .getResourceAsStream("/com/inrupt/client/test/json/verifiablePresentation.json")) {
             vp = service.fromJson(res, VerifiablePresentation.class);
         }
 
