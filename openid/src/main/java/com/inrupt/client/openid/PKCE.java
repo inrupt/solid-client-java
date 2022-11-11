@@ -27,6 +27,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * A class for generating values for Proof Key for Code Exchange (PKCE) interactions.
@@ -40,10 +41,11 @@ public final class PKCE {
      *
      * <p>Note: the {@code none} algorithm is not supported by this library.
      *
-     * @param verifier the PKCE verifier
+     * @param verifier the PKCE verifier, may not be {@code null}
      * @return the Base64URL-encoded challenge value
      */
     static String createChallenge(final String verifier) {
+        Objects.requireNonNull(verifier, "PKCE Verifier cannot be null");
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
