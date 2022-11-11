@@ -26,6 +26,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.test.RdfMockService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -45,7 +46,7 @@ import org.junit.jupiter.api.Test;
 
 class RDF4JBodyHandlersTest {
 
-    private static final RDF4JMockHttpService mockHttpService = new RDF4JMockHttpService();
+    private static final RdfMockService mockHttpService = new RdfMockService();
     private static final Map<String, String> config = new HashMap<>();
     private static final HttpService client = ServiceProvider.getHttpService();
 
@@ -63,7 +64,7 @@ class RDF4JBodyHandlersTest {
     void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -86,7 +87,7 @@ class RDF4JBodyHandlersTest {
     void testOfModelHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -106,7 +107,7 @@ class RDF4JBodyHandlersTest {
     @Test
     void testOfModelHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/example"))
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
@@ -128,7 +129,7 @@ class RDF4JBodyHandlersTest {
     void testOfRepositoryHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -155,7 +156,7 @@ class RDF4JBodyHandlersTest {
     void testOfRepositoryHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/oneTriple"))
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
@@ -178,7 +179,7 @@ class RDF4JBodyHandlersTest {
     @Test
     void testOfRepositoryHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf4j_uri") + "/example"))
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 

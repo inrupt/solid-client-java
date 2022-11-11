@@ -18,12 +18,14 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.okhttp;
+package com.inrupt.client.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,11 +38,16 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class OkHttpServiceTest {
+public class HttpServices {
 
-    private static final MockHttpServer mockHttpServer = new MockHttpServer();
+    private static final HttpMockService mockHttpServer = new HttpMockService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final OkHttpService client = new OkHttpService();
+    private static final HttpService httpService = ServiceProvider.getHttpService();
+
+    private static final String HTTP_URI = "http_uri";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_TYPE_LOWERCASE = "content-type";
+    private static final String TEXT_PLAIN = "text/plain";
 
     @BeforeAll
     static void setup() {
@@ -52,110 +59,109 @@ class OkHttpServiceTest {
         mockHttpServer.stop();
     }
 
+
     @Test
     void testSendOfString() throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/file");
+        final URI uri = URI.create(config.get(HTTP_URI) + "/file");
         final Request request = Request.newBuilder()
             .uri(uri)
             .GET()
             .build();
 
-        final Response<String> response = client.send(request, Response.BodyHandlers.ofString());
+        final Response<String> response = httpService.send(request, Response.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("Content-Type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("content-type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE));
         assertEquals(uri, response.uri());
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
     @Test
     void testSendOfStringAsync() throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/file");
+        final URI uri = URI.create(config.get(HTTP_URI) + "/file");
         final Request request = Request.newBuilder()
             .uri(uri)
             .GET()
             .build();
 
-        final Response<String> response = client.sendAsync(request,
+        final Response<String> response = httpService.sendAsync(request,
                 Response.BodyHandlers.ofString()).toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("content-type"));
-        assertEquals(Optional.of("text/plain"), response.headers().firstValue("Content-Type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("content-type"));
-        assertEquals(Arrays.asList("text/plain"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE));
         assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
     }
 
     @Test
     void testSendRequestImage() throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/solid.png");
+        final URI uri = URI.create(config.get(HTTP_URI) + "/solid.png");
         final Request request = Request.newBuilder()
                 .uri(uri)
                 .GET()
                 .build();
 
-        final Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+        final Response<byte[]> response = httpService.send(request, Response.BodyHandlers.ofByteArray());
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
-        assertEquals(Optional.of("image/png"), response.headers().firstValue("content-type"));
-        assertEquals(Optional.of("image/png"), response.headers().firstValue("Content-Type"));
-        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("content-type"));
-        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get("Content-Type"));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Optional.of("image/png"), response.headers().firstValue(CONTENT_TYPE));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
+        assertEquals(Arrays.asList("image/png"), response.headers().asMap().get(CONTENT_TYPE));
     }
 
     @Test
     void testPostTriple() throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/rdf");
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
         final String triple = "<http://example.test/s> <http://example.test/p> \"object\" .";
         final Request request = Request.newBuilder()
                 .uri(uri)
-                .header("Content-Type", "text/turtle")
+                .header(CONTENT_TYPE, "text/turtle")
                 .POST(Request.BodyPublishers.ofString(triple))
                 .build();
 
-        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(201, response.statusCode());
         assertEquals(uri, response.uri());
-        assertFalse(response.headers().firstValue("Content-Type").isPresent());
+        assertFalse(response.headers().firstValue(CONTENT_TYPE).isPresent());
     }
 
     @Test
     void testPatchTriple() throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/rdf");
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
         final String triple = "INSERT DATA { <http://example.test/s> <http://example.test/p> \"data\" . }";
         final Request request = Request.newBuilder()
                 .uri(uri)
-                .header("Content-Type", "application/sparql-update")
+                .header(CONTENT_TYPE, "application/sparql-update")
                 .PATCH(Request.BodyPublishers.ofString(triple))
                 .build();
 
-        final Response<Void> response = client.sendAsync(request, Response.BodyHandlers.discarding())
+        final Response<Void> response = httpService.sendAsync(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
-        assertFalse(response.headers().firstValue("Content-Type").isPresent());
+        assertFalse(response.headers().firstValue(CONTENT_TYPE).isPresent());
     }
 
     @Test
     void testDeleteResource() throws IOException {
-        final URI uri = URI.create(config.get("http_uri") + "/rdf");
-        final Request request = Request.newBuilder()
-                .uri(uri)
-                .DELETE()
-                .build();
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
+        final Request request = Request.newBuilder().uri(uri).DELETE().build();
 
-        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());
-        assertFalse(response.headers().firstValue("Content-Type").isPresent());
+        assertFalse(response.headers().firstValue(CONTENT_TYPE).isPresent());
     }
+
 }

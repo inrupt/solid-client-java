@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.jsonb;
 
-import com.inrupt.client.test.JsonServices;
+import com.inrupt.client.test.JsonVCSerializeDeserialize;
 
-class JsonbServiceTest extends JsonServices {
+public class VCAdapterTest extends JsonVCSerializeDeserialize {
 
 }

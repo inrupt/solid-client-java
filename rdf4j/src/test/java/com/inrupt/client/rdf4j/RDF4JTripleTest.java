@@ -22,6 +22,8 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.test.RdfTestModel;
+
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
@@ -41,10 +43,10 @@ class RDF4JTripleTest {
 
         assertAll("triple creation validation",
                 () -> assertTrue(rdf4jTriple.getSubject().isNamedNode()),
-                () -> assertEquals(RDF4JTestModel.S_VALUE, rdf4jTriple.getSubject().getURI().toString()),
+                () -> assertEquals(RdfTestModel.S_VALUE, rdf4jTriple.getSubject().getURI().toString()),
                 () -> assertTrue(rdf4jTriple.getPredicate().isNamedNode()),
-                () -> assertEquals(RDF4JTestModel.P_VALUE, rdf4jTriple.getPredicate().getURI().toString()),
-                () -> assertEquals(RDF4JTestModel.O_VALUE, rdf4jTriple.getObject().getLiteral()));
+                () -> assertEquals(RdfTestModel.P_VALUE, rdf4jTriple.getPredicate().getURI().toString()),
+                () -> assertEquals(RdfTestModel.O_VALUE, rdf4jTriple.getObject().getLiteral()));
     }
 
     @Test

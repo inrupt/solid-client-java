@@ -8,6 +8,13 @@
         "VerifiablePresentation"
     ],
     "id": "http://example.test/credentialVP/18",
+    "proof": {
+        "type": "Ed25519Signature2020",
+        "created": "2022-02-25T14:58:43Z",
+        "verificationMethod": "https://example.test/issuers/565049#key-1",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "zeEdUoM7m9cY8ZyTpey83yBKeBcmcvbyrEQzJ19rD2UXArU2U1jPGoEtrRvGYppdiK37GU4NBeoPakxpWhAvsVSt"
+    },
     "verifiableCredential": [
         {
             "@context": [

@@ -22,6 +22,8 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.test.RdfTestModel;
+
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
@@ -38,10 +40,10 @@ class JenaTripleTest {
 
         assertAll("triple creation validation",
                 () -> assertTrue(jenaTriple.getSubject().isNamedNode()),
-                () -> assertEquals(JenaTestModel.S_VALUE, jenaTriple.getSubject().getURI().toString()),
+                () -> assertEquals(RdfTestModel.S_VALUE, jenaTriple.getSubject().getURI().toString()),
                 () -> assertTrue(jenaTriple.getPredicate().isNamedNode()),
-                () -> assertEquals(JenaTestModel.P_VALUE, jenaTriple.getPredicate().getURI().toString()),
-                () -> assertEquals(JenaTestModel.O_VALUE, jenaTriple.getObject().getLiteral()));
+                () -> assertEquals(RdfTestModel.P_VALUE, jenaTriple.getPredicate().getURI().toString()),
+                () -> assertEquals(RdfTestModel.O_VALUE, jenaTriple.getObject().getLiteral()));
     }
 
     @Test

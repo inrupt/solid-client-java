@@ -18,10 +18,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.jsonb;
+package com.inrupt.client.httpclient;
 
-import com.inrupt.client.test.JsonServices;
+import com.inrupt.client.test.HttpServices;
 
-class JsonbServiceTest extends JsonServices {
+class HttpclientServiceTest extends HttpServices {
 
 }

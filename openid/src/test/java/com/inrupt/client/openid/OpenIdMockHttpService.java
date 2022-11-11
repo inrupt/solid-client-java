@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
+import org.apache.commons.io.IOUtils;
+
 class OpenIdMockHttpService {
 
     private final WireMockServer wireMockServer;
@@ -72,7 +74,7 @@ class OpenIdMockHttpService {
 
     private String getMetadataJSON() {
         try (final InputStream res = OpenIdMockHttpService.class.getResourceAsStream("/metadata.json")) {
-            return new String(res.readAllBytes(), UTF_8);
+            return new String(IOUtils.toByteArray(res), UTF_8);
         } catch (final IOException ex) {
             throw new UncheckedIOException("Could not read class resource", ex);
         }
@@ -80,7 +82,7 @@ class OpenIdMockHttpService {
 
     private String getTokenResponseJSON() {
         try (final InputStream res = OpenIdMockHttpService.class.getResourceAsStream("/tokenResponse.json")) {
-            return new String(res.readAllBytes(), UTF_8);
+            return new String(IOUtils.toByteArray(res), UTF_8);
         } catch (final IOException ex) {
             throw new UncheckedIOException("Could not read class resource", ex);
         }
