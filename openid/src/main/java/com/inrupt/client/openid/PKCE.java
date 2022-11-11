@@ -46,10 +46,10 @@ public final class PKCE {
      * @throws NullPointerException when verifier is null
      */
     static String createChallenge(final String verifier) {
-        final String v = Objects.requireNonNull(verifier, "PKCE Verifier Cannot be Null");
+        Objects.requireNonNull(verifier, "PKCE Verifier Cannot be Null");
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(v.getBytes(UTF_8)));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
         } catch (final NoSuchAlgorithmException ex) {
             throw new OpenIdException("Error generating PKCE challenge", ex);
         }

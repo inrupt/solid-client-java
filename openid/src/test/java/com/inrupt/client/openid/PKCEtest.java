@@ -30,8 +30,8 @@ class PKCEtest {
 
     @Test
     void createChallengeTest() {
-        assertTrue(PKCE.createChallenge("verifier").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("verifier").getBytes(UTF_8).length <= 128);
+        assertTrue(PKCE.createChallenge("🐶🐶🐶").getBytes(UTF_8).length >= 43);
+        assertTrue(PKCE.createChallenge("🐶🐶🐶").getBytes(UTF_8).length <= 128);
         assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length >= 43);
         assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length <= 128);
         assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null));
