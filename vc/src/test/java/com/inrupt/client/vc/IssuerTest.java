@@ -97,8 +97,9 @@ class IssuerTest {
     void issueStatusCodesTest() {
         assertAll("Bad request because of empty VC",
             () -> {
+                final var vc = new VerifiableCredential();
                 final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> issuer.issue(new VerifiableCredential())
+                    () -> issuer.issue(vc)
                 );
                 assertTrue(exception.getCause() instanceof VerifiableCredentialException);
                 final var cause = (VerifiableCredentialException) exception.getCause();

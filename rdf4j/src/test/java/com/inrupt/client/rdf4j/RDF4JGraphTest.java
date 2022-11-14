@@ -56,8 +56,9 @@ class RDF4JGraphTest {
     void testGetSubject() {
         assertAll("different versions of a subject",
             () -> {
+                final RDFNode subject = RDFNode.literal("subject");
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JGraph.getSubject(RDFNode.literal("subject"))
+                    () -> RDF4JGraph.getSubject(subject)
                 );
                 assertEquals("Subject cannot be an RDF literal", exception.getMessage());
             },
@@ -76,15 +77,17 @@ class RDF4JGraphTest {
     void testGetPredicate() {
         assertAll("different versions of a predicate",
             () -> {
+                final RDFNode predicate = RDFNode.literal("predicate");
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JGraph.getPredicate(RDFNode.literal("predicate"))
+                    () -> RDF4JGraph.getPredicate(predicate)
                 );
                 assertEquals("Predicate cannot be an RDF literal", exception.getMessage());
             },
             () -> assertEquals(RdfTestModel.P_VALUE, RDF4JGraph.getPredicate(RdfTestModel.P_RDFNode).toString()),
             () -> {
+                final RDFNode blankNode = RDFNode.blankNode();
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JGraph.getPredicate(RDFNode.blankNode())
+                    () -> RDF4JGraph.getPredicate(blankNode)
                 );
                 assertEquals("Predicate cannot be a blank node", exception.getMessage());
             },

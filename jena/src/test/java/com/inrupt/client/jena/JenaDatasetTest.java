@@ -59,8 +59,10 @@ class JenaDatasetTest {
     void testGetGraph() {
         assertAll("different versions of a graph",
             () -> {
+                G_RDFNode = RDFNode.literal("graph");
+                final Optional<RDFNode> graph = Optional.of(G_RDFNode);
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> JenaDataset.getGraphName(Optional.of(RDFNode.literal("graph")))
+                    () -> JenaDataset.getGraphName(graph)
                 );
                 assertEquals("Graph cannot be an RDF literal", exception.getMessage());
             },
@@ -214,11 +216,12 @@ class JenaDatasetTest {
     @Test
     void testWithInvalidContextStream() {
         G_RDFNode = RDFNode.literal("graph");
+        final Optional<RDFNode> graph = Optional.of(G_RDFNode);
 
         final Throwable exception = assertThrows(
             IllegalArgumentException.class,
             () -> jenaDataset.stream(
-                Optional.of(G_RDFNode),
+                graph,
                 RdfTestModel.S_RDFNode,
                 RdfTestModel.P_RDFNode,
                 RdfTestModel.O_RDFNode
