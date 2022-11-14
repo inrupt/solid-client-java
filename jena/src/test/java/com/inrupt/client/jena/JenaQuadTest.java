@@ -114,11 +114,4 @@ class JenaQuadTest {
         assertFalse(jenaQuad.getGraphName().isPresent());
     }
 
-    @Test
-    void testInvalidQuad() {
-        assertThrows(UnsupportedOperationException.class,
-            () -> new JenaQuad(Quad.create(defaultGraphNodeGenerated, null, null, null))
-        );
-    }
-
 }

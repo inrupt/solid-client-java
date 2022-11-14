@@ -75,8 +75,10 @@ class RDF4JDatasetTest {
     void testGetGraph() {
         assertAll("different versions of a graph",
             () -> {
+                G_RDFNode = RDFNode.literal("graph");
+                final Optional<RDFNode> graph = Optional.of(G_RDFNode);
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> RDF4JDataset.getContexts(Optional.of(RDFNode.literal("graph")))
+                    () -> RDF4JDataset.getContexts(graph)
                 );
                 assertEquals("Graph cannot be an RDF literal", exception.getMessage());
             },
@@ -228,11 +230,12 @@ class RDF4JDatasetTest {
     @Test
     void testWithInvalidContextStream() {
         G_RDFNode = RDFNode.literal("graph");
+        final Optional<RDFNode> graph = Optional.of(G_RDFNode);
 
         final Throwable exception = assertThrows(
             IllegalArgumentException.class,
             () -> rdf4jDataset.stream(
-                Optional.of(G_RDFNode),
+                graph,
                 RdfTestModel.S_RDFNode,
                 RdfTestModel.P_RDFNode,
                 RdfTestModel.O_RDFNode

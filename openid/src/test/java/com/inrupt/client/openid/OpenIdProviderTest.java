@@ -22,6 +22,7 @@ package com.inrupt.client.openid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.openid.TokenRequest.Builder;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -30,7 +31,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -103,47 +106,23 @@ class OpenIdProviderTest {
 
     @Test
     void tokenRequestIllegalArgumentsTest() {
+        final Builder builder = TokenRequest.newBuilder();
+        final URI uri = URI.create("myRedirectUri");
         assertThrows(
             NullPointerException.class,
-            () -> TokenRequest.newBuilder()
-                .build(
-                    null,
-                    "myClientId",
-                    URI.create("myRedirectUri")
-                )
-        );
+            () -> builder.build(null,"myClientId",uri));
         assertThrows(
             IllegalArgumentException.class,
-            () -> TokenRequest.newBuilder()
-                .build(
-                    "authorization_code",
-                    "myClientId",
-                    URI.create("myRedirectUri")
-                ));
+            () -> builder.build("authorization_code", "myClientId", uri));
         assertThrows(
             IllegalArgumentException.class,
-            () -> TokenRequest.newBuilder()
-                .build(
-                    "client_credentials",
-                    "myClientId",
-                    URI.create("myRedirectUri")
-                    ));
+            () -> builder.build("client_credentials", "myClientId", uri));
         assertThrows(
             NullPointerException.class,
-            () -> TokenRequest.newBuilder()
-                .build(
-                    "myGrantType",
-                    null,
-                    URI.create("myRedirectUri")
-                ));
+            () -> builder.build("myGrantType", null, uri));
         assertThrows(
             NullPointerException.class,
-            () -> TokenRequest.newBuilder()
-                .build(
-                    "myGrantType",
-                    "myClientId",
-                    null
-                ));
+            () -> builder.build("myGrantType", "myClientId", null));
     }
 
     @Test
@@ -218,11 +197,14 @@ class OpenIdProviderTest {
 
         assertAll("Not found",
             () -> {
+                final CompletionStage<TokenResponse> completionStage = openIdProvider.tokenAsync(tokenReq);
+                final CompletableFuture<TokenResponse> completableFuture = completionStage.toCompletableFuture();
                 final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join()
+                    () -> completableFuture.join()
                 );
                 assertTrue(exception.getCause() instanceof OpenIdException);
                 final OpenIdException cause = (OpenIdException) exception.getCause();
+
                 assertEquals(
                     "Unexpected error while interacting with the OpenID Provider's token endpoint.",
                     cause.getMessage());
