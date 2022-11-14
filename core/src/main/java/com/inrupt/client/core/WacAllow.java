@@ -25,7 +25,6 @@ import com.inrupt.client.parser.WacAllowBaseListener;
 import com.inrupt.client.parser.WacAllowLexer;
 import com.inrupt.client.parser.WacAllowParser;
 
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStreams;
