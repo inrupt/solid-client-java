@@ -25,6 +25,7 @@ import com.inrupt.client.parser.WacAllowBaseListener;
 import com.inrupt.client.parser.WacAllowLexer;
 import com.inrupt.client.parser.WacAllowParser;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
@@ -197,7 +199,8 @@ public final class WacAllow {
                     final String[] parts = p.getText().split(EQUALS, PAIR);
                     if (parts.length == PAIR) {
                         final String[] accessModes = Arrays.stream(unwrap(parts[1], DQUOTE).split(WS))
-                                                            .filter(s -> !s.isEmpty()).toArray(String[]::new);
+                                                            .filter(Predicate.not(String::isEmpty))
+                                                            .toArray(String[]::new);
                         if (accessModes.length > 0) {
                             accessParams.computeIfAbsent(parts[0], k -> new HashSet<>())
                                         .addAll(Set.of(accessModes));
