@@ -44,13 +44,13 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
 
         if (vp.context != null) {
             final var arrayBuilder = Json.createArrayBuilder();
-            vp.context.forEach(oneContext -> arrayBuilder.add(oneContext));
+            vp.context.forEach(arrayBuilder::add);
             result.add("@context", arrayBuilder.build());
         }
 
         if (vp.type != null) {
             final var arrayBuilder = Json.createArrayBuilder();
-            vp.type.forEach(oneType -> arrayBuilder.add(oneType));
+            vp.type.forEach(arrayBuilder::add);
             result.add("type", arrayBuilder.build());
         }
 
@@ -133,7 +133,7 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
         }
         if (entry.getValue() instanceof JsonArray) {
             final var arrayBuilder = Json.createArrayBuilder();
-            ((JsonArray) entry.getValue()).forEach(oneValue -> arrayBuilder.add(oneValue));
+            ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);
             final var jsonArray = arrayBuilder.build();
             objectBuilder.add(entry.getKey(), jsonArray);
         }

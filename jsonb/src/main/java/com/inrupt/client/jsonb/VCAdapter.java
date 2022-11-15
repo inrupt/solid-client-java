@@ -163,7 +163,7 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
         }
         if (entry.getValue() instanceof JsonArray) {
             final var arrayBuilder = Json.createArrayBuilder();
-            ((JsonArray) entry.getValue()).forEach(oneValue -> arrayBuilder.add(oneValue));
+            ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);
             final var jsonArray = arrayBuilder.build();
             objectBuilder.add(entry.getKey(), jsonArray);
         }
