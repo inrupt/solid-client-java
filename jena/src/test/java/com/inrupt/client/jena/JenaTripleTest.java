@@ -47,12 +47,6 @@ class JenaTripleTest {
     }
 
     @Test
-    void testInvalidTriple() {
-        assertThrows(UnsupportedOperationException.class,
-            () -> new JenaTriple(Triple.create(null, null, null)));
-    }
-
-    @Test
     void testObjectAsIRI() {
         final var object = NodeFactory.createURI("http://example.test/object");
         jenaTriple = new JenaTriple(Triple.create(JenaTestModel.S_NODE, JenaTestModel.P_NODE, object));

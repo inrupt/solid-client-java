@@ -306,9 +306,10 @@ class HolderTest {
 
         assertAll("Request is malformed because of empty credential query",
             () -> {
+                final var completionStage = holder.initiateExchangeAsync("credential-refresh", exchangeReq);
+                final var completableFuture = completionStage.toCompletableFuture();
                 final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> holder.initiateExchangeAsync("credential-refresh", exchangeReq)
-                    .toCompletableFuture().join()
+                    () -> completableFuture.join()
                 );
                 assertTrue(exception.getCause() instanceof VerifiableCredentialException);
                 final var cause = (VerifiableCredentialException) exception.getCause();

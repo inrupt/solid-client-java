@@ -124,11 +124,4 @@ class RDF4JQuadTest {
         assertFalse(rdf4jQuad.getGraphName().isPresent());
     }
 
-    @Test
-    void testInvalidQuad() {
-        assertThrows(NullPointerException.class,
-            () -> new RDF4JQuad(RDF4JTestModel.VF.createStatement(null, null, null, RDF4J.NIL))
-        );
-    }
-
 }
