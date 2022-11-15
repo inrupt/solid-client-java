@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.openid;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * A runtime exception for use with OpenID-related errors.
@@ -28,7 +28,7 @@ import java.util.Optional;
 public class OpenIdException extends RuntimeException {
 
     private static final long serialVersionUID = 3892357293662737233L;
-    private int status;
+    private OptionalInt status;
 
     /**
      * Create an OpenID exception.
@@ -36,7 +36,7 @@ public class OpenIdException extends RuntimeException {
      * @param message the message
      */
     public OpenIdException(final String message) {
-        super(message);
+        this(message, 0);
     }
 
     /**
@@ -46,7 +46,19 @@ public class OpenIdException extends RuntimeException {
      * @param cause the cause
      */
     public OpenIdException(final String message, final Throwable cause) {
+        this(message, cause, 0);
+    }
+
+    /**
+     * Create an OpenID exception.
+     *
+     * @param message the message
+     * @param cause the cause
+     * @param statusCode the HTTP status code
+     */
+    public OpenIdException(final String message, final Throwable cause, final int statusCode) {
         super(message, cause);
+        status = statusCode >= 100 ? OptionalInt.of(statusCode) : OptionalInt.empty();
     }
 
     /**
@@ -57,7 +69,7 @@ public class OpenIdException extends RuntimeException {
      */
     public OpenIdException(final String message, final int statusCode) {
         super(message);
-        status = statusCode;
+        status = statusCode >= 100 ? OptionalInt.of(statusCode) : OptionalInt.empty();
     }
 
     /**
@@ -65,9 +77,8 @@ public class OpenIdException extends RuntimeException {
      *
      * @return the HTTP status code
      */
-    public Optional<Integer> getStatus() {
-        return Optional.ofNullable(status);
+    public OptionalInt getStatus() {
+        return status;
     }
-
 }
 
