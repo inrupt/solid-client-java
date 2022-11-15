@@ -38,6 +38,14 @@ import javax.json.bind.adapter.JsonbAdapter;
 
 public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObject> {
 
+    private static final String CONTEXT = "@context";
+    private static final String TYPE = "type";
+    private static final String ID = "id";
+    private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
+    private static final String PROOF = "proof";
+    private static final String HOLDER = "holder";
+
+
     @Override
     public JsonObject adaptToJson(final VerifiablePresentation vp) throws Exception {
         final var result = Json.createObjectBuilder();
@@ -45,21 +53,21 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
         if (vp.context != null) {
             final var arrayBuilder = Json.createArrayBuilder();
             vp.context.forEach(oneContext -> arrayBuilder.add(oneContext));
-            result.add("@context", arrayBuilder.build());
+            result.add(CONTEXT, arrayBuilder.build());
         }
 
         if (vp.type != null) {
             final var arrayBuilder = Json.createArrayBuilder();
             vp.type.forEach(oneType -> arrayBuilder.add(oneType));
-            result.add("type", arrayBuilder.build());
+            result.add(TYPE, arrayBuilder.build());
         }
 
         if (vp.id != null) {
-            result.add("id", vp.id);
+            result.add(ID, vp.id);
         }
 
         if (vp.holder != null) {
-            result.add("holder", vp.holder);
+            result.add(HOLDER, vp.holder);
         }
 
         if (vp.verifiableCredential != null) {
@@ -68,7 +76,7 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
             while (itVC.hasNext()) {
                 arrayBuilder.add(new VCAdapter().adaptToJson(itVC.next()));
             }
-            result.add("verifiableCredential", arrayBuilder.build());
+            result.add(VERIFIABLE_CREDENTIAL, arrayBuilder.build());
         }
 
         if (vp.proof != null) {
@@ -77,7 +85,7 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
             while (itProof.hasNext()) {
                 addRightJsonType(objectBuilder, itProof.next());
             }
-            result.add("proof", objectBuilder.build());
+            result.add(PROOF, objectBuilder.build());
         }
 
         return result.build();
@@ -87,37 +95,37 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
     public VerifiablePresentation adaptFromJson(final JsonObject adapted) throws Exception {
         final var vp = new VerifiablePresentation();
 
-        if (adapted.containsKey("@context")) {
+        if (adapted.containsKey(CONTEXT)) {
             vp.context = new ArrayList<String>();
-            final var jsonArrayContext = adapted.getJsonArray("@context");
+            final var jsonArrayContext = adapted.getJsonArray(CONTEXT);
             jsonArrayContext.forEach(value -> vp.context.add(((JsonString) value).getString()));
         }
 
-        if (adapted.containsKey("id")) {
-            vp.id = adapted.getString("id");
+        if (adapted.containsKey(ID)) {
+            vp.id = adapted.getString(ID);
         }
 
-        if (adapted.containsKey("type")) {
-            final var jsonArrayType = adapted.getJsonArray("type");
+        if (adapted.containsKey(TYPE)) {
+            final var jsonArrayType = adapted.getJsonArray(TYPE);
             vp.type = new ArrayList<String>();
             jsonArrayType.forEach(value -> vp.type.add(((JsonString) value).getString()));
         }
 
-        if (adapted.containsKey("holder")) {
-            vp.holder = adapted.getString("holder");
+        if (adapted.containsKey(HOLDER)) {
+            vp.holder = adapted.getString(HOLDER);
         }
 
-        if (adapted.containsKey("verifiableCredential")) {
+        if (adapted.containsKey(VERIFIABLE_CREDENTIAL)) {
             vp.verifiableCredential = new ArrayList<VerifiableCredential>();
-            final var jsonArrayContext = adapted.getJsonArray("verifiableCredential");
+            final var jsonArrayContext = adapted.getJsonArray(VERIFIABLE_CREDENTIAL);
             for (final var value : jsonArrayContext) {
                 vp.verifiableCredential.add(new VCAdapter().adaptFromJson(value.asJsonObject()));
             }
         }
 
-        if (adapted.containsKey("proof")) {
+        if (adapted.containsKey(PROOF)) {
             vp.proof = new HashMap<String, Object>();
-            final var jsonObject = adapted.getJsonObject("proof");
+            final var jsonObject = adapted.getJsonObject(PROOF);
             vp.proof.putAll(jsonObject);
         }
 

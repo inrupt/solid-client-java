@@ -36,6 +36,13 @@ import java.util.Map;
 
 public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
 
+    private static final String CONTEXT = "@context";
+    private static final String TYPE = "type";
+    private static final String ID = "id";
+    private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
+    private static final String PROOF = "proof";
+    private static final String HOLDER = "holder";
+
     public VPDeserializer() {
         this((Class<VerifiablePresentation>)null);
     }
@@ -51,32 +58,32 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
         final JsonNode node = jp.getCodec().readTree(jp);
         final VerifiablePresentation vp = new VerifiablePresentation();
 
-        if (node.get("@context") != null) {
-            final ArrayNode contexts = (ArrayNode) node.get("@context");
+        if (node.get(CONTEXT) != null) {
+            final ArrayNode contexts = (ArrayNode) node.get(CONTEXT);
             final List<String> finalContext = new ArrayList<>();
             contexts.forEach(oneCtx -> finalContext.add(oneCtx.textValue()));
             vp.context = finalContext;
         }
 
-        if (node.get("id") != null) {
-            final String id = node.get("id").textValue();
+        if (node.get(ID) != null) {
+            final String id = node.get(ID).textValue();
             vp.id = id;
         }
 
-        if (node.get("type") != null) {
-            final ArrayNode types = (ArrayNode) node.get("type");
+        if (node.get(TYPE) != null) {
+            final ArrayNode types = (ArrayNode) node.get(TYPE);
             final List<String> finalType = new ArrayList<>();
             types.forEach(oneType -> finalType.add(oneType.textValue()));
             vp.type = finalType;
         }
 
-        if (node.get("holder") != null) {
-            final String holder = node.get("holder").textValue();
+        if (node.get(HOLDER) != null) {
+            final String holder = node.get(HOLDER).textValue();
             vp.holder = holder;
         }
 
-        if (node.get("verifiableCredential") != null) {
-            final ArrayNode verifiableCredential = (ArrayNode) node.get("verifiableCredential");
+        if (node.get(VERIFIABLE_CREDENTIAL) != null) {
+            final ArrayNode verifiableCredential = (ArrayNode) node.get(VERIFIABLE_CREDENTIAL);
             final List<VerifiableCredential> finalVerifiableCredential = new ArrayList<>();
             for (final JsonNode oneVc: verifiableCredential) {
                 finalVerifiableCredential.add(jp.getCodec()
@@ -86,8 +93,8 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
             vp.verifiableCredential = finalVerifiableCredential;
         }
 
-        if (node.get("proof") != null) {
-            final JsonNode proof = node.get("proof");
+        if (node.get(PROOF) != null) {
+            final JsonNode proof = node.get(PROOF);
             final Map<String, Object> finalProof = new HashMap<>();
             proof.fields().forEachRemaining(field ->
                 finalProof.put(field.getKey(), field.getValue())
