@@ -86,7 +86,7 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
             final ArrayNode verifiableCredential = (ArrayNode) node.get(VERIFIABLE_CREDENTIAL);
             final List<VerifiableCredential> finalVerifiableCredential = new ArrayList<>();
             for (final JsonNode oneVc: verifiableCredential) {
-                finalVerifiableCredential.add((VerifiableCredential)jp.getCodec()
+                finalVerifiableCredential.add(jp.getCodec()
                     .treeToValue(oneVc, VerifiableCredential.class)
                 );
             }
@@ -96,9 +96,9 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
         if (node.get(PROOF) != null) {
             final JsonNode proof = node.get(PROOF);
             final Map<String, Object> finalProof = new HashMap<>();
-            proof.fields().forEachRemaining(field -> {
-                finalProof.put(field.getKey(), field.getValue());
-            });
+            proof.fields().forEachRemaining(field ->
+                finalProof.put(field.getKey(), field.getValue())
+            );
             vp.proof = finalProof;
         }
 
