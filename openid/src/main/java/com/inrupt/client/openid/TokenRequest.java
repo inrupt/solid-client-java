@@ -28,13 +28,13 @@ import java.util.Objects;
  */
 public final class TokenRequest {
 
-    String grantType;
-    String code;
-    String codeVerifier;
-    String clientId;
-    String clientSecret;
-    String authMethod;
-    URI redirectUri;
+    private final String grantType;
+    private final String code;
+    private final String codeVerifier;
+    private final String clientId;
+    private final String clientSecret;
+    private final String authMethod;
+    private final URI redirectUri;
 
     /**
      * Get the grant type value.
@@ -109,8 +109,15 @@ public final class TokenRequest {
     }
 
     /* package-private */
-    TokenRequest() {
-        // Prevent external instantiation
+    TokenRequest(final String clientId, final String clientSecret, final URI redirectUri, final String grantType,
+            final String authMethod, final String code, final String codeVerifier) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.redirectUri = redirectUri;
+        this.grantType = grantType;
+        this.authMethod = authMethod;
+        this.code = code;
+        this.codeVerifier = codeVerifier;
     }
 
     /**
@@ -177,7 +184,9 @@ public final class TokenRequest {
          */
         public TokenRequest build(final String grantType, final String clientId, final URI redirectUri) {
 
-            final String grant = Objects.requireNonNull(grantType);
+            Objects.requireNonNull(clientId, "Client ID may not be null!");
+            Objects.requireNonNull(redirectUri, "Redirect URI may not be null!");
+            final String grant = Objects.requireNonNull(grantType, "grant type may not be null!");
 
             if ("authorization_code".equals(grantType)) {
                 if (builderCode == null) {
@@ -191,16 +200,8 @@ public final class TokenRequest {
                 }
             }
 
-            final TokenRequest req = new TokenRequest();
-            req.redirectUri = Objects.requireNonNull(redirectUri);
-            req.clientId = Objects.requireNonNull(clientId);
-            req.grantType = grant;
-            req.code = builderCode;
-            req.clientSecret = builderClientSecret;
-            req.codeVerifier = builderCodeVerifier;
-            req.authMethod = builderAuthMethod;
-
-            return req;
+            return new TokenRequest(clientId, builderClientSecret, redirectUri, grant, builderAuthMethod,
+                    builderCode, builderCodeVerifier);
         }
     }
 }

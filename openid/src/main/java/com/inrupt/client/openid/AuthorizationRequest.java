@@ -30,14 +30,14 @@ import java.util.Objects;
  */
 public final class AuthorizationRequest {
 
-    String responseType;
-    List<String> scope;
-    String codeChallenge;
-    String codeChallengeMethod;
-    String clientId;
-    URI redirectUri;
-    String state;
-    String nonce;
+    private final String responseType;
+    private final List<String> scope;
+    private final String codeChallenge;
+    private final String codeChallengeMethod;
+    private final String clientId;
+    private final URI redirectUri;
+    private final String state;
+    private final String nonce;
 
     /**
      * Get the OAuth 2.0 response type.
@@ -122,8 +122,18 @@ public final class AuthorizationRequest {
         return new Builder();
     }
 
-    AuthorizationRequest() {
-        // Prevent external instantiation
+    /* package-private */
+    AuthorizationRequest(final String clientId, final URI redirectUri, final String responseType,
+            final List<String> scope, final String codeChallenge, final String codeChallengeMethod,
+            final String state, final String nonce) {
+        this.clientId = clientId;
+        this.redirectUri = redirectUri;
+        this.responseType = responseType;
+        this.scope = scope;
+        this.codeChallenge = codeChallenge;
+        this.codeChallengeMethod = codeChallengeMethod;
+        this.state = state;
+        this.nonce = nonce;
     }
 
     /**
@@ -212,16 +222,10 @@ public final class AuthorizationRequest {
          * @return the authorization request
          */
         public AuthorizationRequest build(final String clientId, final URI redirectUri) {
-            final AuthorizationRequest req = new AuthorizationRequest();
-            req.redirectUri = Objects.requireNonNull(redirectUri);
-            req.clientId = Objects.requireNonNull(clientId);
-            req.responseType = builderResponseType;
-            req.scope = builderScope;
-            req.codeChallenge = builderCodeChallenge;
-            req.codeChallengeMethod = builderCodeChallengeMethod;
-            req.state = builderState;
-            req.nonce = builderNonce;
-            return req;
+            Objects.requireNonNull(redirectUri);
+            Objects.requireNonNull(clientId);
+            return new AuthorizationRequest(clientId, redirectUri, builderResponseType, builderScope,
+                    builderCodeChallenge, builderCodeChallengeMethod, builderState, builderNonce);
         }
     }
 }
