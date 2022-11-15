@@ -44,6 +44,33 @@ import org.jose4j.keys.resolvers.VerificationKeyResolver;
 
 /**
  * A session implementation for use with OpenID Connect ID Tokens.
+ *
+ * <p>This session implementation is for use with ID Tokens serialized as signed
+ * JWTs. This abstraction can be used to make use of identity-based authorization
+ * in Solid.
+ *
+ * <pre>{@code
+ *   Client client = ClientProvider.getClient();
+ *   Session session = client.session(OpenIdSession.ofIdToken(jwt));
+ *   Response res = session.send(req, bodyHandler);
+ * }</pre>
+ *
+ * <p>A developer can configure aspects of the ID Token validation.
+ * All tokens require the presence of subject ({@code sub}) and issuer ({@code iss}) claims as well as
+ * issued at ({@code iat}) and expiration ({@code exp}) claims. By default, signature verification
+ * is not enabled, but it can be turned on via configuration, as can audience verification.
+ *
+ * <pre>{@code
+ *   Client client = ClientProvider.getClient();
+ *   OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+ *   config.setExpectedAudience("https://app.example/id");
+ *   config.setPublicKeyLocation("https://issuer.example/jwks");
+ *   config.setExpGracePeriodSecs(60);
+ *   Session session = client.session(OpenIdSession.ofIdToken(jwt, config));
+ *   Response res = session.send(req, bodyHandler);
+ * }</pre>
+ *
+ * <p>An invalid token will throw an {@link OpenIdException} during session creation.
  */
 public final class OpenIdSession implements Session {
 
