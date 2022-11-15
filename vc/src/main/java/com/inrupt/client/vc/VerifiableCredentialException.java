@@ -30,8 +30,8 @@ import java.util.Optional;
 public class VerifiableCredentialException extends InruptClientException {
 
     private static final long serialVersionUID = 4828374653830284474L;
-    private static int status;
-    private static String body;
+    private int status;
+    private String body;
 
     /**
      * Create a Verifiable Credential exception.
