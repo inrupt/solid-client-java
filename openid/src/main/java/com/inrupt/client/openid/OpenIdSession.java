@@ -76,7 +76,6 @@ public final class OpenIdSession implements Session {
 
     private final String jwt;
     private final String id;
-    private final JwtClaims claims;
     private final Instant expiration;
     private final OpenIdVerificationConfig config;
 
@@ -87,7 +86,6 @@ public final class OpenIdSession implements Session {
         final JwtClaims claims = parseIdToken(idToken, config);
         this.id = getSessionIdentifier(claims);
         this.expiration = getExpiration(claims);
-        this.claims = claims;
     }
 
     /**

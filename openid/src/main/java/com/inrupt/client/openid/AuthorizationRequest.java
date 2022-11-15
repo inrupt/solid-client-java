@@ -30,14 +30,14 @@ import java.util.Objects;
  */
 public final class AuthorizationRequest {
 
-    private String responseType;
-    private List<String> scope;
-    private String codeChallenge;
-    private String codeChallengeMethod;
-    private String clientId;
-    private URI redirectUri;
-    private String state;
-    private String nonce;
+    String responseType;
+    List<String> scope;
+    String codeChallenge;
+    String codeChallengeMethod;
+    String clientId;
+    URI redirectUri;
+    String state;
+    String nonce;
 
     /**
      * Get the OAuth 2.0 response type.
@@ -122,7 +122,7 @@ public final class AuthorizationRequest {
         return new Builder();
     }
 
-    private AuthorizationRequest() {
+    AuthorizationRequest() {
         // Prevent external instantiation
     }
 

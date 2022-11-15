@@ -28,13 +28,13 @@ import java.util.Objects;
  */
 public final class TokenRequest {
 
-    private String grantType;
-    private String code;
-    private String codeVerifier;
-    private String clientId;
-    private String clientSecret;
-    private String authMethod;
-    private URI redirectUri;
+    String grantType;
+    String code;
+    String codeVerifier;
+    String clientId;
+    String clientSecret;
+    String authMethod;
+    URI redirectUri;
 
     /**
      * Get the grant type value.
@@ -108,7 +108,8 @@ public final class TokenRequest {
         return new Builder();
     }
 
-    private TokenRequest() {
+    /* package-private */
+    TokenRequest() {
         // Prevent external instantiation
     }
 
