@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.jackson;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,7 +46,7 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
     @Override
     public VerifiableCredential deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException, JacksonException {
+            throws IOException {
         final JsonNode node = jp.getCodec().readTree(jp);
 
         final VerifiableCredential vc = new VerifiableCredential();
@@ -89,27 +88,27 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         if (node.get("credentialSubject") != null) {
             final JsonNode credentialSubject = node.get("credentialSubject");
             final Map<String, Object> finalCredentialSubject = new HashMap<>();
-            credentialSubject.fields().forEachRemaining(field -> {
-                finalCredentialSubject.put(field.getKey(), field.getValue());
-            });
+            credentialSubject.fields().forEachRemaining(field ->
+                finalCredentialSubject.put(field.getKey(), field.getValue())
+            );
             vc.credentialSubject = finalCredentialSubject;
         }
 
         if (node.get("credentialStatus") != null) {
             final JsonNode credentialStatus = node.path("credentialStatus");
             final Map<String, Object> finalCredentialStatus = new HashMap<>();
-            credentialStatus.fields().forEachRemaining(field -> {
-                finalCredentialStatus.put(field.getKey(), field.getValue());
-            });
+            credentialStatus.fields().forEachRemaining(field ->
+                finalCredentialStatus.put(field.getKey(), field.getValue())
+            );
             vc.credentialStatus = finalCredentialStatus;
         }
 
         if (node.get("proof") != null) {
             final JsonNode proof = node.get("proof");
             final Map<String, Object> finalProof = new HashMap<>();
-            proof.fields().forEachRemaining(field -> {
-                finalProof.put(field.getKey(), field.getValue());
-            });
+            proof.fields().forEachRemaining(field ->
+                finalProof.put(field.getKey(), field.getValue())
+            );
             vc.proof = finalProof;
         }
 

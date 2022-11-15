@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.jackson;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,7 +46,7 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
 
     @Override
     public VerifiablePresentation deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException, JacksonException {
+            throws IOException {
 
         final JsonNode node = jp.getCodec().readTree(jp);
         final VerifiablePresentation vp = new VerifiablePresentation();
@@ -80,7 +79,7 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
             final ArrayNode verifiableCredential = (ArrayNode) node.get("verifiableCredential");
             final List<VerifiableCredential> finalVerifiableCredential = new ArrayList<>();
             for (final JsonNode oneVc: verifiableCredential) {
-                finalVerifiableCredential.add((VerifiableCredential)jp.getCodec()
+                finalVerifiableCredential.add(jp.getCodec()
                     .treeToValue(oneVc, VerifiableCredential.class)
                 );
             }
@@ -90,9 +89,9 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
         if (node.get("proof") != null) {
             final JsonNode proof = node.get("proof");
             final Map<String, Object> finalProof = new HashMap<>();
-            proof.fields().forEachRemaining(field -> {
-                finalProof.put(field.getKey(), field.getValue());
-            });
+            proof.fields().forEachRemaining(field ->
+                finalProof.put(field.getKey(), field.getValue())
+            );
             vp.proof = finalProof;
         }
 
