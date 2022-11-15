@@ -37,6 +37,16 @@ import java.util.Map;
 
 public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
+    private static final String CONTEXT = "@context";
+    private static final String TYPE = "type";
+    private static final String ID = "id";
+    private static final String ISSUER = "issuer";
+    private static final String ISSUANCE_DATE = "issuanceDate";
+    private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String CREDENTIAL_SUBJECT = "credentialSubject";
+    private static final String CREDENTIAL_STATUS = "credentialStatus";
+    private static final String PROOF = "proof";
+
     public VCDeserializer() {
         this((Class<VerifiableCredential>)null);
     }
@@ -52,42 +62,42 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
         final VerifiableCredential vc = new VerifiableCredential();
 
-        if (node.get("@context") != null) {
-            final ArrayNode contexts = (ArrayNode) node.get("@context");
+        if (node.get(CONTEXT) != null) {
+            final ArrayNode contexts = (ArrayNode) node.get(CONTEXT);
             final List<String> finalContext = new ArrayList<>();
             contexts.forEach(oneCtx -> finalContext.add(oneCtx.textValue()));
             vc.context = finalContext;
         }
 
-        if (node.get("id") != null) {
-            final String id = node.get("id").textValue();
+        if (node.get(ID) != null) {
+            final String id = node.get(ID).textValue();
             vc.id = id;
         }
 
-        if (node.get("type") != null) {
-            final ArrayNode types = (ArrayNode) node.get("type");
+        if (node.get(TYPE) != null) {
+            final ArrayNode types = (ArrayNode) node.get(TYPE);
             final List<String> finalType = new ArrayList<>();
             types.forEach(oneType -> finalType.add(oneType.textValue()));
             vc.type = finalType;
         }
 
-        if (node.get("issuer") != null) {
-            final String issuer = node.get("issuer").textValue();
+        if (node.get(ISSUER) != null) {
+            final String issuer = node.get(ISSUER).textValue();
             vc.issuer = issuer;
         }
 
-        if (node.get("issuanceDate") != null) {
-            final Instant issuanceDate = Instant.parse(node.get("issuanceDate").textValue());
+        if (node.get(ISSUANCE_DATE) != null) {
+            final Instant issuanceDate = Instant.parse(node.get(ISSUANCE_DATE).textValue());
             vc.issuanceDate = issuanceDate;
         }
 
-        if (node.get("expirationDate") != null) {
-            final Instant expirationDate = Instant.parse(node.get("expirationDate").textValue());
+        if (node.get(EXPIRATION_DATE) != null) {
+            final Instant expirationDate = Instant.parse(node.get(EXPIRATION_DATE).textValue());
             vc.expirationDate = expirationDate;
         }
 
-        if (node.get("credentialSubject") != null) {
-            final JsonNode credentialSubject = node.get("credentialSubject");
+        if (node.get(CREDENTIAL_SUBJECT) != null) {
+            final JsonNode credentialSubject = node.get(CREDENTIAL_SUBJECT);
             final Map<String, Object> finalCredentialSubject = new HashMap<>();
             credentialSubject.fields().forEachRemaining(field -> {
                 finalCredentialSubject.put(field.getKey(), field.getValue());
@@ -95,8 +105,8 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
             vc.credentialSubject = finalCredentialSubject;
         }
 
-        if (node.get("credentialStatus") != null) {
-            final JsonNode credentialStatus = node.path("credentialStatus");
+        if (node.get(CREDENTIAL_STATUS) != null) {
+            final JsonNode credentialStatus = node.path(CREDENTIAL_STATUS);
             final Map<String, Object> finalCredentialStatus = new HashMap<>();
             credentialStatus.fields().forEachRemaining(field -> {
                 finalCredentialStatus.put(field.getKey(), field.getValue());
@@ -104,8 +114,8 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
             vc.credentialStatus = finalCredentialStatus;
         }
 
-        if (node.get("proof") != null) {
-            final JsonNode proof = node.get("proof");
+        if (node.get(PROOF) != null) {
+            final JsonNode proof = node.get(PROOF);
             final Map<String, Object> finalProof = new HashMap<>();
             proof.fields().forEachRemaining(field -> {
                 finalProof.put(field.getKey(), field.getValue());

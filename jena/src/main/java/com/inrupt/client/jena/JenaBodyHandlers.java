@@ -42,13 +42,15 @@ import org.apache.jena.riot.RDFLanguages;
  */
 public final class JenaBodyHandlers {
 
+    private static final String CONTENT_TYPE = "Content-Type";
+
     /**
      * Populate a Jena {@link Model} with an HTTP response body.
      *
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Model> ofModel() {
-        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var model = ModelFactory.createDefaultModel();
@@ -68,7 +70,7 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Graph> ofGraph() {
-        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var graph = Factory.createDefaultGraph();
@@ -88,7 +90,7 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Dataset> ofDataset() {
-        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var dataset = DatasetFactory.create();
