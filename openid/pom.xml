@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-openid</artifactId>
-  <name>Inrupt Solid Client - OpenID</name>
+  <name>Inrupt Client Libraries - OpenID</name>
   <description>
       An OpenID library for the Inrupt Client Libraries.
   </description>
