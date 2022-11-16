@@ -40,8 +40,6 @@ jobs:
           cp -R ./target/okhttp   ./target/site/
           cp -R ./target/parser   ./target/site/
           cp -R ./target/rdf4j    ./target/site/
-          cp -R ./target/report   ./target/site/
-          cp -R ./target/test     ./target/site/
           cp -R ./target/uma      ./target/site/
           cp -R ./target/vc       ./target/site/
           cp -R ./target/vocabulary ./target/site/
