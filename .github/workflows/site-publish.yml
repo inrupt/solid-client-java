@@ -3,9 +3,7 @@ name: Solid Java Client CD
 on:
   push:
     branches:
-      - main
-    tags:
-      - inrupt-client-[0-9]+.[0-9]+.[0-9]+
+      - JCL-104-maven-site-configuration
 
 jobs:
   publish:
@@ -28,7 +26,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Build the code with Maven
-        run: ./mvnw -B -ntp clean install site site:stage
+        run: ./mvnw -B -ntp clean install site site:stage -DskipTests -Dpmd.skip -Ddependency-check.skip
 
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
@@ -36,15 +34,4 @@ jobs:
         with:
           publish_dir: ./target/site/
           personal_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy Artifacts
-        run: ./mvnw deploy -P publish
-        if: github.actor != 'dependabot[bot]'
-        env:
-          MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
-      - name: Sonar Analysis
-        run: ./mvnw sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
 
