@@ -31,10 +31,10 @@ public class WebIdProfile {
 
     private final URI id;
 
-    private final Set<URI> seeAlso = new HashSet<>();
-    private final Set<URI> oidcIssuer = new HashSet<>();
-    private final Set<URI> storage = new HashSet<>();
-    private final Set<URI> type = new HashSet<>();
+    protected final Set<URI> seeAlso = new HashSet<>();
+    protected final Set<URI> oidcIssuer = new HashSet<>();
+    protected final Set<URI> storage = new HashSet<>();
+    protected final Set<URI> type = new HashSet<>();
 
     /**
      * Create a new WebID profile resource.
