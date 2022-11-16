@@ -26,13 +26,6 @@
     </dependency>
   </dependencies>
 
-  <distributionManagement>
-    <site>
-      <id>${project.artifactId}</id>
-      <url>${project.baseUri}</url>
-    </site>
-  </distributionManagement>
-
   <build>
     <plugins>
       <plugin>

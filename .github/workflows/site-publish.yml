@@ -28,6 +28,25 @@ jobs:
       - name: Build the code with Maven
         run: ./mvnw -B -ntp clean install site site:stage -DskipTests -Dpmd.skip -Ddependency-check.skip
 
+      - name: Copy Resources
+        run: |
+          cp -R ./target/api      ./target/site/
+          cp -R ./target/bom      ./target/site/
+          cp -R ./target/core     ./target/site/
+          cp -R ./target/httpclient ./target/site/
+          cp -R ./target/jackson  ./target/site/
+          cp -R ./target/jena     ./target/site/
+          cp -R ./target/jsonb    ./target/site/
+          cp -R ./target/okhttp   ./target/site/
+          cp -R ./target/parser   ./target/site/
+          cp -R ./target/rdf4j    ./target/site/
+          cp -R ./target/report   ./target/site/
+          cp -R ./target/test     ./target/site/
+          cp -R ./target/uma      ./target/site/
+          cp -R ./target/vc       ./target/site/
+          cp -R ./target/vocabulary ./target/site/
+          cp -R ./target/webid    ./target/site/
+
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.actor != 'dependabot[bot]'
