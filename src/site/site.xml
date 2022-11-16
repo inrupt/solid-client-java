@@ -3,12 +3,9 @@
   <publishDate position="right"/>
   <version position="right"/>
   <body>
-    <menu name="Overview" inherit="top">
-        <item name="Summary" href="summary.html"/>
+    <menu name="Inrupt Client" inherit="top">
+        <item name="Home" href="index.html"/>
         <item name="Documentation" href="apidocs/"/>
-        <item name="Dependencies" href="dependencies.html"/>
-        <item name="Plugins" href="plugins.html"/>
-        <item name="Modules" href="modules.html"/>
         <item name="License" href="licenses.html"/>
     </menu>
   </body>
