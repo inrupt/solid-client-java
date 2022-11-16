@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ServiceProvider.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Solid Client - OkHttp support</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-api</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.spi</a> &gt; <span class="el_source">ServiceProvider.java</span></div><h1>ServiceProvider.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.spi;
+
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+/**
+ * This is the class used to access data processors for the Inrupt Client libraries.
+ */
+public final class ServiceProvider {
+
+    private static JsonService jsonService;
+    private static RdfService rdfService;
+    private static HttpService httpService;
+    private static DpopService dpopService;
+
+    /**
+     * Get the {@link JsonService} for this application.
+     *
+     * @return an object for processing JSON
+     */
+    public static JsonService getJsonService() {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (jsonService == null) {</span>
+<span class="nc" id="L43">            synchronized (ServiceProvider.class) {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">                if (jsonService != null) {</span>
+<span class="nc" id="L45">                    return jsonService;</span>
+                }
+<span class="nc" id="L47">                jsonService = loadSpi(JsonService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="nc" id="L48">            }</span>
+
+        }
+<span class="nc" id="L51">        return jsonService;</span>
+    }
+
+    /**
+     * Get the {@link RdfService} for this application.
+     *
+     * @return an object for processing RDF
+     */
+    public static RdfService getRdfService() {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (rdfService == null) {</span>
+<span class="nc" id="L61">            synchronized (ServiceProvider.class) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                if (rdfService != null) {</span>
+<span class="nc" id="L63">                    return rdfService;</span>
+                }
+<span class="nc" id="L65">                rdfService = loadSpi(RdfService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="nc" id="L66">            }</span>
+
+        }
+<span class="nc" id="L69">        return rdfService;</span>
+    }
+
+    /**
+     * Get the {@link HttpService} for this application.
+     *
+     * @return an object for processing HTTP
+     */
+    public static HttpService getHttpService() {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (httpService == null) {</span>
+<span class="nc" id="L79">            synchronized (ServiceProvider.class) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (httpService != null) {</span>
+<span class="nc" id="L81">                    return httpService;</span>
+                }
+<span class="nc" id="L83">                httpService = loadSpi(HttpService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="nc" id="L84">            }</span>
+
+        }
+<span class="nc" id="L87">        return httpService;</span>
+    }
+
+    public static DpopService getDpopService() {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (dpopService == null) {</span>
+<span class="nc" id="L92">            synchronized (ServiceProvider.class) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                if (dpopService != null) {</span>
+<span class="nc" id="L94">                    return dpopService;</span>
+                }
+<span class="nc" id="L96">                dpopService = loadSpi(DpopService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="nc" id="L97">            }</span>
+        }
+<span class="nc" id="L99">        return dpopService;</span>
+    }
+
+    static &lt;T&gt; T loadSpi(final Class&lt;T&gt; clazz, final ClassLoader cl) {
+<span class="nc" id="L103">        final ServiceLoader&lt;T&gt; loader = ServiceLoader.load(clazz, cl);</span>
+<span class="nc" id="L104">        final Iterator&lt;T&gt; iterator = loader.iterator();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (iterator.hasNext()) {</span>
+<span class="nc" id="L106">            return iterator.next();</span>
+        }
+<span class="nc" id="L108">        throw new IllegalStateException(&quot;No implementation found for &quot; + clazz.getName() + &quot;! &quot; +</span>
+                &quot;Please add an implementation to the classpath&quot;);
+    }
+
+    private ServiceProvider() {
+        // Prevent instantiation
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
