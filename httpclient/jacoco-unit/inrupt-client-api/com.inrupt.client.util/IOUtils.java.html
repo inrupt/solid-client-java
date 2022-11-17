@@ -47,14 +47,14 @@ public final class IOUtils {
     public static InputStream pipe(final Consumer&lt;OutputStream&gt; function) {
 
         try {
-<span class="nc" id="L50">            final PipedInputStream sink = new PipedInputStream();</span>
-<span class="nc" id="L51">            final OutputStream source = new PipedOutputStream(sink);</span>
+<span class="fc" id="L50">            final PipedInputStream sink = new PipedInputStream();</span>
+<span class="fc" id="L51">            final OutputStream source = new PipedOutputStream(sink);</span>
 
-<span class="nc" id="L53">            CompletableFuture</span>
-<span class="nc" id="L54">                .runAsync(() -&gt; function.accept(source))</span>
-<span class="nc" id="L55">                .whenComplete((x, err) -&gt; closeUnchecked(source));</span>
+<span class="fc" id="L53">            CompletableFuture</span>
+<span class="fc" id="L54">                .runAsync(() -&gt; function.accept(source))</span>
+<span class="fc" id="L55">                .whenComplete((x, err) -&gt; closeUnchecked(source));</span>
 
-<span class="nc" id="L57">            return sink;</span>
+<span class="fc" id="L57">            return sink;</span>
 <span class="nc" id="L58">        } catch (final IOException ex) {</span>
 <span class="nc" id="L59">            throw new UncheckedIOException(&quot;Error piping data across threads&quot;, ex);</span>
         }
@@ -69,11 +69,11 @@ public final class IOUtils {
      */
     static void closeUnchecked(final Closeable stream) {
         try {
-<span class="nc" id="L72">            stream.close();</span>
+<span class="fc" id="L72">            stream.close();</span>
 <span class="nc" id="L73">        } catch (final IOException ex) {</span>
 <span class="nc" id="L74">            throw new UncheckedIOException(&quot;Error closing I/O stream&quot;, ex);</span>
-<span class="nc" id="L75">        }</span>
-<span class="nc" id="L76">    }</span>
+<span class="fc" id="L75">        }</span>
+<span class="fc" id="L76">    }</span>
 
     public static Request.BodyPublisher stream(final Consumer&lt;OutputStream&gt; function) {
         try {

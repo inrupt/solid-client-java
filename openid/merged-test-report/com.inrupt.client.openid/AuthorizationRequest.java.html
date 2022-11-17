@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthorizationRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - OpenID</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.openid</a> &gt; <span class="el_source">AuthorizationRequest.java</span></div><h1>AuthorizationRequest.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.openid;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A class representing an authorization request at an OpenID provider.
+ */
+public final class AuthorizationRequest {
+
+    private String responseType;
+    private List&lt;String&gt; scope;
+    private String codeChallenge;
+    private String codeChallengeMethod;
+    private String clientId;
+    private URI redirectUri;
+    private String state;
+    private String nonce;
+
+    /**
+     * Get the OAuth 2.0 response type.
+     *
+     * @return the response type
+     */
+    public String getResponseType() {
+<span class="fc" id="L48">        return responseType;</span>
+    }
+
+    /**
+     * Get the OAuth 2.0 scope value.
+     *
+     * &lt;p&gt;The response will be a space-delimited string of scope values.
+     *
+     * @return the scope value
+     */
+    public String getScope() {
+<span class="nc" id="L59">        return String.join(&quot; &quot;, scope);</span>
+    }
+
+    /**
+     * Get the PKCE code challenge.
+     *
+     * @return the code challenge value.
+     */
+    public String getCodeChallenge() {
+<span class="fc" id="L68">        return codeChallenge;</span>
+    }
+
+    /**
+     * Get the PKCE code challenge method.
+     *
+     * @return the code challenge method
+     */
+    public String getCodeChallengeMethod() {
+<span class="fc" id="L77">        return codeChallengeMethod;</span>
+    }
+
+    /**
+     * Get the OAuth 2.0 client id.
+     *
+     * @return the client id
+     */
+    public String getClientId() {
+<span class="fc" id="L86">        return clientId;</span>
+    }
+
+    /**
+     * Get the OAuth 2.0 redirect URI.
+     *
+     * @return the redirect URI
+     */
+    public URI getRedirectUri() {
+<span class="fc" id="L95">        return redirectUri;</span>
+    }
+
+    /**
+     * Get the OAuth 2.0 state value.
+     *
+     * @return the state value
+     */
+    public String getState() {
+<span class="nc" id="L104">        return state;</span>
+    }
+
+    /**
+     * Get the OpenID Connect nonce value.
+     *
+     * @return the nonce value
+     */
+    public String getNonce() {
+<span class="nc" id="L113">        return nonce;</span>
+    }
+
+    /**
+     * Create a new builder object for an authorization request.
+     *
+     * @return a new builder
+     */
+    public static Builder newBuilder() {
+<span class="fc" id="L122">        return new Builder();</span>
+    }
+
+    private AuthorizationRequest() {
+        // Prevent external instantiation
+    }
+
+    /**
+     * A class for building {@link AuthorizationRequest} objects.
+     */
+<span class="fc" id="L132">    public static class Builder {</span>
+
+<span class="fc" id="L134">        private String builderResponseType = &quot;code&quot;;</span>
+<span class="fc" id="L135">        private List&lt;String&gt; builderScope = new ArrayList&lt;&gt;();</span>
+        private String builderNonce;
+        private String builderState;
+        private String builderCodeChallenge;
+        private String builderCodeChallengeMethod;
+
+        /**
+         * Add a scope value to the builder.
+         *
+         * @param scope the scope value
+         * @return this builder
+         */
+        public Builder scope(final String scope) {
+<span class="nc" id="L148">            builderScope.add(scope);</span>
+<span class="nc" id="L149">            return this;</span>
+        }
+
+        /**
+         * Add a state value to the builder.
+         *
+         * @param state the state value
+         * @return this builder
+         */
+        public Builder state(final String state) {
+<span class="nc" id="L159">            builderState = state;</span>
+<span class="nc" id="L160">            return this;</span>
+        }
+
+        /**
+         * Add a nonce value to the builder.
+         *
+         * @param nonce the nonce value
+         * @return this builder
+         */
+        public Builder nonce(final String nonce) {
+<span class="nc" id="L170">            builderNonce = nonce;</span>
+<span class="nc" id="L171">            return this;</span>
+        }
+
+        /**
+         * Add a response type to the builder.
+         *
+         * @param responseType the response type
+         * @return this builder
+         */
+        public Builder responseType(final String responseType) {
+<span class="nc" id="L181">            builderResponseType = responseType;</span>
+<span class="nc" id="L182">            return this;</span>
+        }
+
+        /**
+         * Add a code challenge to the builder.
+         *
+         * @param codeChallenge the code challenge
+         * @return this builder
+         */
+        public Builder codeChallenge(final String codeChallenge) {
+<span class="fc" id="L192">            builderCodeChallenge = codeChallenge;</span>
+<span class="fc" id="L193">            return this;</span>
+        }
+
+        /**
+         * Add a code challenge method to the builder.
+         *
+         * @param codeChallengeMethod the code challenge method
+         * @return this builder
+         */
+        public Builder codeChallengeMethod(final String codeChallengeMethod) {
+<span class="fc" id="L203">            builderCodeChallengeMethod = codeChallengeMethod;</span>
+<span class="fc" id="L204">            return this;</span>
+        }
+
+        /**
+         * Build the authorization request.
+         *
+         * @param clientId the client id
+         * @param redirectUri the redirect URI
+         * @return the authorization request
+         */
+        public AuthorizationRequest build(final String clientId, final URI redirectUri) {
+<span class="fc" id="L215">            final AuthorizationRequest req = new AuthorizationRequest();</span>
+<span class="fc" id="L216">            req.redirectUri = Objects.requireNonNull(redirectUri);</span>
+<span class="fc" id="L217">            req.clientId = Objects.requireNonNull(clientId);</span>
+<span class="fc" id="L218">            req.responseType = builderResponseType;</span>
+<span class="fc" id="L219">            req.scope = builderScope;</span>
+<span class="fc" id="L220">            req.codeChallenge = builderCodeChallenge;</span>
+<span class="fc" id="L221">            req.codeChallengeMethod = builderCodeChallengeMethod;</span>
+<span class="fc" id="L222">            req.state = builderState;</span>
+<span class="fc" id="L223">            req.nonce = builderNonce;</span>
+<span class="fc" id="L224">            return req;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

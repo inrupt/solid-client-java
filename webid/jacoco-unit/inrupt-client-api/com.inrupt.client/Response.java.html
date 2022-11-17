@@ -122,7 +122,7 @@ public interface Response&lt;T&gt; {
          * @return the body handler
          */
         public static BodyHandler&lt;byte[]&gt; ofByteArray() {
-<span class="nc" id="L125">            return responseInfo -&gt; responseInfo.body().array();</span>
+<span class="fc" id="L125">            return responseInfo -&gt; responseInfo.body().array();</span>
         }
 
         /**
@@ -131,7 +131,7 @@ public interface Response&lt;T&gt; {
          * @return the body handler
          */
         public static BodyHandler&lt;String&gt; ofString() {
-<span class="nc" id="L134">            return responseInfo -&gt; new String(responseInfo.body().array(), UTF_8);</span>
+<span class="fc" id="L134">            return responseInfo -&gt; new String(responseInfo.body().array(), UTF_8);</span>
         }
 
         /**
@@ -140,7 +140,7 @@ public interface Response&lt;T&gt; {
          * @return the body handler
          */
         public static BodyHandler&lt;InputStream&gt; ofInputStream() {
-<span class="nc" id="L143">            return responseInfo -&gt; new ByteArrayInputStream(responseInfo.body().array());</span>
+<span class="fc" id="L143">            return responseInfo -&gt; new ByteArrayInputStream(responseInfo.body().array());</span>
         }
 
         /**
@@ -149,7 +149,7 @@ public interface Response&lt;T&gt; {
          * @return the body handler
          */
         public static BodyHandler&lt;Void&gt; discarding() {
-<span class="nc" id="L152">            return responseInfo -&gt; null;</span>
+<span class="fc" id="L152">            return responseInfo -&gt; null;</span>
         }
 
         private BodyHandlers() {

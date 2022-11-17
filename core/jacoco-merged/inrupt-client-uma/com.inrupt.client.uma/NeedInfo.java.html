@@ -38,11 +38,11 @@ public final class NeedInfo {
     private final URI redirectUser;
     private final List&lt;RequiredClaims&gt; requiredClaims;
 
-<span class="nc" id="L41">    private NeedInfo(final String ticket, final URI redirectUser, final List&lt;RequiredClaims&gt; requiredClaims) {</span>
-<span class="nc" id="L42">        this.ticket = Objects.requireNonNull(ticket);</span>
-<span class="nc" id="L43">        this.redirectUser = redirectUser;</span>
-<span class="nc" id="L44">        this.requiredClaims = Objects.requireNonNull(requiredClaims);</span>
-<span class="nc" id="L45">    }</span>
+<span class="fc" id="L41">    private NeedInfo(final String ticket, final URI redirectUser, final List&lt;RequiredClaims&gt; requiredClaims) {</span>
+<span class="fc" id="L42">        this.ticket = Objects.requireNonNull(ticket);</span>
+<span class="fc" id="L43">        this.redirectUser = redirectUser;</span>
+<span class="fc" id="L44">        this.requiredClaims = Objects.requireNonNull(requiredClaims);</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * Return a list of required claims.
@@ -68,7 +68,7 @@ public final class NeedInfo {
      * @return the UMA ticket
      */
     public String getTicket() {
-<span class="nc" id="L71">        return ticket;</span>
+<span class="fc" id="L71">        return ticket;</span>
     }
 
     /**
@@ -78,16 +78,16 @@ public final class NeedInfo {
      * @return the optional {@code need_info} data
      */
     public static Optional&lt;NeedInfo&gt; ofErrorResponse(final ErrorResponse error) {
-<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (NEED_INFO.equals(error.error) &amp;&amp; error.ticket != null) {</span>
-<span class="nc" id="L82">            final List&lt;RequiredClaims&gt; requiredClaims = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (error.requiredClaims != null) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                for (final Map&lt;String, Object&gt; item : error.requiredClaims) {</span>
-<span class="nc" id="L85">                    requiredClaims.add(new RequiredClaims(item));</span>
-<span class="nc" id="L86">                }</span>
+<span class="fc bfc" id="L81" title="All 4 branches covered.">        if (NEED_INFO.equals(error.error) &amp;&amp; error.ticket != null) {</span>
+<span class="fc" id="L82">            final List&lt;RequiredClaims&gt; requiredClaims = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (error.requiredClaims != null) {</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">                for (final Map&lt;String, Object&gt; item : error.requiredClaims) {</span>
+<span class="fc" id="L85">                    requiredClaims.add(new RequiredClaims(item));</span>
+<span class="fc" id="L86">                }</span>
             }
-<span class="nc" id="L88">            return Optional.of(new NeedInfo(error.ticket, error.redirectUser, requiredClaims));</span>
+<span class="fc" id="L88">            return Optional.of(new NeedInfo(error.ticket, error.redirectUser, requiredClaims));</span>
         }
-<span class="nc" id="L90">        return Optional.empty();</span>
+<span class="fc" id="L90">        return Optional.empty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

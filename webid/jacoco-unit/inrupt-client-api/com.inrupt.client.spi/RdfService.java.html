@@ -73,7 +73,7 @@ public interface RdfService {
      * @throws IOException when there is an error parsing the dataset
      */
     default Dataset toDataset(Syntax syntax, InputStream input) throws IOException {
-<span class="nc" id="L76">        return toDataset(syntax, input, null);</span>
+<span class="fc" id="L76">        return toDataset(syntax, input, null);</span>
     }
 
     /**
@@ -96,7 +96,7 @@ public interface RdfService {
      * @throws IOException when there is an error parsing the graph
      */
     default Graph toGraph(Syntax syntax, InputStream input) throws IOException {
-<span class="nc" id="L99">        return toGraph(syntax, input, null);</span>
+<span class="fc" id="L99">        return toGraph(syntax, input, null);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -31,9 +31,9 @@ public class ConsumerErrorListener extends BaseErrorListener {
 
     private final Consumer&lt;String&gt; consumer;
 
-<span class="nc" id="L34">    public ConsumerErrorListener(final Consumer&lt;String&gt; consumer) {</span>
-<span class="nc" id="L35">        this.consumer = consumer;</span>
-<span class="nc" id="L36">    }</span>
+<span class="fc" id="L34">    public ConsumerErrorListener(final Consumer&lt;String&gt; consumer) {</span>
+<span class="fc" id="L35">        this.consumer = consumer;</span>
+<span class="fc" id="L36">    }</span>
 
     @Override
     public void syntaxError(final Recognizer&lt;?, ?&gt; recognizer,
@@ -42,7 +42,7 @@ public class ConsumerErrorListener extends BaseErrorListener {
             final int charPositionInLine,
             final String msg,
             final RecognitionException ex) {
-<span class="nc" id="L45">        consumer.accept(&quot;Line &quot; + line + &quot;:&quot; + charPositionInLine + &quot; &quot; + msg);</span>
-<span class="nc" id="L46">    }</span>
+<span class="fc" id="L45">        consumer.accept(&quot;Line &quot; + line + &quot;:&quot; + charPositionInLine + &quot; &quot; + msg);</span>
+<span class="fc" id="L46">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

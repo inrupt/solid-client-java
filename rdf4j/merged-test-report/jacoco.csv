@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JService,0,174,0,2,0,42,0,8,0,7
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JDataset,0,122,1,9,0,27,1,9,0,5
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JTriple,8,68,3,7,3,17,3,6,0,4
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JBodyPublishers,0,44,0,0,0,9,0,7,0,7
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JQuad,0,50,0,8,0,12,0,7,0,3
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JGraph,0,150,0,22,0,36,0,19,0,8
+Inrupt Client Libraries - RDF4J,com.inrupt.client.rdf4j,RDF4JBodyHandlers,26,83,0,0,4,15,2,7,2,7

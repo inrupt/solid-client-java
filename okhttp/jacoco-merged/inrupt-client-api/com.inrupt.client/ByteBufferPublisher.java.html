@@ -29,17 +29,17 @@ import java.util.Objects;
 class ByteBufferPublisher implements Request.BodyPublisher {
     private final ByteBuffer buf;
 
-<span class="nc" id="L32">    public ByteBufferPublisher(final ByteBuffer buffer) {</span>
-<span class="nc" id="L33">        this.buf = buffer;</span>
-<span class="nc" id="L34">    }</span>
+<span class="fc" id="L32">    public ByteBufferPublisher(final ByteBuffer buffer) {</span>
+<span class="fc" id="L33">        this.buf = buffer;</span>
+<span class="fc" id="L34">    }</span>
 
     public ByteBufferPublisher(final byte[] buf) {
-<span class="nc" id="L37">        this(ByteBuffer.wrap(Objects.requireNonNull(buf)));</span>
-<span class="nc" id="L38">    }</span>
+<span class="fc" id="L37">        this(ByteBuffer.wrap(Objects.requireNonNull(buf)));</span>
+<span class="fc" id="L38">    }</span>
 
     @Override
     public ByteBuffer getBytes() {
-<span class="nc" id="L42">        return this.buf;</span>
+<span class="fc" id="L42">        return this.buf;</span>
     }
 
     @Override

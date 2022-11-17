@@ -33,10 +33,10 @@ public final class ClaimToken {
     private final String token;
     private final String tokenType;
 
-<span class="nc" id="L36">    private ClaimToken(final String token, final String tokenType) {</span>
-<span class="nc" id="L37">        this.token = Objects.requireNonNull(token);</span>
-<span class="nc" id="L38">        this.tokenType = Objects.requireNonNull(tokenType);</span>
-<span class="nc" id="L39">    }</span>
+<span class="fc" id="L36">    private ClaimToken(final String token, final String tokenType) {</span>
+<span class="fc" id="L37">        this.token = Objects.requireNonNull(token);</span>
+<span class="fc" id="L38">        this.tokenType = Objects.requireNonNull(tokenType);</span>
+<span class="fc" id="L39">    }</span>
 
     /**
      * Get the claim token value.
@@ -44,7 +44,7 @@ public final class ClaimToken {
      * @return the claim token value
      */
     public String getClaimToken() {
-<span class="nc" id="L47">        return token;</span>
+<span class="fc" id="L47">        return token;</span>
     }
 
     /**
@@ -53,7 +53,7 @@ public final class ClaimToken {
      * @return the claim token type
      */
     public String getClaimTokenType() {
-<span class="nc" id="L56">        return tokenType;</span>
+<span class="fc" id="L56">        return tokenType;</span>
     }
 
     /**
@@ -64,7 +64,7 @@ public final class ClaimToken {
      * @return the new claim token
      */
     public static ClaimToken of(final String token, final String tokenType) {
-<span class="nc" id="L67">        return new ClaimToken(token, tokenType);</span>
+<span class="fc" id="L67">        return new ClaimToken(token, tokenType);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

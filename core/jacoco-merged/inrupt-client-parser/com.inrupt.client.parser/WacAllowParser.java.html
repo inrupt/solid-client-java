@@ -11,35 +11,35 @@ import java.util.ArrayList;
 
 @SuppressWarnings({&quot;all&quot;, &quot;warnings&quot;, &quot;unchecked&quot;, &quot;unused&quot;, &quot;cast&quot;, &quot;CheckReturnValue&quot;})
 public class WacAllowParser extends Parser {
-<span class="nc" id="L14">	static { RuntimeMetaData.checkVersion(&quot;4.11.1&quot;, RuntimeMetaData.VERSION); }</span>
+<span class="fc" id="L14">	static { RuntimeMetaData.checkVersion(&quot;4.11.1&quot;, RuntimeMetaData.VERSION); }</span>
 
 	protected static final DFA[] _decisionToDFA;
-<span class="nc" id="L17">	protected static final PredictionContextCache _sharedContextCache =</span>
+<span class="fc" id="L17">	protected static final PredictionContextCache _sharedContextCache =</span>
 		new PredictionContextCache();
 	public static final int
 		T__0=1, AccessParam=2, WS=3, DQUOTE=4;
 	public static final int
 		RULE_wacAllow = 0;
 	private static String[] makeRuleNames() {
-<span class="nc" id="L24">		return new String[] {</span>
+<span class="fc" id="L24">		return new String[] {</span>
 			&quot;wacAllow&quot;
 		};
 	}
-<span class="nc" id="L28">	public static final String[] ruleNames = makeRuleNames();</span>
+<span class="fc" id="L28">	public static final String[] ruleNames = makeRuleNames();</span>
 
 	private static String[] makeLiteralNames() {
-<span class="nc" id="L31">		return new String[] {</span>
+<span class="fc" id="L31">		return new String[] {</span>
 			null, &quot;','&quot;, null, null, &quot;'\\u0022'&quot;
 		};
 	}
-<span class="nc" id="L35">	private static final String[] _LITERAL_NAMES = makeLiteralNames();</span>
+<span class="fc" id="L35">	private static final String[] _LITERAL_NAMES = makeLiteralNames();</span>
 	private static String[] makeSymbolicNames() {
-<span class="nc" id="L37">		return new String[] {</span>
+<span class="fc" id="L37">		return new String[] {</span>
 			null, null, &quot;AccessParam&quot;, &quot;WS&quot;, &quot;DQUOTE&quot;
 		};
 	}
-<span class="nc" id="L41">	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();</span>
-<span class="nc" id="L42">	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);</span>
+<span class="fc" id="L41">	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();</span>
+<span class="fc" id="L42">	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);</span>
 
 	/**
 	 * @deprecated Use {@link #VOCABULARY} instead.
@@ -47,15 +47,15 @@ public class WacAllowParser extends Parser {
 	@Deprecated
 	public static final String[] tokenNames;
 	static {
-<span class="nc" id="L50">		tokenNames = new String[_SYMBOLIC_NAMES.length];</span>
-<span class="nc bnc" id="L51" title="All 2 branches missed.">		for (int i = 0; i &lt; tokenNames.length; i++) {</span>
-<span class="nc" id="L52">			tokenNames[i] = VOCABULARY.getLiteralName(i);</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">			if (tokenNames[i] == null) {</span>
-<span class="nc" id="L54">				tokenNames[i] = VOCABULARY.getSymbolicName(i);</span>
+<span class="fc" id="L50">		tokenNames = new String[_SYMBOLIC_NAMES.length];</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">		for (int i = 0; i &lt; tokenNames.length; i++) {</span>
+<span class="fc" id="L52">			tokenNames[i] = VOCABULARY.getLiteralName(i);</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">			if (tokenNames[i] == null) {</span>
+<span class="fc" id="L54">				tokenNames[i] = VOCABULARY.getSymbolicName(i);</span>
 			}
 
-<span class="nc bnc" id="L57" title="All 2 branches missed.">			if (tokenNames[i] == null) {</span>
-<span class="nc" id="L58">				tokenNames[i] = &quot;&lt;INVALID&gt;&quot;;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">			if (tokenNames[i] == null) {</span>
+<span class="fc" id="L58">				tokenNames[i] = &quot;&lt;INVALID&gt;&quot;;</span>
 			}
 		}
 	}
@@ -69,7 +69,7 @@ public class WacAllowParser extends Parser {
 	@Override
 
 	public Vocabulary getVocabulary() {
-<span class="nc" id="L72">		return VOCABULARY;</span>
+<span class="fc" id="L72">		return VOCABULARY;</span>
 	}
 
 	@Override
@@ -82,16 +82,16 @@ public class WacAllowParser extends Parser {
 <span class="nc" id="L82">	public String getSerializedATN() { return _serializedATN; }</span>
 
 	@Override
-<span class="nc" id="L85">	public ATN getATN() { return _ATN; }</span>
+<span class="fc" id="L85">	public ATN getATN() { return _ATN; }</span>
 
 	public WacAllowParser(TokenStream input) {
-<span class="nc" id="L88">		super(input);</span>
-<span class="nc" id="L89">		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);</span>
-<span class="nc" id="L90">	}</span>
+<span class="fc" id="L88">		super(input);</span>
+<span class="fc" id="L89">		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);</span>
+<span class="fc" id="L90">	}</span>
 
 	@SuppressWarnings(&quot;CheckReturnValue&quot;)
 	public static class WacAllowContext extends ParserRuleContext {
-<span class="nc" id="L94">		public List&lt;TerminalNode&gt; AccessParam() { return getTokens(WacAllowParser.AccessParam); }</span>
+<span class="fc" id="L94">		public List&lt;TerminalNode&gt; AccessParam() { return getTokens(WacAllowParser.AccessParam); }</span>
 		public TerminalNode AccessParam(int i) {
 <span class="nc" id="L96">			return getToken(WacAllowParser.AccessParam, i);</span>
 		}
@@ -100,63 +100,63 @@ public class WacAllowParser extends Parser {
 <span class="nc" id="L100">			return getToken(WacAllowParser.WS, i);</span>
 		}
 		public WacAllowContext(ParserRuleContext parent, int invokingState) {
-<span class="nc" id="L103">			super(parent, invokingState);</span>
-<span class="nc" id="L104">		}</span>
+<span class="fc" id="L103">			super(parent, invokingState);</span>
+<span class="fc" id="L104">		}</span>
 <span class="nc" id="L105">		@Override public int getRuleIndex() { return RULE_wacAllow; }</span>
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-<span class="nc bnc" id="L108" title="All 2 branches missed.">			if ( listener instanceof WacAllowListener ) ((WacAllowListener)listener).enterWacAllow(this);</span>
-<span class="nc" id="L109">		}</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">			if ( listener instanceof WacAllowListener ) ((WacAllowListener)listener).enterWacAllow(this);</span>
+<span class="fc" id="L109">		}</span>
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-<span class="nc bnc" id="L112" title="All 2 branches missed.">			if ( listener instanceof WacAllowListener ) ((WacAllowListener)listener).exitWacAllow(this);</span>
-<span class="nc" id="L113">		}</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">			if ( listener instanceof WacAllowListener ) ((WacAllowListener)listener).exitWacAllow(this);</span>
+<span class="fc" id="L113">		}</span>
 	}
 
 	public final WacAllowContext wacAllow() throws RecognitionException {
-<span class="nc" id="L117">		WacAllowContext _localctx = new WacAllowContext(_ctx, getState());</span>
-<span class="nc" id="L118">		enterRule(_localctx, 0, RULE_wacAllow);</span>
+<span class="fc" id="L117">		WacAllowContext _localctx = new WacAllowContext(_ctx, getState());</span>
+<span class="fc" id="L118">		enterRule(_localctx, 0, RULE_wacAllow);</span>
 		int _la;
 		try {
-<span class="nc" id="L121">			enterOuterAlt(_localctx, 1);</span>
+<span class="fc" id="L121">			enterOuterAlt(_localctx, 1);</span>
 			{
-<span class="nc" id="L123">			setState(2);</span>
-<span class="nc" id="L124">			match(AccessParam);</span>
-<span class="nc" id="L125">			setState(13);</span>
-<span class="nc" id="L126">			_errHandler.sync(this);</span>
-<span class="nc" id="L127">			_la = _input.LA(1);</span>
-<span class="nc bnc" id="L128" title="All 4 branches missed.">			while (_la==T__0 || _la==WS) {</span>
+<span class="fc" id="L123">			setState(2);</span>
+<span class="fc" id="L124">			match(AccessParam);</span>
+<span class="fc" id="L125">			setState(13);</span>
+<span class="fc" id="L126">			_errHandler.sync(this);</span>
+<span class="fc" id="L127">			_la = _input.LA(1);</span>
+<span class="fc bfc" id="L128" title="All 4 branches covered.">			while (_la==T__0 || _la==WS) {</span>
 				{
 				{
-<span class="nc" id="L131">				setState(4);</span>
-<span class="nc" id="L132">				_errHandler.sync(this);</span>
-<span class="nc" id="L133">				_la = _input.LA(1);</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">				if (_la==WS) {</span>
+<span class="fc" id="L131">				setState(4);</span>
+<span class="fc" id="L132">				_errHandler.sync(this);</span>
+<span class="fc" id="L133">				_la = _input.LA(1);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">				if (_la==WS) {</span>
 					{
-<span class="nc" id="L136">					setState(3);</span>
-<span class="nc" id="L137">					match(WS);</span>
+<span class="fc" id="L136">					setState(3);</span>
+<span class="fc" id="L137">					match(WS);</span>
 					}
 				}
 
-<span class="nc" id="L141">				setState(6);</span>
-<span class="nc" id="L142">				match(T__0);</span>
-<span class="nc" id="L143">				setState(8);</span>
-<span class="nc" id="L144">				_errHandler.sync(this);</span>
-<span class="nc" id="L145">				_la = _input.LA(1);</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">				if (_la==WS) {</span>
+<span class="fc" id="L141">				setState(6);</span>
+<span class="fc" id="L142">				match(T__0);</span>
+<span class="fc" id="L143">				setState(8);</span>
+<span class="fc" id="L144">				_errHandler.sync(this);</span>
+<span class="fc" id="L145">				_la = _input.LA(1);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">				if (_la==WS) {</span>
 					{
-<span class="nc" id="L148">					setState(7);</span>
-<span class="nc" id="L149">					match(WS);</span>
+<span class="fc" id="L148">					setState(7);</span>
+<span class="fc" id="L149">					match(WS);</span>
 					}
 				}
 
-<span class="nc" id="L153">				setState(10);</span>
-<span class="nc" id="L154">				match(AccessParam);</span>
+<span class="fc" id="L153">				setState(10);</span>
+<span class="fc" id="L154">				match(AccessParam);</span>
 				}
 				}
-<span class="nc" id="L157">				setState(15);</span>
-<span class="nc" id="L158">				_errHandler.sync(this);</span>
-<span class="nc" id="L159">				_la = _input.LA(1);</span>
+<span class="fc" id="L157">				setState(15);</span>
+<span class="fc" id="L158">				_errHandler.sync(this);</span>
+<span class="fc" id="L159">				_la = _input.LA(1);</span>
 			}
 			}
 		}
@@ -166,9 +166,9 @@ public class WacAllowParser extends Parser {
 <span class="nc" id="L166">			_errHandler.recover(this, re);</span>
 		}
 		finally {
-<span class="nc" id="L169">			exitRule();</span>
+<span class="fc" id="L169">			exitRule();</span>
 		}
-<span class="nc" id="L171">		return _localctx;</span>
+<span class="fc" id="L171">		return _localctx;</span>
 	}
 
 	public static final String _serializedATN =
@@ -185,13 +185,13 @@ public class WacAllowParser extends Parser {
 		&quot;\u000b\u0001\u0000\u0000\u0000\r\u000e\u0001\u0000\u0000\u0000\u000e\u0001&quot;+
 		&quot;\u0001\u0000\u0000\u0000\u000f\r\u0001\u0000\u0000\u0000\u0003\u0004\b&quot;+
 		&quot;\r&quot;;
-<span class="nc" id="L188">	public static final ATN _ATN =</span>
-<span class="nc" id="L189">		new ATNDeserializer().deserialize(_serializedATN.toCharArray());</span>
+<span class="fc" id="L188">	public static final ATN _ATN =</span>
+<span class="fc" id="L189">		new ATNDeserializer().deserialize(_serializedATN.toCharArray());</span>
 	static {
-<span class="nc" id="L191">		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">		for (int i = 0; i &lt; _ATN.getNumberOfDecisions(); i++) {</span>
-<span class="nc" id="L193">			_decisionToDFA[i] = new DFA(_ATN.getDecisionState(i), i);</span>
+<span class="fc" id="L191">		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">		for (int i = 0; i &lt; _ATN.getNumberOfDecisions(); i++) {</span>
+<span class="fc" id="L193">			_decisionToDFA[i] = new DFA(_ATN.getDecisionState(i), i);</span>
 		}
-<span class="nc" id="L195">	}</span>
+<span class="fc" id="L195">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

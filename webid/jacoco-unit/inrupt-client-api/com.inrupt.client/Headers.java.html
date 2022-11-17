@@ -33,7 +33,7 @@ import java.util.TreeMap;
  */
 public final class Headers {
 
-<span class="nc" id="L36">    private final NavigableMap&lt;String, List&lt;String&gt;&gt; data = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+<span class="fc" id="L36">    private final NavigableMap&lt;String, List&lt;String&gt;&gt; data = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
 
     /**
      * Get the first value of a header, if it exists.
@@ -42,11 +42,11 @@ public final class Headers {
      * @return the first value, if present
      */
     public Optional&lt;String&gt; firstValue(final String name) {
-<span class="nc" id="L45">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
-<span class="nc bnc" id="L46" title="All 4 branches missed.">        if (values != null &amp;&amp; !values.isEmpty()) {</span>
-<span class="nc" id="L47">            return Optional.of(values.get(0));</span>
+<span class="fc" id="L45">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">        if (values != null &amp;&amp; !values.isEmpty()) {</span>
+<span class="fc" id="L47">            return Optional.of(values.get(0));</span>
         }
-<span class="nc" id="L49">        return Optional.empty();</span>
+<span class="fc" id="L49">        return Optional.empty();</span>
     }
 
     /**
@@ -56,23 +56,23 @@ public final class Headers {
      * @return the values for the header. If no values are present, an empty list will be returned
      */
     public List&lt;String&gt; allValues(final String name) {
-<span class="nc" id="L59">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (values != null) {</span>
-<span class="nc" id="L61">            return Collections.unmodifiableList(values);</span>
+<span class="fc" id="L59">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (values != null) {</span>
+<span class="fc" id="L61">            return Collections.unmodifiableList(values);</span>
         }
 <span class="nc" id="L63">        return Collections.emptyList();</span>
     }
 
     public Map&lt;String, List&lt;String&gt;&gt; asMap() {
-<span class="nc" id="L67">        return Collections.unmodifiableNavigableMap(data);</span>
+<span class="fc" id="L67">        return Collections.unmodifiableNavigableMap(data);</span>
     }
 
     public static Headers of(final Map&lt;String, List&lt;String&gt;&gt; headers) {
-<span class="nc" id="L71">        return new Headers(Objects.requireNonNull(headers));</span>
+<span class="fc" id="L71">        return new Headers(Objects.requireNonNull(headers));</span>
     }
 
-<span class="nc" id="L74">    private Headers(final Map&lt;String, List&lt;String&gt;&gt; headers) {</span>
-<span class="nc" id="L75">        this.data.putAll(headers);</span>
-<span class="nc" id="L76">    }</span>
+<span class="fc" id="L74">    private Headers(final Map&lt;String, List&lt;String&gt;&gt; headers) {</span>
+<span class="fc" id="L75">        this.data.putAll(headers);</span>
+<span class="fc" id="L76">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

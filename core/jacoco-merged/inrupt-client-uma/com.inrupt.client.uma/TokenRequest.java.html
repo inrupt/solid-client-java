@@ -34,35 +34,35 @@ public class TokenRequest {
     private final List&lt;String&gt; scopes;
 
     public TokenRequest(final String ticket, final String pct, final String rpt,
-<span class="nc" id="L37">            final ClaimToken claimToken, final List&lt;String&gt; scopes) {</span>
-<span class="nc" id="L38">        this.ticket = Objects.requireNonNull(ticket);</span>
-<span class="nc" id="L39">        this.pct = pct;</span>
-<span class="nc" id="L40">        this.rpt = rpt;</span>
-<span class="nc" id="L41">        this.claimToken = claimToken;</span>
-<span class="nc" id="L42">        this.scopes = scopes;</span>
-<span class="nc" id="L43">    }</span>
+<span class="fc" id="L37">            final ClaimToken claimToken, final List&lt;String&gt; scopes) {</span>
+<span class="fc" id="L38">        this.ticket = Objects.requireNonNull(ticket);</span>
+<span class="fc" id="L39">        this.pct = pct;</span>
+<span class="fc" id="L40">        this.rpt = rpt;</span>
+<span class="fc" id="L41">        this.claimToken = claimToken;</span>
+<span class="fc" id="L42">        this.scopes = scopes;</span>
+<span class="fc" id="L43">    }</span>
 
     public String getTicket() {
-<span class="nc" id="L46">        return ticket;</span>
+<span class="fc" id="L46">        return ticket;</span>
     }
 
     public Optional&lt;String&gt; getPersistedClaimToken() {
-<span class="nc" id="L50">        return Optional.ofNullable(pct);</span>
+<span class="fc" id="L50">        return Optional.ofNullable(pct);</span>
     }
 
     public Optional&lt;String&gt; getRequestingPartyToken() {
-<span class="nc" id="L54">        return Optional.ofNullable(rpt);</span>
+<span class="fc" id="L54">        return Optional.ofNullable(rpt);</span>
     }
 
     public Optional&lt;ClaimToken&gt; getClaimToken() {
-<span class="nc" id="L58">        return Optional.ofNullable(claimToken);</span>
+<span class="fc" id="L58">        return Optional.ofNullable(claimToken);</span>
     }
 
     public List&lt;String&gt; getScopes() {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (scopes != null) {</span>
-<span class="nc" id="L63">            return scopes;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (scopes != null) {</span>
+<span class="fc" id="L63">            return scopes;</span>
         }
-<span class="nc" id="L65">        return Collections.emptyList();</span>
+<span class="fc" id="L65">        return Collections.emptyList();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

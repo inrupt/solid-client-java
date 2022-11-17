@@ -3,7 +3,7 @@ Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Response.B
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Client.Session.new Client.Session() {...},8,0,0,0,3,0,3,0,3,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Authenticator.AccessToken,42,0,0,0,12,0,6,0,6,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,InruptClientException,9,0,0,0,4,0,2,0,2,0
-Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,VerifiablePresentation,3,0,0,0,1,0,1,0,1,0
+Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,VerifiablePresentation,0,3,0,0,0,1,0,1,0,1
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Authenticator.DPoP,12,0,0,0,3,0,3,0,3,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Authenticator.Registry,5,0,0,0,1,0,1,0,1,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Request.BodyPublishers,29,0,0,0,6,0,4,0,4,0
@@ -11,7 +11,7 @@ Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,ByteBuffer
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Request.Builder,114,0,0,0,26,0,15,0,15,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Headers,58,0,6,0,14,0,8,0,5,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Authenticator.Challenge,117,0,6,0,21,0,13,0,10,0
-Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,VerifiableCredential,3,0,0,0,1,0,1,0,1,0
+Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,VerifiableCredential,0,3,0,0,0,1,0,1,0,1
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Syntax,54,0,0,0,6,0,1,0,1,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,ClientProvider,6,0,0,0,2,0,2,0,2,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,RDFNode,117,0,10,0,22,0,20,0,15,0
@@ -19,6 +19,6 @@ Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Request,57
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client,Client.Session,4,0,0,0,1,0,1,0,1,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.spi,RdfService,12,0,0,0,2,0,2,0,2,0
 Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.spi,ClientProviderResolver,46,0,6,0,14,0,7,0,4,0
-Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.spi,ServiceProvider,120,0,18,0,33,0,14,0,5,0
-Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.util,URIBuilder,189,0,20,0,32,0,19,0,9,0
-Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.util,IOUtils,98,0,0,0,26,0,8,0,8,0
+Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.spi,ServiceProvider,88,32,14,4,23,10,11,3,3,2
+Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.util,URIBuilder,7,182,1,19,2,30,1,18,0,9
+Inrupt Client Libraries - Jackson/inrupt-client-api,com.inrupt.client.util,IOUtils,68,30,0,0,17,9,4,4,4,4

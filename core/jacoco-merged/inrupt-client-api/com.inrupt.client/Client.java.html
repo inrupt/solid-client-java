@@ -83,16 +83,16 @@ public interface Client {
          * @return the session
          */
         static Session anonymous() {
-<span class="nc" id="L86">            return new Session() {</span>
+<span class="fc" id="L86">            return new Session() {</span>
                 @Override
                 public Optional&lt;Authenticator.AccessToken&gt; fromCache(final Request request) {
-<span class="nc" id="L89">                    return Optional.empty();</span>
+<span class="fc" id="L89">                    return Optional.empty();</span>
                 }
 
                 @Override
                 public CompletionStage&lt;Authenticator.AccessToken&gt; negotiate(final Authenticator authenticator,
                         final Request request) {
-<span class="nc" id="L95">                    return authenticator.authenticateAsync();</span>
+<span class="fc" id="L95">                    return authenticator.authenticateAsync();</span>
                 }
             };
         }

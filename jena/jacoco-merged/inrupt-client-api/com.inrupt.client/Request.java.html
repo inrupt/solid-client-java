@@ -56,7 +56,7 @@ public final class Request {
      * @return the HTTP method
      */
     public String method() {
-<span class="nc" id="L59">        return this.method;</span>
+<span class="fc" id="L59">        return this.method;</span>
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Request {
      * @return the HTTP URI
      */
     public URI uri() {
-<span class="nc" id="L68">        return this.uri;</span>
+<span class="fc" id="L68">        return this.uri;</span>
     }
 
     /**
@@ -74,7 +74,7 @@ public final class Request {
      * @return the body publisher, if present
      */
     public Optional&lt;BodyPublisher&gt; bodyPublisher() {
-<span class="nc" id="L77">        return Optional.ofNullable(publisher);</span>
+<span class="fc" id="L77">        return Optional.ofNullable(publisher);</span>
     }
 
     /**
@@ -83,7 +83,7 @@ public final class Request {
      * @return the HTTP headers
      */
     public Headers headers() {
-<span class="nc" id="L86">        return headers;</span>
+<span class="fc" id="L86">        return headers;</span>
     }
 
     /**
@@ -101,7 +101,7 @@ public final class Request {
      * @return the builder
      */
     public static Builder newBuilder() {
-<span class="nc" id="L104">        return new Builder();</span>
+<span class="fc" id="L104">        return new Builder();</span>
     }
 
     /**
@@ -115,13 +115,13 @@ public final class Request {
     }
 
     private Request(final URI uri, final String method, final Map&lt;String, List&lt;String&gt;&gt; headers,
-<span class="nc" id="L118">            final BodyPublisher publisher, final Duration timeout) {</span>
-<span class="nc" id="L119">        this.uri = Objects.requireNonNull(uri, &quot;Request URI may not be null!&quot;);</span>
-<span class="nc" id="L120">        this.method = Objects.requireNonNull(method, &quot;Request method may not be null!&quot;);</span>
-<span class="nc" id="L121">        this.headers = Headers.of(Objects.requireNonNull(headers, &quot;Request headers may not be null!&quot;));</span>
-<span class="nc" id="L122">        this.publisher = publisher;</span>
-<span class="nc" id="L123">        this.timeout = timeout;</span>
-<span class="nc" id="L124">    }</span>
+<span class="fc" id="L118">            final BodyPublisher publisher, final Duration timeout) {</span>
+<span class="fc" id="L119">        this.uri = Objects.requireNonNull(uri, &quot;Request URI may not be null!&quot;);</span>
+<span class="fc" id="L120">        this.method = Objects.requireNonNull(method, &quot;Request method may not be null!&quot;);</span>
+<span class="fc" id="L121">        this.headers = Headers.of(Objects.requireNonNull(headers, &quot;Request headers may not be null!&quot;));</span>
+<span class="fc" id="L122">        this.publisher = publisher;</span>
+<span class="fc" id="L123">        this.timeout = timeout;</span>
+<span class="fc" id="L124">    }</span>
 
     /**
      * An API for serializing an HTTP Request.
@@ -155,7 +155,7 @@ public final class Request {
          * @return the publisher
          */
         public static BodyPublisher ofString(final String body) {
-<span class="nc" id="L158">            return ofByteArray(body.getBytes(UTF_8));</span>
+<span class="fc" id="L158">            return ofByteArray(body.getBytes(UTF_8));</span>
         }
 
         /**
@@ -165,7 +165,7 @@ public final class Request {
          * @return the publisher
          */
         public static BodyPublisher ofByteArray(final byte[] body) {
-<span class="nc" id="L168">            return new ByteBufferPublisher(body);</span>
+<span class="fc" id="L168">            return new ByteBufferPublisher(body);</span>
         }
 
         /**
@@ -188,7 +188,7 @@ public final class Request {
          * @return the publisher
          */
         public static BodyPublisher noBody() {
-<span class="nc" id="L191">            return new ByteBufferPublisher(new byte[0]);</span>
+<span class="fc" id="L191">            return new ByteBufferPublisher(new byte[0]);</span>
         }
 
         private BodyPublishers() {
@@ -201,10 +201,10 @@ public final class Request {
      */
     public static final class Builder {
         private URI uri;
-<span class="nc" id="L204">        private String method = &quot;GET&quot;;</span>
+<span class="fc" id="L204">        private String method = &quot;GET&quot;;</span>
         private Duration timeout;
-<span class="nc" id="L206">        private BodyPublisher publisher = BodyPublishers.noBody();</span>
-<span class="nc" id="L207">        private final Map&lt;String, List&lt;String&gt;&gt; headers = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+<span class="fc" id="L206">        private BodyPublisher publisher = BodyPublishers.noBody();</span>
+<span class="fc" id="L207">        private final Map&lt;String, List&lt;String&gt;&gt; headers = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
 
         /**
          * Set the URI for this request.
@@ -213,8 +213,8 @@ public final class Request {
          * @return this builder
          */
         public Builder uri(final URI uri) {
-<span class="nc" id="L216">            this.uri = uri;</span>
-<span class="nc" id="L217">            return this;</span>
+<span class="fc" id="L216">            this.uri = uri;</span>
+<span class="fc" id="L217">            return this;</span>
         }
 
         /**
@@ -225,8 +225,8 @@ public final class Request {
          * @return this builder
          */
         public Builder header(final String name, final String value) {
-<span class="nc" id="L228">            this.headers.computeIfAbsent(name, k -&gt; new ArrayList&lt;String&gt;()).add(value);</span>
-<span class="nc" id="L229">            return this;</span>
+<span class="fc" id="L228">            this.headers.computeIfAbsent(name, k -&gt; new ArrayList&lt;String&gt;()).add(value);</span>
+<span class="fc" id="L229">            return this;</span>
         }
 
         /**
@@ -253,9 +253,9 @@ public final class Request {
          * @return this builder
          */
         public Builder method(final String method, final BodyPublisher publisher) {
-<span class="nc" id="L256">            this.method = method;</span>
-<span class="nc" id="L257">            this.publisher = publisher;</span>
-<span class="nc" id="L258">            return this;</span>
+<span class="fc" id="L256">            this.method = method;</span>
+<span class="fc" id="L257">            this.publisher = publisher;</span>
+<span class="fc" id="L258">            return this;</span>
         }
 
         /**
@@ -285,7 +285,7 @@ public final class Request {
          * @return this builder
          */
         public Builder GET() {
-<span class="nc" id="L288">            return method(&quot;GET&quot;, BodyPublishers.noBody());</span>
+<span class="fc" id="L288">            return method(&quot;GET&quot;, BodyPublishers.noBody());</span>
         }
 
         /**
@@ -295,7 +295,7 @@ public final class Request {
          * @return this builder
          */
         public Builder POST(final BodyPublisher publisher) {
-<span class="nc" id="L298">            return method(&quot;POST&quot;, publisher);</span>
+<span class="fc" id="L298">            return method(&quot;POST&quot;, publisher);</span>
         }
 
         /**
@@ -315,7 +315,7 @@ public final class Request {
          * @return this builder
          */
         public Builder PATCH(final BodyPublisher publisher) {
-<span class="nc" id="L318">            return method(&quot;PATCH&quot;, publisher);</span>
+<span class="fc" id="L318">            return method(&quot;PATCH&quot;, publisher);</span>
         }
 
         /**
@@ -333,7 +333,7 @@ public final class Request {
          * @return this builder
          */
         public Builder DELETE() {
-<span class="nc" id="L336">            return method(&quot;DELETE&quot;, BodyPublishers.noBody());</span>
+<span class="fc" id="L336">            return method(&quot;DELETE&quot;, BodyPublishers.noBody());</span>
         }
 
         /**
@@ -342,12 +342,12 @@ public final class Request {
          * @return the request
          */
         public Request build() {
-<span class="nc" id="L345">            return new Request(uri, method, headers, publisher, timeout);</span>
+<span class="fc" id="L345">            return new Request(uri, method, headers, publisher, timeout);</span>
         }
 
-<span class="nc" id="L348">        private Builder() {</span>
+<span class="fc" id="L348">        private Builder() {</span>
             // Prevent direct instantiation.
-<span class="nc" id="L350">        }</span>
+<span class="fc" id="L350">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

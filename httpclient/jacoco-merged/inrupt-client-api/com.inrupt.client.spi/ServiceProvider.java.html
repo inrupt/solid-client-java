@@ -75,16 +75,16 @@ public final class ServiceProvider {
      * @return an object for processing HTTP
      */
     public static HttpService getHttpService() {
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (httpService == null) {</span>
-<span class="nc" id="L79">            synchronized (ServiceProvider.class) {</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (httpService != null) {</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (httpService == null) {</span>
+<span class="fc" id="L79">            synchronized (ServiceProvider.class) {</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                if (httpService != null) {</span>
 <span class="nc" id="L81">                    return httpService;</span>
                 }
-<span class="nc" id="L83">                httpService = loadSpi(HttpService.class, ServiceProvider.class.getClassLoader());</span>
-<span class="nc" id="L84">            }</span>
+<span class="fc" id="L83">                httpService = loadSpi(HttpService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="fc" id="L84">            }</span>
 
         }
-<span class="nc" id="L87">        return httpService;</span>
+<span class="fc" id="L87">        return httpService;</span>
     }
 
     public static DpopService getDpopService() {
@@ -100,10 +100,10 @@ public final class ServiceProvider {
     }
 
     static &lt;T&gt; T loadSpi(final Class&lt;T&gt; clazz, final ClassLoader cl) {
-<span class="nc" id="L103">        final ServiceLoader&lt;T&gt; loader = ServiceLoader.load(clazz, cl);</span>
-<span class="nc" id="L104">        final Iterator&lt;T&gt; iterator = loader.iterator();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (iterator.hasNext()) {</span>
-<span class="nc" id="L106">            return iterator.next();</span>
+<span class="fc" id="L103">        final ServiceLoader&lt;T&gt; loader = ServiceLoader.load(clazz, cl);</span>
+<span class="fc" id="L104">        final Iterator&lt;T&gt; iterator = loader.iterator();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (iterator.hasNext()) {</span>
+<span class="fc" id="L106">            return iterator.next();</span>
         }
 <span class="nc" id="L108">        throw new IllegalStateException(&quot;No implementation found for &quot; + clazz.getName() + &quot;! &quot; +</span>
                 &quot;Please add an implementation to the classpath&quot;);

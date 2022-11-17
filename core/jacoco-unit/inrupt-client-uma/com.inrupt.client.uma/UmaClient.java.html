@@ -82,12 +82,12 @@ public class UmaClient {
      * Create a new UMA client using a default-configured HTTP client.
      */
     public UmaClient() {
-<span class="nc" id="L85">        this(5);</span>
-<span class="nc" id="L86">    }</span>
+<span class="fc" id="L85">        this(5);</span>
+<span class="fc" id="L86">    }</span>
 
     public UmaClient(final int maxIterations) {
-<span class="nc" id="L89">        this(ServiceProvider.getHttpService(), maxIterations);</span>
-<span class="nc" id="L90">    }</span>
+<span class="fc" id="L89">        this(ServiceProvider.getHttpService(), maxIterations);</span>
+<span class="fc" id="L90">    }</span>
 
     /**
      * Create an UMA client using an externally-configured HTTP client.
@@ -95,11 +95,11 @@ public class UmaClient {
      * @param httpClient the externally configured HTTP client
      * @param maxIterations the maximum number of claims gathering stages
      */
-<span class="nc" id="L98">    public UmaClient(final HttpService httpClient, final int maxIterations) {</span>
-<span class="nc" id="L99">        this.httpClient = httpClient;</span>
-<span class="nc" id="L100">        this.maxIterations = maxIterations;</span>
-<span class="nc" id="L101">        this.jsonService = ServiceProvider.getJsonService();</span>
-<span class="nc" id="L102">    }</span>
+<span class="fc" id="L98">    public UmaClient(final HttpService httpClient, final int maxIterations) {</span>
+<span class="fc" id="L99">        this.httpClient = httpClient;</span>
+<span class="fc" id="L100">        this.maxIterations = maxIterations;</span>
+<span class="fc" id="L101">        this.jsonService = ServiceProvider.getJsonService();</span>
+<span class="fc" id="L102">    }</span>
 
     /**
      * Fetch the UMA metadata resource.
@@ -109,9 +109,9 @@ public class UmaClient {
      */
     public Metadata metadata(final URI authorizationServer) {
         try {
-<span class="nc" id="L112">            return metadataAsync(authorizationServer).toCompletableFuture().join();</span>
-<span class="nc" id="L113">        } catch (final CompletionException ex) {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (ex.getCause() instanceof UmaException) {</span>
+<span class="fc" id="L112">            return metadataAsync(authorizationServer).toCompletableFuture().join();</span>
+<span class="fc" id="L113">        } catch (final CompletionException ex) {</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">            if (ex.getCause() instanceof UmaException) {</span>
 <span class="nc" id="L115">                sneakyThrow(ex.getCause());</span>
             }
 <span class="nc" id="L117">            throw new UmaException(&quot;Error performing UMA metadata discovery&quot;, ex);</span>
@@ -125,9 +125,9 @@ public class UmaClient {
      * @return the next stage of completion, containing the authorization server discovery metadata
      */
     public CompletionStage&lt;Metadata&gt; metadataAsync(final URI authorizationServer) {
-<span class="nc" id="L128">        final Request req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();</span>
-<span class="nc" id="L129">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())</span>
-<span class="nc" id="L130">            .thenApply(this::processMetadataResponse);</span>
+<span class="fc" id="L128">        final Request req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();</span>
+<span class="fc" id="L129">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())</span>
+<span class="fc" id="L130">            .thenApply(this::processMetadataResponse);</span>
     }
 
     /**
@@ -140,16 +140,16 @@ public class UmaClient {
      */
     public TokenResponse token(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function&lt;NeedInfo, ClaimToken&gt; claimMapper) {
-<span class="nc" id="L143">        final Function&lt;NeedInfo, ClaimToken&gt; mapper = Objects.requireNonNull(claimMapper);</span>
+<span class="fc" id="L143">        final Function&lt;NeedInfo, ClaimToken&gt; mapper = Objects.requireNonNull(claimMapper);</span>
         try {
-<span class="nc" id="L145">            return negotiateToken(Objects.requireNonNull(tokenEndpoint),</span>
-<span class="nc" id="L146">                    Objects.requireNonNull(tokenRequest),</span>
-<span class="nc" id="L147">                    needInfo -&gt; CompletableFuture.completedFuture(mapper.apply(needInfo)), 1)</span>
-<span class="nc" id="L148">                .toCompletableFuture().get();</span>
+<span class="fc" id="L145">            return negotiateToken(Objects.requireNonNull(tokenEndpoint),</span>
+<span class="fc" id="L146">                    Objects.requireNonNull(tokenRequest),</span>
+<span class="fc" id="L147">                    needInfo -&gt; CompletableFuture.completedFuture(mapper.apply(needInfo)), 1)</span>
+<span class="fc" id="L148">                .toCompletableFuture().get();</span>
 <span class="nc" id="L149">        } catch (final InterruptedException ex) {</span>
 <span class="nc" id="L150">            Thread.currentThread().interrupt();</span>
 <span class="nc" id="L151">            throw new UmaException(&quot;Error processing UMA token negotiation&quot;, ex);</span>
-<span class="nc" id="L152">        } catch (final ExecutionException ex) {</span>
+<span class="fc" id="L152">        } catch (final ExecutionException ex) {</span>
             // Handle any execution exceptions as runtime errors
 <span class="nc" id="L154">            sneakyThrow(ex.getCause());</span>
         }
@@ -166,40 +166,40 @@ public class UmaClient {
      */
     public CompletionStage&lt;TokenResponse&gt; tokenAsync(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function&lt;NeedInfo, CompletionStage&lt;ClaimToken&gt;&gt; claimMapper) {
-<span class="nc" id="L169">        return negotiateToken(Objects.requireNonNull(tokenEndpoint),</span>
-<span class="nc" id="L170">                Objects.requireNonNull(tokenRequest), Objects.requireNonNull(claimMapper), 1);</span>
+<span class="fc" id="L169">        return negotiateToken(Objects.requireNonNull(tokenEndpoint),</span>
+<span class="fc" id="L170">                Objects.requireNonNull(tokenRequest), Objects.requireNonNull(claimMapper), 1);</span>
     }
 
     private CompletionStage&lt;TokenResponse&gt; negotiateToken(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function&lt;NeedInfo, CompletionStage&lt;ClaimToken&gt;&gt; claimMapper, final int count) {
 
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (count &gt; maxIterations) {</span>
-<span class="nc" id="L177">            throw new UmaException(&quot;Claim gathering stages exceeded configured maximum of &quot; + maxIterations);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (count &gt; maxIterations) {</span>
+<span class="fc" id="L177">            throw new UmaException(&quot;Claim gathering stages exceeded configured maximum of &quot; + maxIterations);</span>
         }
 
-<span class="nc" id="L180">        final Request req = buildTokenRequest(tokenEndpoint, tokenRequest);</span>
-<span class="nc" id="L181">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()).thenCompose(res -&gt; {</span>
+<span class="fc" id="L180">        final Request req = buildTokenRequest(tokenEndpoint, tokenRequest);</span>
+<span class="fc" id="L181">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()).thenCompose(res -&gt; {</span>
             try {
                 // Successful terminal state
-<span class="nc bnc" id="L184" title="All 2 branches missed.">                if (SUCCESS == res.statusCode()) {</span>
-<span class="nc" id="L185">                    return CompletableFuture</span>
-<span class="nc" id="L186">                            .completedFuture(jsonService.fromJson(res.body(), TokenResponse.class));</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                if (SUCCESS == res.statusCode()) {</span>
+<span class="fc" id="L185">                    return CompletableFuture</span>
+<span class="fc" id="L186">                            .completedFuture(jsonService.fromJson(res.body(), TokenResponse.class));</span>
                 }
 
                 // Everything else is a 4xx response
                 // Attempt to read the error response as JSON
-<span class="nc" id="L191">                final ErrorResponse err = jsonService.fromJson(res.body(), ErrorResponse.class);</span>
+<span class="fc" id="L191">                final ErrorResponse err = jsonService.fromJson(res.body(), ErrorResponse.class);</span>
 
-<span class="nc bnc" id="L193" title="All 2 branches missed.">                if (err.error != null) {</span>
-<span class="nc" id="L194">                    return readErrorMessage(err, tokenEndpoint, tokenRequest.getScopes(), claimMapper, count);</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                if (err.error != null) {</span>
+<span class="fc" id="L194">                    return readErrorMessage(err, tokenEndpoint, tokenRequest.getScopes(), claimMapper, count);</span>
                 }
 
-<span class="nc" id="L197">                throw new UmaException(</span>
+<span class="fc" id="L197">                throw new UmaException(</span>
                         &quot;Unexpected error response while performing token negotiation: &quot;
-<span class="nc" id="L199">                                + res.statusCode());</span>
+<span class="fc" id="L199">                                + res.statusCode());</span>
 
-<span class="nc" id="L201">            } catch (final IOException ex) {</span>
-<span class="nc" id="L202">                throw new UmaException(&quot;Unexpected I/O Error while performing token negotiation&quot;,</span>
+<span class="fc" id="L201">            } catch (final IOException ex) {</span>
+<span class="fc" id="L202">                throw new UmaException(&quot;Unexpected I/O Error while performing token negotiation&quot;,</span>
                         ex);
             }
         });
@@ -209,94 +209,94 @@ public class UmaClient {
             final URI tokenEndpoint, final List&lt;String&gt; scopes,
             final Function&lt;NeedInfo, CompletionStage&lt;ClaimToken&gt;&gt; claimMapper,
             final int count) {
-<span class="nc bnc" id="L212" title="All 4 branches missed.">        switch (err.error) {</span>
+<span class="fc bfc" id="L212" title="All 4 branches covered.">        switch (err.error) {</span>
             case REQUEST_DENIED:
-<span class="nc" id="L214">                throw new RequestDeniedException(</span>
+<span class="fc" id="L214">                throw new RequestDeniedException(</span>
                         &quot;The client is not authorized for the requested permissions&quot;);
 
             case INVALID_GRANT:
-<span class="nc" id="L218">                throw new InvalidGrantException(&quot;Invalid grant provided&quot;);</span>
+<span class="fc" id="L218">                throw new InvalidGrantException(&quot;Invalid grant provided&quot;);</span>
 
             case INVALID_SCOPE:
-<span class="nc" id="L221">                throw new InvalidScopeException(&quot;Invalid scope provided&quot;);</span>
+<span class="fc" id="L221">                throw new InvalidScopeException(&quot;Invalid scope provided&quot;);</span>
 
             default: //NEED_INFO
                 // recursive claims gathering
-<span class="nc" id="L225">                return NeedInfo</span>
-<span class="nc" id="L226">                    .ofErrorResponse(err)</span>
-<span class="nc" id="L227">                    .map(needInfo -&gt; claimMapper</span>
-<span class="nc" id="L228">                            .apply(needInfo)</span>
-<span class="nc" id="L229">                            .thenApply(claimToken -&gt; {</span>
-<span class="nc bnc" id="L230" title="All 2 branches missed.">                                if (claimToken == null) {</span>
-<span class="nc" id="L231">                                    throw new RequestDeniedException(</span>
+<span class="fc" id="L225">                return NeedInfo</span>
+<span class="fc" id="L226">                    .ofErrorResponse(err)</span>
+<span class="fc" id="L227">                    .map(needInfo -&gt; claimMapper</span>
+<span class="fc" id="L228">                            .apply(needInfo)</span>
+<span class="fc" id="L229">                            .thenApply(claimToken -&gt; {</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">                                if (claimToken == null) {</span>
+<span class="fc" id="L231">                                    throw new RequestDeniedException(</span>
                                             &quot;The client is unable to negotiate an access token&quot;);
                                 }
-<span class="nc" id="L234">                                return new TokenRequest(needInfo.getTicket(), null, null, claimToken,</span>
+<span class="fc" id="L234">                                return new TokenRequest(needInfo.getTicket(), null, null, claimToken,</span>
                                             scopes);
                             })
                     )
-<span class="nc" id="L238">                    .orElseThrow(() -&gt; new RequestDeniedException(&quot;Invalid need_info error response&quot;))</span>
-<span class="nc" id="L239">                    .thenCompose(modifiedTokenRequest -&gt;</span>
-<span class="nc" id="L240">                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));</span>
+<span class="fc" id="L238">                    .orElseThrow(() -&gt; new RequestDeniedException(&quot;Invalid need_info error response&quot;))</span>
+<span class="fc" id="L239">                    .thenCompose(modifiedTokenRequest -&gt;</span>
+<span class="fc" id="L240">                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));</span>
         }
     }
 
 
     static &lt;T extends Throwable&gt; void sneakyThrow(final Throwable ex) throws T {
-<span class="nc" id="L246">        throw (T) ex;</span>
+<span class="fc" id="L246">        throw (T) ex;</span>
     }
 
     private Request buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {
-<span class="nc" id="L250">        final Map&lt;String, String&gt; data = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L251">        data.put(GRANT_TYPE, UMA_TICKET);</span>
-<span class="nc" id="L252">        data.put(TICKET, request.getTicket());</span>
-<span class="nc" id="L253">        request.getPersistedClaimToken().ifPresent(pct -&gt; data.put(PCT, pct));</span>
-<span class="nc" id="L254">        request.getRequestingPartyToken().ifPresent(rpt -&gt; data.put(RPT, rpt));</span>
-<span class="nc" id="L255">        request.getClaimToken().ifPresent(claimToken -&gt; {</span>
-<span class="nc" id="L256">            data.put(CLAIM_TOKEN, claimToken.getClaimToken());</span>
-<span class="nc" id="L257">            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType());</span>
-<span class="nc" id="L258">        });</span>
-<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (!request.getScopes().isEmpty()) {</span>
-<span class="nc" id="L260">            data.put(SCOPE, String.join(&quot; &quot;, request.getScopes()));</span>
+<span class="fc" id="L250">        final Map&lt;String, String&gt; data = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L251">        data.put(GRANT_TYPE, UMA_TICKET);</span>
+<span class="fc" id="L252">        data.put(TICKET, request.getTicket());</span>
+<span class="pc" id="L253">        request.getPersistedClaimToken().ifPresent(pct -&gt; data.put(PCT, pct));</span>
+<span class="pc" id="L254">        request.getRequestingPartyToken().ifPresent(rpt -&gt; data.put(RPT, rpt));</span>
+<span class="fc" id="L255">        request.getClaimToken().ifPresent(claimToken -&gt; {</span>
+<span class="fc" id="L256">            data.put(CLAIM_TOKEN, claimToken.getClaimToken());</span>
+<span class="fc" id="L257">            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType());</span>
+<span class="fc" id="L258">        });</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        if (!request.getScopes().isEmpty()) {</span>
+<span class="fc" id="L260">            data.put(SCOPE, String.join(&quot; &quot;, request.getScopes()));</span>
         }
 
         // TODO add dpop support, if available
-<span class="nc" id="L264">        return Request.newBuilder(tokenEndpoint)</span>
-<span class="nc" id="L265">            .header(CONTENT_TYPE, X_WWW_FORM_URLENCODED)</span>
-<span class="nc" id="L266">            .POST(ofFormData(data))</span>
-<span class="nc" id="L267">            .build();</span>
+<span class="fc" id="L264">        return Request.newBuilder(tokenEndpoint)</span>
+<span class="fc" id="L265">            .header(CONTENT_TYPE, X_WWW_FORM_URLENCODED)</span>
+<span class="fc" id="L266">            .POST(ofFormData(data))</span>
+<span class="fc" id="L267">            .build();</span>
     }
 
     private static Request.BodyPublisher ofFormData(final Map&lt;String, String&gt; data) {
-<span class="nc" id="L271">        final String form = data.entrySet().stream().map(entry -&gt; {</span>
-<span class="nc" id="L272">            String name = &quot;&quot;;</span>
-<span class="nc" id="L273">            String value = &quot;&quot;;</span>
+<span class="fc" id="L271">        final String form = data.entrySet().stream().map(entry -&gt; {</span>
+<span class="fc" id="L272">            String name = &quot;&quot;;</span>
+<span class="fc" id="L273">            String value = &quot;&quot;;</span>
             try {
-<span class="nc" id="L275">                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
-<span class="nc" id="L276">                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
+<span class="fc" id="L275">                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
+<span class="fc" id="L276">                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
 <span class="nc" id="L277">            } catch (UnsupportedEncodingException e) {</span>
 <span class="nc" id="L278">                throw new UmaException(e.getMessage());</span>
-<span class="nc" id="L279">            }</span>
-<span class="nc" id="L280">            return String.join(EQUALS, name, value);</span>
-<span class="nc" id="L281">        }).collect(Collectors.joining(ETC));</span>
+<span class="fc" id="L279">            }</span>
+<span class="fc" id="L280">            return String.join(EQUALS, name, value);</span>
+<span class="fc" id="L281">        }).collect(Collectors.joining(ETC));</span>
 
-<span class="nc" id="L283">        return Request.BodyPublishers.ofString(form);</span>
+<span class="fc" id="L283">        return Request.BodyPublishers.ofString(form);</span>
     }
 
 
     private Metadata processMetadataResponse(final Response&lt;InputStream&gt; response) {
-<span class="nc bnc" id="L288" title="All 2 branches missed.">        if (response.statusCode() == SUCCESS) {</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">        if (response.statusCode() == SUCCESS) {</span>
             try {
-<span class="nc" id="L290">                return jsonService.fromJson(response.body(), Metadata.class);</span>
-<span class="nc" id="L291">            } catch (final IOException ex) {</span>
-<span class="nc" id="L292">                throw new UmaException(&quot;Error while processing UMA metadata response&quot;, ex);</span>
+<span class="fc" id="L290">                return jsonService.fromJson(response.body(), Metadata.class);</span>
+<span class="fc" id="L291">            } catch (final IOException ex) {</span>
+<span class="fc" id="L292">                throw new UmaException(&quot;Error while processing UMA metadata response&quot;, ex);</span>
             }
         }
-<span class="nc" id="L295">        throw new UmaException(&quot;Unexpected response code during UMA discovery: &quot; + response.statusCode());</span>
+<span class="fc" id="L295">        throw new UmaException(&quot;Unexpected response code during UMA discovery: &quot; + response.statusCode());</span>
     }
 
     private URI getMetadataUrl(final URI authorizationServer) {
-<span class="nc" id="L299">        return URIBuilder.newBuilder(authorizationServer).path(&quot;.well-known/uma2-configuration&quot;).build();</span>
+<span class="fc" id="L299">        return URIBuilder.newBuilder(authorizationServer).path(&quot;.well-known/uma2-configuration&quot;).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -40,7 +40,7 @@ public final class RDFNode {
      * @return true if this is a named RDF node; false otherwise
      */
     public boolean isNamedNode() {
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        return uri != null;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        return uri != null;</span>
     }
 
     /**
@@ -49,7 +49,7 @@ public final class RDFNode {
      * @return true if this is a blank node; false otherwise
      */
     public boolean isBlankNode() {
-<span class="nc bnc" id="L52" title="All 6 branches missed.">        return uri == null &amp;&amp; lexicalValue == null &amp;&amp; nodeId != null;</span>
+<span class="pc bpc" id="L52" title="2 of 6 branches missed.">        return uri == null &amp;&amp; lexicalValue == null &amp;&amp; nodeId != null;</span>
     }
 
     /**
@@ -58,7 +58,7 @@ public final class RDFNode {
      * @return true if this is an RDF literal; false otherwise
      */
     public boolean isLiteral() {
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        return lexicalValue != null;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        return lexicalValue != null;</span>
     }
 
     /**
@@ -67,7 +67,7 @@ public final class RDFNode {
      * @return the URI associated with the node or {@code null}
      */
     public URI getURI() {
-<span class="nc" id="L70">        return uri;</span>
+<span class="fc" id="L70">        return uri;</span>
     }
 
     /**
@@ -76,7 +76,7 @@ public final class RDFNode {
      * @return the lexical value associated with the node or {@code null}
      */
     public String getLiteral() {
-<span class="nc" id="L79">        return lexicalValue;</span>
+<span class="fc" id="L79">        return lexicalValue;</span>
     }
 
     /**
@@ -85,7 +85,7 @@ public final class RDFNode {
      * @return the datatype associated with the node or {@code null}
      */
     public URI getDatatype() {
-<span class="nc" id="L88">        return datatype;</span>
+<span class="fc" id="L88">        return datatype;</span>
     }
 
     /**
@@ -94,7 +94,7 @@ public final class RDFNode {
      * @return the language tag associated with the node or {@code null}
      */
     public String getLanguage() {
-<span class="nc" id="L97">        return language;</span>
+<span class="fc" id="L97">        return language;</span>
     }
 
     /**
@@ -103,7 +103,7 @@ public final class RDFNode {
      * @return the nodeId associated with the node or {@code null}
      */
     public String getNodeId() {
-<span class="nc" id="L106">        return nodeId;</span>
+<span class="fc" id="L106">        return nodeId;</span>
     }
 
     /**
@@ -112,8 +112,8 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode() {
-<span class="nc" id="L115">        final String nodeId = UUID.randomUUID().toString();</span>
-<span class="nc" id="L116">        return new RDFNode(null, null, null, null, nodeId);</span>
+<span class="fc" id="L115">        final String nodeId = UUID.randomUUID().toString();</span>
+<span class="fc" id="L116">        return new RDFNode(null, null, null, null, nodeId);</span>
     }
 
     /**
@@ -123,7 +123,7 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode(final String nodeId) {
-<span class="nc" id="L126">        return new RDFNode(null, null, null, null, nodeId);</span>
+<span class="fc" id="L126">        return new RDFNode(null, null, null, null, nodeId);</span>
     }
 
     /**
@@ -133,7 +133,7 @@ public final class RDFNode {
      * @return the RDF named node
      */
     public static RDFNode namedNode(final URI uri) {
-<span class="nc" id="L136">        return new RDFNode(uri, null, null, null, null);</span>
+<span class="fc" id="L136">        return new RDFNode(uri, null, null, null, null);</span>
     }
 
     /**
@@ -143,7 +143,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal) {
-<span class="nc" id="L146">        return new RDFNode(null, literal, null, null, null);</span>
+<span class="fc" id="L146">        return new RDFNode(null, literal, null, null, null);</span>
     }
 
     /**
@@ -154,7 +154,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final URI datatype) {
-<span class="nc" id="L157">        return new RDFNode(null, literal, null, datatype, null);</span>
+<span class="fc" id="L157">        return new RDFNode(null, literal, null, datatype, null);</span>
     }
 
     /**
@@ -165,16 +165,16 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final String language) {
-<span class="nc" id="L168">        return new RDFNode(null, literal, language, null, null);</span>
+<span class="fc" id="L168">        return new RDFNode(null, literal, language, null, null);</span>
     }
 
     private RDFNode(final URI uri, final String literal, final String language,
-<span class="nc" id="L172">        final URI datatype, final String nodeId) {</span>
-<span class="nc" id="L173">        this.uri = uri;</span>
-<span class="nc" id="L174">        this.lexicalValue = literal;</span>
-<span class="nc" id="L175">        this.language = language;</span>
-<span class="nc" id="L176">        this.datatype = datatype;</span>
-<span class="nc" id="L177">        this.nodeId = nodeId;</span>
-<span class="nc" id="L178">    }</span>
+<span class="fc" id="L172">        final URI datatype, final String nodeId) {</span>
+<span class="fc" id="L173">        this.uri = uri;</span>
+<span class="fc" id="L174">        this.lexicalValue = literal;</span>
+<span class="fc" id="L175">        this.language = language;</span>
+<span class="fc" id="L176">        this.datatype = datatype;</span>
+<span class="fc" id="L177">        this.nodeId = nodeId;</span>
+<span class="fc" id="L178">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

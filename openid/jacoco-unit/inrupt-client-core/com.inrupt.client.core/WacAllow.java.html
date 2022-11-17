@@ -52,9 +52,9 @@ public final class WacAllow {
 
     private final Map&lt;String, Set&lt;String&gt;&gt; accessParams;
 
-<span class="nc" id="L55">    private WacAllow(final Map&lt;String, Set&lt;String&gt;&gt; accessParams) {</span>
-<span class="nc" id="L56">        this.accessParams = Objects.requireNonNull(accessParams);</span>
-<span class="nc" id="L57">    }</span>
+<span class="fc" id="L55">    private WacAllow(final Map&lt;String, Set&lt;String&gt;&gt; accessParams) {</span>
+<span class="fc" id="L56">        this.accessParams = Objects.requireNonNull(accessParams);</span>
+<span class="fc" id="L57">    }</span>
 
     /**
      * Create a new WAC-Allow object with a collection of Access Parameters.
@@ -63,7 +63,7 @@ public final class WacAllow {
      * @return the WAC-Allow object
      */
     public static WacAllow of(final Map&lt;String, Set&lt;String&gt;&gt; accessParams) {
-<span class="nc" id="L66">        return new WacAllow(accessParams);</span>
+<span class="fc" id="L66">        return new WacAllow(accessParams);</span>
     }
 
     /**
@@ -72,7 +72,7 @@ public final class WacAllow {
      * @return the  Access Parameters
      */
     public Map&lt;String, Set&lt;String&gt;&gt; getAccessParams() {
-<span class="nc" id="L75">        return Collections.unmodifiableMap(accessParams);</span>
+<span class="fc" id="L75">        return Collections.unmodifiableMap(accessParams);</span>
     }
 
     @Override
@@ -102,23 +102,23 @@ public final class WacAllow {
      * @return WAC-Allow object containig Access Parameters from headers
      */
     public static WacAllow parse(final String... headers) {
-<span class="nc" id="L105">        final Parser parser = new Parser();</span>
-<span class="nc" id="L106">        final Map&lt;String, Set&lt;String&gt;&gt; accessParams = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L105">        final Parser parser = new Parser();</span>
+<span class="fc" id="L106">        final Map&lt;String, Set&lt;String&gt;&gt; accessParams = new HashMap&lt;&gt;();</span>
 
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (final String header : headers) {</span>
-<span class="nc" id="L109">            final Map&lt;String, Set&lt;String&gt;&gt; accessParamEntry = parser.parse(header);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        for (final String header : headers) {</span>
+<span class="fc" id="L109">            final Map&lt;String, Set&lt;String&gt;&gt; accessParamEntry = parser.parse(header);</span>
 
-<span class="nc bnc" id="L111" title="All 2 branches missed.">            for (Entry&lt;String, Set&lt;String&gt;&gt; entry : accessParamEntry.entrySet()) {</span>
-<span class="nc" id="L112">                accessParams.computeIfAbsent(entry.getKey(), k -&gt; new HashSet&lt;&gt;())</span>
-<span class="nc" id="L113">                            .addAll(entry.getValue());</span>
-<span class="nc" id="L114">            }</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            for (Entry&lt;String, Set&lt;String&gt;&gt; entry : accessParamEntry.entrySet()) {</span>
+<span class="fc" id="L112">                accessParams.computeIfAbsent(entry.getKey(), k -&gt; new HashSet&lt;&gt;())</span>
+<span class="fc" id="L113">                            .addAll(entry.getValue());</span>
+<span class="fc" id="L114">            }</span>
         }
-<span class="nc" id="L116">        return WacAllow.of(accessParams);</span>
+<span class="fc" id="L116">        return WacAllow.of(accessParams);</span>
     }
 
     static final class Parser {
 
-<span class="nc" id="L121">        private static final Logger LOGGER = LoggerFactory.getLogger(WacAllow.class);</span>
+<span class="fc" id="L121">        private static final Logger LOGGER = LoggerFactory.getLogger(WacAllow.class);</span>
 
         private static final int PAIR = 2;
         private static final String DQUOTE = &quot;\&quot;&quot;;
@@ -131,17 +131,17 @@ public final class WacAllow {
          * Create an access parameter parser with an error listener that records syntax exceptions to a DEBUG log.
          */
         public Parser() {
-<span class="nc" id="L134">            this(new ConsumerErrorListener(msg -&gt; LOGGER.debug(&quot;WAC-Allow parse error: {}&quot;, msg)));</span>
-<span class="nc" id="L135">        }</span>
+<span class="fc" id="L134">            this(new ConsumerErrorListener(msg -&gt; LOGGER.debug(&quot;WAC-Allow parse error: {}&quot;, msg)));</span>
+<span class="fc" id="L135">        }</span>
 
         /**
          * Create an access parameter parser with a custom error listener.
          *
          * @param errorListener the error listener
          */
-<span class="nc" id="L142">        public Parser(final ANTLRErrorListener errorListener) {</span>
-<span class="nc" id="L143">            this.errorListener = errorListener;</span>
-<span class="nc" id="L144">        }</span>
+<span class="fc" id="L142">        public Parser(final ANTLRErrorListener errorListener) {</span>
+<span class="fc" id="L143">            this.errorListener = errorListener;</span>
+<span class="fc" id="L144">        }</span>
 
         /**
          * Parse header string into a list of AccessParam objects.
@@ -150,37 +150,37 @@ public final class WacAllow {
          * @return list of AccessParam objects
          */
         public Map&lt;String, Set&lt;String&gt;&gt; parse(final String header) {
-<span class="nc" id="L153">            final WacAllowLexer lexer = new WacAllowLexer(CharStreams.fromString(header));</span>
+<span class="fc" id="L153">            final WacAllowLexer lexer = new WacAllowLexer(CharStreams.fromString(header));</span>
             // Update lexer error listeners
-<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (errorListener != null) {</span>
-<span class="nc" id="L156">                lexer.removeErrorListeners();</span>
-<span class="nc" id="L157">                lexer.addErrorListener(errorListener);</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L156">                lexer.removeErrorListeners();</span>
+<span class="fc" id="L157">                lexer.addErrorListener(errorListener);</span>
             }
 
-<span class="nc" id="L160">            final CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
-<span class="nc" id="L161">            final WacAllowParser parser = new WacAllowParser(tokens);</span>
+<span class="fc" id="L160">            final CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
+<span class="fc" id="L161">            final WacAllowParser parser = new WacAllowParser(tokens);</span>
 
             // Update error listeners
-<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (errorListener != null) {</span>
-<span class="nc" id="L165">                parser.removeErrorListeners();</span>
-<span class="nc" id="L166">                parser.addErrorListener(errorListener);</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L165">                parser.removeErrorListeners();</span>
+<span class="fc" id="L166">                parser.addErrorListener(errorListener);</span>
             }
 
-<span class="nc" id="L169">            final AccessParamListener listener = new AccessParamListener();</span>
-<span class="nc" id="L170">            final ParseTreeWalker walker = new ParseTreeWalker();</span>
-<span class="nc" id="L171">            final WacAllowParser.WacAllowContext tree = parser.wacAllow();</span>
+<span class="fc" id="L169">            final AccessParamListener listener = new AccessParamListener();</span>
+<span class="fc" id="L170">            final ParseTreeWalker walker = new ParseTreeWalker();</span>
+<span class="fc" id="L171">            final WacAllowParser.WacAllowContext tree = parser.wacAllow();</span>
 
-<span class="nc" id="L173">            walker.walk(listener, tree);</span>
+<span class="fc" id="L173">            walker.walk(listener, tree);</span>
 
-<span class="nc" id="L175">            return listener.getAccessParams();</span>
+<span class="fc" id="L175">            return listener.getAccessParams();</span>
         }
 
         /**
          * An Antlr listener for use with walking over the parsed syntax tree of a WWW-Authenticate header.
          */
-<span class="nc" id="L181">        public static class AccessParamListener extends WacAllowBaseListener {</span>
+<span class="fc" id="L181">        public static class AccessParamListener extends WacAllowBaseListener {</span>
 
-<span class="nc" id="L183">            private final Map&lt;String, Set&lt;String&gt;&gt; accessParams = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L183">            private final Map&lt;String, Set&lt;String&gt;&gt; accessParams = new HashMap&lt;&gt;();</span>
 
             /**
              * Get the list of AccesParam objects from the parsed header.
@@ -188,29 +188,29 @@ public final class WacAllow {
              * @return list of AccessParams
              */
             public Map&lt;String, Set&lt;String&gt;&gt; getAccessParams() {
-<span class="nc" id="L191">                return accessParams;</span>
+<span class="fc" id="L191">                return accessParams;</span>
             }
 
             @Override
             public void exitWacAllow(final WacAllowParser.WacAllowContext ctx) {
-<span class="nc bnc" id="L196" title="All 2 branches missed.">                for (final TerminalNode p : ctx.AccessParam()) {</span>
-<span class="nc" id="L197">                    final String[] parts = p.getText().split(EQUALS, PAIR);</span>
-<span class="nc bnc" id="L198" title="All 2 branches missed.">                    if (parts.length == PAIR) {</span>
-<span class="nc" id="L199">                        final String[] accessModes = Arrays.stream(unwrap(parts[1], DQUOTE).split(WS))</span>
-<span class="nc" id="L200">                                                            .filter(Predicate.not(String::isEmpty))</span>
-<span class="nc" id="L201">                                                            .toArray(String[]::new);</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">                        if (accessModes.length &gt; 0) {</span>
-<span class="nc" id="L203">                            accessParams.computeIfAbsent(parts[0], k -&gt; new HashSet&lt;&gt;())</span>
-<span class="nc" id="L204">                                        .addAll(Set.of(accessModes));</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">                for (final TerminalNode p : ctx.AccessParam()) {</span>
+<span class="fc" id="L197">                    final String[] parts = p.getText().split(EQUALS, PAIR);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">                    if (parts.length == PAIR) {</span>
+<span class="fc" id="L199">                        final String[] accessModes = Arrays.stream(unwrap(parts[1], DQUOTE).split(WS))</span>
+<span class="fc" id="L200">                                                            .filter(Predicate.not(String::isEmpty))</span>
+<span class="fc" id="L201">                                                            .toArray(String[]::new);</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">                        if (accessModes.length &gt; 0) {</span>
+<span class="fc" id="L203">                            accessParams.computeIfAbsent(parts[0], k -&gt; new HashSet&lt;&gt;())</span>
+<span class="fc" id="L204">                                        .addAll(Set.of(accessModes));</span>
                         }
                     }
-<span class="nc" id="L207">                }</span>
-<span class="nc" id="L208">            }</span>
+<span class="fc" id="L207">                }</span>
+<span class="fc" id="L208">            }</span>
 
             static String unwrap(final String value, final String character) {
 
-<span class="nc bnc" id="L212" title="All 4 branches missed.">                if (value.startsWith(character) &amp;&amp; value.endsWith(character)) {</span>
-<span class="nc" id="L213">                    return value.substring(1, value.length() - 1);</span>
+<span class="pc bpc" id="L212" title="2 of 4 branches missed.">                if (value.startsWith(character) &amp;&amp; value.endsWith(character)) {</span>
+<span class="fc" id="L213">                    return value.substring(1, value.length() - 1);</span>
                 }
 <span class="nc" id="L215">                return value;</span>
             }
