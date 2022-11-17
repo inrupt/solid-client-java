@@ -12,7 +12,6 @@
   <description>
       The Application Programming Interfaces for the Inrupt Client Libraries.
   </description>
-  <url>https://docs.example/api</url>
 
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
