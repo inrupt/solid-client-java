@@ -28,7 +28,10 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Build the code with Maven
-        run: ./mvnw -B -ntp clean install site
+        run: ./mvnw -B -ntp clean install site site:stage
+
+      - name: Copy Resources
+        run: sh scripts/move-site-modules.sh
 
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3

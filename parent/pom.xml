@@ -4,11 +4,11 @@
   <groupId>com.inrupt</groupId>
   <artifactId>inrupt-parent</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <name>Inrupt Solid Client - Parent POM</name>
+  <name>Inrupt Client Libraries - Parent POM</name>
   <packaging>pom</packaging>
 
   <description>
-    Common maven configuration for the Solid Client libraries.
+    Common maven configuration for the Inrupt Client libraries.
   </description>
 
   <properties>
@@ -56,6 +56,10 @@
       <id>ossrh</id>
       <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
+    <site child.site.url.inherit.append.path="false">
+      <id>${project.artifactId}</id>
+      <url>${project.baseUri}</url>
+    </site>
   </distributionManagement>
 
   <build>

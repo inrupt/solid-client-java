@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-parser</artifactId>
-  <name>Inrupt Solid Client - Parsing Utilities</name>
+  <name>Inrupt Client Libraries - Parsing Utilities</name>
   <description>
       Parsing utilities for the Inrupt Client Libraries.
   </description>

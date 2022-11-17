@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-uma</artifactId>
-  <name>Inrupt Solid Client - UMA</name>
+  <name>Inrupt Client Libraries - UMA</name>
   <description>
       UMA abstractions for the Inrupt Client Libraries.
   </description>
