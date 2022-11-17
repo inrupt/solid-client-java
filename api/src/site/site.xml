@@ -1,7 +1,11 @@
 <project name="Inrupt Client Libraries: API">
 
-  <publishDate position="right"/>
-  <version position="right"/>
+  <bannerRight>
+    <name>Inrupt</name>
+    <src>images/inrupt_logo-2020.svg</src>
+    <href>https://inrupt.com</href>
+  </bannerRight>
+
   <body>
     <menu name="Module: API" inherit="top">
         <item name="Summary" href="summary.html"/>

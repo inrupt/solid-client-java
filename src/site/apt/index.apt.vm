@@ -1,0 +1,11 @@
+Welcome to the ${project.name}
+
+ {{{https://inrupt.com}Inrupt}} provides libraries for Java developers to harness the power of Solid. These libraries are designed to work with any server that conforms to the published {{{https://solidproject.org/TR}Solid specifications}}.
+
+ The goal of these libraries is to provide highly flexible, simple components that can be used in any Java application for Solid, including:
+
+  * Authentication modules
+
+  * Data mapping modules
+
+  * Resource management modules
