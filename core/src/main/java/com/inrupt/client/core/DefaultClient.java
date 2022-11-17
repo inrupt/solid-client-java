@@ -42,28 +42,21 @@ public final class DefaultClient implements Client {
     private final HttpService httpClient;
     private final Authenticator.Registry registry;
     private final Client.Session session;
-    private final Client.Config config;
 
     private DefaultClient(final HttpService httpClient) {
-        this(httpClient, new DefaultRegistry(), Client.Session.anonymous(), Client.Config.buildDefault());
+        this(httpClient, new DefaultRegistry(), Client.Session.anonymous());
     }
 
     private DefaultClient(final HttpService httpClient, final Authenticator.Registry registry,
-            final Client.Session session, final Client.Config config) {
+            final Client.Session session) {
         this.httpClient = httpClient;
         this.registry = registry;
         this.session = session;
-        this.config = config;
-    }
-
-    @Override
-    public Client config(final Config config) {
-        return new DefaultClient(this.httpClient, this.registry, this.session, config);
     }
 
     @Override
     public Client session(final Session session) {
-        return new DefaultClient(this.httpClient, this.registry, session, this.config);
+        return new DefaultClient(this.httpClient, this.registry, session);
     }
 
     @Override

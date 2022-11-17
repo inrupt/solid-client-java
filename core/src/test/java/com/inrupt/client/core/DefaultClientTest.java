@@ -44,7 +44,10 @@ import org.junit.jupiter.api.Test;
 class DefaultClientTest {
 
     static final MockHttpService mockHttpServer = new MockHttpService();
-    static final Client client = ClientProvider.getClient();
+    static final Client client = ClientProvider
+            .getClientBuilder()
+            .withConfig(new DefaultClientTest.CustomConfig())
+            .build();
     static final AtomicReference<String> baseUri = new AtomicReference<>();
 
     @BeforeAll
@@ -185,5 +188,11 @@ class DefaultClientTest {
         final Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
 
         assertEquals(200, response.statusCode());
+    }
+
+    public static class CustomConfig implements Client.Config {
+        public long getRetryRedirects() {
+            return 10;
+        }
     }
 }

@@ -56,14 +56,6 @@ public interface Client {
     Client session(Session session);
 
     /**
-     * Create a configured client.
-     *
-     * @param config the client configuration
-     * @return the configured client
-     */
-    Client config(Config config);
-
-    /**
      * A session abstraction for managing access tokens for an agent.
      */
     interface Session {
@@ -118,21 +110,10 @@ public interface Client {
          *
          * @return the number of retry redirects
          */
-        long getRetryRedirects();
-
-        /**
-         * Creates a default client configuration.
-         *
-         * @return a default {@link Config} for the client
-         */
-        static Config buildDefault() {
-            return new Config() {
-                @Override
-                public long getRetryRedirects() {
-                    return DEFAULT_RETRY_REDIRECTS;
-                }
-            };
+        default long getRetryRedirects() {
+            return DEFAULT_RETRY_REDIRECTS;
         }
+
     }
 
     interface Builder {
