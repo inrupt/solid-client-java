@@ -2,8 +2,8 @@
 
   <bannerRight>
     <name>Inrupt</name>
-    <src>../images/inrupt_logo-2020.svg</src>
-    <href>../index.html</href>
+    <src>images/inrupt_logo-2020.svg</src>
+    <href>https://inrupt.com</href>
   </bannerRight>
 
   <body>
