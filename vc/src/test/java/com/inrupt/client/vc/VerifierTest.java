@@ -86,8 +86,9 @@ class VerifierTest {
     void verifyStatusCodesTest() {
         assertAll("Invalid or malformed input because of empty VC",
             () -> {
+                final var vc = new VerifiableCredential();
                 final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> verifier.verify(new VerifiableCredential())
+                    () -> verifier.verify(vc)
                 );
                 assertTrue(exception.getCause() instanceof VerifiableCredentialException);
                 final var cause = (VerifiableCredentialException) exception.getCause();
@@ -118,8 +119,9 @@ class VerifierTest {
     void verifyPresentationStatusCodesTest() {
         assertAll("Invalid of malformed input because of empty VP",
             () -> {
+                final var vc = new VerifiableCredential();
                 final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> verifier.verify(new VerifiablePresentation())
+                    () -> verifier.verify(vc)
                 );
                 assertTrue(exception.getCause() instanceof VerifiableCredentialException);
                 final var cause = (VerifiableCredentialException) exception.getCause();

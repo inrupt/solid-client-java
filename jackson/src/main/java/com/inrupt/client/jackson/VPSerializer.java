@@ -29,6 +29,13 @@ import java.io.IOException;
 
 public class VPSerializer extends StdSerializer<VerifiablePresentation> {
 
+    private static final String CONTEXT = "@context";
+    private static final String TYPE = "type";
+    private static final String ID = "id";
+    private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
+    private static final String PROOF = "proof";
+    private static final String HOLDER = "holder";
+
     public VPSerializer() {
         this((Class<VerifiablePresentation>)null);
     }
@@ -44,7 +51,7 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         jgen.writeStartObject();
 
         if (vp.context != null) {
-            jgen.writeFieldName("@context");
+            jgen.writeFieldName(CONTEXT);
             jgen.writeStartArray();
             for (final var context : vp.context) {
                 jgen.writeString(context);
@@ -53,11 +60,11 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         }
 
         if (vp.id != null) {
-            jgen.writeStringField("id", vp.id);
+            jgen.writeStringField(ID, vp.id);
         }
 
         if (vp.type != null) {
-            jgen.writeFieldName("type");
+            jgen.writeFieldName(TYPE);
             jgen.writeStartArray();
             for (final var type : vp.type) {
                 jgen.writeString(type);
@@ -66,11 +73,11 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         }
 
         if (vp.holder != null) {
-            jgen.writeStringField("holder", vp.holder);
+            jgen.writeStringField(HOLDER, vp.holder);
         }
 
         if (vp.verifiableCredential != null) {
-            jgen.writeFieldName("verifiableCredential");
+            jgen.writeFieldName(VERIFIABLE_CREDENTIAL);
             jgen.writeStartArray();
             for (final var vc : vp.verifiableCredential) {
                 jgen.writePOJO(vc);
@@ -79,7 +86,7 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         }
 
         if (vp.proof != null) {
-            jgen.writeFieldName("proof");
+            jgen.writeFieldName(PROOF);
             jgen.writeStartObject();
             final var itProof = vp.proof.entrySet().iterator();
             while (itProof.hasNext()) {

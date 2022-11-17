@@ -20,13 +20,13 @@
     <antlr.version>4.11.1</antlr.version>
     <caffeine.version>3.1.1</caffeine.version>
     <commons.io.version>2.11.0</commons.io.version>
-    <jackson.version>2.13.4.20221013</jackson.version>
+    <jackson.version>2.14.0</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.6.1</jena.version>
     <jose4j.version>0.9.2</jose4j.version>
     <json.bind.version>1.0.2</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <rdf4j.version>4.2.0</rdf4j.version>
+    <rdf4j.version>4.2.1</rdf4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
     <!-- testing -->
@@ -133,6 +133,11 @@
         <groupId>org.glassfish</groupId>
         <artifactId>jakarta.json</artifactId>
         <version>${jakarta.json.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-jre8-standalone</artifactId>
+        <version>${wiremock.version}</version>
       </dependency>
       <dependency>
         <groupId>com.github.tomakehurst</groupId>

@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -146,6 +147,7 @@ public class UmaClient {
                     needInfo -> CompletableFuture.completedFuture(mapper.apply(needInfo)), 1)
                 .toCompletableFuture().get();
         } catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
             throw new UmaException("Error processing UMA token negotiation", ex);
         } catch (final ExecutionException ex) {
             // Handle any execution exceptions as runtime errors
@@ -176,55 +178,69 @@ public class UmaClient {
         }
 
         final Request req = buildTokenRequest(tokenEndpoint, tokenRequest);
-        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
-            .thenCompose(res -> {
-                try {
-                    // Successful terminal state
-                    if (SUCCESS == res.statusCode()) {
-                        return CompletableFuture.completedFuture(jsonService.fromJson(res.body(), TokenResponse.class));
-                    }
-
-                    // Everything else is a 4xx response
-                    // Attempt to read the error response as JSON
-                    final ErrorResponse err = jsonService.fromJson(res.body(), ErrorResponse.class);
-
-                    if (err.error != null) {
-                        switch (err.error) {
-                            case NEED_INFO:
-                                // recursive claims gathering
-                                return NeedInfo.ofErrorResponse(err)
-                                    .map(needInfo -> claimMapper.apply(needInfo).thenApply(claimToken -> {
-                                        if (claimToken == null) {
-                                            throw new RequestDeniedException(
-                                                    "The client is unable to negotiate an access token");
-                                        }
-                                        return new TokenRequest(needInfo.getTicket(), null, null, claimToken,
-                                                    tokenRequest.getScopes());
-                                    }))
-                                    .orElseThrow(() -> new RequestDeniedException("Invalid need_info error response"))
-                                    .thenCompose(modifiedTokenRequest ->
-                                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));
-
-                            case REQUEST_DENIED:
-                                throw new RequestDeniedException(
-                                        "The client is not authorized for the requested permissions");
-
-                            case INVALID_GRANT:
-                                throw new InvalidGrantException("Invalid grant provided");
-
-                            case INVALID_SCOPE:
-                                throw new InvalidScopeException("Invalid scope provided");
-                        }
-                    }
-
-                    throw new UmaException(
-                            "Unexpected error response while performing token negotiation: " + res.statusCode());
-
-                } catch (final IOException ex) {
-                    throw new UmaException("Unexpected I/O Error while performing token negotiation", ex);
+        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()).thenCompose(res -> {
+            try {
+                // Successful terminal state
+                if (SUCCESS == res.statusCode()) {
+                    return CompletableFuture
+                            .completedFuture(jsonService.fromJson(res.body(), TokenResponse.class));
                 }
-            });
+
+                // Everything else is a 4xx response
+                // Attempt to read the error response as JSON
+                final ErrorResponse err = jsonService.fromJson(res.body(), ErrorResponse.class);
+
+                if (err.error != null) {
+                    return readErrorMessage(err, tokenEndpoint, tokenRequest.getScopes(), claimMapper, count);
+                }
+
+                throw new UmaException(
+                        "Unexpected error response while performing token negotiation: "
+                                + res.statusCode());
+
+            } catch (final IOException ex) {
+                throw new UmaException("Unexpected I/O Error while performing token negotiation",
+                        ex);
+            }
+        });
     }
+
+    private CompletionStage<TokenResponse> readErrorMessage(final ErrorResponse err,
+            final URI tokenEndpoint, final List<String> scopes,
+            final Function<NeedInfo, CompletionStage<ClaimToken>> claimMapper,
+            final int count) {
+        switch (err.error) {
+            case REQUEST_DENIED:
+                throw new RequestDeniedException(
+                        "The client is not authorized for the requested permissions");
+
+            case INVALID_GRANT:
+                throw new InvalidGrantException("Invalid grant provided");
+
+            case INVALID_SCOPE:
+                throw new InvalidScopeException("Invalid scope provided");
+
+            default: //NEED_INFO
+                // recursive claims gathering
+                return NeedInfo
+                    .ofErrorResponse(err)
+                    .map(needInfo -> claimMapper
+                            .apply(needInfo)
+                            .thenApply(claimToken -> {
+                                if (claimToken == null) {
+                                    throw new RequestDeniedException(
+                                            "The client is unable to negotiate an access token");
+                                }
+                                return new TokenRequest(needInfo.getTicket(), null, null, claimToken,
+                                            scopes);
+                            })
+                    )
+                    .orElseThrow(() -> new RequestDeniedException("Invalid need_info error response"))
+                    .thenCompose(modifiedTokenRequest ->
+                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));
+        }
+    }
+
 
     static <T extends Throwable> void sneakyThrow(final Throwable ex) throws T {
         throw (T) ex;

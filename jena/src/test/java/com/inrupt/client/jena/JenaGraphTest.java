@@ -50,8 +50,9 @@ class JenaGraphTest {
     void testGetSubject() {
         assertAll("different versions of a subject",
             () -> {
+                final RDFNode subject = RDFNode.literal("subject");
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> JenaGraph.getSubject(RDFNode.literal("subject"))
+                    () -> JenaGraph.getSubject(subject)
                 );
                 assertEquals("Subject cannot be an RDF literal", exception.getMessage());
             },
@@ -70,15 +71,17 @@ class JenaGraphTest {
     void testGetPredicate() {
         assertAll("different versions of a predicate",
             () -> {
+                final RDFNode predicate = RDFNode.literal("predicate");
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> JenaGraph.getPredicate(RDFNode.literal("predicate"))
+                    () -> JenaGraph.getPredicate(predicate)
                 );
                 assertEquals("Predicate cannot be an RDF literal", exception.getMessage());
             },
             () -> assertEquals(RdfTestModel.P_VALUE, JenaGraph.getPredicate(RdfTestModel.P_RDFNode).toString()),
             () -> {
+                final RDFNode blankNode = RDFNode.blankNode();
                 final Throwable exception = assertThrows(IllegalArgumentException.class,
-                    () -> JenaGraph.getPredicate(RDFNode.blankNode())
+                    () -> JenaGraph.getPredicate(blankNode)
                 );
                 assertEquals("Predicate cannot be a blank node", exception.getMessage());
             },

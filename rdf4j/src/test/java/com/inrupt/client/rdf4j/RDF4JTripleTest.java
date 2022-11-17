@@ -50,12 +50,6 @@ class RDF4JTripleTest {
     }
 
     @Test
-    void testInvalidTriple() {
-        assertThrows(NullPointerException.class,
-            () -> new RDF4JTriple(RDF4JTestModel.VF.createTriple(null, null, null)));
-    }
-
-    @Test
     void testObjectAsIRI() {
         final Resource object = RDF4JTestModel.VF.createIRI("http://example.test/object");
         rdf4jTriple = new RDF4JTriple(RDF4JTestModel.VF.createTriple(

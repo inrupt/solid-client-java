@@ -30,8 +30,8 @@ import java.util.Optional;
 public class VerifiableCredentialException extends InruptClientException {
 
     private static final long serialVersionUID = 4828374653830284474L;
-    private static int status;
-    private static String body;
+    private final Integer status;
+    private final String body;
 
     /**
      * Create a Verifiable Credential exception.
@@ -40,6 +40,8 @@ public class VerifiableCredentialException extends InruptClientException {
      */
     public VerifiableCredentialException(final String message) {
         super(message);
+        status = null;
+        body = null;
     }
 
     /**
@@ -50,6 +52,8 @@ public class VerifiableCredentialException extends InruptClientException {
      */
     public VerifiableCredentialException(final String message, final Throwable cause) {
         super(message, cause);
+        status = null;
+        body = null;
     }
 
     /**
@@ -61,6 +65,7 @@ public class VerifiableCredentialException extends InruptClientException {
     public VerifiableCredentialException(final String message, final String bodyContent) {
         super(message);
         body = bodyContent;
+        status = null;
     }
 
 
@@ -87,6 +92,7 @@ public class VerifiableCredentialException extends InruptClientException {
     public VerifiableCredentialException(final String message, final String bodyContent, final Throwable cause) {
         super(message, cause);
         body = bodyContent;
+        status = null;
     }
 
     /**
@@ -98,6 +104,7 @@ public class VerifiableCredentialException extends InruptClientException {
     public VerifiableCredentialException(final String message, final int statusCode) {
         super(message);
         status = statusCode;
+        body = null;
     }
 
     /**
