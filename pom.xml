@@ -783,9 +783,7 @@
         </reportSets>
         <configuration>
           <suppressionFiles>
-            <suppressionFile>
-              inrupt-owasp/suppressions.xml
-            </suppressionFile>
+            <suppressionFile>owasp/suppressions.xml</suppressionFile>
           </suppressionFiles>
         </configuration>
       </plugin>
