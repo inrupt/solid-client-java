@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-report</artifactId>
-  <name>Inrupt Solid Client - Report</name>
+  <name>Inrupt Client Libraries - Report</name>
 
   <dependencies>
     <dependency>

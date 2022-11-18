@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-okhttp</artifactId>
-  <name>Inrupt Solid Client - OkHttp support</name>
+  <name>Inrupt Client Libraries - OkHttp</name>
   <description>
       The OkHttp bindings for the Inrupt Client Libraries.
   </description>

@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-core</artifactId>
-  <name>Inrupt Solid Client - Core</name>
+  <name>Inrupt Client Libraries - Core</name>
   <description>
       Core Classes and Utilities for the Inrupt Client Libraries.
   </description>

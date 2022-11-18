@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-jackson</artifactId>
-  <name>Inrupt Solid Client - Jackson JSON processor</name>
+  <name>Inrupt Client Libraries - Jackson</name>
   <description>
       A Jackson-based JSON processor for the Inrupt Client Libraries.
   </description>

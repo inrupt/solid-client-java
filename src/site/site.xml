@@ -1,15 +1,24 @@
 <project name="Inrupt Client Libraries">
 
-  <publishDate position="right"/>
-  <version position="right"/>
+  <bannerRight>
+    <name>Inrupt</name>
+    <src>images/inrupt_logo-2020.svg</src>
+    <href>index.html</href>
+  </bannerRight>
+
   <body>
-    <menu name="Overview" inherit="top">
-        <item name="Summary" href="summary.html"/>
-        <item name="Documentation" href="apidocs/"/>
-        <item name="Dependencies" href="dependencies.html"/>
-        <item name="Plugins" href="plugins.html"/>
-        <item name="Modules" href="modules.html"/>
-        <item name="License" href="licenses.html"/>
+    <menu name="Inrupt Client" inherit="top">
+      <item name="Home" href="index.html"/>
+      <item name="Documentation" href="apidocs/"/>
+      <item name="License" href="licenses.html"/>
+      <item name="Modules" href="modules.html"/>
     </menu>
   </body>
+
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>1.11.1</version>
+  </skin>
+
 </project>

@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-test</artifactId>
-  <name>Inrupt Solid Client - Test</name>
+  <name>Inrupt Client Libraries - Test</name>
   <description>
       This module is used for common test cases.
   </description>
