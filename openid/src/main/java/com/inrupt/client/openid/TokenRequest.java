@@ -186,7 +186,7 @@ public final class TokenRequest {
 
             Objects.requireNonNull(clientId, "Client ID may not be null!");
             Objects.requireNonNull(redirectUri, "Redirect URI may not be null!");
-            final String grant = Objects.requireNonNull(grantType, "grant type may not be null!");
+            final String grant = Objects.requireNonNull(grantType, "Grant type may not be null!");
 
             if ("authorization_code".equals(grantType)) {
                 if (builderCode == null) {

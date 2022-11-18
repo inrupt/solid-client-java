@@ -342,7 +342,6 @@ class OpenIdSessionTest {
             final JsonWebSignature jws = new JsonWebSignature();
             jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
             jws.setHeader(TYPE, "JWT");
-            //jws.setJwkHeader(jwk);
             jws.setKey(jwk.getPrivateKey());
             final JwtClaims jwtClaims = new JwtClaims();
             jwtClaims.setJwtId(UUID.randomUUID().toString());
