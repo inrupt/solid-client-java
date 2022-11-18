@@ -75,7 +75,7 @@ public final class ServiceProvider {
      * @return an object for processing HTTP
      */
     public static HttpService getHttpService() {
-<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (httpService == null) {</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (httpService == null) {</span>
 <span class="fc" id="L79">            synchronized (ServiceProvider.class) {</span>
 <span class="pc bpc" id="L80" title="1 of 2 branches missed.">                if (httpService != null) {</span>
 <span class="nc" id="L81">                    return httpService;</span>
@@ -88,15 +88,15 @@ public final class ServiceProvider {
     }
 
     public static DpopService getDpopService() {
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (dpopService == null) {</span>
-<span class="fc" id="L92">            synchronized (ServiceProvider.class) {</span>
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">                if (dpopService != null) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (dpopService == null) {</span>
+<span class="nc" id="L92">            synchronized (ServiceProvider.class) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                if (dpopService != null) {</span>
 <span class="nc" id="L94">                    return dpopService;</span>
                 }
-<span class="fc" id="L96">                dpopService = loadSpi(DpopService.class, ServiceProvider.class.getClassLoader());</span>
-<span class="fc" id="L97">            }</span>
+<span class="nc" id="L96">                dpopService = loadSpi(DpopService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="nc" id="L97">            }</span>
         }
-<span class="fc" id="L99">        return dpopService;</span>
+<span class="nc" id="L99">        return dpopService;</span>
     }
 
     static &lt;T&gt; T loadSpi(final Class&lt;T&gt; clazz, final ClassLoader cl) {

@@ -91,9 +91,9 @@ public final class IOUtils {
     }
 
     public static Request.BodyPublisher buffer(final Consumer&lt;OutputStream&gt; function) {
-<span class="fc" id="L94">        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {</span>
-<span class="fc" id="L95">            function.accept(out);</span>
-<span class="fc" id="L96">            return Request.BodyPublishers.ofByteArray(out.toByteArray());</span>
+<span class="nc" id="L94">        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {</span>
+<span class="nc" id="L95">            function.accept(out);</span>
+<span class="nc" id="L96">            return Request.BodyPublishers.ofByteArray(out.toByteArray());</span>
 <span class="nc" id="L97">        } catch (final IOException ex) {</span>
 <span class="nc" id="L98">            throw new UncheckedIOException(&quot;Error serializing Jena Model&quot;, ex);</span>
         }

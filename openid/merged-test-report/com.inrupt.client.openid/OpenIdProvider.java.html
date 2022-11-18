@@ -258,35 +258,33 @@ public class OpenIdProvider {
 
     static Request.BodyPublisher ofFormData(final Map&lt;String, String&gt; data) {
 <span class="fc" id="L260">        final String form = data.entrySet().stream().map(entry -&gt; {</span>
-<span class="fc" id="L261">            String name = &quot;&quot;;</span>
-<span class="fc" id="L262">            String value = &quot;&quot;;</span>
             try {
-<span class="fc" id="L264">                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
-<span class="fc" id="L265">                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
-<span class="nc" id="L266">            } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L267">                throw new OpenIdException(&quot;Error encoding form data&quot;, e);</span>
-<span class="fc" id="L268">            }</span>
-<span class="fc" id="L269">            return String.join(EQUALS, name, value);</span>
-<span class="fc" id="L270">        }).collect(Collectors.joining(ETC));</span>
+<span class="fc" id="L262">                final String name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
+<span class="fc" id="L263">                final String value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
+<span class="fc" id="L264">                return String.join(EQUALS, name, value);</span>
+<span class="nc" id="L265">            } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L266">                throw new OpenIdException(&quot;Error encoding form data&quot;, e);</span>
+            }
+<span class="fc" id="L268">        }).collect(Collectors.joining(ETC));</span>
 
-<span class="fc" id="L272">        return Request.BodyPublishers.ofString(form);</span>
+<span class="fc" id="L270">        return Request.BodyPublishers.ofString(form);</span>
     }
 
     private URI endSession(final URI endSessionEndpoint, final EndSessionRequest request) {
-<span class="fc" id="L276">        return URIBuilder.newBuilder(endSessionEndpoint)</span>
-<span class="fc" id="L277">            .queryParam(CLIENT_ID, request.getClientId())</span>
-<span class="fc" id="L278">            .queryParam(&quot;post_logout_redirect_uri&quot;, request.getPostLogoutRedirectUri().toString())</span>
-<span class="fc" id="L279">            .queryParam(&quot;id_token_hint&quot;, request.getIdTokenHint())</span>
-<span class="fc" id="L280">            .queryParam(&quot;state&quot;, request.getState())</span>
-<span class="fc" id="L281">            .build();</span>
+<span class="fc" id="L274">        return URIBuilder.newBuilder(endSessionEndpoint)</span>
+<span class="fc" id="L275">            .queryParam(CLIENT_ID, request.getClientId())</span>
+<span class="fc" id="L276">            .queryParam(&quot;post_logout_redirect_uri&quot;, request.getPostLogoutRedirectUri().toString())</span>
+<span class="fc" id="L277">            .queryParam(&quot;id_token_hint&quot;, request.getIdTokenHint())</span>
+<span class="fc" id="L278">            .queryParam(&quot;state&quot;, request.getState())</span>
+<span class="fc" id="L279">            .build();</span>
     }
 
     static Optional&lt;String&gt; getBasicAuthHeader(final String clientId, final String clientSecret) {
-<span class="pc bpc" id="L285" title="1 of 2 branches missed.">        if (clientSecret != null) {</span>
-<span class="fc" id="L286">            final String raw = String.join(&quot;:&quot;, clientId, clientSecret);</span>
-<span class="fc" id="L287">            return Optional.of(&quot;Basic &quot; + Base64.getEncoder().encodeToString(raw.getBytes(UTF_8)));</span>
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        if (clientSecret != null) {</span>
+<span class="fc" id="L284">            final String raw = String.join(&quot;:&quot;, clientId, clientSecret);</span>
+<span class="fc" id="L285">            return Optional.of(&quot;Basic &quot; + Base64.getEncoder().encodeToString(raw.getBytes(UTF_8)));</span>
         }
-<span class="nc" id="L289">        return Optional.empty();</span>
+<span class="nc" id="L287">        return Optional.empty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

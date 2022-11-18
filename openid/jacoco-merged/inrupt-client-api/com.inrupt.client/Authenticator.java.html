@@ -180,7 +180,7 @@ public interface Authenticator {
          * @return the type
          */
         public String getType() {
-<span class="fc" id="L183">            return type;</span>
+<span class="nc" id="L183">            return type;</span>
         }
 
         /**
@@ -189,7 +189,7 @@ public interface Authenticator {
          * @return the proofing algorithm
          */
         public Optional&lt;String&gt; getProofAlgorithm() {
-<span class="fc" id="L192">            return Optional.ofNullable(algorithm);</span>
+<span class="nc" id="L192">            return Optional.ofNullable(algorithm);</span>
         }
     }
 
@@ -212,7 +212,7 @@ public interface Authenticator {
          * @return the challenge
          */
         public static Challenge of(final String scheme) {
-<span class="fc" id="L215">            return of(scheme, Collections.emptyMap());</span>
+<span class="nc" id="L215">            return of(scheme, Collections.emptyMap());</span>
         }
 
         /**
@@ -223,13 +223,13 @@ public interface Authenticator {
          * @return the challenge
          */
         public static Challenge of(final String scheme, final Map&lt;String, String&gt; parameters) {
-<span class="fc" id="L226">            return new Challenge(scheme, parameters);</span>
+<span class="nc" id="L226">            return new Challenge(scheme, parameters);</span>
         }
 
-<span class="fc" id="L229">        private Challenge(final String scheme, final Map&lt;String, String&gt; parameters) {</span>
-<span class="fc" id="L230">            this.scheme = Objects.requireNonNull(scheme);</span>
-<span class="fc" id="L231">            this.parameters = Objects.requireNonNull(parameters);</span>
-<span class="fc" id="L232">        }</span>
+<span class="nc" id="L229">        private Challenge(final String scheme, final Map&lt;String, String&gt; parameters) {</span>
+<span class="nc" id="L230">            this.scheme = Objects.requireNonNull(scheme);</span>
+<span class="nc" id="L231">            this.parameters = Objects.requireNonNull(parameters);</span>
+<span class="nc" id="L232">        }</span>
 
         /**
          * Get the authentication scheme for this challenge.
@@ -237,7 +237,7 @@ public interface Authenticator {
          * @return the scheme name
          */
         public String getScheme() {
-<span class="fc" id="L240">            return scheme;</span>
+<span class="nc" id="L240">            return scheme;</span>
         }
 
         /**
@@ -247,7 +247,7 @@ public interface Authenticator {
          * @return the parameter value, may be {@code null}
          */
         public String getParameter(final String parameter) {
-<span class="fc" id="L250">            return parameters.get(parameter);</span>
+<span class="nc" id="L250">            return parameters.get(parameter);</span>
         }
 
         /**
@@ -261,28 +261,28 @@ public interface Authenticator {
 
         @Override
         public String toString() {
-<span class="fc" id="L264">            return getScheme() + &quot; &quot; + parameters.entrySet().stream()</span>
-<span class="fc" id="L265">                .map(e -&gt; e.getKey() + &quot;=\&quot;&quot; + e.getValue() + &quot;\&quot;&quot;)</span>
-<span class="fc" id="L266">                .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="nc" id="L264">            return getScheme() + &quot; &quot; + parameters.entrySet().stream()</span>
+<span class="nc" id="L265">                .map(e -&gt; e.getKey() + &quot;=\&quot;&quot; + e.getValue() + &quot;\&quot;&quot;)</span>
+<span class="nc" id="L266">                .collect(Collectors.joining(&quot;, &quot;));</span>
         }
 
         @Override
         public boolean equals(final Object obj) {
-<span class="pc bpc" id="L271" title="1 of 2 branches missed.">            if (obj == this) {</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (obj == this) {</span>
 <span class="nc" id="L272">                return true;</span>
             }
 
-<span class="pc bpc" id="L275" title="1 of 2 branches missed.">            if (!(obj instanceof Challenge)) {</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">            if (!(obj instanceof Challenge)) {</span>
 <span class="nc" id="L276">                return false;</span>
             }
 
-<span class="fc" id="L279">            final Challenge c = (Challenge) obj;</span>
+<span class="nc" id="L279">            final Challenge c = (Challenge) obj;</span>
 
-<span class="pc bpc" id="L281" title="1 of 2 branches missed.">            if (!scheme.equalsIgnoreCase(c.scheme)) {</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">            if (!scheme.equalsIgnoreCase(c.scheme)) {</span>
 <span class="nc" id="L282">                return false;</span>
             }
 
-<span class="fc" id="L285">            return Objects.equals(parameters, c.parameters);</span>
+<span class="nc" id="L285">            return Objects.equals(parameters, c.parameters);</span>
         }
 
         @Override
@@ -321,7 +321,7 @@ public interface Authenticator {
          * @return the DPoP manager
          */
         static DPoP of() {
-<span class="fc" id="L324">            return of(Collections.emptyMap());</span>
+<span class="nc" id="L324">            return of(Collections.emptyMap());</span>
         }
 
         /**
@@ -342,7 +342,7 @@ public interface Authenticator {
          * @return the DPoP manager
          */
         static DPoP of(final Map&lt;String, KeyPair&gt; keypairs) {
-<span class="fc" id="L345">            return ServiceProvider.getDpopService().ofKeyPairs(keypairs);</span>
+<span class="nc" id="L345">            return ServiceProvider.getDpopService().ofKeyPairs(keypairs);</span>
         }
     }
 }

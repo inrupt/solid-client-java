@@ -92,7 +92,7 @@ public final class Request {
      * @return the timeout for this request, if present
      */
     public Optional&lt;Duration&gt; timeout() {
-<span class="fc" id="L95">        return Optional.ofNullable(timeout);</span>
+<span class="nc" id="L95">        return Optional.ofNullable(timeout);</span>
     }
 
     /**
@@ -239,10 +239,10 @@ public final class Request {
          * @return this builder
          */
         public Builder setHeader(final String name, final String value) {
-<span class="fc" id="L242">            final List&lt;String&gt; values = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L243">            values.add(value);</span>
-<span class="fc" id="L244">            this.headers.put(name, values);</span>
-<span class="fc" id="L245">            return this;</span>
+<span class="nc" id="L242">            final List&lt;String&gt; values = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L243">            values.add(value);</span>
+<span class="nc" id="L244">            this.headers.put(name, values);</span>
+<span class="nc" id="L245">            return this;</span>
         }
 
         /**

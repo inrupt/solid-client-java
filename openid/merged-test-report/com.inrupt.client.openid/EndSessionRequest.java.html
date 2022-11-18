@@ -68,13 +68,14 @@ public final class EndSessionRequest {
 <span class="fc" id="L68">        return idTokenHint;</span>
     }
 
-    private EndSessionRequest(final String clientId, final URI postLogoutRedirectUri, final String idTokenHint,
-<span class="fc" id="L72">            final String state) {</span>
-<span class="fc" id="L73">        this.clientId = clientId;</span>
-<span class="fc" id="L74">        this.postLogoutRedirectUri = postLogoutRedirectUri;</span>
-<span class="fc" id="L75">        this.idTokenHint = idTokenHint;</span>
-<span class="fc" id="L76">        this.state = state;</span>
-<span class="fc" id="L77">    }</span>
+    /* package-private */
+    EndSessionRequest(final String clientId, final URI postLogoutRedirectUri, final String idTokenHint,
+<span class="fc" id="L73">            final String state) {</span>
+<span class="fc" id="L74">        this.clientId = clientId;</span>
+<span class="fc" id="L75">        this.postLogoutRedirectUri = postLogoutRedirectUri;</span>
+<span class="fc" id="L76">        this.idTokenHint = idTokenHint;</span>
+<span class="fc" id="L77">        this.state = state;</span>
+<span class="fc" id="L78">    }</span>
 
     /**
      * A builder class for {@link EndSessionRequest} objects.
@@ -91,7 +92,7 @@ public final class EndSessionRequest {
          * @return the new builder
          */
         public static Builder newBuilder() {
-<span class="fc" id="L94">            return new Builder();</span>
+<span class="fc" id="L95">            return new Builder();</span>
         }
 
         /**
@@ -101,8 +102,8 @@ public final class EndSessionRequest {
          * @return this builder
          */
         public Builder clientId(final String clientId) {
-<span class="fc" id="L104">            builderClientId = clientId;</span>
-<span class="fc" id="L105">            return this;</span>
+<span class="fc" id="L105">            builderClientId = clientId;</span>
+<span class="fc" id="L106">            return this;</span>
         }
 
         /**
@@ -112,8 +113,8 @@ public final class EndSessionRequest {
          * @return this builder
          */
         public Builder postLogoutRedirectUri(final URI postLogoutRedirectUri) {
-<span class="fc" id="L115">            builderPostLogoutRedirectUri = postLogoutRedirectUri;</span>
-<span class="fc" id="L116">            return this;</span>
+<span class="fc" id="L116">            builderPostLogoutRedirectUri = postLogoutRedirectUri;</span>
+<span class="fc" id="L117">            return this;</span>
         }
 
         /**
@@ -123,8 +124,8 @@ public final class EndSessionRequest {
          * @return this builder
          */
         public Builder state(final String state) {
-<span class="fc" id="L126">            builderState = state;</span>
-<span class="fc" id="L127">            return this;</span>
+<span class="fc" id="L127">            builderState = state;</span>
+<span class="fc" id="L128">            return this;</span>
         }
 
         /**
@@ -133,7 +134,7 @@ public final class EndSessionRequest {
          * @return the end session request
          */
         public EndSessionRequest build() {
-<span class="fc" id="L136">            return new EndSessionRequest(builderClientId, builderPostLogoutRedirectUri,</span>
+<span class="fc" id="L137">            return new EndSessionRequest(builderClientId, builderPostLogoutRedirectUri,</span>
                     builderIdTokenHint, builderState);
         }
 

@@ -1,12 +1,14 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,AuthorizationRequest,11,19,0,0,3,6,3,6,3,6
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,EndSessionRequest.Builder,0,32,0,0,0,8,0,5,0,5
 Inrupt Client Libraries - OpenID,com.inrupt.client.openid,EndSessionRequest,0,27,0,0,0,10,0,5,0,5
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,TokenResponse,0,3,0,0,0,1,0,1,0,1
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,TokenRequest,0,25,0,0,0,8,0,8,0,8
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,OpenIdSession,14,197,0,10,4,41,0,14,0,9
 Inrupt Client Libraries - OpenID,com.inrupt.client.openid,Metadata,0,3,0,0,0,1,0,1,0,1
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,TokenRequest.Builder,0,94,1,7,0,25,1,9,0,6
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,OpenIdProvider,57,382,8,14,16,74,10,25,2,22
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,OpenIdException,9,12,0,0,4,4,2,2,2,2
-Inrupt Client Libraries - OpenID,com.inrupt.client.openid,AuthorizationRequest.Builder,22,70,0,0,8,17,4,4,4,4
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,TokenRequest.Builder,0,75,2,6,0,19,2,8,0,6
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,OpenIdProvider,57,377,8,14,16,71,10,25,2,22
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,AuthorizationRequest,11,46,0,0,3,16,3,7,3,7
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,EndSessionRequest.Builder,0,31,0,0,0,8,0,5,0,5
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,TokenResponse,0,3,0,0,0,1,0,1,0,1
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,TokenRequest,0,49,0,0,0,17,0,9,0,9
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,OpenIdVerificationConfig,0,27,0,0,0,11,0,7,0,7
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,OpenIdException,9,32,2,2,2,9,3,4,1,4
+Inrupt Client Libraries - OpenID,com.inrupt.client.openid,AuthorizationRequest.Builder,22,45,0,0,8,10,4,4,4,4
 Inrupt Client Libraries - OpenID,com.inrupt.client.openid,PKCE,7,30,0,0,2,5,0,2,0,2

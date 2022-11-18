@@ -56,9 +56,9 @@ public final class Headers {
      * @return the values for the header. If no values are present, an empty list will be returned
      */
     public List&lt;String&gt; allValues(final String name) {
-<span class="fc" id="L59">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (values != null) {</span>
-<span class="fc" id="L61">            return Collections.unmodifiableList(values);</span>
+<span class="nc" id="L59">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (values != null) {</span>
+<span class="nc" id="L61">            return Collections.unmodifiableList(values);</span>
         }
 <span class="nc" id="L63">        return Collections.emptyList();</span>
     }
