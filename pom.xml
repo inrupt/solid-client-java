@@ -783,7 +783,7 @@
         </reportSets>
         <configuration>
           <suppressionFiles>
-            <suppressionFile>owasp/suppressions.xml</suppressionFile>
+            <suppressionFile>./build-tools/owasp/suppressions.xml</suppressionFile>
           </suppressionFiles>
         </configuration>
       </plugin>
