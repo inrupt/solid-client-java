@@ -23,6 +23,7 @@ package com.inrupt.client;
 import com.inrupt.client.spi.HttpService;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 public interface Client {
@@ -59,6 +60,14 @@ public interface Client {
      * A session abstraction for managing access tokens for an agent.
      */
     interface Session {
+
+        /**
+         * Retrieve the identifier associated with this session.
+         *
+         * @return a session identifier
+         */
+        String getId();
+
         /**
          * Retrieve an access token for a request from a cache.
          *
@@ -83,7 +92,13 @@ public interface Client {
          * @return the session
          */
         static Session anonymous() {
+            final String sessionId = UUID.randomUUID().toString();
             return new Session() {
+                @Override
+                public String getId() {
+                    return sessionId;
+                }
+
                 @Override
                 public Optional<Authenticator.AccessToken> fromCache(final Request request) {
                     return Optional.empty();

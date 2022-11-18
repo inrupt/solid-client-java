@@ -30,7 +30,7 @@ import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -208,7 +208,7 @@ class OpenIdProviderTest {
                 assertEquals(
                     "Unexpected error while interacting with the OpenID Provider's token endpoint.",
                     cause.getMessage());
-                assertEquals(Optional.of(404), cause.getStatus());
+                assertEquals(OptionalInt.of(404), cause.getStatus());
             });
     }
 

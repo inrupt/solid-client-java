@@ -68,7 +68,8 @@ public final class EndSessionRequest {
         return idTokenHint;
     }
 
-    private EndSessionRequest(final String clientId, final URI postLogoutRedirectUri, final String idTokenHint,
+    /* package-private */
+    EndSessionRequest(final String clientId, final URI postLogoutRedirectUri, final String idTokenHint,
             final String state) {
         this.clientId = clientId;
         this.postLogoutRedirectUri = postLogoutRedirectUri;
