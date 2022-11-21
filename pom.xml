@@ -75,6 +75,7 @@
     <module>api</module>
     <module>bom</module>
     <module>core</module>
+    <module>demo</module>
     <module>httpclient</module>
     <module>jackson</module>
     <module>jena</module>

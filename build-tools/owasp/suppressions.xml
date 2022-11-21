@@ -21,4 +21,11 @@
     <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
     <cve>CVE-2022-42004</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+        Payara is not a dependency of ESS
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.microprofile\.config/microprofile\-config\-api@.*$</packageUrl>
+    <cpe>cpe:/a:payara:payara</cpe>
+  </suppress>
 </suppressions>
