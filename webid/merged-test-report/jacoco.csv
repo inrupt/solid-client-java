@@ -1,5 +1,0 @@
-GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Inrupt Client Libraries - WebID,com.inrupt.client.webid,WebIdBodyHandlers,7,101,0,0,2,27,0,3,0,3
-Inrupt Client Libraries - WebID,com.inrupt.client.webid,WebIdProfile.Builder,0,82,0,0,0,20,0,6,0,6
-Inrupt Client Libraries - WebID,com.inrupt.client.webid,WebIdProfile,0,45,0,0,0,13,0,7,0,7
-Inrupt Client Libraries - WebID,com.inrupt.client.webid,WebIdException,9,0,0,0,4,0,2,0,2,0
