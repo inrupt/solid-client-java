@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WwwAuthenticateLexer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Core</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-parser</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.parser</a> &gt; <span class="el_source">WwwAuthenticateLexer.java</span></div><h1>WwwAuthenticateLexer.java</h1><pre class="source lang-java linenums">// Generated from java-escape by ANTLR 4.11.1
+package com.inrupt.client.parser;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.misc.*;
+
+@SuppressWarnings({&quot;all&quot;, &quot;warnings&quot;, &quot;unchecked&quot;, &quot;unused&quot;, &quot;cast&quot;, &quot;CheckReturnValue&quot;})
+public class WwwAuthenticateLexer extends Lexer {
+<span class="nc" id="L14">	static { RuntimeMetaData.checkVersion(&quot;4.11.1&quot;, RuntimeMetaData.VERSION); }</span>
+
+	protected static final DFA[] _decisionToDFA;
+<span class="nc" id="L17">	protected static final PredictionContextCache _sharedContextCache =</span>
+		new PredictionContextCache();
+	public static final int
+		T__0=1, AuthParam=2, AuthScheme=3, QuotedString=4, Token=5, Token68=6, 
+		WS=7;
+<span class="nc" id="L22">	public static String[] channelNames = {</span>
+		&quot;DEFAULT_TOKEN_CHANNEL&quot;, &quot;HIDDEN&quot;
+	};
+
+<span class="nc" id="L26">	public static String[] modeNames = {</span>
+		&quot;DEFAULT_MODE&quot;
+	};
+
+	private static String[] makeRuleNames() {
+<span class="nc" id="L31">		return new String[] {</span>
+			&quot;T__0&quot;, &quot;AuthParam&quot;, &quot;AuthScheme&quot;, &quot;ObsText&quot;, &quot;Qdtext&quot;, &quot;QuotedPair&quot;, 
+			&quot;QuotedString&quot;, &quot;Tchar&quot;, &quot;Token&quot;, &quot;Token68&quot;, &quot;WS&quot;, &quot;SP&quot;, &quot;DQUOTE&quot;, &quot;HTAB&quot;, 
+			&quot;DIGIT&quot;, &quot;ALPHA&quot;, &quot;VCHAR&quot;
+		};
+	}
+<span class="nc" id="L37">	public static final String[] ruleNames = makeRuleNames();</span>
+
+	private static String[] makeLiteralNames() {
+<span class="nc" id="L40">		return new String[] {</span>
+			null, &quot;','&quot;
+		};
+	}
+<span class="nc" id="L44">	private static final String[] _LITERAL_NAMES = makeLiteralNames();</span>
+	private static String[] makeSymbolicNames() {
+<span class="nc" id="L46">		return new String[] {</span>
+			null, null, &quot;AuthParam&quot;, &quot;AuthScheme&quot;, &quot;QuotedString&quot;, &quot;Token&quot;, &quot;Token68&quot;, 
+			&quot;WS&quot;
+		};
+	}
+<span class="nc" id="L51">	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();</span>
+<span class="nc" id="L52">	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);</span>
+
+	/**
+	 * @deprecated Use {@link #VOCABULARY} instead.
+	 */
+	@Deprecated
+	public static final String[] tokenNames;
+	static {
+<span class="nc" id="L60">		tokenNames = new String[_SYMBOLIC_NAMES.length];</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		for (int i = 0; i &lt; tokenNames.length; i++) {</span>
+<span class="nc" id="L62">			tokenNames[i] = VOCABULARY.getLiteralName(i);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">			if (tokenNames[i] == null) {</span>
+<span class="nc" id="L64">				tokenNames[i] = VOCABULARY.getSymbolicName(i);</span>
+			}
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			if (tokenNames[i] == null) {</span>
+<span class="nc" id="L68">				tokenNames[i] = &quot;&lt;INVALID&gt;&quot;;</span>
+			}
+		}
+	}
+
+	@Override
+	@Deprecated
+	public String[] getTokenNames() {
+<span class="nc" id="L76">		return tokenNames;</span>
+	}
+
+	@Override
+
+	public Vocabulary getVocabulary() {
+<span class="nc" id="L82">		return VOCABULARY;</span>
+	}
+
+
+	public WwwAuthenticateLexer(CharStream input) {
+<span class="nc" id="L87">		super(input);</span>
+<span class="nc" id="L88">		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);</span>
+<span class="nc" id="L89">	}</span>
+
+	@Override
+<span class="nc" id="L92">	public String getGrammarFileName() { return &quot;WwwAuthenticate.g4&quot;; }</span>
+
+	@Override
+<span class="nc" id="L95">	public String[] getRuleNames() { return ruleNames; }</span>
+
+	@Override
+<span class="nc" id="L98">	public String getSerializedATN() { return _serializedATN; }</span>
+
+	@Override
+<span class="nc" id="L101">	public String[] getChannelNames() { return channelNames; }</span>
+
+	@Override
+<span class="nc" id="L104">	public String[] getModeNames() { return modeNames; }</span>
+
+	@Override
+<span class="nc" id="L107">	public ATN getATN() { return _ATN; }</span>
+
+	public static final String _serializedATN =
+		&quot;\u0004\u0000\u0007o\u0006\uffff\uffff\u0002\u0000\u0007\u0000\u0002\u0001&quot;+
+		&quot;\u0007\u0001\u0002\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004&quot;+
+		&quot;\u0007\u0004\u0002\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007&quot;+
+		&quot;\u0007\u0007\u0002\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b&quot;+
+		&quot;\u0007\u000b\u0002\f\u0007\f\u0002\r\u0007\r\u0002\u000e\u0007\u000e\u0002&quot;+
+		&quot;\u000f\u0007\u000f\u0002\u0010\u0007\u0010\u0001\u0000\u0001\u0000\u0001&quot;+
+		&quot;\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0003\u0001*\b\u0001\u0001&quot;+
+		&quot;\u0002\u0001\u0002\u0001\u0003\u0001\u0003\u0001\u0004\u0001\u0004\u0001&quot;+
+		&quot;\u0004\u0001\u0004\u0003\u00044\b\u0004\u0001\u0005\u0001\u0005\u0001&quot;+
+		&quot;\u0005\u0001\u0005\u0001\u0005\u0003\u0005;\b\u0005\u0001\u0006\u0001&quot;+
+		&quot;\u0006\u0001\u0006\u0005\u0006@\b\u0006\n\u0006\f\u0006C\t\u0006\u0001&quot;+
+		&quot;\u0006\u0001\u0006\u0001\u0007\u0001\u0007\u0001\u0007\u0003\u0007J\b&quot;+
+		&quot;\u0007\u0001\b\u0004\bM\b\b\u000b\b\f\bN\u0001\t\u0001\t\u0001\t\u0004&quot;+
+		&quot;\tT\b\t\u000b\t\f\tU\u0001\t\u0005\tY\b\t\n\t\f\t\\\t\t\u0001\n\u0001&quot;+
+		&quot;\n\u0004\n`\b\n\u000b\n\f\na\u0001\u000b\u0001\u000b\u0001\f\u0001\f\u0001&quot;+
+		&quot;\r\u0001\r\u0001\u000e\u0001\u000e\u0001\u000f\u0001\u000f\u0001\u0010&quot;+
+		&quot;\u0001\u0010\u0000\u0000\u0011\u0001\u0001\u0003\u0002\u0005\u0003\u0007&quot;+
+		&quot;\u0000\t\u0000\u000b\u0000\r\u0004\u000f\u0000\u0011\u0005\u0013\u0006&quot;+
+		&quot;\u0015\u0007\u0017\u0000\u0019\u0000\u001b\u0000\u001d\u0000\u001f\u0000&quot;+
+		&quot;!\u0000\u0001\u0000\u0004\u0003\u0000!!#[]~\u0007\u0000!!#\'*+-.^`||~&quot;+
+		&quot;~\u0004\u0000++-/__~~\u0002\u0000AZazv\u0000\u0001\u0001\u0000\u0000\u0000&quot;+
+		&quot;\u0000\u0003\u0001\u0000\u0000\u0000\u0000\u0005\u0001\u0000\u0000\u0000&quot;+
+		&quot;\u0000\r\u0001\u0000\u0000\u0000\u0000\u0011\u0001\u0000\u0000\u0000\u0000&quot;+
+		&quot;\u0013\u0001\u0000\u0000\u0000\u0000\u0015\u0001\u0000\u0000\u0000\u0001&quot;+
+		&quot;#\u0001\u0000\u0000\u0000\u0003%\u0001\u0000\u0000\u0000\u0005+\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u0007-\u0001\u0000\u0000\u0000\t3\u0001\u0000\u0000&quot;+
+		&quot;\u0000\u000b5\u0001\u0000\u0000\u0000\r&lt;\u0001\u0000\u0000\u0000\u000f&quot;+
+		&quot;I\u0001\u0000\u0000\u0000\u0011L\u0001\u0000\u0000\u0000\u0013S\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u0015_\u0001\u0000\u0000\u0000\u0017c\u0001\u0000\u0000&quot;+
+		&quot;\u0000\u0019e\u0001\u0000\u0000\u0000\u001bg\u0001\u0000\u0000\u0000\u001d&quot;+
+		&quot;i\u0001\u0000\u0000\u0000\u001fk\u0001\u0000\u0000\u0000!m\u0001\u0000&quot;+
+		&quot;\u0000\u0000#$\u0005,\u0000\u0000$\u0002\u0001\u0000\u0000\u0000%&amp;\u0003&quot;+
+		&quot;\u0011\b\u0000&amp;)\u0005=\u0000\u0000\'*\u0003\u0011\b\u0000(*\u0003\r\u0006&quot;+
+		&quot;\u0000)\'\u0001\u0000\u0000\u0000)(\u0001\u0000\u0000\u0000*\u0004\u0001&quot;+
+		&quot;\u0000\u0000\u0000+,\u0003\u0011\b\u0000,\u0006\u0001\u0000\u0000\u0000&quot;+
+		&quot;-.\u0002\u0080\u8000\uffff\u0000.\b\u0001\u0000\u0000\u0000/4\u0003\u001b&quot;+
+		&quot;\r\u000004\u0003\u0017\u000b\u000014\u0007\u0000\u0000\u000024\u0003\u0007&quot;+
+		&quot;\u0003\u00003/\u0001\u0000\u0000\u000030\u0001\u0000\u0000\u000031\u0001&quot;+
+		&quot;\u0000\u0000\u000032\u0001\u0000\u0000\u00004\n\u0001\u0000\u0000\u0000&quot;+
+		&quot;5:\u0005\\\u0000\u00006;\u0003\u001b\r\u00007;\u0003\u0017\u000b\u0000&quot;+
+		&quot;8;\u0003!\u0010\u00009;\u0003\u0007\u0003\u0000:6\u0001\u0000\u0000\u0000&quot;+
+		&quot;:7\u0001\u0000\u0000\u0000:8\u0001\u0000\u0000\u0000:9\u0001\u0000\u0000&quot;+
+		&quot;\u0000;\f\u0001\u0000\u0000\u0000&lt;A\u0003\u0019\f\u0000=@\u0003\t\u0004&quot;+
+		&quot;\u0000&gt;@\u0003\u000b\u0005\u0000?=\u0001\u0000\u0000\u0000?&gt;\u0001\u0000&quot;+
+		&quot;\u0000\u0000@C\u0001\u0000\u0000\u0000A?\u0001\u0000\u0000\u0000AB\u0001&quot;+
+		&quot;\u0000\u0000\u0000BD\u0001\u0000\u0000\u0000CA\u0001\u0000\u0000\u0000&quot;+
+		&quot;DE\u0003\u0019\f\u0000E\u000e\u0001\u0000\u0000\u0000FJ\u0007\u0001\u0000&quot;+
+		&quot;\u0000GJ\u0003\u001d\u000e\u0000HJ\u0003\u001f\u000f\u0000IF\u0001\u0000&quot;+
+		&quot;\u0000\u0000IG\u0001\u0000\u0000\u0000IH\u0001\u0000\u0000\u0000J\u0010&quot;+
+		&quot;\u0001\u0000\u0000\u0000KM\u0003\u000f\u0007\u0000LK\u0001\u0000\u0000&quot;+
+		&quot;\u0000MN\u0001\u0000\u0000\u0000NL\u0001\u0000\u0000\u0000NO\u0001\u0000&quot;+
+		&quot;\u0000\u0000O\u0012\u0001\u0000\u0000\u0000PT\u0003\u001f\u000f\u0000&quot;+
+		&quot;QT\u0003\u001d\u000e\u0000RT\u0007\u0002\u0000\u0000SP\u0001\u0000\u0000&quot;+
+		&quot;\u0000SQ\u0001\u0000\u0000\u0000SR\u0001\u0000\u0000\u0000TU\u0001\u0000&quot;+
+		&quot;\u0000\u0000US\u0001\u0000\u0000\u0000UV\u0001\u0000\u0000\u0000VZ\u0001&quot;+
+		&quot;\u0000\u0000\u0000WY\u0005=\u0000\u0000XW\u0001\u0000\u0000\u0000Y\\\u0001&quot;+
+		&quot;\u0000\u0000\u0000ZX\u0001\u0000\u0000\u0000Z[\u0001\u0000\u0000\u0000&quot;+
+		&quot;[\u0014\u0001\u0000\u0000\u0000\\Z\u0001\u0000\u0000\u0000]`\u0003\u0017&quot;+
+		&quot;\u000b\u0000^`\u0003\u001b\r\u0000_]\u0001\u0000\u0000\u0000_^\u0001\u0000&quot;+
+		&quot;\u0000\u0000`a\u0001\u0000\u0000\u0000a_\u0001\u0000\u0000\u0000ab\u0001&quot;+
+		&quot;\u0000\u0000\u0000b\u0016\u0001\u0000\u0000\u0000cd\u0005 \u0000\u0000&quot;+
+		&quot;d\u0018\u0001\u0000\u0000\u0000ef\u0005\&quot;\u0000\u0000f\u001a\u0001\u0000&quot;+
+		&quot;\u0000\u0000gh\u0005\t\u0000\u0000h\u001c\u0001\u0000\u0000\u0000ij\u0002&quot;+
+		&quot;09\u0000j\u001e\u0001\u0000\u0000\u0000kl\u0007\u0003\u0000\u0000l \u0001&quot;+
+		&quot;\u0000\u0000\u0000mn\u0002!~\u0000n\&quot;\u0001\u0000\u0000\u0000\r\u0000&quot;+
+		&quot;)3:?AINSUZ_a\u0000&quot;;
+<span class="nc" id="L176">	public static final ATN _ATN =</span>
+<span class="nc" id="L177">		new ATNDeserializer().deserialize(_serializedATN.toCharArray());</span>
+	static {
+<span class="nc" id="L179">		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		for (int i = 0; i &lt; _ATN.getNumberOfDecisions(); i++) {</span>
+<span class="nc" id="L181">			_decisionToDFA[i] = new DFA(_ATN.getDecisionState(i), i);</span>
+		}
+<span class="nc" id="L183">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

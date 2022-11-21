@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>JsonbService.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-jsonb</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.jsonb</a> &gt; <span class="el_source">JsonbService.java</span></div><h1>JsonbService.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.jsonb;
+
+import com.inrupt.client.spi.JsonService;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Type;
+
+import javax.json.JsonException;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.JsonbException;
+import javax.json.bind.config.PropertyNamingStrategy;
+
+/**
+ * A {@link JsonService} using the JakartaEE JSON Bind API.
+ */
+public class JsonbService implements JsonService {
+
+    private final Jsonb jsonb;
+
+    /**
+     * Create a JSON-B service.
+     */
+<span class="fc" id="L47">    public JsonbService() {</span>
+<span class="fc" id="L48">        final JsonbConfig config = new JsonbConfig();</span>
+<span class="fc" id="L49">        config.withAdapters(new VCAdapter());</span>
+<span class="fc" id="L50">        config.withAdapters(new VPAdapter());</span>
+<span class="fc" id="L51">        config.withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);</span>
+<span class="fc" id="L52">        this.jsonb = JsonbBuilder.create(config);</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    public &lt;T&gt; void toJson(final T object, final OutputStream output) throws IOException {
+        try {
+<span class="fc" id="L58">            jsonb.toJson(object, output);</span>
+<span class="fc" id="L59">        } catch (final JsonbException | JsonException ex) {</span>
+<span class="fc" id="L60">            throw new IOException(&quot;Error serializing JSON&quot;, ex);</span>
+<span class="fc" id="L61">        }</span>
+<span class="fc" id="L62">    }</span>
+
+    @Override
+    public &lt;T&gt; T fromJson(final InputStream input, final Class&lt;T&gt; clazz) throws IOException {
+        try {
+<span class="fc" id="L67">            return jsonb.fromJson(input, clazz);</span>
+<span class="fc" id="L68">        } catch (final JsonbException | JsonException ex) {</span>
+<span class="fc" id="L69">            throw new IOException(&quot;Error parsing JSON&quot;, ex);</span>
+        }
+    }
+
+    @Override
+    public &lt;T&gt; T fromJson(final InputStream input, final Type type) throws IOException {
+        try {
+<span class="nc" id="L76">            return jsonb.fromJson(input, type);</span>
+<span class="nc" id="L77">        } catch (final JsonbException | JsonException ex) {</span>
+<span class="nc" id="L78">            throw new IOException(&quot;Error parsing JSON&quot;, ex);</span>
+        }
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

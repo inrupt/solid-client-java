@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WwwAuthenticate.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-core</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.core</a> &gt; <span class="el_source">WwwAuthenticate.java</span></div><h1>WwwAuthenticate.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.core;
+
+import com.inrupt.client.Authenticator.Challenge;
+import com.inrupt.client.parser.ConsumerErrorListener;
+import com.inrupt.client.parser.WwwAuthenticateBaseListener;
+import com.inrupt.client.parser.WwwAuthenticateLexer;
+import com.inrupt.client.parser.WwwAuthenticateParser;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Part of the HTTP Challenge and Response authentication framework, this class represents a
+ * challenge object as represented in a WWW-Authenticate Response Header.
+ *
+ * @see &lt;a href=&quot;https://httpwg.org/specs/rfc7235.html#challenge.and.response&quot;&gt;RFC 7235 2.1&lt;/a&gt;
+ */
+public final class WwwAuthenticate {
+
+    private final List&lt;Challenge&gt; challenges;
+
+<span class="nc" id="L55">    private WwwAuthenticate(final List&lt;Challenge&gt; challenges) {</span>
+<span class="nc" id="L56">        this.challenges = Objects.requireNonNull(challenges);</span>
+<span class="nc" id="L57">    }</span>
+
+    /**
+     * Get the challenges associated with this HTTP authentication interaction.
+     *
+     * @return the challenges
+     */
+    public List&lt;Challenge&gt; getChallenges() {
+<span class="nc" id="L65">        return Collections.unmodifiableList(challenges);</span>
+    }
+
+    /**
+     * Create a new WWW-Authenticate object with a collection of challenges.
+     *
+     * @param challenges the challenges
+     * @return the www-authenticate object
+     */
+    public static WwwAuthenticate of(final Challenge... challenges) {
+<span class="nc" id="L75">        return of(Arrays.asList(challenges));</span>
+    }
+
+    /**
+     * Create a new WWW-Authenticate object with a collection of challenges.
+     *
+     * @param challenges the challenges
+     * @return the www-authenticate object
+     */
+    public static WwwAuthenticate of(final List&lt;Challenge&gt; challenges) {
+<span class="nc" id="L85">        return new WwwAuthenticate(challenges);</span>
+    }
+
+    /**
+     * Parse header strings into a list of Challenge objects.
+     *
+     * @param headers the header strings
+     * @return the challenge objects
+     */
+    public static WwwAuthenticate parse(final String... headers) {
+<span class="nc" id="L95">        final Parser parser = new Parser();</span>
+<span class="nc" id="L96">        final List&lt;Challenge&gt; challenges = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (final String header : headers) {</span>
+<span class="nc" id="L98">            challenges.addAll(parser.parse(header));</span>
+        }
+<span class="nc" id="L100">        return WwwAuthenticate.of(challenges);</span>
+    }
+
+    static final class Parser {
+
+<span class="nc" id="L105">        private static final Logger LOGGER = LoggerFactory.getLogger(Challenge.class);</span>
+        private static final int PAIR = 2;
+        private static final String DQUOTE = &quot;\&quot;&quot;;
+        private static final String EQUALS = &quot;=&quot;;
+
+        private final ANTLRErrorListener errorListener;
+
+        /**
+         * Create a challenge parser with an error listener that records syntax exceptions to a DEBUG log.
+         */
+        public Parser() {
+<span class="nc" id="L116">            this(new ConsumerErrorListener(msg -&gt; LOGGER.debug(&quot;WWW-Authenticate parse error: {}&quot;, msg)));</span>
+<span class="nc" id="L117">        }</span>
+
+        /**
+         * Create a challenge parser with a custom error listener.
+         *
+         * @param errorListener the error listener
+         */
+<span class="nc" id="L124">        public Parser(final ANTLRErrorListener errorListener) {</span>
+<span class="nc" id="L125">            this.errorListener = errorListener;</span>
+<span class="nc" id="L126">        }</span>
+
+        public List&lt;Challenge&gt; parse(final String header) {
+<span class="nc" id="L129">            final WwwAuthenticateLexer lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));</span>
+            // Update lexer error listeners
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (errorListener != null) {</span>
+<span class="nc" id="L132">                lexer.removeErrorListeners();</span>
+<span class="nc" id="L133">                lexer.addErrorListener(errorListener);</span>
+            }
+
+<span class="nc" id="L136">            final CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
+<span class="nc" id="L137">            final WwwAuthenticateParser parser = new WwwAuthenticateParser(tokens);</span>
+
+            // Update error listeners
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            if (errorListener != null) {</span>
+<span class="nc" id="L141">                parser.removeErrorListeners();</span>
+<span class="nc" id="L142">                parser.addErrorListener(errorListener);</span>
+            }
+
+
+<span class="nc" id="L146">            final ChallengeListener listener = new ChallengeListener();</span>
+<span class="nc" id="L147">            final ParseTreeWalker walker = new ParseTreeWalker();</span>
+<span class="nc" id="L148">            final WwwAuthenticateParser.WwwAuthenticateContext tree = parser.wwwAuthenticate();</span>
+
+<span class="nc" id="L150">            walker.walk(listener, tree);</span>
+
+<span class="nc" id="L152">            return listener.getChallenges();</span>
+        }
+
+        /**
+         * An Antlr listener for use with walking over the parsed syntax tree of a WWW-Authenticate header.
+         */
+<span class="nc" id="L158">        public static class ChallengeListener extends WwwAuthenticateBaseListener {</span>
+
+<span class="nc" id="L160">            private final List&lt;Challenge&gt; challenges = new ArrayList&lt;&gt;();</span>
+
+            /**
+             * Get the list of Challenge objects from the parsed header.
+             *
+             * @return the challenges
+             */
+            public List&lt;Challenge&gt; getChallenges() {
+<span class="nc" id="L168">                return challenges;</span>
+            }
+
+            @Override
+            public void exitChallenge(final WwwAuthenticateParser.ChallengeContext ctx) {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                if (ctx.AuthScheme() != null) {</span>
+<span class="nc" id="L174">                    final Map&lt;String, String&gt; params = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                    for (final TerminalNode p : ctx.AuthParam()) {</span>
+<span class="nc" id="L176">                        final String[] parts = p.getText().split(EQUALS, PAIR);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                        if (parts.length == PAIR) {</span>
+<span class="nc" id="L178">                            params.put(parts[0], unwrap(parts[1], DQUOTE));</span>
+                        }
+<span class="nc" id="L180">                    }</span>
+<span class="nc" id="L181">                    challenges.add(Challenge.of(ctx.AuthScheme().getText(), params));</span>
+                }
+<span class="nc" id="L183">            }</span>
+
+            static String unwrap(final String value, final String character) {
+<span class="nc bnc" id="L186" title="All 4 branches missed.">                if (value.startsWith(character) &amp;&amp; value.endsWith(character)) {</span>
+<span class="nc" id="L187">                    return value.substring(1, value.length() - 1);</span>
+                }
+<span class="nc" id="L189">                return value;</span>
+            }
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

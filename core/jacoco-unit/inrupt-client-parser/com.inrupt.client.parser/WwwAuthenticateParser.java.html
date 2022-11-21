@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WwwAuthenticateParser.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Core</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-parser</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.parser</a> &gt; <span class="el_source">WwwAuthenticateParser.java</span></div><h1>WwwAuthenticateParser.java</h1><pre class="source lang-java linenums">// Generated from java-escape by ANTLR 4.11.1
+package com.inrupt.client.parser;
+import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
+
+@SuppressWarnings({&quot;all&quot;, &quot;warnings&quot;, &quot;unchecked&quot;, &quot;unused&quot;, &quot;cast&quot;, &quot;CheckReturnValue&quot;})
+public class WwwAuthenticateParser extends Parser {
+<span class="fc" id="L14">	static { RuntimeMetaData.checkVersion(&quot;4.11.1&quot;, RuntimeMetaData.VERSION); }</span>
+
+	protected static final DFA[] _decisionToDFA;
+<span class="fc" id="L17">	protected static final PredictionContextCache _sharedContextCache =</span>
+		new PredictionContextCache();
+	public static final int
+		T__0=1, AuthParam=2, AuthScheme=3, QuotedString=4, Token=5, Token68=6, 
+		WS=7;
+	public static final int
+		RULE_wwwAuthenticate = 0, RULE_challenge = 1;
+	private static String[] makeRuleNames() {
+<span class="fc" id="L25">		return new String[] {</span>
+			&quot;wwwAuthenticate&quot;, &quot;challenge&quot;
+		};
+	}
+<span class="fc" id="L29">	public static final String[] ruleNames = makeRuleNames();</span>
+
+	private static String[] makeLiteralNames() {
+<span class="fc" id="L32">		return new String[] {</span>
+			null, &quot;','&quot;
+		};
+	}
+<span class="fc" id="L36">	private static final String[] _LITERAL_NAMES = makeLiteralNames();</span>
+	private static String[] makeSymbolicNames() {
+<span class="fc" id="L38">		return new String[] {</span>
+			null, null, &quot;AuthParam&quot;, &quot;AuthScheme&quot;, &quot;QuotedString&quot;, &quot;Token&quot;, &quot;Token68&quot;, 
+			&quot;WS&quot;
+		};
+	}
+<span class="fc" id="L43">	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();</span>
+<span class="fc" id="L44">	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);</span>
+
+	/**
+	 * @deprecated Use {@link #VOCABULARY} instead.
+	 */
+	@Deprecated
+	public static final String[] tokenNames;
+	static {
+<span class="fc" id="L52">		tokenNames = new String[_SYMBOLIC_NAMES.length];</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		for (int i = 0; i &lt; tokenNames.length; i++) {</span>
+<span class="fc" id="L54">			tokenNames[i] = VOCABULARY.getLiteralName(i);</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">			if (tokenNames[i] == null) {</span>
+<span class="fc" id="L56">				tokenNames[i] = VOCABULARY.getSymbolicName(i);</span>
+			}
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">			if (tokenNames[i] == null) {</span>
+<span class="fc" id="L60">				tokenNames[i] = &quot;&lt;INVALID&gt;&quot;;</span>
+			}
+		}
+	}
+
+	@Override
+	@Deprecated
+	public String[] getTokenNames() {
+<span class="nc" id="L68">		return tokenNames;</span>
+	}
+
+	@Override
+
+	public Vocabulary getVocabulary() {
+<span class="fc" id="L74">		return VOCABULARY;</span>
+	}
+
+	@Override
+<span class="nc" id="L78">	public String getGrammarFileName() { return &quot;java-escape&quot;; }</span>
+
+	@Override
+<span class="nc" id="L81">	public String[] getRuleNames() { return ruleNames; }</span>
+
+	@Override
+<span class="nc" id="L84">	public String getSerializedATN() { return _serializedATN; }</span>
+
+	@Override
+<span class="fc" id="L87">	public ATN getATN() { return _ATN; }</span>
+
+	public WwwAuthenticateParser(TokenStream input) {
+<span class="fc" id="L90">		super(input);</span>
+<span class="fc" id="L91">		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);</span>
+<span class="fc" id="L92">	}</span>
+
+	@SuppressWarnings(&quot;CheckReturnValue&quot;)
+	public static class WwwAuthenticateContext extends ParserRuleContext {
+		public List&lt;ChallengeContext&gt; challenge() {
+<span class="nc" id="L97">			return getRuleContexts(ChallengeContext.class);</span>
+		}
+		public ChallengeContext challenge(int i) {
+<span class="nc" id="L100">			return getRuleContext(ChallengeContext.class,i);</span>
+		}
+<span class="nc" id="L102">		public List&lt;TerminalNode&gt; WS() { return getTokens(WwwAuthenticateParser.WS); }</span>
+		public TerminalNode WS(int i) {
+<span class="nc" id="L104">			return getToken(WwwAuthenticateParser.WS, i);</span>
+		}
+		public WwwAuthenticateContext(ParserRuleContext parent, int invokingState) {
+<span class="fc" id="L107">			super(parent, invokingState);</span>
+<span class="fc" id="L108">		}</span>
+<span class="nc" id="L109">		@Override public int getRuleIndex() { return RULE_wwwAuthenticate; }</span>
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">			if ( listener instanceof WwwAuthenticateListener ) ((WwwAuthenticateListener)listener).enterWwwAuthenticate(this);</span>
+<span class="fc" id="L113">		}</span>
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">			if ( listener instanceof WwwAuthenticateListener ) ((WwwAuthenticateListener)listener).exitWwwAuthenticate(this);</span>
+<span class="fc" id="L117">		}</span>
+	}
+
+	public final WwwAuthenticateContext wwwAuthenticate() throws RecognitionException {
+<span class="fc" id="L121">		WwwAuthenticateContext _localctx = new WwwAuthenticateContext(_ctx, getState());</span>
+<span class="fc" id="L122">		enterRule(_localctx, 0, RULE_wwwAuthenticate);</span>
+		int _la;
+		try {
+<span class="fc" id="L125">			enterOuterAlt(_localctx, 1);</span>
+			{
+<span class="fc" id="L127">			setState(4);</span>
+<span class="fc" id="L128">			challenge();</span>
+<span class="fc" id="L129">			setState(12);</span>
+<span class="fc" id="L130">			_errHandler.sync(this);</span>
+<span class="fc" id="L131">			_la = _input.LA(1);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">			while (_la==T__0) {</span>
+				{
+				{
+<span class="fc" id="L135">				setState(5);</span>
+<span class="fc" id="L136">				match(T__0);</span>
+<span class="fc" id="L137">				setState(7);</span>
+<span class="fc" id="L138">				_errHandler.sync(this);</span>
+<span class="fc" id="L139">				_la = _input.LA(1);</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">				if (_la==WS) {</span>
+					{
+<span class="fc" id="L142">					setState(6);</span>
+<span class="fc" id="L143">					match(WS);</span>
+					}
+				}
+
+<span class="fc" id="L147">				setState(9);</span>
+<span class="fc" id="L148">				challenge();</span>
+				}
+				}
+<span class="fc" id="L151">				setState(14);</span>
+<span class="fc" id="L152">				_errHandler.sync(this);</span>
+<span class="fc" id="L153">				_la = _input.LA(1);</span>
+			}
+			}
+		}
+<span class="nc" id="L157">		catch (RecognitionException re) {</span>
+<span class="nc" id="L158">			_localctx.exception = re;</span>
+<span class="nc" id="L159">			_errHandler.reportError(this, re);</span>
+<span class="nc" id="L160">			_errHandler.recover(this, re);</span>
+		}
+		finally {
+<span class="fc" id="L163">			exitRule();</span>
+		}
+<span class="fc" id="L165">		return _localctx;</span>
+	}
+
+	@SuppressWarnings(&quot;CheckReturnValue&quot;)
+	public static class ChallengeContext extends ParserRuleContext {
+<span class="fc" id="L170">		public TerminalNode AuthScheme() { return getToken(WwwAuthenticateParser.AuthScheme, 0); }</span>
+<span class="nc" id="L171">		public List&lt;TerminalNode&gt; WS() { return getTokens(WwwAuthenticateParser.WS); }</span>
+		public TerminalNode WS(int i) {
+<span class="nc" id="L173">			return getToken(WwwAuthenticateParser.WS, i);</span>
+		}
+<span class="nc" id="L175">		public List&lt;TerminalNode&gt; Token68() { return getTokens(WwwAuthenticateParser.Token68); }</span>
+		public TerminalNode Token68(int i) {
+<span class="nc" id="L177">			return getToken(WwwAuthenticateParser.Token68, i);</span>
+		}
+<span class="fc" id="L179">		public List&lt;TerminalNode&gt; AuthParam() { return getTokens(WwwAuthenticateParser.AuthParam); }</span>
+		public TerminalNode AuthParam(int i) {
+<span class="nc" id="L181">			return getToken(WwwAuthenticateParser.AuthParam, i);</span>
+		}
+		public ChallengeContext(ParserRuleContext parent, int invokingState) {
+<span class="fc" id="L184">			super(parent, invokingState);</span>
+<span class="fc" id="L185">		}</span>
+<span class="nc" id="L186">		@Override public int getRuleIndex() { return RULE_challenge; }</span>
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">			if ( listener instanceof WwwAuthenticateListener ) ((WwwAuthenticateListener)listener).enterChallenge(this);</span>
+<span class="fc" id="L190">		}</span>
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">			if ( listener instanceof WwwAuthenticateListener ) ((WwwAuthenticateListener)listener).exitChallenge(this);</span>
+<span class="fc" id="L194">		}</span>
+	}
+
+	public final ChallengeContext challenge() throws RecognitionException {
+<span class="fc" id="L198">		ChallengeContext _localctx = new ChallengeContext(_ctx, getState());</span>
+<span class="fc" id="L199">		enterRule(_localctx, 2, RULE_challenge);</span>
+		int _la;
+		try {
+			int _alt;
+<span class="fc" id="L203">			enterOuterAlt(_localctx, 1);</span>
+			{
+<span class="fc" id="L205">			setState(15);</span>
+<span class="fc" id="L206">			match(AuthScheme);</span>
+<span class="fc" id="L207">			setState(36);</span>
+<span class="fc" id="L208">			_errHandler.sync(this);</span>
+<span class="fc" id="L209">			_la = _input.LA(1);</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">			while (_la==WS) {</span>
+				{
+				{
+<span class="fc" id="L213">				setState(16);</span>
+<span class="fc" id="L214">				match(WS);</span>
+<span class="fc" id="L215">				setState(32);</span>
+<span class="fc" id="L216">				_errHandler.sync(this);</span>
+<span class="pc bpc" id="L217" title="1 of 3 branches missed.">				switch (_input.LA(1)) {</span>
+				case Token68:
+					{
+<span class="fc" id="L220">					setState(17);</span>
+<span class="fc" id="L221">					match(Token68);</span>
+					}
+<span class="fc" id="L223">					break;</span>
+				case AuthParam:
+					{
+<span class="fc" id="L226">					setState(18);</span>
+<span class="fc" id="L227">					match(AuthParam);</span>
+<span class="fc" id="L228">					setState(29);</span>
+<span class="fc" id="L229">					_errHandler.sync(this);</span>
+<span class="fc" id="L230">					_alt = getInterpreter().adaptivePredict(_input,4,_ctx);</span>
+<span class="pc bpc" id="L231" title="1 of 4 branches missed.">					while ( _alt!=2 &amp;&amp; _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {</span>
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">						if ( _alt==1 ) {</span>
+							{
+							{
+<span class="fc" id="L235">							setState(20);</span>
+<span class="fc" id="L236">							_errHandler.sync(this);</span>
+<span class="fc" id="L237">							_la = _input.LA(1);</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">							if (_la==WS) {</span>
+								{
+<span class="nc" id="L240">								setState(19);</span>
+<span class="nc" id="L241">								match(WS);</span>
+								}
+							}
+
+<span class="fc" id="L245">							setState(22);</span>
+<span class="fc" id="L246">							match(T__0);</span>
+<span class="fc" id="L247">							setState(24);</span>
+<span class="fc" id="L248">							_errHandler.sync(this);</span>
+<span class="fc" id="L249">							_la = _input.LA(1);</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">							if (_la==WS) {</span>
+								{
+<span class="fc" id="L252">								setState(23);</span>
+<span class="fc" id="L253">								match(WS);</span>
+								}
+							}
+
+<span class="fc" id="L257">							setState(26);</span>
+<span class="fc" id="L258">							match(AuthParam);</span>
+							}
+							} 
+						}
+<span class="fc" id="L262">						setState(31);</span>
+<span class="fc" id="L263">						_errHandler.sync(this);</span>
+<span class="fc" id="L264">						_alt = getInterpreter().adaptivePredict(_input,4,_ctx);</span>
+					}
+					}
+					break;
+				default:
+<span class="nc" id="L269">					throw new NoViableAltException(this);</span>
+				}
+				}
+				}
+<span class="fc" id="L273">				setState(38);</span>
+<span class="fc" id="L274">				_errHandler.sync(this);</span>
+<span class="fc" id="L275">				_la = _input.LA(1);</span>
+			}
+			}
+		}
+<span class="fc" id="L279">		catch (RecognitionException re) {</span>
+<span class="fc" id="L280">			_localctx.exception = re;</span>
+<span class="fc" id="L281">			_errHandler.reportError(this, re);</span>
+<span class="fc" id="L282">			_errHandler.recover(this, re);</span>
+		}
+		finally {
+<span class="fc" id="L285">			exitRule();</span>
+		}
+<span class="fc" id="L287">		return _localctx;</span>
+	}
+
+	public static final String _serializedATN =
+		&quot;\u0004\u0001\u0007(\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0001&quot;+
+		&quot;\u0000\u0001\u0000\u0001\u0000\u0003\u0000\b\b\u0000\u0001\u0000\u0005&quot;+
+		&quot;\u0000\u000b\b\u0000\n\u0000\f\u0000\u000e\t\u0000\u0001\u0001\u0001\u0001&quot;+
+		&quot;\u0001\u0001\u0001\u0001\u0001\u0001\u0003\u0001\u0015\b\u0001\u0001\u0001&quot;+
+		&quot;\u0001\u0001\u0003\u0001\u0019\b\u0001\u0001\u0001\u0005\u0001\u001c\b&quot;+
+		&quot;\u0001\n\u0001\f\u0001\u001f\t\u0001\u0003\u0001!\b\u0001\u0005\u0001&quot;+
+		&quot;#\b\u0001\n\u0001\f\u0001&amp;\t\u0001\u0001\u0001\u0000\u0000\u0002\u0000&quot;+
+		&quot;\u0002\u0000\u0000,\u0000\u0004\u0001\u0000\u0000\u0000\u0002\u000f\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u0004\f\u0003\u0002\u0001\u0000\u0005\u0007\u0005\u0001&quot;+
+		&quot;\u0000\u0000\u0006\b\u0005\u0007\u0000\u0000\u0007\u0006\u0001\u0000\u0000&quot;+
+		&quot;\u0000\u0007\b\u0001\u0000\u0000\u0000\b\t\u0001\u0000\u0000\u0000\t\u000b&quot;+
+		&quot;\u0003\u0002\u0001\u0000\n\u0005\u0001\u0000\u0000\u0000\u000b\u000e\u0001&quot;+
+		&quot;\u0000\u0000\u0000\f\n\u0001\u0000\u0000\u0000\f\r\u0001\u0000\u0000\u0000&quot;+
+		&quot;\r\u0001\u0001\u0000\u0000\u0000\u000e\f\u0001\u0000\u0000\u0000\u000f&quot;+
+		&quot;$\u0005\u0003\u0000\u0000\u0010 \u0005\u0007\u0000\u0000\u0011!\u0005&quot;+
+		&quot;\u0006\u0000\u0000\u0012\u001d\u0005\u0002\u0000\u0000\u0013\u0015\u0005&quot;+
+		&quot;\u0007\u0000\u0000\u0014\u0013\u0001\u0000\u0000\u0000\u0014\u0015\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u0015\u0016\u0001\u0000\u0000\u0000\u0016\u0018\u0005&quot;+
+		&quot;\u0001\u0000\u0000\u0017\u0019\u0005\u0007\u0000\u0000\u0018\u0017\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u0018\u0019\u0001\u0000\u0000\u0000\u0019\u001a\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u001a\u001c\u0005\u0002\u0000\u0000\u001b\u0014\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u001c\u001f\u0001\u0000\u0000\u0000\u001d\u001b\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u001d\u001e\u0001\u0000\u0000\u0000\u001e!\u0001\u0000&quot;+
+		&quot;\u0000\u0000\u001f\u001d\u0001\u0000\u0000\u0000 \u0011\u0001\u0000\u0000&quot;+
+		&quot;\u0000 \u0012\u0001\u0000\u0000\u0000!#\u0001\u0000\u0000\u0000\&quot;\u0010&quot;+
+		&quot;\u0001\u0000\u0000\u0000#&amp;\u0001\u0000\u0000\u0000$\&quot;\u0001\u0000\u0000&quot;+
+		&quot;\u0000$%\u0001\u0000\u0000\u0000%\u0003\u0001\u0000\u0000\u0000&amp;$\u0001&quot;+
+		&quot;\u0000\u0000\u0000\u0007\u0007\f\u0014\u0018\u001d $&quot;;
+<span class="fc" id="L319">	public static final ATN _ATN =</span>
+<span class="fc" id="L320">		new ATNDeserializer().deserialize(_serializedATN.toCharArray());</span>
+	static {
+<span class="fc" id="L322">		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];</span>
+<span class="fc bfc" id="L323" title="All 2 branches covered.">		for (int i = 0; i &lt; _ATN.getNumberOfDecisions(); i++) {</span>
+<span class="fc" id="L324">			_decisionToDFA[i] = new DFA(_ATN.getDecisionState(i), i);</span>
+		}
+<span class="fc" id="L326">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

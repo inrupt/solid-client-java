@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>JenaDataset.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-jena</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.jena</a> &gt; <span class="el_source">JenaDataset.java</span></div><h1>JenaDataset.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.jena;
+
+import static org.apache.jena.sparql.core.Quad.defaultGraphNodeGenerated;
+
+import com.inrupt.client.Dataset;
+import com.inrupt.client.Quad;
+import com.inrupt.client.RDFNode;
+
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.apache.jena.atlas.iterator.Iter;
+import org.apache.jena.graph.BlankNodeId;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.core.DatasetGraph;
+
+/**
+ * The Jena implementation of a {@link Dataset}.
+ */
+class JenaDataset implements Dataset {
+
+    private final DatasetGraph dataset;
+
+    /**
+     * Create a JenaDataset.
+     *
+     * @param dataset the Jena {@link DatasetGraph}
+     */
+<span class="fc" id="L50">    public JenaDataset(final DatasetGraph dataset) {</span>
+<span class="fc" id="L51">        this.dataset = dataset;</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Return the JenaDataset {@code dataset} value.
+     *
+     * @return the dataset as a Jena {@link DatasetGraph}
+     */
+    public DatasetGraph asJenaDatasetGraph() {
+<span class="fc" id="L60">        return dataset;</span>
+    }
+
+    /**
+     * Return the matching sequential stream of Quads with this JenaDataset as its source.
+     *
+     * @param graphName the RDFNode graph, may be {@code null}
+     * @param subject the RDFNode subject, may be {@code null}
+     * @param predicate the RDFNode predicate, may be {@code null}
+     * @param object the RDFNode object, may be {@code null}, may be {@code null}
+     * @return the matching quads as a sequential {@link Stream} of {@link Quad}s
+     */
+    @Override
+    public Stream&lt;Quad&gt; stream(final Optional&lt;RDFNode&gt; graphName, final RDFNode subject,
+            final RDFNode predicate, final RDFNode object) {
+
+<span class="fc" id="L76">        final var g = getGraphName(graphName);</span>
+<span class="fc" id="L77">        final var s = JenaGraph.getSubject(subject);</span>
+<span class="fc" id="L78">        final var p = JenaGraph.getPredicate(predicate);</span>
+<span class="fc" id="L79">        final var o = JenaGraph.getObject(object);</span>
+
+<span class="fc" id="L81">        final var iter = dataset.find(g, s, p, o);</span>
+<span class="fc" id="L82">        return Iter.asStream(iter).map(JenaQuad::new);</span>
+    }
+
+    /**
+     * Return a sequential stream of Quads with this JenaDataset as its source.
+     *
+     * @return a sequential {@link Stream} of {@link Quad}
+     */
+    @Override
+    public Stream&lt;Quad&gt; stream() {
+<span class="fc" id="L92">        final var iter = dataset.find();</span>
+<span class="fc" id="L93">        return Iter.asStream(iter).map(JenaQuad::new);</span>
+    }
+
+    /**
+     * Retrieve the Jena graph node from a RDFNode graph.
+     *
+     * @param graph the RDFNode graph, may be {@code null}
+     * @return the graph as a Jena {@link Node}
+     */
+    static Node getGraphName(final Optional&lt;RDFNode&gt; graph) {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (graph != null) {</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            if (graph.isPresent()) {</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">                if (graph.get().isLiteral()) {</span>
+<span class="fc" id="L106">                    throw new IllegalArgumentException(&quot;Graph cannot be an RDF literal&quot;);</span>
+                }
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                if (graph.get().isNamedNode()) {</span>
+<span class="fc" id="L109">                    return NodeFactory.createURI(graph.get().getURI().toString());</span>
+                }
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                if (graph.get().isBlankNode()) {</span>
+<span class="fc" id="L112">                    return NodeFactory.createBlankNode(BlankNodeId.create(graph.get().getNodeId()));</span>
+                }
+            } else {
+<span class="fc" id="L115">                return defaultGraphNodeGenerated;</span>
+            }
+        }
+<span class="fc" id="L118">        return Node.ANY;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

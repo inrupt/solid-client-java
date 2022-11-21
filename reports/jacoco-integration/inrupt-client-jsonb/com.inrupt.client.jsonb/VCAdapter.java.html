@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>VCAdapter.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-jsonb</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.jsonb</a> &gt; <span class="el_source">VCAdapter.java</span></div><h1>VCAdapter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.jsonb;
+
+import com.inrupt.client.VerifiableCredential;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.bind.adapter.JsonbAdapter;
+
+<span class="nc" id="L39">public class VCAdapter implements JsonbAdapter&lt;VerifiableCredential, JsonObject&gt; {</span>
+
+    private static final String CONTEXT = &quot;@context&quot;;
+    private static final String TYPE = &quot;type&quot;;
+    private static final String ID = &quot;id&quot;;
+    private static final String ISSUER = &quot;issuer&quot;;
+    private static final String ISSUANCE_DATE = &quot;issuanceDate&quot;;
+    private static final String EXPIRATION_DATE = &quot;expirationDate&quot;;
+    private static final String CREDENTIAL_SUBJECT = &quot;credentialSubject&quot;;
+    private static final String CREDENTIAL_STATUS = &quot;credentialStatus&quot;;
+    private static final String PROOF = &quot;proof&quot;;
+
+
+
+    @Override
+    public JsonObject adaptToJson(final VerifiableCredential vc) throws Exception {
+
+<span class="nc" id="L56">        final var result = Json.createObjectBuilder();</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (vc.context != null) {</span>
+<span class="nc" id="L59">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L60">            vc.context.forEach(oneContext -&gt; arrayBuilder.add(oneContext));</span>
+<span class="nc" id="L61">            result.add(CONTEXT, arrayBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (vc.type != null) {</span>
+<span class="nc" id="L65">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L66">            vc.type.forEach(oneType -&gt; arrayBuilder.add(oneType));</span>
+<span class="nc" id="L67">            result.add(TYPE, arrayBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (vc.id != null) {</span>
+<span class="nc" id="L71">            result.add(ID, vc.id);</span>
+        }
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (vc.issuer != null) {</span>
+<span class="nc" id="L75">            result.add(ISSUER, vc.issuer);</span>
+        }
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (vc.issuanceDate != null) {</span>
+<span class="nc" id="L79">            result.add(ISSUANCE_DATE, vc.issuanceDate.toString());</span>
+        }
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (vc.expirationDate != null) {</span>
+<span class="nc" id="L83">            result.add(EXPIRATION_DATE, vc.expirationDate.toString());</span>
+        }
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (vc.credentialSubject != null) {</span>
+<span class="nc" id="L87">            final var itCSubject = vc.credentialSubject.entrySet().iterator();</span>
+<span class="nc" id="L88">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            while (itCSubject.hasNext()) {</span>
+<span class="nc" id="L90">                addRightJsonType(objectBuilder, itCSubject.next());</span>
+            }
+<span class="nc" id="L92">            result.add(CREDENTIAL_SUBJECT, objectBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (vc.credentialStatus != null) {</span>
+<span class="nc" id="L96">            final var itCStatus = vc.credentialStatus.entrySet().iterator();</span>
+<span class="nc" id="L97">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            while (itCStatus.hasNext()) {</span>
+<span class="nc" id="L99">                addRightJsonType(objectBuilder, itCStatus.next());</span>
+            }
+<span class="nc" id="L101">            result.add(CREDENTIAL_STATUS, objectBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (vc.proof != null) {</span>
+<span class="nc" id="L105">            final var itProof = vc.proof.entrySet().iterator();</span>
+<span class="nc" id="L106">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            while (itProof.hasNext()) {</span>
+<span class="nc" id="L108">                addRightJsonType(objectBuilder, itProof.next());</span>
+            }
+<span class="nc" id="L110">            result.add(PROOF, objectBuilder.build());</span>
+        }
+
+<span class="nc" id="L113">        return result.build();</span>
+    }
+
+    @Override
+    public VerifiableCredential adaptFromJson(final JsonObject adapted) throws Exception {
+<span class="nc" id="L118">        final var vc = new VerifiableCredential();</span>
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (adapted.containsKey(CONTEXT)) {</span>
+<span class="nc" id="L121">            vc.context = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L122">            final var jsonArrayContext = adapted.getJsonArray(CONTEXT);</span>
+<span class="nc" id="L123">            jsonArrayContext.forEach(value -&gt; vc.context.add(((JsonString) value).getString()));</span>
+        }
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (adapted.containsKey(ID)) {</span>
+<span class="nc" id="L127">            vc.id = adapted.getString(ID);</span>
+        }
+
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (adapted.containsKey(TYPE)) {</span>
+<span class="nc" id="L131">            final var jsonArrayType = adapted.getJsonArray(TYPE);</span>
+<span class="nc" id="L132">            vc.type = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L133">            jsonArrayType.forEach(value -&gt; vc.type.add(((JsonString) value).getString()));</span>
+        }
+
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (adapted.containsKey(ISSUER)) {</span>
+<span class="nc" id="L137">            vc.issuer = adapted.getString(ISSUER);</span>
+        }
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (adapted.containsKey(ISSUANCE_DATE)) {</span>
+<span class="nc" id="L141">            vc.issuanceDate = Instant.parse(adapted.getString(ISSUANCE_DATE));</span>
+        }
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (adapted.containsKey(EXPIRATION_DATE)) {</span>
+<span class="nc" id="L145">            vc.expirationDate = Instant.parse(adapted.getString(EXPIRATION_DATE));</span>
+        }
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (adapted.containsKey(CREDENTIAL_SUBJECT)) {</span>
+<span class="nc" id="L149">            vc.credentialSubject = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L150">            final var jsonObject = adapted.getJsonObject(CREDENTIAL_SUBJECT);</span>
+<span class="nc" id="L151">            vc.credentialSubject.putAll(jsonObject);</span>
+        }
+
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (adapted.containsKey(CREDENTIAL_STATUS)) {</span>
+<span class="nc" id="L155">            vc.credentialStatus = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L156">            final var jsonObject = adapted.getJsonObject(CREDENTIAL_STATUS);</span>
+<span class="nc" id="L157">            vc.credentialStatus.putAll(jsonObject);</span>
+        }
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (adapted.containsKey(PROOF)) {</span>
+<span class="nc" id="L161">            vc.proof = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L162">            final var jsonObject = adapted.getJsonObject(PROOF);</span>
+<span class="nc" id="L163">            vc.proof.putAll(jsonObject);</span>
+        }
+
+<span class="nc" id="L166">        return vc;</span>
+    }
+
+    private &lt;T&gt; void addRightJsonType(final JsonObjectBuilder objectBuilder, final Entry&lt;String, T&gt; entry) {
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonString) {</span>
+<span class="nc" id="L171">            objectBuilder.add(entry.getKey(), (JsonString) entry.getValue());</span>
+        }
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonNumber) {</span>
+<span class="nc" id="L174">            objectBuilder.add(entry.getKey(), (JsonNumber) entry.getValue());</span>
+        }
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonArray) {</span>
+<span class="nc" id="L177">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L178">            ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);</span>
+<span class="nc" id="L179">            final var jsonArray = arrayBuilder.build();</span>
+<span class="nc" id="L180">            objectBuilder.add(entry.getKey(), jsonArray);</span>
+        }
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonValue) {</span>
+<span class="nc" id="L183">            objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());</span>
+        }
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonObject) {</span>
+<span class="nc" id="L186">            final var object = Json.createObjectBuilder();</span>
+<span class="nc" id="L187">            final var it = ((JsonObject) entry.getValue()).entrySet().iterator();</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            while (it.hasNext()) {</span>
+<span class="nc" id="L189">                addRightJsonType(object, it.next());</span>
+            }
+<span class="nc" id="L191">            objectBuilder.add(entry.getKey(), object);</span>
+        }
+<span class="nc" id="L193">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

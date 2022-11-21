@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>EndSessionRequest.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-openid</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.openid</a> &gt; <span class="el_source">EndSessionRequest.java</span></div><h1>EndSessionRequest.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.openid;
+
+import java.net.URI;
+
+/**
+ * A class for initiating a session termination flow with an OpenID Provider.
+ */
+public final class EndSessionRequest {
+
+    private final String clientId;
+    private final URI postLogoutRedirectUri;
+    private final String state;
+    private final String idTokenHint;
+
+    /**
+     * Return the {@code client_id} value.
+     *
+     * @return the {@code client_id}, may be {@code null}
+     */
+    public String getClientId() {
+<span class="nc" id="L41">        return clientId;</span>
+    }
+
+    /**
+     * Return the {@code post_logout_redirect_uri} value.
+     *
+     * @return the {@code post_logout_redirect_uri} value, may be {@code null}
+     */
+    public URI getPostLogoutRedirectUri() {
+<span class="nc" id="L50">        return postLogoutRedirectUri;</span>
+    }
+
+    /**
+     * Return the {@code state} value.
+     *
+     * @return the {@code state}, may be {@code null}
+     */
+    public String getState() {
+<span class="nc" id="L59">        return state;</span>
+    }
+
+    /**
+     * Return the {@code id_token_hint} value.
+     *
+     * @return the {@code id_token_hint}, may be {@code null}
+     */
+    public String getIdTokenHint() {
+<span class="nc" id="L68">        return idTokenHint;</span>
+    }
+
+    /* package-private */
+    EndSessionRequest(final String clientId, final URI postLogoutRedirectUri, final String idTokenHint,
+<span class="nc" id="L73">            final String state) {</span>
+<span class="nc" id="L74">        this.clientId = clientId;</span>
+<span class="nc" id="L75">        this.postLogoutRedirectUri = postLogoutRedirectUri;</span>
+<span class="nc" id="L76">        this.idTokenHint = idTokenHint;</span>
+<span class="nc" id="L77">        this.state = state;</span>
+<span class="nc" id="L78">    }</span>
+
+    /**
+     * A builder class for {@link EndSessionRequest} objects.
+     */
+    public static final class Builder {
+        private String builderClientId;
+        private URI builderPostLogoutRedirectUri;
+        private String builderState;
+        private String builderIdTokenHint;
+
+        /**
+         * Create a new builder for end session requests.
+         *
+         * @return the new builder
+         */
+        public static Builder newBuilder() {
+<span class="nc" id="L95">            return new Builder();</span>
+        }
+
+        /**
+         * Set a client id for the builder.
+         *
+         * @param clientId the client id
+         * @return this builder
+         */
+        public Builder clientId(final String clientId) {
+<span class="nc" id="L105">            builderClientId = clientId;</span>
+<span class="nc" id="L106">            return this;</span>
+        }
+
+        /**
+         * Set a post-logout redirect URI for the builder.
+         *
+         * @param postLogoutRedirectUri the post-logout redirect URI
+         * @return this builder
+         */
+        public Builder postLogoutRedirectUri(final URI postLogoutRedirectUri) {
+<span class="nc" id="L116">            builderPostLogoutRedirectUri = postLogoutRedirectUri;</span>
+<span class="nc" id="L117">            return this;</span>
+        }
+
+        /**
+         * Set a state for the builder.
+         *
+         * @param state the state value
+         * @return this builder
+         */
+        public Builder state(final String state) {
+<span class="nc" id="L127">            builderState = state;</span>
+<span class="nc" id="L128">            return this;</span>
+        }
+
+        /**
+         * Build the end session request.
+         *
+         * @return the end session request
+         */
+        public EndSessionRequest build() {
+<span class="nc" id="L137">            return new EndSessionRequest(builderClientId, builderPostLogoutRedirectUri,</span>
+                    builderIdTokenHint, builderState);
+        }
+
+        private Builder() {
+            // Prevent direct instantiation
+        }
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

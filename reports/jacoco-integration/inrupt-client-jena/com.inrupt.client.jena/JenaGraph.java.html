@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>JenaGraph.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-jena</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.jena</a> &gt; <span class="el_source">JenaGraph.java</span></div><h1>JenaGraph.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.jena;
+
+import static org.apache.jena.graph.NodeFactory.getType;
+
+import com.inrupt.client.Graph;
+import com.inrupt.client.RDFNode;
+import com.inrupt.client.Triple;
+
+import java.util.stream.Stream;
+
+import org.apache.jena.atlas.iterator.Iter;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.rdf.model.Model;
+
+/**
+ * The Jena implementation of a {@link Graph}.
+ */
+class JenaGraph implements Graph {
+
+    private final Model model;
+
+    /**
+     * Create a JenaGraph.
+     *
+     * @param model the Jena {@link Model}
+     */
+<span class="nc" id="L48">    public JenaGraph(final Model model) {</span>
+<span class="nc" id="L49">        this.model = model;</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Return the JenaGraph {@code model} value.
+     *
+     * @return the model as a Jena {@link Model}
+     */
+    public Model asJenaModel() {
+<span class="nc" id="L58">        return model;</span>
+    }
+
+    /**
+     * Return the matching sequential stream of Triple with this JenaDataset as its source.
+     *
+     * @param subject the RDFNode subject, may be {@code null}
+     * @param predicate the RDFNode predicate, may be {@code null}
+     * @param object the RDFNode object, may be {@code null}
+     * @return the matching quads as a sequential {@link Stream} of {@link Triple}s
+     */
+    @Override
+    public Stream&lt;Triple&gt; stream(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+
+<span class="nc" id="L72">        final var s = getSubject(subject);</span>
+<span class="nc" id="L73">        final var p = getPredicate(predicate);</span>
+<span class="nc" id="L74">        final var o = getObject(object);</span>
+
+<span class="nc" id="L76">        final var iter = model.getGraph().find(s, p, o);</span>
+<span class="nc" id="L77">        return Iter.asStream(iter).map(JenaTriple::new);</span>
+    }
+
+    /**
+     * Return a sequential stream of Triples with this JenaDataset as its source.
+     *
+     * @return a sequential {@link Stream} of {@link Triple}s
+     */
+    @Override
+    public Stream&lt;Triple&gt; stream() {
+<span class="nc" id="L87">        final var iter = model.getGraph().find();</span>
+<span class="nc" id="L88">        return Iter.asStream(iter).map(JenaTriple::new);</span>
+    }
+
+    /**
+     * Retrieve the Jena subject from a RDFNode subject.
+     *
+     * @return the subject as a Jena {@link Node}, may be {@code null}
+     */
+    static Node getSubject(final RDFNode subject) {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (subject != null) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (subject.isLiteral()) {</span>
+<span class="nc" id="L99">                throw new IllegalArgumentException(&quot;Subject cannot be an RDF literal&quot;);</span>
+            }
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (subject.isNamedNode()) {</span>
+<span class="nc" id="L102">                return NodeFactory.createURI(subject.getURI().toString());</span>
+            }
+<span class="nc" id="L104">            return NodeFactory.createBlankNode(subject.getNodeId());</span>
+        }
+<span class="nc" id="L106">        return Node.ANY;</span>
+    }
+
+    /**
+     * Retrieve the Jena predicate from a RDFNode predicate.
+     *
+     * @return the predicate as a Jena {@link Node}, may be {@code null}
+     */
+    static Node getPredicate(final RDFNode predicate) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (predicate != null) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            if (predicate.isLiteral()) {</span>
+<span class="nc" id="L117">                throw new IllegalArgumentException(&quot;Predicate cannot be an RDF literal&quot;);</span>
+            }
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (predicate.isBlankNode()) {</span>
+<span class="nc" id="L121">                throw new IllegalArgumentException(&quot;Predicate cannot be a blank node&quot;);</span>
+            }
+
+<span class="nc" id="L124">            return NodeFactory.createURI(predicate.getURI().toString());</span>
+        }
+<span class="nc" id="L126">        return Node.ANY;</span>
+    }
+
+    /**
+     * Retrieve the Jena object from a RDFNode object.
+     *
+     * @return the object as a Jena {@link Node}, may be {@code null}
+     */
+    static Node getObject(final RDFNode object) {
+
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (object != null) {</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (object.isNamedNode()) {</span>
+<span class="nc" id="L138">                return NodeFactory.createURI(object.getURI().toString());</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            } else if (object.isLiteral()) {</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                if (object.getDatatype() != null) {</span>
+<span class="nc" id="L141">                    return NodeFactory.createLiteral(object.getLiteral(), getType(object.getDatatype().toString()));</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                } else if (object.getLanguage() != null) {</span>
+<span class="nc" id="L143">                    return NodeFactory.createLiteral(object.getLiteral(), object.getLanguage());</span>
+                } else {
+<span class="nc" id="L145">                    return NodeFactory.createLiteral(object.getLiteral());</span>
+                }
+            } else {
+<span class="nc" id="L148">                return NodeFactory.createBlankNode(object.getNodeId());</span>
+            }
+        }
+<span class="nc" id="L151">        return Node.ANY;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

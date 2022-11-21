@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>RDF4JTriple.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-rdf4j</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.rdf4j</a> &gt; <span class="el_source">RDF4JTriple.java</span></div><h1>RDF4JTriple.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.rdf4j;
+
+import com.inrupt.client.RDFNode;
+import com.inrupt.client.Triple;
+
+import java.net.URI;
+
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+
+/**
+ * The RDF4J implementation of a {@link Triple}.
+ */
+class RDF4JTriple implements Triple {
+
+    private final org.eclipse.rdf4j.model.Triple triple;
+
+    /**
+     * Create a RDF4JTriple.
+     *
+     * @param triple the RDF4J {@link org.eclipse.rdf4j.model.Triple}
+     */
+<span class="nc" id="L45">    public RDF4JTriple(final org.eclipse.rdf4j.model.Triple triple) {</span>
+<span class="nc" id="L46">        this.triple = triple;</span>
+<span class="nc" id="L47">    }</span>
+
+    /**
+     * Retrieve the {@link RDFNode} subject.
+     *
+     * @return the {@link RDFNode} subject from {@code triple}
+     */
+    @Override
+    public RDFNode getSubject() {
+<span class="nc" id="L56">        final Resource s = triple.getSubject();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (s.isIRI()) {</span>
+<span class="nc" id="L58">            return RDFNode.namedNode(URI.create(s.stringValue()));</span>
+        }
+<span class="nc" id="L60">        return RDFNode.blankNode();</span>
+    }
+
+    /**
+     * Retrieve the {@link RDFNode} predicate.
+     *
+     * @return the {@link RDFNode} predicate from {@code triple}
+     */
+    @Override
+    public RDFNode getPredicate() {
+<span class="nc" id="L70">        final IRI p = triple.getPredicate();</span>
+<span class="nc" id="L71">        return RDFNode.namedNode(URI.create(p.stringValue()));</span>
+    }
+
+    /**
+     * Retrieve the {@link RDFNode} object.
+     *
+     * @return the {@link RDFNode} object from {@code triple}
+     */
+    @Override
+    public RDFNode getObject() {
+<span class="nc" id="L81">        final Value o = triple.getObject();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (o.isIRI()) {</span>
+<span class="nc" id="L83">            return RDFNode.namedNode(URI.create(o.stringValue()));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        } else if (o.isLiteral()) {</span>
+<span class="nc" id="L85">            final Literal lo = (Literal) o;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (lo.getLanguage().isPresent()) {</span>
+<span class="nc" id="L87">                return RDFNode.literal(lo.getLabel(), lo.getLanguage().get());</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            } else if (lo.getDatatype() != null) {</span>
+<span class="nc" id="L89">                return RDFNode.literal(lo.getLabel(), URI.create((lo.getDatatype()).stringValue()));</span>
+            }
+<span class="nc" id="L91">            return RDFNode.literal(lo.getLabel());</span>
+        } else {
+<span class="nc" id="L93">            return RDFNode.blankNode();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

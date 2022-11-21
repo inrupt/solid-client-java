@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultDpopService.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-core</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.core</a> &gt; <span class="el_source">DefaultDpopService.java</span></div><h1>DefaultDpopService.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.core;
+
+import static org.jose4j.jwx.HeaderParameterNames.TYPE;
+
+import com.inrupt.client.Authenticator;
+import com.inrupt.client.spi.DpopService;
+
+import java.net.URI;
+import java.security.KeyPair;
+import java.security.spec.ECParameterSpec;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.keys.EcKeyUtil;
+import org.jose4j.keys.EllipticCurves;
+import org.jose4j.lang.JoseException;
+
+/**
+ * An implementation of OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP).
+ *
+ * @see &lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop&quot;&gt;DPoP draft specification&lt;/a&gt;
+ */
+<span class="nc" id="L49">public class DefaultDpopService implements DpopService {</span>
+
+    @Override
+    public Authenticator.DPoP ofKeyPairs(final Map&lt;String, KeyPair&gt; keypairs) {
+<span class="nc" id="L53">        return new DPoPManager(keypairs);</span>
+    }
+
+    public class DPoPManager implements Authenticator.DPoP {
+<span class="nc" id="L57">        private final Map&lt;String, KeyPair&gt; keypairs = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+
+<span class="nc" id="L59">        public DPoPManager(final Map&lt;String, KeyPair&gt; keypairs) {</span>
+<span class="nc" id="L60">            super();</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">            if (keypairs != null &amp;&amp; !keypairs.isEmpty()) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                for (final Map.Entry&lt;String, KeyPair&gt; item : keypairs.entrySet()) {</span>
+<span class="nc" id="L63">                    this.keypairs.put(item.getKey(), item.getValue());</span>
+<span class="nc" id="L64">                }</span>
+            } else {
+<span class="nc" id="L66">                this.keypairs.put(&quot;ES256&quot;, defaultKeyPair(EllipticCurves.P256));</span>
+            }
+<span class="nc" id="L68">        }</span>
+
+        @Override
+        public String generateProof(final String algorithm, final URI uri, final String method) {
+<span class="nc" id="L72">            final KeyPair keypair = keypairs.get(Objects.requireNonNull(algorithm));</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (keypair == null) {</span>
+<span class="nc" id="L74">                throw new AuthenticationException(&quot;Unsupported DPoP algorithm: &quot; + algorithm);</span>
+            }
+
+<span class="nc" id="L77">            final String htm = Objects.requireNonNull(method);</span>
+<span class="nc" id="L78">            final URI htu = Objects.requireNonNull(uri);</span>
+
+            try {
+<span class="nc" id="L81">                final PublicJsonWebKey jwk = PublicJsonWebKey.Factory.newPublicJwk(keypair.getPublic());</span>
+<span class="nc" id="L82">                final JsonWebSignature jws = new JsonWebSignature();</span>
+<span class="nc" id="L83">                jws.setAlgorithmHeaderValue(algorithm);</span>
+<span class="nc" id="L84">                jws.setHeader(TYPE, &quot;dpop+jwt&quot;);</span>
+<span class="nc" id="L85">                jws.setJwkHeader(jwk);</span>
+<span class="nc" id="L86">                jws.setKey(keypair.getPrivate());</span>
+
+<span class="nc" id="L88">                final JwtClaims claims = new JwtClaims();</span>
+<span class="nc" id="L89">                claims.setJwtId(UUID.randomUUID().toString());</span>
+<span class="nc" id="L90">                claims.setStringClaim(&quot;htm&quot;, htm);</span>
+<span class="nc" id="L91">                claims.setStringClaim(&quot;htu&quot;, htu.toString());</span>
+<span class="nc" id="L92">                claims.setIssuedAtToNow();</span>
+<span class="nc" id="L93">                jws.setPayload(claims.toJson());</span>
+
+<span class="nc" id="L95">                return jws.getCompactSerialization();</span>
+<span class="nc" id="L96">            } catch (final JoseException ex) {</span>
+<span class="nc" id="L97">                throw new AuthenticationException(&quot;Unable to generate DPoP proof&quot;, ex);</span>
+            }
+        }
+
+        @Override
+        public Set&lt;String&gt; algorithms() {
+<span class="nc" id="L103">            return keypairs.keySet();</span>
+        }
+    }
+
+    static KeyPair defaultKeyPair(final ECParameterSpec spec) {
+        try {
+<span class="nc" id="L109">            final EcKeyUtil keyUtil = new EcKeyUtil();</span>
+<span class="nc" id="L110">            return keyUtil.generateKeyPair(spec);</span>
+<span class="nc" id="L111">        } catch (final JoseException ex) {</span>
+<span class="nc" id="L112">            throw new AuthenticationException(&quot;Unable to generate default keypair&quot;, ex);</span>
+        }
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

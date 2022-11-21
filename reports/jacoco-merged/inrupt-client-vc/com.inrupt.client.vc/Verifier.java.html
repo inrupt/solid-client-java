@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Verifier.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-vc</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.vc</a> &gt; <span class="el_source">Verifier.java</span></div><h1>Verifier.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.vc;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.URIBuilder;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.List;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * A class for interacting with a VC-API Verifier endpoint.
+ *
+ * @see &lt;a href=&quot;https://w3c-ccg.github.io/vc-api/verifier.html&quot;&gt;VC-API: Verifier&lt;/a&gt;
+ */
+public class Verifier {
+
+    private static final String CONTENT_TYPE = &quot;Content-Type&quot;;
+    private static final String APPLICATION_JSON = &quot;application/json&quot;;
+
+    private final URI baseUri;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
+
+    /**
+     * Create a new Verifier object for interacting with a VC-API.
+     *
+     * @param baseUri the base URI for the VC-API
+     */
+    public Verifier(final URI baseUri) {
+<span class="nc" id="L59">        this(baseUri, ServiceProvider.getHttpService());</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Create a new Verifier object for interacting with a VC-API.
+     *
+     * @param baseUri the base URI for the VC-API
+     * @param httpClient an HTTP client
+     */
+<span class="fc" id="L68">    public Verifier(final URI baseUri, final HttpService httpClient) {</span>
+<span class="fc" id="L69">        this.baseUri = baseUri;</span>
+<span class="fc" id="L70">        this.httpClient = httpClient;</span>
+<span class="fc" id="L71">        this.jsonService = ServiceProvider.getJsonService();</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Synchronously verify a credential.
+     *
+     * @param credential the verifiable credential
+     * @return a verification response
+     */
+    public VerificationResponse verify(final VerifiableCredential credential) {
+<span class="fc" id="L81">        return verifyAsync(credential).toCompletableFuture().join();</span>
+    }
+
+    /**
+     * Asynchronously verify a credential.
+     *
+     * @param credential the verifiable credential
+     * @return the next stage of completion, containing a verification response
+     */
+    public CompletionStage&lt;VerificationResponse&gt; verifyAsync(final VerifiableCredential credential) {
+<span class="fc" id="L91">        final var req = Request.newBuilder(getCredentialVerifierUrl())</span>
+<span class="fc" id="L92">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L93">            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))</span>
+<span class="fc" id="L94">            .build();</span>
+
+<span class="fc" id="L96">        return httpClient.sendAsync(req, ofVerificationResponse())</span>
+<span class="fc" id="L97">            .thenApply(Response::body);</span>
+    }
+
+
+    /**
+     * Synchronously verify a presentation.
+     *
+     * @param presentation the verifiable presentation
+     * @return a verification response
+     */
+    public VerificationResponse verify(final VerifiablePresentation presentation) {
+<span class="fc" id="L108">        return verifyAsync(presentation).toCompletableFuture().join();</span>
+    }
+
+    /**
+     * Asynchronously verify a presentation.
+     *
+     * @param presentation the verifiable presentation
+     * @return the next stage of completion, containing a verification response
+     */
+    public CompletionStage&lt;VerificationResponse&gt; verifyAsync(
+            final VerifiablePresentation presentation) {
+<span class="fc" id="L119">        final var req = Request.newBuilder(getPresentationVerifierUrl())</span>
+<span class="fc" id="L120">                .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L121">                .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))</span>
+<span class="fc" id="L122">                .build();</span>
+
+<span class="fc" id="L124">        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(Response::body);</span>
+
+    }
+
+    /**
+     * A data objects for verification responses.
+     */
+<span class="fc" id="L131">    public static class VerificationResponse {</span>
+        /**
+         * The verification checks that were performed.
+         */
+        public List&lt;String&gt; checks;
+
+        /**
+         * The verification warnings that were discovered.
+         */
+        public List&lt;String&gt; warnings;
+
+        /**
+         * The verification errors that were discovered.
+         */
+        public List&lt;String&gt; errors;
+    }
+
+    private Response.BodyHandler&lt;VerificationResponse&gt; ofVerificationResponse() {
+<span class="fc" id="L149">        return responseInfo -&gt; {</span>
+<span class="fc" id="L150">            final int httpStatus = responseInfo.statusCode();</span>
+<span class="pc bpc" id="L151" title="1 of 4 branches missed.">            if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L152">                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
+<span class="fc" id="L153">                    return jsonService.fromJson(input, VerificationResponse.class);</span>
+<span class="nc" id="L154">                } catch (final IOException ex) {</span>
+<span class="nc" id="L155">                    throw new VerifiableCredentialException(</span>
+                            &quot;Error parsing verification request&quot;, ex);
+                }
+            }
+<span class="fc" id="L159">            throw new VerifiableCredentialException(</span>
+                    &quot;Unexpected error response when verifying a resource.&quot;,
+                    httpStatus);
+        };
+    }
+
+    private URI getCredentialVerifierUrl() {
+<span class="fc" id="L166">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/verify&quot;).build();</span>
+    }
+
+    private URI getPresentationVerifierUrl() {
+<span class="fc" id="L170">        return URIBuilder.newBuilder(baseUri).path(&quot;presentations/verify&quot;).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

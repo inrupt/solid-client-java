@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Holder.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-vc</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.vc</a> &gt; <span class="el_source">Holder.java</span></div><h1>Holder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.vc;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.IOUtils;
+import com.inrupt.client.util.URIBuilder;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+
+/**
+ * A class for interacting with a VC-API Holder endpoint.
+ *
+ * @see &lt;a href=&quot;https://w3c-ccg.github.io/vc-api/holder.html&quot;&gt;VC-API: Holder&lt;/a&gt;
+ */
+public class Holder {
+
+    private static final String CONTENT_TYPE = &quot;Content-Type&quot;;
+    private static final String APPLICATION_JSON = &quot;application/json&quot;;
+    private static final String CREDENTIALS = &quot;credentials&quot;;
+    private static final String PRESENTATIONS = &quot;presentations&quot;;
+    private static final String EXCHANGES = &quot;exchanges&quot;;
+
+    private final URI baseUri;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
+
+    /**
+     * Create a new Holder object for interacting with a VC-API.
+     *
+     * @param baseUri the base URI for the VC-API
+     */
+    public Holder(final URI baseUri) {
+<span class="nc" id="L69">        this(baseUri, ServiceProvider.getHttpService());</span>
+<span class="nc" id="L70">    }</span>
+
+    /**
+     * Create a new Holder object for interacting with a VC-API.
+     *
+     * @param baseUri the base URI for the VC-API
+     * @param httpClient an HTTP client
+     */
+<span class="fc" id="L78">    public Holder(final URI baseUri, final HttpService httpClient) {</span>
+<span class="fc" id="L79">        this.baseUri = baseUri;</span>
+<span class="fc" id="L80">        this.httpClient = httpClient;</span>
+<span class="fc" id="L81">        this.jsonService = ServiceProvider.getJsonService();</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * List all verifiable credentials.
+     *
+     * @return a list of verifiable credentials
+     */
+    public List&lt;VerifiableCredential&gt; listCredentials() {
+<span class="nc" id="L90">        return listCredentials(Collections.emptyList());</span>
+    }
+
+    /**
+     * List all verifiable credentials, filtered by a list of types.
+     *
+     * @param types the VC types on which to filter
+     * @return a list of verifiable credentials
+     */
+    public List&lt;VerifiableCredential&gt; listCredentials(final List&lt;URI&gt; types) {
+<span class="fc" id="L100">        return awaitAsync(listCredentialsAsync(Objects.requireNonNull(types)));</span>
+    }
+
+    /**
+     * List all verifiable credentials.
+     *
+     * @return the next stage of completion, including the list of verifiable credentials
+     */
+    public CompletionStage&lt;List&lt;VerifiableCredential&gt;&gt; listCredentialsAsync() {
+<span class="nc" id="L109">        return listCredentialsAsync(Collections.emptyList());</span>
+    }
+
+    /**
+     * List all verifiable credentials, filtered by a list of types.
+     *
+     * @param types the VC types on which to filter
+     * @return the next stage of completion, including the list of verifiable credentials
+     */
+    public CompletionStage&lt;List&lt;VerifiableCredential&gt;&gt; listCredentialsAsync(final List&lt;URI&gt; types) {
+<span class="fc" id="L119">        final var req = Request.newBuilder(getCredentialListEndpoint(Objects.requireNonNull(types))).build();</span>
+<span class="fc" id="L120">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())</span>
+<span class="fc" id="L121">            .thenApply(res -&gt; {</span>
+                try {
+<span class="fc" id="L123">                    final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L124" title="2 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L125">                        return jsonService.fromJson(res.body(),</span>
+<span class="fc" id="L126">                            new ArrayList&lt;VerifiableCredential&gt;(){}.getClass().getGenericSuperclass());</span>
+                    }
+<span class="nc" id="L128">                    throw new VerifiableCredentialException(</span>
+                        &quot;Unexpected error response while listing credentials&quot;,
+                        httpStatus);
+<span class="nc" id="L131">                } catch (final IOException ex) {</span>
+<span class="nc" id="L132">                    throw new VerifiableCredentialException(</span>
+                        &quot;Unexpected I/O exception while listing credentials&quot;,
+                        ex);
+                }
+            });
+    }
+
+    /**
+     * Retrieve a verifiable credential.
+     *
+     * @param credentialId the credential identifier
+     * @return the verifiable credential
+     */
+    public VerifiableCredential getCredential(final String credentialId) {
+<span class="fc" id="L146">        return getCredentialAsync(Objects.requireNonNull(credentialId)).toCompletableFuture().join();</span>
+    }
+
+    /**
+     * Retrieve a verifiable credential.
+     *
+     * @param credentialId the credential identifier
+     * @return the next stage of completion, including a verifiable credential
+     */
+    public CompletionStage&lt;VerifiableCredential&gt; getCredentialAsync(final String credentialId) {
+<span class="fc" id="L156">        final var req = Request</span>
+<span class="fc" id="L157">                .newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId))).build();</span>
+<span class="fc" id="L158">        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())</span>
+<span class="fc" id="L159">                .thenApply(Response::body);</span>
+    }
+
+    /**
+     * Delete a credential.
+     *
+     * @param credentialId the credential identifier
+     */
+    public void deleteCredential(final String credentialId) {
+<span class="fc" id="L168">        awaitAsync(deleteCredentialAsync(Objects.requireNonNull(credentialId)));</span>
+<span class="fc" id="L169">    }</span>
+
+    /**
+     * Delete a credential.
+     *
+     * @param credentialId the credential identifier
+     * @return the next stage of compltion
+     */
+    public CompletionStage&lt;Void&gt; deleteCredentialAsync(final String credentialId) {
+<span class="fc" id="L178">        final var req = Request.newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId)))</span>
+<span class="fc" id="L179">            .DELETE().build();</span>
+
+<span class="fc" id="L181">        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())</span>
+<span class="fc" id="L182">            .thenApply(res -&gt; {</span>
+<span class="fc" id="L183">                final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L184" title="2 of 4 branches missed.">                if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L185">                    return res.body();</span>
+                }
+<span class="nc" id="L187">                throw new VerifiableCredentialException(</span>
+                    &quot;Unexpected error while deleting credential&quot;,
+                    httpStatus);
+            });
+    }
+
+    /**
+     * Derive a credential.
+     *
+     * @param request the selective disclosure request
+     * @return the derived verifiable credential
+     */
+    public VerifiableCredential derive(final DerivationRequest request) {
+<span class="fc" id="L200">        return awaitAsync(deriveAsync(request));</span>
+    }
+
+    /**
+     * Derive a credential.
+     *
+     * @param request the selective disclosure request
+     * @return the next stage of completion, including the derived verifiable credential
+     */
+    public CompletionStage&lt;VerifiableCredential&gt; deriveAsync(final DerivationRequest request) {
+<span class="fc" id="L210">        final var req = Request.newBuilder(getDeriveEndpoint())</span>
+<span class="fc" id="L211">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L212">            .POST(serialize(request))</span>
+<span class="fc" id="L213">            .build();</span>
+
+<span class="fc" id="L215">        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())</span>
+<span class="fc" id="L216">                .thenApply(Response::body);</span>
+    }
+
+    /**
+     * Retrieve a list of presentations.
+     *
+     * @return a list of presentations
+     */
+    public List&lt;VerifiablePresentation&gt; listPresentations() {
+<span class="nc" id="L225">        return listPresentations(Collections.emptyList());</span>
+    }
+
+    /**
+     * Retrieve a list of presentations.
+     *
+     * @param types presentation type filters
+     * @return a list of presentations
+     */
+    public List&lt;VerifiablePresentation&gt; listPresentations(final List&lt;URI&gt; types) {
+<span class="fc" id="L235">        return awaitAsync(listPresentationsAsync(Objects.requireNonNull(types)));</span>
+    }
+
+    /**
+     * Retrieve a list of presentations.
+     *
+     * @return the next stage of completion, including a list of presentations
+     */
+    public CompletionStage&lt;List&lt;VerifiablePresentation&gt;&gt; listPresentationsAsync() {
+<span class="nc" id="L244">        return listPresentationsAsync(Collections.emptyList());</span>
+    }
+
+    /**
+     * Retrieve a list of presentations.
+     *
+     * @param types presentation type filters
+     * @return the next stage of completion, including a list of presentations
+     */
+    public CompletionStage&lt;List&lt;VerifiablePresentation&gt;&gt; listPresentationsAsync(final List&lt;URI&gt; types) {
+<span class="fc" id="L254">        final var req = Request.newBuilder(getPresentationListEndpoint(Objects.requireNonNull(types))).build();</span>
+<span class="fc" id="L255">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())</span>
+<span class="fc" id="L256">            .thenApply(res -&gt; {</span>
+                try {
+<span class="fc" id="L258">                    final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L259" title="2 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L260">                        return jsonService.fromJson(res.body(),</span>
+<span class="fc" id="L261">                            new ArrayList&lt;VerifiablePresentation&gt;(){}.getClass().getGenericSuperclass());</span>
+                    }
+<span class="nc" id="L263">                    throw new VerifiableCredentialException(</span>
+                        &quot;Unexpected error response while listing presentations.&quot;,
+                        httpStatus);
+<span class="nc" id="L266">                } catch (final IOException ex) {</span>
+<span class="nc" id="L267">                    throw new VerifiableCredentialException(</span>
+                        &quot;Unexpected I/O exception while listing presentations&quot;,
+                        ex);
+                }
+            });
+    }
+
+    /**
+     * Retrieve a verifiable presentation.
+     *
+     * @param presentationId the presentation identifier
+     * @return the verifiable presentation
+     */
+    public VerifiablePresentation getPresentation(final String presentationId) {
+<span class="fc" id="L281">        return awaitAsync(getPresentationAsync(Objects.requireNonNull(presentationId)));</span>
+    }
+
+    /**
+     * Retrieve a verifiable presentation.
+     *
+     * @param presentationId the presentation identifier
+     * @return the next stage of completion, including the verifiable presentation
+     */
+    public CompletionStage&lt;VerifiablePresentation&gt; getPresentationAsync(final String presentationId) {
+<span class="fc" id="L291">        final var req = Request</span>
+<span class="fc" id="L292">            .newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId)))</span>
+<span class="fc" id="L293">                .build();</span>
+<span class="fc" id="L294">        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())</span>
+<span class="fc" id="L295">                .thenApply(Response::body);</span>
+    }
+
+    /**
+     * Delete a presentation.
+     *
+     * @param presentationId the presentation identifier
+     */
+    public void deletePresentation(final String presentationId) {
+<span class="fc" id="L304">        awaitAsync(deletePresentationAsync(Objects.requireNonNull(presentationId)));</span>
+<span class="fc" id="L305">    }</span>
+
+    /**
+     * Delete a presentation.
+     *
+     * @param presentationId the presentation identifier
+     * @return the next stage of completion
+     */
+    public CompletionStage&lt;Void&gt; deletePresentationAsync(final String presentationId) {
+<span class="fc" id="L314">        final var req = Request.newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId)))</span>
+<span class="fc" id="L315">            .DELETE().build();</span>
+
+<span class="fc" id="L317">        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())</span>
+<span class="fc" id="L318">            .thenApply(res -&gt; {</span>
+<span class="fc" id="L319">                final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L320" title="2 of 4 branches missed.">                if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L321">                    return res.body();</span>
+                }
+<span class="nc" id="L323">                throw new VerifiableCredentialException(</span>
+                    &quot;Unexpected error while deleting presentation &quot;,
+                    httpStatus);
+            });
+    }
+
+    /**
+     * Prove a presentation.
+     *
+     * @param request the prove request
+     * @return the verifiable presentation
+     */
+    public VerifiablePresentation prove(final ProveRequest request) {
+<span class="fc" id="L336">        return awaitAsync(proveAsync(request));</span>
+    }
+
+    &lt;T, R extends Throwable&gt; T awaitAsync(final CompletionStage&lt;T&gt; future) throws R {
+        try {
+<span class="fc" id="L341">            return future.toCompletableFuture().join();</span>
+<span class="fc" id="L342">        } catch (final CompletionException ex) {</span>
+<span class="fc" id="L343">            throw (R) ex.getCause();</span>
+        }
+    }
+
+    /**
+     * Prove a presentation.
+     *
+     * @param request the prove request
+     * @return the next stage of completion, including the verifiable presentation
+     */
+    public CompletionStage&lt;VerifiablePresentation&gt; proveAsync(final ProveRequest request) {
+<span class="fc" id="L354">        final var req = Request.newBuilder(getProveEndpoint())</span>
+<span class="fc" id="L355">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L356">            .POST(serialize(request))</span>
+<span class="fc" id="L357">            .build();</span>
+
+<span class="fc" id="L359">        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())</span>
+<span class="fc" id="L360">            .thenApply(Response::body);</span>
+    }
+
+    /**
+     * Initiate a presentation exchange.
+     *
+     * @param exchangeId a unique identifier for a shared exchange
+     * @param request the exchange request
+     * @return the server-generated VP Request
+     */
+    // Request payload example:
+    // {
+    //   &quot;query&quot;: {
+    //     &quot;type&quot;: &quot;QueryByExample&quot;,
+    //     &quot;credentialQuery&quot;: {
+    //       &quot;type&quot;: [&quot;VerifiableCredential&quot;, &quot;SolidAccessGrant&quot;],
+    //       &quot;reason&quot;: &quot;Access to a Solid Resource&quot;
+    //     }
+    //   }
+    // }
+    //
+    // Response payload example:
+    // {
+    //   &quot;query&quot;: [
+    //     {
+    //       &quot;type&quot;: [&quot;QueryByExample&quot;],
+    //       &quot;credentialQuery&quot;: {
+    //         &quot;frame&quot;: {
+    //           &quot;@context&quot;: [...],
+    //           &quot;type&quot;: [&quot;VerifiableCredential&quot;, &quot;SolidAccessGrant&quot;],
+    //           &quot;credentialSubject&quot;: { ... }
+    //         }
+    //       }
+    //     }
+    //   ],
+    //   &quot;domain&quot;: &quot;credentials.example&quot;,
+    //   &quot;challenge&quot;: &quot;3182bdea-63d9-11ea-b6de-3b7c1404d57f&quot;
+    // }
+    public VerifiablePresentationRequest initiateExchange(final String exchangeId, final ExchangeRequest request) {
+<span class="fc" id="L399">        return initiateExchangeAsync(Objects.requireNonNull(exchangeId), request).toCompletableFuture().join();</span>
+    }
+
+    /**
+     * Initiate a presentation exchange.
+     *
+     * @param exchangeId a unique identifier for a shared exchange
+     * @param request the exchange request
+     * @return the next stage of completion, including a server-generated VP Request
+     */
+    public CompletionStage&lt;VerifiablePresentationRequest&gt; initiateExchangeAsync(final String exchangeId,
+            final ExchangeRequest request) {
+<span class="fc" id="L411">        final var req = Request.newBuilder(getExchangeEndpoint(Objects.requireNonNull(exchangeId)))</span>
+<span class="fc" id="L412">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L413">            .POST(serialize(request))</span>
+<span class="fc" id="L414">            .build();</span>
+
+<span class="fc" id="L416">        return httpClient.sendAsync(req, ofVerifiablePresentationRequest())</span>
+<span class="fc" id="L417">            .thenApply(Response::body);</span>
+    }
+
+    /**
+     * Continue an existing exchange.
+     *
+     * @param exchangeId the exchange identifier
+     * @param transactionId the transaction identifier
+     * @param presentation the verifiable presentation
+     */
+    public void continueExchange(final String exchangeId, final String transactionId,
+            final VerifiablePresentation presentation) {
+<span class="nc" id="L429">        continueExchangeAsync(</span>
+<span class="nc" id="L430">                Objects.requireNonNull(exchangeId),</span>
+<span class="nc" id="L431">                Objects.requireNonNull(transactionId),</span>
+<span class="nc" id="L432">                Objects.requireNonNull(presentation))</span>
+<span class="nc" id="L433">                    .toCompletableFuture().join();</span>
+<span class="nc" id="L434">    }</span>
+
+    /**
+     * Continue an existing exchange.
+     *
+     * @param exchangeId the exchange identifier
+     * @param transactionId the transaction identifier
+     * @param presentation the verifiable presentation
+     * @return the next stage of completion
+     */
+    public CompletionStage&lt;Void&gt; continueExchangeAsync(final String exchangeId, final String transactionId,
+            final VerifiablePresentation presentation) {
+        // TODO - implement
+<span class="nc" id="L447">        return null;</span>
+    }
+
+    /**
+     * A data structure for exchange requests when interacting with a VC Holder API.
+     */
+<span class="fc" id="L453">    public static class ExchangeRequest {</span>
+        /**
+         * The exchange query.
+         */
+        public Query query;
+    }
+
+    /**
+     * A data structure for query specifications when interacting with a VC Holder API.
+     */
+<span class="fc" id="L463">    public static class Query {</span>
+        /**
+         * The query type.
+         */
+        public URI type;
+
+        /**
+         * The credential query.
+         */
+        public Map&lt;String, Object&gt; credentialQuery;
+    }
+
+    /**
+     * A data structure for derive requests when interacting with a VC Holder API.
+     */
+<span class="fc" id="L478">    public static class DerivationRequest {</span>
+        /**
+         * The credential to derive.
+         */
+        public VerifiableCredential verifiableCredential;
+
+        /**
+         * A frame for the derived credential.
+         */
+        public Map&lt;String, Object&gt; frame;
+
+        /**
+         * Options for the derive request.
+         */
+        public Map&lt;String, Object&gt; options;
+    }
+
+    /**
+     * A data structure for prove requests when interacting with a VC Holder API.
+     */
+<span class="fc" id="L498">    public static class ProveRequest {</span>
+        /**
+         * The presentation to prove.
+         */
+        public VerifiablePresentation presentation;
+
+        /**
+         * Options for the prove request.
+         */
+        public Map&lt;String, Object&gt; options;
+    }
+
+    private Response.BodyHandler&lt;VerifiablePresentationRequest&gt; ofVerifiablePresentationRequest() {
+<span class="fc" id="L511">        return responseInfo -&gt; {</span>
+<span class="fc" id="L512">            final int httpStatus = responseInfo.statusCode();</span>
+<span class="pc bpc" id="L513" title="1 of 4 branches missed.">            if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L514">                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
+<span class="fc" id="L515">                    return jsonService.fromJson(input, VerifiablePresentationRequest.class);</span>
+<span class="nc" id="L516">                } catch (final IOException ex) {</span>
+<span class="nc" id="L517">                    throw new VerifiableCredentialException(&quot;Error parsing presentation request&quot;, ex);</span>
+                }
+            }
+<span class="fc" id="L520">            throw new VerifiableCredentialException(</span>
+                    &quot;Unexpected error response when handling a verifiable presentation.&quot;,
+                    httpStatus);
+        };
+    }
+
+    private &lt;T&gt; Request.BodyPublisher serialize(final T request) {
+<span class="fc" id="L527">        return IOUtils.buffer(out -&gt; {</span>
+            try {
+<span class="fc" id="L529">                jsonService.toJson(request, out);</span>
+<span class="nc" id="L530">            } catch (final IOException ex) {</span>
+<span class="nc" id="L531">                throw new VerifiableCredentialException(&quot;Error serializing JSON&quot;, ex);</span>
+<span class="fc" id="L532">            }</span>
+<span class="fc" id="L533">        });</span>
+    }
+
+    private URI getPresentationListEndpoint(final List&lt;URI&gt; types) {
+<span class="fc" id="L537">        return URIBuilder.newBuilder(baseUri).path(PRESENTATIONS)</span>
+<span class="fc" id="L538">            .queryParam(&quot;type&quot;, types.stream().map(URI::toString).collect(Collectors.joining(&quot;,&quot;)))</span>
+<span class="fc" id="L539">            .build();</span>
+    }
+
+    private URI getCredentialListEndpoint(final List&lt;URI&gt; types) {
+<span class="fc" id="L543">        return URIBuilder.newBuilder(baseUri).path(CREDENTIALS)</span>
+<span class="fc" id="L544">            .queryParam(&quot;type&quot;, types.stream().map(URI::toString).collect(Collectors.joining(&quot;,&quot;)))</span>
+<span class="fc" id="L545">            .build();</span>
+    }
+
+    private URI getPresentationEndpoint(final String presentationId) {
+<span class="fc" id="L549">        return URIBuilder.newBuilder(baseUri).path(PRESENTATIONS).path(presentationId).build();</span>
+    }
+
+    private URI getCredentialEndpoint(final String credentialId) {
+<span class="fc" id="L553">        return URIBuilder.newBuilder(baseUri).path(CREDENTIALS).path(credentialId).build();</span>
+    }
+
+    private URI getDeriveEndpoint() {
+<span class="fc" id="L557">        return URIBuilder.newBuilder(baseUri).path(CREDENTIALS).path(&quot;derive&quot;).build();</span>
+    }
+
+    private URI getProveEndpoint() {
+<span class="fc" id="L561">        return URIBuilder.newBuilder(baseUri).path(PRESENTATIONS).path(&quot;prove&quot;).build();</span>
+    }
+
+    private URI getExchangeEndpoint(final String exchangeId) {
+<span class="fc" id="L565">        return URIBuilder.newBuilder(baseUri).path(EXCHANGES).path(exchangeId).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

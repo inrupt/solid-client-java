@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RDF4JBodyPublishers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - RDF4J</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.rdf4j</a> &gt; <span class="el_source">RDF4JBodyPublishers.java</span></div><h1>RDF4JBodyPublishers.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.rdf4j;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.util.IOUtils;
+
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sparql.query.SPARQLUpdate;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
+
+/**
+ * {@link Request.BodyPublisher} implementations for use with RDF4J types.
+ */
+public final class RDF4JBodyPublishers {
+    /**
+     * Serialize a RDF4J Model as an HTTP request body.
+     *
+     * &lt;p&gt;This method uses the default (TURTLE) serialization.
+     *
+     * @param model the model
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofModel(final Model model) {
+<span class="fc" id="L47">        return ofModel(model, RDFFormat.TURTLE);</span>
+    }
+
+    /**
+     * Serialize a RDF4J Model as an HTTP request body.
+     *
+     * @param model the model
+     * @param format the serialization language
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofModel(final Model model, final RDFFormat format) {
+<span class="fc" id="L58">        return IOUtils.buffer(out -&gt; Rio.write(model, out, format));</span>
+    }
+
+    /**
+     * Serialize a RDF4J Repository as an HTTP request body.
+     *
+     * &lt;p&gt;This method uses the default (TRIG) serialization.
+     *
+     * @param repository the Repository
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofRepository(final Repository repository) {
+<span class="fc" id="L70">        return ofRepository(repository, RDFFormat.TRIG);</span>
+    }
+
+    /**
+     * Serialize a RDF4J Repository as an HTTP request body.
+     *
+     * @param repository the Repository
+     * @param format the serialization language
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofRepository(final Repository repository, final RDFFormat format) {
+<span class="fc" id="L81">        return IOUtils.buffer(out -&gt; {</span>
+<span class="fc" id="L82">            try (final RepositoryConnection conn = repository.getConnection()) {</span>
+<span class="fc" id="L83">                final Model m = QueryResults.asModel(conn.getStatements(null, null, null));</span>
+<span class="fc" id="L84">                Rio.write(m, out, format);</span>
+            }
+<span class="fc" id="L86">        });</span>
+    }
+
+    /**
+     * Serialize a RDF4J SPARQLUpdate (SPARQL-Update) as an HTTP request body.
+     *
+     * @param sparql the SPARQL Update request
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofSparqlUpdate(final SPARQLUpdate sparql) {
+<span class="fc" id="L96">        return Request.BodyPublishers.ofString(sparql.toString());</span>
+    }
+
+    private RDF4JBodyPublishers() {
+        // Prevent instantiation
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

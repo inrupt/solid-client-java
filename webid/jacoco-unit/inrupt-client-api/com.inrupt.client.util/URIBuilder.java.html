@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>URIBuilder.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - WebID</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-api</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.util</a> &gt; <span class="el_source">URIBuilder.java</span></div><h1>URIBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.util;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A utility for building {@link URI} objects.
+ */
+public final class URIBuilder {
+
+<span class="fc" id="L33">    private static int PAIR = 2;</span>
+
+    private String scheme;
+    private StringBuilder schemeSpecificPart;
+<span class="fc" id="L37">    private List&lt;String&gt; queryParams = new ArrayList&lt;&gt;();</span>
+    private String uriFragment;
+
+    /**
+     * Create a new URI builder from an existing URI.
+     *
+     * @param uri the URI
+     * @return the builder
+     */
+    public static URIBuilder newBuilder(final URI uri) {
+<span class="fc" id="L47">        final URIBuilder builder = new URIBuilder();</span>
+<span class="fc" id="L48">        builder.scheme = uri.getScheme();</span>
+<span class="fc" id="L49">        builder.uriFragment = uri.getFragment();</span>
+
+<span class="fc" id="L51">        final String[] parts = uri.getSchemeSpecificPart().split(&quot;\\?&quot;, PAIR);</span>
+
+<span class="fc" id="L53">        builder.schemeSpecificPart = new StringBuilder(parts[0]);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (parts.length == PAIR) {</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            for (final String param : parts[1].split(&quot;&amp;&quot;)) {</span>
+<span class="fc" id="L56">                builder.queryParams.add(param);</span>
+            }
+        }
+
+<span class="fc" id="L60">        return builder;</span>
+    }
+
+    /**
+     * Append a path segment to a URI.
+     *
+     * @param path the path segment
+     * @return this builder
+     */
+    public URIBuilder path(final String path) {
+<span class="pc bpc" id="L70" title="1 of 6 branches missed.">        if (path != null &amp;&amp; !path.isEmpty() &amp;&amp; !path.trim().isEmpty()) {</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">            if (schemeSpecificPart.charAt(schemeSpecificPart.length() - 1) == '/') {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">                schemeSpecificPart.append(path.startsWith(&quot;/&quot;) ? path.substring(1) : path);</span>
+            } else {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                schemeSpecificPart.append(path.startsWith(&quot;/&quot;) ? path : &quot;/&quot; + path);</span>
+            }
+        }
+<span class="fc" id="L77">        return this;</span>
+    }
+
+    /**
+     * Set a query parameter for a URI.
+     *
+     * @param param the parameter name
+     * @param value the parameter value
+     * @return this builder
+     */
+    public URIBuilder queryParam(final String param, final String value) {
+<span class="fc" id="L88">        queryParams.add(formatQueryParam(param, value));</span>
+<span class="fc" id="L89">        return this;</span>
+    }
+
+    /**
+     * Set a fragment value for a URI.
+     *
+     * @param fragment the fragment value
+     * @return this builder
+     */
+    public URIBuilder fragment(final String fragment) {
+<span class="fc" id="L99">        uriFragment = fragment;</span>
+<span class="fc" id="L100">        return this;</span>
+    }
+
+    /**
+     * Build a URI.
+     *
+     * @return the newly constructed URI
+     */
+    public URI build() {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (!queryParams.isEmpty()) {</span>
+<span class="fc" id="L110">            schemeSpecificPart.append(&quot;?&quot;);</span>
+<span class="fc" id="L111">            schemeSpecificPart.append(String.join(&quot;&amp;&quot;, queryParams));</span>
+        }
+        try {
+<span class="fc" id="L114">            return new URI(scheme, schemeSpecificPart.toString(), uriFragment);</span>
+<span class="nc" id="L115">        } catch (final URISyntaxException ex) {</span>
+<span class="nc" id="L116">            throw new IllegalArgumentException(&quot;Invalid URI value&quot;, ex);</span>
+        }
+    }
+
+    static String formatQueryParam(final String key, final String value) {
+<span class="fc" id="L121">        return formatParam(key) + &quot;=&quot; + formatParam(value);</span>
+    }
+
+    static String formatParam(final String param) {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (param != null) {</span>
+<span class="fc" id="L126">            return param;</span>
+        }
+<span class="fc" id="L128">        return &quot;&quot;;</span>
+    }
+
+<span class="fc" id="L131">    private URIBuilder() {</span>
+        // Prevent direct instantiation
+<span class="fc" id="L133">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

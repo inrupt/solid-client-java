@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OpenIdVerificationConfig.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-openid</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.openid</a> &gt; <span class="el_source">OpenIdVerificationConfig.java</span></div><h1>OpenIdVerificationConfig.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.openid;
+
+import java.net.URI;
+
+/**
+ * A class for configuring the verification rules for OpenID Connect ID Tokens.
+ */
+<span class="fc" id="L28">public class OpenIdVerificationConfig {</span>
+
+<span class="fc" id="L30">    private int graceSecs = 60; /* default: one minute */</span>
+    private URI publicKeyLocation; /* default: null */
+    private String audience; /* default: null */
+
+    /**
+     * Get the expiration grace period for the token in seconds.
+     *
+     * @return the expiration grace period, default is 60.
+     */
+    public int getExpGracePeriodSecs() {
+<span class="fc" id="L40">        return graceSecs;</span>
+    }
+
+    /**
+     * Set an expiration grace period for the token in seconds.
+     *
+     * @param graceSecs the expiration grace period
+     */
+    public void setExpGracePeriodSecs(final int graceSecs) {
+<span class="fc" id="L49">        this.graceSecs = graceSecs;</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * Get the expected audience.
+     *
+     * @return the expected audience, default is {@code null}
+     */
+    public String getExpectedAudience() {
+<span class="fc" id="L58">        return audience;</span>
+    }
+
+    /**
+     * Set the expected audience.
+     *
+     * @param audience the expected audience
+     */
+    public void setExpectedAudience(final String audience) {
+<span class="fc" id="L67">        this.audience = audience;</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Get the public signing key location.
+     *
+     * &lt;p&gt;If the public signing key is {@code null}, the ID Token signature is not verified
+     *
+     * @return the public key location, default is {@code null}
+     */
+    public URI getPublicKeyLocation() {
+<span class="fc" id="L78">        return publicKeyLocation;</span>
+    }
+
+    /**
+     * Set the public signing key location.
+     *
+     * &lt;p&gt;If the public signing key location is {@code null}, the ID Token signature is not verified
+     *
+     * @param publicKeyLocation the public signing key location
+     */
+    public void setPublicKeyLocation(final URI publicKeyLocation) {
+<span class="fc" id="L89">        this.publicKeyLocation = publicKeyLocation;</span>
+<span class="fc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Client.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - UMA</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-api</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client</a> &gt; <span class="el_source">Client.java</span></div><h1>Client.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client;
+
+import com.inrupt.client.spi.HttpService;
+
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletionStage;
+
+public interface Client {
+
+    /**
+     * Perform an HTTP request.
+     *
+     * @param request the request
+     * @param responseBodyHandler the response body handler
+     * @param &lt;T&gt; the response handler type
+     * @return the response
+     */
+    &lt;T&gt; Response&lt;T&gt; send(Request request, Response.BodyHandler&lt;T&gt; responseBodyHandler);
+
+    /**
+     * Perform an HTTP request.
+     *
+     * @param request the request
+     * @param responseBodyHandler the response body handler
+     * @param &lt;T&gt; the response handler type
+     * @return the next stage of completion, containing the response
+     */
+    &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; sendAsync(Request request, Response.BodyHandler&lt;T&gt; responseBodyHandler);
+
+    /**
+     * Create a session-scoped client.
+     *
+     * @param session the session manager
+     * @return the session-scoped client
+     */
+    Client session(Session session);
+
+    /**
+     * A session abstraction for managing access tokens for an agent.
+     */
+    interface Session {
+
+        /**
+         * Retrieve the identifier associated with this session.
+         *
+         * @return a session identifier
+         */
+        String getId();
+
+        /**
+         * Retrieve an access token for a request from a cache.
+         *
+         * @param request the HTTP request
+         * @return the access token or {@code null}
+         */
+        Optional&lt;Authenticator.AccessToken&gt; fromCache(Request request);
+
+        /**
+         * Negotiate for an access token.
+         *
+         * @param authenticator the authenticator
+         * @param request the HTTP request
+         * @return the next stage of completion, containing the access token or {@code null}
+         */
+        CompletionStage&lt;Authenticator.AccessToken&gt; negotiate(Authenticator authenticator, Request request);
+
+        /**
+         * Create a new anonymous session.
+         *
+         * @implNote This {@link Session} does not keep a cache of access tokens.
+         * @return the session
+         */
+        static Session anonymous() {
+<span class="nc" id="L95">            final String sessionId = UUID.randomUUID().toString();</span>
+<span class="nc" id="L96">            return new Session() {</span>
+                @Override
+                public String getId() {
+<span class="nc" id="L99">                    return sessionId;</span>
+                }
+
+                @Override
+                public Optional&lt;Authenticator.AccessToken&gt; fromCache(final Request request) {
+<span class="nc" id="L104">                    return Optional.empty();</span>
+                }
+
+                @Override
+                public CompletionStage&lt;Authenticator.AccessToken&gt; negotiate(final Authenticator authenticator,
+                        final Request request) {
+<span class="nc" id="L110">                    return authenticator.authenticateAsync();</span>
+                }
+            };
+        }
+    }
+
+    interface Builder {
+
+        /**
+         * Add a specific {@link HttpService} instance to the builder.
+         *
+         * @param instance the http service
+         * @return this builder
+         */
+        Builder withInstance(HttpService instance);
+
+        /**
+         * Build the client.
+         *
+         * @return the client
+         */
+        Client build();
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

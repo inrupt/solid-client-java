@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Issuer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-vc</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.vc</a> &gt; <span class="el_source">Issuer.java</span></div><h1>Issuer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.vc;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.IOUtils;
+import com.inrupt.client.util.URIBuilder;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * A class for interacting with a VC-API Issuer endpoint.
+ *
+ * @see &lt;a href=&quot;https://w3c-ccg.github.io/vc-api/issuer.html&quot;&gt;VC-API: Issuer&lt;/a&gt;
+ */
+public class Issuer {
+
+    private static final String CONTENT_TYPE = &quot;Content-Type&quot;;
+    private static final String APPLICATION_JSON = &quot;application/json&quot;;
+
+    private final URI baseUri;
+    private final HttpService httpClient;
+    private final JsonService jsonService;
+
+    /**
+     * Create a new Issuer object.
+     *
+     * @param baseUri the base URL for the VC-API
+     */
+    public Issuer(final URI baseUri) {
+<span class="nc" id="L59">        this(baseUri, ServiceProvider.getHttpService());</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Create a new Issuer object for interacting with a VC-API.
+     *
+     * @param baseUri the base URI for the VC-API
+     * @param httpClient an HTTP client
+     */
+<span class="nc" id="L68">    public Issuer(final URI baseUri, final HttpService httpClient) {</span>
+<span class="nc" id="L69">        this.baseUri = baseUri;</span>
+<span class="nc" id="L70">        this.httpClient = httpClient;</span>
+<span class="nc" id="L71">        this.jsonService = ServiceProvider.getJsonService();</span>
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * Synchronously issue a new verifiable credential.
+     *
+     * @param credential the credential to be signed and issued
+     * @return a new Verifiable Credential
+     */
+    public VerifiableCredential issue(final VerifiableCredential credential) {
+<span class="nc" id="L81">        return issueAsync(credential).toCompletableFuture().join();</span>
+    }
+
+    /**
+     * Asynchronously issue a new verifiable credential.
+     *
+     * @param credential the credential to be signed and issued
+     * @return the next stage of completion, containing the new Verifiable Credential
+     */
+    public CompletionStage&lt;VerifiableCredential&gt; issueAsync(final VerifiableCredential credential) {
+<span class="nc" id="L91">        final var req = Request.newBuilder(getIssueUrl())</span>
+<span class="nc" id="L92">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="nc" id="L93">            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))</span>
+<span class="nc" id="L94">            .build();</span>
+
+<span class="nc" id="L96">        return httpClient</span>
+<span class="nc" id="L97">                .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())</span>
+<span class="nc" id="L98">                .thenApply(Response::body);</span>
+    }
+
+    /**
+     * Synchronously update the status of a verifiable credential.
+     *
+     * @param request the status request
+     */
+    public void status(final StatusRequest request) {
+<span class="nc" id="L107">        statusAsync(request).toCompletableFuture().join();</span>
+<span class="nc" id="L108">    }</span>
+
+    /**
+     * Asynchronously update the status of a verifiable credential.
+     *
+     * @param request the status request
+     * @return the next stage of completion
+     */
+    public CompletionStage&lt;Void&gt; statusAsync(final StatusRequest request) {
+<span class="nc" id="L117">        final var req = Request.newBuilder(getStatusUrl())</span>
+<span class="nc" id="L118">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="nc" id="L119">            .POST(ofStatusRequest(request))</span>
+<span class="nc" id="L120">            .build();</span>
+
+<span class="nc" id="L122">        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())</span>
+<span class="nc" id="L123">                .thenApply(res -&gt; {</span>
+<span class="nc" id="L124">                    final int httpStatus = res.statusCode();</span>
+<span class="nc bnc" id="L125" title="All 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="nc" id="L126">                        return res.body();</span>
+                    }
+<span class="nc" id="L128">                    throw new VerifiableCredentialException(</span>
+                        &quot;Unexpected error response when updating status.&quot;,
+                        httpStatus);
+                });
+    }
+
+    /**
+     * A credential status request.
+     */
+    public static final class StatusRequest {
+        private String credentialId;
+        private List&lt;CredentialStatus&gt; credentialStatus;
+
+        /**
+         * Get the credential identifier.
+         *
+         * @return the credential identifier
+         */
+        public String getCredentialId() {
+<span class="nc" id="L147">            return credentialId;</span>
+        }
+
+        /**
+         * Get the credential status values.
+         *
+         * @return the credential status values
+         */
+        public List&lt;CredentialStatus&gt; getCredentialStatus() {
+<span class="nc" id="L156">            return credentialStatus;</span>
+        }
+
+<span class="nc" id="L159">        private StatusRequest(final String credentialId, final List&lt;CredentialStatus&gt; credentialStatus) {</span>
+<span class="nc" id="L160">            this.credentialId = credentialId;</span>
+<span class="nc" id="L161">            this.credentialStatus = credentialStatus;</span>
+<span class="nc" id="L162">        }</span>
+
+        /**
+         * A builder of {@link StatusRequest} objects.
+         */
+<span class="nc" id="L167">        public static final class Builder {</span>
+
+<span class="nc" id="L169">            private List&lt;CredentialStatus&gt; builderCredentialStatus = new ArrayList&lt;&gt;();</span>
+
+            /**
+             * Create a status request builder.
+             *
+             * @return the builder object
+             */
+            public static Builder newBuilder() {
+<span class="nc" id="L177">                return new Builder();</span>
+            }
+
+            /**
+             * Add a credential status declaration.
+             *
+             * @param type the type URI
+             * @param revoked true if the credential is to be revoked; false otherwise
+             * @return this builder object
+             */
+            public Builder credentialStatus(final URI type, final boolean revoked) {
+<span class="nc" id="L188">                builderCredentialStatus.add(new CredentialStatus(type, revoked));</span>
+<span class="nc" id="L189">                return this;</span>
+            }
+
+            /**
+             * Build a {@link StatusRequest} object.
+             *
+             * @param credentialId the credential identifier
+             * @return the status request
+             */
+            public StatusRequest build(final String credentialId) {
+<span class="nc" id="L199">                return new StatusRequest(Objects.requireNonNull(credentialId), builderCredentialStatus);</span>
+            }
+        }
+    }
+
+    /**
+     * A credendial status data holder.
+     */
+    public static final class CredentialStatus {
+
+        private final URI type;
+        private final boolean status;
+
+        /**
+         * Get the credential status type.
+         *
+         * @return the type URI
+         */
+        public URI getType() {
+<span class="nc" id="L218">            return type;</span>
+        }
+
+        /**
+         * Get the status value.
+         *
+         * &lt;p&gt;False is active, true is revoked
+         *
+         * @return true if the credential has been revoked; false otherwise
+         */
+        public Boolean getStatus() {
+<span class="nc" id="L229">            return status;</span>
+        }
+
+<span class="nc" id="L232">        private CredentialStatus(final URI type, final boolean status) {</span>
+<span class="nc" id="L233">            this.type = type;</span>
+<span class="nc" id="L234">            this.status = status;</span>
+<span class="nc" id="L235">        }</span>
+    }
+
+    private Request.BodyPublisher ofStatusRequest(final StatusRequest request) {
+<span class="nc" id="L239">        return IOUtils.buffer(out -&gt; {</span>
+            try {
+<span class="nc" id="L241">                jsonService.toJson(request, out);</span>
+<span class="nc" id="L242">            } catch (final IOException ex) {</span>
+<span class="nc" id="L243">                throw new VerifiableCredentialException(&quot;Error serializing status request&quot;, ex);</span>
+<span class="nc" id="L244">            }</span>
+<span class="nc" id="L245">        });</span>
+    }
+
+    private URI getIssueUrl() {
+<span class="nc" id="L249">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/issue&quot;).build();</span>
+    }
+
+    private URI getStatusUrl() {
+<span class="nc" id="L253">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/status&quot;).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

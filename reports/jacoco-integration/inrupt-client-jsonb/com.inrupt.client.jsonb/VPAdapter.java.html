@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>VPAdapter.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-jsonb</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.jsonb</a> &gt; <span class="el_source">VPAdapter.java</span></div><h1>VPAdapter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.jsonb;
+
+import com.inrupt.client.VerifiableCredential;
+import com.inrupt.client.VerifiablePresentation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.bind.adapter.JsonbAdapter;
+
+<span class="nc" id="L39">public class VPAdapter implements JsonbAdapter&lt;VerifiablePresentation, JsonObject&gt; {</span>
+
+    private static final String CONTEXT = &quot;@context&quot;;
+    private static final String TYPE = &quot;type&quot;;
+    private static final String ID = &quot;id&quot;;
+    private static final String VERIFIABLE_CREDENTIAL = &quot;verifiableCredential&quot;;
+    private static final String PROOF = &quot;proof&quot;;
+    private static final String HOLDER = &quot;holder&quot;;
+
+
+    @Override
+    public JsonObject adaptToJson(final VerifiablePresentation vp) throws Exception {
+<span class="nc" id="L51">        final var result = Json.createObjectBuilder();</span>
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (vp.context != null) {</span>
+<span class="nc" id="L54">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L55">            vp.context.forEach(arrayBuilder::add);</span>
+<span class="nc" id="L56">            result.add(CONTEXT, arrayBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (vp.type != null) {</span>
+<span class="nc" id="L60">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L61">            vp.type.forEach(arrayBuilder::add);</span>
+<span class="nc" id="L62">            result.add(TYPE, arrayBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (vp.id != null) {</span>
+<span class="nc" id="L66">            result.add(ID, vp.id);</span>
+        }
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (vp.holder != null) {</span>
+<span class="nc" id="L70">            result.add(HOLDER, vp.holder);</span>
+        }
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (vp.verifiableCredential != null) {</span>
+<span class="nc" id="L74">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L75">            final var itVC = vp.verifiableCredential.iterator();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            while (itVC.hasNext()) {</span>
+<span class="nc" id="L77">                arrayBuilder.add(new VCAdapter().adaptToJson(itVC.next()));</span>
+            }
+<span class="nc" id="L79">            result.add(VERIFIABLE_CREDENTIAL, arrayBuilder.build());</span>
+        }
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (vp.proof != null) {</span>
+<span class="nc" id="L83">            final var itProof = vp.proof.entrySet().iterator();</span>
+<span class="nc" id="L84">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            while (itProof.hasNext()) {</span>
+<span class="nc" id="L86">                addRightJsonType(objectBuilder, itProof.next());</span>
+            }
+<span class="nc" id="L88">            result.add(PROOF, objectBuilder.build());</span>
+        }
+
+<span class="nc" id="L91">        return result.build();</span>
+    }
+
+    @Override
+    public VerifiablePresentation adaptFromJson(final JsonObject adapted) throws Exception {
+<span class="nc" id="L96">        final var vp = new VerifiablePresentation();</span>
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (adapted.containsKey(CONTEXT)) {</span>
+<span class="nc" id="L99">            vp.context = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L100">            final var jsonArrayContext = adapted.getJsonArray(CONTEXT);</span>
+<span class="nc" id="L101">            jsonArrayContext.forEach(value -&gt; vp.context.add(((JsonString) value).getString()));</span>
+        }
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (adapted.containsKey(ID)) {</span>
+<span class="nc" id="L105">            vp.id = adapted.getString(ID);</span>
+        }
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (adapted.containsKey(TYPE)) {</span>
+<span class="nc" id="L109">            final var jsonArrayType = adapted.getJsonArray(TYPE);</span>
+<span class="nc" id="L110">            vp.type = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L111">            jsonArrayType.forEach(value -&gt; vp.type.add(((JsonString) value).getString()));</span>
+        }
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (adapted.containsKey(HOLDER)) {</span>
+<span class="nc" id="L115">            vp.holder = adapted.getString(HOLDER);</span>
+        }
+
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (adapted.containsKey(VERIFIABLE_CREDENTIAL)) {</span>
+<span class="nc" id="L119">            vp.verifiableCredential = new ArrayList&lt;VerifiableCredential&gt;();</span>
+<span class="nc" id="L120">            final var jsonArrayContext = adapted.getJsonArray(VERIFIABLE_CREDENTIAL);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            for (final var value : jsonArrayContext) {</span>
+<span class="nc" id="L122">                vp.verifiableCredential.add(new VCAdapter().adaptFromJson(value.asJsonObject()));</span>
+<span class="nc" id="L123">            }</span>
+        }
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (adapted.containsKey(PROOF)) {</span>
+<span class="nc" id="L127">            vp.proof = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L128">            final var jsonObject = adapted.getJsonObject(PROOF);</span>
+<span class="nc" id="L129">            vp.proof.putAll(jsonObject);</span>
+        }
+
+<span class="nc" id="L132">        return vp;</span>
+    }
+
+    private &lt;T&gt; void addRightJsonType(final JsonObjectBuilder objectBuilder, final Entry&lt;String, T&gt; entry) {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonString) {</span>
+<span class="nc" id="L137">            objectBuilder.add(entry.getKey(), (JsonString) entry.getValue());</span>
+        }
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonNumber) {</span>
+<span class="nc" id="L140">            objectBuilder.add(entry.getKey(), (JsonNumber) entry.getValue());</span>
+        }
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonArray) {</span>
+<span class="nc" id="L143">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L144">            ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);</span>
+<span class="nc" id="L145">            final var jsonArray = arrayBuilder.build();</span>
+<span class="nc" id="L146">            objectBuilder.add(entry.getKey(), jsonArray);</span>
+        }
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonValue) {</span>
+<span class="nc" id="L149">            objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());</span>
+        }
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (entry.getValue() instanceof JsonObject) {</span>
+<span class="nc" id="L152">            final var object = Json.createObjectBuilder();</span>
+<span class="nc" id="L153">            final var it = ((JsonObject) entry.getValue()).entrySet().iterator();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            while (it.hasNext()) {</span>
+<span class="nc" id="L155">                addRightJsonType(object, it.next());</span>
+            }
+<span class="nc" id="L157">            objectBuilder.add(entry.getKey(), object);</span>
+        }
+<span class="nc" id="L159">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

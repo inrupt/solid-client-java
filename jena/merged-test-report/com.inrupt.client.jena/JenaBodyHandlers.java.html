@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JenaBodyHandlers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - Jena</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.jena</a> &gt; <span class="el_source">JenaBodyHandlers.java</span></div><h1>JenaBodyHandlers.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.jena;
+
+import com.inrupt.client.Response;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+import org.apache.jena.atlas.web.ContentType;
+import org.apache.jena.graph.Factory;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFLanguages;
+
+/**
+ * {@link Response.BodyHandler} implementations for use with Jena types.
+ */
+public final class JenaBodyHandlers {
+
+    private static final String CONTENT_TYPE = &quot;Content-Type&quot;;
+
+    /**
+     * Populate a Jena {@link Model} with an HTTP response body.
+     *
+     * @return an HTTP body handler
+     */
+    public static Response.BodyHandler&lt;Model&gt; ofModel() {
+<span class="fc" id="L53">        return responseInfo -&gt; responseInfo.headers().firstValue(CONTENT_TYPE)</span>
+<span class="fc" id="L54">            .map(JenaBodyHandlers::toJenaLang).map(lang -&gt; {</span>
+<span class="fc" id="L55">                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
+<span class="fc" id="L56">                    final var model = ModelFactory.createDefaultModel();</span>
+<span class="fc" id="L57">                    RDFDataMgr.read(model, input, responseInfo.uri().toString(), lang);</span>
+<span class="fc" id="L58">                    return model;</span>
+<span class="nc" id="L59">                } catch (final IOException ex) {</span>
+<span class="nc" id="L60">                    throw new UncheckedIOException(</span>
+                            &quot;An I/O error occurred while data was read from the InputStream into a Model&quot;, ex);
+                }
+            })
+<span class="fc" id="L64">            .orElseGet(ModelFactory::createDefaultModel);</span>
+    }
+
+    /**
+     * Populate a Jena {@link Graph} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     */
+    public static Response.BodyHandler&lt;Graph&gt; ofGraph() {
+<span class="fc" id="L73">        return responseInfo -&gt; responseInfo.headers().firstValue(CONTENT_TYPE)</span>
+<span class="fc" id="L74">            .map(JenaBodyHandlers::toJenaLang).map(lang -&gt; {</span>
+<span class="fc" id="L75">                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
+<span class="fc" id="L76">                    final var graph = Factory.createDefaultGraph();</span>
+<span class="fc" id="L77">                    RDFDataMgr.read(graph, input, responseInfo.uri().toString(), lang);</span>
+<span class="fc" id="L78">                    return graph;</span>
+<span class="nc" id="L79">                } catch (final IOException ex) {</span>
+<span class="nc" id="L80">                    throw new UncheckedIOException(</span>
+                            &quot;An I/O error occurred while data was read from the InputStream into a Graph&quot;, ex);
+                }
+            })
+<span class="fc" id="L84">            .orElseGet(Factory::createDefaultGraph);</span>
+    }
+
+    /**
+     * Populate a Jena {@link Dataset} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     */
+    public static Response.BodyHandler&lt;Dataset&gt; ofDataset() {
+<span class="fc" id="L93">        return responseInfo -&gt; responseInfo.headers().firstValue(CONTENT_TYPE)</span>
+<span class="fc" id="L94">            .map(JenaBodyHandlers::toJenaLang).map(lang -&gt; {</span>
+<span class="fc" id="L95">                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
+<span class="fc" id="L96">                    final var dataset = DatasetFactory.create();</span>
+<span class="fc" id="L97">                    RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);</span>
+<span class="fc" id="L98">                    return dataset;</span>
+<span class="nc" id="L99">                } catch (final IOException ex) {</span>
+<span class="nc" id="L100">                    throw new UncheckedIOException(</span>
+                            &quot;An I/O error occurred while data was read from the InputStream into a Dataset&quot;, ex);
+                }
+            })
+<span class="fc" id="L104">            .orElseGet(DatasetFactory::create);</span>
+    }
+
+    static Lang toJenaLang(final String mediaType) {
+<span class="fc" id="L108">        return RDFLanguages.contentTypeToLang(ContentType.create(mediaType));</span>
+    }
+
+    private JenaBodyHandlers() {
+        // Prevent instantiation
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
