@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"solid()"},{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"SolidResource()","url":"%3Cinit%3E()"}]
