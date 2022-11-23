@@ -30,14 +30,11 @@ jobs:
       - name: Build the code with Maven
         run: ./mvnw -B -ntp clean install site site:stage
 
-      - name: Copy Resources
-        run: sh scripts/move-site-modules.sh
-
       - name: Publish to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.actor != 'dependabot[bot]'
         with:
-          publish_dir: ./target/site/
+          publish_dir: ./target/staging/
           personal_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy Artifacts
