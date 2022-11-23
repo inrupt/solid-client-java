@@ -191,7 +191,7 @@ class DefaultClientTest {
     }
 
     public static class CustomConfig implements Client.Config {
-        public long getRetryRedirects() {
+        public long getMaxRedirects() {
             return 10;
         }
     }

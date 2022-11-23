@@ -118,15 +118,15 @@ public interface Client {
      */
     interface Config {
 
-        long DEFAULT_RETRY_REDIRECTS = 5;
+        long DEFAULT_MAX_REDIRECTS = 5;
 
         /**
          * Set the number of retry redirects.
          *
          * @return the number of retry redirects
          */
-        default long getRetryRedirects() {
-            return DEFAULT_RETRY_REDIRECTS;
+        default long getMaxRedirects() {
+            return DEFAULT_MAX_REDIRECTS;
         }
 
     }
