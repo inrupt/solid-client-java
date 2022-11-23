@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-httpclient</artifactId>
-  <name>Inrupt Solid Client - HttpClient support</name>
+  <name>Inrupt Client Libraries - HttpClient</name>
   <description>
       The HttpClient bindings for the Inrupt Client Libraries.
   </description>

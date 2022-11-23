@@ -258,15 +258,13 @@ public class OpenIdProvider {
 
     static Request.BodyPublisher ofFormData(final Map<String, String> data) {
         final String form = data.entrySet().stream().map(entry -> {
-            String name = "";
-            String value = "";
             try {
-                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
-                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
+                final String name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
+                final String value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
+                return String.join(EQUALS, name, value);
             } catch (UnsupportedEncodingException e) {
                 throw new OpenIdException("Error encoding form data", e);
             }
-            return String.join(EQUALS, name, value);
         }).collect(Collectors.joining(ETC));
 
         return Request.BodyPublishers.ofString(form);

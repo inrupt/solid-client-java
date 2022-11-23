@@ -8,20 +8,15 @@
   </parent>
 
   <artifactId>inrupt-client-webid</artifactId>
-  <name>Inrupt Solid Client - WebID</name>
+  <name>Inrupt Client Libraries - WebID</name>
   <description>
-      WebID Profile body handlers for the Inrupt Client Libraries.
+      WebID Profile integration for the Inrupt Client Libraries.
   </description>
 
   <dependencies>
     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -34,6 +29,12 @@
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-core</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

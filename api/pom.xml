@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-api</artifactId>
-  <name>Inrupt Solid Client - API</name>
+  <name>Inrupt Client Libraries - API</name>
   <description>
       The Application Programming Interfaces for the Inrupt Client Libraries.
   </description>

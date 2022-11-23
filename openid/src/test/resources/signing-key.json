@@ -1,0 +1,11 @@
+{
+    "kty":"EC",
+    "kid":"y396d_kY6lJO-WhO2lcajg",
+    "use":"sig",
+    "alg":"ES256",
+    "x":"tQCTyFENxDr3VuxkgjMMf6lUnskvyQb7hhQ4XnavU5k",
+    "y":"YgwHewrm2f6Ry96NHSARI8BxsPprr2oU5ERUWmU-6wc",
+    "crv":"P-256",
+    "d":"gvkfl3VXqD_KFxQF-1x4fe8m_1pgE83FVUUdTE7qFfw"
+}
+

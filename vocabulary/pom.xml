@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-vocabulary</artifactId>
-  <name>Inrupt Solid Client - Vocabulary</name>
+  <name>Inrupt Client Libraries - Vocabulary</name>
   <description>
       RDF Vocabulary constants for the Inrupt Client Libraries.
   </description>

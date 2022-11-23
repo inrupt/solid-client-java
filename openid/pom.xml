@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-openid</artifactId>
-  <name>Inrupt Solid Client - OpenID</name>
+  <name>Inrupt Client Libraries - OpenID</name>
   <description>
       An OpenID library for the Inrupt Client Libraries.
   </description>
@@ -25,9 +25,12 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-core</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.bitbucket.b_c</groupId>
+      <artifactId>jose4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
     </dependency>
 
     <!-- test dependencies -->
@@ -56,6 +59,16 @@
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-jackson</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
