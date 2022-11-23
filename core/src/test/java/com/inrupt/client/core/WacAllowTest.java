@@ -23,6 +23,7 @@ package com.inrupt.client.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,9 +42,7 @@ class WacAllowTest {
     void parseSingleAccessParam() {
         final String header = "WAC-Allow: user=\"read\"";
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
-        final Map<String, Set<String>> expected = new HashMap<String, Set<String>>(){{
-                put("user", new HashSet<String>(Arrays.asList("read")));
-            }};
+        final Map<String, Set<String>> expected = Collections.singletonMap("user", Collections.singleton("read"));
 
         assertEquals(expected, accessParams);
     }
@@ -77,9 +76,7 @@ class WacAllowTest {
     void trimAccessMode() {
         final String header = "WAC-Allow: user=\"    read   \"";
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
-        final Map<String, Set<String>> expected = new HashMap<String, Set<String>>(){{
-                    put("user", new HashSet<String>(Arrays.asList("read")));
-            }};
+        final Map<String, Set<String>> expected = Collections.singletonMap("user", Collections.singleton("read"));
 
         assertEquals(expected, accessParams);
     }
@@ -95,13 +92,13 @@ class WacAllowTest {
     private static Stream<Arguments> parseListedAccessModes() {
         return Stream.of(
                 Arguments.of("WAC-Allow: user=\"read write\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read", "write")));
-                        }}),
+                    Collections.singletonMap("user", 
+                            new HashSet<String>(Arrays.asList("read", "write"))
+                        )),
                 Arguments.of("WAC-Allow: user=\"read write append\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read", "write", "append")));
-                        }}));
+                    Collections.singletonMap("user", 
+                            new HashSet<String>(Arrays.asList("read", "write", "append"))
+                        )));
     }
 
     @ParameterizedTest
@@ -114,21 +111,21 @@ class WacAllowTest {
     private static Stream<Arguments> parseWhiteSpaceEdgeCases() {
         return Stream.of(
                 Arguments.of("WAC-Allow: user=\"read    write\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read", "write")));
-                        }}),
+                Collections.singletonMap("user", 
+                        new HashSet<String>(Arrays.asList("read", "write"))
+                    )),
                 Arguments.of("WAC-Allow: user=\"    read write    \"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read", "write")));
-                        }}),
+                    Collections.singletonMap("user", 
+                        new HashSet<String>(Arrays.asList("read", "write"))
+                    )),
                 Arguments.of("WAC-Allow: user=\"read    write      append\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read", "write", "append")));
-                        }}),
+                    Collections.singletonMap("user", 
+                        new HashSet<String>(Arrays.asList("read", "write", "append"))
+                    )),
                 Arguments.of("WAC-Allow: user=\"    read write append   \"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read", "write", "append")));
-                        }}));
+                    Collections.singletonMap("user", 
+                        new HashSet<String>(Arrays.asList("read", "write", "append"))
+                    )));
     }
 
     @ParameterizedTest
@@ -141,9 +138,9 @@ class WacAllowTest {
     private static Stream<Arguments> parseListedAccessParams() {
         return Stream.of(
                 Arguments.of("WAC-Allow: public=\"read\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("public", new HashSet<String>(Arrays.asList("read")));
-                        }}),
+                    Collections.singletonMap("public", 
+                        new HashSet<String>(Arrays.asList("read"))
+                    )),
                 Arguments.of("WAC-Allow: user=\"read\", public=\"read\"",
                     new HashMap<String, Set<String>>(){{
                             put("user", new HashSet<String>(Arrays.asList("read")));
@@ -193,31 +190,15 @@ class WacAllowTest {
     }
 
     private static Stream<Arguments> parseAbnfListExtension() {
+        final Map<String, Set<String>> data = new HashMap<>();
+        data.put("user", Collections.singleton("read"));
+        data.put("public", Collections.singleton("read"));
+
         return Stream.of(
-                Arguments.of("WAC-Allow: user=\"read\",public=\"read\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read")));
-                            put("public", new HashSet<String>(Arrays.asList("read")));
-                        }}),
-                Arguments.of("WAC-Allow: user=\"read\" ,public=\"read\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read")));
-                            put("public", new HashSet<String>(Arrays.asList("read")));
-                        }}),
-                Arguments.of("WAC-Allow: user=\"read\" , public=\"read\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read")));
-                            put("public", new HashSet<String>(Arrays.asList("read")));
-                        }}),
-                Arguments.of("WAC-Allow: user=\"read\",, public=\"read\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read")));
-                            put("public", new HashSet<String>(Arrays.asList("read")));
-                        }}),
-                Arguments.of("WAC-Allow: ,,user=\"read\", public=\"read\"",
-                    new HashMap<String, Set<String>>(){{
-                            put("user", new HashSet<String>(Arrays.asList("read")));
-                            put("public", new HashSet<String>(Arrays.asList("read")));
-                        }}));
+                Arguments.of("WAC-Allow: user=\"read\",public=\"read\"", data),
+                Arguments.of("WAC-Allow: user=\"read\" ,public=\"read\"", data),
+                Arguments.of("WAC-Allow: user=\"read\" , public=\"read\"", data),
+                Arguments.of("WAC-Allow: user=\"read\",, public=\"read\"", data),
+                Arguments.of("WAC-Allow: ,,user=\"read\", public=\"read\"", data));
     }
 }

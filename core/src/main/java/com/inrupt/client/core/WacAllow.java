@@ -200,7 +200,7 @@ public final class WacAllow {
                                                             .toArray(String[]::new);
                         if (accessModes.length > 0) {
                             accessParams.computeIfAbsent(parts[0], k -> new HashSet<>())
-                                        .addAll(Set.of(accessModes));
+                                        .addAll(Arrays.asList(accessModes));
                         }
                     }
                 }
