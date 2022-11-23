@@ -92,11 +92,11 @@ class WacAllowTest {
     private static Stream<Arguments> parseListedAccessModes() {
         return Stream.of(
                 Arguments.of("WAC-Allow: user=\"read write\"",
-                    Collections.singletonMap("user", 
+                    Collections.singletonMap("user",
                             new HashSet<String>(Arrays.asList("read", "write"))
                         )),
                 Arguments.of("WAC-Allow: user=\"read write append\"",
-                    Collections.singletonMap("user", 
+                    Collections.singletonMap("user",
                             new HashSet<String>(Arrays.asList("read", "write", "append"))
                         )));
     }
@@ -111,19 +111,19 @@ class WacAllowTest {
     private static Stream<Arguments> parseWhiteSpaceEdgeCases() {
         return Stream.of(
                 Arguments.of("WAC-Allow: user=\"read    write\"",
-                Collections.singletonMap("user", 
+                Collections.singletonMap("user",
                         new HashSet<String>(Arrays.asList("read", "write"))
                     )),
                 Arguments.of("WAC-Allow: user=\"    read write    \"",
-                    Collections.singletonMap("user", 
+                    Collections.singletonMap("user",
                         new HashSet<String>(Arrays.asList("read", "write"))
                     )),
                 Arguments.of("WAC-Allow: user=\"read    write      append\"",
-                    Collections.singletonMap("user", 
+                    Collections.singletonMap("user",
                         new HashSet<String>(Arrays.asList("read", "write", "append"))
                     )),
                 Arguments.of("WAC-Allow: user=\"    read write append   \"",
-                    Collections.singletonMap("user", 
+                    Collections.singletonMap("user",
                         new HashSet<String>(Arrays.asList("read", "write", "append"))
                     )));
     }
@@ -138,7 +138,7 @@ class WacAllowTest {
     private static Stream<Arguments> parseListedAccessParams() {
         return Stream.of(
                 Arguments.of("WAC-Allow: public=\"read\"",
-                    Collections.singletonMap("public", 
+                    Collections.singletonMap("public",
                         new HashSet<String>(Arrays.asList("read"))
                     )),
                 Arguments.of("WAC-Allow: user=\"read\", public=\"read\"",
