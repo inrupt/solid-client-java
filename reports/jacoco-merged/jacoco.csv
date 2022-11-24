@@ -27,7 +27,7 @@ Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,WacAl
 Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,Link.Parser.LinkListener,7,112,8,14,2,17,8,9,0,6
 Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,Link.Parser,0,87,2,2,0,23,2,5,0,5
 Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,DefaultRegistry,0,81,1,5,0,18,1,5,0,3
-Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,WacAllow.Parser.AccessParamListener,2,87,2,8,1,16,2,9,0,6
+Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,WacAllow.Parser.AccessParamListener,2,93,2,10,1,16,2,11,0,7
 Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,DefaultDpopService.DPoPManager,30,105,4,4,5,25,3,4,0,3
 Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,DefaultClient.Builder,12,12,1,1,3,3,2,2,1,2
 Inrupt Client Libraries - Report/inrupt-client-core,com.inrupt.client.core,UmaAuthenticationProvider,13,60,5,5,3,16,6,5,1,5
