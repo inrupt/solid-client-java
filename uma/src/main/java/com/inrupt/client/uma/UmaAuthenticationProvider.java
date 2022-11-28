@@ -18,10 +18,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.core;
+package com.inrupt.client.uma;
 
 import com.inrupt.client.Authenticator;
-import com.inrupt.client.uma.*;
+import com.inrupt.client.Request;
+import com.inrupt.client.Session;
+import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.net.URI;
 import java.time.Instant;
@@ -42,7 +44,7 @@ import java.util.concurrent.CompletionStage;
  * @see <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html">User
  * Managed Access (UMA) 2.0 Grant for OAuth 2.0 Authorization</a>
  */
-public class UmaAuthenticationProvider implements Authenticator.Provider {
+public class UmaAuthenticationProvider implements AuthenticationProvider {
 
     private static final String UMA = "UMA";
     private static final String AS_URI = "as_uri";
@@ -51,6 +53,10 @@ public class UmaAuthenticationProvider implements Authenticator.Provider {
     private final int priorityLevel;
     private final UmaClient umaClient;
     private final NeedInfoHandler claimHandler;
+
+    public UmaAuthenticationProvider() {
+        this(100);
+    }
 
     /**
      * Create a {@link UmaAuthenticationProvider} with a defined priority.
@@ -90,7 +96,7 @@ public class UmaAuthenticationProvider implements Authenticator.Provider {
                 !UMA.equalsIgnoreCase(challenge.getScheme()) ||
                 challenge.getParameter(AS_URI) == null ||
                 challenge.getParameter(TICKET) == null) {
-            throw new AuthenticationException("Invalid challenge for UMA authentication");
+            throw new UmaException("Invalid challenge for UMA authentication");
         }
     }
 
@@ -139,23 +145,23 @@ public class UmaAuthenticationProvider implements Authenticator.Provider {
         }
 
         @Override
-        public AccessToken authenticate() {
-            return authenticateAsync().toCompletableFuture().join();
+        public AccessToken authenticate(final Session session, final Request request) {
+            return authenticateAsync(session, request).toCompletableFuture().join();
         }
 
         @Override
-        public CompletionStage<AccessToken> authenticateAsync() {
+        public CompletionStage<AccessToken> authenticateAsync(final Session session, final Request request) {
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
 
-            final TokenRequest request = new TokenRequest(ticket, null, null, null, Collections.emptyList());
+            final TokenRequest req = new TokenRequest(ticket, null, null, null, Collections.emptyList());
             // TODO add the dpop algorithm
             final String proofAlgorithm = null;
             return umaClient.metadataAsync(as)
-                .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, request,
+                .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, req,
                             claimHandler::async))
                 .thenApply(token -> new AccessToken(token.accessToken, token.tokenType,
-                            Instant.now().plusSeconds(token.expiresIn), getScopes(token), proofAlgorithm));
+                            Instant.now().plusSeconds(token.expiresIn), as, getScopes(token), proofAlgorithm));
         }
     }
 

@@ -22,11 +22,15 @@ package com.inrupt.client.core;
 
 import com.inrupt.client.Authenticator;
 import com.inrupt.client.Client;
+import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.Session;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -40,23 +44,22 @@ public final class DefaultClient implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultClient.class);
 
     private final HttpService httpClient;
-    private final Authenticator.Registry registry;
-    private final Client.Session session;
+    private final Session session;
+    private final AuthorizationHandler authHandler;
 
     private DefaultClient(final HttpService httpClient) {
-        this(httpClient, new DefaultRegistry(), Client.Session.anonymous());
+        this(httpClient, Session.anonymous());
     }
 
-    private DefaultClient(final HttpService httpClient, final Authenticator.Registry registry,
-            final Client.Session session) {
+    private DefaultClient(final HttpService httpClient, final Session session) {
+        this.authHandler = new AuthorizationHandler();
         this.httpClient = httpClient;
-        this.registry = registry;
         this.session = session;
     }
 
     @Override
     public Client session(final Session session) {
-        return new DefaultClient(this.httpClient, this.registry, session);
+        return new DefaultClient(this.httpClient, session);
     }
 
     @Override
@@ -81,22 +84,28 @@ public final class DefaultClient implements Client {
             .orElseGet(() -> httpClient.sendAsync(request, responseBodyHandler)
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
-                        final List<Authenticator> authenticators = registry
-                            .challenge(res.headers().allValues("WWW-Authenticate"));
-                        if (!authenticators.isEmpty()) {
-                            // Use the first mechanism
-                            final Authenticator authenticator = authenticators.get(0);
-                            LOGGER.debug("Using {} authenticator", authenticator.getName());
-                            return session.negotiate(authenticator, request)
-                                .thenCompose(token ->
-                                        httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler));
-                        }
+                        return authHandler.negotiate(session, request, res.headers().allValues("WWW-Authenticate"))
+                            .thenCompose(token -> token.map(t ->
+                                        httpClient.sendAsync(upgradeRequest(request, t), responseBodyHandler))
+                                    .orElseGet(() -> CompletableFuture.completedFuture(res)));
+
                     }
                     return CompletableFuture.completedFuture(res);
                 }));
     }
 
-    Request upgradeRequest(final Request request, final Authenticator.AccessToken token) {
+    public List<Authenticator.Challenge> parseChallenges(final Collection<String> headers) {
+        final List<Authenticator.Challenge> challenges = new ArrayList<>();
+        for (final String header : headers) {
+            final WwwAuthenticate wwwAuthenticate = WwwAuthenticate.parse(header);
+            for (final Authenticator.Challenge challenge : wwwAuthenticate.getChallenges()) {
+                challenges.add(challenge);
+            }
+        }
+        return challenges;
+    }
+
+    Request upgradeRequest(final Request request, final Session.Credential token) {
         final Request.Builder builder = Request.newBuilder()
             .uri(request.uri())
             .method(request.method(), request.bodyPublisher().orElseGet(Request.BodyPublishers::noBody));
@@ -110,14 +119,14 @@ public final class DefaultClient implements Client {
         });
 
         // Use setHeader to overwrite any possible existing authorization header
-        builder.setHeader("Authorization", String.join(" ", token.getType(), token.getToken()));
-        token.getProofAlgorithm().ifPresent(algorithm -> {
-            if ("DPoP".equalsIgnoreCase(token.getType())) {
-                // TODO - Support DPoP proofs, if relevant
+        builder.setHeader("Authorization", String.join(" ", token.getScheme(), token.getToken()));
+        // TODO - Support DPoP proofs, if relevant
+        //session.getProofAlgorithm().ifPresent(algorithm -> {
+            //if ("DPoP".equalsIgnoreCase(token.getType())) {
                 //builder.setHeader("DPoP",
                         //authenticator.generateProof(algorithm, request.uri(), request.method()));
-            }
-        });
+            //}
+        //});
 
         return builder.build();
     }
