@@ -24,69 +24,68 @@
  * <p>This module uses the {@code OpenIdProvider} to interact with a OpenId Provider
  * as described in the <a href="https://solidproject.org/TR/oidc-primer"> Solid-OIDC Primer v 0.1.0</a>
  * 
- * <p>{@code OpenIdProvider} helps in the interaction with the token endpoint and to construct helper requests for authentication.
+ * <p>{@code OpenIdProvider} helps in the interaction with the token endpoint and to construct helper
+ * requests for authentication.
  * 
- * <h3>Discovering the openID configuration:
+ * <h3>Discovering the openID configuration</h3>
  *
  * <pre>{@code
- *   Client client = ClientProvider.getClient();
- *   OpenIdProvider openIdProvider = new OpenIdProvider(URI.create("https://issuer.example"), client));
- *
- *   Metadata opConfig = openIdProvider.metadata();
- *
- *   System.out.println("Authorization endpoint is: " + opConfig.authorizationEndpoint.toString());
- *   System.out.println("Token endpoint is: " + opConfig.tokenEndpoint.toString());
- *
+   Client client = ClientProvider.getClient();
+   OpenIdProvider openIdProvider = new OpenIdProvider(URI.create("https://issuer.example"), client));
+
+   Metadata opConfig = openIdProvider.metadata();
+
+   System.out.println("Authorization endpoint is: " + opConfig.authorizationEndpoint.toString());
+   System.out.println("Token endpoint is: " + opConfig.tokenEndpoint.toString());
  * }</pre>
  * 
- * <h3>Optaining an Access Token:
+ * <h3>Optaining an Access Token</h3>
  * 
  * <pre>{@code
- *   Client client = ClientProvider.getClient();
- * 
- *   AuthorizationRequest authReq = AuthorizationRequest.newBuilder()
- *     .responseType("code") //required response_type
- *     .scope(URI.create("openid webid offline_access")) //required scope
- *     .build(
- *           "s6BhdRkqt3", //required client_id
- *           URI.create("https://example.example/callback"); //required redirect_uri
- *  
- *  Request authorizationRequest = Request.newBuilder()
- *           .uri(URI.create(openIdProvider.authorize(authReq)))
- *           .GET()
- *           .build();
- * 
- *  Response authorizationResponse = client.send(authorizationRequest, Response.BodyHandlers.ofString());
- *
+   Client client = ClientProvider.getClient();
+
+   AuthorizationRequest authReq = AuthorizationRequest.newBuilder()
+      .responseType("code") //required response_type
+      .scope(URI.create("openid webid offline_access")) //required scope
+      .build(
+            "s6BhdRkqt3", //required client_id
+            URI.create("https://example.example/callback"); //required redirect_uri
+
+   Request authorizationRequest = Request.newBuilder()
+            .uri(URI.create(openIdProvider.authorize(authReq)))
+            .GET()
+            .build();
+
+   Response authorizationResponse = client.send(authorizationRequest, Response.BodyHandlers.ofString());
  * }</pre>
  * 
- * <h3>Obtaining a ID token:
+ * <h3>Obtaining a ID token</h3>
  * 
  * <pre>{@code
- *   TokenRequest tokenReq = TokenRequest.newBuilder()
- *           .code("code")
- *           .codeVerifier("myCodeverifier")
- *           .clientSecret("myClientSecret")
- *           .authMethod("client_secret_basic")
- *           .build(
- *               "authorization_code",
- *               "s6BhdRkqt3", //same client_id as from the authorization
- *               URI.create("https://example.example/callback") //redirect_uri
- *           );
- *   TokenResponse token = openIdProvider.token(tokenReq);
- *  
- *   System.out.println("ID Token: " + token.idToken);
- *   System.out.println("Token type: " + token.tokenType);
+   TokenRequest tokenReq = TokenRequest.newBuilder()
+            .code("code")
+            .codeVerifier("myCodeverifier")
+            .clientSecret("myClientSecret")
+            .authMethod("client_secret_basic")
+            .build(
+               "authorization_code",
+               "s6BhdRkqt3", //same client_id as from the authorization
+               URI.create("https://example.example/callback") //redirect_uri
+            );
+   TokenResponse token = openIdProvider.token(tokenReq);
+
+   System.out.println("ID Token: " + token.idToken);
+   System.out.println("Token type: " + token.tokenType);
  * }</pre>
  * 
  * <h3>If we already have a session, we can use it with the ID Tokens serialized as signed
  * JWTs. This abstraction can be used to make use of identity-based authorization
- * in Solid.
+ * in Solid.</h3>
  *
  * <pre>{@code
- *   Client client = ClientProvider.getClient();
- *   Session session = client.session(OpenIdSession.ofIdToken(jwt));
- *   Response res = session.send(req, bodyHandler);
+   Client client = ClientProvider.getClient();
+   Session session = client.session(OpenIdSession.ofIdToken(jwt));
+   Response res = session.send(req, bodyHandler);
  * }</pre>
  *
  * <p>A developer can configure aspects of the ID Token validation.
@@ -95,37 +94,37 @@
  * is not enabled, but it can be turned on via configuration, as can audience verification.
  *
  * <pre>{@code
- *   Client client = ClientProvider.getClient();
- * 
- *   OpenIdVerificationConfig config = new OpenIdVerificationConfig();
- *   config.setExpectedAudience("https://app.example/id");
- *   config.setPublicKeyLocation("https://issuer.example/jwks");
- *   config.setExpGracePeriodSecs(60);
- * 
- *   Session session = client.session(OpenIdSession.ofIdToken(jwt, config));
- * 
- *   Response res = session.send(req, bodyHandler);
+   Client client = ClientProvider.getClient();
+
+   OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+   config.setExpectedAudience("https://app.example/id");
+   config.setPublicKeyLocation("https://issuer.example/jwks");
+   config.setExpGracePeriodSecs(60);
+
+   Session session = client.session(OpenIdSession.ofIdToken(jwt, config));
+
+   Response res = session.send(req, bodyHandler);
  * }</pre>
  * 
  * <p>An invalid token will throw an {@link OpenIdException} during session creation.
  * 
- * <h3>Ending the session:
+ * <h3>Ending the session.</h3>
  * 
  * <pre>{@code
- *   EndSessionRequest endReq = EndSessionRequest.Builder.newBuilder()
- *           .postLogoutRedirectUri(URI.create("https://example.example/callback")) //redirect_uri
- *           .clientId("s6BhdRkqt3") //client_id
- *           .state("code")
- *           .build();
- *
- *   URI uri = openIdProvider.endSession(endReq);
+   EndSessionRequest endReq = EndSessionRequest.Builder.newBuilder()
+         .postLogoutRedirectUri(URI.create("https://example.example/callback")) //redirect_uri
+         .clientId("s6BhdRkqt3") //client_id
+         .state("code")
+         .build();
+
+   URI uri = openIdProvider.endSession(endReq);
  * }</pre>
  * 
- * <h3>Generating a PKCE code challenge and verifier:
+ * <h3>Generating a PKCE code challenge and verifier.</h3>
  * 
  * <pre>{@code
- *   String verifier = PKCE.createVerifier();
- *   String challenge = PKCE.createChallenge(verifier);
+   String verifier = PKCE.createVerifier();
+   String challenge = PKCE.createChallenge(verifier);
  * }</pre>
  * 
  */
