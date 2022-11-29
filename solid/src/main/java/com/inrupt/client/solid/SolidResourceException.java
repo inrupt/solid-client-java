@@ -27,6 +27,7 @@ import com.inrupt.client.InruptClientException;
  */
 public class SolidResourceException extends InruptClientException {
 
+    private static final long serialVersionUID = 2812695548792441025L;
     /**
      * Create a SolidResource exception.
      *
