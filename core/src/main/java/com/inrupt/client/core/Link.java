@@ -115,6 +115,25 @@ public final class Link {
     }
 
     /**
+     * Create a new Link object with a specific URI-Reference.
+     *
+     * @param uri the link URI
+     * @return the new {@link Link} object
+     */
+    public static Link of(final URI uri) {
+        return Link.of(uri, new HashMap<>());
+    }
+    /**
+     * Create a new Link object with a specific URI-Reference and relation parameter.
+     *
+     * @param uri the link URI
+     * @param rel the relation parameter value
+     * @return the new {@link Link} object
+     */
+    public static Link of(final URI uri, String rel) {
+        return Link.of(uri, Collections.singletonMap("rel", rel));
+    }
+    /**
      * Create a new Link object with a specific URI-Reference and parameters.
      *
      * @param uri the link URI
