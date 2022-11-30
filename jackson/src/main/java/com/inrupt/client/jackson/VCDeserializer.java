@@ -43,8 +43,6 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
     private static final String CREDENTIAL_SUBJECT = "credentialSubject";
     private static final String CREDENTIAL_STATUS = "credentialStatus";
     private static final String PROOF = "proof";
-    private static final String NOT_NULL_MESSAGE = "Verifiable credential {} cannot be empty!";
-    private static final String TO_REPLACE = "{}";
 
     public VCDeserializer() {
         this((Class<VerifiableCredential>)null);
@@ -77,7 +75,6 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
         }
 
         if (!node.path(ISSUER).isMissingNode()) {
-            Objects.requireNonNull(node.get(ISSUER), NOT_NULL_MESSAGE.replace(TO_REPLACE, ISSUER));
             vc.issuer = node.get(ISSUER).textValue();
         }
 
