@@ -21,6 +21,7 @@
 package com.inrupt.client.core;
 
 import com.inrupt.client.Authenticator;
+import com.inrupt.client.Headers.WwwAuthenticate;
 
 import java.util.ArrayList;
 import java.util.Collection;
