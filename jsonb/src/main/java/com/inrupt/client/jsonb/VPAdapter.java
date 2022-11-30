@@ -45,9 +45,9 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
     private static final String PROOF = "proof";
     private static final String HOLDER = "holder";
 
-
     @Override
     public JsonObject adaptToJson(final VerifiablePresentation vp) throws Exception {
+
         final var result = Json.createObjectBuilder();
 
         if (vp.context != null) {
@@ -72,18 +72,16 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
 
         if (vp.verifiableCredential != null) {
             final var arrayBuilder = Json.createArrayBuilder();
-            final var itVC = vp.verifiableCredential.iterator();
-            while (itVC.hasNext()) {
-                arrayBuilder.add(new VCAdapter().adaptToJson(itVC.next()));
+            for (final var oneVC : vp.verifiableCredential) {
+                arrayBuilder.add(new VCAdapter().adaptToJson(oneVC));
             }
             result.add(VERIFIABLE_CREDENTIAL, arrayBuilder.build());
         }
 
         if (vp.proof != null) {
-            final var itProof = vp.proof.entrySet().iterator();
             final var objectBuilder = Json.createObjectBuilder();
-            while (itProof.hasNext()) {
-                addRightJsonType(objectBuilder, itProof.next());
+            for (final var oneProof : vp.proof.entrySet()) {
+                addRightJsonType(objectBuilder, oneProof);
             }
             result.add(PROOF, objectBuilder.build());
         }
@@ -97,8 +95,7 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
 
         if (adapted.containsKey(CONTEXT)) {
             vp.context = new ArrayList<String>();
-            final var jsonArrayContext = adapted.getJsonArray(CONTEXT);
-            jsonArrayContext.forEach(value -> vp.context.add(((JsonString) value).getString()));
+            adapted.getJsonArray(CONTEXT).forEach(value -> vp.context.add(((JsonString) value).getString()));
         }
 
         if (adapted.containsKey(ID)) {
@@ -106,9 +103,8 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
         }
 
         if (adapted.containsKey(TYPE)) {
-            final var jsonArrayType = adapted.getJsonArray(TYPE);
             vp.type = new ArrayList<String>();
-            jsonArrayType.forEach(value -> vp.type.add(((JsonString) value).getString()));
+            adapted.getJsonArray(TYPE).forEach(value -> vp.type.add(((JsonString) value).getString()));
         }
 
         if (adapted.containsKey(HOLDER)) {
@@ -117,16 +113,14 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
 
         if (adapted.containsKey(VERIFIABLE_CREDENTIAL)) {
             vp.verifiableCredential = new ArrayList<VerifiableCredential>();
-            final var jsonArrayContext = adapted.getJsonArray(VERIFIABLE_CREDENTIAL);
-            for (final var value : jsonArrayContext) {
+            for (final var value : adapted.getJsonArray(VERIFIABLE_CREDENTIAL)) {
                 vp.verifiableCredential.add(new VCAdapter().adaptFromJson(value.asJsonObject()));
             }
         }
 
         if (adapted.containsKey(PROOF)) {
             vp.proof = new HashMap<String, Object>();
-            final var jsonObject = adapted.getJsonObject(PROOF);
-            vp.proof.putAll(jsonObject);
+            vp.proof.putAll(adapted.getJsonObject(PROOF));
         }
 
         return vp;
@@ -142,17 +136,15 @@ public class VPAdapter implements JsonbAdapter<VerifiablePresentation, JsonObjec
         if (entry.getValue() instanceof JsonArray) {
             final var arrayBuilder = Json.createArrayBuilder();
             ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);
-            final var jsonArray = arrayBuilder.build();
-            objectBuilder.add(entry.getKey(), jsonArray);
+            objectBuilder.add(entry.getKey(), arrayBuilder.build());
         }
         if (entry.getValue() instanceof JsonValue) {
             objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());
         }
         if (entry.getValue() instanceof JsonObject) {
             final var object = Json.createObjectBuilder();
-            final var it = ((JsonObject) entry.getValue()).entrySet().iterator();
-            while (it.hasNext()) {
-                addRightJsonType(object, it.next());
+            for (final var it : ((JsonObject) entry.getValue()).entrySet()) {
+                addRightJsonType(object, it);
             }
             objectBuilder.add(entry.getKey(), object);
         }

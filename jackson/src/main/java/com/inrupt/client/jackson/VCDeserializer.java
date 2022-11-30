@@ -24,15 +24,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.inrupt.client.VerifiableCredential;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
@@ -45,6 +43,8 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
     private static final String CREDENTIAL_SUBJECT = "credentialSubject";
     private static final String CREDENTIAL_STATUS = "credentialStatus";
     private static final String PROOF = "proof";
+    private static final String NOT_NULL_MESSAGE = "Verifiable credential {} cannot be empty!";
+    private static final String TO_REPLACE = "{}";
 
     public VCDeserializer() {
         this((Class<VerifiableCredential>)null);
@@ -61,65 +61,50 @@ public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
         final VerifiableCredential vc = new VerifiableCredential();
 
-        if (node.get(CONTEXT) != null) {
-            final ArrayNode contexts = (ArrayNode) node.get(CONTEXT);
-            final List<String> finalContext = new ArrayList<>();
-            contexts.forEach(oneCtx -> finalContext.add(oneCtx.textValue()));
-            vc.context = finalContext;
+        if (!node.path(CONTEXT).isMissingNode()) {
+            vc.context = new ArrayList<>();
+            node.get(CONTEXT).elements()
+                    .forEachRemaining(element -> vc.context.add(element.textValue()));
         }
 
-        if (node.get(ID) != null) {
-            final String id = node.get(ID).textValue();
-            vc.id = id;
+        if (!node.path(ID).isMissingNode()) {
+            vc.id = node.get(ID).textValue();
         }
 
-        if (node.get(TYPE) != null) {
-            final ArrayNode types = (ArrayNode) node.get(TYPE);
-            final List<String> finalType = new ArrayList<>();
-            types.forEach(oneType -> finalType.add(oneType.textValue()));
-            vc.type = finalType;
+        if (!node.path(TYPE).isMissingNode()) {
+            vc.type = new ArrayList<>();
+            node.get(TYPE).elements().forEachRemaining(element -> vc.type.add(element.textValue()));
         }
 
-        if (node.get(ISSUER) != null) {
-            final String issuer = node.get(ISSUER).textValue();
-            vc.issuer = issuer;
+        if (!node.path(ISSUER).isMissingNode()) {
+            Objects.requireNonNull(node.get(ISSUER), NOT_NULL_MESSAGE.replace(TO_REPLACE, ISSUER));
+            vc.issuer = node.get(ISSUER).textValue();
         }
 
-        if (node.get(ISSUANCE_DATE) != null) {
-            final Instant issuanceDate = Instant.parse(node.get(ISSUANCE_DATE).textValue());
-            vc.issuanceDate = issuanceDate;
+        if (!node.path(ISSUANCE_DATE).isMissingNode()) {
+            vc.issuanceDate = Instant.parse(node.get(ISSUANCE_DATE).textValue());
         }
 
-        if (node.get(EXPIRATION_DATE) != null) {
-            final Instant expirationDate = Instant.parse(node.get(EXPIRATION_DATE).textValue());
-            vc.expirationDate = expirationDate;
+        if (!node.path(EXPIRATION_DATE).isMissingNode()) {
+            vc.expirationDate = Instant.parse(node.get(EXPIRATION_DATE).textValue());
         }
 
-        if (node.get(CREDENTIAL_SUBJECT) != null) {
-            final JsonNode credentialSubject = node.get(CREDENTIAL_SUBJECT);
-            final Map<String, Object> finalCredentialSubject = new HashMap<>();
-            credentialSubject.fields().forEachRemaining(field ->
-                finalCredentialSubject.put(field.getKey(), field.getValue())
-            );
-            vc.credentialSubject = finalCredentialSubject;
+        if (!node.path(CREDENTIAL_SUBJECT).isMissingNode()) {
+            vc.credentialSubject = new HashMap<>();
+            node.get(CREDENTIAL_SUBJECT).fields().forEachRemaining(
+                    field -> vc.credentialSubject.put(field.getKey(), field.getValue()));
         }
 
-        if (node.get(CREDENTIAL_STATUS) != null) {
-            final JsonNode credentialStatus = node.path(CREDENTIAL_STATUS);
-            final Map<String, Object> finalCredentialStatus = new HashMap<>();
-            credentialStatus.fields().forEachRemaining(field ->
-                finalCredentialStatus.put(field.getKey(), field.getValue())
-            );
-            vc.credentialStatus = finalCredentialStatus;
+        if (!node.path(CREDENTIAL_STATUS).isMissingNode()) {
+            vc.credentialStatus = new HashMap<>();
+            node.get(CREDENTIAL_STATUS).fields().forEachRemaining(
+                    field -> vc.credentialStatus.put(field.getKey(), field.getValue()));
         }
 
-        if (node.get(PROOF) != null) {
-            final JsonNode proof = node.get(PROOF);
-            final Map<String, Object> finalProof = new HashMap<>();
-            proof.fields().forEachRemaining(field ->
-                finalProof.put(field.getKey(), field.getValue())
-            );
-            vc.proof = finalProof;
+        if (!node.path(PROOF).isMissingNode()) {
+            vc.proof = new HashMap<>();
+            node.get(PROOF).fields()
+                    .forEachRemaining(field -> vc.proof.put(field.getKey(), field.getValue()));
         }
 
         return vc;

@@ -37,9 +37,9 @@ import org.junit.jupiter.api.Test;
 
 public class JsonVCSerializeDeserialize {
 
-    private static VerifiableCredential vc;
-    private static VerifiableCredential vcCopy;
-    private static JsonService service = ServiceProvider.getJsonService();
+    private VerifiableCredential vc;
+    private VerifiableCredential vcCopy;
+    private static final JsonService service = ServiceProvider.getJsonService();
 
     @Test
     void roundtripVC() throws IOException {
