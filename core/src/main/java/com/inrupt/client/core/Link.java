@@ -123,6 +123,7 @@ public final class Link {
     public static Link of(final URI uri) {
         return Link.of(uri, new HashMap<>());
     }
+
     /**
      * Create a new Link object with a specific URI-Reference and relation parameter.
      *
@@ -130,9 +131,10 @@ public final class Link {
      * @param rel the relation parameter value
      * @return the new {@link Link} object
      */
-    public static Link of(final URI uri, String rel) {
+    public static Link of(final URI uri, final String rel) {
         return Link.of(uri, Collections.singletonMap("rel", rel));
     }
+
     /**
      * Create a new Link object with a specific URI-Reference and parameters.
      *
@@ -160,7 +162,7 @@ public final class Link {
     }
 
     static final class Parser {
-        private static final Logger LOGGER = LoggerFactory.getLogger(Link.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
 
         private static final int PAIR = 2;
         private static final String DQUOTE = "\"";
