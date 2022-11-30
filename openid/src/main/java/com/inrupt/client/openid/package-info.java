@@ -39,14 +39,14 @@
    System.out.println("Token endpoint is: " + opConfig.tokenEndpoint.toString());
  * }</pre>
  * 
- * <h3>Optaining an Access Token</h3>
+ * <h3>Creating an AuthorizationRequest (needed for browser-based authorization code flow)</h3>
  * 
  * <pre>{@code
    Client client = ClientProvider.getClient();
 
    AuthorizationRequest authReq = AuthorizationRequest.newBuilder()
       .responseType("code") //required response_type
-      .scope(URI.create("openid webid offline_access")) //required scope
+      .scope(List.of("openid", "webid", "offline_access")) //required scope
       .build(
             "s6BhdRkqt3", //required client_id
             URI.create("https://example.example/callback"); //required redirect_uri
@@ -62,17 +62,16 @@
  * <h3>Obtaining a ID token</h3>
  * 
  * <pre>{@code
-   TokenRequest tokenReq = TokenRequest.newBuilder()
+   com.inrupt.client.openid.TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("code")
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
             .authMethod("client_secret_basic")
             .build(
-               "authorization_code",
-               "s6BhdRkqt3", //same client_id as from the authorization
-               URI.create("https://example.example/callback") //redirect_uri
+                "authorization_code",
+                "s6BhdRkqt3") //same client_id as from the authorization
             );
-   TokenResponse token = openIdProvider.token(tokenReq);
+   com.inrupt.client.openid.TokenResponse token = openIdProvider.token(tokenReq);
 
    System.out.println("ID Token: " + token.idToken);
    System.out.println("Token type: " + token.tokenType);
