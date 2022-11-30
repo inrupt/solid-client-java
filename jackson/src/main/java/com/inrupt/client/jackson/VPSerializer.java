@@ -79,8 +79,8 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         if (vp.verifiableCredential != null) {
             jgen.writeFieldName(VERIFIABLE_CREDENTIAL);
             jgen.writeStartArray();
-            for (final var oneVp : vp.verifiableCredential) {
-                jgen.writePOJO(oneVp);
+            for (final var oneVc : vp.verifiableCredential) {
+                jgen.writePOJO(oneVc);
             }
             jgen.writeEndArray();
         }
