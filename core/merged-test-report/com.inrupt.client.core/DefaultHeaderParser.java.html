@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultHeaderParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - Core</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.core</a> &gt; <span class="el_source">DefaultHeaderParser.java</span></div><h1>DefaultHeaderParser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.core;
+
+import com.inrupt.client.Authenticator.Challenge;
+import com.inrupt.client.Headers.Link;
+import com.inrupt.client.Headers.WacAllow;
+import com.inrupt.client.Headers.WwwAuthenticate;
+import com.inrupt.client.parser.ConsumerErrorListener;
+import com.inrupt.client.parser.LinkBaseListener;
+import com.inrupt.client.parser.LinkLexer;
+import com.inrupt.client.parser.LinkParser;
+import com.inrupt.client.parser.WacAllowBaseListener;
+import com.inrupt.client.parser.WacAllowLexer;
+import com.inrupt.client.parser.WacAllowParser;
+import com.inrupt.client.parser.WwwAuthenticateBaseListener;
+import com.inrupt.client.parser.WwwAuthenticateLexer;
+import com.inrupt.client.parser.WwwAuthenticateParser;
+import com.inrupt.client.spi.HeaderParser;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+<span class="fc" id="L58">public class DefaultHeaderParser implements HeaderParser {</span>
+
+    @Override
+    public List&lt;Link&gt; parseLink(final List&lt;String&gt; headers) {
+<span class="fc" id="L62">        Objects.requireNonNull(headers, &quot;Header values may not be null!&quot;);</span>
+<span class="fc" id="L63">        final LinkHeaderParser parser = new LinkHeaderParser();</span>
+<span class="fc" id="L64">        final List&lt;Link&gt; links = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (final String header : headers) {</span>
+<span class="fc" id="L66">            links.addAll(parser.parse(header));</span>
+<span class="fc" id="L67">        }</span>
+<span class="fc" id="L68">        return links;</span>
+    }
+
+    @Override
+    public WwwAuthenticate parseWwwAuthenticate(final List&lt;String&gt; headers) {
+<span class="fc" id="L73">        final WwwAuthenticateHeaderParser parser = new WwwAuthenticateHeaderParser();</span>
+<span class="fc" id="L74">        final List&lt;Challenge&gt; challenges = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (final String header : headers) {</span>
+<span class="fc" id="L76">            challenges.addAll(parser.parse(header));</span>
+<span class="fc" id="L77">        }</span>
+<span class="fc" id="L78">        return WwwAuthenticate.of(challenges);</span>
+    }
+
+    @Override
+    public WacAllow parseWacAllow(final List&lt;String&gt; headers) {
+<span class="fc" id="L83">        final WacAllowHeaderParser parser = new WacAllowHeaderParser();</span>
+<span class="fc" id="L84">        final Map&lt;String, Set&lt;String&gt;&gt; accessParams = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        for (final String header : headers) {</span>
+<span class="fc" id="L87">            final Map&lt;String, Set&lt;String&gt;&gt; accessParamEntry = parser.parse(header);</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            for (Map.Entry&lt;String, Set&lt;String&gt;&gt; entry : accessParamEntry.entrySet()) {</span>
+<span class="fc" id="L90">                accessParams.computeIfAbsent(entry.getKey(), k -&gt; new HashSet&lt;&gt;())</span>
+<span class="fc" id="L91">                            .addAll(entry.getValue());</span>
+<span class="fc" id="L92">            }</span>
+<span class="fc" id="L93">        }</span>
+<span class="fc" id="L94">        return WacAllow.of(accessParams);</span>
+    }
+
+<span class="nc" id="L97">    static final class Util {</span>
+        static final int PAIR = 2;
+        static final String DQUOTE = &quot;\&quot;&quot;;
+        static final String EQUALS = &quot;=&quot;;
+        static final String WS = &quot; &quot;;
+
+        static String unwrap(final String value, final String character) {
+<span class="pc bpc" id="L104" title="1 of 4 branches missed.">            if (value.startsWith(character) &amp;&amp; value.endsWith(character)) {</span>
+<span class="fc" id="L105">                return value.substring(1, value.length() - 1);</span>
+            }
+<span class="fc" id="L107">            return value;</span>
+        }
+    }
+
+    static final class LinkHeaderParser {
+<span class="fc" id="L112">        private static final Logger LOGGER = LoggerFactory.getLogger(LinkHeaderParser.class);</span>
+
+        private final ANTLRErrorListener errorListener;
+
+        /**
+         * Create a parser with a default error handler.
+         */
+        public LinkHeaderParser() {
+<span class="fc" id="L120">            this(new ConsumerErrorListener(msg -&gt; LOGGER.debug(&quot;Header parse error: {}&quot;, msg)));</span>
+<span class="fc" id="L121">        }</span>
+
+        /**
+         * Create a parser with a custom error handler.
+         *
+         * @param errorListener the error handler
+         */
+<span class="fc" id="L128">        public LinkHeaderParser(final ANTLRErrorListener errorListener) {</span>
+<span class="fc" id="L129">            this.errorListener = errorListener;</span>
+<span class="fc" id="L130">        }</span>
+
+
+        /**
+         * Parse a link header.
+         *
+         * @param header the link header string
+         * @return a list of links
+         */
+        public List&lt;Link&gt; parse(final String header) {
+<span class="fc" id="L140">            final LinkLexer lexer = new LinkLexer(CharStreams.fromString(header));</span>
+            // Update lexer error listeners
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L143">                lexer.removeErrorListeners();</span>
+<span class="fc" id="L144">                lexer.addErrorListener(errorListener);</span>
+            }
+
+<span class="fc" id="L147">            final CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
+<span class="fc" id="L148">            final LinkParser parser = new LinkParser(tokens);</span>
+
+            // Update parser error listeners
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L152">                parser.removeErrorListeners();</span>
+<span class="fc" id="L153">                parser.addErrorListener(errorListener);</span>
+            }
+
+<span class="fc" id="L156">            final LinkListener listener = new LinkListener();</span>
+<span class="fc" id="L157">            final ParseTreeWalker walker = new ParseTreeWalker();</span>
+<span class="fc" id="L158">            final LinkParser.LinkHeaderContext tree = parser.linkHeader();</span>
+
+            try {
+<span class="fc" id="L161">                walker.walk(listener, tree);</span>
+<span class="fc" id="L162">            } catch (final IllegalArgumentException ex) {</span>
+<span class="fc" id="L163">                parser.notifyErrorListeners(&quot;Link parsing error: &quot; + ex.getMessage());</span>
+<span class="fc" id="L164">            }</span>
+
+<span class="fc" id="L166">            return listener.getLinks();</span>
+        }
+
+        /**
+         * An Antlr listener for use with walking over the parsed syntax tree of a Link header.
+         */
+<span class="fc" id="L172">        static class LinkListener extends LinkBaseListener {</span>
+
+<span class="fc" id="L174">            private final List&lt;Link&gt; links = new ArrayList&lt;&gt;();</span>
+
+            /**
+             * Get the list of Challenge objects from the parsed header.
+             *
+             * @return the challenges
+             */
+            public List&lt;Link&gt; getLinks() {
+<span class="fc" id="L182">                return links;</span>
+            }
+
+            @Override
+            public void exitLink(final LinkParser.LinkContext ctx) {
+<span class="pc bpc" id="L187" title="1 of 4 branches missed.">                if (ctx.UriReference() != null &amp;&amp; !isBlank(ctx.UriReference().getText())) {</span>
+<span class="fc" id="L188">                    final Map&lt;String, String&gt; params = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">                    for (final TerminalNode p : ctx.LinkParam()) {</span>
+<span class="fc" id="L190">                        final String[] parts = p.getText().split(Util.EQUALS, Util.PAIR);</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">                        if (parts.length == Util.PAIR) {</span>
+<span class="fc" id="L192">                            params.put(parts[0], Util.unwrap(parts[1], Util.DQUOTE));</span>
+                        }
+<span class="fc" id="L194">                    }</span>
+<span class="fc" id="L195">                    links.add(Link.of(toURI(ctx.UriReference().getText()), params));</span>
+                }
+<span class="fc" id="L197">            }</span>
+
+
+            static URI toURI(final String uri) {
+<span class="pc bpc" id="L201" title="2 of 4 branches missed.">                if (uri.startsWith(&quot;&lt;&quot;) &amp;&amp; uri.endsWith(&quot;&gt;&quot;)) {</span>
+<span class="fc" id="L202">                    return URI.create(uri.substring(1, uri.length() - 1));</span>
+                }
+<span class="nc" id="L204">                return URI.create(uri);</span>
+            }
+
+            private boolean isBlank(final String value) {
+<span class="pc bpc" id="L208" title="3 of 6 branches missed.">                return (value == null || value.isEmpty() || value.trim().isEmpty());</span>
+            }
+        }
+    }
+
+    static final class WwwAuthenticateHeaderParser {
+
+<span class="fc" id="L215">        private static final Logger LOGGER = LoggerFactory.getLogger(WwwAuthenticateHeaderParser.class);</span>
+
+        private final ANTLRErrorListener errorListener;
+
+        /**
+         * Create a challenge parser with an error listener that records syntax exceptions to a DEBUG log.
+         */
+        public WwwAuthenticateHeaderParser() {
+<span class="fc" id="L223">            this(new ConsumerErrorListener(msg -&gt; LOGGER.debug(&quot;WWW-Authenticate parse error: {}&quot;, msg)));</span>
+<span class="fc" id="L224">        }</span>
+
+        /**
+         * Create a challenge parser with a custom error listener.
+         *
+         * @param errorListener the error listener
+         */
+<span class="fc" id="L231">        public WwwAuthenticateHeaderParser(final ANTLRErrorListener errorListener) {</span>
+<span class="fc" id="L232">            this.errorListener = errorListener;</span>
+<span class="fc" id="L233">        }</span>
+
+        public List&lt;Challenge&gt; parse(final String header) {
+<span class="fc" id="L236">            final WwwAuthenticateLexer lexer = new WwwAuthenticateLexer(CharStreams.fromString(header));</span>
+            // Update lexer error listeners
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L239">                lexer.removeErrorListeners();</span>
+<span class="fc" id="L240">                lexer.addErrorListener(errorListener);</span>
+            }
+
+<span class="fc" id="L243">            final CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
+<span class="fc" id="L244">            final WwwAuthenticateParser parser = new WwwAuthenticateParser(tokens);</span>
+
+            // Update error listeners
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L248">                parser.removeErrorListeners();</span>
+<span class="fc" id="L249">                parser.addErrorListener(errorListener);</span>
+            }
+
+
+<span class="fc" id="L253">            final ChallengeListener listener = new ChallengeListener();</span>
+<span class="fc" id="L254">            final ParseTreeWalker walker = new ParseTreeWalker();</span>
+<span class="fc" id="L255">            final WwwAuthenticateParser.WwwAuthenticateContext tree = parser.wwwAuthenticate();</span>
+
+<span class="fc" id="L257">            walker.walk(listener, tree);</span>
+
+<span class="fc" id="L259">            return listener.getChallenges();</span>
+        }
+
+        /**
+         * An Antlr listener for use with walking over the parsed syntax tree of a WWW-Authenticate header.
+         */
+<span class="fc" id="L265">        public static class ChallengeListener extends WwwAuthenticateBaseListener {</span>
+
+<span class="fc" id="L267">            private final List&lt;Challenge&gt; challenges = new ArrayList&lt;&gt;();</span>
+
+            /**
+             * Get the list of Challenge objects from the parsed header.
+             *
+             * @return the challenges
+             */
+            public List&lt;Challenge&gt; getChallenges() {
+<span class="fc" id="L275">                return challenges;</span>
+            }
+
+            @Override
+            public void exitChallenge(final WwwAuthenticateParser.ChallengeContext ctx) {
+<span class="fc bfc" id="L280" title="All 2 branches covered.">                if (ctx.AuthScheme() != null) {</span>
+<span class="fc" id="L281">                    final Map&lt;String, String&gt; params = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">                    for (final TerminalNode p : ctx.AuthParam()) {</span>
+<span class="fc" id="L283">                        final String[] parts = p.getText().split(Util.EQUALS, Util.PAIR);</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">                        if (parts.length == Util.PAIR) {</span>
+<span class="fc" id="L285">                            params.put(parts[0], Util.unwrap(parts[1], Util.DQUOTE));</span>
+                        }
+<span class="fc" id="L287">                    }</span>
+<span class="fc" id="L288">                    challenges.add(Challenge.of(ctx.AuthScheme().getText(), params));</span>
+                }
+<span class="fc" id="L290">            }</span>
+        }
+    }
+
+    static final class WacAllowHeaderParser {
+
+<span class="fc" id="L296">        private static final Logger LOGGER = LoggerFactory.getLogger(WacAllowHeaderParser.class);</span>
+
+
+        private final ANTLRErrorListener errorListener;
+
+        /**
+         * Create an access parameter parser with an error listener that records syntax exceptions to a DEBUG log.
+         */
+        public WacAllowHeaderParser() {
+<span class="fc" id="L305">            this(new ConsumerErrorListener(msg -&gt; LOGGER.debug(&quot;WAC-Allow parse error: {}&quot;, msg)));</span>
+<span class="fc" id="L306">        }</span>
+
+        /**
+         * Create an access parameter parser with a custom error listener.
+         *
+         * @param errorListener the error listener
+         */
+<span class="fc" id="L313">        public WacAllowHeaderParser(final ANTLRErrorListener errorListener) {</span>
+<span class="fc" id="L314">            this.errorListener = errorListener;</span>
+<span class="fc" id="L315">        }</span>
+
+        /**
+         * Parse header string into a list of AccessParam objects.
+         *
+         * @param header the header string
+         * @return list of AccessParam objects
+         */
+        public Map&lt;String, Set&lt;String&gt;&gt; parse(final String header) {
+<span class="fc" id="L324">            final WacAllowLexer lexer = new WacAllowLexer(CharStreams.fromString(header));</span>
+            // Update lexer error listeners
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L327">                lexer.removeErrorListeners();</span>
+<span class="fc" id="L328">                lexer.addErrorListener(errorListener);</span>
+            }
+
+<span class="fc" id="L331">            final CommonTokenStream tokens = new CommonTokenStream(lexer);</span>
+<span class="fc" id="L332">            final WacAllowParser parser = new WacAllowParser(tokens);</span>
+
+            // Update error listeners
+<span class="pc bpc" id="L335" title="1 of 2 branches missed.">            if (errorListener != null) {</span>
+<span class="fc" id="L336">                parser.removeErrorListeners();</span>
+<span class="fc" id="L337">                parser.addErrorListener(errorListener);</span>
+            }
+
+<span class="fc" id="L340">            final AccessParamListener listener = new AccessParamListener();</span>
+<span class="fc" id="L341">            final ParseTreeWalker walker = new ParseTreeWalker();</span>
+<span class="fc" id="L342">            final WacAllowParser.WacAllowContext tree = parser.wacAllow();</span>
+
+<span class="fc" id="L344">            walker.walk(listener, tree);</span>
+
+<span class="fc" id="L346">            return listener.getAccessParams();</span>
+        }
+
+        /**
+         * An Antlr listener for use with walking over the parsed syntax tree of a WWW-Authenticate header.
+         */
+<span class="fc" id="L352">        public static class AccessParamListener extends WacAllowBaseListener {</span>
+
+<span class="fc" id="L354">            private final Map&lt;String, Set&lt;String&gt;&gt; accessParams = new HashMap&lt;&gt;();</span>
+
+            /**
+             * Get the list of AccesParam objects from the parsed header.
+             *
+             * @return list of AccessParams
+             */
+            public Map&lt;String, Set&lt;String&gt;&gt; getAccessParams() {
+<span class="fc" id="L362">                return accessParams;</span>
+            }
+
+            @Override
+            public void exitWacAllow(final WacAllowParser.WacAllowContext ctx) {
+<span class="fc bfc" id="L367" title="All 2 branches covered.">                for (final TerminalNode p : ctx.AccessParam()) {</span>
+<span class="fc" id="L368">                    final String[] parts = p.getText().split(Util.EQUALS, Util.PAIR);</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">                    if (parts.length == Util.PAIR) {</span>
+<span class="fc" id="L370">                        final String[] accessModes = Arrays.stream(Util.unwrap(parts[1], Util.DQUOTE).split(Util.WS))</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">                                                            .filter(s -&gt; !s.isEmpty())</span>
+<span class="fc" id="L372">                                                            .toArray(String[]::new);</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">                        if (accessModes.length &gt; 0) {</span>
+<span class="fc" id="L374">                            accessParams.computeIfAbsent(parts[0], k -&gt; new HashSet&lt;&gt;())</span>
+<span class="fc" id="L375">                                        .addAll(Arrays.asList(accessModes));</span>
+                        }
+                    }
+<span class="fc" id="L378">                }</span>
+<span class="fc" id="L379">            }</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -32,6 +32,7 @@ public final class ServiceProvider {
     private static RdfService rdfService;
     private static HttpService httpService;
     private static DpopService dpopService;
+    private static HeaderParser headerParser;
 
     /**
      * Get the {@link JsonService} for this application.
@@ -39,16 +40,16 @@ public final class ServiceProvider {
      * @return an object for processing JSON
      */
     public static JsonService getJsonService() {
-<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (jsonService == null) {</span>
-<span class="fc" id="L43">            synchronized (ServiceProvider.class) {</span>
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">                if (jsonService != null) {</span>
-<span class="nc" id="L45">                    return jsonService;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (jsonService == null) {</span>
+<span class="fc" id="L44">            synchronized (ServiceProvider.class) {</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                if (jsonService != null) {</span>
+<span class="nc" id="L46">                    return jsonService;</span>
                 }
-<span class="fc" id="L47">                jsonService = loadSpi(JsonService.class, ServiceProvider.class.getClassLoader());</span>
-<span class="fc" id="L48">            }</span>
+<span class="fc" id="L48">                jsonService = loadSpi(JsonService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="fc" id="L49">            }</span>
 
         }
-<span class="fc" id="L51">        return jsonService;</span>
+<span class="fc" id="L52">        return jsonService;</span>
     }
 
     /**
@@ -57,16 +58,16 @@ public final class ServiceProvider {
      * @return an object for processing RDF
      */
     public static RdfService getRdfService() {
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (rdfService == null) {</span>
-<span class="fc" id="L61">            synchronized (ServiceProvider.class) {</span>
-<span class="pc bpc" id="L62" title="1 of 2 branches missed.">                if (rdfService != null) {</span>
-<span class="nc" id="L63">                    return rdfService;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (rdfService == null) {</span>
+<span class="fc" id="L62">            synchronized (ServiceProvider.class) {</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">                if (rdfService != null) {</span>
+<span class="nc" id="L64">                    return rdfService;</span>
                 }
-<span class="fc" id="L65">                rdfService = loadSpi(RdfService.class, ServiceProvider.class.getClassLoader());</span>
-<span class="fc" id="L66">            }</span>
+<span class="fc" id="L66">                rdfService = loadSpi(RdfService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="fc" id="L67">            }</span>
 
         }
-<span class="fc" id="L69">        return rdfService;</span>
+<span class="fc" id="L70">        return rdfService;</span>
     }
 
     /**
@@ -75,37 +76,49 @@ public final class ServiceProvider {
      * @return an object for processing HTTP
      */
     public static HttpService getHttpService() {
-<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (httpService == null) {</span>
-<span class="fc" id="L79">            synchronized (ServiceProvider.class) {</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                if (httpService != null) {</span>
-<span class="nc" id="L81">                    return httpService;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (httpService == null) {</span>
+<span class="fc" id="L80">            synchronized (ServiceProvider.class) {</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                if (httpService != null) {</span>
+<span class="nc" id="L82">                    return httpService;</span>
                 }
-<span class="fc" id="L83">                httpService = loadSpi(HttpService.class, ServiceProvider.class.getClassLoader());</span>
-<span class="fc" id="L84">            }</span>
+<span class="fc" id="L84">                httpService = loadSpi(HttpService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="fc" id="L85">            }</span>
 
         }
-<span class="fc" id="L87">        return httpService;</span>
+<span class="fc" id="L88">        return httpService;</span>
     }
 
     public static DpopService getDpopService() {
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (dpopService == null) {</span>
-<span class="fc" id="L92">            synchronized (ServiceProvider.class) {</span>
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">                if (dpopService != null) {</span>
-<span class="nc" id="L94">                    return dpopService;</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (dpopService == null) {</span>
+<span class="fc" id="L93">            synchronized (ServiceProvider.class) {</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                if (dpopService != null) {</span>
+<span class="nc" id="L95">                    return dpopService;</span>
                 }
-<span class="fc" id="L96">                dpopService = loadSpi(DpopService.class, ServiceProvider.class.getClassLoader());</span>
-<span class="fc" id="L97">            }</span>
+<span class="fc" id="L97">                dpopService = loadSpi(DpopService.class, ServiceProvider.class.getClassLoader());</span>
+<span class="fc" id="L98">            }</span>
         }
-<span class="fc" id="L99">        return dpopService;</span>
+<span class="fc" id="L100">        return dpopService;</span>
+    }
+
+    public static HeaderParser getHeaderParser() {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (headerParser == null) {</span>
+<span class="fc" id="L105">            synchronized (ServiceProvider.class) {</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">                if (headerParser != null) {</span>
+<span class="nc" id="L107">                    return headerParser;</span>
+                }
+<span class="fc" id="L109">                headerParser = loadSpi(HeaderParser.class, ServiceProvider.class.getClassLoader());</span>
+<span class="fc" id="L110">            }</span>
+        }
+<span class="fc" id="L112">        return headerParser;</span>
     }
 
     static &lt;T&gt; T loadSpi(final Class&lt;T&gt; clazz, final ClassLoader cl) {
-<span class="fc" id="L103">        final ServiceLoader&lt;T&gt; loader = ServiceLoader.load(clazz, cl);</span>
-<span class="fc" id="L104">        final Iterator&lt;T&gt; iterator = loader.iterator();</span>
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (iterator.hasNext()) {</span>
-<span class="fc" id="L106">            return iterator.next();</span>
+<span class="fc" id="L116">        final ServiceLoader&lt;T&gt; loader = ServiceLoader.load(clazz, cl);</span>
+<span class="fc" id="L117">        final Iterator&lt;T&gt; iterator = loader.iterator();</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (iterator.hasNext()) {</span>
+<span class="fc" id="L119">            return iterator.next();</span>
         }
-<span class="nc" id="L108">        throw new IllegalStateException(&quot;No implementation found for &quot; + clazz.getName() + &quot;! &quot; +</span>
+<span class="nc" id="L121">        throw new IllegalStateException(&quot;No implementation found for &quot; + clazz.getName() + &quot;! &quot; +</span>
                 &quot;Please add an implementation to the classpath&quot;);
     }
 

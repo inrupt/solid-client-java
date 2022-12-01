@@ -21,6 +21,7 @@
 package com.inrupt.client.core;
 
 import com.inrupt.client.Authenticator;
+import com.inrupt.client.Headers.WwwAuthenticate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,31 +32,31 @@ import java.util.TreeMap;
 
 public class DefaultRegistry implements Authenticator.Registry {
 
-<span class="nc" id="L34">    static final Comparator&lt;Authenticator&gt; comparator = Comparator</span>
-<span class="nc" id="L35">        .comparing(Authenticator::getPriority)</span>
-<span class="nc" id="L36">        .reversed();</span>
+<span class="nc" id="L35">    static final Comparator&lt;Authenticator&gt; comparator = Comparator</span>
+<span class="nc" id="L36">        .comparing(Authenticator::getPriority)</span>
+<span class="nc" id="L37">        .reversed();</span>
 
-<span class="nc" id="L38">    private final Map&lt;String, Authenticator.Provider&gt; registry = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+<span class="nc" id="L39">    private final Map&lt;String, Authenticator.Provider&gt; registry = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
 
-<span class="nc" id="L40">    public DefaultRegistry() {</span>
-<span class="nc" id="L41">        registry.put(&quot;UMA&quot;, new UmaAuthenticationProvider(100));</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L41">    public DefaultRegistry() {</span>
+<span class="nc" id="L42">        registry.put(&quot;UMA&quot;, new UmaAuthenticationProvider(100));</span>
+<span class="nc" id="L43">    }</span>
 
     @Override
     public List&lt;Authenticator&gt; challenge(final Collection&lt;String&gt; headers) {
-<span class="nc" id="L46">        final List&lt;Authenticator&gt; authenticators = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        for (final String header : headers) {</span>
-<span class="nc" id="L48">            final WwwAuthenticate wwwAuthenticate = WwwAuthenticate.parse(header);</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">            for (final Authenticator.Challenge challenge : wwwAuthenticate.getChallenges()) {</span>
-<span class="nc" id="L50">                final String scheme = challenge.getScheme();</span>
-<span class="nc bnc" id="L51" title="All 2 branches missed.">                if (registry.containsKey(scheme)) {</span>
-<span class="nc" id="L52">                    authenticators.add(registry.get(scheme).getAuthenticator(challenge));</span>
+<span class="nc" id="L47">        final List&lt;Authenticator&gt; authenticators = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        for (final String header : headers) {</span>
+<span class="nc" id="L49">            final WwwAuthenticate wwwAuthenticate = WwwAuthenticate.parse(header);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            for (final Authenticator.Challenge challenge : wwwAuthenticate.getChallenges()) {</span>
+<span class="nc" id="L51">                final String scheme = challenge.getScheme();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                if (registry.containsKey(scheme)) {</span>
+<span class="nc" id="L53">                    authenticators.add(registry.get(scheme).getAuthenticator(challenge));</span>
                 }
-<span class="nc" id="L54">            }</span>
-<span class="nc" id="L55">        }</span>
+<span class="nc" id="L55">            }</span>
+<span class="nc" id="L56">        }</span>
 
-<span class="nc" id="L57">        authenticators.sort(comparator);</span>
-<span class="nc" id="L58">        return authenticators;</span>
+<span class="nc" id="L58">        authenticators.sort(comparator);</span>
+<span class="nc" id="L59">        return authenticators;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
