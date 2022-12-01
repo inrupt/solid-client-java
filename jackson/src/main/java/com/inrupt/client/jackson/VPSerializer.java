@@ -79,8 +79,8 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         if (vp.verifiableCredential != null) {
             jgen.writeFieldName(VERIFIABLE_CREDENTIAL);
             jgen.writeStartArray();
-            for (final var vc : vp.verifiableCredential) {
-                jgen.writePOJO(vc);
+            for (final var oneVc : vp.verifiableCredential) {
+                jgen.writePOJO(oneVc);
             }
             jgen.writeEndArray();
         }
@@ -88,10 +88,8 @@ public class VPSerializer extends StdSerializer<VerifiablePresentation> {
         if (vp.proof != null) {
             jgen.writeFieldName(PROOF);
             jgen.writeStartObject();
-            final var itProof = vp.proof.entrySet().iterator();
-            while (itProof.hasNext()) {
-                final var entry = itProof.next();
-                jgen.writeObjectField(entry.getKey(), entry.getValue());
+            for (final var oneProof : vp.proof.entrySet()) {
+                jgen.writeObjectField(oneProof.getKey(), oneProof.getValue());
             }
             jgen.writeEndObject();
         }

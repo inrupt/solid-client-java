@@ -35,21 +35,21 @@ public final class LDP {
     /**
      * The ldp:contains URI.
      */
-    public static URI contains = URI.create(namespace + "contains");
+    public static final URI contains = URI.create(namespace + "contains");
     /**
      * The ldp:inbox URI.
      */
-    public static URI inbox = URI.create(namespace + "inbox");
+    public static final URI inbox = URI.create(namespace + "inbox");
 
     // Classes
     /**
      * The ldp:RDFSource URI.
      */
-    public static URI RDFSource = URI.create(namespace + "RDFSource");
+    public static final URI RDFSource = URI.create(namespace + "RDFSource");
     /**
      * The ldp:BasicContainer URI.
      */
-    public static URI BasicContainer = URI.create(namespace + "BasicContainer");
+    public static final URI BasicContainer = URI.create(namespace + "BasicContainer");
 
     /**
      * Get the LDP namespace URI.

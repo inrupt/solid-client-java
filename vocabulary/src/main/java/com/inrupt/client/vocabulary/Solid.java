@@ -35,7 +35,7 @@ public final class Solid {
     /**
      * The solid:oidcIssuer URI.
      */
-    public static URI oidcIssuer = URI.create(namespace + "oidcIssuer");
+    public static final URI oidcIssuer = URI.create(namespace + "oidcIssuer");
 
     /**
      * Get the Solid namespace URI.

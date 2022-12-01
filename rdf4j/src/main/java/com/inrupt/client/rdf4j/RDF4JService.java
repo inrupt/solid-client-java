@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -109,7 +109,7 @@ public class RDF4JService implements RdfService {
     }
 
     static Map<Syntax, RDFFormat> buildSyntaxMapping() {
-        final Map<Syntax, RDFFormat> mapping = new HashMap<>();
+        final Map<Syntax, RDFFormat> mapping = new EnumMap<>(Syntax.class);
         mapping.put(Syntax.TURTLE, RDFFormat.TURTLE);
         mapping.put(Syntax.TRIG, RDFFormat.TRIG);
         mapping.put(Syntax.JSONLD, RDFFormat.JSONLD);
