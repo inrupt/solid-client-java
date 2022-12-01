@@ -22,6 +22,8 @@ package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Headers.Link;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
