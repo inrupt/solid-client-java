@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class VCDeserializer extends StdDeserializer<VerifiableCredential> {
 
