@@ -188,16 +188,12 @@ public final class TokenRequest {
             Objects.requireNonNull(redirectUri, "Redirect URI may not be null!");
             final String grant = Objects.requireNonNull(grantType, "Grant type may not be null!");
 
-            if ("authorization_code".equals(grantType)) {
-                if (builderCode == null) {
-                    throw new IllegalArgumentException(
-                            "Missing code parameter for authorization_code grant type");
-                }
-            } else if ("client_credentials".equals(grantType)) {
-                if (builderClientSecret == null) {
-                    throw new IllegalArgumentException(
-                            "Missing client_secret parameter for client_credentials grant type");
-                }
+            if ("authorization_code".equals(grantType) && builderCode == null) {
+                throw new IllegalArgumentException(
+                    "Missing code parameter for authorization_code grant type");
+            } else if ("client_credentials".equals(grantType) && builderClientSecret == null) {
+                throw new IllegalArgumentException(
+                    "Missing client_secret parameter for client_credentials grant type");
             }
 
             return new TokenRequest(clientId, builderClientSecret, redirectUri, grant, builderAuthMethod,

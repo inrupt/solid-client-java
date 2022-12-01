@@ -43,14 +43,14 @@ import org.apache.jena.riot.RiotException;
  */
 public class JenaService implements RdfService {
 
-    private static Map<Syntax, Lang> SYNTAX_TO_LANG = Map.of(
+    private static final Map<Syntax, Lang> SYNTAX_TO_LANG = Map.of(
             Syntax.TURTLE, Lang.TURTLE,
             Syntax.TRIG, Lang.TRIG,
             Syntax.JSONLD, Lang.JSONLD,
             Syntax.NTRIPLES, Lang.NTRIPLES,
             Syntax.NQUADS, Lang.NQUADS);
 
-    private static Set<Syntax> SUPPORTS_QUADS = Set.of(Syntax.JSONLD, Syntax.TRIG, Syntax.NQUADS);
+    private static final Set<Syntax> SUPPORTS_QUADS = Set.of(Syntax.JSONLD, Syntax.TRIG, Syntax.NQUADS);
 
     @Override
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
