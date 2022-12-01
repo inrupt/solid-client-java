@@ -35,7 +35,7 @@ public final class RDFS {
     /**
      * The rdfs:seeAlso URI.
      */
-    public static URI seeAlso = URI.create(namespace + "seeAlso");
+    public static final URI seeAlso = URI.create(namespace + "seeAlso");
 
     /**
      * Get the RDFS namespace URI.

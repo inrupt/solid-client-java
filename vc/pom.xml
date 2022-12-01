@@ -23,11 +23,15 @@
     <!-- test dependencies -->
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-jackson</artifactId>
+      <artifactId>inrupt-client-jsonb</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-     <dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-httpclient</artifactId>
       <version>${project.version}</version>
