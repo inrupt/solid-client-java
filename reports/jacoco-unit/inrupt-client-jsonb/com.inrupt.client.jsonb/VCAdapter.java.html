@@ -48,149 +48,137 @@ import javax.json.bind.adapter.JsonbAdapter;
     private static final String CREDENTIAL_STATUS = &quot;credentialStatus&quot;;
     private static final String PROOF = &quot;proof&quot;;
 
-
-
     @Override
     public JsonObject adaptToJson(final VerifiableCredential vc) throws Exception {
 
-<span class="fc" id="L56">        final var result = Json.createObjectBuilder();</span>
+<span class="fc" id="L54">        final var result = Json.createObjectBuilder();</span>
 
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (vc.context != null) {</span>
-<span class="fc" id="L59">            final var arrayBuilder = Json.createArrayBuilder();</span>
-<span class="fc" id="L60">            vc.context.forEach(oneContext -&gt; arrayBuilder.add(oneContext));</span>
-<span class="fc" id="L61">            result.add(CONTEXT, arrayBuilder.build());</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (vc.context != null) {</span>
+<span class="fc" id="L57">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="fc" id="L58">            vc.context.forEach(arrayBuilder::add);</span>
+<span class="fc" id="L59">            result.add(CONTEXT, arrayBuilder.build());</span>
         }
 
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (vc.type != null) {</span>
-<span class="fc" id="L65">            final var arrayBuilder = Json.createArrayBuilder();</span>
-<span class="fc" id="L66">            vc.type.forEach(oneType -&gt; arrayBuilder.add(oneType));</span>
-<span class="fc" id="L67">            result.add(TYPE, arrayBuilder.build());</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (vc.type != null) {</span>
+<span class="fc" id="L63">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="fc" id="L64">            vc.type.forEach(arrayBuilder::add);</span>
+<span class="fc" id="L65">            result.add(TYPE, arrayBuilder.build());</span>
         }
 
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (vc.id != null) {</span>
-<span class="fc" id="L71">            result.add(ID, vc.id);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (vc.id != null) {</span>
+<span class="fc" id="L69">            result.add(ID, vc.id);</span>
         }
 
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (vc.issuer != null) {</span>
-<span class="fc" id="L75">            result.add(ISSUER, vc.issuer);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (vc.issuer != null) {</span>
+<span class="fc" id="L73">            result.add(ISSUER, vc.issuer);</span>
         }
 
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (vc.issuanceDate != null) {</span>
-<span class="fc" id="L79">            result.add(ISSUANCE_DATE, vc.issuanceDate.toString());</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (vc.issuanceDate != null) {</span>
+<span class="fc" id="L77">            result.add(ISSUANCE_DATE, vc.issuanceDate.toString());</span>
         }
 
-<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (vc.expirationDate != null) {</span>
-<span class="nc" id="L83">            result.add(EXPIRATION_DATE, vc.expirationDate.toString());</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (vc.expirationDate != null) {</span>
+<span class="fc" id="L81">            result.add(EXPIRATION_DATE, vc.expirationDate.toString());</span>
         }
 
-<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (vc.credentialSubject != null) {</span>
-<span class="fc" id="L87">            final var itCSubject = vc.credentialSubject.entrySet().iterator();</span>
-<span class="fc" id="L88">            final var objectBuilder = Json.createObjectBuilder();</span>
-<span class="fc bfc" id="L89" title="All 2 branches covered.">            while (itCSubject.hasNext()) {</span>
-<span class="fc" id="L90">                addRightJsonType(objectBuilder, itCSubject.next());</span>
-            }
-<span class="fc" id="L92">            result.add(CREDENTIAL_SUBJECT, objectBuilder.build());</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (vc.credentialSubject != null) {</span>
+<span class="fc" id="L85">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            for (final var oneCS : vc.credentialSubject.entrySet()) {</span>
+<span class="fc" id="L87">                addRightJsonType(objectBuilder, oneCS);</span>
+<span class="fc" id="L88">            }</span>
+<span class="fc" id="L89">            result.add(CREDENTIAL_SUBJECT, objectBuilder.build());</span>
         }
 
-<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (vc.credentialStatus != null) {</span>
-<span class="fc" id="L96">            final var itCStatus = vc.credentialStatus.entrySet().iterator();</span>
-<span class="fc" id="L97">            final var objectBuilder = Json.createObjectBuilder();</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">            while (itCStatus.hasNext()) {</span>
-<span class="fc" id="L99">                addRightJsonType(objectBuilder, itCStatus.next());</span>
-            }
-<span class="fc" id="L101">            result.add(CREDENTIAL_STATUS, objectBuilder.build());</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (vc.credentialStatus != null) {</span>
+<span class="fc" id="L93">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            for (final var oneCS : vc.credentialStatus.entrySet()) {</span>
+<span class="fc" id="L95">                addRightJsonType(objectBuilder, oneCS);</span>
+<span class="fc" id="L96">            }</span>
+<span class="fc" id="L97">            result.add(CREDENTIAL_STATUS, objectBuilder.build());</span>
         }
 
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (vc.proof != null) {</span>
-<span class="fc" id="L105">            final var itProof = vc.proof.entrySet().iterator();</span>
-<span class="fc" id="L106">            final var objectBuilder = Json.createObjectBuilder();</span>
-<span class="fc bfc" id="L107" title="All 2 branches covered.">            while (itProof.hasNext()) {</span>
-<span class="fc" id="L108">                addRightJsonType(objectBuilder, itProof.next());</span>
-            }
-<span class="fc" id="L110">            result.add(PROOF, objectBuilder.build());</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (vc.proof != null) {</span>
+<span class="fc" id="L101">            final var objectBuilder = Json.createObjectBuilder();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            for (final var oneProof : vc.proof.entrySet()) {</span>
+<span class="fc" id="L103">                addRightJsonType(objectBuilder, oneProof);</span>
+<span class="fc" id="L104">            }</span>
+<span class="fc" id="L105">            result.add(PROOF, objectBuilder.build());</span>
         }
 
-<span class="fc" id="L113">        return result.build();</span>
+<span class="fc" id="L108">        return result.build();</span>
     }
 
     @Override
     public VerifiableCredential adaptFromJson(final JsonObject adapted) throws Exception {
-<span class="fc" id="L118">        final var vc = new VerifiableCredential();</span>
+<span class="fc" id="L113">        final var vc = new VerifiableCredential();</span>
 
-<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        if (adapted.containsKey(CONTEXT)) {</span>
-<span class="fc" id="L121">            vc.context = new ArrayList&lt;String&gt;();</span>
-<span class="fc" id="L122">            final var jsonArrayContext = adapted.getJsonArray(CONTEXT);</span>
-<span class="fc" id="L123">            jsonArrayContext.forEach(value -&gt; vc.context.add(((JsonString) value).getString()));</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (adapted.containsKey(CONTEXT)) {</span>
+<span class="fc" id="L116">            vc.context = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L117">            adapted.getJsonArray(CONTEXT).forEach(value -&gt; vc.context.add(((JsonString) value).getString()));</span>
         }
 
-<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (adapted.containsKey(ID)) {</span>
-<span class="fc" id="L127">            vc.id = adapted.getString(ID);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        if (adapted.containsKey(ID)) {</span>
+<span class="fc" id="L121">            vc.id = adapted.getString(ID);</span>
         }
 
-<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (adapted.containsKey(TYPE)) {</span>
-<span class="fc" id="L131">            final var jsonArrayType = adapted.getJsonArray(TYPE);</span>
-<span class="fc" id="L132">            vc.type = new ArrayList&lt;String&gt;();</span>
-<span class="fc" id="L133">            jsonArrayType.forEach(value -&gt; vc.type.add(((JsonString) value).getString()));</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (adapted.containsKey(TYPE)) {</span>
+<span class="fc" id="L125">            vc.type = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L126">            adapted.getJsonArray(TYPE).forEach(value -&gt; vc.type.add(((JsonString) value).getString()));</span>
         }
 
-<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (adapted.containsKey(ISSUER)) {</span>
-<span class="fc" id="L137">            vc.issuer = adapted.getString(ISSUER);</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (adapted.containsKey(ISSUER)) {</span>
+<span class="fc" id="L130">            vc.issuer = adapted.getString(ISSUER);</span>
         }
 
-<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        if (adapted.containsKey(ISSUANCE_DATE)) {</span>
-<span class="fc" id="L141">            vc.issuanceDate = Instant.parse(adapted.getString(ISSUANCE_DATE));</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (adapted.containsKey(ISSUANCE_DATE)) {</span>
+<span class="fc" id="L134">            vc.issuanceDate = Instant.parse(adapted.getString(ISSUANCE_DATE));</span>
         }
 
-<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (adapted.containsKey(EXPIRATION_DATE)) {</span>
-<span class="nc" id="L145">            vc.expirationDate = Instant.parse(adapted.getString(EXPIRATION_DATE));</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (adapted.containsKey(EXPIRATION_DATE)) {</span>
+<span class="fc" id="L138">            vc.expirationDate = Instant.parse(adapted.getString(EXPIRATION_DATE));</span>
         }
 
-<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (adapted.containsKey(CREDENTIAL_SUBJECT)) {</span>
-<span class="fc" id="L149">            vc.credentialSubject = new HashMap&lt;String, Object&gt;();</span>
-<span class="fc" id="L150">            final var jsonObject = adapted.getJsonObject(CREDENTIAL_SUBJECT);</span>
-<span class="fc" id="L151">            vc.credentialSubject.putAll(jsonObject);</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (adapted.containsKey(CREDENTIAL_SUBJECT)) {</span>
+<span class="fc" id="L142">            vc.credentialSubject = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L143">            vc.credentialSubject.putAll(adapted.getJsonObject(CREDENTIAL_SUBJECT));</span>
         }
 
-<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (adapted.containsKey(CREDENTIAL_STATUS)) {</span>
-<span class="fc" id="L155">            vc.credentialStatus = new HashMap&lt;String, Object&gt;();</span>
-<span class="fc" id="L156">            final var jsonObject = adapted.getJsonObject(CREDENTIAL_STATUS);</span>
-<span class="fc" id="L157">            vc.credentialStatus.putAll(jsonObject);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (adapted.containsKey(CREDENTIAL_STATUS)) {</span>
+<span class="fc" id="L147">            vc.credentialStatus = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L148">            vc.credentialStatus.putAll(adapted.getJsonObject(CREDENTIAL_STATUS));</span>
         }
 
-<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (adapted.containsKey(PROOF)) {</span>
-<span class="fc" id="L161">            vc.proof = new HashMap&lt;String, Object&gt;();</span>
-<span class="fc" id="L162">            final var jsonObject = adapted.getJsonObject(PROOF);</span>
-<span class="fc" id="L163">            vc.proof.putAll(jsonObject);</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (adapted.containsKey(PROOF)) {</span>
+<span class="fc" id="L152">            vc.proof = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L153">            vc.proof.putAll(adapted.getJsonObject(PROOF));</span>
         }
 
-<span class="fc" id="L166">        return vc;</span>
+<span class="fc" id="L156">        return vc;</span>
     }
 
     private &lt;T&gt; void addRightJsonType(final JsonObjectBuilder objectBuilder, final Entry&lt;String, T&gt; entry) {
-<span class="fc bfc" id="L170" title="All 2 branches covered.">        if (entry.getValue() instanceof JsonString) {</span>
-<span class="fc" id="L171">            objectBuilder.add(entry.getKey(), (JsonString) entry.getValue());</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (entry.getValue() instanceof JsonString) {</span>
+<span class="fc" id="L161">            objectBuilder.add(entry.getKey(), (JsonString) entry.getValue());</span>
         }
-<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (entry.getValue() instanceof JsonNumber) {</span>
-<span class="nc" id="L174">            objectBuilder.add(entry.getKey(), (JsonNumber) entry.getValue());</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (entry.getValue() instanceof JsonNumber) {</span>
+<span class="nc" id="L164">            objectBuilder.add(entry.getKey(), (JsonNumber) entry.getValue());</span>
         }
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (entry.getValue() instanceof JsonArray) {</span>
-<span class="nc" id="L177">            final var arrayBuilder = Json.createArrayBuilder();</span>
-<span class="nc" id="L178">            ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);</span>
-<span class="nc" id="L179">            final var jsonArray = arrayBuilder.build();</span>
-<span class="nc" id="L180">            objectBuilder.add(entry.getKey(), jsonArray);</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (entry.getValue() instanceof JsonArray) {</span>
+<span class="nc" id="L167">            final var arrayBuilder = Json.createArrayBuilder();</span>
+<span class="nc" id="L168">            ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);</span>
+<span class="nc" id="L169">            objectBuilder.add(entry.getKey(), arrayBuilder.build());</span>
         }
-<span class="pc bpc" id="L182" title="1 of 2 branches missed.">        if (entry.getValue() instanceof JsonValue) {</span>
-<span class="fc" id="L183">            objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (entry.getValue() instanceof JsonValue) {</span>
+<span class="fc" id="L172">            objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());</span>
         }
-<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (entry.getValue() instanceof JsonObject) {</span>
-<span class="fc" id="L186">            final var object = Json.createObjectBuilder();</span>
-<span class="fc" id="L187">            final var it = ((JsonObject) entry.getValue()).entrySet().iterator();</span>
-<span class="fc bfc" id="L188" title="All 2 branches covered.">            while (it.hasNext()) {</span>
-<span class="fc" id="L189">                addRightJsonType(object, it.next());</span>
-            }
-<span class="fc" id="L191">            objectBuilder.add(entry.getKey(), object);</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (entry.getValue() instanceof JsonObject) {</span>
+<span class="fc" id="L175">            final var object = Json.createObjectBuilder();</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            for (final var it : ((JsonObject)entry.getValue()).entrySet()) {</span>
+<span class="fc" id="L177">                addRightJsonType(object, it);</span>
+<span class="fc" id="L178">            }</span>
+<span class="fc" id="L179">            objectBuilder.add(entry.getKey(), object);</span>
         }
-<span class="fc" id="L193">    }</span>
+<span class="fc" id="L181">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

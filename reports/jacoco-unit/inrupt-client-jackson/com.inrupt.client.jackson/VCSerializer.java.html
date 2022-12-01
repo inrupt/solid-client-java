@@ -34,90 +34,89 @@ public class VCSerializer extends StdSerializer&lt;VerifiableCredential&gt; {
     private static final String ID = &quot;id&quot;;
     private static final String ISSUER = &quot;issuer&quot;;
     private static final String ISSUANCE_DATE = &quot;issuanceDate&quot;;
+    private static final String EXPIRATION_DATE = &quot;expirationDate&quot;;
     private static final String CREDENTIAL_SUBJECT = &quot;credentialSubject&quot;;
     private static final String CREDENTIAL_STATUS = &quot;credentialStatus&quot;;
     private static final String PROOF = &quot;proof&quot;;
 
     public VCSerializer() {
-<span class="fc" id="L42">        this((Class&lt;VerifiableCredential&gt;)null);</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L43">        this((Class&lt;VerifiableCredential&gt;)null);</span>
+<span class="fc" id="L44">    }</span>
 
     public VCSerializer(final Class&lt;VerifiableCredential&gt; vc) {
-<span class="fc" id="L46">        super(vc);</span>
-<span class="fc" id="L47">    }</span>
+<span class="fc" id="L47">        super(vc);</span>
+<span class="fc" id="L48">    }</span>
 
     @Override
     public void serialize(final VerifiableCredential vc, final JsonGenerator jgen,
             final SerializerProvider provider) throws IOException {
 
-<span class="fc" id="L53">        jgen.writeStartObject();</span>
+<span class="fc" id="L54">        jgen.writeStartObject();</span>
 
-<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (vc.context != null) {</span>
-<span class="fc" id="L56">            jgen.writeFieldName(CONTEXT);</span>
-<span class="fc" id="L57">            jgen.writeStartArray();</span>
-<span class="fc bfc" id="L58" title="All 2 branches covered.">            for (final var context : vc.context) {</span>
-<span class="fc" id="L59">                jgen.writeString(context);</span>
-<span class="fc" id="L60">            }</span>
-<span class="fc" id="L61">            jgen.writeEndArray();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (vc.context != null) {</span>
+<span class="fc" id="L57">            jgen.writeFieldName(CONTEXT);</span>
+<span class="fc" id="L58">            jgen.writeStartArray();</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            for (final var context : vc.context) {</span>
+<span class="fc" id="L60">                jgen.writeString(context);</span>
+<span class="fc" id="L61">            }</span>
+<span class="fc" id="L62">            jgen.writeEndArray();</span>
         }
 
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (vc.id != null) {</span>
-<span class="fc" id="L65">            jgen.writeStringField(ID, vc.id);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (vc.id != null) {</span>
+<span class="fc" id="L66">            jgen.writeStringField(ID, vc.id);</span>
         }
 
-<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (vc.type != null) {</span>
-<span class="fc" id="L69">            jgen.writeFieldName(TYPE);</span>
-<span class="fc" id="L70">            jgen.writeStartArray();</span>
-<span class="fc bfc" id="L71" title="All 2 branches covered.">            for (final var type : vc.type) {</span>
-<span class="fc" id="L72">                jgen.writeString(type);</span>
-<span class="fc" id="L73">            }</span>
-<span class="fc" id="L74">            jgen.writeEndArray();</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (vc.type != null) {</span>
+<span class="fc" id="L70">            jgen.writeFieldName(TYPE);</span>
+<span class="fc" id="L71">            jgen.writeStartArray();</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            for (final var type : vc.type) {</span>
+<span class="fc" id="L73">                jgen.writeString(type);</span>
+<span class="fc" id="L74">            }</span>
+<span class="fc" id="L75">            jgen.writeEndArray();</span>
         }
 
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (vc.issuer != null) {</span>
-<span class="fc" id="L78">            jgen.writeStringField(ISSUER, vc.issuer);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (vc.issuer != null) {</span>
+<span class="fc" id="L79">            jgen.writeStringField(ISSUER, vc.issuer);</span>
         }
 
-<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (vc.issuanceDate != null) {</span>
-<span class="fc" id="L82">            jgen.writeStringField(ISSUANCE_DATE, vc.issuanceDate.toString());</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (vc.issuanceDate != null) {</span>
+<span class="fc" id="L83">            jgen.writeStringField(ISSUANCE_DATE, vc.issuanceDate.toString());</span>
         }
 
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (vc.credentialSubject != null) {</span>
-<span class="fc" id="L86">            jgen.writeFieldName(CREDENTIAL_SUBJECT);</span>
-<span class="fc" id="L87">            jgen.writeStartObject();</span>
-<span class="fc" id="L88">            final var itCSubject = vc.credentialSubject.entrySet().iterator();</span>
-<span class="fc bfc" id="L89" title="All 2 branches covered.">            while (itCSubject.hasNext()) {</span>
-<span class="fc" id="L90">                final var entry = itCSubject.next();</span>
-<span class="fc" id="L91">                jgen.writePOJOField(entry.getKey(), entry.getValue());</span>
-<span class="fc" id="L92">            }</span>
-<span class="fc" id="L93">            jgen.writeEndObject();</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (vc.expirationDate != null) {</span>
+<span class="fc" id="L87">            jgen.writeStringField(EXPIRATION_DATE, vc.expirationDate.toString());</span>
         }
 
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (vc.credentialStatus != null) {</span>
-<span class="fc" id="L97">            jgen.writeFieldName(CREDENTIAL_STATUS);</span>
-<span class="fc" id="L98">            jgen.writeStartObject();</span>
-<span class="fc" id="L99">            final var itCStatus = vc.credentialStatus.entrySet().iterator();</span>
-<span class="fc bfc" id="L100" title="All 2 branches covered.">            while (itCStatus.hasNext()) {</span>
-<span class="fc" id="L101">                final var entry = itCStatus.next();</span>
-<span class="fc" id="L102">                jgen.writePOJOField(entry.getKey(), entry.getValue());</span>
-<span class="fc" id="L103">            }</span>
-<span class="fc" id="L104">            jgen.writeEndObject();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (vc.credentialSubject != null) {</span>
+<span class="fc" id="L91">            jgen.writeFieldName(CREDENTIAL_SUBJECT);</span>
+<span class="fc" id="L92">            jgen.writeStartObject();</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">            for (final var oneCS : vc.credentialSubject.entrySet()) {</span>
+<span class="fc" id="L94">                jgen.writePOJOField(oneCS.getKey(), oneCS.getValue());</span>
+<span class="fc" id="L95">            }</span>
+<span class="fc" id="L96">            jgen.writeEndObject();</span>
         }
 
-<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (vc.proof != null) {</span>
-<span class="fc" id="L108">            jgen.writeFieldName(PROOF);</span>
-<span class="fc" id="L109">            jgen.writeStartObject();</span>
-<span class="fc" id="L110">            final var itProof = vc.proof.entrySet().iterator();</span>
-<span class="fc bfc" id="L111" title="All 2 branches covered.">            while (itProof.hasNext()) {</span>
-<span class="fc" id="L112">                final var entry = itProof.next();</span>
-<span class="fc" id="L113">                jgen.writePOJOField(entry.getKey(), entry.getValue());</span>
-<span class="fc" id="L114">            }</span>
-<span class="fc" id="L115">            jgen.writeEndObject();</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (vc.credentialStatus != null) {</span>
+<span class="fc" id="L100">            jgen.writeFieldName(CREDENTIAL_STATUS);</span>
+<span class="fc" id="L101">            jgen.writeStartObject();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            for (final var oneCS : vc.credentialStatus.entrySet()) {</span>
+<span class="fc" id="L103">                jgen.writePOJOField(oneCS.getKey(), oneCS.getValue());</span>
+<span class="fc" id="L104">            }</span>
+<span class="fc" id="L105">            jgen.writeEndObject();</span>
         }
 
-<span class="fc" id="L118">        jgen.writeEndObject();</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (vc.proof != null) {</span>
+<span class="fc" id="L109">            jgen.writeFieldName(PROOF);</span>
+<span class="fc" id="L110">            jgen.writeStartObject();</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            for (final var oneProof : vc.proof.entrySet()) {</span>
+<span class="fc" id="L112">                jgen.writePOJOField(oneProof.getKey(), oneProof.getValue());</span>
+<span class="fc" id="L113">            }</span>
+<span class="fc" id="L114">            jgen.writeEndObject();</span>
+        }
 
-<span class="fc" id="L120">    }</span>
+<span class="fc" id="L117">        jgen.writeEndObject();</span>
+
+<span class="fc" id="L119">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

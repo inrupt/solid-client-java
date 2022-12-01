@@ -26,8 +26,8 @@ Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,Wac
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,ConsumerErrorListener,0,26,0,0,0,5,0,2,0,2
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateParser.WwwAuthenticateContext,21,21,2,2,5,6,7,3,5,3
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateParser,34,447,6,21,11,101,10,17,4,9
-Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateBaseListener,1,10,0,0,1,8,1,8,1,8
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WacAllowParser,22,272,0,16,8,57,4,16,4,8
+Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateBaseListener,1,10,0,0,1,8,1,8,1,8
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkLexer,16,233,0,8,8,27,8,9,8,5
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkParser,22,354,0,18,8,79,4,18,4,9
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkParser.LinkHeaderContext,12,21,2,2,3,6,5,3,3,3
@@ -38,8 +38,8 @@ Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,Www
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkParser.LinkContext,16,30,2,2,4,8,6,5,4,5
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WacAllowLexer,16,201,0,8,8,27,8,9,8,5
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,UmaClient,45,411,1,17,9,83,3,31,2,22
-Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,TokenResponse,0,3,0,0,0,1,0,1,0,1
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,UmaException,0,9,0,0,0,4,0,2,0,2
+Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,TokenResponse,0,3,0,0,0,1,0,1,0,1
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,ClaimGatheringHandler,35,0,8,0,7,0,5,0,1,0
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,InvalidGrantException,5,4,0,0,2,2,1,1,1,1
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,Metadata,0,3,0,0,0,1,0,1,0,1
@@ -47,6 +47,6 @@ Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,NeedInfo,
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,ClaimToken,0,25,0,0,0,7,0,4,0,4
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,ErrorResponse,0,3,0,0,0,1,0,1,0,1
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,InvalidScopeException,5,4,0,0,2,2,1,1,1,1
-Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,TokenRequest,0,43,0,2,0,14,0,7,0,6
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,RequiredClaims,78,6,8,0,19,3,13,1,9,1
+Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,TokenRequest,0,43,0,2,0,14,0,7,0,6
 Inrupt Client Libraries - Core/inrupt-client-uma,com.inrupt.client.uma,RequestDeniedException,5,4,0,0,2,2,1,1,1,1

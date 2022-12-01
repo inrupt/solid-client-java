@@ -73,7 +73,7 @@ public class JsonbService implements JsonService {
     @Override
     public &lt;T&gt; T fromJson(final InputStream input, final Type type) throws IOException {
         try {
-<span class="nc" id="L76">            return jsonb.fromJson(input, type);</span>
+<span class="fc" id="L76">            return jsonb.fromJson(input, type);</span>
 <span class="nc" id="L77">        } catch (final JsonbException | JsonException ex) {</span>
 <span class="nc" id="L78">            throw new IOException(&quot;Error parsing JSON&quot;, ex);</span>
         }

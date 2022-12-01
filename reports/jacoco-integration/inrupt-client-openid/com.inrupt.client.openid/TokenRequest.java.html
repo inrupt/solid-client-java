@@ -188,19 +188,15 @@ public final class TokenRequest {
 <span class="nc" id="L188">            Objects.requireNonNull(redirectUri, &quot;Redirect URI may not be null!&quot;);</span>
 <span class="nc" id="L189">            final String grant = Objects.requireNonNull(grantType, &quot;Grant type may not be null!&quot;);</span>
 
-<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (&quot;authorization_code&quot;.equals(grantType)) {</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">                if (builderCode == null) {</span>
-<span class="nc" id="L193">                    throw new IllegalArgumentException(</span>
-                            &quot;Missing code parameter for authorization_code grant type&quot;);
-                }
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            } else if (&quot;client_credentials&quot;.equals(grantType)) {</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">                if (builderClientSecret == null) {</span>
-<span class="nc" id="L198">                    throw new IllegalArgumentException(</span>
-                            &quot;Missing client_secret parameter for client_credentials grant type&quot;);
-                }
+<span class="nc bnc" id="L191" title="All 4 branches missed.">            if (&quot;authorization_code&quot;.equals(grantType) &amp;&amp; builderCode == null) {</span>
+<span class="nc" id="L192">                throw new IllegalArgumentException(</span>
+                    &quot;Missing code parameter for authorization_code grant type&quot;);
+<span class="nc bnc" id="L194" title="All 4 branches missed.">            } else if (&quot;client_credentials&quot;.equals(grantType) &amp;&amp; builderClientSecret == null) {</span>
+<span class="nc" id="L195">                throw new IllegalArgumentException(</span>
+                    &quot;Missing client_secret parameter for client_credentials grant type&quot;);
             }
 
-<span class="nc" id="L203">            return new TokenRequest(clientId, builderClientSecret, redirectUri, grant, builderAuthMethod,</span>
+<span class="nc" id="L199">            return new TokenRequest(clientId, builderClientSecret, redirectUri, grant, builderAuthMethod,</span>
                     builderCode, builderCodeVerifier);
         }
     }

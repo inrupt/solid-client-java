@@ -76,7 +76,7 @@ public class JacksonService implements JsonService {
 
     @Override
     public &lt;T&gt; T fromJson(final InputStream input, final Type type) throws IOException {
-<span class="fc" id="L79">        return mapper.readValue(input, mapper.getTypeFactory().constructType(type));</span>
+<span class="nc" id="L79">        return mapper.readValue(input, mapper.getTypeFactory().constructType(type));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

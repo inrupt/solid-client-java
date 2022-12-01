@@ -79,8 +79,8 @@ public class VPSerializer extends StdSerializer&lt;VerifiablePresentation&gt; {
 <span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (vp.verifiableCredential != null) {</span>
 <span class="fc" id="L80">            jgen.writeFieldName(VERIFIABLE_CREDENTIAL);</span>
 <span class="fc" id="L81">            jgen.writeStartArray();</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">            for (final var vc : vp.verifiableCredential) {</span>
-<span class="fc" id="L83">                jgen.writePOJO(vc);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            for (final var oneVc : vp.verifiableCredential) {</span>
+<span class="fc" id="L83">                jgen.writePOJO(oneVc);</span>
 <span class="fc" id="L84">            }</span>
 <span class="fc" id="L85">            jgen.writeEndArray();</span>
         }
@@ -88,17 +88,15 @@ public class VPSerializer extends StdSerializer&lt;VerifiablePresentation&gt; {
 <span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (vp.proof != null) {</span>
 <span class="fc" id="L89">            jgen.writeFieldName(PROOF);</span>
 <span class="fc" id="L90">            jgen.writeStartObject();</span>
-<span class="fc" id="L91">            final var itProof = vp.proof.entrySet().iterator();</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">            while (itProof.hasNext()) {</span>
-<span class="fc" id="L93">                final var entry = itProof.next();</span>
-<span class="fc" id="L94">                jgen.writeObjectField(entry.getKey(), entry.getValue());</span>
-<span class="fc" id="L95">            }</span>
-<span class="fc" id="L96">            jgen.writeEndObject();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            for (final var oneProof : vp.proof.entrySet()) {</span>
+<span class="fc" id="L92">                jgen.writeObjectField(oneProof.getKey(), oneProof.getValue());</span>
+<span class="fc" id="L93">            }</span>
+<span class="fc" id="L94">            jgen.writeEndObject();</span>
         }
 
-<span class="fc" id="L99">        jgen.writeEndObject();</span>
+<span class="fc" id="L97">        jgen.writeEndObject();</span>
 
-<span class="fc" id="L101">    }</span>
+<span class="fc" id="L99">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
