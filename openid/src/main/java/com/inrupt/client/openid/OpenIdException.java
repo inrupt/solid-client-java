@@ -28,7 +28,7 @@ import java.util.OptionalInt;
 public class OpenIdException extends RuntimeException {
 
     private static final long serialVersionUID = 3892357293662737233L;
-    private OptionalInt status;
+    private final transient OptionalInt status;
 
     /**
      * Create an OpenID exception.

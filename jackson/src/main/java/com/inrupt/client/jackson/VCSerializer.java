@@ -34,6 +34,7 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
     private static final String ID = "id";
     private static final String ISSUER = "issuer";
     private static final String ISSUANCE_DATE = "issuanceDate";
+    private static final String EXPIRATION_DATE = "expirationDate";
     private static final String CREDENTIAL_SUBJECT = "credentialSubject";
     private static final String CREDENTIAL_STATUS = "credentialStatus";
     private static final String PROOF = "proof";
@@ -82,13 +83,15 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
             jgen.writeStringField(ISSUANCE_DATE, vc.issuanceDate.toString());
         }
 
+        if (vc.expirationDate != null) {
+            jgen.writeStringField(EXPIRATION_DATE, vc.expirationDate.toString());
+        }
+
         if (vc.credentialSubject != null) {
             jgen.writeFieldName(CREDENTIAL_SUBJECT);
             jgen.writeStartObject();
-            final var itCSubject = vc.credentialSubject.entrySet().iterator();
-            while (itCSubject.hasNext()) {
-                final var entry = itCSubject.next();
-                jgen.writePOJOField(entry.getKey(), entry.getValue());
+            for (final var oneCS : vc.credentialSubject.entrySet()) {
+                jgen.writePOJOField(oneCS.getKey(), oneCS.getValue());
             }
             jgen.writeEndObject();
         }
@@ -96,10 +99,8 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
         if (vc.credentialStatus != null) {
             jgen.writeFieldName(CREDENTIAL_STATUS);
             jgen.writeStartObject();
-            final var itCStatus = vc.credentialStatus.entrySet().iterator();
-            while (itCStatus.hasNext()) {
-                final var entry = itCStatus.next();
-                jgen.writePOJOField(entry.getKey(), entry.getValue());
+            for (final var oneCS : vc.credentialStatus.entrySet()) {
+                jgen.writePOJOField(oneCS.getKey(), oneCS.getValue());
             }
             jgen.writeEndObject();
         }
@@ -107,10 +108,8 @@ public class VCSerializer extends StdSerializer<VerifiableCredential> {
         if (vc.proof != null) {
             jgen.writeFieldName(PROOF);
             jgen.writeStartObject();
-            final var itProof = vc.proof.entrySet().iterator();
-            while (itProof.hasNext()) {
-                final var entry = itProof.next();
-                jgen.writePOJOField(entry.getKey(), entry.getValue());
+            for (final var oneProof : vc.proof.entrySet()) {
+                jgen.writePOJOField(oneProof.getKey(), oneProof.getValue());
             }
             jgen.writeEndObject();
         }

@@ -37,9 +37,9 @@ import org.junit.jupiter.api.Test;
 
 public class JsonVPSerializeDeserialize {
 
-    private static VerifiablePresentation vp;
-    private static VerifiablePresentation vpCopy;
-    private static JsonService service = ServiceProvider.getJsonService();
+    private VerifiablePresentation vp;
+    private VerifiablePresentation vpCopy;
+    private static final JsonService service = ServiceProvider.getJsonService();
 
     @Test
     void roundtripVP() throws IOException {
