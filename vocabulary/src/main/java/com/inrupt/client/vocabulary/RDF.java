@@ -35,7 +35,7 @@ public final class RDF {
     /**
      * The rdf:type URI.
      */
-    public static URI type = URI.create(namespace + "type");
+    public static final URI type = URI.create(namespace + "type");
 
     /**
      * Get the RDF namespace URI.

@@ -24,15 +24,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.inrupt.client.VerifiableCredential;
 import com.inrupt.client.VerifiablePresentation;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
 
@@ -58,48 +55,37 @@ public class VPDeserializer extends StdDeserializer<VerifiablePresentation> {
         final JsonNode node = jp.getCodec().readTree(jp);
         final VerifiablePresentation vp = new VerifiablePresentation();
 
-        if (node.get(CONTEXT) != null) {
-            final ArrayNode contexts = (ArrayNode) node.get(CONTEXT);
-            final List<String> finalContext = new ArrayList<>();
-            contexts.forEach(oneCtx -> finalContext.add(oneCtx.textValue()));
-            vp.context = finalContext;
+        if (!node.path(CONTEXT).isMissingNode()) {
+            vp.context = new ArrayList<>();
+            node.get(CONTEXT).elements()
+                    .forEachRemaining(element -> vp.context.add(element.textValue()));
         }
 
-        if (node.get(ID) != null) {
-            final String id = node.get(ID).textValue();
-            vp.id = id;
+        if (!node.path(ID).isMissingNode()) {
+            vp.id = node.get(ID).textValue();
         }
 
-        if (node.get(TYPE) != null) {
-            final ArrayNode types = (ArrayNode) node.get(TYPE);
-            final List<String> finalType = new ArrayList<>();
-            types.forEach(oneType -> finalType.add(oneType.textValue()));
-            vp.type = finalType;
+        if (!node.path(TYPE).isMissingNode()) {
+            vp.type = new ArrayList<>();
+            node.get(TYPE).elements().forEachRemaining(element -> vp.type.add(element.textValue()));
         }
 
-        if (node.get(HOLDER) != null) {
-            final String holder = node.get(HOLDER).textValue();
-            vp.holder = holder;
+        if (!node.path(HOLDER).isMissingNode()) {
+            vp.holder = node.get(HOLDER).textValue();
         }
 
-        if (node.get(VERIFIABLE_CREDENTIAL) != null) {
-            final ArrayNode verifiableCredential = (ArrayNode) node.get(VERIFIABLE_CREDENTIAL);
-            final List<VerifiableCredential> finalVerifiableCredential = new ArrayList<>();
-            for (final JsonNode oneVc: verifiableCredential) {
-                finalVerifiableCredential.add(jp.getCodec()
-                    .treeToValue(oneVc, VerifiableCredential.class)
-                );
+        if (!node.path(VERIFIABLE_CREDENTIAL).isMissingNode()) {
+            vp.verifiableCredential = new ArrayList<>();
+            for (final JsonNode oneVc : node.get(VERIFIABLE_CREDENTIAL)) {
+                vp.verifiableCredential
+                        .add(jp.getCodec().treeToValue(oneVc, VerifiableCredential.class));
             }
-            vp.verifiableCredential = finalVerifiableCredential;
         }
 
-        if (node.get(PROOF) != null) {
-            final JsonNode proof = node.get(PROOF);
-            final Map<String, Object> finalProof = new HashMap<>();
-            proof.fields().forEachRemaining(field ->
-                finalProof.put(field.getKey(), field.getValue())
-            );
-            vp.proof = finalProof;
+        if (!node.path(PROOF).isMissingNode()) {
+            vp.proof = new HashMap<>();
+            node.get(PROOF).fields()
+                    .forEachRemaining(field -> vp.proof.put(field.getKey(), field.getValue()));
         }
 
         return vp;

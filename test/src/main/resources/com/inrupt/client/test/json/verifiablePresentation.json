@@ -28,6 +28,7 @@
             ],
             "issuer": "https://example.test/issuers/565049",
             "issuanceDate": "2018-12-04T18:47:38.927Z",
+            "expirationDate": "2019-12-04T18:47:38.927Z",
             "credentialSubject": {
                 "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
                 "degree": {

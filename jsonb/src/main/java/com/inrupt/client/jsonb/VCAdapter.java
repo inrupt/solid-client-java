@@ -48,8 +48,6 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
     private static final String CREDENTIAL_STATUS = "credentialStatus";
     private static final String PROOF = "proof";
 
-
-
     @Override
     public JsonObject adaptToJson(final VerifiableCredential vc) throws Exception {
 
@@ -57,13 +55,13 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
 
         if (vc.context != null) {
             final var arrayBuilder = Json.createArrayBuilder();
-            vc.context.forEach(oneContext -> arrayBuilder.add(oneContext));
+            vc.context.forEach(arrayBuilder::add);
             result.add(CONTEXT, arrayBuilder.build());
         }
 
         if (vc.type != null) {
             final var arrayBuilder = Json.createArrayBuilder();
-            vc.type.forEach(oneType -> arrayBuilder.add(oneType));
+            vc.type.forEach(arrayBuilder::add);
             result.add(TYPE, arrayBuilder.build());
         }
 
@@ -84,28 +82,25 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
         }
 
         if (vc.credentialSubject != null) {
-            final var itCSubject = vc.credentialSubject.entrySet().iterator();
             final var objectBuilder = Json.createObjectBuilder();
-            while (itCSubject.hasNext()) {
-                addRightJsonType(objectBuilder, itCSubject.next());
+            for (final var oneCS : vc.credentialSubject.entrySet()) {
+                addRightJsonType(objectBuilder, oneCS);
             }
             result.add(CREDENTIAL_SUBJECT, objectBuilder.build());
         }
 
         if (vc.credentialStatus != null) {
-            final var itCStatus = vc.credentialStatus.entrySet().iterator();
             final var objectBuilder = Json.createObjectBuilder();
-            while (itCStatus.hasNext()) {
-                addRightJsonType(objectBuilder, itCStatus.next());
+            for (final var oneCS : vc.credentialStatus.entrySet()) {
+                addRightJsonType(objectBuilder, oneCS);
             }
             result.add(CREDENTIAL_STATUS, objectBuilder.build());
         }
 
         if (vc.proof != null) {
-            final var itProof = vc.proof.entrySet().iterator();
             final var objectBuilder = Json.createObjectBuilder();
-            while (itProof.hasNext()) {
-                addRightJsonType(objectBuilder, itProof.next());
+            for (final var oneProof : vc.proof.entrySet()) {
+                addRightJsonType(objectBuilder, oneProof);
             }
             result.add(PROOF, objectBuilder.build());
         }
@@ -119,8 +114,7 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
 
         if (adapted.containsKey(CONTEXT)) {
             vc.context = new ArrayList<String>();
-            final var jsonArrayContext = adapted.getJsonArray(CONTEXT);
-            jsonArrayContext.forEach(value -> vc.context.add(((JsonString) value).getString()));
+            adapted.getJsonArray(CONTEXT).forEach(value -> vc.context.add(((JsonString) value).getString()));
         }
 
         if (adapted.containsKey(ID)) {
@@ -128,9 +122,8 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
         }
 
         if (adapted.containsKey(TYPE)) {
-            final var jsonArrayType = adapted.getJsonArray(TYPE);
             vc.type = new ArrayList<String>();
-            jsonArrayType.forEach(value -> vc.type.add(((JsonString) value).getString()));
+            adapted.getJsonArray(TYPE).forEach(value -> vc.type.add(((JsonString) value).getString()));
         }
 
         if (adapted.containsKey(ISSUER)) {
@@ -147,20 +140,17 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
 
         if (adapted.containsKey(CREDENTIAL_SUBJECT)) {
             vc.credentialSubject = new HashMap<String, Object>();
-            final var jsonObject = adapted.getJsonObject(CREDENTIAL_SUBJECT);
-            vc.credentialSubject.putAll(jsonObject);
+            vc.credentialSubject.putAll(adapted.getJsonObject(CREDENTIAL_SUBJECT));
         }
 
         if (adapted.containsKey(CREDENTIAL_STATUS)) {
             vc.credentialStatus = new HashMap<String, Object>();
-            final var jsonObject = adapted.getJsonObject(CREDENTIAL_STATUS);
-            vc.credentialStatus.putAll(jsonObject);
+            vc.credentialStatus.putAll(adapted.getJsonObject(CREDENTIAL_STATUS));
         }
 
         if (adapted.containsKey(PROOF)) {
             vc.proof = new HashMap<String, Object>();
-            final var jsonObject = adapted.getJsonObject(PROOF);
-            vc.proof.putAll(jsonObject);
+            vc.proof.putAll(adapted.getJsonObject(PROOF));
         }
 
         return vc;
@@ -176,17 +166,15 @@ public class VCAdapter implements JsonbAdapter<VerifiableCredential, JsonObject>
         if (entry.getValue() instanceof JsonArray) {
             final var arrayBuilder = Json.createArrayBuilder();
             ((JsonArray) entry.getValue()).forEach(arrayBuilder::add);
-            final var jsonArray = arrayBuilder.build();
-            objectBuilder.add(entry.getKey(), jsonArray);
+            objectBuilder.add(entry.getKey(), arrayBuilder.build());
         }
         if (entry.getValue() instanceof JsonValue) {
             objectBuilder.add(entry.getKey(), (JsonValue) entry.getValue());
         }
         if (entry.getValue() instanceof JsonObject) {
             final var object = Json.createObjectBuilder();
-            final var it = ((JsonObject) entry.getValue()).entrySet().iterator();
-            while (it.hasNext()) {
-                addRightJsonType(object, it.next());
+            for (final var it : ((JsonObject)entry.getValue()).entrySet()) {
+                addRightJsonType(object, it);
             }
             objectBuilder.add(entry.getKey(), object);
         }
