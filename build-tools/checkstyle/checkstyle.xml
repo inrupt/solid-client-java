@@ -125,7 +125,7 @@
     </module>
 
     <!-- K&R style braces -->
-    <!-- <module name="NeedBraces"/> -->
+    <module name="NeedBraces"/>
     <module name="LeftCurly"/>
     <module name="RightCurly"/>
     <module name="WhitespaceAround">
