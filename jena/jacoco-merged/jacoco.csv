@@ -2,7 +2,7 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,Headers.WwwAuthenticate,26,0,0,0,7,0,5,0,5,0
 Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,Response.BodyHandlers,9,20,0,0,1,3,2,6,2,6
 Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,Client.Session.new Client.Session() {...},14,0,0,0,4,0,4,0,4,0
-Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,Headers.Link,143,0,8,0,23,0,14,0,10,0
+Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,Headers.Link,149,0,8,0,24,0,15,0,11,0
 Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,Authenticator.AccessToken,42,0,0,0,12,0,6,0,6,0
 Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,InruptClientException,9,0,0,0,4,0,2,0,2,0
 Inrupt Client Libraries - Jena/inrupt-client-api,com.inrupt.client,VerifiablePresentation,3,0,0,0,1,0,1,0,1,0
