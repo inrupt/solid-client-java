@@ -30,11 +30,11 @@ class PKCETest {
 
     @Test
     void createChallengeTest() {
-        assertTrue(PKCE.createChallenge("🐶🐶🐶").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("🐶🐶🐶").getBytes(UTF_8).length <= 128);
-        assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("").getBytes(UTF_8).length <= 128);
-        assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null));
+        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length >= 43);
+        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length <= 128);
+        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length >= 43);
+        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length <= 128);
+        assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null, "SHA-256"));
     }
 
     @Test
