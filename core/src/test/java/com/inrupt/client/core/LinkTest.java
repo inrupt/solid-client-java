@@ -56,6 +56,16 @@ class LinkTest {
     };
 
     @Test
+    void testLinkFactories() {
+        final URI uri = URI.create("https://example.com/%E8%8B%97%E6%9D%A1");
+        final String rel = "preconnect";
+
+        assertEquals(Link.of(uri), Link.of(uri, new HashMap<>()));
+        assertEquals(Link.of(uri, rel), Link.of(uri, Collections.singletonMap("rel", rel)));
+
+    }
+
+    @Test
     void parseSingleLink() {
         final String header = "<https://example.com/%E8%8B%97%E6%9D%A1>; rel=\"preconnect\"";
         final List<Link> linkValues = Link.parse(header);

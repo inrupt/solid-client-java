@@ -156,6 +156,26 @@ public final class Headers {
         }
 
         /**
+         * Create a new Link object with a specific URI-Reference.
+         *
+         * @param uri the link URI
+         * @return the new {@link Link} object
+         */
+        public static Link of(final URI uri) {
+            return of(uri, new HashMap<>());
+        }
+
+        /**
+         * Create a new Link object with a specific URI-Reference and relation parameter.
+         *
+         * @param uri the link URI
+         * @param rel the relation value
+         * @return the new {@link Link} object
+         */
+        public static Link of(final URI uri, final String rel) {
+            return of(uri, Collections.singletonMap("rel", rel));
+        }
+        /**
          * Create a new Link object with a specific URI-Reference and parameters.
          *
          * @param uri the link URI
