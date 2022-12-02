@@ -45,9 +45,22 @@ public final class PKCE {
      * @return the Base64URL-encoded challenge value
      */
     static String createChallenge(final String verifier) {
+        return createChallenge(verifier, "SHA-256");
+    }
+
+    /**
+     * Create a PKCE challenge value using a given algorithm.
+     *
+     * <p>Note: the {@code none} algorithm is not supported by this library.
+     *
+     * @param verifier the PKCE verifier, may not be {@code null}
+     * @param alg the algorithm used to encode challenge value
+     * @return the Base64URL-encoded challenge value
+     */
+    static String createChallenge(final String verifier, final String alg) {
         Objects.requireNonNull(verifier, "PKCE Verifier cannot be null");
         try {
-            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final MessageDigest digest = MessageDigest.getInstance(alg);
             return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest(verifier.getBytes(UTF_8)));
         } catch (final NoSuchAlgorithmException ex) {
             throw new OpenIdException("Error generating PKCE challenge", ex);
