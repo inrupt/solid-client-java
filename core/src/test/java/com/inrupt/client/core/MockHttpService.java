@@ -82,7 +82,24 @@ class MockHttpService {
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate",
-                            "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
+                            "Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
+                    .atPriority(1)
+                    .withRequestBody(matching(
+                            ".*<http://example.test/s>\\s+" +
+                            "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
+                    .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
+                    .withHeader("Authorization", containing("Bearer "))
+                    .willReturn(aResponse()
+                        .withStatus(201)));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate",
+                            "Bearer")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()

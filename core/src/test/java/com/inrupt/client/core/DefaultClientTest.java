@@ -20,32 +20,52 @@
  */
 package com.inrupt.client.core;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
+import com.inrupt.client.openid.OpenIdSession;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class DefaultClientTest {
 
-    static final MockHttpService mockHttpServer = new MockHttpService();
-    static final Client client = ClientProvider.getClient();
-    static final AtomicReference<String> baseUri = new AtomicReference<>();
+    private static final String WEBID = "https://id.example/username";
+    private static final String SUB = "username";
+    private static final String ISS = "https://iss.example";
+    private static final String AZP = "https://app.example";
+    private static final MockHttpService mockHttpServer = new MockHttpService();
+    private static final Client client = ClientProvider.getClient();
+    private static final AtomicReference<String> baseUri = new AtomicReference<>();
 
     @BeforeAll
     static void setup() {
@@ -152,6 +172,42 @@ class DefaultClientTest {
     }
 
     @Test
+    void testOfModelPublisherBearer() throws IOException, InterruptedException {
+        final Model model = ModelFactory.createDefaultModel();
+
+        model.add(
+            model.createResource("http://example.test/s"),
+            model.createProperty("http://example.test/p"),
+            model.createLiteral("object")
+        );
+
+        final Request request = Request.newBuilder()
+                .uri(URI.create(baseUri.get() + "/postBearerToken"))
+                .header("Content-Type", "text/turtle")
+                .POST(JenaBodyPublishers.ofModel(model))
+                .build();
+
+        final Response<Void> response = client.sendAsync(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
+
+        assertEquals(401, response.statusCode());
+        assertEquals(Optional.of("Bearer"), response.headers().firstValue("WWW-Authenticate"));
+
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final Session session = OpenIdSession.ofIdToken(token);
+        assertDoesNotThrow(() -> {
+            final Response<Void> res = client.session(session).sendAsync(request, Response.BodyHandlers.discarding())
+                .toCompletableFuture().join();
+            assertEquals(201, res.statusCode());
+        });
+    }
+
+    @Test
     void testOfModelPublisher() throws IOException, InterruptedException {
         final Model model = ModelFactory.createDefaultModel();
 
@@ -171,7 +227,7 @@ class DefaultClientTest {
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
+        assertEquals(Optional.of("Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
                 response.headers().firstValue("WWW-Authenticate"));
     }
 
@@ -185,5 +241,31 @@ class DefaultClientTest {
         final Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
 
         assertEquals(200, response.statusCode());
+    }
+
+    static String generateIdToken(final Map<String, Object> claims) {
+        try (final InputStream resource = DefaultClientTest.class.getResourceAsStream("/signing-key.json")) {
+            final String jwks = IOUtils.toString(resource, UTF_8);
+            final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
+                .newPublicJwk(jwks);
+
+            final JsonWebSignature jws = new JsonWebSignature();
+            jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
+            jws.setHeader(TYPE, "JWT");
+            jws.setKey(jwk.getPrivateKey());
+            final JwtClaims jwtClaims = new JwtClaims();
+            jwtClaims.setJwtId(UUID.randomUUID().toString());
+            jwtClaims.setExpirationTimeMinutesInTheFuture(5);
+            jwtClaims.setIssuedAtToNow();
+            // override/set claims
+            claims.entrySet().forEach(entry -> jwtClaims.setClaim(entry.getKey(), entry.getValue()));
+            jws.setPayload(jwtClaims.toJson());
+
+            return jws.getCompactSerialization();
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to read JWK", ex);
+        } catch (final JoseException ex) {
+            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
+        }
     }
 }
