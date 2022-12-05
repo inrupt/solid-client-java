@@ -21,8 +21,8 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.*;
-import com.inrupt.client.core.Link;
-import com.inrupt.client.core.WacAllow;
+import com.inrupt.client.Headers.Link;
+import com.inrupt.client.Headers.WacAllow;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.LDP;
@@ -43,38 +43,102 @@ public final class SolidResourceHandlers {
     /**
      * Transform an HTTP response into a Solid Resource.
      *
-     * @param id the Solid Resources's unique identifiers
+     * @param id the Solid Resources's unique identifier
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<SolidResource> ofSolidResource(final URI id) {
         return responseInfo -> {
+            final var builder = SolidContainer.newContainerBuilder();
+
             try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final var dataSet = service.toDataset(Syntax.TURTLE, input);
+                final var dataSet = service.toDataset(Syntax.TURTLE, input, id.toString());
 
-                final var builder = builderAddBody(dataSet,
-                                        builderAddHeaders(responseInfo.headers(), SolidResource.newBuilder()));
+                responseInfo.headers().allValues("Link").stream()
+                    .flatMap(l -> Link.parse(l).stream())
+                    .filter(l -> l.getParameter("rel").contains("type"))
+                    .map(Link::getUri)
+                    .forEach(builder::type);
 
-                return builder.build(id);
+                responseInfo.headers().allValues("WAC-Allow").stream()
+                    .map(WacAllow::parse)
+                    .map(WacAllow::getAccessParams)
+                    .flatMap(p -> p.entrySet().stream())
+                    .forEach(builder::wacAllow);
+
+                responseInfo.headers().allValues("Allow").stream()
+                    .forEach(builder::allowedMethod);
+
+                responseInfo.headers().allValues("Accept-Post").stream()
+                    .forEach(builder::allowedPostSyntax);
+
+                responseInfo.headers().allValues("Accept-Patch").stream()
+                    .forEach(builder::allowedPatchSyntax);
+
+                responseInfo.headers().allValues("Accept-Put").stream()
+                    .forEach(builder::allowedPutSyntax);
+
+                dataSet.stream(null, null, null, null)
+                    .forEach(builder::statement);
+
+                dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(PIM.storage), null)
+                    .map(Quad::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::storage);
 
             } catch (final IOException ex) {
                 throw new SolidResourceException(ERROR_MESSAGE, ex);
             }
+
+            return builder.build(id);
         };
     }
 
     /**
-     * Transform an HTTP response into a Solid Resource.
+     * Transform an HTTP response into a Solid Container.
      *
-     * @param id the Solid Container's unique identifiers
+     * @param id the Solid Container's unique identifier
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer(final URI id) {
         return responseInfo -> {
-            try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final var dataSet = service.toDataset(Syntax.TURTLE, input);
+            final var builder = SolidContainer.newContainerBuilder();
 
-                final var builder = (SolidContainer.Builder) builderAddBody(dataSet,
-                                            builderAddHeaders(responseInfo.headers(), new SolidContainer.Builder()));
+            try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                final var dataSet = service.toDataset(Syntax.TURTLE, input, id.toString());
+
+                responseInfo.headers().allValues("Link").stream()
+                    .flatMap(l -> Link.parse(l).stream())
+                    .filter(l -> l.getParameter("rel").contains("type"))
+                    .map(Link::getUri)
+                    .forEach(builder::type);
+
+                responseInfo.headers().allValues("WAC-Allow").stream()
+                    .map(WacAllow::parse)
+                    .map(WacAllow::getAccessParams)
+                    .flatMap(p -> p.entrySet().stream())
+                    .forEach(builder::wacAllow);
+
+                responseInfo.headers().allValues("Allow").stream()
+                    .forEach(builder::allowedMethod);
+
+                responseInfo.headers().allValues("Accept-Post").stream()
+                    .forEach(builder::allowedPostSyntax);
+
+                responseInfo.headers().allValues("Accept-Patch").stream()
+                    .forEach(builder::allowedPatchSyntax);
+
+                responseInfo.headers().allValues("Accept-Put").stream()
+                    .forEach(builder::allowedPutSyntax);
+
+                dataSet.stream(null, null, null, null)
+                    .forEach(builder::statement);
+
+                dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(PIM.storage), null)
+                    .map(Quad::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::storage);
 
                 dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(LDP.contains), null)
                     .map(Triple::getObject)
@@ -83,53 +147,12 @@ public final class SolidResourceHandlers {
                     .map(SolidResource::new)
                     .forEach((builder)::containedResource);
 
-                return builder.build(id);
-
             } catch (final IOException ex) {
                 throw new SolidResourceException(ERROR_MESSAGE, ex);
             }
+
+            return builder.build(id);
         };
-    }
-
-    private static SolidResource.Builder builderAddHeaders(final Headers headers, final SolidResource.Builder builder) {
-        headers.allValues("Link").stream()
-            .flatMap(l -> Link.parse(l).stream())
-            .filter(l -> l.getParameter("rel").contains("type"))
-            .map(Link::getUri)
-            .forEach(builder::type);
-
-        headers.allValues("WAC-Allow").stream()
-            .map(WacAllow::parse)
-            .map(WacAllow::getAccessParams)
-            .flatMap(p -> p.entrySet().stream())
-            .forEach(builder::wacAllow);
-
-        headers.allValues("Allow").stream()
-            .forEach(builder::allowedMethod);
-
-        headers.allValues("Accept-Post").stream()
-            .forEach(builder::allowedPostSyntax);
-
-        headers.allValues("Accept-Patch").stream()
-            .forEach(builder::allowedPatchSyntax);
-
-        headers.allValues("Accept-Put").stream()
-            .forEach(builder::allowedPutSyntax);
-
-        return builder;
-    }
-
-    private static SolidResource.Builder builderAddBody(final Dataset dataSet, final SolidResource.Builder builder) {
-
-        dataSet.stream(null, null, null, null)
-            .forEach(builder::statement);
-
-        dataSet.stream(null, null, RDFNode.namedNode(PIM.storage), null)
-            .map(Quad::getObject)
-            .filter(RDFNode::isNamedNode)
-            .map(RDFNode::getURI)
-            .forEach(builder::storage);
-        return builder;
     }
 
     private SolidResourceHandlers() {

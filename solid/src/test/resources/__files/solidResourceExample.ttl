@@ -2,13 +2,19 @@
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
 @prefix stat: <http://www.w3.org/ns/posix/stat#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-@prefix pub: <https://example.test/resource/>.
+@prefix pub: <>.
 @prefix pl: <http://www.w3.org/ns/iana/media-types/text/plain#>.
 
 pub:
     a ldp:BasicContainer, ldp:Container;
     dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
-    ldp:contains pub:test.txt, pub:test2.txt;
+    ldp:contains pub:newContainer, pub:test.txt, pub:test2.txt;
+    stat:mtime 1669372596.859;
+    stat:size 4096 .
+pub:newContainer
+    a ldp:BasicContainer, ldp:Container;
+    dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
+    ldp:contains pub:test3.txt, pub:test4.txt;
     stat:mtime 1669372596.859;
     stat:size 4096 .
 pub:test.txt

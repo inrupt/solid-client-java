@@ -23,7 +23,6 @@ package com.inrupt.client.solid;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Map;
@@ -33,9 +32,7 @@ public class SolidMockHttpService {
     private final WireMockServer wireMockServer;
 
     public SolidMockHttpService() {
-        wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                                            .notifier(new ConsoleNotifier(true))
-                                            .dynamicPort());
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
 
     public int getPort() {
@@ -53,7 +50,17 @@ public class SolidMockHttpService {
                 .withBodyFile("solidResourceExample.ttl")
             )
         );
-        //add new stub for different test cases maybe
+
+        wireMockServer.stubFor(get(urlEqualTo("/webID"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withHeader("Link", "<http://www.w3.org/ns/ldp#Container>; rel=type")
+                .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
+                .withHeader("Allow", "POST, PUT, PATCH")
+                .withBodyFile("webIdExample.ttl")
+            )
+        );
     }
 
     public Map<String, String> start() {

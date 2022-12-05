@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * A WebID Profile for use with Solid.
+ * A Solid Resource Object.
  */
 public class SolidResource {
 
@@ -50,44 +50,89 @@ public class SolidResource {
     /**
      * Create a new SolidResource.
      *
-     * @param id the resource URI
+     * @param id the SolidResource's unique identifier
      */
     protected SolidResource(final URI id) {
         this.id = id;
     }
 
+    /**
+     * Retrieve SolidResource's unique identifier.
+     *
+     * @return the id
+     */
     public URI getId() {
         return id;
     }
 
+    /**
+     * Retrieve storage URIs from this SolidResource.
+     *
+     * @return the storage URIs
+     */
     public Set<URI> getStorage() {
         return storage;
     }
 
+    /**
+     * Retrieve type associated with this SolidResource.
+     *
+     * @return the type
+     */
     public Set<URI> getType() {
         return type;
     }
 
+    /**
+     * Retrieve WAC-Allow access parameters associated with this SolidResource.
+     *
+     * @return the access parameters
+     */
     public Map<String, Set<String>> getWacAllow() {
         return wacAllow;
     }
 
+    /**
+     * Retrieve set of allowed methods associated with this SolidResource.
+     *
+     * @return the allowed methods
+     */
     public Set<String> getAllowedMethods() {
         return allowedMethods;
     }
 
+    /**
+     * Retrieve set of allowed patch syntaxes associated with this SolidResource.
+     *
+     * @return the allowed patch syntaxes
+     */
     public Set<String> getAllowedPatchSyntaxes() {
         return allowedPatchSyntaxes;
     }
 
+    /**
+     * Retrieve set of allowed post syntaxes associated with this SolidResource.
+     *
+     * @return the allowed post syntaxes
+     */
     public Set<String> getAllowedPostSyntaxes() {
         return allowedPostSyntaxes;
     }
 
+    /**
+     * Retrieve set of allowed put syntaxes associated with this SolidResource.
+     *
+     * @return the allowed put syntaxes
+     */
     public Set<String> getAllowedPutSyntaxes() {
         return allowedPutSyntaxes;
     }
 
+    /**
+     * Retrieve list of RDF Quads associated with this SolidResource.
+     *
+     * @return the RDF statements
+     */
     public List<Quad> getStatements() {
         return statements;
     }
@@ -97,16 +142,16 @@ public class SolidResource {
      *
      * @return the builder
      */
-    public static Builder newBuilder() {
+    public static Builder newResourceBuilder() {
         return new Builder();
     }
 
     /**
      * A builder class for SolidResource objects.
      */
-    public static class Builder {
+    public static final class Builder {
 
-        protected Set<URI> builderStorage = new HashSet<>();;
+        protected Set<URI> builderStorage = new HashSet<>();
         protected Set<URI> builderType = new HashSet<>();
         protected Map<String, Set<String>> builderWacAllow = new HashMap<>();
         protected Set<String> builderAllowedMethods = new HashSet<>();
@@ -206,7 +251,7 @@ public class SolidResource {
         /**
          * Build the SolidResource object.
          *
-         * @param id the Solid resource URI
+         * @param id the SolidResource's unique identifier
          * @return the Solid resource
          */
         public SolidResource build(final URI id) {
@@ -222,7 +267,7 @@ public class SolidResource {
             return resource;
         }
 
-        protected Builder() {
+        private Builder() {
             // Prevent instantiations
         }
     }

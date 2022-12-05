@@ -23,7 +23,7 @@
  * <h2>Solid Resource and Container support for the Inrupt client libraries.</h2>
  *
  * <p>This module contains a BodyHandler which consumes the actual response body bytes
- *  and converts them into a {@link SolidResource} Java object.
+ *  and converts them into a {@link SolidResource} or a {@link SolidContainer} Java object.
  *
  * <p>The following example reads a Solid Resource and presents it as a {@link SolidResource} Java object:
  *

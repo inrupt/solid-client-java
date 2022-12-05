@@ -32,6 +32,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -73,8 +74,7 @@ class SolidResourceTest {
         assertTrue(responseBody.getType().contains(URI.create("http://www.w3.org/ns/ldp#Container")));
         assertEquals(responseBody.getWacAllow().get("user"), Set.of("read", "write"));
         assertEquals(responseBody.getWacAllow().get("public"), Set.of("read"));
-        assertEquals(17, responseBody.getStatements().size());
-        //assertEquals(Set.of("POST", "PUT","PATCH").toString(), responseBody.getAllowedMethods().toString());
+        assertEquals(25, responseBody.getStatements().size());
 
     }
 
@@ -95,11 +95,37 @@ class SolidResourceTest {
 
         final var responseBody = response.body();
         assertEquals("https://example.test/resource/", responseBody.getId().toString());
-        assertEquals(17, responseBody.getStatements().size());
-        assertEquals(2, responseBody.getContainedResources().size());
+        assertEquals(25, responseBody.getStatements().size());
+        assertEquals(3, responseBody.getContainedResources().size());
         assertEquals("https://example.test/resource/test.txt",
-                        responseBody.getContainedResources().get(0).getId().toString());
-        assertEquals("https://example.test/resource/test2.txt",
                         responseBody.getContainedResources().get(1).getId().toString());
+        assertEquals("https://example.test/resource/test2.txt",
+                        responseBody.getContainedResources().get(2).getId().toString());
+        assertFalse(responseBody.getContainedResources().stream()
+                        .map(SolidResource::getId)
+                        .map(URI::toString)
+                        .collect(Collectors.toSet())
+                        .contains("https://example.test/resource/test3.txt"));
+    }
+
+    @Test
+    void testGetWebIDStorage() throws IOException, InterruptedException {
+        final var request = Request.newBuilder()
+            .uri(URI.create(config.get("solid_resource_uri") + "/webID"))
+            .header("Accept", "text/turtle")
+            .GET()
+            .build();
+
+        final Response<SolidResource> response = client.send(
+            request,
+            SolidResourceHandlers.ofSolidResource(URI.create("https://example.test/username"))
+        );
+
+        assertEquals(200, response.statusCode());
+
+        final var responseBody = response.body();
+        assertEquals("https://example.test/username", responseBody.getId().toString());
+        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+
     }
 }

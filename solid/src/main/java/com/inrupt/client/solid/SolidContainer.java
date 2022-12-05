@@ -20,28 +20,40 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Quad;
+
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
- * A WebID Profile for use with Solid.
+ * A Solid Container Object.
  */
-public class SolidContainer extends SolidResource{
+public final class SolidContainer extends SolidResource{
 
-    protected final List<SolidResource> containedResources = new ArrayList<>();
+    private final List<SolidResource> containedResources = new ArrayList<>();
 
-    public List<SolidResource> getContainedResources() {
-        return containedResources;
+    /**
+     * Create a new SolidContainer.
+     *
+     * @param id the container's unique identifier
+     */
+    private SolidContainer(final URI id) {
+        super(id);
     }
 
     /**
-     * Create a new SolidContainer profile resource.
+     * Retrieve the resources contained in this SolidContainer.
      *
-     * @param id the webid URI
+     * @return the contained resources
      */
-    protected SolidContainer(final URI id) {
-        super(id);
+    public List<SolidResource> getContainedResources() {
+        return containedResources;
     }
 
     /**
@@ -49,16 +61,112 @@ public class SolidContainer extends SolidResource{
      *
      * @return the builder
      */
-    public static Builder newBuilder() {
+    public static Builder newContainerBuilder() {
         return new Builder();
     }
 
     /**
-     * A builder class for WebIdProfile objects.
+     * A builder class for SolidContainer objects.
      */
-    public static final class Builder extends SolidResource.Builder{
+    public static final class Builder{
 
+        protected Set<URI> builderStorage = new HashSet<>();;
+        protected Set<URI> builderType = new HashSet<>();
+        protected Map<String, Set<String>> builderWacAllow = new HashMap<>();
+        protected Set<String> builderAllowedMethods = new HashSet<>();
+        protected Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
+        protected Set<String> builderAllowedPostSyntaxes = new HashSet<>();
+        protected Set<String> builderAllowedPutSyntaxes = new HashSet<>();
+        protected List<Quad> builderStatements = new ArrayList<>();
         private List<SolidResource> builderContainedResources = new ArrayList<>();
+
+        /**
+         * Add a storage property.
+         *
+         * @param uri the storage URI
+         * @return this builder
+         */
+        public Builder storage(final URI uri) {
+            builderStorage.add(uri);
+            return this;
+        }
+
+        /**
+         * Add a type property.
+         *
+         * @param uri the type URI
+         * @return this builder
+         */
+        public Builder type(final URI uri) {
+            builderType.add(uri);
+            return this;
+        }
+
+        /**
+         * Add a wacAllow property.
+         *
+         * @param accessParam the Access Parameter
+         * @return this builder
+         */
+        public Builder wacAllow(final Entry<String, Set<String>> accessParam) {
+            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());
+            return this;
+        }
+
+        /**
+         * Add an allowedMethod property.
+         *
+         * @param method the method
+         * @return this builder
+         */
+        public Builder allowedMethod(final String method) {
+            builderAllowedMethods.add(method);
+            return this;
+        }
+
+        /**
+         * Add a allowedPatchSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPatchSyntax(final String syntax) {
+            builderAllowedPatchSyntaxes.add(syntax);
+            return this;
+        }
+
+        /**
+         * Add a allowedPostSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPostSyntax(final String syntax) {
+            builderAllowedPostSyntaxes.add(syntax);
+            return this;
+        }
+
+        /**
+         * Add a allowedPutSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPutSyntax(final String syntax) {
+            builderAllowedPutSyntaxes.add(syntax);
+            return this;
+        }
+
+        /**
+         * Add a statement property.
+         *
+         * @param quad the RDF quad
+         * @return this builder
+         */
+        public Builder statement(final Quad quad) {
+            builderStatements.add(quad);
+            return this;
+        }
 
         /**
          * Add a resource to container.
@@ -72,12 +180,11 @@ public class SolidContainer extends SolidResource{
         }
 
         /**
-         * Build the SolidResource object.
+         * Build the SolidContainer object.
          *
-         * @param id the Solid container URI
-         * @return the Solid containerss
+         * @param id the Solid container's unique identifier
+         * @return the Solid container
          */
-        @Override
         public SolidContainer build(final URI id) {
             final var container = new SolidContainer(id);
             container.containedResources.addAll(builderContainedResources);
@@ -91,6 +198,10 @@ public class SolidContainer extends SolidResource{
             container.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);
 
             return container;
+        }
+
+        private Builder() {
+            // Prevent instantiations
         }
     }
 }
