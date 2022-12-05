@@ -32,6 +32,7 @@ public final class ServiceProvider {
     private static RdfService rdfService;
     private static HttpService httpService;
     private static DpopService dpopService;
+    private static HeaderParser headerParser;
 
     /**
      * Get the {@link JsonService} for this application.
@@ -97,6 +98,18 @@ public final class ServiceProvider {
             }
         }
         return dpopService;
+    }
+
+    public static HeaderParser getHeaderParser() {
+        if (headerParser == null) {
+            synchronized (ServiceProvider.class) {
+                if (headerParser != null) {
+                    return headerParser;
+                }
+                headerParser = loadSpi(HeaderParser.class, ServiceProvider.class.getClassLoader());
+            }
+        }
+        return headerParser;
     }
 
     static <T> T loadSpi(final Class<T> clazz, final ClassLoader cl) {

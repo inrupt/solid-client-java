@@ -22,6 +22,8 @@ package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Headers.Link;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +54,15 @@ class LinkTest {
             put("title", "previous chapter");
         }
     };
+
+    @Test
+    void testLinkFactories() {
+        final URI uri = URI.create("https://example.com/%E8%8B%97%E6%9D%A1");
+        final String rel = "preconnect";
+
+        assertEquals(Link.of(uri, rel), Link.of(uri, Collections.singletonMap("rel", rel)));
+
+    }
 
     @Test
     void parseSingleLink() {

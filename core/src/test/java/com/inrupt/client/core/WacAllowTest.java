@@ -22,6 +22,8 @@ package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Headers.WacAllow;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;

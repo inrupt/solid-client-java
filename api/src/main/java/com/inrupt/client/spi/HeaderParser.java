@@ -18,28 +18,38 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.openid;
+package com.inrupt.client.spi;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.inrupt.client.Headers;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
 
-class PKCETest {
+/**
+ * A parser interface for handling HTTP header parsers.
+ */
+public interface HeaderParser {
 
-    @Test
-    void createChallengeTest() {
-        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length <= 128);
-        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length <= 128);
-        assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null, "SHA-256"));
-    }
+    /**
+     * Parse multiple HTTP Link headers into a data structure.
+     *
+     * @param headers some number of HTTP headers
+     * @return a collection of link structures
+     */
+    List<Headers.Link> parseLink(List<String> headers);
 
-    @Test
-    void createVerifierTest() {
-        assertTrue(PKCE.createVerifier().getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createVerifier().getBytes(UTF_8).length <= 128);
-    }
+    /**
+     * Parse multiple HTTP WWW-Authenticate headers into a data structure.
+     *
+     * @param headers some number of HTTP headers
+     * @return a WWW-Authenticate data structure
+     */
+    Headers.WwwAuthenticate parseWwwAuthenticate(List<String> headers);
+
+    /**
+     * Parse multiple HTTP Wac-Allow headers into a data structure.
+     *
+     * @param headers some number of HTTP headers
+     * @return a Wac-Allow data structure
+     */
+    Headers.WacAllow parseWacAllow(List<String> headers);
 }
