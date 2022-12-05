@@ -25,10 +25,10 @@ import com.inrupt.client.Session;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 /**
@@ -51,8 +51,7 @@ public final class UmaSession implements Session {
 
     private UmaSession(final Session... sessions) {
         this.id = UUID.randomUUID().toString();
-        // TODO use a better data structure
-        final Set<String> schemeTypes = new HashSet<>();
+        final Set<String> schemeTypes = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         for (final Session session : sessions) {
             this.internalSessions.add(session);
             schemeTypes.addAll(session.supportedSchemes());

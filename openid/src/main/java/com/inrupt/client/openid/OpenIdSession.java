@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jwk.HttpsJwks;
@@ -81,6 +82,7 @@ public final class OpenIdSession implements Session {
     private final Instant expiration;
     private final OpenIdVerificationConfig config;
     private final URI issuer;
+    private final Set<String> schemes;
 
     private OpenIdSession(final String idToken, final OpenIdVerificationConfig config) {
         this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
@@ -90,6 +92,12 @@ public final class OpenIdSession implements Session {
         this.id = getSessionIdentifier(claims);
         this.issuer = getIssuer(claims);
         this.expiration = getExpiration(claims);
+
+        // Support case-insensitive lookups
+        final Set<String> schemeNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        schemeNames.add("Bearer");
+
+        this.schemes = Collections.unmodifiableSet(schemeNames);
     }
 
     /**
@@ -120,7 +128,7 @@ public final class OpenIdSession implements Session {
 
     @Override
     public Set<String> supportedSchemes() {
-        return Collections.singleton("Bearer");
+        return schemes;
     }
 
     @Override

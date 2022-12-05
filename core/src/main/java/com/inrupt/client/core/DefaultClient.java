@@ -26,11 +26,10 @@ import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.Session;
+import com.inrupt.client.spi.AuthorizationHandler;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -84,7 +83,11 @@ public final class DefaultClient implements Client {
             .orElseGet(() -> httpClient.sendAsync(request, responseBodyHandler)
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
-                        return authHandler.negotiate(session, request, res.headers().allValues("WWW-Authenticate"))
+                        final List<Authenticator.Challenge> challenges = WwwAuthenticate
+                            .parse(res.headers().allValues("WWW-Authenticate").toArray(String[]::new))
+                            .getChallenges();
+
+                        return authHandler.negotiate(session, request, challenges)
                             .thenCompose(token -> token.map(t ->
                                         httpClient.sendAsync(upgradeRequest(request, t), responseBodyHandler))
                                     .orElseGet(() -> CompletableFuture.completedFuture(res)));
@@ -92,17 +95,6 @@ public final class DefaultClient implements Client {
                     }
                     return CompletableFuture.completedFuture(res);
                 }));
-    }
-
-    public List<Authenticator.Challenge> parseChallenges(final Collection<String> headers) {
-        final List<Authenticator.Challenge> challenges = new ArrayList<>();
-        for (final String header : headers) {
-            final WwwAuthenticate wwwAuthenticate = WwwAuthenticate.parse(header);
-            for (final Authenticator.Challenge challenge : wwwAuthenticate.getChallenges()) {
-                challenges.add(challenge);
-            }
-        }
-        return challenges;
     }
 
     Request upgradeRequest(final Request request, final Session.Credential token) {

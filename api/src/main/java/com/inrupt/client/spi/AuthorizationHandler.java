@@ -18,13 +18,11 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.core;
+package com.inrupt.client.spi;
 
 import com.inrupt.client.Authenticator;
-import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
-import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,12 +35,12 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+/**
+ * A class for negotiating for a supported {@link AuthenticationProvider} based on the {@code WWW-Authenticate}
+ * headers received from a resource server.
+ */
+public class AuthorizationHandler {
 
-class AuthorizationHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationHandler.class);
     private static final Comparator<Authenticator> comparator = Comparator
         .comparing(Authenticator::getPriority)
         .reversed();
@@ -50,6 +48,10 @@ class AuthorizationHandler {
     private final Map<String, AuthenticationProvider> registry = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 
+    /**
+     * Create a new authorization handler, loading any {@link AuthenticationProvider} implementations
+     * via the {@link ServiceLoader}.
+     */
     public AuthorizationHandler() {
         final ServiceLoader<AuthenticationProvider> loader = ServiceLoader.load(AuthenticationProvider.class,
                 AuthorizationHandler.class.getClassLoader());
@@ -59,16 +61,21 @@ class AuthorizationHandler {
         }
     }
 
+    /**
+     * Negotiate for an authorization credential.
+     *
+     * @param session the agent session
+     * @param request the HTTP request
+     * @param challenges the HTTP challenge schemes
+     * @return the next stage of completion, possibly containing a credential
+     */
     public CompletionStage<Optional<Session.Credential>> negotiate(final Session session, final Request request,
-            final Collection<String> headers) {
+            final Collection<Authenticator.Challenge> challenges) {
         final List<Authenticator> authenticators = new ArrayList<>();
-        for (final String header : headers) {
-            final WwwAuthenticate wwwAuthenticate = WwwAuthenticate.parse(header);
-            for (final Authenticator.Challenge challenge : wwwAuthenticate.getChallenges()) {
-                final String scheme = challenge.getScheme();
-                if (registry.containsKey(scheme) && sessionSupportsScheme(session, scheme)) {
-                    authenticators.add(registry.get(scheme).getAuthenticator(challenge));
-                }
+        for (final Authenticator.Challenge challenge : challenges) {
+            final String scheme = challenge.getScheme();
+            if (registry.containsKey(scheme) && sessionSupportsScheme(session, scheme)) {
+                authenticators.add(registry.get(scheme).getAuthenticator(challenge));
             }
         }
 
@@ -76,7 +83,6 @@ class AuthorizationHandler {
             // Use the first authenticator, sorted by priority
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);
-            LOGGER.debug("Using {} authenticator", auth.getName());
             return auth.authenticateAsync(session, request)
                 .thenApply(token -> new Session.Credential(token.getType(), token.getIssuer(),
                             token.getToken(), token.getExpiration()))
@@ -86,8 +92,8 @@ class AuthorizationHandler {
     }
 
     static boolean sessionSupportsScheme(final Session session, final String scheme) {
-        // special case for UMA, since anonymous sessions are possible here, too
-        if ("UMA".equals(scheme)) {
+        // special case for UMA, since anonymous sessions are possible with UMA
+        if ("UMA".equalsIgnoreCase(scheme)) {
             return true;
         }
         return session.supportedSchemes().contains(scheme);
