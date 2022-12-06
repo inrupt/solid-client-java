@@ -227,7 +227,7 @@ class DefaultClientTest {
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
+        assertEquals(Optional.of("Unknown, Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
                 response.headers().firstValue("WWW-Authenticate"));
     }
 

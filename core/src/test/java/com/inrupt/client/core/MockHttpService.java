@@ -81,8 +81,8 @@ class MockHttpService {
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .willReturn(aResponse()
                         .withStatus(401)
-                        .withHeader("WWW-Authenticate",
-                            "Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
+                        .withHeader("WWW-Authenticate", "Unknown, Bearer, " +
+                            "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
                     .atPriority(1)

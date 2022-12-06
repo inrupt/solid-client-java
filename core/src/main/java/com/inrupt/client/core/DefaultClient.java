@@ -26,8 +26,8 @@ import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.Session;
-import com.inrupt.client.spi.AuthorizationHandler;
 import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.ReactiveAuthorization;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.util.List;
@@ -42,16 +42,15 @@ public final class DefaultClient implements Client {
     private static final int UNAUTHORIZED = 401;
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultClient.class);
 
+    private final ReactiveAuthorization authHandler = new ReactiveAuthorization();
     private final HttpService httpClient;
     private final Session session;
-    private final AuthorizationHandler authHandler;
 
     private DefaultClient(final HttpService httpClient) {
         this(httpClient, Session.anonymous());
     }
 
     private DefaultClient(final HttpService httpClient, final Session session) {
-        this.authHandler = new AuthorizationHandler();
         this.httpClient = httpClient;
         this.session = session;
     }

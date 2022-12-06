@@ -39,7 +39,7 @@ import java.util.concurrent.CompletionStage;
  * A class for negotiating for a supported {@link AuthenticationProvider} based on the {@code WWW-Authenticate}
  * headers received from a resource server.
  */
-public class AuthorizationHandler {
+public class ReactiveAuthorization {
 
     private static final Comparator<Authenticator> comparator = Comparator
         .comparing(Authenticator::getPriority)
@@ -52,9 +52,9 @@ public class AuthorizationHandler {
      * Create a new authorization handler, loading any {@link AuthenticationProvider} implementations
      * via the {@link ServiceLoader}.
      */
-    public AuthorizationHandler() {
+    public ReactiveAuthorization() {
         final ServiceLoader<AuthenticationProvider> loader = ServiceLoader.load(AuthenticationProvider.class,
-                AuthorizationHandler.class.getClassLoader());
+                ReactiveAuthorization.class.getClassLoader());
 
         for (final AuthenticationProvider provider : loader) {
             registry.put(provider.getScheme(), provider);

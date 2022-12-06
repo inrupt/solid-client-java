@@ -21,6 +21,8 @@
 package com.inrupt.client.openid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -234,6 +236,25 @@ class OpenIdSessionTest {
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpGracePeriodSecs(0);
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
+    }
+
+    @Test
+    void testNearlyExpiredToken() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        claims.put("exp", Instant.now().plusSeconds(2).getEpochSecond());
+        claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
+
+        final String token = generateIdToken(claims);
+        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        config.setExpGracePeriodSecs(0);
+        final Session s = OpenIdSession.ofIdToken(token, config);
+        assertTrue(s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
+        assertFalse(s.getCredential("unknown").isPresent());
+        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
     }
 
     @Test
