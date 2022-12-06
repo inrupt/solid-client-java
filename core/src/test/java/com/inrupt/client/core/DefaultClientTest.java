@@ -232,6 +232,38 @@ class DefaultClientTest {
     }
 
     @Test
+    void testOfModelPublisherSession() throws IOException, InterruptedException {
+        final Model model = ModelFactory.createDefaultModel();
+
+        model.add(
+            model.createResource("http://example.test/s"),
+            model.createProperty("http://example.test/p"),
+            model.createLiteral("object")
+        );
+
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+
+        final Request request = Request.newBuilder()
+                .uri(URI.create(baseUri.get() + "/postOneTriple"))
+                .header("Content-Type", "text/turtle")
+                .POST(JenaBodyPublishers.ofModel(model))
+                .build();
+
+        final Response<Void> response = client.session(OpenIdSession.ofIdToken(token))
+            .sendAsync(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
+
+        assertEquals(401, response.statusCode());
+        assertEquals(Optional.of("Unknown, Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
+                response.headers().firstValue("WWW-Authenticate"));
+    }
+
+    @Test
     void testSendRequestImage() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(baseUri.get() + "/solid.png"))

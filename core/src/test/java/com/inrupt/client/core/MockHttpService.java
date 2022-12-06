@@ -98,8 +98,7 @@ class MockHttpService {
                     .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(401)
-                        .withHeader("WWW-Authenticate",
-                            "Bearer")));
+                        .withHeader("WWW-Authenticate", "Bearer")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
@@ -137,9 +136,6 @@ class MockHttpService {
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
                         .withBodyFile("profileExample.ttl")));
-
-
-
     }
 
     private static String getResource(final String path) {

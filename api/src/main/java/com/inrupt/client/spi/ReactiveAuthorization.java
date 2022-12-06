@@ -35,11 +35,16 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A class for negotiating for a supported {@link AuthenticationProvider} based on the {@code WWW-Authenticate}
  * headers received from a resource server.
  */
 public class ReactiveAuthorization {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveAuthorization.class);
 
     private static final Comparator<Authenticator> comparator = Comparator
         .comparing(Authenticator::getPriority)
@@ -83,6 +88,7 @@ public class ReactiveAuthorization {
             // Use the first authenticator, sorted by priority
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);
+            LOGGER.debug("Using {} authenticator", auth.getName());
             return auth.authenticateAsync(session, request)
                 .thenApply(token -> new Session.Credential(token.getType(), token.getIssuer(),
                             token.getToken(), token.getExpiration()))
