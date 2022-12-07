@@ -32,6 +32,7 @@ import com.inrupt.client.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.uma.UmaSession;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -261,6 +262,28 @@ class DefaultClientTest {
         assertEquals(401, response.statusCode());
         assertEquals(Optional.of("Unknown, Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
                 response.headers().firstValue("WWW-Authenticate"));
+    }
+
+    @Test
+    void testOfStringPublisherUmaSession() throws IOException, InterruptedException {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+
+        final Request request = Request.newBuilder()
+                .uri(URI.create(baseUri.get() + "/postString"))
+                .header("Content-Type", "text/plain")
+                .POST(Request.BodyPublishers.ofString("Test String 1"))
+                .build();
+
+        final Response<Void> response = client.session(UmaSession.of(OpenIdSession.ofIdToken(token)))
+            .sendAsync(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
+
+        assertEquals(201, response.statusCode());
     }
 
     @Test

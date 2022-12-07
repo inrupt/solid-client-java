@@ -66,7 +66,7 @@ public final class UmaSession implements Session {
      * @param sessions the wrapped sessions
      * @return the session
      */
-    public static Session ofSessions(final Session... sessions) {
+    public static Session of(final Session... sessions) {
         return new UmaSession(sessions);
     }
 

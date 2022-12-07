@@ -37,6 +37,7 @@ class MockHttpService {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_TURTLE = "text/turtle";
+    private static final String TEXT_PLAIN = "text/plain";
 
     private final WireMockServer wireMockServer;
 
@@ -99,6 +100,21 @@ class MockHttpService {
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postString"))
+                    .atPriority(1)
+                    .withRequestBody(matching("Test String 1"))
+                    .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+                    .withHeader("Authorization", containing("Bearer "))
+                    .willReturn(aResponse()
+                        .withStatus(201)));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postString"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer, " +
+                            "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
