@@ -105,7 +105,7 @@ class MockHttpService {
                     .atPriority(1)
                     .withRequestBody(matching("Test String 1"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
-                    .withHeader("Authorization", containing("Bearer "))
+                    .withHeader("Authorization", containing("Bearer token-67890"))
                     .willReturn(aResponse()
                         .withStatus(201)));
 
@@ -114,7 +114,7 @@ class MockHttpService {
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer, " +
-                            "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
+                            "UMA ticket=\"ticket-67890\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
@@ -131,6 +131,14 @@ class MockHttpService {
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBodyFile("uma-jwks.json")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .withRequestBody(containing("claim_token_format=" +
+                            "http%3A%2F%2Fopenid.net%2Fspecs%2Fopenid-connect-core-1_0.html%23IDToken"))
+                    .withRequestBody(containing("ticket=ticket-67890"))
+                    .willReturn(aResponse()
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
                     .withRequestBody(containing("ticket=ticket-12345"))
