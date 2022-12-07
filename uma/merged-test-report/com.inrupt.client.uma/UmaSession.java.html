@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UmaSession.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - UMA</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.uma</a> &gt; <span class="el_source">UmaSession.java</span></div><h1>UmaSession.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.uma;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.Session;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+
+/**
+ * A session implementation for use with UMA Authorization Servers.
+ *
+ * &lt;p&gt;This session implementation can be used to wrap other session objects, such as
+ * ones that use OpenID Connect tokens.
+ *
+ * &lt;pre&gt;{@code
+ *   Client client = ClientProvider.getClient();
+ *   Session session = client.session(UmaSession.ofSession(OpenIdSession.ofIdToken(jwt)));
+ *   Response res = session.send(req, bodyHandler);
+ * }&lt;/pre&gt;
+ */
+public final class UmaSession implements Session {
+
+    private final String id;
+    private final Set&lt;String&gt; schemes;
+<span class="nc" id="L50">    private final List&lt;Session&gt; internalSessions = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L52">    private UmaSession(final Session... sessions) {</span>
+<span class="nc" id="L53">        this.id = UUID.randomUUID().toString();</span>
+<span class="nc" id="L54">        final Set&lt;String&gt; schemeTypes = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (final Session session : sessions) {</span>
+<span class="nc" id="L56">            this.internalSessions.add(session);</span>
+<span class="nc" id="L57">            schemeTypes.addAll(session.supportedSchemes());</span>
+        }
+<span class="nc" id="L59">        schemeTypes.add(&quot;UMA&quot;);</span>
+<span class="nc" id="L60">        this.schemes = Collections.unmodifiableSet(schemeTypes);</span>
+<span class="nc" id="L61">    }</span>
+
+    /**
+     * Create a session by wrapping other sessions.
+     *
+     * @param sessions the wrapped sessions
+     * @return the session
+     */
+    public static Session of(final Session... sessions) {
+<span class="nc" id="L70">        return new UmaSession(sessions);</span>
+    }
+
+    @Override
+    public String getId() {
+<span class="nc" id="L75">        return id;</span>
+    }
+
+    @Override
+    public Set&lt;String&gt; supportedSchemes() {
+<span class="nc" id="L80">        return schemes;</span>
+    }
+
+    @Override
+    public Optional&lt;Session.Credential&gt; getCredential(final String name) {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (final Session session : internalSessions) {</span>
+<span class="nc" id="L86">            final Optional&lt;Credential&gt; credential = session.getCredential(name);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (credential.isPresent()) {</span>
+<span class="nc" id="L88">                return credential;</span>
+            }
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">        return Optional.empty();</span>
+    }
+
+    @Override
+    public Optional&lt;Session.Credential&gt; fromCache(final Request request) {
+<span class="nc" id="L96">        return Optional.empty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

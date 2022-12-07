@@ -63,8 +63,8 @@ public class OpenIdProvider {
      * @param issuer the OpenID provider issuer
      */
     public OpenIdProvider(final URI issuer) {
-<span class="nc" id="L66">        this(issuer, ServiceProvider.getHttpService());</span>
-<span class="nc" id="L67">    }</span>
+<span class="fc" id="L66">        this(issuer, ServiceProvider.getHttpService());</span>
+<span class="fc" id="L67">    }</span>
 
     /**
      * Create an OpenID Provider client.
@@ -86,8 +86,8 @@ public class OpenIdProvider {
     public Metadata metadata() {
         try {
 <span class="fc" id="L88">            return metadataAsync().toCompletableFuture().join();</span>
-<span class="nc" id="L89">        } catch (final CompletionException ex) {</span>
-<span class="nc" id="L90">            throw new OpenIdException(&quot;Error fetching OpenID metadata resoruce&quot;, ex);</span>
+<span class="fc" id="L89">        } catch (final CompletionException ex) {</span>
+<span class="fc" id="L90">            throw new OpenIdException(&quot;Error fetching OpenID metadata resoruce&quot;, ex);</span>
         }
     }
 
@@ -103,10 +103,10 @@ public class OpenIdProvider {
 <span class="fc" id="L103">            .thenApply(res -&gt; {</span>
                 try {
 <span class="fc" id="L105">                    final int httpStatus = res.statusCode();</span>
-<span class="pc bpc" id="L106" title="2 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
 <span class="fc" id="L107">                        return jsonService.fromJson(res.body(), Metadata.class);</span>
                     }
-<span class="nc" id="L109">                    throw new OpenIdException(</span>
+<span class="fc" id="L109">                    throw new OpenIdException(</span>
                         &quot;Unexpected error while fetching the OpenID metadata resource.&quot;,
                         httpStatus);
 <span class="nc" id="L112">                } catch (final IOException ex) {</span>
@@ -128,7 +128,7 @@ public class OpenIdProvider {
      * @return the URI for performing the authorization request
      */
     public URI authorize(final AuthorizationRequest request) {
-<span class="nc" id="L131">        return authorizeAsync(request).toCompletableFuture().join();</span>
+<span class="fc" id="L131">        return authorizeAsync(request).toCompletableFuture().join();</span>
     }
 
     /**

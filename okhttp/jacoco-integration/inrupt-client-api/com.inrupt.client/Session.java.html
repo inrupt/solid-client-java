@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Session.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - OkHttp</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-api</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client</a> &gt; <span class="el_source">Session.java</span></div><h1>Session.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+public interface Session {
+
+    /**
+     * Retrieve the identifier associated with this session.
+     *
+     * @return a session identifier
+     */
+    String getId();
+
+    /**
+     * Retrieve the authentication schemes supported by this session.
+     *
+     * @return the scheme identifiers
+     */
+    Set&lt;String&gt; supportedSchemes();
+
+    /**
+     * Retrieve a credential from this session.
+     *
+     * @param name the credential name
+     * @return the credential, if present
+     */
+    Optional&lt;Credential&gt; getCredential(String name);
+
+    /**
+     * Retrieve an access token for a request from a cache.
+     *
+     * @param request the HTTP request
+     * @return the access token, if present
+     */
+    Optional&lt;Credential&gt; fromCache(Request request);
+
+    class Credential {
+        private final String scheme;
+        private final URI issuer;
+        private final String token;
+        private final Instant expiration;
+
+<span class="nc" id="L68">        public Credential(final String scheme, final URI issuer, final String token, final Instant expiration) {</span>
+<span class="nc" id="L69">            this.scheme = scheme;</span>
+<span class="nc" id="L70">            this.issuer = issuer;</span>
+<span class="nc" id="L71">            this.token = token;</span>
+<span class="nc" id="L72">            this.expiration = expiration;</span>
+<span class="nc" id="L73">        }</span>
+
+        public String getScheme() {
+<span class="nc" id="L76">            return scheme;</span>
+        }
+
+        public URI getIssuer() {
+<span class="nc" id="L80">            return issuer;</span>
+        }
+
+        public String getToken() {
+<span class="nc" id="L84">            return token;</span>
+        }
+
+        public Instant getExpiration() {
+<span class="nc" id="L88">            return expiration;</span>
+        }
+    }
+
+    /**
+     * Create a new anonymous session.
+     *
+     * @implNote This {@link Session} does not keep a cache of access tokens.
+     * @return the session
+     */
+    static Session anonymous() {
+<span class="nc" id="L99">        final String sessionId = UUID.randomUUID().toString();</span>
+<span class="nc" id="L100">        return new Session() {</span>
+            @Override
+            public String getId() {
+<span class="nc" id="L103">                return sessionId;</span>
+            }
+
+            @Override
+            public Set&lt;String&gt; supportedSchemes() {
+<span class="nc" id="L108">                return Collections.singleton(&quot;UMA&quot;);</span>
+            }
+
+            @Override
+            public Optional&lt;Credential&gt; getCredential(final String name) {
+<span class="nc" id="L113">                return Optional.empty();</span>
+            }
+
+            @Override
+            public Optional&lt;Credential&gt; fromCache(final Request request) {
+<span class="nc" id="L118">                return Optional.empty();</span>
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

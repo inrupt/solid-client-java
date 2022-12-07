@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ReactiveAuthorization.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - WebID</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-api</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.spi</a> &gt; <span class="el_source">ReactiveAuthorization.java</span></div><h1>ReactiveAuthorization.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.spi;
+
+import com.inrupt.client.Authenticator;
+import com.inrupt.client.Request;
+import com.inrupt.client.Session;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * A class for negotiating for a supported {@link AuthenticationProvider} based on the {@code WWW-Authenticate}
+ * headers received from a resource server.
+ */
+public class ReactiveAuthorization {
+
+<span class="fc" id="L47">    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveAuthorization.class);</span>
+
+<span class="fc" id="L49">    private static final Comparator&lt;Authenticator&gt; comparator = Comparator</span>
+<span class="fc" id="L50">        .comparing(Authenticator::getPriority)</span>
+<span class="fc" id="L51">        .reversed();</span>
+
+<span class="fc" id="L53">    private final Map&lt;String, AuthenticationProvider&gt; registry = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+
+
+    /**
+     * Create a new authorization handler, loading any {@link AuthenticationProvider} implementations
+     * via the {@link ServiceLoader}.
+     */
+<span class="fc" id="L60">    public ReactiveAuthorization() {</span>
+<span class="fc" id="L61">        final ServiceLoader&lt;AuthenticationProvider&gt; loader = ServiceLoader.load(AuthenticationProvider.class,</span>
+<span class="fc" id="L62">                ReactiveAuthorization.class.getClassLoader());</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for (final AuthenticationProvider provider : loader) {</span>
+<span class="fc" id="L65">            registry.put(provider.getScheme(), provider);</span>
+<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Negotiate for an authorization credential.
+     *
+     * @param session the agent session
+     * @param request the HTTP request
+     * @param challenges the HTTP challenge schemes
+     * @return the next stage of completion, possibly containing a credential
+     */
+    public CompletionStage&lt;Optional&lt;Session.Credential&gt;&gt; negotiate(final Session session, final Request request,
+            final Collection&lt;Authenticator.Challenge&gt; challenges) {
+<span class="fc" id="L79">        final List&lt;Authenticator&gt; authenticators = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (final Authenticator.Challenge challenge : challenges) {</span>
+<span class="fc" id="L81">            final String scheme = challenge.getScheme();</span>
+<span class="fc bfc" id="L82" title="All 4 branches covered.">            if (registry.containsKey(scheme) &amp;&amp; sessionSupportsScheme(session, scheme)) {</span>
+<span class="fc" id="L83">                authenticators.add(registry.get(scheme).getAuthenticator(challenge));</span>
+            }
+<span class="fc" id="L85">        }</span>
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (!authenticators.isEmpty()) {</span>
+            // Use the first authenticator, sorted by priority
+<span class="fc" id="L89">            authenticators.sort(comparator);</span>
+<span class="fc" id="L90">            final Authenticator auth = authenticators.get(0);</span>
+<span class="fc" id="L91">            LOGGER.debug(&quot;Using {} authenticator&quot;, auth.getName());</span>
+<span class="fc" id="L92">            return auth.authenticateAsync(session, request)</span>
+<span class="fc" id="L93">                .thenApply(token -&gt; new Session.Credential(token.getType(), token.getIssuer(),</span>
+<span class="fc" id="L94">                            token.getToken(), token.getExpiration()))</span>
+<span class="fc" id="L95">                .thenApply(Optional::of);</span>
+        }
+<span class="fc" id="L97">        return CompletableFuture.completedFuture(Optional.empty());</span>
+    }
+
+    static boolean sessionSupportsScheme(final Session session, final String scheme) {
+        // special case for UMA, since anonymous sessions are possible with UMA
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (&quot;UMA&quot;.equalsIgnoreCase(scheme)) {</span>
+<span class="fc" id="L103">            return true;</span>
+        }
+<span class="fc" id="L105">        return session.supportedSchemes().contains(scheme);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -25,8 +25,6 @@ import com.inrupt.client.spi.ServiceProvider;
 import java.net.URI;
 import java.security.KeyPair;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -59,61 +57,20 @@ public interface Authenticator {
     /**
      * Perform a synchronous authentication process, resulting in an access token.
      *
+     * @param session the client session
+     * @param request the HTTP request
      * @return the access token
      */
-    AccessToken authenticate();
+    AccessToken authenticate(Session session, Request request);
 
     /**
      * Perform an ansynchronous authentication process, resulting in an access token.
      *
+     * @param session the client session
+     * @param request the HTTP request
      * @return the next stage of completion, containing the access token
      */
-    CompletionStage&lt;AccessToken&gt; authenticateAsync();
-
-    /**
-     * A registry for authentication mechanisms.
-     */
-    interface Registry {
-        /**
-         * Parse a WWW-Authenticate header and convert the challenges into callable authentication mechanisms.
-         *
-         * @param headers the WWW-Authenticate headers to be evaluated
-         * @return a sorted list of viable authentication mechanisms
-         */
-        default List&lt;Authenticator&gt; challenge(final String... headers) {
-<span class="nc" id="L84">            return challenge(Arrays.asList(headers));</span>
-        }
-
-        /**
-         * Parse a collection of WWW-Authenticate headers and convert the challenges into callable
-         * authentication mechanisms.
-         *
-         * @param headers the WWW-Authenticate headers to be evaluated
-         * @return a sorted list of viable authentication mechanisms
-         */
-        List&lt;Authenticator&gt; challenge(Collection&lt;String&gt; headers);
-    }
-
-    /**
-     * An authentication mechanism that knows how to authenticate network connections.
-     */
-    interface Provider {
-
-        /**
-         * Return the authorization scheme, such as Bearer or DPoP.
-         *
-         * @return the authorization scheme
-         */
-        String getScheme();
-
-        /**
-         * Return an authenticator for the supplied challenge.
-         *
-         * @param challenge the HTTP challenge value
-         * @return an authenticator
-         */
-        Authenticator getAuthenticator(Challenge challenge);
-    }
+    CompletionStage&lt;AccessToken&gt; authenticateAsync(Session session, Request request);
 
     /**
      * A class containing information about an OAuth 2.0 access token.
@@ -128,6 +85,7 @@ public interface Authenticator {
         private final String token;
         private final String type;
         private final String algorithm;
+        private final URI issuer;
 
         /**
          * Create a new {@link AccessToken}.
@@ -135,17 +93,19 @@ public interface Authenticator {
          * @param token the access token value
          * @param type the access token type, e.g. Bearer or DPoP
          * @param expiration the access token expiration
+         * @param issuer the access token issuer
          * @param scopes a list of scopes for this access token
          * @param algorithm the proofing algorithm used for this access token, may be {@code null}
          */
         public AccessToken(final String token, final String type, final Instant expiration,
-<span class="fc" id="L142">                    final List&lt;String&gt; scopes, final String algorithm) {</span>
-<span class="fc" id="L143">            this.token = Objects.requireNonNull(token);</span>
-<span class="fc" id="L144">            this.type = Objects.requireNonNull(type);</span>
-<span class="fc" id="L145">            this.expiration = Objects.requireNonNull(expiration);</span>
-<span class="fc" id="L146">            this.scopes = Objects.requireNonNull(scopes);</span>
-<span class="fc" id="L147">            this.algorithm = algorithm;</span>
-<span class="fc" id="L148">        }</span>
+<span class="nc" id="L101">                    final URI issuer, final List&lt;String&gt; scopes, final String algorithm) {</span>
+<span class="nc" id="L102">            this.token = Objects.requireNonNull(token);</span>
+<span class="nc" id="L103">            this.type = Objects.requireNonNull(type);</span>
+<span class="nc" id="L104">            this.expiration = Objects.requireNonNull(expiration);</span>
+<span class="nc" id="L105">            this.scopes = Objects.requireNonNull(scopes);</span>
+<span class="nc" id="L106">            this.issuer = Objects.requireNonNull(issuer);</span>
+<span class="nc" id="L107">            this.algorithm = algorithm;</span>
+<span class="nc" id="L108">        }</span>
 
         /**
          * Retrieve a list of scopes for this token.
@@ -153,7 +113,16 @@ public interface Authenticator {
          * @return the scopes
          */
         public List&lt;String&gt; getScopes() {
-<span class="nc" id="L156">            return scopes;</span>
+<span class="nc" id="L116">            return scopes;</span>
+        }
+
+        /**
+         * Retrieve the issuer for this token.
+         *
+         * @return the issuer
+         */
+        public URI getIssuer() {
+<span class="nc" id="L125">            return issuer;</span>
         }
 
         /**
@@ -162,7 +131,7 @@ public interface Authenticator {
          * @return the expiration time
          */
         public Instant getExpiration() {
-<span class="nc" id="L165">            return expiration;</span>
+<span class="nc" id="L134">            return expiration;</span>
         }
 
         /**
@@ -171,7 +140,7 @@ public interface Authenticator {
          * @return the token value
          */
         public String getToken() {
-<span class="fc" id="L174">            return token;</span>
+<span class="nc" id="L143">            return token;</span>
         }
 
         /**
@@ -180,7 +149,7 @@ public interface Authenticator {
          * @return the type
          */
         public String getType() {
-<span class="nc" id="L183">            return type;</span>
+<span class="nc" id="L152">            return type;</span>
         }
 
         /**
@@ -189,7 +158,7 @@ public interface Authenticator {
          * @return the proofing algorithm
          */
         public Optional&lt;String&gt; getProofAlgorithm() {
-<span class="nc" id="L192">            return Optional.ofNullable(algorithm);</span>
+<span class="nc" id="L161">            return Optional.ofNullable(algorithm);</span>
         }
     }
 
@@ -212,7 +181,7 @@ public interface Authenticator {
          * @return the challenge
          */
         public static Challenge of(final String scheme) {
-<span class="nc" id="L215">            return of(scheme, Collections.emptyMap());</span>
+<span class="nc" id="L184">            return of(scheme, Collections.emptyMap());</span>
         }
 
         /**
@@ -223,13 +192,13 @@ public interface Authenticator {
          * @return the challenge
          */
         public static Challenge of(final String scheme, final Map&lt;String, String&gt; parameters) {
-<span class="nc" id="L226">            return new Challenge(scheme, parameters);</span>
+<span class="nc" id="L195">            return new Challenge(scheme, parameters);</span>
         }
 
-<span class="nc" id="L229">        private Challenge(final String scheme, final Map&lt;String, String&gt; parameters) {</span>
-<span class="nc" id="L230">            this.scheme = Objects.requireNonNull(scheme);</span>
-<span class="nc" id="L231">            this.parameters = Objects.requireNonNull(parameters);</span>
-<span class="nc" id="L232">        }</span>
+<span class="nc" id="L198">        private Challenge(final String scheme, final Map&lt;String, String&gt; parameters) {</span>
+<span class="nc" id="L199">            this.scheme = Objects.requireNonNull(scheme);</span>
+<span class="nc" id="L200">            this.parameters = Objects.requireNonNull(parameters);</span>
+<span class="nc" id="L201">        }</span>
 
         /**
          * Get the authentication scheme for this challenge.
@@ -237,7 +206,7 @@ public interface Authenticator {
          * @return the scheme name
          */
         public String getScheme() {
-<span class="nc" id="L240">            return scheme;</span>
+<span class="nc" id="L209">            return scheme;</span>
         }
 
         /**
@@ -247,7 +216,7 @@ public interface Authenticator {
          * @return the parameter value, may be {@code null}
          */
         public String getParameter(final String parameter) {
-<span class="nc" id="L250">            return parameters.get(parameter);</span>
+<span class="nc" id="L219">            return parameters.get(parameter);</span>
         }
 
         /**
@@ -256,38 +225,38 @@ public interface Authenticator {
          * @return the complete collection of parameters
          */
         public Map&lt;String, String&gt; getParameters() {
-<span class="nc" id="L259">            return Collections.unmodifiableMap(parameters);</span>
+<span class="nc" id="L228">            return Collections.unmodifiableMap(parameters);</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L264">            return getScheme() + &quot; &quot; + parameters.entrySet().stream()</span>
-<span class="nc" id="L265">                .map(e -&gt; e.getKey() + &quot;=\&quot;&quot; + e.getValue() + &quot;\&quot;&quot;)</span>
-<span class="nc" id="L266">                .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="nc" id="L233">            return getScheme() + &quot; &quot; + parameters.entrySet().stream()</span>
+<span class="nc" id="L234">                .map(e -&gt; e.getKey() + &quot;=\&quot;&quot; + e.getValue() + &quot;\&quot;&quot;)</span>
+<span class="nc" id="L235">                .collect(Collectors.joining(&quot;, &quot;));</span>
         }
 
         @Override
         public boolean equals(final Object obj) {
-<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (obj == this) {</span>
-<span class="nc" id="L272">                return true;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            if (obj == this) {</span>
+<span class="nc" id="L241">                return true;</span>
             }
 
-<span class="nc bnc" id="L275" title="All 2 branches missed.">            if (!(obj instanceof Challenge)) {</span>
-<span class="nc" id="L276">                return false;</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (!(obj instanceof Challenge)) {</span>
+<span class="nc" id="L245">                return false;</span>
             }
 
-<span class="nc" id="L279">            final Challenge c = (Challenge) obj;</span>
+<span class="nc" id="L248">            final Challenge c = (Challenge) obj;</span>
 
-<span class="nc bnc" id="L281" title="All 2 branches missed.">            if (!scheme.equalsIgnoreCase(c.scheme)) {</span>
-<span class="nc" id="L282">                return false;</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            if (!scheme.equalsIgnoreCase(c.scheme)) {</span>
+<span class="nc" id="L251">                return false;</span>
             }
 
-<span class="nc" id="L285">            return Objects.equals(parameters, c.parameters);</span>
+<span class="nc" id="L254">            return Objects.equals(parameters, c.parameters);</span>
         }
 
         @Override
         public int hashCode() {
-<span class="nc" id="L290">            return Objects.hash(scheme.toLowerCase(Locale.ENGLISH), parameters);</span>
+<span class="nc" id="L259">            return Objects.hash(scheme.toLowerCase(Locale.ENGLISH), parameters);</span>
         }
     }
 
@@ -321,7 +290,7 @@ public interface Authenticator {
          * @return the DPoP manager
          */
         static DPoP of() {
-<span class="nc" id="L324">            return of(Collections.emptyMap());</span>
+<span class="nc" id="L293">            return of(Collections.emptyMap());</span>
         }
 
         /**
@@ -332,7 +301,7 @@ public interface Authenticator {
          * @return the DPoP manager
          */
         static DPoP of(final String algorithm, final KeyPair keypair) {
-<span class="nc" id="L335">            return of(Collections.singletonMap(algorithm, keypair));</span>
+<span class="nc" id="L304">            return of(Collections.singletonMap(algorithm, keypair));</span>
         }
 
         /**
@@ -342,7 +311,7 @@ public interface Authenticator {
          * @return the DPoP manager
          */
         static DPoP of(final Map&lt;String, KeyPair&gt; keypairs) {
-<span class="nc" id="L345">            return ServiceProvider.getDpopService().ofKeyPairs(keypairs);</span>
+<span class="nc" id="L314">            return ServiceProvider.getDpopService().ofKeyPairs(keypairs);</span>
         }
     }
 }

@@ -1,19 +1,15 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.Util,3,18,1,3,1,3,2,2,1,1
-Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultRegistry,0,81,1,5,0,18,1,5,0,3
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultDpopService.DPoPManager,30,105,4,4,5,25,3,4,0,3
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultClient.Builder,12,12,1,1,3,3,2,2,1,2
-Inrupt Client Libraries - Core,com.inrupt.client.core,UmaAuthenticationProvider,13,60,5,5,3,16,6,5,1,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,AuthenticationException,5,4,0,0,2,2,1,1,1,1
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultDpopService,7,17,0,0,2,4,0,3,0,3
-Inrupt Client Libraries - Core,com.inrupt.client.core,UmaAuthenticationProvider.NeedInfoHandler,47,14,6,0,10,4,6,1,3,1
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser,0,116,0,8,0,24,0,9,0,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.WwwAuthenticateHeaderParser.ChallengeListener,0,61,1,5,0,12,1,5,0,3
-Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultClient,33,192,4,6,5,38,6,13,3,11
+Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultClient,18,212,1,5,2,40,2,18,1,16
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.WacAllowHeaderParser,0,74,2,2,0,20,2,5,0,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.LinkHeaderParser,0,87,2,2,0,23,2,5,0,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.LinkHeaderParser.LinkListener,5,96,6,12,1,15,6,8,0,5
-Inrupt Client Libraries - Core,com.inrupt.client.core,UmaAuthenticationProvider.UmaAuthenticator,16,83,0,0,4,16,3,5,3,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.WacAllowHeaderParser.AccessParamListener,0,77,0,8,0,14,0,10,0,6
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultClientProviderResolver,2,6,0,0,1,2,1,2,1,2
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.WwwAuthenticateHeaderParser,0,74,2,2,0,20,2,5,0,5
