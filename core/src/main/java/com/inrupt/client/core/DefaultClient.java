@@ -89,8 +89,11 @@ public final class DefaultClient implements Client {
                         return authHandler.negotiate(session, request, challenges)
                             .thenCompose(token -> token.map(t ->
                                         httpClient.sendAsync(upgradeRequest(request, t), responseBodyHandler))
-                                    .orElseGet(() -> CompletableFuture.completedFuture(res)));
-
+                                    .orElseGet(() -> CompletableFuture.completedFuture(res)))
+                            .exceptionally(err -> {
+                                LOGGER.debug("Unable to negotiate an authentication token: {}", err.getMessage());
+                                return res;
+                            });
                     }
                     return CompletableFuture.completedFuture(res);
                 }));

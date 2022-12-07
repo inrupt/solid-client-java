@@ -21,6 +21,8 @@
 package com.inrupt.client.core;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,12 +34,14 @@ import com.inrupt.client.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.openid.OpenIdVerificationConfig;
 import com.inrupt.client.uma.UmaSession;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -284,6 +288,52 @@ class DefaultClientTest {
             .toCompletableFuture().join();
 
         assertEquals(201, response.statusCode());
+    }
+
+    @Test
+    void testOfStringPublisherUmaAnonSession() throws IOException, InterruptedException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(baseUri.get() + "/postString"))
+                .header("Content-Type", "text/plain")
+                .POST(Request.BodyPublishers.ofString("Test String 1"))
+                .build();
+
+        final Response<Void> response = client.session(UmaSession.of())
+            .sendAsync(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
+
+        assertEquals(401, response.statusCode());
+    }
+
+    @Test
+    void testUmaSessionExpiredIdToken() throws Exception {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        claims.put("exp", Instant.now().plusSeconds(2).getEpochSecond());
+        claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
+
+        final String token = generateIdToken(claims);
+        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        config.setExpGracePeriodSecs(0);
+        final Session s = OpenIdSession.ofIdToken(token, config);
+
+        // Wait for the token to expire
+        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
+
+        final Request request = Request.newBuilder()
+                .uri(URI.create(baseUri.get() + "/postString"))
+                .header("Content-Type", "text/plain")
+                .POST(Request.BodyPublishers.ofString("Test String 1"))
+                .build();
+
+        final Response<Void> response = client.session(UmaSession.of(s))
+            .sendAsync(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
+
+        assertEquals(401, response.statusCode());
     }
 
     @Test

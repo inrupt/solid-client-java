@@ -133,6 +133,7 @@ class MockHttpService {
                         .withBodyFile("uma-jwks.json")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .atPriority(1)
                     .withRequestBody(containing("claim_token_format=" +
                             "http%3A%2F%2Fopenid.net%2Fspecs%2Fopenid-connect-core-1_0.html%23IDToken"))
                     .withRequestBody(containing("ticket=ticket-67890"))
@@ -141,6 +142,15 @@ class MockHttpService {
                         .withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .atPriority(2)
+                    .withRequestBody(containing("ticket=ticket-67890"))
+                    .willReturn(aResponse()
+                        .withStatus(403)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody("{}")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .atPriority(2)
                     .withRequestBody(containing("ticket=ticket-12345"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
