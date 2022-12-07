@@ -37,6 +37,7 @@ class MockHttpService {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_TURTLE = "text/turtle";
+    private static final String TEXT_PLAIN = "text/plain";
 
     private final WireMockServer wireMockServer;
 
@@ -81,8 +82,39 @@ class MockHttpService {
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .willReturn(aResponse()
                         .withStatus(401)
-                        .withHeader("WWW-Authenticate",
+                        .withHeader("WWW-Authenticate", "Unknown, Bearer, " +
                             "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
+                    .atPriority(1)
+                    .withRequestBody(matching(
+                            ".*<http://example.test/s>\\s+" +
+                            "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
+                    .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
+                    .withHeader("Authorization", containing("Bearer "))
+                    .willReturn(aResponse()
+                        .withStatus(201)));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postString"))
+                    .atPriority(1)
+                    .withRequestBody(matching("Test String 1"))
+                    .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+                    .withHeader("Authorization", containing("Bearer token-67890"))
+                    .willReturn(aResponse()
+                        .withStatus(201)));
+
+        wireMockServer.stubFor(post(urlEqualTo("/postString"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer, " +
+                            "UMA ticket=\"ticket-67890\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
                     .willReturn(aResponse()
@@ -101,6 +133,24 @@ class MockHttpService {
                         .withBodyFile("uma-jwks.json")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .atPriority(1)
+                    .withRequestBody(containing("claim_token_format=" +
+                            "http%3A%2F%2Fopenid.net%2Fspecs%2Fopenid-connect-core-1_0.html%23IDToken"))
+                    .withRequestBody(containing("ticket=ticket-67890"))
+                    .willReturn(aResponse()
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .atPriority(2)
+                    .withRequestBody(containing("ticket=ticket-67890"))
+                    .willReturn(aResponse()
+                        .withStatus(403)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody("{}")));
+
+        wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
+                    .atPriority(2)
                     .withRequestBody(containing("ticket=ticket-12345"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -120,9 +170,6 @@ class MockHttpService {
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
                         .withBodyFile("profileExample.ttl")));
-
-
-
     }
 
     private static String getResource(final String path) {

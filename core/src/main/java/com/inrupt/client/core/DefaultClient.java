@@ -22,9 +22,12 @@ package com.inrupt.client.core;
 
 import com.inrupt.client.Authenticator;
 import com.inrupt.client.Client;
+import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.Session;
 import com.inrupt.client.spi.HttpService;
+import com.inrupt.client.spi.ReactiveAuthorization;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.util.List;
@@ -39,24 +42,22 @@ public final class DefaultClient implements Client {
     private static final int UNAUTHORIZED = 401;
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultClient.class);
 
+    private final ReactiveAuthorization authHandler = new ReactiveAuthorization();
     private final HttpService httpClient;
-    private final Authenticator.Registry registry;
-    private final Client.Session session;
+    private final Session session;
 
     private DefaultClient(final HttpService httpClient) {
-        this(httpClient, new DefaultRegistry(), Client.Session.anonymous());
+        this(httpClient, Session.anonymous());
     }
 
-    private DefaultClient(final HttpService httpClient, final Authenticator.Registry registry,
-            final Client.Session session) {
+    private DefaultClient(final HttpService httpClient, final Session session) {
         this.httpClient = httpClient;
-        this.registry = registry;
         this.session = session;
     }
 
     @Override
     public Client session(final Session session) {
-        return new DefaultClient(this.httpClient, this.registry, session);
+        return new DefaultClient(this.httpClient, session);
     }
 
     @Override
@@ -81,22 +82,24 @@ public final class DefaultClient implements Client {
             .orElseGet(() -> httpClient.sendAsync(request, responseBodyHandler)
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
-                        final List<Authenticator> authenticators = registry
-                            .challenge(res.headers().allValues("WWW-Authenticate"));
-                        if (!authenticators.isEmpty()) {
-                            // Use the first mechanism
-                            final Authenticator authenticator = authenticators.get(0);
-                            LOGGER.debug("Using {} authenticator", authenticator.getName());
-                            return session.negotiate(authenticator, request)
-                                .thenCompose(token ->
-                                        httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler));
-                        }
+                        final List<Authenticator.Challenge> challenges = WwwAuthenticate
+                            .parse(res.headers().allValues("WWW-Authenticate").toArray(String[]::new))
+                            .getChallenges();
+
+                        return authHandler.negotiate(session, request, challenges)
+                            .thenCompose(token -> token.map(t ->
+                                        httpClient.sendAsync(upgradeRequest(request, t), responseBodyHandler))
+                                    .orElseGet(() -> CompletableFuture.completedFuture(res)))
+                            .exceptionally(err -> {
+                                LOGGER.debug("Unable to negotiate an authentication token: {}", err.getMessage());
+                                return res;
+                            });
                     }
                     return CompletableFuture.completedFuture(res);
                 }));
     }
 
-    Request upgradeRequest(final Request request, final Authenticator.AccessToken token) {
+    Request upgradeRequest(final Request request, final Session.Credential token) {
         final Request.Builder builder = Request.newBuilder()
             .uri(request.uri())
             .method(request.method(), request.bodyPublisher().orElseGet(Request.BodyPublishers::noBody));
@@ -110,14 +113,14 @@ public final class DefaultClient implements Client {
         });
 
         // Use setHeader to overwrite any possible existing authorization header
-        builder.setHeader("Authorization", String.join(" ", token.getType(), token.getToken()));
-        token.getProofAlgorithm().ifPresent(algorithm -> {
-            if ("DPoP".equalsIgnoreCase(token.getType())) {
-                // TODO - Support DPoP proofs, if relevant
+        builder.setHeader("Authorization", String.join(" ", token.getScheme(), token.getToken()));
+        // TODO - Support DPoP proofs, if relevant
+        //session.getProofAlgorithm().ifPresent(algorithm -> {
+            //if ("DPoP".equalsIgnoreCase(token.getType())) {
                 //builder.setHeader("DPoP",
                         //authenticator.generateProof(algorithm, request.uri(), request.method()));
-            }
-        });
+            //}
+        //});
 
         return builder.build();
     }

@@ -27,8 +27,8 @@ import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Authenticator;
-import com.inrupt.client.Client.Session;
 import com.inrupt.client.Request;
+import com.inrupt.client.Session;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -239,6 +239,25 @@ class OpenIdSessionTest {
     }
 
     @Test
+    void testNearlyExpiredToken() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        claims.put("exp", Instant.now().plusSeconds(2).getEpochSecond());
+        claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
+
+        final String token = generateIdToken(claims);
+        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        config.setExpGracePeriodSecs(0);
+        final Session s = OpenIdSession.ofIdToken(token, config);
+        assertTrue(s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
+        assertFalse(s.getCredential("unknown").isPresent());
+        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
+    }
+
+    @Test
     void testExpiredTokenWithGrace() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -253,56 +272,6 @@ class OpenIdSessionTest {
         config.setExpGracePeriodSecs(60);
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
     }
-
-    @Test
-    void testNegotiateValidToken() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-
-        final String token = generateIdToken(claims);
-        final Session session = OpenIdSession.ofIdToken(token);
-        final Request req = Request.newBuilder(URI.create("https://storage.example")).build();
-        final Authenticator authenticator = new TestAuthenticator(token);
-        final Authenticator.AccessToken at = session.negotiate(authenticator, req).toCompletableFuture().join();
-        assertEquals(token, at.getToken());
-    }
-
-    @Test
-    void testNegotiateExpiredToken() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-
-        // This token expires "almost" immediately
-        claims.put("exp", Instant.now().plusSeconds(2).getEpochSecond());
-        final String firstToken = generateIdToken(claims);
-
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
-        config.setExpGracePeriodSecs(0);
-        final Session session = OpenIdSession.ofIdToken(firstToken, config);
-        final Request req = Request.newBuilder(URI.create("https://storage.example")).build();
-
-        // This token expires in 5 minutes
-        claims.put("exp", Instant.now().plusSeconds(600).getEpochSecond());
-        final String secondToken = generateIdToken(claims);
-
-        final Authenticator authenticator = new TestAuthenticator(secondToken);
-
-        // First negotiate the first token while it is still valid
-        final Authenticator.AccessToken at1 = session.negotiate(authenticator, req).toCompletableFuture().join();
-        assertEquals(firstToken, at1.getToken());
-
-        // Wait for that token to expire and see the negotiation return the second token
-        await().atMost(5, SECONDS).until(() ->
-                session.negotiate(authenticator, req).toCompletableFuture().join(), t ->
-                    secondToken.equals(t.getToken()));
-    }
-
 
     static class TestAuthenticator implements Authenticator {
         private final String token;
@@ -322,14 +291,15 @@ class OpenIdSessionTest {
         }
 
         @Override
-        public Authenticator.AccessToken authenticate() {
+        public Authenticator.AccessToken authenticate(final Session session, final Request request) {
             return new Authenticator.AccessToken(this.token, "Bearer", Instant.now().plusSeconds(3600),
-                    Arrays.asList("openid", "webid"), null);
+                    URI.create(ISS), Arrays.asList("openid", "webid"), null);
         }
 
         @Override
-        public CompletionStage<Authenticator.AccessToken> authenticateAsync() {
-            return CompletableFuture.completedFuture(authenticate());
+        public CompletionStage<Authenticator.AccessToken> authenticateAsync(final Session session,
+                final Request request) {
+            return CompletableFuture.completedFuture(authenticate(session, request));
         }
     }
 
