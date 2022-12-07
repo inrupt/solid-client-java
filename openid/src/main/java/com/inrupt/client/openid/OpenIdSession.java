@@ -74,8 +74,7 @@ import org.jose4j.keys.resolvers.VerificationKeyResolver;
  */
 public final class OpenIdSession implements Session {
 
-    public static final String ID_TOKEN = "com.inrupt.client.openid.ID_TOKEN";
-    public static final String TYPE = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+    public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
 
     private final String jwt;
     private final String id;

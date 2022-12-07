@@ -46,6 +46,8 @@ import java.util.concurrent.CompletionStage;
  */
 public class UmaAuthenticationProvider implements AuthenticationProvider {
 
+    public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+
     private static final String UMA = "UMA";
     private static final String AS_URI = "as_uri";
     private static final String TICKET = "ticket";
@@ -154,7 +156,13 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
 
-            final TokenRequest req = new TokenRequest(ticket, null, null, null, Collections.emptyList());
+            final ClaimToken claimToken = session.getCredential(ID_TOKEN)
+                .map(credential -> ClaimToken.of(credential.getToken(), ID_TOKEN))
+                .orElse(null);
+
+            // TODO add Access Grant support
+
+            final TokenRequest req = new TokenRequest(ticket, null, null, claimToken, Collections.emptyList());
             // TODO add the dpop algorithm
             final String proofAlgorithm = null;
             return umaClient.metadataAsync(as)

@@ -88,7 +88,7 @@ public class ReactiveAuthorization {
             // Use the first authenticator, sorted by priority
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);
-            LOGGER.debug("Using {} authenticator", auth.getName());
+            LOGGER.warn("Using {} authenticator", auth.getName());
             return auth.authenticateAsync(session, request)
                 .thenApply(token -> new Session.Credential(token.getType(), token.getIssuer(),
                             token.getToken(), token.getExpiration()))
