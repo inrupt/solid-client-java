@@ -55,7 +55,7 @@ public interface Session {
      * Retrieve an access token for a request from a cache.
      *
      * @param request the HTTP request
-     * @return the access token or {@code null}
+     * @return the access token, if present
      */
     Optional<Credential> fromCache(Request request);
 
