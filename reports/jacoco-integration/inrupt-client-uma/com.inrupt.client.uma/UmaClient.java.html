@@ -220,83 +220,84 @@ public class UmaClient {
             case INVALID_SCOPE:
 <span class="nc" id="L221">                throw new InvalidScopeException(&quot;Invalid scope provided&quot;);</span>
 
-            default: //NEED_INFO
+            case NEED_INFO:
+            default:
                 // recursive claims gathering
-<span class="nc" id="L225">                return NeedInfo</span>
-<span class="nc" id="L226">                    .ofErrorResponse(err)</span>
-<span class="nc" id="L227">                    .map(needInfo -&gt; claimMapper</span>
-<span class="nc" id="L228">                            .apply(needInfo)</span>
-<span class="nc" id="L229">                            .thenApply(claimToken -&gt; {</span>
-<span class="nc bnc" id="L230" title="All 2 branches missed.">                                if (claimToken == null) {</span>
-<span class="nc" id="L231">                                    throw new RequestDeniedException(</span>
+<span class="nc" id="L226">                return NeedInfo</span>
+<span class="nc" id="L227">                    .ofErrorResponse(err)</span>
+<span class="nc" id="L228">                    .map(needInfo -&gt; claimMapper</span>
+<span class="nc" id="L229">                            .apply(needInfo)</span>
+<span class="nc" id="L230">                            .thenApply(claimToken -&gt; {</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                                if (claimToken == null) {</span>
+<span class="nc" id="L232">                                    throw new RequestDeniedException(</span>
                                             &quot;The client is unable to negotiate an access token&quot;);
                                 }
-<span class="nc" id="L234">                                return new TokenRequest(needInfo.getTicket(), null, null, claimToken,</span>
+<span class="nc" id="L235">                                return new TokenRequest(needInfo.getTicket(), null, null, claimToken,</span>
                                             scopes);
                             })
                     )
-<span class="nc" id="L238">                    .orElseThrow(() -&gt; new RequestDeniedException(&quot;Invalid need_info error response&quot;))</span>
-<span class="nc" id="L239">                    .thenCompose(modifiedTokenRequest -&gt;</span>
-<span class="nc" id="L240">                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));</span>
+<span class="nc" id="L239">                    .orElseThrow(() -&gt; new RequestDeniedException(&quot;Invalid need_info error response&quot;))</span>
+<span class="nc" id="L240">                    .thenCompose(modifiedTokenRequest -&gt;</span>
+<span class="nc" id="L241">                        negotiateToken(tokenEndpoint, modifiedTokenRequest, claimMapper, count + 1));</span>
         }
     }
 
 
     static &lt;T extends Throwable&gt; void sneakyThrow(final Throwable ex) throws T {
-<span class="nc" id="L246">        throw (T) ex;</span>
+<span class="nc" id="L247">        throw (T) ex;</span>
     }
 
     private Request buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {
-<span class="nc" id="L250">        final Map&lt;String, String&gt; data = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L251">        data.put(GRANT_TYPE, UMA_TICKET);</span>
-<span class="nc" id="L252">        data.put(TICKET, request.getTicket());</span>
-<span class="nc" id="L253">        request.getPersistedClaimToken().ifPresent(pct -&gt; data.put(PCT, pct));</span>
-<span class="nc" id="L254">        request.getRequestingPartyToken().ifPresent(rpt -&gt; data.put(RPT, rpt));</span>
-<span class="nc" id="L255">        request.getClaimToken().ifPresent(claimToken -&gt; {</span>
-<span class="nc" id="L256">            data.put(CLAIM_TOKEN, claimToken.getClaimToken());</span>
-<span class="nc" id="L257">            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType());</span>
-<span class="nc" id="L258">        });</span>
-<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (!request.getScopes().isEmpty()) {</span>
-<span class="nc" id="L260">            data.put(SCOPE, String.join(&quot; &quot;, request.getScopes()));</span>
+<span class="nc" id="L251">        final Map&lt;String, String&gt; data = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L252">        data.put(GRANT_TYPE, UMA_TICKET);</span>
+<span class="nc" id="L253">        data.put(TICKET, request.getTicket());</span>
+<span class="nc" id="L254">        request.getPersistedClaimToken().ifPresent(pct -&gt; data.put(PCT, pct));</span>
+<span class="nc" id="L255">        request.getRequestingPartyToken().ifPresent(rpt -&gt; data.put(RPT, rpt));</span>
+<span class="nc" id="L256">        request.getClaimToken().ifPresent(claimToken -&gt; {</span>
+<span class="nc" id="L257">            data.put(CLAIM_TOKEN, claimToken.getClaimToken());</span>
+<span class="nc" id="L258">            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType());</span>
+<span class="nc" id="L259">        });</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">        if (!request.getScopes().isEmpty()) {</span>
+<span class="nc" id="L261">            data.put(SCOPE, String.join(&quot; &quot;, request.getScopes()));</span>
         }
 
         // TODO add dpop support, if available
-<span class="nc" id="L264">        return Request.newBuilder(tokenEndpoint)</span>
-<span class="nc" id="L265">            .header(CONTENT_TYPE, X_WWW_FORM_URLENCODED)</span>
-<span class="nc" id="L266">            .POST(ofFormData(data))</span>
-<span class="nc" id="L267">            .build();</span>
+<span class="nc" id="L265">        return Request.newBuilder(tokenEndpoint)</span>
+<span class="nc" id="L266">            .header(CONTENT_TYPE, X_WWW_FORM_URLENCODED)</span>
+<span class="nc" id="L267">            .POST(ofFormData(data))</span>
+<span class="nc" id="L268">            .build();</span>
     }
 
     private static Request.BodyPublisher ofFormData(final Map&lt;String, String&gt; data) {
-<span class="nc" id="L271">        final String form = data.entrySet().stream().map(entry -&gt; {</span>
-<span class="nc" id="L272">            String name = &quot;&quot;;</span>
-<span class="nc" id="L273">            String value = &quot;&quot;;</span>
+<span class="nc" id="L272">        final String form = data.entrySet().stream().map(entry -&gt; {</span>
+<span class="nc" id="L273">            String name = &quot;&quot;;</span>
+<span class="nc" id="L274">            String value = &quot;&quot;;</span>
             try {
-<span class="nc" id="L275">                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
-<span class="nc" id="L276">                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
-<span class="nc" id="L277">            } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L278">                throw new UmaException(e.getMessage());</span>
-<span class="nc" id="L279">            }</span>
-<span class="nc" id="L280">            return String.join(EQUALS, name, value);</span>
-<span class="nc" id="L281">        }).collect(Collectors.joining(ETC));</span>
+<span class="nc" id="L276">                name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
+<span class="nc" id="L277">                value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
+<span class="nc" id="L278">            } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L279">                throw new UmaException(e.getMessage());</span>
+<span class="nc" id="L280">            }</span>
+<span class="nc" id="L281">            return String.join(EQUALS, name, value);</span>
+<span class="nc" id="L282">        }).collect(Collectors.joining(ETC));</span>
 
-<span class="nc" id="L283">        return Request.BodyPublishers.ofString(form);</span>
+<span class="nc" id="L284">        return Request.BodyPublishers.ofString(form);</span>
     }
 
 
     private Metadata processMetadataResponse(final Response&lt;InputStream&gt; response) {
-<span class="nc bnc" id="L288" title="All 2 branches missed.">        if (response.statusCode() == SUCCESS) {</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">        if (response.statusCode() == SUCCESS) {</span>
             try {
-<span class="nc" id="L290">                return jsonService.fromJson(response.body(), Metadata.class);</span>
-<span class="nc" id="L291">            } catch (final IOException ex) {</span>
-<span class="nc" id="L292">                throw new UmaException(&quot;Error while processing UMA metadata response&quot;, ex);</span>
+<span class="nc" id="L291">                return jsonService.fromJson(response.body(), Metadata.class);</span>
+<span class="nc" id="L292">            } catch (final IOException ex) {</span>
+<span class="nc" id="L293">                throw new UmaException(&quot;Error while processing UMA metadata response&quot;, ex);</span>
             }
         }
-<span class="nc" id="L295">        throw new UmaException(&quot;Unexpected response code during UMA discovery: &quot; + response.statusCode());</span>
+<span class="nc" id="L296">        throw new UmaException(&quot;Unexpected response code during UMA discovery: &quot; + response.statusCode());</span>
     }
 
     private URI getMetadataUrl(final URI authorizationServer) {
-<span class="nc" id="L299">        return URIBuilder.newBuilder(authorizationServer).path(&quot;.well-known/uma2-configuration&quot;).build();</span>
+<span class="nc" id="L300">        return URIBuilder.newBuilder(authorizationServer).path(&quot;.well-known/uma2-configuration&quot;).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

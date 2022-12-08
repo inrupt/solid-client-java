@@ -24,7 +24,7 @@ Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.spi,ReactiveA
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.spi,RdfService,0,12,0,0,0,2,0,2,0,2
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.spi,ClientProviderResolver,9,37,3,3,2,12,3,4,0,4
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.spi,ServiceProvider,35,108,6,16,6,34,6,11,0,6
-Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.util,URIBuilder,7,182,1,19,2,30,1,18,0,9
+Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.util,URIBuilder,7,179,1,19,2,29,1,17,0,8
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.util,IOUtils,55,43,0,0,14,12,3,5,3,5
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WacAllowBaseListener,1,8,0,0,1,6,1,6,1,6
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateParser.WwwAuthenticateContext,21,21,2,2,5,6,7,3,5,3
