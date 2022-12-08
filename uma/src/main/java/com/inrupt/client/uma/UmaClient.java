@@ -220,7 +220,8 @@ public class UmaClient {
             case INVALID_SCOPE:
                 throw new InvalidScopeException("Invalid scope provided");
 
-            default: //NEED_INFO
+            case NEED_INFO:
+            default:
                 // recursive claims gathering
                 return NeedInfo
                     .ofErrorResponse(err)
