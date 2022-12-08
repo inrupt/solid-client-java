@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -38,13 +39,29 @@ public final class SolidContainer extends SolidResource{
 
     private final List<SolidResource> containedResources = new ArrayList<>();
 
+    private SolidContainer(final URI id, final Optional<URI> storage) {
+        super(id, storage);
+    }
+
     /**
      * Create a new SolidContainer.
      *
      * @param id the container's unique identifier
+     * @return the new {@link SolidContainer} object
      */
-    private SolidContainer(final URI id) {
-        super(id);
+    public static SolidContainer of(final URI id) {
+        return of(id, null);
+    }
+
+    /**
+     * Create a new SolidContainer.
+     *
+     * @param id the container's unique identifier
+     * @param storage the container's storage URI
+     * @return the new {@link SolidContainer} object
+     */
+    public static SolidContainer of(final URI id, final Optional<URI> storage) {
+        return new SolidContainer(id, storage);
     }
 
     /**
@@ -70,7 +87,7 @@ public final class SolidContainer extends SolidResource{
      */
     public static final class Builder{
 
-        protected Set<URI> builderStorage = new HashSet<>();;
+        protected Optional<URI> builderStorage = Optional.empty();
         protected Set<URI> builderType = new HashSet<>();
         protected Map<String, Set<String>> builderWacAllow = new HashMap<>();
         protected Set<String> builderAllowedMethods = new HashSet<>();
@@ -87,7 +104,7 @@ public final class SolidContainer extends SolidResource{
          * @return this builder
          */
         public Builder storage(final URI uri) {
-            builderStorage.add(uri);
+            builderStorage = Optional.of(uri);
             return this;
         }
 
@@ -186,9 +203,8 @@ public final class SolidContainer extends SolidResource{
          * @return the Solid container
          */
         public SolidContainer build(final URI id) {
-            final var container = new SolidContainer(id);
+            final var container = SolidContainer.of(id, builderStorage);
             container.containedResources.addAll(builderContainedResources);
-            container.storage.addAll(builderStorage);
             container.type.addAll(builderType);
             container.wacAllow.putAll(builderWacAllow);
             container.statements.addAll(builderStatements);

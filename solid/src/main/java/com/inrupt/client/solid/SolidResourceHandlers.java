@@ -20,20 +20,23 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.*;
 import com.inrupt.client.Headers.Link;
 import com.inrupt.client.Headers.WacAllow;
+import com.inrupt.client.RDFNode;
+import com.inrupt.client.Response;
+import com.inrupt.client.Syntax;
+import com.inrupt.client.Triple;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 
 /**
- * Body handlers for WebID Profiles.
+ * Body handlers for Solid Resources.
  */
 public final class SolidResourceHandlers {
 
@@ -48,7 +51,7 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidResource> ofSolidResource(final URI id) {
         return responseInfo -> {
-            final var builder = SolidContainer.newContainerBuilder();
+            final var builder = SolidResource.newResourceBuilder();
 
             try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                 final var dataSet = service.toDataset(Syntax.TURTLE, input, id.toString());
@@ -59,6 +62,12 @@ public final class SolidResourceHandlers {
                     .map(Link::getUri)
                     .forEach(builder::type);
 
+                responseInfo.headers().allValues("Link").stream()
+                    .flatMap(l -> Link.parse(l).stream())
+                    .filter(l -> l.getParameter("rel").contains("http://www.w3.org/ns/pim/space#storage"))
+                    .map(Link::getUri)
+                    .forEach(builder::storage);
+
                 responseInfo.headers().allValues("WAC-Allow").stream()
                     .map(WacAllow::parse)
                     .map(WacAllow::getAccessParams)
@@ -66,6 +75,8 @@ public final class SolidResourceHandlers {
                     .forEach(builder::wacAllow);
 
                 responseInfo.headers().allValues("Allow").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedMethod);
 
                 responseInfo.headers().allValues("Accept-Post").stream()
@@ -79,12 +90,6 @@ public final class SolidResourceHandlers {
 
                 dataSet.stream(null, null, null, null)
                     .forEach(builder::statement);
-
-                dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(PIM.storage), null)
-                    .map(Quad::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::storage);
 
             } catch (final IOException ex) {
                 throw new SolidResourceException(ERROR_MESSAGE, ex);
@@ -103,7 +108,6 @@ public final class SolidResourceHandlers {
     public static Response.BodyHandler<SolidContainer> ofSolidContainer(final URI id) {
         return responseInfo -> {
             final var builder = SolidContainer.newContainerBuilder();
-
             try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                 final var dataSet = service.toDataset(Syntax.TURTLE, input, id.toString());
 
@@ -113,6 +117,12 @@ public final class SolidResourceHandlers {
                     .map(Link::getUri)
                     .forEach(builder::type);
 
+                responseInfo.headers().allValues("Link").stream()
+                    .flatMap(l -> Link.parse(l).stream())
+                    .filter(l -> l.getParameter("rel").contains("http://www.w3.org/ns/pim/space#storage"))
+                    .map(Link::getUri)
+                    .forEach(builder::storage);
+
                 responseInfo.headers().allValues("WAC-Allow").stream()
                     .map(WacAllow::parse)
                     .map(WacAllow::getAccessParams)
@@ -120,6 +130,8 @@ public final class SolidResourceHandlers {
                     .forEach(builder::wacAllow);
 
                 responseInfo.headers().allValues("Allow").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedMethod);
 
                 responseInfo.headers().allValues("Accept-Post").stream()
@@ -134,17 +146,11 @@ public final class SolidResourceHandlers {
                 dataSet.stream(null, null, null, null)
                     .forEach(builder::statement);
 
-                dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(PIM.storage), null)
-                    .map(Quad::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::storage);
-
                 dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(LDP.contains), null)
                     .map(Triple::getObject)
                     .filter(RDFNode::isNamedNode)
                     .map(RDFNode::getURI)
-                    .map(SolidResource::new)
+                    .map(SolidResource::of)
                     .forEach((builder)::containedResource);
 
             } catch (final IOException ex) {

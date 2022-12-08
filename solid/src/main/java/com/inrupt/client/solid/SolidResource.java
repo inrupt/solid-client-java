@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -38,7 +39,7 @@ public class SolidResource {
 
     protected final URI id;
 
-    protected final Set<URI> storage = new HashSet<>();
+    protected final Optional<URI> storage;
     protected final Set<URI> type = new HashSet<>();
     protected final Map<String, Set<String>> wacAllow = new HashMap<>();
     protected final Set<String> allowedMethods = new HashSet<>();
@@ -47,13 +48,30 @@ public class SolidResource {
     protected final Set<String> allowedPostSyntaxes = new HashSet<>();
     protected final Set<String> allowedPutSyntaxes = new HashSet<>();
 
+    protected SolidResource(final URI id, final Optional<URI> storage) {
+        this.id = id;
+        this.storage = storage;
+    }
+
     /**
      * Create a new SolidResource.
      *
      * @param id the SolidResource's unique identifier
+     * @return the new {@link SolidResource} object
      */
-    protected SolidResource(final URI id) {
-        this.id = id;
+    public static SolidResource of(final URI id) {
+        return of(id, null);
+    }
+
+    /**
+     * Create a new SolidResource.
+     *
+     * @param id the SolidResource's unique identifier
+     * @param storage the SolidResource's storage URI
+     * @return the new {@link SolidResource} object
+     */
+    public static SolidResource of(final URI id, final Optional<URI> storage) {
+        return new SolidResource(id, storage);
     }
 
     /**
@@ -66,11 +84,11 @@ public class SolidResource {
     }
 
     /**
-     * Retrieve storage URIs from this SolidResource.
+     * Retrieve storage URI from this SolidResource.
      *
      * @return the storage URIs
      */
-    public Set<URI> getStorage() {
+    public Optional<URI> getStorage() {
         return storage;
     }
 
@@ -151,7 +169,7 @@ public class SolidResource {
      */
     public static final class Builder {
 
-        protected Set<URI> builderStorage = new HashSet<>();
+        protected Optional<URI> builderStorage = Optional.empty();
         protected Set<URI> builderType = new HashSet<>();
         protected Map<String, Set<String>> builderWacAllow = new HashMap<>();
         protected Set<String> builderAllowedMethods = new HashSet<>();
@@ -167,7 +185,7 @@ public class SolidResource {
          * @return this builder
          */
         public Builder storage(final URI uri) {
-            builderStorage.add(uri);
+            builderStorage = Optional.of(uri);
             return this;
         }
 
@@ -255,8 +273,7 @@ public class SolidResource {
          * @return the Solid resource
          */
         public SolidResource build(final URI id) {
-            final var resource = new SolidResource(id);
-            resource.storage.addAll(builderStorage);
+            final var resource = SolidResource.of(id, builderStorage);
             resource.statements.addAll(builderStatements);
             resource.wacAllow.putAll(builderWacAllow);
             resource.type.addAll(builderType);

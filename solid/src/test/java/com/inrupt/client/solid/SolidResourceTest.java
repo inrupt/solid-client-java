@@ -72,10 +72,13 @@ class SolidResourceTest {
         final var responseBody = response.body();
         assertEquals("https://example.test/resource/", responseBody.getId().toString());
         assertTrue(responseBody.getType().contains(URI.create("http://www.w3.org/ns/ldp#Container")));
+        assertTrue(responseBody.getStorage().isPresent());
+        assertEquals("http://storage/example", responseBody.getStorage().get().toString());
         assertEquals(responseBody.getWacAllow().get("user"), Set.of("read", "write"));
         assertEquals(responseBody.getWacAllow().get("public"), Set.of("read"));
-        assertEquals(25, responseBody.getStatements().size());
-
+        assertEquals(24, responseBody.getStatements().size());
+        assertEquals(3, responseBody.getAllowedMethods().size());
+        assertTrue(responseBody.getAllowedMethods().containsAll(Set.of("PUT", "POST", "PATCH")));
     }
 
     @Test
@@ -95,7 +98,6 @@ class SolidResourceTest {
 
         final var responseBody = response.body();
         assertEquals("https://example.test/resource/", responseBody.getId().toString());
-        assertEquals(25, responseBody.getStatements().size());
         assertEquals(3, responseBody.getContainedResources().size());
         assertEquals("https://example.test/resource/test.txt",
                         responseBody.getContainedResources().get(1).getId().toString());
@@ -106,26 +108,5 @@ class SolidResourceTest {
                         .map(URI::toString)
                         .collect(Collectors.toSet())
                         .contains("https://example.test/resource/test3.txt"));
-    }
-
-    @Test
-    void testGetWebIDStorage() throws IOException, InterruptedException {
-        final var request = Request.newBuilder()
-            .uri(URI.create(config.get("solid_resource_uri") + "/webID"))
-            .header("Accept", "text/turtle")
-            .GET()
-            .build();
-
-        final Response<SolidResource> response = client.send(
-            request,
-            SolidResourceHandlers.ofSolidResource(URI.create("https://example.test/username"))
-        );
-
-        assertEquals(200, response.statusCode());
-
-        final var responseBody = response.body();
-        assertEquals("https://example.test/username", responseBody.getId().toString());
-        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
-
     }
 }

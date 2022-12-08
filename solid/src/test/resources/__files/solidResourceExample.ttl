@@ -14,7 +14,7 @@ pub:
 pub:newContainer
     a ldp:BasicContainer, ldp:Container;
     dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
-    ldp:contains pub:test3.txt, pub:test4.txt;
+    ldp:contains pub:test3.txt;
     stat:mtime 1669372596.859;
     stat:size 4096 .
 pub:test.txt

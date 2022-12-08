@@ -44,21 +44,11 @@ public class SolidMockHttpService {
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
-                .withHeader("Link", "<http://www.w3.org/ns/ldp#Container>; rel=type")
+                .withHeader("Link", "<http://www.w3.org/ns/ldp#Container>; rel=\"type\"")
+                .withHeader("Link", "<http://storage/example>; rel=\"http://www.w3.org/ns/pim/space#storage\"")
                 .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
                 .withHeader("Allow", "POST, PUT, PATCH")
                 .withBodyFile("solidResourceExample.ttl")
-            )
-        );
-
-        wireMockServer.stubFor(get(urlEqualTo("/webID"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "text/turtle")
-                .withHeader("Link", "<http://www.w3.org/ns/ldp#Container>; rel=type")
-                .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
-                .withHeader("Allow", "POST, PUT, PATCH")
-                .withBodyFile("webIdExample.ttl")
             )
         );
     }
