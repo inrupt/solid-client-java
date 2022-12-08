@@ -23,10 +23,10 @@
  *
  * <p>This module uses the {@code OpenIdProvider} to interact with a OpenId Provider
  * as described in the <a href="https://solidproject.org/TR/oidc-primer"> Solid-OIDC Primer v 0.1.0</a>
- * 
+ *
  * <p>{@code OpenIdProvider} helps in the interaction with the token endpoint and to construct helper
  * requests for authentication.
- * 
+ *
  * <h3>Discovering the openID configuration</h3>
  *
  * <pre>{@code
@@ -38,9 +38,9 @@
    System.out.println("Authorization endpoint is: " + opConfig.authorizationEndpoint.toString());
    System.out.println("Token endpoint is: " + opConfig.tokenEndpoint.toString());
  * }</pre>
- * 
+ *
  * <h3>Creating an AuthorizationRequest (needed for browser-based authorization code flow)</h3>
- * 
+ *
  * <pre>{@code
    Client client = ClientProvider.getClient();
 
@@ -58,11 +58,11 @@
 
    Response authorizationResponse = client.send(authorizationRequest, Response.BodyHandlers.ofString());
  * }</pre>
- * 
+ *
  * <h3>Obtaining an ID token</h3>
- * 
+ *
  * <pre>{@code
-   com.inrupt.client.openid.TokenRequest tokenReq = TokenRequest.newBuilder()
+   TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("code")
             .codeVerifier("myCodeverifier")
             .redirectUri(URI.create("https://app.example/callback"))
@@ -72,12 +72,12 @@
                 "authorization_code",
                 "s6BhdRkqt3") //same client_id as from the authorization
             );
-   com.inrupt.client.openid.TokenResponse token = openIdProvider.token(tokenReq);
+   TokenResponse token = openIdProvider.token(tokenReq);
 
    System.out.println("ID Token: " + token.idToken);
    System.out.println("Token type: " + token.tokenType);
  * }</pre>
- * 
+ *
  * <h3>If we already have a session, we can use it with the ID Tokens serialized as signed
  * JWTs. This abstraction can be used to make use of identity-based authorization
  * in Solid.</h3>
@@ -105,11 +105,11 @@
 
    Response res = session.send(req, bodyHandler);
  * }</pre>
- * 
+ *
  * <p>An invalid token will throw an {@link OpenIdException} during session creation.
- * 
+ *
  * <h3>Ending the session.</h3>
- * 
+ *
  * <pre>{@code
    EndSessionRequest endReq = EndSessionRequest.Builder.newBuilder()
          .postLogoutRedirectUri(URI.create("https://example.example/callback")) //redirect_uri
@@ -119,16 +119,16 @@
 
    URI uri = openIdProvider.endSession(endReq);
  * }</pre>
- * 
+ *
  * <h3>Generating a PKCE code challenge and verifier.</h3>
- * 
+ *
  * <p>The default challenge encoding is SHA-256.
  * Pass an algorithm to createChallenge if another encoding is required.
- * 
+ *
  * <pre>{@code
    String verifier = PKCE.createVerifier();
    String challenge = PKCE.createChallenge(verifier);
  * }</pre>
- * 
+ *
  */
 package com.inrupt.client.openid;

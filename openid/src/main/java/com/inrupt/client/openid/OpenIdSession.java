@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jwk.HttpsJwks;
@@ -92,6 +93,41 @@ public final class OpenIdSession implements Session {
      */
     public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config) {
         return new OpenIdSession(idToken, config);
+    }
+
+    /**
+     * Create a session using OAuth2 client credentials.
+     *
+     * @param issuer the OpenID issuer
+     * @param clientId the client id value
+     * @param clientSecret the client secret value
+     * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
+     * @return the next stage of completion, containing a session
+     */
+    public static CompletionStage<Session> ofClientCredentials(final URI issuer, final String clientId,
+            final String clientSecret, final String authMethod) {
+        return ofClientCredentials(issuer, clientId, clientSecret, authMethod, new OpenIdVerificationConfig());
+    }
+
+    /**
+     * Create a session using OAuth2 client credentials.
+     *
+     * @param issuer the OpenID issuer
+     * @param clientId the client id value
+     * @param clientSecret the client secret value
+     * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
+     * @param config the ID Token verification configuration
+     * @return the next stage of completion, containing a session
+     */
+    public static CompletionStage<Session> ofClientCredentials(final URI issuer, final String clientId,
+            final String clientSecret, final String authMethod, final OpenIdVerificationConfig config) {
+        final OpenIdProvider provider = new OpenIdProvider(issuer);
+        return provider.tokenAsync(TokenRequest.newBuilder()
+                .clientSecret(clientSecret)
+                .authMethod(authMethod)
+                .build("client_credentials", clientId))
+            .thenApply(response -> response.idToken)
+            .thenApply(idToken -> ofIdToken(idToken, config));
     }
 
     @Override

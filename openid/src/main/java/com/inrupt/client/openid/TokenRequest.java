@@ -129,6 +129,7 @@ public final class TokenRequest {
         private String builderAuthMethod;
         private String builderCode;
         private String builderCodeVerifier;
+        private URI builderRedirectUri;
 
         /**
          * Set the client secret value.
@@ -175,28 +176,42 @@ public final class TokenRequest {
         }
 
         /**
+         * Set the redirect URI value.
+         *
+         * @param redirectUri the redirect URI
+         * @return this builder
+         */
+        public Builder redirectUri(final URI redirectUri) {
+            builderRedirectUri = redirectUri;
+            return this;
+        }
+
+        /**
          * Build a token request.
          *
          * @param grantType the grant type
          * @param clientId the client id
-         * @param redirectUri the redirect URI
          * @return the token request
          */
-        public TokenRequest build(final String grantType, final String clientId, final URI redirectUri) {
+        public TokenRequest build(final String grantType, final String clientId) {
 
             Objects.requireNonNull(clientId, "Client ID may not be null!");
-            Objects.requireNonNull(redirectUri, "Redirect URI may not be null!");
             final String grant = Objects.requireNonNull(grantType, "Grant type may not be null!");
 
-            if ("authorization_code".equals(grantType) && builderCode == null) {
-                throw new IllegalArgumentException(
-                    "Missing code parameter for authorization_code grant type");
+            if ("authorization_code".equals(grantType)) {
+                if (builderCode == null) {
+                    throw new IllegalArgumentException(
+                        "Missing code parameter for authorization_code grant type");
+                } else if (builderRedirectUri == null) {
+                    throw new IllegalArgumentException(
+                        "Missing redirectUri parameter for authorization_code grant type");
+                }
             } else if ("client_credentials".equals(grantType) && builderClientSecret == null) {
                 throw new IllegalArgumentException(
                     "Missing client_secret parameter for client_credentials grant type");
             }
 
-            return new TokenRequest(clientId, builderClientSecret, redirectUri, grant, builderAuthMethod,
+            return new TokenRequest(clientId, builderClientSecret, builderRedirectUri, grant, builderAuthMethod,
                     builderCode, builderCodeVerifier);
         }
     }

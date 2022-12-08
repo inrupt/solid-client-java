@@ -198,6 +198,10 @@ public class OpenIdProvider {
     }
 
     private Request tokenRequest(final Metadata metadata, final TokenRequest request) {
+        if (!metadata.grantTypesSupported.contains(request.getGrantType())) {
+            throw new OpenIdException("Grant type [" + request.getGrantType() + "] is not supported by this provider.");
+        }
+
         final Map<String, String> data = new HashMap<>();
         data.put("grant_type", request.getGrantType());
         data.put("code", request.getCode());
