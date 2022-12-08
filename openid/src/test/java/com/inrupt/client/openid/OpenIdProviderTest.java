@@ -23,8 +23,6 @@ package com.inrupt.client.openid;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.openid.TokenRequest.Builder;
-import com.inrupt.client.spi.HttpService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
@@ -41,7 +39,6 @@ import org.junit.jupiter.api.Test;
 
 class OpenIdProviderTest {
 
-    private static final HttpService client = ServiceProvider.getHttpService();
     private static OpenIdProvider openIdProvider;
     private static final OpenIdMockHttpService mockHttpService = new OpenIdMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
@@ -50,7 +47,7 @@ class OpenIdProviderTest {
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException {
         config.put("openid_uri", mockHttpService.start());
-        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")), client);
+        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")));
     }
 
     @AfterAll
@@ -73,19 +70,22 @@ class OpenIdProviderTest {
     }
 
     @Test
+    void unknownMetadata() {
+        final OpenIdProvider provider = new OpenIdProvider(URI.create(config.get("openid_uri") + "/not-found"));
+        assertThrows(OpenIdException.class, provider::metadata);
+    }
+
+    @Test
     void authorizeTest() {
         final AuthorizationRequest authReq = AuthorizationRequest.newBuilder()
             .codeChallenge("myCodeChallenge")
             .codeChallengeMethod("method")
-            .build(
-                "myClientId",
-                URI.create("myRedirectUri")
-        );
+            .build("myClientId", URI.create("myRedirectUri"));
+
         assertEquals(
-            "http://example.test/auth?client_id=myClientId&redirect_uri=myRedirectUri&" +
-            "response_type=code&code_challenge=myCodeChallenge&code_challenge_method=method",
-            openIdProvider.authorizeAsync(authReq).toCompletableFuture().join().toString()
-        );
+            URI.create("http://example.test/auth?client_id=myClientId&redirect_uri=myRedirectUri&" +
+            "response_type=code&code_challenge=myCodeChallenge&code_challenge_method=method"),
+            openIdProvider.authorize(authReq));
     }
 
     @Test

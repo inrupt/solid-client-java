@@ -37,6 +37,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+
 class LinkTest {
 
     static final Map<String, String> REL_PRECONNECT = Collections.singletonMap("rel", "preconnect");
@@ -91,6 +93,13 @@ class LinkTest {
                 }));
 
         assertEquals(expected, linkValues);
+    }
+
+    @Test
+    void testEquality() {
+        EqualsVerifier.forClass(Link.class)
+            .withNonnullFields("uri", "parameters")
+            .verify();
     }
 
     @ParameterizedTest

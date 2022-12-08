@@ -22,8 +22,6 @@ package com.inrupt.client;
 
 import com.inrupt.client.spi.HttpService;
 
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 public interface Client {
@@ -55,63 +53,6 @@ public interface Client {
      * @return the session-scoped client
      */
     Client session(Session session);
-
-    /**
-     * A session abstraction for managing access tokens for an agent.
-     */
-    interface Session {
-
-        /**
-         * Retrieve the identifier associated with this session.
-         *
-         * @return a session identifier
-         */
-        String getId();
-
-        /**
-         * Retrieve an access token for a request from a cache.
-         *
-         * @param request the HTTP request
-         * @return the access token or {@code null}
-         */
-        Optional<Authenticator.AccessToken> fromCache(Request request);
-
-        /**
-         * Negotiate for an access token.
-         *
-         * @param authenticator the authenticator
-         * @param request the HTTP request
-         * @return the next stage of completion, containing the access token or {@code null}
-         */
-        CompletionStage<Authenticator.AccessToken> negotiate(Authenticator authenticator, Request request);
-
-        /**
-         * Create a new anonymous session.
-         *
-         * @implNote This {@link Session} does not keep a cache of access tokens.
-         * @return the session
-         */
-        static Session anonymous() {
-            final String sessionId = UUID.randomUUID().toString();
-            return new Session() {
-                @Override
-                public String getId() {
-                    return sessionId;
-                }
-
-                @Override
-                public Optional<Authenticator.AccessToken> fromCache(final Request request) {
-                    return Optional.empty();
-                }
-
-                @Override
-                public CompletionStage<Authenticator.AccessToken> negotiate(final Authenticator authenticator,
-                        final Request request) {
-                    return authenticator.authenticateAsync();
-                }
-            };
-        }
-    }
 
     interface Builder {
 
