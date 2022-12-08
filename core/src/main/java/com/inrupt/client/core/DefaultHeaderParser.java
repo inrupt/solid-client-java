@@ -106,6 +106,10 @@ public class DefaultHeaderParser implements HeaderParser {
             }
             return value;
         }
+
+        private Util() {
+            // Prevent instantiation
+        }
     }
 
     static final class LinkHeaderParser {
