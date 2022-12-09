@@ -59,12 +59,13 @@
    Response authorizationResponse = client.send(authorizationRequest, Response.BodyHandlers.ofString());
  * }</pre>
  * 
- * <h3>Obtaining a ID token</h3>
+ * <h3>Obtaining an ID token</h3>
  * 
  * <pre>{@code
    com.inrupt.client.openid.TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("code")
             .codeVerifier("myCodeverifier")
+            .redirectUri(URI.create("https://app.example/callback"))
             .clientSecret("myClientSecret")
             .authMethod("client_secret_basic")
             .build(
@@ -120,6 +121,9 @@
  * }</pre>
  * 
  * <h3>Generating a PKCE code challenge and verifier.</h3>
+ * 
+ * <p> The default challenge encoding is SHA-256. 
+ * Pass an algorithm to createChallenge if another encoding is required.
  * 
  * <pre>{@code
    String verifier = PKCE.createVerifier();
