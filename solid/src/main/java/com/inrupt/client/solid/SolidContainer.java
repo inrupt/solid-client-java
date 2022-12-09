@@ -180,7 +180,7 @@ public final class SolidContainer extends SolidResource {
          * @param quad the RDF quad
          * @return this builder
          */
-        public Builder statement(final Quad quad) {
+        public Builder statements(final Quad quad) {
             builderStatements.add(quad);
             return this;
         }

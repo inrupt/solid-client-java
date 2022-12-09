@@ -79,6 +79,9 @@ class SolidResourceTest {
         assertEquals(24, responseBody.getStatements().size());
         assertEquals(3, responseBody.getAllowedMethods().size());
         assertTrue(responseBody.getAllowedMethods().containsAll(Set.of("PUT", "POST", "PATCH")));
+        assertTrue(responseBody.getAllowedPatchSyntaxes().containsAll(Set.of("application/example", "text/example")));
+        assertTrue(responseBody.getAllowedPostSyntaxes().containsAll(Set.of("application/example", "text/example")));
+        assertTrue(responseBody.getAllowedPutSyntaxes().containsAll(Set.of("application/example", "text/example")));
     }
 
     @Test

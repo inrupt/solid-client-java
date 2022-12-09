@@ -48,6 +48,9 @@ public class SolidMockHttpService {
                 .withHeader("Link", "<http://storage/example>; rel=\"http://www.w3.org/ns/pim/space#storage\"")
                 .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
                 .withHeader("Allow", "POST, PUT, PATCH")
+                .withHeader("Accept-Post", "application/example, text/example")
+                .withHeader("Accept-Patch", "application/example, text/example")
+                .withHeader("Accept-Put", "application/example, text/example")
                 .withBodyFile("solidResourceExample.ttl")
             )
         );

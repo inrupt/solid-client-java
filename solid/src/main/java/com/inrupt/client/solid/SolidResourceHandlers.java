@@ -29,6 +29,7 @@ import com.inrupt.client.Triple;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.LDP;
+import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public final class SolidResourceHandlers {
 
                 responseInfo.headers().allValues("Link").stream()
                     .flatMap(l -> Link.parse(l).stream())
-                    .filter(l -> l.getParameter("rel").contains("http://www.w3.org/ns/pim/space#storage"))
+                    .filter(l -> l.getParameter("rel").contains(PIM.storage.toString()))
                     .map(Link::getUri)
                     .forEach(builder::storage);
 
@@ -80,16 +81,22 @@ public final class SolidResourceHandlers {
                     .forEach(builder::allowedMethod);
 
                 responseInfo.headers().allValues("Accept-Post").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedPostSyntax);
 
                 responseInfo.headers().allValues("Accept-Patch").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedPatchSyntax);
 
                 responseInfo.headers().allValues("Accept-Put").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedPutSyntax);
 
                 dataSet.stream(null, null, null, null)
-                    .forEach(builder::statement);
+                    .forEach(builder::statements);
 
             } catch (final IOException ex) {
                 throw new SolidResourceException(ERROR_MESSAGE, ex);
@@ -119,7 +126,7 @@ public final class SolidResourceHandlers {
 
                 responseInfo.headers().allValues("Link").stream()
                     .flatMap(l -> Link.parse(l).stream())
-                    .filter(l -> l.getParameter("rel").contains("http://www.w3.org/ns/pim/space#storage"))
+                    .filter(l -> l.getParameter("rel").contains(PIM.storage.toString()))
                     .map(Link::getUri)
                     .forEach(builder::storage);
 
@@ -135,16 +142,22 @@ public final class SolidResourceHandlers {
                     .forEach(builder::allowedMethod);
 
                 responseInfo.headers().allValues("Accept-Post").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedPostSyntax);
 
                 responseInfo.headers().allValues("Accept-Patch").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedPatchSyntax);
 
                 responseInfo.headers().allValues("Accept-Put").stream()
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .map(String::trim)
                     .forEach(builder::allowedPutSyntax);
 
                 dataSet.stream(null, null, null, null)
-                    .forEach(builder::statement);
+                    .forEach(builder::statements);
 
                 dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(LDP.contains), null)
                     .map(Triple::getObject)
