@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * A Solid Container Object.
  */
-public final class SolidContainer extends SolidResource{
+public final class SolidContainer extends SolidResource {
 
     private final List<SolidResource> containedResources = new ArrayList<>();
 
@@ -87,14 +87,14 @@ public final class SolidContainer extends SolidResource{
      */
     public static final class Builder{
 
-        protected Optional<URI> builderStorage = Optional.empty();
-        protected Set<URI> builderType = new HashSet<>();
-        protected Map<String, Set<String>> builderWacAllow = new HashMap<>();
-        protected Set<String> builderAllowedMethods = new HashSet<>();
-        protected Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
-        protected Set<String> builderAllowedPostSyntaxes = new HashSet<>();
-        protected Set<String> builderAllowedPutSyntaxes = new HashSet<>();
-        protected List<Quad> builderStatements = new ArrayList<>();
+        private Optional<URI> builderStorage = Optional.empty();
+        private Set<URI> builderType = new HashSet<>();
+        private Map<String, Set<String>> builderWacAllow = new HashMap<>();
+        private Set<String> builderAllowedMethods = new HashSet<>();
+        private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
+        private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
+        private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
+        private List<Quad> builderStatements = new ArrayList<>();
         private List<SolidResource> builderContainedResources = new ArrayList<>();
 
         /**
