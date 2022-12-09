@@ -122,7 +122,7 @@
  * 
  * <h3>Generating a PKCE code challenge and verifier.</h3>
  * 
- * <p> The default challenge encoding is SHA-256. 
+ * <p>The default challenge encoding is SHA-256.
  * Pass an algorithm to createChallenge if another encoding is required.
  * 
  * <pre>{@code
