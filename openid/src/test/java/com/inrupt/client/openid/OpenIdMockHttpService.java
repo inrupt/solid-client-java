@@ -59,6 +59,10 @@ class OpenIdMockHttpService {
                     .withHeader("Content-Type", "application/json")
                     .withBodyFile("jwks-other.json")));
 
+        wireMockServer.stubFor(get(urlPathMatching("/not-found.*"))
+                .willReturn(aResponse()
+                    .withStatus(404)));
+
         wireMockServer.stubFor(get(urlEqualTo("/.well-known/openid-configuration"))
                     .atPriority(1)
                     .willReturn(aResponse()

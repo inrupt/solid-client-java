@@ -25,8 +25,6 @@ import com.inrupt.client.spi.ServiceProvider;
 import java.net.URI;
 import java.security.KeyPair;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -59,61 +57,20 @@ public interface Authenticator {
     /**
      * Perform a synchronous authentication process, resulting in an access token.
      *
+     * @param session the client session
+     * @param request the HTTP request
      * @return the access token
      */
-    AccessToken authenticate();
+    AccessToken authenticate(Session session, Request request);
 
     /**
      * Perform an ansynchronous authentication process, resulting in an access token.
      *
+     * @param session the client session
+     * @param request the HTTP request
      * @return the next stage of completion, containing the access token
      */
-    CompletionStage<AccessToken> authenticateAsync();
-
-    /**
-     * A registry for authentication mechanisms.
-     */
-    interface Registry {
-        /**
-         * Parse a WWW-Authenticate header and convert the challenges into callable authentication mechanisms.
-         *
-         * @param headers the WWW-Authenticate headers to be evaluated
-         * @return a sorted list of viable authentication mechanisms
-         */
-        default List<Authenticator> challenge(final String... headers) {
-            return challenge(Arrays.asList(headers));
-        }
-
-        /**
-         * Parse a collection of WWW-Authenticate headers and convert the challenges into callable
-         * authentication mechanisms.
-         *
-         * @param headers the WWW-Authenticate headers to be evaluated
-         * @return a sorted list of viable authentication mechanisms
-         */
-        List<Authenticator> challenge(Collection<String> headers);
-    }
-
-    /**
-     * An authentication mechanism that knows how to authenticate network connections.
-     */
-    interface Provider {
-
-        /**
-         * Return the authorization scheme, such as Bearer or DPoP.
-         *
-         * @return the authorization scheme
-         */
-        String getScheme();
-
-        /**
-         * Return an authenticator for the supplied challenge.
-         *
-         * @param challenge the HTTP challenge value
-         * @return an authenticator
-         */
-        Authenticator getAuthenticator(Challenge challenge);
-    }
+    CompletionStage<AccessToken> authenticateAsync(Session session, Request request);
 
     /**
      * A class containing information about an OAuth 2.0 access token.
@@ -128,6 +85,7 @@ public interface Authenticator {
         private final String token;
         private final String type;
         private final String algorithm;
+        private final URI issuer;
 
         /**
          * Create a new {@link AccessToken}.
@@ -135,15 +93,17 @@ public interface Authenticator {
          * @param token the access token value
          * @param type the access token type, e.g. Bearer or DPoP
          * @param expiration the access token expiration
+         * @param issuer the access token issuer
          * @param scopes a list of scopes for this access token
          * @param algorithm the proofing algorithm used for this access token, may be {@code null}
          */
         public AccessToken(final String token, final String type, final Instant expiration,
-                    final List<String> scopes, final String algorithm) {
+                    final URI issuer, final List<String> scopes, final String algorithm) {
             this.token = Objects.requireNonNull(token);
             this.type = Objects.requireNonNull(type);
             this.expiration = Objects.requireNonNull(expiration);
             this.scopes = Objects.requireNonNull(scopes);
+            this.issuer = Objects.requireNonNull(issuer);
             this.algorithm = algorithm;
         }
 
@@ -154,6 +114,15 @@ public interface Authenticator {
          */
         public List<String> getScopes() {
             return scopes;
+        }
+
+        /**
+         * Retrieve the issuer for this token.
+         *
+         * @return the issuer
+         */
+        public URI getIssuer() {
+            return issuer;
         }
 
         /**

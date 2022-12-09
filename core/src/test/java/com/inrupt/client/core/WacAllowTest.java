@@ -22,6 +22,8 @@ package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Headers.WacAllow;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 class WacAllowTest {
 
@@ -70,6 +73,12 @@ class WacAllowTest {
         final Map<String, Set<String>> accessParams = WacAllow.parse(header).getAccessParams();
 
         assertTrue(!accessParams.containsKey("user"));
+    }
+
+    @Test
+    void testEquality() {
+        EqualsVerifier.forClass(WacAllow.class)
+            .withNonnullFields("accessParams").verify();
     }
 
     @Test

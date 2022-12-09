@@ -20,16 +20,16 @@
  */
 package com.inrupt.client.openid;
 
-import com.inrupt.client.Authenticator;
-import com.inrupt.client.Client.Session;
 import com.inrupt.client.Request;
+import com.inrupt.client.Session;
 
+import java.net.URI;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jwk.HttpsJwks;
@@ -48,10 +48,14 @@ import org.jose4j.keys.resolvers.VerificationKeyResolver;
  */
 public final class OpenIdSession implements Session {
 
+    public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+
     private final String jwt;
     private final String id;
     private final Instant expiration;
     private final OpenIdVerificationConfig config;
+    private final URI issuer;
+    private final Set<String> schemes;
 
     private OpenIdSession(final String idToken, final OpenIdVerificationConfig config) {
         this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
@@ -59,7 +63,14 @@ public final class OpenIdSession implements Session {
 
         final JwtClaims claims = parseIdToken(idToken, config);
         this.id = getSessionIdentifier(claims);
+        this.issuer = getIssuer(claims);
         this.expiration = getExpiration(claims);
+
+        // Support case-insensitive lookups
+        final Set<String> schemeNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        schemeNames.add("Bearer");
+
+        this.schemes = Collections.unmodifiableSet(schemeNames);
     }
 
     /**
@@ -89,18 +100,25 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
-    public Optional<Authenticator.AccessToken> fromCache(final Request request) {
+    public Set<String> supportedSchemes() {
+        return schemes;
+    }
+
+    @Override
+    public Optional<Session.Credential> getCredential(final String name) {
+        if (ID_TOKEN.equals(name) && !hasExpired()) {
+            return Optional.of(new Session.Credential("Bearer", issuer, jwt, expiration));
+        }
         return Optional.empty();
     }
 
     @Override
-    public CompletionStage<Authenticator.AccessToken> negotiate(final Authenticator authenticator,
-            final Request request) {
-        if (expiration.plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now())) {
-            return authenticator.authenticateAsync();
-        }
-        return CompletableFuture.completedFuture(new Authenticator.AccessToken(jwt, "Bearer", expiration,
-                    Arrays.asList("webid", "openid"), null));
+    public Optional<Session.Credential> fromCache(final Request request) {
+        return Optional.empty();
+    }
+
+    boolean hasExpired() {
+        return expiration.plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());
     }
 
     static String getSessionIdentifier(final JwtClaims claims) {
@@ -119,6 +137,15 @@ public final class OpenIdSession implements Session {
     static Instant getExpiration(final JwtClaims claims) {
         try {
             return Instant.ofEpochSecond(claims.getExpirationTime().getValue());
+        } catch (final MalformedClaimException ex) {
+            // This exception will never occur because of the validation rules in parseIdToken
+            throw new OpenIdException("Malformed ID Token: unable to extract expiration time", ex);
+        }
+    }
+
+    static URI getIssuer(final JwtClaims claims) {
+        try {
+            return URI.create(claims.getIssuer());
         } catch (final MalformedClaimException ex) {
             // This exception will never occur because of the validation rules in parseIdToken
             throw new OpenIdException("Malformed ID Token: unable to extract expiration time", ex);

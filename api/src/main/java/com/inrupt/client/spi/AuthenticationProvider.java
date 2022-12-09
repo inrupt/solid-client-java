@@ -18,28 +18,29 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.openid;
+package com.inrupt.client.spi;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.inrupt.client.Authenticator;
 
-import org.junit.jupiter.api.Test;
+/**
+ * An authentication mechanism that knows how to authenticate over network connections.
+ */
+public interface AuthenticationProvider {
 
-class PKCETest {
+    /**
+     * Return the authorization scheme, such as Bearer or DPoP.
+     *
+     * @return the authorization scheme
+     */
+    String getScheme();
 
-    @Test
-    void createChallengeTest() {
-        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length <= 128);
-        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length <= 128);
-        assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null, "SHA-256"));
-    }
-
-    @Test
-    void createVerifierTest() {
-        assertTrue(PKCE.createVerifier().getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createVerifier().getBytes(UTF_8).length <= 128);
-    }
+    /**
+     * Return an authenticator for the supplied challenge.
+     *
+     * @param challenge the HTTP challenge value
+     * @return an authenticator
+     */
+    Authenticator getAuthenticator(Authenticator.Challenge challenge);
 }
+
+

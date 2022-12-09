@@ -30,7 +30,7 @@ import java.util.List;
  */
 public final class URIBuilder {
 
-    private static int PAIR = 2;
+    private static final int PAIR = 2;
 
     private String scheme;
     private StringBuilder schemeSpecificPart;

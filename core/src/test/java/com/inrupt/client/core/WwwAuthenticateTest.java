@@ -23,6 +23,7 @@ package com.inrupt.client.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Authenticator.Challenge;
+import com.inrupt.client.Headers.WwwAuthenticate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+
 class WwwAuthenticateTest {
     static final Map<String, String> DPOP_MAP = Collections.singletonMap("algs", "ES256 RS256");
     static final Map<String, String> GNAP_MAP = Collections.singletonMap("ticket", "1234567890");
@@ -45,6 +48,23 @@ class WwwAuthenticateTest {
             put("ticket", "value");
         }
     };
+
+    @Test
+    void createWwwAuthenticate() {
+        final Map<String, String> parameters = Collections.singletonMap("as_uri", "https://example.com");
+        final Challenge challenge = Challenge.of("GNAP", parameters);
+        final WwwAuthenticate header = WwwAuthenticate.of(challenge);
+
+        assertFalse(header.getChallenges().isEmpty());
+        assertEquals(challenge, header.getChallenges().get(0));
+        assertEquals(parameters, header.getChallenges().get(0).getParameters());
+    }
+
+    @Test
+    void testEquality() {
+        EqualsVerifier.forClass(Challenge.class)
+            .withNonnullFields("scheme", "parameters").verify();
+    }
 
     @Test
     void parseWwwAuthenticateUmaBearerDpop() {
