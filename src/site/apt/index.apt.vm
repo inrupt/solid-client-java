@@ -86,7 +86,7 @@ final var predicate = "https://example.example/predicate";
 final var requestCreateIfNotExist = Request.newBuilder(newResourceURL)
         .header("Content-Type", "text/turtle")
         .header("If-None-Match", "*")
-        .header("Link", "<" + LDP.Resource + ">; rel=\"type\"")
+        .header("Link", Headers.Link.of(LDP.Resource, "type").toString())
         .PUT(Request.BodyPublishers.noBody())
         .build();
 final var resp = session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
