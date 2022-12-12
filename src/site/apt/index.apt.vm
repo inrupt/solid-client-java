@@ -9,19 +9,19 @@ Inrupt's Java Client Libraries provide highly flexible, simple components that c
 *-------*-----------------*--------*--------------*
 || Layer || Module function || Module || Description  ||
 *-------*-----------------*--------*--------------*
-| The Core Modules Layer | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}}     | | An interface only layer used by all modules. |
+| Interface Layer | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}}     | | An interface only layer used by mostly all modules. |
 *-------*-----------------*--------*--------------*
-|  | HTTP interaction    |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient}}    | Http client based on the java.net implementation. |
+| Core Modules Layer | HTTP interaction    |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient}}    | Http client based on the java.net implementation. |
 *-------*-----------------*--------*--------------*
 |  | HTTP interaction      |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}okhttp}}    | Http client based on the OK HTTP implementation. |
 *-------*-----------------*--------*--------------*
 |  | JSON processing     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html}jackson}}    | JSON processing based on jackson. |
 *-------*-----------------*--------*--------------*
-|  | JSON processing     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jsonb/package-summary.html}jsonb}}    | JSON processing that used the JSON-B library. |
+|  | JSON processing     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jsonb/package-summary.html}jsonb}}    | JSON processing that uses the JSON-B library. |
 *-------*-----------------*--------*--------------*
 |  | RDF processing     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jena/package-summary.html}jena}}    | RDF processing based on the Jena implementation. |
 *-------*-----------------*--------*--------------*
-|  | RDF processing     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf4j/package-summary.html}rdf4j}}    | JSON processing based on the RDF4J implementation. |
+|  | RDF processing     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf4j/package-summary.html}rdf4j}}    | RDF processing based on the RDF4J implementation. |
 *-------*-----------------*--------*--------------*
 |  | Authentication & authorization     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}openid}}    | Authentication logic based on OpenID & OAuth specification. |
 *-------*-----------------*--------*--------------*
@@ -29,7 +29,7 @@ Inrupt's Java Client Libraries provide highly flexible, simple components that c
 *-------*-----------------*--------*--------------*
 | Domain-Specific Modules Layer | core     |        | Provides default implementation ready to be used. |
 *-------*-----------------*--------*--------------*
-|  | solid     |        | Solid resource & container handlers. |
+|  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid}     |        | Solid resource & container handlers. |
 *-------*-----------------*--------*--------------*
 |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vc/package-summary.html}vc}}     |        | VC-API interfaces used in Solid. |
 *-------*-----------------*--------*--------------*
@@ -49,7 +49,7 @@ Getting started
 
     The demo module contains a Quarkus application to look up a user's WebID profile and then display the contents of a user's storage.
 
-    To setup the exampel application the following configuration values need to be added for this to work properly:
+    To set up the example application the following configuration values need to be added for this to work properly:
 
     +---------------------
     quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
@@ -70,10 +70,11 @@ Getting started
 
     First, we assume we have an existing `testResource` which points to the root container of a Pod (a Pod's storage). And we also assume we have an authenticated `session`. Something like in the following code:
     +---------------------
+    Client session = ClientProvider.getClient(); //load the Client available on the classpath (in worst case the DefaultClient)
     var webid = URI.create((String) claim);
     var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
     +---------------------
-    For an extensive example how to get to these resources, see the {Quarkus demo}.
+    For an extensive example of how to get to these resources, see the {Quarkus demo}.
     
     Further we exemplify how a user can create a Solid resource and add a boolean triple to it. We make use of the Jena implementation for RDF processing. Remark: The `createDeleteInsertSparqlQuery` is constructing a sparql DELETE DATA and INSERT DATA string based on the two provided lists. 
     +---------------------
@@ -110,43 +111,87 @@ Getting started
         .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
     final var responsePatch = session.send(requestPatch, Response.BodyHandlers.discarding());
     if (responsePatch.statusCode() != 204) {
-        throw new InruptClientException("Faild to create a new resource at " + newResource); //create appropriate exception
+        throw new InruptClientException("Failed to create a new resource at " + newResource); //create appropriate exception
     }
     +---------------------
 
 Using the libraries
 
-    * Authentication & Authorization
-    Authentication & authorization are processes part of verifying the identity of an agent. To access private data on Solid Pods, you must authenticate as a user/agent who has been granted appropriate access to that data.
+Inrupt's Java Client Libraries are composed of different modules that follow a layered architectural approach. Next we will provide an overview of these layers and how to make use of them.
 
-    Inrupt's Java Client Libraries provides different layers of abstraction to be used when needing authentication and authorization.
-    
-        ** OpenID
-        The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}openid module}} builds on top of the {{{which itself builds on the OAuth 2.0 authorization framework.}OpenID Connect} standards, which itself builds on the {{{https://datatracker.ietf.org/doc/html/rfc6749}OAuth 2.0}} authorization framework.
+    * Interface Layer
 
-        For code examples how to make use of this authentication module visit the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}javadoc documentation}}.
+        ** API
+            The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api module}} is an interface module used in mostly all following modules. The provided abstractions are implemented in higher level modules and can be used to plug in your own application specific implementations.
 
-        ** UMA
-        The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma module}} builds on top of the {{{https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html}UMA}} specification. 
+            There are several specific parts to the API. 
+            *** There are interfaces useful when working with RDF.
+            *** The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html}spi}} contains Service Interfaces for HTTP, JSON and RDF processing specific implementation. 
+            *** And the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}generic api}} interfaces. 
 
-    * Solid Resource HTTP client
+    * Core Modules Layer
+    The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be further developed. 
 
-        ** HttpClient
+        ** Authentication & Authorization
+        Authentication & authorization are processes part of verifying the identity of an agent. To access private data on Solid Pods, you must authenticate as a user/agent who has been granted appropriate access to that data.
 
-        ** OkHttp
+        Inrupt's Java Client Libraries provide different layers of abstraction to be used when needing authentication and authorization.
+        Low level modules include OpenID and UMA. 
+        
+            *** OpenID
+            The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}openid module}} builds on top of the {{{which itself builds on the OAuth 2.0 authorization framework.}OpenID Connect} standards, which itself builds on the {{{https://datatracker.ietf.org/doc/html/rfc6749}OAuth 2.0}} authorization framework.
 
-    * RDF Graph handler
+            For code examples how to make use of this authentication module visit the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}javadoc documentation}}.
 
-        ** RDF4J
+            *** UMA
+            The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma module}} builds on top of the {{{https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html}UMA}} specification. 
 
-        ** Jena
+            []
 
-    * JSON handler
+        Remark: Higher level abstractions that help with authentication and authorization are part of the Core module. This module includes classes such as `DefaultClient` which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {Example code} for how to use the DefaultClient.
 
-        ** JSON-B
+        ** HTTP client
+        For interacting with a Solid server through a HTTP client there are two low level modules available: the java.net {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}HttpClient}} or the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}OkHttp}}. 
 
-        ** Jackson
+            *** HttpClient
+            This module build on top of the {{{https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/package-summary.html}java.net.http}. 
+            For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient module}}.
 
-    * WebID profile
+            *** OkHttp
+            This module builds on top of the {{{https://square.github.io/okhttp/}java.net.http}. 
+            For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}okhttp module}}.
 
+        ** RDF processing
 
+            *** RDF4J
+            {{{https://rdf4j.org/documentation/}RDF4J} is one of the widely known RDF processing libraries for Java. 
+            For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf4j/package-summary.html}rdf4j module}}.
+
+            *** Jena
+            {{{https://jena.apache.org/documentation/javadoc.html}Jena} is one of the widely known RDF processing libraries for Java.
+            For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jena/package-summary.html}jena module}}.
+
+        ** JSON processing
+
+            *** JSON-B
+            {{{https://javaee.github.io/jsonb-spec/getting-started.html}JSON-B} is providing a Java API for JSON Bindings.
+            Visit the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jsonb/package-summary.html}jsonb module}} javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.
+
+            *** Jackson
+            {{{https://github.com/FasterXML/jackson}Jackson} is the Java JSON library that helps you parse and work with JSON. 
+            Visit the {{{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html}jackson module}} javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.
+
+    * Domain-specific Modules Layer
+
+        ** Core
+        The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}} provides a dedicated http client for Solid. With the `DefaultClient` one gets support for reactive authentication embedded in the http basic calls.
+        The `DefaultDpopService` exposes an out of the box DPoP authentication ready to be used. And there is also a `DefaultHeaderParse` helpful in all matters headers.
+
+        ** Solid
+        The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid module} provides handlers for Solid resources and containers. 
+
+        ** WebID profile
+        The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/webid/package-summary.html}webid module}} provides a handler for working with the Solid WebId profile document.
+
+        ** VC
+        The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vc/package-summary.html}vc module}} exposes VC-API interfaces used in Solid.
