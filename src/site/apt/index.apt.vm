@@ -73,7 +73,7 @@ var webid = URI.create((String) claim);
 var session = client.session(OpenIdSession.ofIdToken(idToken));
 ---------------------
 
-    For an extensive example of how to get to these resources, see the {Quarkus demo}.
+    For an extensive example of how to fetch these resources, see the Quarkus demo.
 
     Further we exemplify how a user can create a Solid resource and add a boolean triple to it. We make use of the Jena implementation for RDF processing. Remark: The <<<createDeleteInsertSparqlQuery>>> is constructing a sparql DELETE DATA and INSERT DATA string based on the two provided lists.
 
