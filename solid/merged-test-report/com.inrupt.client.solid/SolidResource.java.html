@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolidResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - Solid</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.solid</a> &gt; <span class="el_source">SolidResource.java</span></div><h1>SolidResource.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.solid;
+
+import com.inrupt.client.Quad;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+
+/**
+ * A Solid Resource Object.
+ */
+public class SolidResource {
+
+    protected final URI id;
+
+    protected final Optional&lt;URI&gt; storage;
+<span class="fc" id="L43">    protected final Set&lt;URI&gt; type = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L44">    protected final Map&lt;String, Set&lt;String&gt;&gt; wacAllow = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L45">    protected final Set&lt;String&gt; allowedMethods = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L46">    protected final List&lt;Quad&gt; statements = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L47">    protected final Set&lt;String&gt; allowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L48">    protected final Set&lt;String&gt; allowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L49">    protected final Set&lt;String&gt; allowedPutSyntaxes = new HashSet&lt;&gt;();</span>
+
+<span class="fc" id="L51">    protected SolidResource(final URI id, final Optional&lt;URI&gt; storage) {</span>
+<span class="fc" id="L52">        this.id = id;</span>
+<span class="fc" id="L53">        this.storage = storage;</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Create a new SolidResource.
+     *
+     * @param id the SolidResource's unique identifier
+     * @return the new {@link SolidResource} object
+     */
+    public static SolidResource of(final URI id) {
+<span class="fc" id="L63">        return of(id, null);</span>
+    }
+
+    /**
+     * Create a new SolidResource.
+     *
+     * @param id the SolidResource's unique identifier
+     * @param storage the SolidResource's storage URI
+     * @return the new {@link SolidResource} object
+     */
+    public static SolidResource of(final URI id, final Optional&lt;URI&gt; storage) {
+<span class="fc" id="L74">        return new SolidResource(id, storage);</span>
+    }
+
+    /**
+     * Retrieve SolidResource's unique identifier.
+     *
+     * @return the id
+     */
+    public URI getId() {
+<span class="fc" id="L83">        return id;</span>
+    }
+
+    /**
+     * Retrieve storage URI from this SolidResource.
+     *
+     * @return the storage URIs
+     */
+    public Optional&lt;URI&gt; getStorage() {
+<span class="fc" id="L92">        return storage;</span>
+    }
+
+    /**
+     * Retrieve type associated with this SolidResource.
+     *
+     * @return the type
+     */
+    public Set&lt;URI&gt; getType() {
+<span class="fc" id="L101">        return type;</span>
+    }
+
+    /**
+     * Retrieve WAC-Allow access parameters associated with this SolidResource.
+     *
+     * @return the access parameters
+     */
+    public Map&lt;String, Set&lt;String&gt;&gt; getWacAllow() {
+<span class="fc" id="L110">        return wacAllow;</span>
+    }
+
+    /**
+     * Retrieve set of allowed methods associated with this SolidResource.
+     *
+     * @return the allowed methods
+     */
+    public Set&lt;String&gt; getAllowedMethods() {
+<span class="fc" id="L119">        return allowedMethods;</span>
+    }
+
+    /**
+     * Retrieve set of allowed patch syntaxes associated with this SolidResource.
+     *
+     * @return the allowed patch syntaxes
+     */
+    public Set&lt;String&gt; getAllowedPatchSyntaxes() {
+<span class="fc" id="L128">        return allowedPatchSyntaxes;</span>
+    }
+
+    /**
+     * Retrieve set of allowed post syntaxes associated with this SolidResource.
+     *
+     * @return the allowed post syntaxes
+     */
+    public Set&lt;String&gt; getAllowedPostSyntaxes() {
+<span class="fc" id="L137">        return allowedPostSyntaxes;</span>
+    }
+
+    /**
+     * Retrieve set of allowed put syntaxes associated with this SolidResource.
+     *
+     * @return the allowed put syntaxes
+     */
+    public Set&lt;String&gt; getAllowedPutSyntaxes() {
+<span class="fc" id="L146">        return allowedPutSyntaxes;</span>
+    }
+
+    /**
+     * Retrieve list of RDF Quads associated with this SolidResource.
+     *
+     * @return the RDF statements
+     */
+    public List&lt;Quad&gt; getStatements() {
+<span class="fc" id="L155">        return statements;</span>
+    }
+
+    /**
+     * Create a new {@link SolidResource} builder.
+     *
+     * @return the builder
+     */
+    public static Builder newResourceBuilder() {
+<span class="fc" id="L164">        return new Builder();</span>
+    }
+
+    /**
+     * A builder class for SolidResource objects.
+     */
+    public static final class Builder {
+
+<span class="fc" id="L172">        private Optional&lt;URI&gt; builderStorage = Optional.empty();</span>
+<span class="fc" id="L173">        private Set&lt;URI&gt; builderType = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L174">        private Map&lt;String, Set&lt;String&gt;&gt; builderWacAllow = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L175">        private Set&lt;String&gt; builderAllowedMethods = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L176">        private Set&lt;String&gt; builderAllowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L177">        private Set&lt;String&gt; builderAllowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L178">        private Set&lt;String&gt; builderAllowedPutSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L179">        private List&lt;Quad&gt; builderStatements = new ArrayList&lt;&gt;();</span>
+
+        /**
+         * Add a storage property.
+         *
+         * @param uri the storage URI
+         * @return this builder
+         */
+        public Builder storage(final URI uri) {
+<span class="fc" id="L188">            builderStorage = Optional.of(uri);</span>
+<span class="fc" id="L189">            return this;</span>
+        }
+
+        /**
+         * Add a type property.
+         *
+         * @param uri the type URI
+         * @return this builder
+         */
+        public Builder type(final URI uri) {
+<span class="fc" id="L199">            builderType.add(uri);</span>
+<span class="fc" id="L200">            return this;</span>
+        }
+
+        /**
+         * Add a wacAllow property.
+         *
+         * @param accessParam the Access Parameter
+         * @return this builder
+         */
+        public Builder wacAllow(final Entry&lt;String, Set&lt;String&gt;&gt; accessParam) {
+<span class="fc" id="L210">            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());</span>
+<span class="fc" id="L211">            return this;</span>
+        }
+
+        /**
+         * Add an allowedMethod property.
+         *
+         * @param method the method
+         * @return this builder
+         */
+        public Builder allowedMethod(final String method) {
+<span class="fc" id="L221">            builderAllowedMethods.add(method);</span>
+<span class="fc" id="L222">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPatchSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPatchSyntax(final String syntax) {
+<span class="fc" id="L232">            builderAllowedPatchSyntaxes.add(syntax);</span>
+<span class="fc" id="L233">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPostSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPostSyntax(final String syntax) {
+<span class="fc" id="L243">            builderAllowedPostSyntaxes.add(syntax);</span>
+<span class="fc" id="L244">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPutSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPutSyntax(final String syntax) {
+<span class="fc" id="L254">            builderAllowedPutSyntaxes.add(syntax);</span>
+<span class="fc" id="L255">            return this;</span>
+        }
+
+        /**
+         * Add a statement property.
+         *
+         * @param quad the RDF quad
+         * @return this builder
+         */
+        public Builder statements(final Quad quad) {
+<span class="fc" id="L265">            builderStatements.add(quad);</span>
+<span class="fc" id="L266">            return this;</span>
+        }
+
+        /**
+         * Build the SolidResource object.
+         *
+         * @param id the SolidResource's unique identifier
+         * @return the Solid resource
+         */
+        public SolidResource build(final URI id) {
+<span class="fc" id="L276">            final var resource = SolidResource.of(id, builderStorage);</span>
+<span class="fc" id="L277">            resource.statements.addAll(builderStatements);</span>
+<span class="fc" id="L278">            resource.wacAllow.putAll(builderWacAllow);</span>
+<span class="fc" id="L279">            resource.type.addAll(builderType);</span>
+<span class="fc" id="L280">            resource.allowedMethods.addAll(builderAllowedMethods);</span>
+<span class="fc" id="L281">            resource.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);</span>
+<span class="fc" id="L282">            resource.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);</span>
+<span class="fc" id="L283">            resource.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);</span>
+<span class="fc" id="L284">            return resource;</span>
+        }
+
+<span class="fc" id="L287">        private Builder() {</span>
+            // Prevent instantiations
+<span class="fc" id="L289">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

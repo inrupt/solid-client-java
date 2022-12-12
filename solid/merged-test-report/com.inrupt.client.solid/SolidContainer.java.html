@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolidContainer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - Solid</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.solid</a> &gt; <span class="el_source">SolidContainer.java</span></div><h1>SolidContainer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.solid;
+
+import com.inrupt.client.Quad;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+
+/**
+ * A Solid Container Object.
+ */
+public final class SolidContainer extends SolidResource {
+
+<span class="fc" id="L40">    private final List&lt;SolidResource&gt; containedResources = new ArrayList&lt;&gt;();</span>
+
+    private SolidContainer(final URI id, final Optional&lt;URI&gt; storage) {
+<span class="fc" id="L43">        super(id, storage);</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Create a new SolidContainer.
+     *
+     * @param id the container's unique identifier
+     * @return the new {@link SolidContainer} object
+     */
+    public static SolidContainer of(final URI id) {
+<span class="nc" id="L53">        return of(id, null);</span>
+    }
+
+    /**
+     * Create a new SolidContainer.
+     *
+     * @param id the container's unique identifier
+     * @param storage the container's storage URI
+     * @return the new {@link SolidContainer} object
+     */
+    public static SolidContainer of(final URI id, final Optional&lt;URI&gt; storage) {
+<span class="fc" id="L64">        return new SolidContainer(id, storage);</span>
+    }
+
+    /**
+     * Retrieve the resources contained in this SolidContainer.
+     *
+     * @return the contained resources
+     */
+    public List&lt;SolidResource&gt; getContainedResources() {
+<span class="fc" id="L73">        return containedResources;</span>
+    }
+
+    /**
+     * Create a new {@link SolidContainer} builder.
+     *
+     * @return the builder
+     */
+    public static Builder newContainerBuilder() {
+<span class="fc" id="L82">        return new Builder();</span>
+    }
+
+    /**
+     * A builder class for SolidContainer objects.
+     */
+    public static final class Builder{
+
+<span class="fc" id="L90">        private Optional&lt;URI&gt; builderStorage = Optional.empty();</span>
+<span class="fc" id="L91">        private Set&lt;URI&gt; builderType = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L92">        private Map&lt;String, Set&lt;String&gt;&gt; builderWacAllow = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L93">        private Set&lt;String&gt; builderAllowedMethods = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L94">        private Set&lt;String&gt; builderAllowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L95">        private Set&lt;String&gt; builderAllowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L96">        private Set&lt;String&gt; builderAllowedPutSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L97">        private List&lt;Quad&gt; builderStatements = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L98">        private List&lt;SolidResource&gt; builderContainedResources = new ArrayList&lt;&gt;();</span>
+
+        /**
+         * Add a storage property.
+         *
+         * @param uri the storage URI
+         * @return this builder
+         */
+        public Builder storage(final URI uri) {
+<span class="fc" id="L107">            builderStorage = Optional.of(uri);</span>
+<span class="fc" id="L108">            return this;</span>
+        }
+
+        /**
+         * Add a type property.
+         *
+         * @param uri the type URI
+         * @return this builder
+         */
+        public Builder type(final URI uri) {
+<span class="fc" id="L118">            builderType.add(uri);</span>
+<span class="fc" id="L119">            return this;</span>
+        }
+
+        /**
+         * Add a wacAllow property.
+         *
+         * @param accessParam the Access Parameter
+         * @return this builder
+         */
+        public Builder wacAllow(final Entry&lt;String, Set&lt;String&gt;&gt; accessParam) {
+<span class="fc" id="L129">            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());</span>
+<span class="fc" id="L130">            return this;</span>
+        }
+
+        /**
+         * Add an allowedMethod property.
+         *
+         * @param method the method
+         * @return this builder
+         */
+        public Builder allowedMethod(final String method) {
+<span class="fc" id="L140">            builderAllowedMethods.add(method);</span>
+<span class="fc" id="L141">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPatchSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPatchSyntax(final String syntax) {
+<span class="fc" id="L151">            builderAllowedPatchSyntaxes.add(syntax);</span>
+<span class="fc" id="L152">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPostSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPostSyntax(final String syntax) {
+<span class="fc" id="L162">            builderAllowedPostSyntaxes.add(syntax);</span>
+<span class="fc" id="L163">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPutSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPutSyntax(final String syntax) {
+<span class="fc" id="L173">            builderAllowedPutSyntaxes.add(syntax);</span>
+<span class="fc" id="L174">            return this;</span>
+        }
+
+        /**
+         * Add a statement property.
+         *
+         * @param quad the RDF quad
+         * @return this builder
+         */
+        public Builder statements(final Quad quad) {
+<span class="fc" id="L184">            builderStatements.add(quad);</span>
+<span class="fc" id="L185">            return this;</span>
+        }
+
+        /**
+         * Add a resource to container.
+         *
+         * @param resource the solid resource
+         * @return this builder
+         */
+        public Builder containedResource(final SolidResource resource) {
+<span class="fc" id="L195">            builderContainedResources.add(resource);</span>
+<span class="fc" id="L196">            return this;</span>
+        }
+
+        /**
+         * Build the SolidContainer object.
+         *
+         * @param id the Solid container's unique identifier
+         * @return the Solid container
+         */
+        public SolidContainer build(final URI id) {
+<span class="fc" id="L206">            final var container = SolidContainer.of(id, builderStorage);</span>
+<span class="fc" id="L207">            container.containedResources.addAll(builderContainedResources);</span>
+<span class="fc" id="L208">            container.type.addAll(builderType);</span>
+<span class="fc" id="L209">            container.wacAllow.putAll(builderWacAllow);</span>
+<span class="fc" id="L210">            container.statements.addAll(builderStatements);</span>
+<span class="fc" id="L211">            container.allowedMethods.addAll(builderAllowedMethods);</span>
+<span class="fc" id="L212">            container.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);</span>
+<span class="fc" id="L213">            container.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);</span>
+<span class="fc" id="L214">            container.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);</span>
+
+<span class="fc" id="L216">            return container;</span>
+        }
+
+<span class="fc" id="L219">        private Builder() {</span>
+            // Prevent instantiations
+<span class="fc" id="L221">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
