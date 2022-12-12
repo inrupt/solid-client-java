@@ -3,11 +3,11 @@ Inrupt's Java Client Libraries
   {{{https://inrupt.com}Inrupt}} provides the following Java client libraries to help developers create {{{https://solidproject.org}Solid}} applications. These libraries provide highly flexible, simple components that can be used in any Java application for {{{https://solidproject.org/TR/protocol}Solid}}. The libraries are composed of different modules that follow a layered architectural approach.
 
 *-------*-----------------*--------*--------------*
-| Layer | Module function | Module | Description  |
+|| Layer || Module function || Module || Description |
 *-------*-----------------*--------*--------------*
-| Interface Layer | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}}     |  | An interface only layer used by all modules. |
+|| Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstrctions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
-| Core Modules Layer | HTTP interaction    |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient}}    | Http client based on the java.net implementation. |
+|| Core Modules Layer | HTTP interaction    |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient}}    | Http client based on the java.net implementation. |
 *-------*-----------------*--------*--------------*
 |  | HTTP interaction      |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}okhttp}}    | Http client based on the OK HTTP implementation. |
 *-------*-----------------*--------*--------------*
@@ -23,19 +23,19 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 |  | Authentication & authorization     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma}}    | Authorization logic based on UMA specification. |
 *-------*-----------------*--------*--------------*
-| Domain-Specific Modules Layer |  | {{{corehttps://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core}} | Provides a default Client implementation, ready to be used. |
+|| Domain-Specific Modules Layer | Implementation of all API interfaces | {{{corehttps://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core}} | Provides a default Client implementation. |
 *-------*-----------------*--------*--------------*
-|  |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid}} | Solid resource & container handlers. |
+|  | Solid resource data models | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid}} | Solid resource & container handlers. |
 *-------*-----------------*--------*--------------*
-|  |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vc/package-summary.html}vc}} | VC-API interfaces used in Solid. |
+|  | Verifiable Credential data models | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vc/package-summary.html}vc}} | VC-API interfaces used in Solid. |
 *-------*-----------------*--------*--------------*
-|  |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/webid/package-summary.html}webid}} | Solid WebID handler. |
+|  | WebID Profile data models | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/webid/package-summary.html}webid}} | Solid WebID handler. |
 *-------*-----------------*--------*--------------*
-| Utility Modules |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vocabulary/package-summary.html}vocabulary}} | Provides convenience objects for Solid-related identifiers. |
+|| Utility Modules | RDF Vocabulary terms | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vocabulary/package-summary.html}vocabulary}} | Provides convenience objects for Solid-related identifiers. |
 *-------*-----------------*--------*--------------*
-|  |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/test/package-summary.html}test}} | Common tests for the library modules. |
+|  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/test/package-summary.html}test}} | Common tests shared across library modules. |
 *-------*-----------------*--------*--------------*
-| Modules with Code Example |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/demo/quarkus/package-summary.html}demo}} | A Quarkus demo application. |
+|| Example Applications |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/demo/quarkus/package-summary.html}demo}} | A Quarkus demo application. |
 *-------*-----------------*--------*--------------*
 
 * Inrupt's Java Client modules and layers
@@ -49,70 +49,72 @@ Inrupt's Java Client Libraries
     To set up the example application the following configuration values need to be added for this to work properly:
 
 ---------------------
-    quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
-    quarkus.oidc.client-id=<URL of Client Identifier>
+quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
+quarkus.oidc.client-id=<URL of Client Identifier>
 ---------------------
 
-    These configuration values are typically added to a `./config/application.properties` file in the directory where the application is run.
+    These configuration values are typically added to a <<<./config/application.properties>>> file in the directory where the application is run.
 
     To run the application, use this command:
 
 ---------------------
-    $ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
+$ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
 ---------------------
 
-    The application will be available at `http://localhost:8080`.
+    The application will be available at <<<http://localhost:8080>>>.
 
 **** Example code
 
-    First, we assume we have an existing `testResource` which points to the root container of a Pod (a Pod's storage). And we also assume we have an authenticated `session`. Something like in the following code:
+    First, we assume we have an existing <<<testResource>>> which points to the root container of a Pod (a Pod's storage). And we also assume we have an authenticated <<<session>>>. Something like in the following code:
 
 ---------------------
-    Client session = ClientProvider.getClient(); //load the Client available on the classpath (in worst case the DefaultClient)
-    var webid = URI.create((String) claim);
-    var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
+var session = ClientProvider.getClient();
+var webid = URI.create((String) claim);
+var session = client.session(OpenIdSession.ofIdToken(idToken));
 ---------------------
 
     For an extensive example of how to get to these resources, see the {Quarkus demo}.
 
-    Further we exemplify how a user can create a Solid resource and add a boolean triple to it. We make use of the Jena implementation for RDF processing. Remark: The `createDeleteInsertSparqlQuery` is constructing a sparql DELETE DATA and INSERT DATA string based on the two provided lists. 
+    Further we exemplify how a user can create a Solid resource and add a boolean triple to it. We make use of the Jena implementation for RDF processing. Remark: The <<<createDeleteInsertSparqlQuery>>> is constructing a sparql DELETE DATA and INSERT DATA string based on the two provided lists.
 
 ---------------------
-    final var newResource = testResource + "e2e-test-subject";
-    final var newResourceURL = URI.create(testResource + "e2e-test-subject");
-    final var predicate = "https://example.example/predicate";
+final var newResource = testResource + "e2e-test-subject";
+final var newResourceURL = URI.create(testResource + "e2e-test-subject");
+final var predicate = "https://example.example/predicate";
 
-    //we create the Solid resource if it does not exist
-    final Request requestCreateIfNotExist = Request.newBuilder(newResourceURL)
-            .header("Content-Type", "text/turtle")
-            .header("If-None-Match", "*")
-            .header("Link", "<" + LDP.Resource + ">; rel=\"type\"")
-            .PUT(Request.BodyPublishers.noBody())
-            .build();
-    final Response<Void> resp = session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
-    if (resp.statusCode() != 204) {
-        throw new InruptClientException("Failed to create solid resource at " + newResource); 
-    }
+// We create the Solid resource if it does not exist
+final var requestCreateIfNotExist = Request.newBuilder(newResourceURL)
+        .header("Content-Type", "text/turtle")
+        .header("If-None-Match", "*")
+        .header("Link", "<" + LDP.Resource + ">; rel=\"type\"")
+        .PUT(Request.BodyPublishers.noBody())
+        .build();
+final var resp = session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
 
-    //if the resource already exists -> we get all its statements and filter out the ones we are interested in
-    List<Statement> statementsToDelete = new ArrayList<>();
-    if (resp.statusCode() == 412) { 
-        final Request requestRdf = Request.newBuilder(newResourceURL).GET().build();
-        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
-        statementsToDelete = responseRdf.body().listStatements(createResource(newResource), createProperty(predicate)).toList();
-    }
+if (resp.statusCode() != 204) {
+    throw new InruptClientException("Failed to create solid resource at " + newResource);
+}
 
-    //we create a list of statements we want to add
-    final List<Statement> statementsToAdd = List.of(createStatement(createResource(newResource), createProperty(predicate), ResourceFactory.createTypedLiteral(true)));
+// If the resource already exists, we get all its statements and filter out the ones we are interested in
+final var statementsToDelete = new ArrayList<Statement>();
+if (resp.statusCode() == 412) {
+    final var requestRdf = Request.newBuilder(newResourceURL).GET().build();
+    final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+    statementsToDelete = responseRdf.body().listStatements(createResource(newResource), createProperty(predicate)).toList();
+}
 
-    final var ur = UpdateFactory.create(createDeleteInsertSparqlQuery(statementsToDelete, statementsToAdd));
-    final Request requestPatch = Request.newBuilder(newResourceURL)
-        .header("Content-Type", "application/sparql-update")
-        .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
-    final var responsePatch = session.send(requestPatch, Response.BodyHandlers.discarding());
-    if (responsePatch.statusCode() != 204) {
-        throw new InruptClientException("Failed to create a new resource at " + newResource); //create appropriate exception
-    }
+// We create a list of statements we want to add
+final var statementsToAdd = List.of(createStatement(createResource(newResource), createProperty(predicate), ResourceFactory.createTypedLiteral(true)));
+
+final var ur = UpdateFactory.create(createDeleteInsertSparqlQuery(statementsToDelete, statementsToAdd));
+final var requestPatch = Request.newBuilder(newResourceURL)
+    .header("Content-Type", "application/sparql-update")
+    .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
+final var responsePatch = session.send(requestPatch, Response.BodyHandlers.discarding());
+
+if (responsePatch.statusCode() != 204) {
+    throw new InruptClientException("Failed to create a new resource at " + newResource); //create appropriate exception
+}
 ---------------------
 
 * Using the libraries
@@ -154,7 +156,7 @@ Inrupt's Java Client Libraries
 
   The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma module}} builds on top of the {{{https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html}UMA}} specification.
 
-  Remark: Higher level abstractions that help with authentication and authorization are part of the Core module. This module includes classes such as `DefaultClient` which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {Example code} for how to use the DefaultClient.
+  Remark: Higher level abstractions that help with authentication and authorization are part of the Core module. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {Example code} for how to use the DefaultClient.
 
 ** HTTP client
 
