@@ -24,6 +24,7 @@ import com.inrupt.client.Dataset;
 import com.inrupt.client.Quad;
 import com.inrupt.client.RDFNode;
 import com.inrupt.client.vocabulary.LDP;
+import com.inrupt.client.vocabulary.RDF;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -74,7 +75,16 @@ public final class SolidContainer extends SolidResource {
             .map(Quad::getObject)
             .filter(RDFNode::isNamedNode)
             .map(RDFNode::getURI)
-            .map(child -> SolidResource.of(child, null, getStorage().orElse(null)));
+            .map(child -> {
+                final SolidResource.Builder builder = SolidResource.newResourceBuilder();
+                getStorage().ifPresent(builder::storage);
+                getDataset().stream(Optional.empty(), RDFNode.namedNode(child), RDFNode.namedNode(RDF.type), null)
+                    .map(Quad::getObject)
+                    .filter(RDFNode::isNamedNode)
+                    .map(RDFNode::getURI)
+                    .forEach(builder::type);
+                return builder.build(child);
+            });
     }
 
     /**
