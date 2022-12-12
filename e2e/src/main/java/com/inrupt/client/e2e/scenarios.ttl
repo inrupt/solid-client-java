@@ -1,0 +1,96 @@
+@prefix td: <http://www.w3.org/2006/03/test-description#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix inrupt:  <http://www.inrupt.com/ns/terms#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+
+
+#@base <https://schema.inrupt.com/devtools/> .
+@base <https://storage.inrupt.com/8cb88326-8002-4803-b5a1-819480aadab4/devtools/> . 
+@prefix solidClient: <./solid-client-java> . #create this
+@prefix : <solidClient:/> . 
+
+solidClient: a earl:Software;
+  doap:name "solid-client-java";
+  inrupt:jiraComponent "JCL";
+  doap:programming-language "Java";
+  doap:developer <https://inrupt.com>;
+  doap:homepage <https://github.com/inrupt/solid-client-java> ;
+  inrupt:testSuite :resourceTestSuite. 
+
+:resourceTestSuite dcterms:hasPart
+  :baseRdfSourceCrud,
+  :baseNonRdfSourceCrud,
+  :baseContainerCrud,
+  :blankNodeSupport,
+  :notAuthenticated,
+  inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
+
+:baseRdfSourceCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on RDF resource"@en;
+  dcterms:description "An authenticated user with sufficient permission creates an RDF resource in an existing container, reads it back, updates it, and finally deletes it."@en;
+  td:reviewStatus td:approved.
+
+:baseNonRdfSourceCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on non-RDF resource"@en;
+  dcterms:description "An authenticated user with sufficient permission creates a non-RDF resource in an existing container, checks that it is not recognized as RDF, and finally deletes it."@en;
+  td:reviewStatus td:approved.
+
+:baseContainerCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on containers"@en;
+  dcterms:description "An authenticated user with sufficient permission creates container from the Pod root, another container in an existing container, and finally deletes both."@en;
+  td:reviewStatus td:approved.
+
+:blankNodeSupport a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Blank node support"@en;
+  dcterms:description "An authenticated user with sufficient permission creates an RDF resource including a triple with a blank node object. The user updates another triple in the resource, and saves it back without an exception being thrown because of conflicts."@en;
+  td:reviewStatus td:approved.
+
+:notAuthenticated a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Authentication error handling"@en;
+  dcterms:description "An unauthenticated user fetching a private resource causes an exception."@en;
+  td:reviewStatus td:approved.
+
+# possible new tests collected from SRS and Design document
+1. Managing multiple simultaneous Solid sessions for a given storage: 
+Retrieve a single Session
+Retrieve all Sessions
+Remove all Sessions
+
+2. Login 
+3. Logout - terminate session
+5. Statically register a Java application with ESS using the Inrupt Application Registration page.
+
+6. Can manage Pods, including support for
+Finding the Pod root for a given resource. -> done above. What else?
+
+7. LDP navigation: This domain specific model will understand the hierarchical structure of Solid resources and be capable of navigating through the containment hierarchy of a Solid Storage.
+
+8. Access Grants later.
+8a. Programmatically find the location of the authorization app for a given resource so that I can redirect the resource owner to the authz app of their choice to approve/reject an access request.
+8b. Can retrieve all the access grants ever produced so that the resource owner can understand who was ever given access to their resources.
+8c. Can retrieve all the access grants that are not expired so that the resource owner can understand who has access to their resources.
+8d. Can retrieve all the access grants for a given resource so that the resource owner can understand who has access to the resource.
+8e. Can generate an access request for a given resource so that a requester can ask for access to a resource.
+8f. Can cancel an access request for a given resource so that a requester can signal they are no longer interested in accessing the resource.
+8g. Can approve an access request for a given resource so that a resource owner can give access to a resource to the requester.
+8h. Can deny an access request for a given resource so that a resource owner can prevent the requester from accessing a resource.
+8i. Can revoke an access grant so that a resource owner can revoke access to a resource.
+8j. Can verify an access request so that a resource owner can make sure the access request was not tampered with.
+8k. Can verify an access grant so that a requester can make sure the access grant was not tampered with.
+8l. Can access a resource (read, write, append) using an access grant so that a requester can access a resource as intended by the resource owner ---> do we already have it above?
+
+
+
+
+
+

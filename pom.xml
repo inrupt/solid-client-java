@@ -77,6 +77,7 @@
     <module>bom</module>
     <module>core</module>
     <module>demo</module>
+    <module>e2e</module>
     <module>httpclient</module>
     <module>jackson</module>
     <module>jena</module>
