@@ -111,5 +111,6 @@ class SolidResourceTest {
                         .map(URI::toString)
                         .collect(Collectors.toSet())
                         .contains("https://example.test/resource/test3.txt"));
+        //commit sign test
     }
 }
