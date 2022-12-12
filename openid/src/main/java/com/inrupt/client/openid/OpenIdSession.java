@@ -57,8 +57,9 @@ public final class OpenIdSession implements Session {
     private final OpenIdVerificationConfig config;
     private final URI issuer;
     private final Set<String> schemes;
+    private final OpenIdProvider provider;
 
-    private OpenIdSession(final String idToken, final OpenIdVerificationConfig config) {
+    private OpenIdSession(final String idToken, final OpenIdVerificationConfig config, final OpenIdProvider provider) {
         this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
         this.jwt = Objects.requireNonNull(idToken, "ID Token may not be null!");
 
@@ -72,6 +73,7 @@ public final class OpenIdSession implements Session {
         schemeNames.add("Bearer");
 
         this.schemes = Collections.unmodifiableSet(schemeNames);
+        this.provider = provider != null ? provider : new OpenIdProvider(this.issuer);
     }
 
     /**
@@ -92,36 +94,48 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config) {
-        return new OpenIdSession(idToken, config);
+        return new OpenIdSession(idToken, config, null);
+    }
+
+    /**
+     * Create a session from an ID token, using a specific validation configuration and a provider.
+     *
+     * @param idToken the ID Token
+     * @param config the validation configuration
+     * @param provider an OpenId Provider instance
+     * @return the session
+     */
+    public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config,
+            final OpenIdProvider provider) {
+        return new OpenIdSession(idToken, config, provider);
     }
 
     /**
      * Create a session using OAuth2 client credentials.
      *
-     * @param issuer the OpenID issuer
+     * @param provider an OpenID Provider instance
      * @param clientId the client id value
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
      * @return the next stage of completion, containing a session
      */
-    public static CompletionStage<Session> ofClientCredentials(final URI issuer, final String clientId,
+    public static CompletionStage<Session> ofClientCredentials(final OpenIdProvider provider, final String clientId,
             final String clientSecret, final String authMethod) {
-        return ofClientCredentials(issuer, clientId, clientSecret, authMethod, new OpenIdVerificationConfig());
+        return ofClientCredentials(provider, clientId, clientSecret, authMethod, new OpenIdVerificationConfig());
     }
 
     /**
      * Create a session using OAuth2 client credentials.
      *
-     * @param issuer the OpenID issuer
+     * @param provider an OpenId Provider instance
      * @param clientId the client id value
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
      * @param config the ID Token verification configuration
      * @return the next stage of completion, containing a session
      */
-    public static CompletionStage<Session> ofClientCredentials(final URI issuer, final String clientId,
+    public static CompletionStage<Session> ofClientCredentials(final OpenIdProvider provider, final String clientId,
             final String clientSecret, final String authMethod, final OpenIdVerificationConfig config) {
-        final OpenIdProvider provider = new OpenIdProvider(issuer);
         return provider.tokenAsync(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
