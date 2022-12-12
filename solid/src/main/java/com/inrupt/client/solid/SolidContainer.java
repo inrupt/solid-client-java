@@ -20,27 +20,26 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Dataset;
 import com.inrupt.client.Quad;
+import com.inrupt.client.RDFNode;
+import com.inrupt.client.vocabulary.LDP;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * A Solid Container Object.
  */
 public final class SolidContainer extends SolidResource {
 
-    private final List<SolidResource> containedResources = new ArrayList<>();
-
-    private SolidContainer(final URI id, final Optional<URI> storage) {
-        super(id, storage);
+    private SolidContainer(final URI id, final Dataset dataset, final URI storage) {
+        super(id, dataset, storage);
     }
 
     /**
@@ -50,18 +49,19 @@ public final class SolidContainer extends SolidResource {
      * @return the new {@link SolidContainer} object
      */
     public static SolidContainer of(final URI id) {
-        return of(id, null);
+        return of(id, null, null);
     }
 
     /**
      * Create a new SolidContainer.
      *
      * @param id the container's unique identifier
-     * @param storage the container's storage URI
+     * @param dataset the dataset for this container, may be {@code null}
+     * @param storage the container's storage URI, may be {@code null}
      * @return the new {@link SolidContainer} object
      */
-    public static SolidContainer of(final URI id, final Optional<URI> storage) {
-        return new SolidContainer(id, storage);
+    public static SolidContainer of(final URI id, final Dataset dataset, final URI storage) {
+        return new SolidContainer(id, dataset, storage);
     }
 
     /**
@@ -69,8 +69,12 @@ public final class SolidContainer extends SolidResource {
      *
      * @return the contained resources
      */
-    public List<SolidResource> getContainedResources() {
-        return containedResources;
+    public Stream<SolidResource> getContainedResources() {
+        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getId()), RDFNode.namedNode(LDP.contains), null)
+            .map(Quad::getObject)
+            .filter(RDFNode::isNamedNode)
+            .map(RDFNode::getURI)
+            .map(child -> SolidResource.of(child, null, getStorage().orElse(null)));
     }
 
     /**
@@ -87,15 +91,14 @@ public final class SolidContainer extends SolidResource {
      */
     public static final class Builder{
 
-        private Optional<URI> builderStorage = Optional.empty();
+        private URI builderStorage;
+        private Dataset builderDataset;
         private Set<URI> builderType = new HashSet<>();
         private Map<String, Set<String>> builderWacAllow = new HashMap<>();
         private Set<String> builderAllowedMethods = new HashSet<>();
         private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
-        private List<Quad> builderStatements = new ArrayList<>();
-        private List<SolidResource> builderContainedResources = new ArrayList<>();
 
         /**
          * Add a storage property.
@@ -104,7 +107,7 @@ public final class SolidContainer extends SolidResource {
          * @return this builder
          */
         public Builder storage(final URI uri) {
-            builderStorage = Optional.of(uri);
+            builderStorage = uri;
             return this;
         }
 
@@ -125,7 +128,7 @@ public final class SolidContainer extends SolidResource {
          * @param accessParam the Access Parameter
          * @return this builder
          */
-        public Builder wacAllow(final Entry<String, Set<String>> accessParam) {
+        public Builder wacAllow(final Map.Entry<String, Set<String>> accessParam) {
             builderWacAllow.put(accessParam.getKey(), accessParam.getValue());
             return this;
         }
@@ -175,24 +178,13 @@ public final class SolidContainer extends SolidResource {
         }
 
         /**
-         * Add a statement property.
+         * Add a dataset property.
          *
-         * @param quad the RDF quad
+         * @param dataset the RDF dataset
          * @return this builder
          */
-        public Builder statements(final Quad quad) {
-            builderStatements.add(quad);
-            return this;
-        }
-
-        /**
-         * Add a resource to container.
-         *
-         * @param resource the solid resource
-         * @return this builder
-         */
-        public Builder containedResource(final SolidResource resource) {
-            builderContainedResources.add(resource);
+        public Builder dataset(final Dataset dataset) {
+            builderDataset = dataset;
             return this;
         }
 
@@ -203,15 +195,13 @@ public final class SolidContainer extends SolidResource {
          * @return the Solid container
          */
         public SolidContainer build(final URI id) {
-            final var container = SolidContainer.of(id, builderStorage);
-            container.containedResources.addAll(builderContainedResources);
-            container.type.addAll(builderType);
-            container.wacAllow.putAll(builderWacAllow);
-            container.statements.addAll(builderStatements);
-            container.allowedMethods.addAll(builderAllowedMethods);
-            container.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);
-            container.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);
-            container.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);
+            final SolidContainer container = SolidContainer.of(id, builderDataset, builderStorage);
+            container.getType().addAll(builderType);
+            container.getWacAllow().putAll(builderWacAllow);
+            container.getAllowedMethods().addAll(builderAllowedMethods);
+            container.getAllowedPatchSyntaxes().addAll(builderAllowedPatchSyntaxes);
+            container.getAllowedPostSyntaxes().addAll(builderAllowedPostSyntaxes);
+            container.getAllowedPutSyntaxes().addAll(builderAllowedPutSyntaxes);
 
             return container;
         }
