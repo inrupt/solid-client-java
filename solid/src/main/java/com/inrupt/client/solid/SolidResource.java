@@ -20,37 +20,48 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.rdf.Dataset;
 import com.inrupt.client.rdf.Quad;
+import com.inrupt.client.rdf.RDFNode;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * A Solid Resource Object.
  */
 public class SolidResource {
 
-    protected final URI id;
+    private final URI id;
+    private final Optional<URI> storage;
+    private final Dataset dataset;
+    private final Set<URI> type = new HashSet<>();
+    private final Map<String, Set<String>> wacAllow = new HashMap<>();
+    private final Set<String> allowedMethods = new HashSet<>();
+    private final Set<String> allowedPatchSyntaxes = new HashSet<>();
+    private final Set<String> allowedPostSyntaxes = new HashSet<>();
+    private final Set<String> allowedPutSyntaxes = new HashSet<>();
 
-    protected final Optional<URI> storage;
-    protected final Set<URI> type = new HashSet<>();
-    protected final Map<String, Set<String>> wacAllow = new HashMap<>();
-    protected final Set<String> allowedMethods = new HashSet<>();
-    protected final List<Quad> statements = new ArrayList<>();
-    protected final Set<String> allowedPatchSyntaxes = new HashSet<>();
-    protected final Set<String> allowedPostSyntaxes = new HashSet<>();
-    protected final Set<String> allowedPutSyntaxes = new HashSet<>();
-
-    protected SolidResource(final URI id, final Optional<URI> storage) {
+    /**
+     * Create a Solid resource.
+     *
+     * @param id the Solid Resource identifier
+     * @param storage the storage to which this resource belongs, may be {@code null}
+     */
+    protected SolidResource(final URI id, final Dataset dataset, final URI storage) {
         this.id = id;
-        this.storage = storage;
+        if (dataset != null) {
+            this.dataset = dataset;
+        } else {
+            this.dataset = new EmptyDataset();
+        }
+        this.storage = Optional.ofNullable(storage);
     }
 
     /**
@@ -60,18 +71,19 @@ public class SolidResource {
      * @return the new {@link SolidResource} object
      */
     public static SolidResource of(final URI id) {
-        return of(id, null);
+        return of(id, null, null);
     }
 
     /**
      * Create a new SolidResource.
      *
      * @param id the SolidResource's unique identifier
-     * @param storage the SolidResource's storage URI
+     * @param dataset the SolidResource's dataset, may be {@code null}
+     * @param storage the SolidResource's storage URI, may be {@code null}
      * @return the new {@link SolidResource} object
      */
-    public static SolidResource of(final URI id, final Optional<URI> storage) {
-        return new SolidResource(id, storage);
+    public static SolidResource of(final URI id, final Dataset dataset, final URI storage) {
+        return new SolidResource(id, dataset, storage);
     }
 
     /**
@@ -151,8 +163,8 @@ public class SolidResource {
      *
      * @return the RDF statements
      */
-    public List<Quad> getStatements() {
-        return statements;
+    public Dataset getDataset() {
+        return dataset;
     }
 
     /**
@@ -169,14 +181,14 @@ public class SolidResource {
      */
     public static final class Builder {
 
-        private Optional<URI> builderStorage = Optional.empty();
+        private URI builderStorage;
+        private Dataset builderDataset;
         private Set<URI> builderType = new HashSet<>();
         private Map<String, Set<String>> builderWacAllow = new HashMap<>();
         private Set<String> builderAllowedMethods = new HashSet<>();
         private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
-        private List<Quad> builderStatements = new ArrayList<>();
 
         /**
          * Add a storage property.
@@ -185,7 +197,7 @@ public class SolidResource {
          * @return this builder
          */
         public Builder storage(final URI uri) {
-            builderStorage = Optional.of(uri);
+            builderStorage = uri;
             return this;
         }
 
@@ -256,13 +268,13 @@ public class SolidResource {
         }
 
         /**
-         * Add a statement property.
+         * Add a dataset property.
          *
-         * @param quad the RDF quad
+         * @param dataset the RDF Dataset
          * @return this builder
          */
-        public Builder statements(final Quad quad) {
-            builderStatements.add(quad);
+        public Builder dataset(final Dataset dataset) {
+            builderDataset = dataset;
             return this;
         }
 
@@ -273,8 +285,7 @@ public class SolidResource {
          * @return the Solid resource
          */
         public SolidResource build(final URI id) {
-            final var resource = SolidResource.of(id, builderStorage);
-            resource.statements.addAll(builderStatements);
+            final SolidResource resource = SolidResource.of(id, builderDataset, builderStorage);
             resource.wacAllow.putAll(builderWacAllow);
             resource.type.addAll(builderType);
             resource.allowedMethods.addAll(builderAllowedMethods);
@@ -286,6 +297,19 @@ public class SolidResource {
 
         private Builder() {
             // Prevent instantiations
+        }
+    }
+
+    class EmptyDataset implements Dataset {
+        @Override
+        public Stream<Quad> stream(final Optional<RDFNode> graph, final RDFNode subject, final RDFNode predicate,
+                final RDFNode object) {
+            return Stream.empty();
+        }
+
+        @Override
+        public Stream<Quad> stream() {
+            return Stream.empty();
         }
     }
 }

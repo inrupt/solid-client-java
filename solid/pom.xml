@@ -13,6 +13,11 @@
       Solid resource body handlers for the Inrupt Client Libraries.
   </description>
 
+  <properties>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.inrupt</groupId>
@@ -29,6 +34,7 @@
       <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <!-- test dependencies -->
     <dependency>
       <groupId>com.github.tomakehurst</groupId>

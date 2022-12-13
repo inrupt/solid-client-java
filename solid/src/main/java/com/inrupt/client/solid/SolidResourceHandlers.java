@@ -24,17 +24,18 @@ import com.inrupt.client.Headers.Link;
 import com.inrupt.client.Headers.WacAllow;
 import com.inrupt.client.Response;
 import com.inrupt.client.Syntax;
-import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * Body handlers for Solid Resources.
@@ -42,136 +43,137 @@ import java.util.Arrays;
 public final class SolidResourceHandlers {
 
     private static final RdfService service = ServiceProvider.getRdfService();
-    private static final String ERROR_MESSAGE = "Error parsing Solid resource";
+    private static final Map<String, Syntax> SYNTAX_MAPPING = buildMapping();
 
     /**
      * Transform an HTTP response into a Solid Resource.
      *
-     * @param id the Solid Resources's unique identifier
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<SolidResource> ofSolidResource(final URI id) {
+    public static Response.BodyHandler<SolidResource> ofSolidResource() {
         return responseInfo -> {
-            final var builder = SolidResource.newResourceBuilder();
+            final SolidResource.Builder builder = SolidResource.newResourceBuilder();
+            responseInfo.headers().firstValue("Content-Type")
+                .flatMap(SolidResourceHandlers::toSyntax)
+                .ifPresent(syntax -> {
+                    try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
+                        builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
+                    } catch (final IOException ex) {
+                        throw new SolidResourceException("Error parsing Solid Resource as RDF", ex);
+                    }
+                });
 
-            try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final var dataSet = service.toDataset(Syntax.TURTLE, input, id.toString());
+            responseInfo.headers().allValues("Link").stream()
+                .flatMap(l -> Link.parse(l).stream())
+                .forEach(link -> {
+                    if (link.getParameter("rel").contains("type")) {
+                        builder.type(link.getUri());
+                    } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
+                        builder.storage(link.getUri());
+                    }
+                });
 
-                responseInfo.headers().allValues("Link").stream()
-                    .flatMap(l -> Link.parse(l).stream())
-                    .filter(l -> l.getParameter("rel").contains("type"))
-                    .map(Link::getUri)
-                    .forEach(builder::type);
+            responseInfo.headers().allValues("WAC-Allow").stream()
+                .map(WacAllow::parse)
+                .map(WacAllow::getAccessParams)
+                .flatMap(p -> p.entrySet().stream())
+                .forEach(builder::wacAllow);
 
-                responseInfo.headers().allValues("Link").stream()
-                    .flatMap(l -> Link.parse(l).stream())
-                    .filter(l -> l.getParameter("rel").contains(PIM.storage.toString()))
-                    .map(Link::getUri)
-                    .forEach(builder::storage);
+            responseInfo.headers().allValues("Allow").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedMethod);
 
-                responseInfo.headers().allValues("WAC-Allow").stream()
-                    .map(WacAllow::parse)
-                    .map(WacAllow::getAccessParams)
-                    .flatMap(p -> p.entrySet().stream())
-                    .forEach(builder::wacAllow);
+            responseInfo.headers().allValues("Accept-Post").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedPostSyntax);
 
-                responseInfo.headers().allValues("Allow").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedMethod);
+            responseInfo.headers().allValues("Accept-Patch").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedPatchSyntax);
 
-                responseInfo.headers().allValues("Accept-Post").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedPostSyntax);
+            responseInfo.headers().allValues("Accept-Put").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedPutSyntax);
 
-                responseInfo.headers().allValues("Accept-Patch").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedPatchSyntax);
-
-                responseInfo.headers().allValues("Accept-Put").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedPutSyntax);
-
-                dataSet.stream(null, null, null, null)
-                    .forEach(builder::statements);
-
-            } catch (final IOException ex) {
-                throw new SolidResourceException(ERROR_MESSAGE, ex);
-            }
-
-            return builder.build(id);
+            return builder.build(responseInfo.uri());
         };
     }
 
     /**
      * Transform an HTTP response into a Solid Container.
      *
-     * @param id the Solid Container's unique identifier
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<SolidContainer> ofSolidContainer(final URI id) {
+    public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final var builder = SolidContainer.newContainerBuilder();
-            try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final var dataSet = service.toDataset(Syntax.TURTLE, input, id.toString());
+            final SolidContainer.Builder builder = SolidContainer.newContainerBuilder();
+            responseInfo.headers().firstValue("Content-Type")
+                .flatMap(SolidResourceHandlers::toSyntax)
+                .ifPresent(syntax -> {
+                    try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
+                        builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
+                    } catch (final IOException ex) {
+                        throw new SolidResourceException("Error parsing Solid Container as RDF", ex);
+                    }
+                });
 
-                responseInfo.headers().allValues("Link").stream()
-                    .flatMap(l -> Link.parse(l).stream())
-                    .filter(l -> l.getParameter("rel").contains("type"))
-                    .map(Link::getUri)
-                    .forEach(builder::type);
+            responseInfo.headers().allValues("Link").stream()
+                .flatMap(l -> Link.parse(l).stream())
+                .forEach(link -> {
+                    if (link.getParameter("rel").contains("type")) {
+                        builder.type(link.getUri());
+                    } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
+                        builder.storage(link.getUri());
+                    }
+                });
 
-                responseInfo.headers().allValues("Link").stream()
-                    .flatMap(l -> Link.parse(l).stream())
-                    .filter(l -> l.getParameter("rel").contains(PIM.storage.toString()))
-                    .map(Link::getUri)
-                    .forEach(builder::storage);
+            responseInfo.headers().allValues("WAC-Allow").stream()
+                .map(WacAllow::parse)
+                .map(WacAllow::getAccessParams)
+                .flatMap(p -> p.entrySet().stream())
+                .forEach(builder::wacAllow);
 
-                responseInfo.headers().allValues("WAC-Allow").stream()
-                    .map(WacAllow::parse)
-                    .map(WacAllow::getAccessParams)
-                    .flatMap(p -> p.entrySet().stream())
-                    .forEach(builder::wacAllow);
+            responseInfo.headers().allValues("Allow").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedMethod);
 
-                responseInfo.headers().allValues("Allow").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedMethod);
+            responseInfo.headers().allValues("Accept-Post").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedPostSyntax);
 
-                responseInfo.headers().allValues("Accept-Post").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedPostSyntax);
+            responseInfo.headers().allValues("Accept-Patch").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedPatchSyntax);
 
-                responseInfo.headers().allValues("Accept-Patch").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedPatchSyntax);
+            responseInfo.headers().allValues("Accept-Put").stream()
+                .flatMap(s -> Arrays.stream(s.split(",")))
+                .map(String::trim)
+                .forEach(builder::allowedPutSyntax);
 
-                responseInfo.headers().allValues("Accept-Put").stream()
-                    .flatMap(s -> Arrays.stream(s.split(",")))
-                    .map(String::trim)
-                    .forEach(builder::allowedPutSyntax);
-
-                dataSet.stream(null, null, null, null)
-                    .forEach(builder::statements);
-
-                dataSet.stream(null, RDFNode.namedNode(id), RDFNode.namedNode(LDP.contains), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .map(SolidResource::of)
-                    .forEach((builder)::containedResource);
-
-            } catch (final IOException ex) {
-                throw new SolidResourceException(ERROR_MESSAGE, ex);
-            }
-
-            return builder.build(id);
+            return builder.build(responseInfo.uri());
         };
+    }
+
+    static Optional<Syntax> toSyntax(final String contentType) {
+        final String type = contentType.split(";")[0].trim();
+        return Optional.ofNullable(SYNTAX_MAPPING.get(type));
+    }
+
+    static Map<String, Syntax> buildMapping() {
+        final Map<String, Syntax> mapping = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        mapping.put("text/turtle", Syntax.TURTLE);
+        mapping.put("application/n-triples", Syntax.NTRIPLES);
+        mapping.put("application/trig", Syntax.TRIG);
+        mapping.put("application/n-quads", Syntax.NQUADS);
+        mapping.put("application/ld+json", Syntax.JSONLD);
+        return Collections.unmodifiableMap(mapping);
     }
 
     private SolidResourceHandlers() {
