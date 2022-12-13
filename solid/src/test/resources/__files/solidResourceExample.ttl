@@ -1,0 +1,18 @@
+@prefix dct: <http://purl.org/dc/terms/>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix pl: <http://www.w3.org/ns/iana/media-types/text/plain#>.
+
+<>
+    a ldp:BasicContainer ;
+    dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
+    ldp:contains <newContainer/>, <test.txt>, <test2.txt> .
+<newContainer/>
+    a ldp:BasicContainer ;
+    dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime .
+<test.txt>
+    a pl:Resource, ldp:NonRDFSource;
+    dct:modified "2022-11-25T10:34:14Z"^^xsd:dateTime .
+<test2.txt>
+    a pl:Resource, ldp:NonRDFSource;
+    dct:modified "2022-11-25T10:37:06Z"^^xsd:dateTime .
