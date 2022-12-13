@@ -14,7 +14,7 @@
   <name>Inrupt Client Libraries - Quarkus Demo</name>
 
   <properties>
-    <quarkus.version>2.14.2.Final</quarkus.version>
+    <quarkus.version>2.15.0.Final</quarkus.version>
   </properties>
 
   <dependencyManagement>
