@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolidResource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Report</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-solid</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.solid</a> &gt; <span class="el_source">SolidResource.java</span></div><h1>SolidResource.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.solid;
+
+import com.inrupt.client.Dataset;
+import com.inrupt.client.Quad;
+import com.inrupt.client.RDFNode;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
+/**
+ * A Solid Resource Object.
+ */
+public class SolidResource {
+
+    private final URI id;
+    private final Optional&lt;URI&gt; storage;
+    private final Dataset dataset;
+<span class="nc" id="L44">    private final Set&lt;URI&gt; type = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L45">    private final Map&lt;String, Set&lt;String&gt;&gt; wacAllow = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L46">    private final Set&lt;String&gt; allowedMethods = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L47">    private final Set&lt;String&gt; allowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L48">    private final Set&lt;String&gt; allowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L49">    private final Set&lt;String&gt; allowedPutSyntaxes = new HashSet&lt;&gt;();</span>
+
+    /**
+     * Create a Solid resource.
+     *
+     * @param id the Solid Resource identifier
+     * @param storage the storage to which this resource belongs, may be {@code null}
+     */
+<span class="nc" id="L57">    protected SolidResource(final URI id, final Dataset dataset, final URI storage) {</span>
+<span class="nc" id="L58">        this.id = id;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (dataset != null) {</span>
+<span class="nc" id="L60">            this.dataset = dataset;</span>
+        } else {
+<span class="nc" id="L62">            this.dataset = new EmptyDataset();</span>
+        }
+<span class="nc" id="L64">        this.storage = Optional.ofNullable(storage);</span>
+<span class="nc" id="L65">    }</span>
+
+    /**
+     * Create a new SolidResource.
+     *
+     * @param id the SolidResource's unique identifier
+     * @return the new {@link SolidResource} object
+     */
+    public static SolidResource of(final URI id) {
+<span class="nc" id="L74">        return of(id, null, null);</span>
+    }
+
+    /**
+     * Create a new SolidResource.
+     *
+     * @param id the SolidResource's unique identifier
+     * @param dataset the SolidResource's dataset, may be {@code null}
+     * @param storage the SolidResource's storage URI, may be {@code null}
+     * @return the new {@link SolidResource} object
+     */
+    public static SolidResource of(final URI id, final Dataset dataset, final URI storage) {
+<span class="nc" id="L86">        return new SolidResource(id, dataset, storage);</span>
+    }
+
+    /**
+     * Retrieve SolidResource's unique identifier.
+     *
+     * @return the id
+     */
+    public URI getId() {
+<span class="nc" id="L95">        return id;</span>
+    }
+
+    /**
+     * Retrieve storage URI from this SolidResource.
+     *
+     * @return the storage URIs
+     */
+    public Optional&lt;URI&gt; getStorage() {
+<span class="nc" id="L104">        return storage;</span>
+    }
+
+    /**
+     * Retrieve type associated with this SolidResource.
+     *
+     * @return the type
+     */
+    public Set&lt;URI&gt; getType() {
+<span class="nc" id="L113">        return type;</span>
+    }
+
+    /**
+     * Retrieve WAC-Allow access parameters associated with this SolidResource.
+     *
+     * @return the access parameters
+     */
+    public Map&lt;String, Set&lt;String&gt;&gt; getWacAllow() {
+<span class="nc" id="L122">        return wacAllow;</span>
+    }
+
+    /**
+     * Retrieve set of allowed methods associated with this SolidResource.
+     *
+     * @return the allowed methods
+     */
+    public Set&lt;String&gt; getAllowedMethods() {
+<span class="nc" id="L131">        return allowedMethods;</span>
+    }
+
+    /**
+     * Retrieve set of allowed patch syntaxes associated with this SolidResource.
+     *
+     * @return the allowed patch syntaxes
+     */
+    public Set&lt;String&gt; getAllowedPatchSyntaxes() {
+<span class="nc" id="L140">        return allowedPatchSyntaxes;</span>
+    }
+
+    /**
+     * Retrieve set of allowed post syntaxes associated with this SolidResource.
+     *
+     * @return the allowed post syntaxes
+     */
+    public Set&lt;String&gt; getAllowedPostSyntaxes() {
+<span class="nc" id="L149">        return allowedPostSyntaxes;</span>
+    }
+
+    /**
+     * Retrieve set of allowed put syntaxes associated with this SolidResource.
+     *
+     * @return the allowed put syntaxes
+     */
+    public Set&lt;String&gt; getAllowedPutSyntaxes() {
+<span class="nc" id="L158">        return allowedPutSyntaxes;</span>
+    }
+
+    /**
+     * Retrieve list of RDF Quads associated with this SolidResource.
+     *
+     * @return the RDF statements
+     */
+    public Dataset getDataset() {
+<span class="nc" id="L167">        return dataset;</span>
+    }
+
+    /**
+     * Create a new {@link SolidResource} builder.
+     *
+     * @return the builder
+     */
+    public static Builder newResourceBuilder() {
+<span class="nc" id="L176">        return new Builder();</span>
+    }
+
+    /**
+     * A builder class for SolidResource objects.
+     */
+    public static final class Builder {
+
+        private URI builderStorage;
+        private Dataset builderDataset;
+<span class="nc" id="L186">        private Set&lt;URI&gt; builderType = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L187">        private Map&lt;String, Set&lt;String&gt;&gt; builderWacAllow = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L188">        private Set&lt;String&gt; builderAllowedMethods = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L189">        private Set&lt;String&gt; builderAllowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L190">        private Set&lt;String&gt; builderAllowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L191">        private Set&lt;String&gt; builderAllowedPutSyntaxes = new HashSet&lt;&gt;();</span>
+
+        /**
+         * Add a storage property.
+         *
+         * @param uri the storage URI
+         * @return this builder
+         */
+        public Builder storage(final URI uri) {
+<span class="nc" id="L200">            builderStorage = uri;</span>
+<span class="nc" id="L201">            return this;</span>
+        }
+
+        /**
+         * Add a type property.
+         *
+         * @param uri the type URI
+         * @return this builder
+         */
+        public Builder type(final URI uri) {
+<span class="nc" id="L211">            builderType.add(uri);</span>
+<span class="nc" id="L212">            return this;</span>
+        }
+
+        /**
+         * Add a wacAllow property.
+         *
+         * @param accessParam the Access Parameter
+         * @return this builder
+         */
+        public Builder wacAllow(final Entry&lt;String, Set&lt;String&gt;&gt; accessParam) {
+<span class="nc" id="L222">            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());</span>
+<span class="nc" id="L223">            return this;</span>
+        }
+
+        /**
+         * Add an allowedMethod property.
+         *
+         * @param method the method
+         * @return this builder
+         */
+        public Builder allowedMethod(final String method) {
+<span class="nc" id="L233">            builderAllowedMethods.add(method);</span>
+<span class="nc" id="L234">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPatchSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPatchSyntax(final String syntax) {
+<span class="nc" id="L244">            builderAllowedPatchSyntaxes.add(syntax);</span>
+<span class="nc" id="L245">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPostSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPostSyntax(final String syntax) {
+<span class="nc" id="L255">            builderAllowedPostSyntaxes.add(syntax);</span>
+<span class="nc" id="L256">            return this;</span>
+        }
+
+        /**
+         * Add a allowedPutSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder allowedPutSyntax(final String syntax) {
+<span class="nc" id="L266">            builderAllowedPutSyntaxes.add(syntax);</span>
+<span class="nc" id="L267">            return this;</span>
+        }
+
+        /**
+         * Add a dataset property.
+         *
+         * @param dataset the RDF Dataset
+         * @return this builder
+         */
+        public Builder dataset(final Dataset dataset) {
+<span class="nc" id="L277">            builderDataset = dataset;</span>
+<span class="nc" id="L278">            return this;</span>
+        }
+
+        /**
+         * Build the SolidResource object.
+         *
+         * @param id the SolidResource's unique identifier
+         * @return the Solid resource
+         */
+        public SolidResource build(final URI id) {
+<span class="nc" id="L288">            final SolidResource resource = SolidResource.of(id, builderDataset, builderStorage);</span>
+<span class="nc" id="L289">            resource.wacAllow.putAll(builderWacAllow);</span>
+<span class="nc" id="L290">            resource.type.addAll(builderType);</span>
+<span class="nc" id="L291">            resource.allowedMethods.addAll(builderAllowedMethods);</span>
+<span class="nc" id="L292">            resource.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);</span>
+<span class="nc" id="L293">            resource.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);</span>
+<span class="nc" id="L294">            resource.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);</span>
+<span class="nc" id="L295">            return resource;</span>
+        }
+
+<span class="nc" id="L298">        private Builder() {</span>
+            // Prevent instantiations
+<span class="nc" id="L300">        }</span>
+    }
+
+<span class="nc" id="L303">    class EmptyDataset implements Dataset {</span>
+        @Override
+        public Stream&lt;Quad&gt; stream(final Optional&lt;RDFNode&gt; graph, final RDFNode subject, final RDFNode predicate,
+                final RDFNode object) {
+<span class="nc" id="L307">            return Stream.empty();</span>
+        }
+
+        @Override
+        public Stream&lt;Quad&gt; stream() {
+<span class="nc" id="L312">            return Stream.empty();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

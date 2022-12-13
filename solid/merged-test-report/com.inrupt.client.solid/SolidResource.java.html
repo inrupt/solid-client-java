@@ -20,38 +20,49 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Dataset;
 import com.inrupt.client.Quad;
+import com.inrupt.client.RDFNode;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * A Solid Resource Object.
  */
 public class SolidResource {
 
-    protected final URI id;
+    private final URI id;
+    private final Optional&lt;URI&gt; storage;
+    private final Dataset dataset;
+<span class="fc" id="L44">    private final Set&lt;URI&gt; type = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L45">    private final Map&lt;String, Set&lt;String&gt;&gt; wacAllow = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L46">    private final Set&lt;String&gt; allowedMethods = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L47">    private final Set&lt;String&gt; allowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L48">    private final Set&lt;String&gt; allowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L49">    private final Set&lt;String&gt; allowedPutSyntaxes = new HashSet&lt;&gt;();</span>
 
-    protected final Optional&lt;URI&gt; storage;
-<span class="fc" id="L43">    protected final Set&lt;URI&gt; type = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L44">    protected final Map&lt;String, Set&lt;String&gt;&gt; wacAllow = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L45">    protected final Set&lt;String&gt; allowedMethods = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L46">    protected final List&lt;Quad&gt; statements = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L47">    protected final Set&lt;String&gt; allowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L48">    protected final Set&lt;String&gt; allowedPostSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L49">    protected final Set&lt;String&gt; allowedPutSyntaxes = new HashSet&lt;&gt;();</span>
-
-<span class="fc" id="L51">    protected SolidResource(final URI id, final Optional&lt;URI&gt; storage) {</span>
-<span class="fc" id="L52">        this.id = id;</span>
-<span class="fc" id="L53">        this.storage = storage;</span>
-<span class="fc" id="L54">    }</span>
+    /**
+     * Create a Solid resource.
+     *
+     * @param id the Solid Resource identifier
+     * @param storage the storage to which this resource belongs, may be {@code null}
+     */
+<span class="fc" id="L57">    protected SolidResource(final URI id, final Dataset dataset, final URI storage) {</span>
+<span class="fc" id="L58">        this.id = id;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (dataset != null) {</span>
+<span class="fc" id="L60">            this.dataset = dataset;</span>
+        } else {
+<span class="fc" id="L62">            this.dataset = new EmptyDataset();</span>
+        }
+<span class="fc" id="L64">        this.storage = Optional.ofNullable(storage);</span>
+<span class="fc" id="L65">    }</span>
 
     /**
      * Create a new SolidResource.
@@ -60,18 +71,19 @@ public class SolidResource {
      * @return the new {@link SolidResource} object
      */
     public static SolidResource of(final URI id) {
-<span class="fc" id="L63">        return of(id, null);</span>
+<span class="nc" id="L74">        return of(id, null, null);</span>
     }
 
     /**
      * Create a new SolidResource.
      *
      * @param id the SolidResource's unique identifier
-     * @param storage the SolidResource's storage URI
+     * @param dataset the SolidResource's dataset, may be {@code null}
+     * @param storage the SolidResource's storage URI, may be {@code null}
      * @return the new {@link SolidResource} object
      */
-    public static SolidResource of(final URI id, final Optional&lt;URI&gt; storage) {
-<span class="fc" id="L74">        return new SolidResource(id, storage);</span>
+    public static SolidResource of(final URI id, final Dataset dataset, final URI storage) {
+<span class="fc" id="L86">        return new SolidResource(id, dataset, storage);</span>
     }
 
     /**
@@ -80,7 +92,7 @@ public class SolidResource {
      * @return the id
      */
     public URI getId() {
-<span class="fc" id="L83">        return id;</span>
+<span class="fc" id="L95">        return id;</span>
     }
 
     /**
@@ -89,7 +101,7 @@ public class SolidResource {
      * @return the storage URIs
      */
     public Optional&lt;URI&gt; getStorage() {
-<span class="fc" id="L92">        return storage;</span>
+<span class="fc" id="L104">        return storage;</span>
     }
 
     /**
@@ -98,7 +110,7 @@ public class SolidResource {
      * @return the type
      */
     public Set&lt;URI&gt; getType() {
-<span class="fc" id="L101">        return type;</span>
+<span class="fc" id="L113">        return type;</span>
     }
 
     /**
@@ -107,7 +119,7 @@ public class SolidResource {
      * @return the access parameters
      */
     public Map&lt;String, Set&lt;String&gt;&gt; getWacAllow() {
-<span class="fc" id="L110">        return wacAllow;</span>
+<span class="fc" id="L122">        return wacAllow;</span>
     }
 
     /**
@@ -116,7 +128,7 @@ public class SolidResource {
      * @return the allowed methods
      */
     public Set&lt;String&gt; getAllowedMethods() {
-<span class="fc" id="L119">        return allowedMethods;</span>
+<span class="fc" id="L131">        return allowedMethods;</span>
     }
 
     /**
@@ -125,7 +137,7 @@ public class SolidResource {
      * @return the allowed patch syntaxes
      */
     public Set&lt;String&gt; getAllowedPatchSyntaxes() {
-<span class="fc" id="L128">        return allowedPatchSyntaxes;</span>
+<span class="fc" id="L140">        return allowedPatchSyntaxes;</span>
     }
 
     /**
@@ -134,7 +146,7 @@ public class SolidResource {
      * @return the allowed post syntaxes
      */
     public Set&lt;String&gt; getAllowedPostSyntaxes() {
-<span class="fc" id="L137">        return allowedPostSyntaxes;</span>
+<span class="fc" id="L149">        return allowedPostSyntaxes;</span>
     }
 
     /**
@@ -143,7 +155,7 @@ public class SolidResource {
      * @return the allowed put syntaxes
      */
     public Set&lt;String&gt; getAllowedPutSyntaxes() {
-<span class="fc" id="L146">        return allowedPutSyntaxes;</span>
+<span class="fc" id="L158">        return allowedPutSyntaxes;</span>
     }
 
     /**
@@ -151,8 +163,8 @@ public class SolidResource {
      *
      * @return the RDF statements
      */
-    public List&lt;Quad&gt; getStatements() {
-<span class="fc" id="L155">        return statements;</span>
+    public Dataset getDataset() {
+<span class="fc" id="L167">        return dataset;</span>
     }
 
     /**
@@ -161,7 +173,7 @@ public class SolidResource {
      * @return the builder
      */
     public static Builder newResourceBuilder() {
-<span class="fc" id="L164">        return new Builder();</span>
+<span class="fc" id="L176">        return new Builder();</span>
     }
 
     /**
@@ -169,14 +181,14 @@ public class SolidResource {
      */
     public static final class Builder {
 
-<span class="fc" id="L172">        private Optional&lt;URI&gt; builderStorage = Optional.empty();</span>
-<span class="fc" id="L173">        private Set&lt;URI&gt; builderType = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L174">        private Map&lt;String, Set&lt;String&gt;&gt; builderWacAllow = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L175">        private Set&lt;String&gt; builderAllowedMethods = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L176">        private Set&lt;String&gt; builderAllowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L177">        private Set&lt;String&gt; builderAllowedPostSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L178">        private Set&lt;String&gt; builderAllowedPutSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L179">        private List&lt;Quad&gt; builderStatements = new ArrayList&lt;&gt;();</span>
+        private URI builderStorage;
+        private Dataset builderDataset;
+<span class="fc" id="L186">        private Set&lt;URI&gt; builderType = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L187">        private Map&lt;String, Set&lt;String&gt;&gt; builderWacAllow = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L188">        private Set&lt;String&gt; builderAllowedMethods = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L189">        private Set&lt;String&gt; builderAllowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L190">        private Set&lt;String&gt; builderAllowedPostSyntaxes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L191">        private Set&lt;String&gt; builderAllowedPutSyntaxes = new HashSet&lt;&gt;();</span>
 
         /**
          * Add a storage property.
@@ -185,8 +197,8 @@ public class SolidResource {
          * @return this builder
          */
         public Builder storage(final URI uri) {
-<span class="fc" id="L188">            builderStorage = Optional.of(uri);</span>
-<span class="fc" id="L189">            return this;</span>
+<span class="fc" id="L200">            builderStorage = uri;</span>
+<span class="fc" id="L201">            return this;</span>
         }
 
         /**
@@ -196,8 +208,8 @@ public class SolidResource {
          * @return this builder
          */
         public Builder type(final URI uri) {
-<span class="fc" id="L199">            builderType.add(uri);</span>
-<span class="fc" id="L200">            return this;</span>
+<span class="fc" id="L211">            builderType.add(uri);</span>
+<span class="fc" id="L212">            return this;</span>
         }
 
         /**
@@ -207,8 +219,8 @@ public class SolidResource {
          * @return this builder
          */
         public Builder wacAllow(final Entry&lt;String, Set&lt;String&gt;&gt; accessParam) {
-<span class="fc" id="L210">            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());</span>
-<span class="fc" id="L211">            return this;</span>
+<span class="fc" id="L222">            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());</span>
+<span class="fc" id="L223">            return this;</span>
         }
 
         /**
@@ -218,8 +230,8 @@ public class SolidResource {
          * @return this builder
          */
         public Builder allowedMethod(final String method) {
-<span class="fc" id="L221">            builderAllowedMethods.add(method);</span>
-<span class="fc" id="L222">            return this;</span>
+<span class="fc" id="L233">            builderAllowedMethods.add(method);</span>
+<span class="fc" id="L234">            return this;</span>
         }
 
         /**
@@ -229,8 +241,8 @@ public class SolidResource {
          * @return this builder
          */
         public Builder allowedPatchSyntax(final String syntax) {
-<span class="fc" id="L232">            builderAllowedPatchSyntaxes.add(syntax);</span>
-<span class="fc" id="L233">            return this;</span>
+<span class="fc" id="L244">            builderAllowedPatchSyntaxes.add(syntax);</span>
+<span class="fc" id="L245">            return this;</span>
         }
 
         /**
@@ -240,8 +252,8 @@ public class SolidResource {
          * @return this builder
          */
         public Builder allowedPostSyntax(final String syntax) {
-<span class="fc" id="L243">            builderAllowedPostSyntaxes.add(syntax);</span>
-<span class="fc" id="L244">            return this;</span>
+<span class="fc" id="L255">            builderAllowedPostSyntaxes.add(syntax);</span>
+<span class="fc" id="L256">            return this;</span>
         }
 
         /**
@@ -251,19 +263,19 @@ public class SolidResource {
          * @return this builder
          */
         public Builder allowedPutSyntax(final String syntax) {
-<span class="fc" id="L254">            builderAllowedPutSyntaxes.add(syntax);</span>
-<span class="fc" id="L255">            return this;</span>
+<span class="fc" id="L266">            builderAllowedPutSyntaxes.add(syntax);</span>
+<span class="fc" id="L267">            return this;</span>
         }
 
         /**
-         * Add a statement property.
+         * Add a dataset property.
          *
-         * @param quad the RDF quad
+         * @param dataset the RDF Dataset
          * @return this builder
          */
-        public Builder statements(final Quad quad) {
-<span class="fc" id="L265">            builderStatements.add(quad);</span>
-<span class="fc" id="L266">            return this;</span>
+        public Builder dataset(final Dataset dataset) {
+<span class="fc" id="L277">            builderDataset = dataset;</span>
+<span class="fc" id="L278">            return this;</span>
         }
 
         /**
@@ -273,20 +285,32 @@ public class SolidResource {
          * @return the Solid resource
          */
         public SolidResource build(final URI id) {
-<span class="fc" id="L276">            final var resource = SolidResource.of(id, builderStorage);</span>
-<span class="fc" id="L277">            resource.statements.addAll(builderStatements);</span>
-<span class="fc" id="L278">            resource.wacAllow.putAll(builderWacAllow);</span>
-<span class="fc" id="L279">            resource.type.addAll(builderType);</span>
-<span class="fc" id="L280">            resource.allowedMethods.addAll(builderAllowedMethods);</span>
-<span class="fc" id="L281">            resource.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);</span>
-<span class="fc" id="L282">            resource.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);</span>
-<span class="fc" id="L283">            resource.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);</span>
-<span class="fc" id="L284">            return resource;</span>
+<span class="fc" id="L288">            final SolidResource resource = SolidResource.of(id, builderDataset, builderStorage);</span>
+<span class="fc" id="L289">            resource.wacAllow.putAll(builderWacAllow);</span>
+<span class="fc" id="L290">            resource.type.addAll(builderType);</span>
+<span class="fc" id="L291">            resource.allowedMethods.addAll(builderAllowedMethods);</span>
+<span class="fc" id="L292">            resource.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);</span>
+<span class="fc" id="L293">            resource.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);</span>
+<span class="fc" id="L294">            resource.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);</span>
+<span class="fc" id="L295">            return resource;</span>
         }
 
-<span class="fc" id="L287">        private Builder() {</span>
+<span class="fc" id="L298">        private Builder() {</span>
             // Prevent instantiations
-<span class="fc" id="L289">        }</span>
+<span class="fc" id="L300">        }</span>
+    }
+
+<span class="fc" id="L303">    class EmptyDataset implements Dataset {</span>
+        @Override
+        public Stream&lt;Quad&gt; stream(final Optional&lt;RDFNode&gt; graph, final RDFNode subject, final RDFNode predicate,
+                final RDFNode object) {
+<span class="nc" id="L307">            return Stream.empty();</span>
+        }
+
+        @Override
+        public Stream&lt;Quad&gt; stream() {
+<span class="nc" id="L312">            return Stream.empty();</span>
+        }
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

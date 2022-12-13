@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Headers.WwwAuthenticate,0,26,0,0,0,7,0,5,0,5
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Response.BodyHandlers,0,29,0,0,0,4,0,8,0,8
-Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Headers.Link,10,139,0,8,2,22,2,13,2,9
+Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Headers.Link,4,145,0,8,1,23,1,14,1,10
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Authenticator.AccessToken,7,43,0,0,2,12,2,5,2,5
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,InruptClientException,0,9,0,0,0,4,0,2,0,2
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Session.new Session() {...},3,13,0,0,1,4,1,4,1,4
@@ -99,6 +99,13 @@ Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JQuad,0,50,0,8,0,12,0,7,0,3
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JGraph,0,150,0,22,0,36,0,19,0,8
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JBodyHandlers,26,83,0,0,4,15,2,7,2,7
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer.Builder,0,134,0,0,0,32,0,10,0,10
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResourceHandlers,14,433,2,6,4,89,2,27,0,25
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResource.EmptyDataset,4,6,0,0,2,1,2,1,2,1
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResource.Builder,0,134,0,0,0,32,0,10,0,10
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResourceException,9,0,0,0,4,0,2,0,2,0
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer,5,73,0,0,1,17,1,5,1,5
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResource,5,91,0,2,1,24,1,13,1,12
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,UmaClient,45,411,1,17,9,83,3,31,2,22
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,TokenResponse,0,3,0,0,0,1,0,1,0,1
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,UmaException,0,9,0,0,0,4,0,2,0,2
