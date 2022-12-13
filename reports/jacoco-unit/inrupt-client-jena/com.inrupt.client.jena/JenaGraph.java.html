@@ -22,9 +22,9 @@ package com.inrupt.client.jena;
 
 import static org.apache.jena.graph.NodeFactory.getType;
 
-import com.inrupt.client.Graph;
-import com.inrupt.client.RDFNode;
-import com.inrupt.client.Triple;
+import com.inrupt.client.rdf.Graph;
+import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.rdf.Triple;
 
 import java.util.stream.Stream;
 

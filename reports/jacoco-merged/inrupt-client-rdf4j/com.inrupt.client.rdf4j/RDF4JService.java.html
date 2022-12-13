@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.Dataset;
-import com.inrupt.client.Graph;
 import com.inrupt.client.Syntax;
+import com.inrupt.client.rdf.Dataset;
+import com.inrupt.client.rdf.Graph;
 import com.inrupt.client.spi.RdfService;
 
 import java.io.IOException;

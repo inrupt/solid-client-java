@@ -17,9 +17,9 @@ Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,VerifiableC
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Syntax,0,54,0,0,0,6,0,1,0,1
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,ClientProvider,3,3,0,0,1,1,1,1,1,1
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Session,0,8,0,0,0,2,0,1,0,1
-Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,RDFNode,0,117,2,8,0,22,2,18,0,15
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Session.Credential,0,27,0,0,0,10,0,5,0,5
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client,Request,0,57,0,0,0,14,0,8,0,8
+Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client.rdf,RDFNode,0,117,2,8,0,22,2,18,0,15
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client.spi,ReactiveAuthorization,0,128,0,12,0,30,0,11,0,5
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client.spi,RdfService,0,12,0,0,0,2,0,2,0,2
 Inrupt Client Libraries - Report/inrupt-client-api,com.inrupt.client.spi,ClientProviderResolver,9,37,3,3,2,12,3,4,0,4

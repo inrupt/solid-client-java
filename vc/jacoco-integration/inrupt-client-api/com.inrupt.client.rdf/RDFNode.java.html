@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>RDFNode.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Inrupt Client Libraries - Verifiable Credentials</a> &gt; <a href="../index.html" class="el_bundle">inrupt-client-api</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.rdf</a> &gt; <span class="el_source">RDFNode.java</span></div><h1>RDFNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.rdf;
+
+import java.net.URI;
+import java.util.UUID;
+
+/**
+ * An RDF node.
+ */
+public final class RDFNode {
+
+    private final URI uri;
+    private final String lexicalValue;
+    private final URI datatype;
+    private final String language;
+    private final String nodeId;
+
+    /**
+     * Indicate whether this is a named node.
+     *
+     * @return true if this is a named RDF node; false otherwise
+     */
+    public boolean isNamedNode() {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        return uri != null;</span>
+    }
+
+    /**
+     * Indicate whether this is a blank node.
+     *
+     * @return true if this is a blank node; false otherwise
+     */
+    public boolean isBlankNode() {
+<span class="nc bnc" id="L52" title="All 6 branches missed.">        return uri == null &amp;&amp; lexicalValue == null &amp;&amp; nodeId != null;</span>
+    }
+
+    /**
+     * Indicate whether this is an RDF literal.
+     *
+     * @return true if this is an RDF literal; false otherwise
+     */
+    public boolean isLiteral() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        return lexicalValue != null;</span>
+    }
+
+    /**
+     * Return the URI of this node.
+     *
+     * @return the URI associated with the node or {@code null}
+     */
+    public URI getURI() {
+<span class="nc" id="L70">        return uri;</span>
+    }
+
+    /**
+     * Return the lexical value of this node.
+     *
+     * @return the lexical value associated with the node or {@code null}
+     */
+    public String getLiteral() {
+<span class="nc" id="L79">        return lexicalValue;</span>
+    }
+
+    /**
+     * Return the datatype of this node.
+     *
+     * @return the datatype associated with the node or {@code null}
+     */
+    public URI getDatatype() {
+<span class="nc" id="L88">        return datatype;</span>
+    }
+
+    /**
+     * Return the language tag for this node.
+     *
+     * @return the language tag associated with the node or {@code null}
+     */
+    public String getLanguage() {
+<span class="nc" id="L97">        return language;</span>
+    }
+
+    /**
+     * Return the nodeId for this blank node.
+     *
+     * @return the nodeId associated with the node or {@code null}
+     */
+    public String getNodeId() {
+<span class="nc" id="L106">        return nodeId;</span>
+    }
+
+    /**
+     * Create a new blank node.
+     *
+     * @return an RDF blank node
+     */
+    public static RDFNode blankNode() {
+<span class="nc" id="L115">        final String nodeId = UUID.randomUUID().toString();</span>
+<span class="nc" id="L116">        return new RDFNode(null, null, null, null, nodeId);</span>
+    }
+
+    /**
+     * Create a new blank node with specific id.
+     * @param nodeId the blank node id
+     *
+     * @return an RDF blank node
+     */
+    public static RDFNode blankNode(final String nodeId) {
+<span class="nc" id="L126">        return new RDFNode(null, null, null, null, nodeId);</span>
+    }
+
+    /**
+     * Create a new named node.
+     *
+     * @param uri the node URI
+     * @return the RDF named node
+     */
+    public static RDFNode namedNode(final URI uri) {
+<span class="nc" id="L136">        return new RDFNode(uri, null, null, null, null);</span>
+    }
+
+    /**
+     * Create a new literal.
+     *
+     * @param literal the literal value
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal) {
+<span class="nc" id="L146">        return new RDFNode(null, literal, null, null, null);</span>
+    }
+
+    /**
+     * Create a new typed literal.
+     *
+     * @param literal the literal value
+     * @param datatype the literal datatype
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal, final URI datatype) {
+<span class="nc" id="L157">        return new RDFNode(null, literal, null, datatype, null);</span>
+    }
+
+    /**
+     * Create a new literal with a language value.
+     *
+     * @param literal the literal value
+     * @param language the literal language
+     * @return the RDF literal
+     */
+    public static RDFNode literal(final String literal, final String language) {
+<span class="nc" id="L168">        return new RDFNode(null, literal, language, null, null);</span>
+    }
+
+    private RDFNode(final URI uri, final String literal, final String language,
+<span class="nc" id="L172">        final URI datatype, final String nodeId) {</span>
+<span class="nc" id="L173">        this.uri = uri;</span>
+<span class="nc" id="L174">        this.lexicalValue = literal;</span>
+<span class="nc" id="L175">        this.language = language;</span>
+<span class="nc" id="L176">        this.datatype = datatype;</span>
+<span class="nc" id="L177">        this.nodeId = nodeId;</span>
+<span class="nc" id="L178">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

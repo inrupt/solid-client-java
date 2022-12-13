@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Dataset;
-import com.inrupt.client.Quad;
-import com.inrupt.client.RDFNode;
+import com.inrupt.client.rdf.Dataset;
+import com.inrupt.client.rdf.Quad;
+import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
 
