@@ -3,7 +3,7 @@ Inrupt's Java Client Libraries
   {{{https://inrupt.com}Inrupt}} provides the following Java client libraries to help developers create {{{https://solidproject.org}Solid}} applications. These libraries provide highly flexible, simple components that can be used in any Java application for {{{https://solidproject.org/TR/protocol}Solid}}. The libraries are composed of different modules that follow a layered architectural approach.
 
 *-------*-----------------*--------*--------------*
-|| Layer || Module function || Module || Description |
+|| Layer || Module function || Module || Description ||
 *-------*-----------------*--------*--------------*
 || Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstrctions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
@@ -38,32 +38,9 @@ Inrupt's Java Client Libraries
 || Example Applications |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/demo/quarkus/package-summary.html}demo}} | A Quarkus demo application. |
 *-------*-----------------*--------*--------------*
 
-* Inrupt's Java Client modules and layers
+* Getting started
 
-** Getting started
-
-*** Quarkus demo
-
-    The demo module contains a Quarkus application to look up a user's WebID profile and then display the contents of a user's storage.
-
-    To set up the example application the following configuration values need to be added for this to work properly:
-
----------------------
-quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
-quarkus.oidc.client-id=<URL of Client Identifier>
----------------------
-
-    These configuration values are typically added to a <<<./config/application.properties>>> file in the directory where the application is run.
-
-    To run the application, use this command:
-
----------------------
-$ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
----------------------
-
-    The application will be available at <<<http://localhost:8080>>>.
-
-**** Example code
+** Example code
 
     First, we assume we have an existing <<<testResource>>> which points to the root container of a Pod (a Pod's storage). And we also assume we have an authenticated <<<session>>>. Something like in the following code:
 
@@ -73,7 +50,7 @@ var webid = URI.create((String) claim);
 var session = client.session(OpenIdSession.ofIdToken(idToken));
 ---------------------
 
-    For an extensive example of how to fetch these resources, see the Quarkus demo.
+    For an extensive example of how to fetch these resources, see the {{{quarkus-demo}Quarkus demo}}.
 
     Further we exemplify how a user can create a Solid resource and add a boolean triple to it. We make use of the Jena implementation for RDF processing. Remark: The <<<createDeleteInsertSparqlQuery>>> is constructing a sparql DELETE DATA and INSERT DATA string based on the two provided lists.
 
@@ -117,9 +94,31 @@ if (responsePatch.statusCode() != 204) {
 }
 ---------------------
 
-* Using the libraries
+** Quarkus demo
+
+    The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/demo/quarkus/package-summary.html}demo module}} contains a Quarkus application to look up a user's WebID profile and then display the contents of a user's storage.
+
+    To set up the example application the following configuration values need to be added for this to work properly:
+
+---------------------
+quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
+quarkus.oidc.client-id=<URL of Client Identifier>
+---------------------
+
+    These configuration values are typically added to a <<<./config/application.properties>>> file in the directory where the application is run.
+
+    To run the application, use this command:
+
+---------------------
+$ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
+---------------------
+
+    The application will be available at <<<http://localhost:8080>>>.
+
+* Inrupt's Java Client modules and layers
 
   Inrupt's Java Client Libraries are composed of different modules that follow a layered architectural approach. Next we will provide an overview of these layers and how to make use of them.
+  Make sure to visit the {{{./apidocs/}Documentation}} part for a javadoc style documentation with code examples for each module. 
 
 * Interface Layer
 
@@ -137,7 +136,7 @@ if (responsePatch.statusCode() != 204) {
 
 * Core Modules Layer
 
-  The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be further developed. 
+  The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed. 
 
 ** Authentication & Authorization
 
@@ -150,15 +149,13 @@ if (responsePatch.statusCode() != 204) {
 
   The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}openid module}} builds on top of the {{{which itself builds on the OAuth 2.0 authorization framework.}OpenID Connect}} standards, which itself builds on the {{{https://datatracker.ietf.org/doc/html/rfc6749}OAuth 2.0}} authorization framework.
 
-  For code examples how to make use of this authentication module visit the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/openid/package-summary.html}javadoc documentation}}.
-
 *** UMA
 
   The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma module}} builds on top of the {{{https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html}UMA}} specification.
 
-  Remark: Higher level abstractions that help with authentication and authorization are part of the Core module. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {Example code} for how to use the DefaultClient.
+  Remark: Higher level abstractions that help with authentication and authorization are part of the Core module. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {{{example-code}Example code}} for how to use the DefaultClient.
 
-** HTTP client
+** HTTP interaction
 
   For interacting with a Solid server through a HTTP client there are two low level modules available: the java.net {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}HttpClient}} or the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}OkHttp}}.
 
@@ -198,18 +195,18 @@ Visit the {{{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/clie
 
 * Domain-specific Modules Layer
 
-** Core
+** Implementation of all API interfaces
 
-  The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}} provides a client implementation for use with Solid resources.
+  The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}} provides implementations of all API interfaces. Among which also a client implementation for use with Solid resources.
 
-** Solid
+** Solid resource data models
 
   The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid module}} provides handlers for Solid resources and containers.
 
-** WebID profile
+** WebID Profile data models
 
   The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/webid/package-summary.html}webid module}} provides a handler for working with the Solid WebId profile document.
 
-** VC
+** Verifiable Credential data models
 
   The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vc/package-summary.html}vc module}} exposes VC-API interfaces used in Solid.
