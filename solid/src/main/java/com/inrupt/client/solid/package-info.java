@@ -19,24 +19,24 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * 
+ *
  * <h2>Solid Resource and Container support for the Inrupt client libraries.</h2>
  *
- * <p>This module contains a BodyHandler which consumes the actual response body bytes
- *  and converts them into a {@link SolidResource} or a {@link SolidContainer} Java object.
+ * <p>This module contains a BodyHandler which consumes the response body
+ *  and converts it into a {@link SolidResource} or a {@link SolidContainer} Java object.
  *
- * <p>The following example reads a Solid Resource and presents it as a {@link SolidResource} Java object:
+ * <p>The following example reads a Solid Container and presents it as a {@link SolidContainer} Java object:
  *
  * <pre>{@code
         Request request = Request.newBuilder()
-            .uri(URI.create("https://solidresource.example/"))
+            .uri(URI.create("https://solid.example/storage/"))
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
-        Response<SolidResource> response = client.send(
+        Response<SolidContainer> response = client.send(
             request,
-            SolidResourceHandlers.ofSolidResource(URI.create("https://example.example/username"))
+            SolidResourceHandlers.ofSolidContainer()
         );
         System.out.println("HTTP status: " + response.statusCode());
         System.out.println("Resource URI: " + response.body().getId());}

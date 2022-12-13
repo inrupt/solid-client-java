@@ -1,29 +1,18 @@
 @prefix dct: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
-@prefix stat: <http://www.w3.org/ns/posix/stat#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-@prefix pub: <>.
 @prefix pl: <http://www.w3.org/ns/iana/media-types/text/plain#>.
 
-pub:
-    a ldp:BasicContainer, ldp:Container;
+<>
+    a ldp:BasicContainer ;
     dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
-    ldp:contains pub:newContainer, pub:test.txt, pub:test2.txt;
-    stat:mtime 1669372596.859;
-    stat:size 4096 .
-pub:newContainer
-    a ldp:BasicContainer, ldp:Container;
-    dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
-    ldp:contains pub:test3.txt;
-    stat:mtime 1669372596.859;
-    stat:size 4096 .
-pub:test.txt
-    a pl:Resource, ldp:Resource;
-    dct:modified "2022-11-25T10:34:14Z"^^xsd:dateTime;
-    stat:mtime 1669372454.345;
-    stat:size 1 .
-pub:test2.txt
-    a pl:Resource, ldp:Resource;
-    dct:modified "2022-11-25T10:37:06Z"^^xsd:dateTime;
-    stat:mtime 1669372626.455;
-    stat:size 13 .
+    ldp:contains <newContainer/>, <test.txt>, <test2.txt> .
+<newContainer/>
+    a ldp:BasicContainer ;
+    dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime .
+<test.txt>
+    a pl:Resource, ldp:NonRDFSource;
+    dct:modified "2022-11-25T10:34:14Z"^^xsd:dateTime .
+<test2.txt>
+    a pl:Resource, ldp:NonRDFSource;
+    dct:modified "2022-11-25T10:37:06Z"^^xsd:dateTime .

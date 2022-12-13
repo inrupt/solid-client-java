@@ -26,13 +26,18 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.URIBuilder;
+import com.inrupt.client.vocabulary.LDP;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,61 +61,63 @@ class SolidResourceTest {
 
     @Test
     void testGetOfSolidResource() throws IOException, InterruptedException {
-        final var request = Request.newBuilder()
-            .uri(URI.create(config.get("solid_resource_uri") + "/solid"))
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/solid/");
+        final Request request = Request.newBuilder()
+            .uri(uri)
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
         final Response<SolidResource> response = client.send(
             request,
-            SolidResourceHandlers.ofSolidResource(URI.create("https://example.test/resource/"))
+            SolidResourceHandlers.ofSolidResource()
         );
 
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body();
-        assertEquals("https://example.test/resource/", responseBody.getId().toString());
-        assertTrue(responseBody.getType().contains(URI.create("http://www.w3.org/ns/ldp#Container")));
-        assertTrue(responseBody.getStorage().isPresent());
-        assertEquals("http://storage/example", responseBody.getStorage().get().toString());
-        assertEquals(responseBody.getWacAllow().get("user"), Set.of("read", "write"));
-        assertEquals(responseBody.getWacAllow().get("public"), Set.of("read"));
-        assertEquals(24, responseBody.getStatements().size());
-        assertEquals(3, responseBody.getAllowedMethods().size());
-        assertTrue(responseBody.getAllowedMethods().containsAll(Set.of("PUT", "POST", "PATCH")));
-        assertTrue(responseBody.getAllowedPatchSyntaxes().containsAll(Set.of("application/example", "text/example")));
-        assertTrue(responseBody.getAllowedPostSyntaxes().containsAll(Set.of("application/example", "text/example")));
-        assertTrue(responseBody.getAllowedPutSyntaxes().containsAll(Set.of("application/example", "text/example")));
+        final SolidResource resource = response.body();
+        assertEquals(uri, resource.getId());
+        assertTrue(resource.getType().contains(LDP.BasicContainer));
+        assertEquals(Optional.of(URI.create("http://storage.example/")), resource.getStorage());
+        assertTrue(resource.getWacAllow().get("user").containsAll(Arrays.asList("read", "write")));
+        assertEquals(resource.getWacAllow().get("public"), Collections.singleton("read"));
+        assertEquals(13, resource.getDataset().stream().count());
+        assertEquals(3, resource.getAllowedMethods().size());
+        assertTrue(resource.getAllowedMethods().containsAll(Arrays.asList("PUT", "POST", "PATCH")));
+        assertTrue(resource.getAllowedPatchSyntaxes()
+                .containsAll(Arrays.asList("application/sparql-update", "text/n3")));
+        assertTrue(resource.getAllowedPostSyntaxes()
+                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+        assertTrue(resource.getAllowedPutSyntaxes()
+                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
     }
 
     @Test
     void testGetOfSolidContainer() throws IOException, InterruptedException {
-        final var request = Request.newBuilder()
-            .uri(URI.create(config.get("solid_resource_uri") + "/solid"))
+        final URI resource = URI.create(config.get("solid_resource_uri") + "/solid/");
+        final Request request = Request.newBuilder()
+            .uri(resource)
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
         final Response<SolidContainer> response = client.send(
             request,
-            SolidResourceHandlers.ofSolidContainer(URI.create("https://example.test/resource/"))
+            SolidResourceHandlers.ofSolidContainer()
         );
 
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body();
-        assertEquals("https://example.test/resource/", responseBody.getId().toString());
-        assertEquals(3, responseBody.getContainedResources().size());
-        assertEquals("https://example.test/resource/test.txt",
-                        responseBody.getContainedResources().get(1).getId().toString());
-        assertEquals("https://example.test/resource/test2.txt",
-                        responseBody.getContainedResources().get(2).getId().toString());
-        assertFalse(responseBody.getContainedResources().stream()
-                        .map(SolidResource::getId)
-                        .map(URI::toString)
-                        .collect(Collectors.toSet())
-                        .contains("https://example.test/resource/test3.txt"));
-        //commit sign test
+        final SolidContainer container = response.body();
+        assertEquals(resource, container.getId());
+        assertEquals(3, container.getContainedResources().count());
+
+        final Set<URI> uris = new HashSet<>();
+        uris.add(URIBuilder.newBuilder(resource).path("test.txt").build());
+        uris.add(URIBuilder.newBuilder(resource).path("test2.txt").build());
+        uris.add(URIBuilder.newBuilder(resource).path("newContainer/").build());
+
+        container.getContainedResources().forEach(child ->
+            assertTrue(uris.contains(child.getId())));
     }
 }
