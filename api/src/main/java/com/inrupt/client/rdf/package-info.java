@@ -19,6 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Application interfaces for the Inrupt client libraries.</h2>
- */
-package com.inrupt.client;
+ * <h2>RDF related interfaces for the Inrupt client libraries.</h2>
+ *
+ **/
+package com.inrupt.client.rdf;

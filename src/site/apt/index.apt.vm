@@ -132,7 +132,7 @@ $ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
 
   * Classes and interfaces used by developers extending these client libraries. These interfaces comprise the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html}spi}} package and will be used for implementing support for a new JSON processor or HTTP client library.
 
-  * Classes and interfaces used by developers building domain abstractions. These interfaces are helpful for translating RDF data into specific Java classes.
+  * Classes and interfaces used by developers building domain abstractions. These interfaces comprise the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf/package-summary.html}rdf}} package and are helpful for translating RDF data into specific Java classes.
 
 * Core Modules Layer
 
