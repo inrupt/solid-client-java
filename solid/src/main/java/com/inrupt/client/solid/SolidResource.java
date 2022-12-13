@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Quad;
+import com.inrupt.client.rdf.Quad;
 
 import java.net.URI;
 import java.util.ArrayList;

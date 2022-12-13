@@ -18,32 +18,34 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.rdf;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * A simple RDF graph abstraction.
+ * A simple RDF dataset abstraction.
  */
-public interface Graph {
+public interface Dataset {
 
     /**
-     * Stream all matched triples.
+     * Stream all matched quads.
      *
      * <p>Using {@code null} acts as a wildcard.
      *
+     * @param graph the graph name. May be {@code null}
      * @param subject the subject node. May be {@code null}
      * @param predicate the predicate node. May be {@code null}
      * @param object the object node. May be {@code null}
-     * @return a stream of matched triples
+     * @return a stream of matched quads
      */
-    Stream<Triple> stream(RDFNode subject, RDFNode predicate, RDFNode object);
+    Stream<Quad> stream(Optional<RDFNode> graph, RDFNode subject, RDFNode predicate, RDFNode object);
 
     /**
-     * Stream all triples from the graph.
+     * Stream all quads from the dataset.
      *
-     * @return a stream of all triples
+     * @return a stream of all quads
      */
-    Stream<Triple> stream();
+    Stream<Quad> stream();
 
 }

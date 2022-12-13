@@ -22,10 +22,10 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers.Link;
 import com.inrupt.client.Headers.WacAllow;
-import com.inrupt.client.RDFNode;
 import com.inrupt.client.Response;
 import com.inrupt.client.Syntax;
-import com.inrupt.client.Triple;
+import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.LDP;
