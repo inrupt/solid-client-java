@@ -3,7 +3,7 @@ Inrupt's Java Client Libraries
   {{{https://inrupt.com}Inrupt}} provides the following Java client libraries to help developers create {{{https://solidproject.org}Solid}} applications. These libraries provide highly flexible, simple components that can be used in any Java application for {{{https://solidproject.org/TR/protocol}Solid}}. The libraries are composed of different modules that follow a layered architectural approach.
 
 *-------*-----------------*--------*--------------*
-|| Layer || Module function || Module || Description ||
+|| Layer || Module function || Module || Description |
 *-------*-----------------*--------*--------------*
 || Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstrctions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
