@@ -21,6 +21,8 @@
 package com.inrupt.client.webid;
 
 import com.inrupt.client.*;
+import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;

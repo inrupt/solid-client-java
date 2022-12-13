@@ -18,19 +18,8 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
-
-import java.util.Optional;
-
 /**
- * An RDF Quad.
- */
-public interface Quad extends Triple {
-
-    /**
-     * Get the graph name for this quad.
-     *
-     * @return the graph name, if one exists
-     */
-    Optional<RDFNode> getGraphName();
-}
+ * <h2>RDF related interfaces for the Inrupt client libraries.</h2>
+ *
+ **/
+package com.inrupt.client.rdf;
