@@ -20,17 +20,21 @@
  */
 package com.inrupt.client.openid;
 
+import com.inrupt.client.Authenticator.AccessToken;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jwk.HttpsJwks;
@@ -57,9 +61,11 @@ public final class OpenIdSession implements Session {
     private final OpenIdVerificationConfig config;
     private final URI issuer;
     private final Set<String> schemes;
-    private final OpenIdProvider provider;
+    private final List<String> scopes;
+    private final Supplier<CompletionStage<Session.Credential>> authenticator;
 
-    private OpenIdSession(final String idToken, final OpenIdVerificationConfig config, final OpenIdProvider provider) {
+    private OpenIdSession(final String idToken, final OpenIdVerificationConfig config,
+            final Supplier<CompletionStage<Session.Credential>> authenticator) {
         this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
         this.jwt = Objects.requireNonNull(idToken, "ID Token may not be null!");
 
@@ -73,7 +79,7 @@ public final class OpenIdSession implements Session {
         schemeNames.add("Bearer");
 
         this.schemes = Collections.unmodifiableSet(schemeNames);
-        this.provider = provider != null ? provider : new OpenIdProvider(this.issuer);
+        this.authenticator = authenticator;
     }
 
     /**
@@ -94,20 +100,21 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config) {
-        return new OpenIdSession(idToken, config, null);
+        return new OpenIdSession(idToken, config, () -> CompletableFuture.completedFuture(null));
     }
 
     /**
-     * Create a session from an ID token, using a specific validation configuration and a provider.
+     * Create a session using OAuth2 client credentials.
      *
-     * @param idToken the ID Token
-     * @param config the validation configuration
-     * @param provider an OpenId Provider instance
-     * @return the session
+     * @param issuer the OpenID Provider URL
+     * @param clientId the client id value
+     * @param clientSecret the client secret value
+     * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
+     * @return the next stage of completion, containing a credential
      */
-    public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config,
-            final OpenIdProvider provider) {
-        return new OpenIdSession(idToken, config, provider);
+    public static Supplier<CompletionStage<Session.Credential>> ofClientCredentials(final URI issuer,
+            final String clientId, final String clientSecret, final String authMethod) {
+        return ofClientCredentials(new OpenIdProvider(issuer), clientId, clientSecret, authMethod);
     }
 
     /**
@@ -117,31 +124,19 @@ public final class OpenIdSession implements Session {
      * @param clientId the client id value
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
-     * @return the next stage of completion, containing a session
+     * @param scopes an array of scope values
+     * @return the next stage of completion, containing a credential
      */
-    public static CompletionStage<Session> ofClientCredentials(final OpenIdProvider provider, final String clientId,
-            final String clientSecret, final String authMethod) {
-        return ofClientCredentials(provider, clientId, clientSecret, authMethod, new OpenIdVerificationConfig());
-    }
-
-    /**
-     * Create a session using OAuth2 client credentials.
-     *
-     * @param provider an OpenId Provider instance
-     * @param clientId the client id value
-     * @param clientSecret the client secret value
-     * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
-     * @param config the ID Token verification configuration
-     * @return the next stage of completion, containing a session
-     */
-    public static CompletionStage<Session> ofClientCredentials(final OpenIdProvider provider, final String clientId,
-            final String clientSecret, final String authMethod, final OpenIdVerificationConfig config) {
-        return provider.tokenAsync(TokenRequest.newBuilder()
+    public static Supplier<CompletionStage<Session.Credential>> ofClientCredentials(final OpenIdProvider provider,
+            final String clientId, final String clientSecret, final String authMethod, final String... scopes) {
+        return () -> provider.tokenAsync(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
+                .scopes(scopes)
                 .build("client_credentials", clientId))
-            .thenApply(response -> response.idToken)
-            .thenApply(idToken -> ofIdToken(idToken, config));
+            .thenApply(response -> Optional.of(new AccessToken(response.idToken, response.tokenType,
+                        toInstant(response.expiresIn), provider.getIssuer(),
+                        Arrays.asList(scopes), null)));
     }
 
     @Override
@@ -152,6 +147,11 @@ public final class OpenIdSession implements Session {
     @Override
     public Set<String> supportedSchemes() {
         return schemes;
+    }
+
+    @Override
+    public List<String> getScope() {
+        return scopes;
     }
 
     @Override
@@ -200,6 +200,13 @@ public final class OpenIdSession implements Session {
             // This exception will never occur because of the validation rules in parseIdToken
             throw new OpenIdException("Malformed ID Token: unable to extract expiration time", ex);
         }
+    }
+
+    static Instant toInstant(final int expiresIn) {
+        if (expiresIn == 0) {
+            return Instant.MAX;
+        }
+        return Instant.now().plusSeconds(expiresIn);
     }
 
     static JwtClaims parseIdToken(final String idToken, final OpenIdVerificationConfig config) {

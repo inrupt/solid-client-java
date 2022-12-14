@@ -23,9 +23,11 @@ package com.inrupt.client;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 public interface Session {
 
@@ -44,6 +46,13 @@ public interface Session {
     Set<String> supportedSchemes();
 
     /**
+     * Retrieve the list of scope values for this session.
+     *
+     * @return the scope values
+     */
+    List<String> getScope();
+
+    /**
      * Retrieve a credential from this session.
      *
      * @param name the credential name
@@ -58,6 +67,13 @@ public interface Session {
      * @return the access token, if present
      */
     Optional<Credential> fromCache(Request request);
+
+    /**
+     * Fetch an authentication token from session values.
+     *
+     * @return the next stage of completion, containing an access token, if present
+     */
+    CompletionStage<Optional<Credential>> authenticate(Request request);
 
     class Credential {
         private final String scheme;
@@ -86,6 +102,10 @@ public interface Session {
 
         public Instant getExpiration() {
             return expiration;
+        }
+
+        public CompletionStage<Optional<Credential>> authenticate(Request request) {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
     }
 

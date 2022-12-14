@@ -109,8 +109,10 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
                 .map(credential -> new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),
                             credential.getExpiration(), credential.getIssuer(), Arrays.asList("webid", "openid"), null))
                 .map(CompletableFuture::completedFuture)
-                // TODO try to fetch a new token using a provider with the existing issuer
-                .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"));
+                .orElseGet(() -> session.authenticate(request).thenApply(credential ->
+                            credential.map(c -> new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(),
+                                    c.getIssuer(), session.getScope(), null))
+                            .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"))));
         }
     }
 }

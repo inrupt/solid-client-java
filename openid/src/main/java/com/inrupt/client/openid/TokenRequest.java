@@ -21,6 +21,8 @@
 package com.inrupt.client.openid;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,6 +37,7 @@ public final class TokenRequest {
     private final String clientSecret;
     private final String authMethod;
     private final URI redirectUri;
+    private final List<String> scopes;
 
     /**
      * Get the grant type value.
@@ -43,6 +46,15 @@ public final class TokenRequest {
      */
     public String getGrantType() {
         return grantType;
+    }
+
+    /**
+     * Get the scope values.
+     *
+     * @return the scopes
+     */
+    public List<String> getScopes() {
+        return scopes;
     }
 
     /**
@@ -110,7 +122,7 @@ public final class TokenRequest {
 
     /* package-private */
     TokenRequest(final String clientId, final String clientSecret, final URI redirectUri, final String grantType,
-            final String authMethod, final String code, final String codeVerifier) {
+            final String authMethod, final String code, final String codeVerifier, final List<String> scopes) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
@@ -118,6 +130,7 @@ public final class TokenRequest {
         this.authMethod = authMethod;
         this.code = code;
         this.codeVerifier = codeVerifier;
+        this.scopes = scopes;
     }
 
     /**
@@ -130,6 +143,7 @@ public final class TokenRequest {
         private String builderCode;
         private String builderCodeVerifier;
         private URI builderRedirectUri;
+        private List<String> builderScopes = new ArrayList<>();
 
         /**
          * Set the client secret value.
@@ -150,6 +164,19 @@ public final class TokenRequest {
          */
         public Builder codeVerifier(final String codeVerifier) {
             builderCodeVerifier = codeVerifier;
+            return this;
+        }
+
+        /**
+         * Set one or more scope values.
+         *
+         * @param scopes the scope values
+         * @return this builder
+         */
+        public Builder scopes(final String... scopes) {
+            for (final String scope : scopes) {
+                builderScopes.add(scope);
+            }
             return this;
         }
 
@@ -212,7 +239,7 @@ public final class TokenRequest {
             }
 
             return new TokenRequest(clientId, builderClientSecret, builderRedirectUri, grant, builderAuthMethod,
-                    builderCode, builderCodeVerifier);
+                    builderCode, builderCodeVerifier, builderScopes);
         }
     }
 }

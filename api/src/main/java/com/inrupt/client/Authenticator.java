@@ -108,11 +108,11 @@ public interface Authenticator {
         }
 
         /**
-         * Retrieve a list of scopes for this token.
+         * Retrieve a list of scope values for this token.
          *
-         * @return the scopes
+         * @return the scope
          */
-        public List<String> getScopes() {
+        public List<String> getScope() {
             return scopes;
         }
 

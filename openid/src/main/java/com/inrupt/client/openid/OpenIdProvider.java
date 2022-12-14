@@ -79,6 +79,15 @@ public class OpenIdProvider {
     }
 
     /**
+     * Fetch the issuer URI for this provider.
+     *
+     * @return the issuer URI
+     */
+    public URI getIssuer() {
+        return issuer;
+    }
+
+    /**
      * Fetch the OpenID metadata resource.
      *
      * @return the OpenID Provider's metadata resource
