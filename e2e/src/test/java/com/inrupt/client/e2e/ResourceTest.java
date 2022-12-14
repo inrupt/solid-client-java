@@ -25,9 +25,11 @@ import static org.apache.jena.rdf.model.ResourceFactory.createResource;
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.apache.jena.rdf.model.ResourceFactory.createStatement;
 
+import com.apicatalog.jsonld.http.link.Link;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Dataset;
+import com.inrupt.client.Headers;
 import com.inrupt.client.InruptClientException;
 import com.inrupt.client.Quad;
 import com.inrupt.client.RDFNode;
@@ -53,6 +55,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
@@ -103,7 +106,7 @@ public class ResourceTest {
         final Request requestCreateIfNotExist = Request.newBuilder(newResourceURL)
                 .header("Content-Type", "text/turtle")
                 .header("If-None-Match", "*")
-                .header("Link", "<" + LDP.Resource + ">; rel=\"type\"")
+                .header("Link", Headers.Link.of(LDP.Resource, "type").toString())
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
         final Response<Void> resp = session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());

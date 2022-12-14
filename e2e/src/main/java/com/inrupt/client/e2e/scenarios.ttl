@@ -28,6 +28,8 @@ solidClient: a earl:Software;
   :baseContainerCrud,
   :blankNodeSupport,
   :notAuthenticated,
+  :podstorageFinding,
+  :ldpNavigation,
   inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
 
 :baseRdfSourceCrud a td:TestCase ;
@@ -60,34 +62,49 @@ solidClient: a earl:Software;
   dcterms:description "An unauthenticated user fetching a private resource causes an exception."@en;
   td:reviewStatus td:approved.
 
-# possible new tests collected from SRS and Design document
-1. Managing multiple simultaneous Solid sessions for a given storage: 
-Retrieve a single Session
-Retrieve all Sessions
-Remove all Sessions
+# new tests for Java SDK
+:podstorageFinding a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Finding the Pod storage from a given resource"@en;
+  dcterms:description "A user finds the Pod storage."@en;
+  td:reviewStatus td:approved.
 
-2. Login 
-3. Logout - terminate session
-5. Statically register a Java application with ESS using the Inrupt Application Registration page.
+:ldpNavigation a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Navigation through the containment hierarchy of a Solid storage"@en;
+  dcterms:description "Starting from a given container a user can navigate to the leaves of that container."@en;
+  td:reviewStatus td:approved.
 
-6. Can manage Pods, including support for
-Finding the Pod root for a given resource. -> done above. What else?
+:authenticationTestSuite dcterms:hasPart
+  :openidAuth,
+  :umaAuthz,
+  :oneSession,
+  :multipleSessions,
+  inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
 
-7. LDP navigation: This domain specific model will understand the hierarchical structure of Solid resources and be capable of navigating through the containment hierarchy of a Solid Storage.
+:oneSession a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Managing a session"@en;
+  dcterms:description "A user opens and closes a session."@en;
+  td:reviewStatus td:approved.
 
-8. Access Grants later.
-8a. Programmatically find the location of the authorization app for a given resource so that I can redirect the resource owner to the authz app of their choice to approve/reject an access request.
-8b. Can retrieve all the access grants ever produced so that the resource owner can understand who was ever given access to their resources.
-8c. Can retrieve all the access grants that are not expired so that the resource owner can understand who has access to their resources.
-8d. Can retrieve all the access grants for a given resource so that the resource owner can understand who has access to the resource.
-8e. Can generate an access request for a given resource so that a requester can ask for access to a resource.
-8f. Can cancel an access request for a given resource so that a requester can signal they are no longer interested in accessing the resource.
-8g. Can approve an access request for a given resource so that a resource owner can give access to a resource to the requester.
-8h. Can deny an access request for a given resource so that a resource owner can prevent the requester from accessing a resource.
-8i. Can revoke an access grant so that a resource owner can revoke access to a resource.
-8j. Can verify an access request so that a resource owner can make sure the access request was not tampered with.
-8k. Can verify an access grant so that a requester can make sure the access grant was not tampered with.
-8l. Can access a resource (read, write, append) using an access grant so that a requester can access a resource as intended by the resource owner ---> do we already have it above?
+:multipleSessions a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Managing multiple simultaneous sessions"@en;
+  dcterms:description "Multiple users open sessions for the same storage and than they are all logged out."@en;
+  td:reviewStatus td:approved.
+
+:openidAuth a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "User authentication"@en;
+  dcterms:description "A user authenticates to a Pod."@en;
+  td:reviewStatus td:approved.
+
+:umaAuthz a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "User authentication and authorization"@en;
+  dcterms:description "A user authenticates to a Pod and is authorized to read resources."@en;
+  td:reviewStatus td:approved.
 
 
 
