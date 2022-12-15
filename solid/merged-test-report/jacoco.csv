@@ -1,7 +1,7 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidContainer.Builder,0,134,0,0,0,32,0,10,0,10
-Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidResourceHandlers,14,433,2,6,4,89,2,27,0,25
 Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidResource.EmptyDataset,4,6,0,0,2,1,2,1,2,1
+Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidResourceHandlers,14,433,2,6,4,89,2,27,0,25
 Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidResource.Builder,0,134,0,0,0,32,0,10,0,10
 Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidResourceException,9,0,0,0,4,0,2,0,2,0
 Inrupt Client Libraries - Solid,com.inrupt.client.solid,SolidContainer,5,73,0,0,1,17,1,5,1,5

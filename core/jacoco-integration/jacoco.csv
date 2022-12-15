@@ -10,8 +10,8 @@ Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Authenticator
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Headers.WacAllow,56,0,4,0,13,0,8,0,6,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Request.BodyPublishers,29,0,0,0,6,0,4,0,4,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,ByteBufferPublisher,21,0,0,0,7,0,4,0,4,0
-Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Request.Builder,114,0,0,0,26,0,15,0,15,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Headers,58,0,6,0,14,0,8,0,5,0
+Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Request.Builder,114,0,0,0,26,0,15,0,15,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Authenticator.Challenge,117,0,6,0,21,0,13,0,10,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,VerifiableCredential,3,0,0,0,1,0,1,0,1,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client,Syntax,54,0,0,0,6,0,1,0,1,0
@@ -27,11 +27,11 @@ Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.spi,ServicePr
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.util,URIBuilder,186,0,20,0,31,0,18,0,8,0
 Inrupt Client Libraries - Core/inrupt-client-api,com.inrupt.client.util,IOUtils,98,0,0,0,26,0,8,0,8,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WacAllowBaseListener,9,0,0,0,7,0,7,0,7,0
-Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateParser.WwwAuthenticateContext,42,0,4,0,11,0,10,0,8,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,ConsumerErrorListener,26,0,0,0,5,0,2,0,2,0
+Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateParser.WwwAuthenticateContext,42,0,4,0,11,0,10,0,8,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateParser,481,0,27,0,112,0,27,0,13,0
-Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateBaseListener,11,0,0,0,9,0,9,0,9,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WacAllowParser,294,0,16,0,65,0,20,0,12,0
+Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,WwwAuthenticateBaseListener,11,0,0,0,9,0,9,0,9,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkLexer,249,0,8,0,35,0,17,0,13,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkParser,376,0,18,0,87,0,22,0,13,0
 Inrupt Client Libraries - Core/inrupt-client-parser,com.inrupt.client.parser,LinkParser.LinkHeaderContext,33,0,4,0,9,0,8,0,6,0
