@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.test;
 
-import com.inrupt.client.RDFNode;
+import com.inrupt.client.rdf.RDFNode;
 
 import java.net.URI;
 
