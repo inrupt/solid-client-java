@@ -22,6 +22,7 @@ solidClient: a earl:Software;
   doap:homepage <https://github.com/inrupt/solid-client-java> ;
   inrupt:testSuite :resourceTestSuite. 
 
+#resource handling tests, same like for javascript sdk
 :resourceTestSuite dcterms:hasPart
   :baseRdfSourceCrud,
   :baseNonRdfSourceCrud,
@@ -62,7 +63,7 @@ solidClient: a earl:Software;
   dcterms:description "An unauthenticated user fetching a private resource causes an exception."@en;
   td:reviewStatus td:approved.
 
-# new tests for Java SDK
+#new resource handling tests for Java SDK
 :podstorageFinding a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
   dcterms:title "Finding the Pod storage from a given resource"@en;
@@ -72,9 +73,10 @@ solidClient: a earl:Software;
 :ldpNavigation a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
   dcterms:title "Navigation through the containment hierarchy of a Solid storage"@en;
-  dcterms:description "Starting from a given container a user can navigate to the leaves of that container."@en;
+  dcterms:description "Starting from a given container a user can navigate to the lefes."@en;
   td:reviewStatus td:approved.
 
+#authentication tests, same like for javascript sdk
 :authenticationTestSuite dcterms:hasPart
   :openidAuth,
   :umaAuthz,
