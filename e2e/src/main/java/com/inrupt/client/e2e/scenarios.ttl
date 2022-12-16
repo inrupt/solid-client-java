@@ -85,7 +85,7 @@ solidClient: a earl:Software;
   :authenticatedPublicNode,
   :authenticatedPrivateNode,
   :authenticatedPrivateNodeAfterLogin,
-  :authenticatedMultisessionNode,
+  :authenticatedMultisessionNode;
   inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
 
 :openidAuth a td:TestCase ;
