@@ -10,6 +10,8 @@ quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
 quarkus.oidc.client-id=<URL of Client Identifier>
 ```
 
+_**Note:** client-id is a URL that points to a [Client ID Document](https://solidproject.org/TR/oidc#clientids-document).
+
 These configuration values are typically added to a `./config/application.properties` file in the directory where the application is run.
 
 To run the application, use this command:

@@ -77,11 +77,11 @@ final var statementsToDelete = new ArrayList<Statement>();
 if (resp.statusCode() == 412) {
     final var requestRdf = Request.newBuilder(newResourceURL).GET().build();
     final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
-    statementsToDelete = responseRdf.body().listStatements(createResource(newResource), createProperty(predicate)).toList();
+    statementsToDelete = responseRdf.body().listStatements(ResourceFactory.createResource(newResource), ResourceFactory.createProperty(predicate)).toList();
 }
 
 // We create a list of statements we want to add
-final var statementsToAdd = List.of(createStatement(createResource(newResource), createProperty(predicate), ResourceFactory.createTypedLiteral(true)));
+final var statementsToAdd = List.of(createStatement(ResourceFactory.createResource(newResource), ResourceFactory.createProperty(predicate), ResourceFactory.createTypedLiteral(true)));
 
 final var ur = UpdateFactory.create(createDeleteInsertSparqlQuery(statementsToDelete, statementsToAdd));
 final var requestPatch = Request.newBuilder(newResourceURL)
@@ -105,7 +105,9 @@ quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
 quarkus.oidc.client-id=<URL of Client Identifier>
 ---------------------
 
-    These configuration values are typically added to a <<<./config/application.properties>>> file in the directory where the application is run.
+    Remark: <<<client-id>>> is a URL that points to a {{{https://solidproject.org/TR/oidc#clientids-document}Client ID Document}}.
+    
+    The above configuration values are typically added to a <<<./config/application.properties>>> file in the directory where the application is run.
 
     To run the application, use this command:
 
@@ -132,7 +134,7 @@ $ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
 
   * Classes and interfaces used by developers extending these client libraries. These interfaces comprise the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html}spi}} package and will be used for implementing support for a new JSON processor or HTTP client library.
 
-  * Classes and interfaces used by developers building domain abstractions. These interfaces are helpful for translating RDF data into specific Java classes.
+  * Classes and interfaces used by developers building domain abstractions. These interfaces comprise the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf/package-summary.html}rdf}} package and are helpful for translating RDF data into specific Java classes.
 
 * Core Modules Layer
 

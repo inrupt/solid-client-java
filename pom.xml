@@ -29,7 +29,7 @@
     <jose4j.version>0.9.2</jose4j.version>
     <json.bind.version>1.0.2</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <rdf4j.version>4.2.1</rdf4j.version>
+    <rdf4j.version>4.2.2</rdf4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
     <!-- plugins -->
@@ -46,7 +46,7 @@
     <javadoc.plugin.version>3.4.1</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
-    <owasp.plugin.version>7.3.2</owasp.plugin.version>
+    <owasp.plugin.version>7.4.1</owasp.plugin.version>
     <projectinfo.plugin.version>3.4.1</projectinfo.plugin.version>
     <pmd.plugin.version>3.19.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>

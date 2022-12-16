@@ -22,9 +22,9 @@ package com.inrupt.client.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Dataset;
-import com.inrupt.client.Graph;
 import com.inrupt.client.Syntax;
+import com.inrupt.client.rdf.Dataset;
+import com.inrupt.client.rdf.Graph;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
