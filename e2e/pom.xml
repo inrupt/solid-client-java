@@ -20,6 +20,16 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-httpclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
@@ -48,6 +58,17 @@
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-webid</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.smallrye.config</groupId>
+      <artifactId>smallrye-config</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <version>2.1.1</version>
     </dependency>
   </dependencies>
 

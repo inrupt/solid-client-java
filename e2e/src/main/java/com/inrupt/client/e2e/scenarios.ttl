@@ -1,12 +1,12 @@
-@prefix td: <http://www.w3.org/2006/03/test-description#> .
+@prefix td:      <http://www.w3.org/2006/03/test-description#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema:  <http://schema.org/> .
 @prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix earl:    <http://www.w3.org/ns/earl#> .
 @prefix inrupt:  <http://www.inrupt.com/ns/terms#> .
-@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
 
 
 #@base <https://schema.inrupt.com/devtools/> .
@@ -78,21 +78,15 @@ solidClient: a earl:Software;
 :authenticationTestSuite dcterms:hasPart
   :openidAuth,
   :umaAuthz,
-  :oneSession,
-  :multipleSessions,
+  :unauthenticatedPublicNode,
+  :unauthenticatedPrivateNode,
+  :unauthenticatedPublicNodeAfterLogout,
+  :unauthenticatedPrivateNodeAfterLogout,
+  :authenticatedPublicNode,
+  :authenticatedPrivateNode,
+  :authenticatedPrivateNodeAfterLogin,
+  :authenticatedMultisessionNode,
   inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
-
-:oneSession a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Managing a session"@en;
-  dcterms:description "A user opens and closes a session."@en;
-  td:reviewStatus td:approved.
-
-:multipleSessions a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Managing multiple simultaneous sessions"@en;
-  dcterms:description "Multiple users open sessions for the same storage and than they are all logged out."@en;
-  td:reviewStatus td:approved.
 
 :openidAuth a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
@@ -106,7 +100,63 @@ solidClient: a earl:Software;
   dcterms:description "A user authenticates to a Pod and is authorized to read resources."@en;
   td:reviewStatus td:approved.
 
+:unauthenticatedPublicNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Unauth fetch of public resource"@en;
+  dcterms:description "An unauthenticated user requests a public resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  rdfs:comment "The default ESS configuration results in this test failing."@en;
+  td:reviewStatus td:approved.
 
+:unauthenticatedPrivateNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Unauth fetch of private resource"@en;
+  dcterms:description "An unauthenticated user requests a private resource."@en;
+  td:expectedResults "The request fails."@en;
+  td:reviewStatus td:approved.
+
+:unauthenticatedPublicNodeAfterLogout a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Logout then public resource fetch"@en;
+  dcterms:description "An authenticated user logs out of their session, and then requests a public resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  rdfs:comment "The default ESS configuration results in this test failing."@en;
+  td:reviewStatus td:approved.
+
+:unauthenticatedPrivateNodeAfterLogout a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Logout then private resource fetch"@en;
+  dcterms:description "An authenticated user logs out of their session, and then requests a private resource."@en;
+  td:expectedResults "The request fails."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedPublicNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Auth fetch of public resource"@en;
+  dcterms:description "An authenticated user requests a public resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedPrivateNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Auth fetch of private resource"@en;
+  dcterms:description "An authenticated user request a private resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedPrivateNodeAfterLogin a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Unauth, then auth fetch of private resource"@en;
+  dcterms:description "An unauthenticated user request a private resource, then logs in, and requests the same resource again."@en;
+  td:expectedResults "The second request succeeds."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedMultisessionNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Multiple sessions authenticated in parallel"@en;
+  dcterms:description "Two unauthenticated users fetch two private resources, each of them being allowed to access only one of these resources."@en;
+  td:expectedResults "Each user only retrieves the resource they are allowed to access, and not the other."@en;
+  td:reviewStatus td:accepted.
 
 
 
