@@ -78,7 +78,7 @@ public class SolidResource {
                         .collect(Collectors.groupingBy(c -> c.getType().contains(LDP.BasicContainer),
                                     Collectors.mapping(c -> c.getId().toString(), Collectors.toList())));
 
-                    return Templates.profile(null, resources.get(true), resources.get(true));
+                    return Templates.profile(profile, resources.get(true), resources.get(true));
                 });
         }).orElseGet(() -> Templates.profile(null, List.of(), List.of()));
     }
