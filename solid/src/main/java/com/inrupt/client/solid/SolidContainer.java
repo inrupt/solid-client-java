@@ -27,11 +27,7 @@ import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -39,30 +35,15 @@ import java.util.stream.Stream;
  */
 public final class SolidContainer extends SolidResource {
 
-    private SolidContainer(final URI id, final Dataset dataset, final URI storage) {
-        super(id, dataset, storage);
-    }
-
     /**
      * Create a new SolidContainer.
      *
-     * @param id the container's unique identifier
-     * @return the new {@link SolidContainer} object
-     */
-    public static SolidContainer of(final URI id) {
-        return of(id, null, null);
-    }
-
-    /**
-     * Create a new SolidContainer.
-     *
-     * @param id the container's unique identifier
+     * @param identifier the container's unique identifier
      * @param dataset the dataset for this container, may be {@code null}
-     * @param storage the container's storage URI, may be {@code null}
-     * @return the new {@link SolidContainer} object
+     * @param metadata the container's metadata, may be {@code null}
      */
-    public static SolidContainer of(final URI id, final Dataset dataset, final URI storage) {
-        return new SolidContainer(id, dataset, storage);
+    public SolidContainer(final URI identifier, final Dataset dataset, final Metadata metadata) {
+        super(identifier, dataset, metadata);
     }
 
     /**
@@ -71,18 +52,21 @@ public final class SolidContainer extends SolidResource {
      * @return the contained resources
      */
     public Stream<SolidResource> getContainedResources() {
-        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getId()), RDFNode.namedNode(LDP.contains), null)
+        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getIdentifier()),
+                RDFNode.namedNode(LDP.contains), null)
             .map(Quad::getObject)
             .filter(RDFNode::isNamedNode)
             .map(RDFNode::getURI)
             .map(child -> {
                 final SolidResource.Builder builder = SolidResource.newResourceBuilder();
-                getStorage().ifPresent(builder::storage);
+                final Metadata.Builder metadata = Metadata.newBuilder();
+                getMetadata().getStorage().ifPresent(metadata::storage);
                 getDataset().stream(Optional.empty(), RDFNode.namedNode(child), RDFNode.namedNode(RDF.type), null)
                     .map(Quad::getObject)
                     .filter(RDFNode::isNamedNode)
                     .map(RDFNode::getURI)
-                    .forEach(builder::type);
+                    .forEach(metadata::type);
+                builder.metadata(metadata.build());
                 return builder.build(child);
             });
     }
@@ -101,89 +85,17 @@ public final class SolidContainer extends SolidResource {
      */
     public static final class Builder{
 
-        private URI builderStorage;
+        private Metadata builderMetadata;
         private Dataset builderDataset;
-        private Set<URI> builderType = new HashSet<>();
-        private Map<String, Set<String>> builderWacAllow = new HashMap<>();
-        private Set<String> builderAllowedMethods = new HashSet<>();
-        private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
-        private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
-        private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
 
         /**
-         * Add a storage property.
+         * Add a metadata property.
          *
-         * @param uri the storage URI
+         * @param metadata the resource metadata
          * @return this builder
          */
-        public Builder storage(final URI uri) {
-            builderStorage = uri;
-            return this;
-        }
-
-        /**
-         * Add a type property.
-         *
-         * @param uri the type URI
-         * @return this builder
-         */
-        public Builder type(final URI uri) {
-            builderType.add(uri);
-            return this;
-        }
-
-        /**
-         * Add a wacAllow property.
-         *
-         * @param accessParam the Access Parameter
-         * @return this builder
-         */
-        public Builder wacAllow(final Map.Entry<String, Set<String>> accessParam) {
-            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());
-            return this;
-        }
-
-        /**
-         * Add an allowedMethod property.
-         *
-         * @param method the method
-         * @return this builder
-         */
-        public Builder allowedMethod(final String method) {
-            builderAllowedMethods.add(method);
-            return this;
-        }
-
-        /**
-         * Add a allowedPatchSyntax property.
-         *
-         * @param syntax the syntax
-         * @return this builder
-         */
-        public Builder allowedPatchSyntax(final String syntax) {
-            builderAllowedPatchSyntaxes.add(syntax);
-            return this;
-        }
-
-        /**
-         * Add a allowedPostSyntax property.
-         *
-         * @param syntax the syntax
-         * @return this builder
-         */
-        public Builder allowedPostSyntax(final String syntax) {
-            builderAllowedPostSyntaxes.add(syntax);
-            return this;
-        }
-
-        /**
-         * Add a allowedPutSyntax property.
-         *
-         * @param syntax the syntax
-         * @return this builder
-         */
-        public Builder allowedPutSyntax(final String syntax) {
-            builderAllowedPutSyntaxes.add(syntax);
+        public Builder metadata(final Metadata metadata) {
+            builderMetadata = metadata;
             return this;
         }
 
@@ -201,22 +113,14 @@ public final class SolidContainer extends SolidResource {
         /**
          * Build the SolidContainer object.
          *
-         * @param id the Solid container's unique identifier
+         * @param identifier the Solid container's unique identifier
          * @return the Solid container
          */
-        public SolidContainer build(final URI id) {
-            final SolidContainer container = SolidContainer.of(id, builderDataset, builderStorage);
-            container.getType().addAll(builderType);
-            container.getWacAllow().putAll(builderWacAllow);
-            container.getAllowedMethods().addAll(builderAllowedMethods);
-            container.getAllowedPatchSyntaxes().addAll(builderAllowedPatchSyntaxes);
-            container.getAllowedPostSyntaxes().addAll(builderAllowedPostSyntaxes);
-            container.getAllowedPutSyntaxes().addAll(builderAllowedPutSyntaxes);
-
-            return container;
+        public SolidContainer build(final URI identifier) {
+            return new SolidContainer(identifier, builderDataset, builderMetadata);
         }
 
-        private Builder() {
+        Builder() {
             // Prevent instantiations
         }
     }

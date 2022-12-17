@@ -18,46 +18,27 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.solid;
 
-/**
- * The names of concrete RDF Syntaxes.
- */
-public enum Syntax {
+import static org.junit.jupiter.api.Assertions.*;
 
-    /**
-     * Turtle.
-     *
-     * @see <a href="https://www.w3.org/TR/turtle/">RDF 1.1 Turtle</a>
-     */
-    TURTLE,
+import org.junit.jupiter.api.Test;
 
-    /**
-     * N-Triples.
-     *
-     * @see <a href="https://www.w3.org/TR/n-triples/">RDF 1.1 N-Triples</a>
-     */
-    NTRIPLES,
+class SolidExceptionTest {
 
-    /**
-     * TriG.
-     *
-     * @see <a href="https://www.w3.org/TR/trig/">RDF 1.1 TriG</a>
-     */
-    TRIG,
+    @Test
+    void checkSolidException() {
+        final String msg = "Error";
+        final SolidResourceException err = new SolidResourceException(msg);
+        assertEquals(msg, err.getMessage());
+    }
 
-    /**
-     * N-Quads.
-     *
-     * @see <a href="https://www.w3.org/TR/n-quads/">RDF 1.1 N-Quads</a>
-     */
-    NQUADS,
-
-    /**
-     * JSON-LD.
-     *
-     * @see <a href="https://www.w3.org/TR/json-ld/">JSON-LD 1.1</a>
-     */
-    JSONLD;
-
+    @Test
+    void checkSolidWrappedException() {
+        final Throwable upstream = new IllegalArgumentException("Bad input");
+        final String msg = "Invalid input";
+        final SolidResourceException err = new SolidResourceException(msg, upstream);
+        assertEquals(upstream, err.getCause());
+        assertEquals(msg, err.getMessage());
+    }
 }
