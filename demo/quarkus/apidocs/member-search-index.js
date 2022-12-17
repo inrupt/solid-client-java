@@ -1,1 +1,1 @@
-memberSearchIndex = [{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"solid()"},{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"SolidResource()","url":"%3Cinit%3E()"}]
+memberSearchIndex = [{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"getPrincipalType(Collection<URI>)","url":"getPrincipalType(java.util.Collection)"},{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"solid()"},{"p":"com.inrupt.client.demo.quarkus","c":"SolidResource","l":"SolidResource()","url":"%3Cinit%3E()"}]

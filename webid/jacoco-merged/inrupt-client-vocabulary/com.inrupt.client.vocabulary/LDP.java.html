@@ -50,6 +50,15 @@ public final class LDP {
      * The ldp:BasicContainer URI.
      */
 <span class="nc" id="L52">    public static final URI BasicContainer = URI.create(namespace + &quot;BasicContainer&quot;);</span>
+    /**
+     * The ldp:NonRDFSource URI.
+     */
+<span class="nc" id="L56">    public static final URI NonRDFSource = URI.create(namespace + &quot;NonRDFSource&quot;);</span>
+    /**
+     * The ldp:Resource URI.
+     */
+<span class="nc" id="L60">    public static final URI Resource = URI.create(namespace + &quot;Resource&quot;);</span>
+
 
     /**
      * Get the LDP namespace URI.
@@ -57,7 +66,7 @@ public final class LDP {
      * @return the LDP namespace
      */
     public static URI getNamespace() {
-<span class="nc" id="L60">        return URI.create(namespace);</span>
+<span class="nc" id="L69">        return URI.create(namespace);</span>
     }
 
     private LDP() {

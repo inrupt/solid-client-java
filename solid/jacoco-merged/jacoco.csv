@@ -30,7 +30,7 @@ Inrupt Client Libraries - Solid/inrupt-client-vocabulary,com.inrupt.client.vocab
 Inrupt Client Libraries - Solid/inrupt-client-vocabulary,com.inrupt.client.vocabulary,PIM,3,7,0,0,1,2,1,1,1,1
 Inrupt Client Libraries - Solid/inrupt-client-vocabulary,com.inrupt.client.vocabulary,RDF,3,7,0,0,1,2,1,1,1,1
 Inrupt Client Libraries - Solid/inrupt-client-vocabulary,com.inrupt.client.vocabulary,Solid,10,0,0,0,3,0,2,0,2,0
-Inrupt Client Libraries - Solid/inrupt-client-vocabulary,com.inrupt.client.vocabulary,LDP,3,19,0,0,1,5,1,1,1,1
+Inrupt Client Libraries - Solid/inrupt-client-vocabulary,com.inrupt.client.vocabulary,LDP,3,27,0,0,1,7,1,1,1,1
 Inrupt Client Libraries - Solid/inrupt-client-core,com.inrupt.client.core,DefaultHeaderParser.Util,0,18,1,3,0,3,1,2,0,1
 Inrupt Client Libraries - Solid/inrupt-client-core,com.inrupt.client.core,DefaultClient.Builder,12,12,1,1,3,3,2,2,1,2
 Inrupt Client Libraries - Solid/inrupt-client-core,com.inrupt.client.core,DefaultDpopService.DPoPManager,30,105,4,4,5,25,3,4,0,3
