@@ -20,14 +20,11 @@
  */
 package com.inrupt.client.demo.quarkus;
 
-import static org.apache.jena.rdf.model.ResourceFactory.createResource;
-import static org.apache.jena.vocabulary.RDF.type;
-
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
-import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
@@ -36,7 +33,9 @@ import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -74,22 +73,24 @@ public class SolidResource {
             final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
 
             return profile.getStorage().stream().findFirst().map(storage -> Request.newBuilder(storage).build())
-                .map(request -> session.send(request, JenaBodyHandlers.ofModel()).body())
+                .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer()).body())
                 .map(model -> {
-                    final var containers = model
-                        .listSubjectsWithProperty(type, createResource(LDP.BasicContainer.toString()))
-                        .filterKeep(s -> s.isURIResource())
-                        .mapWith(s -> s.getURI())
-                        .toList();
-
-                    final var resources = model
-                        .listSubjectsWithProperty(type, createResource(LDP.RDFSource.toString()))
-                        .filterKeep(s -> s.isURIResource())
-                        .mapWith(s -> s.getURI())
-                        .toList();
-
-                    return Templates.profile(profile, containers, resources);
+                    final var resources = model.getContainedResources()
+                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getType()),
+                                    Collectors.mapping(c -> c.getId().toString(), Collectors.toList())));
+                    return Templates.profile(profile, resources.get(LDP.BasicContainer), resources.get(LDP.RDFSource));
                 });
         }).orElseGet(() -> Templates.profile(null, List.of(), List.of()));
+    }
+
+    public URI getPrincipalType(final Collection<URI> types) {
+        if (types.contains(LDP.BasicContainer)) {
+            return LDP.BasicContainer;
+        } else if (types.contains(LDP.RDFSource)) {
+            return LDP.RDFSource;
+        } else if (types.contains(LDP.NonRDFSource)) {
+            return LDP.NonRDFSource;
+        }
+        return LDP.Resource;
     }
 }
