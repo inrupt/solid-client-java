@@ -33,6 +33,7 @@ import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,11 +76,21 @@ public class SolidResource {
                 .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer()).body())
                 .map(model -> {
                     final var resources = model.getContainedResources()
-                        .collect(Collectors.groupingBy(c -> c.getType().contains(LDP.BasicContainer),
+                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getType()),
                                     Collectors.mapping(c -> c.getId().toString(), Collectors.toList())));
-
-                    return Templates.profile(profile, resources.get(true), resources.get(true));
+                    return Templates.profile(profile, resources.get(LDP.BasicContainer), resources.get(LDP.RDFSource));
                 });
         }).orElseGet(() -> Templates.profile(null, List.of(), List.of()));
+    }
+
+    public URI getPrincipalType(final Collection<URI> types) {
+        if (types.contains(LDP.BasicContainer)) {
+            return LDP.BasicContainer;
+        } else if (types.contains(LDP.RDFSource)) {
+            return LDP.RDFSource;
+        } else if (types.contains(LDP.NonRDFSource)) {
+            return LDP.NonRDFSource;
+        }
+        return LDP.Resource;
     }
 }
