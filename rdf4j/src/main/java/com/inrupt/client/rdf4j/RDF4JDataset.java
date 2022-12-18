@@ -32,6 +32,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
@@ -42,6 +43,8 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
  * The RDF4J implementation of a {@link Dataset}.
  */
 class RDF4JDataset implements Dataset {
+
+    private static final ValueFactory VF = SimpleValueFactory.getInstance();
 
     private final Repository repository;
 
@@ -101,6 +104,22 @@ class RDF4JDataset implements Dataset {
         }
     }
 
+    @Override
+    public void add(final Quad quad) {
+        try (final RepositoryConnection conn = repository.getConnection()) {
+            if (quad.getGraphName().isPresent()) {
+                conn.add(VF.createStatement(RDF4JUtils.fromSubject(quad.getSubject()),
+                            RDF4JUtils.fromPredicate(quad.getPredicate()),
+                            RDF4JUtils.fromObject(quad.getObject()),
+                            RDF4JUtils.fromSubject(quad.getGraphName().get())));
+            } else {
+                conn.add(VF.createStatement(RDF4JUtils.fromSubject(quad.getSubject()),
+                            RDF4JUtils.fromPredicate(quad.getPredicate()),
+                            RDF4JUtils.fromObject(quad.getObject())));
+            }
+        }
+    }
+
     /**
      * Retrieve the RDF4J context from a RDFNode graph.
      *
@@ -115,7 +134,7 @@ class RDF4JDataset implements Dataset {
                 }
                 if (graph.get().isNamedNode()) {
                     return new Resource[] {
-                        SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString())
+                        VF.createIRI(graph.get().getURI().toString())
                     };
                 }
                 if (graph.get().isBlankNode()) {

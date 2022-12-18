@@ -22,7 +22,10 @@ package com.inrupt.client.jena;
 
 import com.inrupt.client.rdf.Dataset;
 import com.inrupt.client.rdf.Graph;
+import com.inrupt.client.rdf.Quad;
+import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.rdf.Syntax;
+import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
 
 import java.io.IOException;
@@ -105,6 +108,36 @@ public class JenaService implements RdfService {
         }
 
         return new JenaGraph(model);
+    }
+
+    @Override
+    public Dataset createDataset() {
+        final var dataset = DatasetFactory.create();
+        return new JenaDataset(dataset.asDatasetGraph());
+    }
+
+    @Override
+    public Graph createGraph() {
+        final var model = ModelFactory.createDefaultModel();
+        return new JenaGraph(model);
+    }
+
+    @Override
+    public Triple createTriple(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+        final var triple = org.apache.jena.graph.Triple.create(JenaUtils.toNode(subject),
+                JenaUtils.toNode(predicate), JenaUtils.toNode(object));
+        return new JenaTriple(triple);
+    }
+
+    @Override
+    public Quad createQuad(final RDFNode subject, final RDFNode predicate, final RDFNode object,
+            final RDFNode graphName) {
+        if (graphName != null) {
+            return new JenaQuad(org.apache.jena.sparql.core.Quad.create(JenaUtils.toNode(graphName),
+                        JenaUtils.toNode(subject), JenaUtils.toNode(predicate), JenaUtils.toNode(object)));
+        }
+        return new JenaQuad(org.apache.jena.sparql.core.Quad.create(null, JenaUtils.toNode(subject),
+                    JenaUtils.toNode(predicate), JenaUtils.toNode(object)));
     }
 }
 

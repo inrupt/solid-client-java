@@ -18,41 +18,42 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.rdf;
+package com.inrupt.client.jena;
 
-import java.util.Optional;
-import java.util.stream.Stream;
+import com.inrupt.client.rdf.RDFNode;
 
-/**
- * A simple RDF dataset abstraction.
- */
-public interface Dataset {
+import java.net.URI;
 
-    /**
-     * Stream all matched quads.
-     *
-     * <p>Using {@code null} acts as a wildcard.
-     *
-     * @param graph the graph name. May be {@code null}
-     * @param subject the subject node. May be {@code null}
-     * @param predicate the predicate node. May be {@code null}
-     * @param object the object node. May be {@code null}
-     * @return a stream of matched quads
-     */
-    Stream<Quad> stream(Optional<RDFNode> graph, RDFNode subject, RDFNode predicate, RDFNode object);
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 
-    /**
-     * Stream all quads from the dataset.
-     *
-     * @return a stream of all quads
-     */
-    Stream<Quad> stream();
+final class JenaUtils {
 
-    /**
-     * Add a new quad to the dataset.
-     *
-     * @param quad the quad
-     */
-    void add(Quad quad);
+    static Node toNode(final RDFNode node) {
+        if (node.isNamedNode()) {
+            return NodeFactory.createURI(node.getURI().toString());
+        } else if (node.isLiteral()) {
+            final String lang = node.getLanguage();
+            if (lang != null) {
+                return NodeFactory.createLiteral(node.getLiteral(), lang);
+            }
 
+            final URI datatype = node.getDatatype();
+            if (datatype != null) {
+                return NodeFactory.createLiteral(node.getLiteral(),
+                        NodeFactory.getType(datatype.toString()));
+            }
+
+            return NodeFactory.createLiteral(node.getLiteral());
+        }
+
+        final String label = node.getNodeId();
+        if (label != null) {
+            return NodeFactory.createBlankNode(label);
+        }
+        return NodeFactory.createBlankNode();
+    }
+
+    private JenaUtils() {
+    }
 }

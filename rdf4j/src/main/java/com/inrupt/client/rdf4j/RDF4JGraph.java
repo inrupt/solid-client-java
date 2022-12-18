@@ -86,6 +86,12 @@ class RDF4JGraph implements Graph {
         return model.filter(null, null, null).stream().map(Values::triple).map(RDF4JTriple::new);
     }
 
+    @Override
+    public void add(final Triple triple) {
+        model.add(getSubject(triple.getSubject()), getPredicate(triple.getPredicate()),
+                getObject(triple.getObject()));
+    }
+
     /**
      * Retrieve the RDF4J subject from a RDFNode subject.
      *

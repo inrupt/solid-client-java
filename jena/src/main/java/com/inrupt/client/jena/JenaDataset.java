@@ -93,6 +93,14 @@ class JenaDataset implements Dataset {
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
+    @Override
+    public void add(final Quad quad) {
+        dataset.add(getGraphName(quad.getGraphName()),
+                JenaGraph.getSubject(quad.getSubject()),
+                JenaGraph.getPredicate(quad.getPredicate()),
+                JenaGraph.getObject(quad.getObject()));
+    }
+
     /**
      * Retrieve the Jena graph node from a RDFNode graph.
      *

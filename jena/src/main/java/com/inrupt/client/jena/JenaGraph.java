@@ -88,6 +88,12 @@ class JenaGraph implements Graph {
         return Iter.asStream(iter).map(JenaTriple::new);
     }
 
+    @Override
+    public void add(final Triple triple) {
+        model.getGraph().add(JenaUtils.toNode(triple.getSubject()), JenaUtils.toNode(triple.getPredicate()),
+                JenaUtils.toNode(triple.getObject()));
+    }
+
     /**
      * Retrieve the Jena subject from a RDFNode subject.
      *

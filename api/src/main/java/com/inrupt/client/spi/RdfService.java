@@ -22,7 +22,10 @@ package com.inrupt.client.spi;
 
 import com.inrupt.client.rdf.Dataset;
 import com.inrupt.client.rdf.Graph;
+import com.inrupt.client.rdf.Quad;
+import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.rdf.Syntax;
+import com.inrupt.client.rdf.Triple;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -98,4 +101,39 @@ public interface RdfService {
     default Graph toGraph(Syntax syntax, InputStream input) throws IOException {
         return toGraph(syntax, input, null);
     }
+
+    /**
+     * Create a new, empty dataset.
+     *
+     * @return a dataset
+     */
+    Dataset createDataset();
+
+    /**
+     * Create a new, empty graph.
+     *
+     * @return a graph
+     */
+    Graph createGraph();
+
+    /**
+     * Create a triple.
+     *
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     * @return the triple
+     */
+    Triple createTriple(RDFNode subject, RDFNode predicate, RDFNode object);
+
+    /**
+     * Create a quad.
+     *
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     * @param graphName the graph name
+     * @return the quad
+     */
+    Quad createQuad(RDFNode subject, RDFNode predicate, RDFNode object, RDFNode graphName);
 }

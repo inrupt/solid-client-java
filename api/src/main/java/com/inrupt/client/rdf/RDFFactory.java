@@ -20,39 +20,31 @@
  */
 package com.inrupt.client.rdf;
 
-import java.util.Optional;
-import java.util.stream.Stream;
+import com.inrupt.client.spi.RdfService;
+import com.inrupt.client.spi.ServiceProvider;
 
-/**
- * A simple RDF dataset abstraction.
- */
-public interface Dataset {
+public final class RDFFactory {
 
-    /**
-     * Stream all matched quads.
-     *
-     * <p>Using {@code null} acts as a wildcard.
-     *
-     * @param graph the graph name. May be {@code null}
-     * @param subject the subject node. May be {@code null}
-     * @param predicate the predicate node. May be {@code null}
-     * @param object the object node. May be {@code null}
-     * @return a stream of matched quads
-     */
-    Stream<Quad> stream(Optional<RDFNode> graph, RDFNode subject, RDFNode predicate, RDFNode object);
+    private static final RdfService service = ServiceProvider.getRdfService();
 
-    /**
-     * Stream all quads from the dataset.
-     *
-     * @return a stream of all quads
-     */
-    Stream<Quad> stream();
+    public static Dataset createDataset() {
+        return service.createDataset();
+    }
 
-    /**
-     * Add a new quad to the dataset.
-     *
-     * @param quad the quad
-     */
-    void add(Quad quad);
+    public static Graph createGraph() {
+        return service.createGraph();
+    }
 
+    public static Triple createTriple(final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+        return service.createTriple(subject, predicate, object);
+    }
+
+    public static Quad createQuad(final RDFNode subject, final RDFNode predicate,
+            final RDFNode object, final RDFNode graph) {
+        return service.createQuad(subject, predicate, object, graph);
+    }
+
+    private RDFFactory() {
+    }
 }

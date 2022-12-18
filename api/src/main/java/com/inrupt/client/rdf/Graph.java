@@ -46,4 +46,10 @@ public interface Graph {
      */
     Stream<Triple> stream();
 
+    /**
+     * Add a triple to the graph.
+     *
+     * @param triple the triple
+     */
+    void add(Triple triple);
 }
