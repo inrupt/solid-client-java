@@ -28,7 +28,7 @@ import java.net.URI;
 /**
  * The Jena implementation of a {@link Triple}.
  */
-class JenaTriple implements Triple {
+public class JenaTriple implements Triple {
 
     private final org.apache.jena.graph.Triple triple;
 

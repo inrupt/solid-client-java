@@ -90,6 +90,7 @@
     <module>test</module>
     <module>uma</module>
     <module>webid</module>
+    <module>webid-jena</module>
     <module>vocabulary</module>
     <module>vc</module>
   </modules>

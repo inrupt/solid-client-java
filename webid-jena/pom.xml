@@ -7,10 +7,10 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-jena</artifactId>
-  <name>Inrupt Client Libraries - Jena</name>
+  <artifactId>inrupt-client-webid-jena</artifactId>
+  <name>Inrupt Client Libraries - Jena WebID</name>
   <description>
-      Jena integration for the Inrupt Client Libraries.
+    Jena WebID Profile integration for the Inrupt Client Libraries.
   </description>
 
   <dependencies>
@@ -20,20 +20,25 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>jena-arq</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.protobuf</groupId>
-          <artifactId>protobuf-java</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-jena</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-vocabulary</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- test dependencies -->
     <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-test</artifactId>
+      <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -44,28 +49,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-rdf4j</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -85,6 +76,10 @@
         <configuration>
           <systemPropertyVariables></systemPropertyVariables>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
