@@ -82,23 +82,21 @@ class JenaDataset implements Dataset {
         return Iter.asStream(iter).map(JenaQuad::new);
     }
 
-    /**
-     * Return a sequential stream of Quads with this JenaDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Quad}
-     */
-    @Override
-    public Stream<Quad> stream() {
-        final var iter = dataset.find();
-        return Iter.asStream(iter).map(JenaQuad::new);
-    }
-
     @Override
     public void add(final Quad quad) {
         dataset.add(getGraphName(quad.getGraphName()),
                 JenaGraph.getSubject(quad.getSubject()),
                 JenaGraph.getPredicate(quad.getPredicate()),
                 JenaGraph.getObject(quad.getObject()));
+    }
+
+    @Override
+    public void remove(final Optional<RDFNode> graphName, final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+        dataset.delete(getGraphName(graphName),
+                JenaGraph.getSubject(subject),
+                JenaGraph.getPredicate(predicate),
+                JenaGraph.getObject(object));
     }
 
     /**

@@ -44,7 +44,9 @@ public interface Graph {
      *
      * @return a stream of all triples
      */
-    Stream<Triple> stream();
+    default Stream<Triple> stream() {
+        return stream(null, null, null);
+    }
 
     /**
      * Add a triple to the graph.
@@ -52,4 +54,22 @@ public interface Graph {
      * @param triple the triple
      */
     void add(Triple triple);
+
+    /**
+     * Remove a triple from the graph.
+     *
+     * @param triple the triple
+     */
+    default void remove(final Triple triple) {
+        remove(triple.getSubject(), triple.getPredicate(), triple.getObject());
+    }
+
+    /**
+     * Remove a pattern of triples from the graph.
+     *
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     */
+    void remove(RDFNode subject, RDFNode predicate, RDFNode object);
 }

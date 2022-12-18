@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
@@ -89,21 +88,6 @@ class RDF4JDataset implements Dataset {
         }
     }
 
-    /**
-     * Return a sequential stream of Quads with this RDF4JDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Quad}
-     */
-    @Override
-    public Stream<Quad> stream() {
-        try (final RepositoryConnection conn = repository.getConnection()) {
-            try (final RepositoryResult<Statement> statements = conn.getStatements(null, null, null)) {
-                final Model model = QueryResults.asModel(statements);
-                return model.stream().map(RDF4JQuad::new);
-            }
-        }
-    }
-
     @Override
     public void add(final Quad quad) {
         try (final RepositoryConnection conn = repository.getConnection()) {
@@ -117,6 +101,16 @@ class RDF4JDataset implements Dataset {
                             RDF4JUtils.fromPredicate(quad.getPredicate()),
                             RDF4JUtils.fromObject(quad.getObject())));
             }
+        }
+    }
+
+    @Override
+    public void remove(final Optional<RDFNode> graphName, final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+        try (final RepositoryConnection conn = repository.getConnection()) {
+            conn.remove(RDF4JUtils.fromSubject(subject), RDF4JUtils.fromPredicate(predicate),
+                    RDF4JUtils.fromObject(object),
+                    getContexts(graphName));
         }
     }
 

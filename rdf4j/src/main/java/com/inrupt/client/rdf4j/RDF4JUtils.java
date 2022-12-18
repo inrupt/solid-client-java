@@ -36,47 +36,56 @@ final class RDF4JUtils {
     private static final ValueFactory VF = SimpleValueFactory.getInstance();
 
     public static IRI fromPredicate(final RDFNode predicate) {
-        if (predicate.isNamedNode()) {
-            return VF.createIRI(predicate.getURI().toString());
+        if (predicate != null) {
+            if (predicate.isNamedNode()) {
+                return VF.createIRI(predicate.getURI().toString());
+            }
+            throw new InruptClientException("Invalid predicate");
         }
-        throw new InruptClientException("Invalid predicate");
+        return null;
     }
 
     public static Resource fromSubject(final RDFNode subject) {
-        if (subject.isNamedNode()) {
-            return VF.createIRI(subject.getURI().toString());
-        } else if (subject.isBlankNode()) {
-            final String nodeId = subject.getNodeId();
+        if (subject != null) {
+            if (subject.isNamedNode()) {
+                return VF.createIRI(subject.getURI().toString());
+            } else if (subject.isBlankNode()) {
+                final String nodeId = subject.getNodeId();
+                if (nodeId == null) {
+                    return VF.createBNode();
+                }
+                return VF.createBNode(nodeId);
+            }
+            throw new InruptClientException("Invalid subject");
+        }
+        return null;
+    }
+
+    public static Value fromObject(final RDFNode object) {
+        if (object != null) {
+            if (object.isNamedNode()) {
+                return VF.createIRI(object.getURI().toString());
+            } else if (object.isLiteral()) {
+                final URI datatype = object.getDatatype();
+                if (datatype != null) {
+                    return VF.createLiteral(object.getLiteral(), VF.createIRI(datatype.toString()));
+                }
+
+                final String lang = object.getLanguage();
+                if (lang != null) {
+                    return VF.createLiteral(object.getLiteral(), lang);
+                }
+
+                return VF.createLiteral(object.getLiteral());
+            }
+
+            final String nodeId = object.getNodeId();
             if (nodeId == null) {
                 return VF.createBNode();
             }
             return VF.createBNode(nodeId);
         }
-        throw new InruptClientException("Invalid subject");
-    }
-
-    public static Value fromObject(final RDFNode object) {
-        if (object.isNamedNode()) {
-            return VF.createIRI(object.getURI().toString());
-        } else if (object.isLiteral()) {
-            final URI datatype = object.getDatatype();
-            if (datatype != null) {
-                return VF.createLiteral(object.getLiteral(), VF.createIRI(datatype.toString()));
-            }
-
-            final String lang = object.getLanguage();
-            if (lang != null) {
-                return VF.createLiteral(object.getLiteral(), lang);
-            }
-
-            return VF.createLiteral(object.getLiteral());
-        }
-
-        final String nodeId = object.getNodeId();
-        if (nodeId == null) {
-            return VF.createBNode();
-        }
-        return VF.createBNode(nodeId);
+        return null;
     }
 
     private RDF4JUtils() {

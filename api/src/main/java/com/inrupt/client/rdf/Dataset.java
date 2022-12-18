@@ -46,7 +46,9 @@ public interface Dataset {
      *
      * @return a stream of all quads
      */
-    Stream<Quad> stream();
+    default Stream<Quad> stream() {
+        return stream(null, null, null, null);
+    }
 
     /**
      * Add a new quad to the dataset.
@@ -55,4 +57,22 @@ public interface Dataset {
      */
     void add(Quad quad);
 
+    /**
+     * Remove a quad from the dataset.
+     *
+     * @param quad the quad
+     */
+    default void remove(final Quad quad) {
+        remove(quad.getGraphName(), quad.getSubject(), quad.getPredicate(), quad.getSubject());
+    }
+
+    /**
+     * Remove a pattern of quads from the dataset.
+     *
+     * @param graphName the name of the graph
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     */
+    void remove(Optional<RDFNode> graphName, RDFNode subject, RDFNode predicate, RDFNode object);
 }

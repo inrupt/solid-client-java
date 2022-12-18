@@ -76,20 +76,15 @@ class RDF4JGraph implements Graph {
         return model.filter(s, p, o).stream().map(Values::triple).map(RDF4JTriple::new);
     }
 
-    /**
-     * Return a sequential stream of Triples with this RDF4JDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Triple}s
-     */
-    @Override
-    public Stream<Triple> stream() {
-        return model.filter(null, null, null).stream().map(Values::triple).map(RDF4JTriple::new);
-    }
-
     @Override
     public void add(final Triple triple) {
         model.add(getSubject(triple.getSubject()), getPredicate(triple.getPredicate()),
                 getObject(triple.getObject()));
+    }
+
+    @Override
+    public void remove(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+        model.remove(getSubject(subject), getPredicate(predicate), getObject(object));
     }
 
     /**

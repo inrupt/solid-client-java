@@ -77,21 +77,16 @@ class JenaGraph implements Graph {
         return Iter.asStream(iter).map(JenaTriple::new);
     }
 
-    /**
-     * Return a sequential stream of Triples with this JenaDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Triple}s
-     */
-    @Override
-    public Stream<Triple> stream() {
-        final var iter = model.getGraph().find();
-        return Iter.asStream(iter).map(JenaTriple::new);
-    }
-
     @Override
     public void add(final Triple triple) {
         model.getGraph().add(JenaUtils.toNode(triple.getSubject()), JenaUtils.toNode(triple.getPredicate()),
                 JenaUtils.toNode(triple.getObject()));
+    }
+
+    @Override
+    public void remove(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+        model.getGraph().delete(JenaUtils.toNode(subject), JenaUtils.toNode(predicate),
+                JenaUtils.toNode(object));
     }
 
     /**
