@@ -76,8 +76,8 @@ public class SolidResource {
                 .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer()).body())
                 .map(model -> {
                     final var resources = model.getContainedResources()
-                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getType()),
-                                    Collectors.mapping(c -> c.getId().toString(), Collectors.toList())));
+                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getMetadata().getType()),
+                                    Collectors.mapping(c -> c.getIdentifier().toString(), Collectors.toList())));
                     return Templates.profile(profile, resources.get(LDP.BasicContainer), resources.get(LDP.RDFSource));
                 });
         }).orElseGet(() -> Templates.profile(null, List.of(), List.of()));
