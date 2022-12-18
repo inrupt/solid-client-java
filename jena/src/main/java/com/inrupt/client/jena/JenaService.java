@@ -59,15 +59,26 @@ public class JenaService implements RdfService {
     public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         try {
-            if (SUPPORTS_QUADS.contains(syntax)) {
-                RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+            if (dataset instanceof JenaDataset) {
+                if (SUPPORTS_QUADS.contains(syntax)) {
+                    RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+                } else {
+                    // Collapse all statements into a single union model
+                    final var jds = ((JenaDataset) dataset).asJenaDatasetGraph();
+                    final var union = ModelFactory.createUnion(
+                            ModelFactory.createModelForGraph(jds.getDefaultGraph()),
+                            ModelFactory.createModelForGraph(jds.getUnionGraph()));
+                    RDFDataMgr.write(output, union, lang);
+                }
             } else {
-                // Collapse all statements into a single union model
-                final var jds = ((JenaDataset) dataset).asJenaDatasetGraph();
-                final var union = ModelFactory.createUnion(
-                        ModelFactory.createModelForGraph(jds.getDefaultGraph()),
-                        ModelFactory.createModelForGraph(jds.getUnionGraph()));
-                RDFDataMgr.write(output, union, lang);
+                final var ds = DatasetFactory.create();
+                dataset.stream().forEach(quad -> {
+                    ds.asDatasetGraph().add(quad.getGraphName().map(JenaUtils::toNode).orElse(null),
+                            JenaUtils.toNode(quad.getSubject()),
+                            JenaUtils.toNode(quad.getPredicate()),
+                            JenaUtils.toNode(quad.getObject()));
+                });
+                RDFDataMgr.write(output, ds, lang);
             }
         } catch (final RiotException ex) {
             throw new IOException("Error serializing dataset", ex);
@@ -78,7 +89,16 @@ public class JenaService implements RdfService {
     public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         try {
-            RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
+            if (graph instanceof JenaGraph) {
+                RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
+            } else {
+                final var model = ModelFactory.createDefaultModel();
+                graph.stream().forEach(triple ->
+                    model.getGraph().add(JenaUtils.toNode(triple.getSubject()),
+                            JenaUtils.toNode(triple.getPredicate()),
+                            JenaUtils.toNode(triple.getObject())));
+                RDFDataMgr.write(output, model, lang);
+            }
         } catch (final RiotException ex) {
             throw new IOException("Error serializing graph", ex);
         }
