@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 public class RdfServices {
 
@@ -172,55 +174,75 @@ public class RdfServices {
         assertEquals(0, dataset.stream().count());
     }
 
-    @Test
-    void testRoundTripDataset() throws IOException {
+    @ParameterizedTest
+    @EnumSource(value = Syntax.class, names = {"TRIG", "NQUADS"})
+    void testRoundTripDataset(final Syntax syntax) throws IOException {
+        final RDFNode bnode = RDFNode.blankNode("testing");
         final RDFNode g1 = RDFNode.namedNode(URI.create("https://graph.example/1"));
         final RDFNode s1 = RDFNode.namedNode(URI.create("https://storage.example/1"));
-        final RDFNode s2 = RDFNode.blankNode("testing");
+        final RDFNode s2 = bnode;
+        final RDFNode s3 = RDFNode.namedNode(URI.create("https://storage.example/3"));
         final RDFNode p1 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/title"));
         final RDFNode p2 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/subject"));
+        final RDFNode p3 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/relation"));
         final RDFNode o1 = RDFNode.literal("My title", "en");
         final RDFNode o2 = RDFNode.namedNode(URI.create("https://vocab.example/Sub2"));
+        final RDFNode o3 = bnode;
+
         final Dataset dataset = new SimpleDataset();
         dataset.add(RDFFactory.createQuad(s1, p1, o1, g1));
         dataset.add(RDFFactory.createQuad(s2, p2, o2));
+        dataset.add(RDFFactory.createQuad(s3, p3, o3));
 
-        assertEquals(2, dataset.stream().count());
+        assertEquals(3, dataset.stream().count());
         assertEquals(1, dataset.stream(Optional.of(g1), s1, p1, o1).count());
         assertEquals(1, dataset.stream(Optional.empty(), s2, p2, o2).count());
+        assertEquals(1, dataset.stream(Optional.empty(), s3, p3, o3).count());
+        assertEquals(2, dataset.stream(Optional.empty(), null, null, null).count());
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        rdfService.fromDataset(dataset, Syntax.NQUADS, out);
+        rdfService.fromDataset(dataset, syntax, out);
 
-        final Dataset dataset2 = rdfService.toDataset(Syntax.NQUADS, new ByteArrayInputStream(out.toByteArray()));
-        assertEquals(2, dataset2.stream().count());
+        final Dataset dataset2 = rdfService.toDataset(syntax, new ByteArrayInputStream(out.toByteArray()));
+        assertEquals(3, dataset2.stream().count());
         assertEquals(1, dataset2.stream(Optional.of(g1), s1, p1, o1).count());
         assertEquals(1, dataset2.stream(Optional.empty(), null, p2, o2).count());
+        assertEquals(1, dataset2.stream(Optional.empty(), s3, p3, null).count());
+        assertEquals(2, dataset2.stream(Optional.empty(), null, null, null).count());
     }
 
-    @Test
-    void testRoundTripGraph() throws IOException {
+    @ParameterizedTest
+    @EnumSource(value = Syntax.class, names = {"TURTLE", "TRIG", "NTRIPLES", "NQUADS"})
+    void testRoundTripGraph(final Syntax syntax) throws IOException {
+        final RDFNode bnode = RDFNode.blankNode();
         final RDFNode s1 = RDFNode.namedNode(URI.create("https://storage.example/1"));
-        final RDFNode s2 = RDFNode.blankNode();
+        final RDFNode s2 = bnode;
+        final RDFNode s3 = RDFNode.namedNode(URI.create("https://storage.example/3"));
         final RDFNode p1 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/title"));
         final RDFNode p2 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/subject"));
+        final RDFNode p3 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/relation"));
         final RDFNode o1 = RDFNode.literal("My title", "en");
         final RDFNode o2 = RDFNode.namedNode(URI.create("https://vocab.example/Sub2"));
+        final RDFNode o3 = bnode;
+
         final Graph graph = new SimpleGraph();
         graph.add(RDFFactory.createTriple(s1, p1, o1));
         graph.add(RDFFactory.createTriple(s2, p2, o2));
+        graph.add(RDFFactory.createTriple(s3, p3, o3));
 
-        assertEquals(2, graph.stream().count());
+        assertEquals(3, graph.stream().count());
         assertEquals(1, graph.stream(s1, p1, o1).count());
         assertEquals(1, graph.stream(s2, p2, o2).count());
+        assertEquals(1, graph.stream(s3, p3, o3).count());
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        rdfService.fromGraph(graph, Syntax.TURTLE, out);
+        rdfService.fromGraph(graph, syntax, out);
 
-        final Graph graph2 = rdfService.toGraph(Syntax.TURTLE, new ByteArrayInputStream(out.toByteArray()));
-        assertEquals(2, graph2.stream().count());
+        final Graph graph2 = rdfService.toGraph(syntax, new ByteArrayInputStream(out.toByteArray()));
+        assertEquals(3, graph2.stream().count());
         assertEquals(1, graph2.stream(s1, p1, o1).count());
         assertEquals(1, graph2.stream(null, p2, o2).count());
+        assertEquals(1, graph2.stream(s3, p3, null).count());
     }
 
     static class SimpleDataset implements Dataset {
