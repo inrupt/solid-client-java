@@ -39,6 +39,13 @@ class RDFNodeTest {
     }
 
     @Test
+    void testBlankNodes() {
+        assertNotEquals(RDFNode.blankNode(), RDFNode.blankNode());
+        assertEquals(RDFNode.blankNode("label"), RDFNode.blankNode("label"));
+        assertNotEquals(RDFNode.blankNode(), RDFNode.blankNode("label"));
+    }
+
+    @Test
     void testEquality() {
         EqualsVerifier.forClass(RDFNode.class).verify();
     }

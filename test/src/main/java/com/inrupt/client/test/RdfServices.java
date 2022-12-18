@@ -176,7 +176,7 @@ public class RdfServices {
     void testRoundTripDataset() throws IOException {
         final RDFNode g1 = RDFNode.namedNode(URI.create("https://graph.example/1"));
         final RDFNode s1 = RDFNode.namedNode(URI.create("https://storage.example/1"));
-        final RDFNode s2 = RDFNode.namedNode(URI.create("https://storage.example/2"));
+        final RDFNode s2 = RDFNode.blankNode("testing");
         final RDFNode p1 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/title"));
         final RDFNode p2 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/subject"));
         final RDFNode o1 = RDFNode.literal("My title", "en");
@@ -195,13 +195,13 @@ public class RdfServices {
         final Dataset dataset2 = rdfService.toDataset(Syntax.NQUADS, new ByteArrayInputStream(out.toByteArray()));
         assertEquals(2, dataset2.stream().count());
         assertEquals(1, dataset2.stream(Optional.of(g1), s1, p1, o1).count());
-        assertEquals(1, dataset2.stream(Optional.empty(), s2, p2, o2).count());
+        assertEquals(1, dataset2.stream(Optional.empty(), null, p2, o2).count());
     }
 
     @Test
     void testRoundTripGraph() throws IOException {
         final RDFNode s1 = RDFNode.namedNode(URI.create("https://storage.example/1"));
-        final RDFNode s2 = RDFNode.namedNode(URI.create("https://storage.example/2"));
+        final RDFNode s2 = RDFNode.blankNode();
         final RDFNode p1 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/title"));
         final RDFNode p2 = RDFNode.namedNode(URI.create("http://purl.org/dc/terms/subject"));
         final RDFNode o1 = RDFNode.literal("My title", "en");
@@ -220,7 +220,7 @@ public class RdfServices {
         final Graph graph2 = rdfService.toGraph(Syntax.TURTLE, new ByteArrayInputStream(out.toByteArray()));
         assertEquals(2, graph2.stream().count());
         assertEquals(1, graph2.stream(s1, p1, o1).count());
-        assertEquals(1, graph2.stream(s2, p2, o2).count());
+        assertEquals(1, graph2.stream(null, p2, o2).count());
     }
 
     static class SimpleDataset implements Dataset {
