@@ -82,13 +82,12 @@ public class SolidClient {
     /**
      * Create a new Solid Resource.
      *
-     * @param identifier the identifier
      * @param resource the resource
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends SolidResource> CompletionStage<Response<Void>> create(final URI identifier, final T resource) {
-        final Request req = Request.newBuilder(identifier)
+    public <T extends SolidResource> CompletionStage<Response<Void>> create(final T resource) {
+        final Request req = Request.newBuilder(resource.getIdentifier())
             .header("Content-Type", "text/turtle")
             .header("If-None-Match", "*")
             .PUT(cast(resource))
@@ -100,13 +99,12 @@ public class SolidClient {
     /**
      * Update an existing Solid Resource.
      *
-     * @param identifier the identifier
      * @param resource the resource
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends SolidResource> CompletionStage<Response<Void>> update(final URI identifier, final T resource) {
-        final Request req = Request.newBuilder(identifier)
+    public <T extends SolidResource> CompletionStage<Response<Void>> update(final T resource) {
+        final Request req = Request.newBuilder(resource.getIdentifier())
             .header("Content-Type", "text/turtle")
             .PUT(cast(resource))
             .build();
@@ -117,11 +115,12 @@ public class SolidClient {
     /**
      * Delete an existing Solid Resource.
      *
-     * @param identifier the identifier
+     * @param resource the resource
+     * @param <T> the resource type
      * @return the next stage of completion
      */
-    public CompletionStage<Response<Void>> delete(final URI identifier) {
-        final Request req = Request.newBuilder(identifier)
+    public <T extends SolidResource> CompletionStage<Response<Void>> delete(final T resource) {
+        final Request req = Request.newBuilder(resource.getIdentifier())
             .DELETE()
             .build();
         return client.sendAsync(req, Response.BodyHandlers.discarding());

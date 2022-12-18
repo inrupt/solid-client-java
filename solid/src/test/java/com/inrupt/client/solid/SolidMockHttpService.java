@@ -79,22 +79,14 @@ public class SolidMockHttpService {
             )
         );
 
+        wireMockServer.stubFor(put(urlEqualTo("/playlist"))
+            .withHeader("Content-Type", containing("text/turtle"))
+            .withRequestBody(containing(
+                    "<https://library.test/12345/song1.mp3>"))
+            .willReturn(aResponse()
+                .withStatus(204)));
+
         wireMockServer.stubFor(delete(urlEqualTo("/playlist"))
-                .willReturn(aResponse()
-                    .withStatus(204)));
-
-        wireMockServer.stubFor(put(urlEqualTo("/playlistCreate"))
-                .withHeader("If-None-Match", equalTo("*"))
-                .withHeader("Content-Type", containing("text/turtle"))
-                .withRequestBody(containing(
-                        "<https://library.test/12345/song1.mp3>"))
-                .willReturn(aResponse()
-                    .withStatus(204)));
-
-        wireMockServer.stubFor(put(urlEqualTo("/playlistUpdate"))
-                .withHeader("Content-Type", containing("text/turtle"))
-                .withRequestBody(containing(
-                        "<https://library.test/12345/song1.mp3>"))
                 .willReturn(aResponse()
                     .withStatus(204)));
 

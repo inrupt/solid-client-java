@@ -66,16 +66,14 @@ class SolidClientTest {
         assertTrue(playlist.getSongs().contains(song1));
         assertTrue(playlist.getSongs().contains(song2));
 
-        assertDoesNotThrow(client.create(URI.create(uri + "Create"), playlist).toCompletableFuture()::join);
-        assertDoesNotThrow(client.update(URI.create(uri + "Update"), playlist).toCompletableFuture()::join);
-        assertDoesNotThrow(client.delete(uri).toCompletableFuture()::join);
+        assertDoesNotThrow(client.create(playlist).toCompletableFuture()::join);
+        assertDoesNotThrow(client.update(playlist).toCompletableFuture()::join);
+        assertDoesNotThrow(client.delete(playlist).toCompletableFuture()::join);
     }
 
     @Test
     void testGetResource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
-        final URI song1 = URI.create("https://library.test/12345/song1.mp3");
-        final URI song2 = URI.create("https://library.test/12345/song2.mp3");
 
         final SolidResource resource = client.read(uri, SolidResource.class).toCompletableFuture().join();
 
@@ -84,16 +82,14 @@ class SolidClientTest {
         assertEquals(2, resource.getDataset().stream(Optional.empty(), RDFNode.namedNode(uri),
                     RDFNode.namedNode(URI.create("https://example.com/song")), null).count());
 
-        assertDoesNotThrow(client.create(URI.create(uri + "Create"), resource).toCompletableFuture()::join);
-        assertDoesNotThrow(client.update(URI.create(uri + "Update"), resource).toCompletableFuture()::join);
-        assertDoesNotThrow(client.delete(uri).toCompletableFuture()::join);
+        assertDoesNotThrow(client.create(resource).toCompletableFuture()::join);
+        assertDoesNotThrow(client.update(resource).toCompletableFuture()::join);
+        assertDoesNotThrow(client.delete(resource).toCompletableFuture()::join);
     }
 
     @Test
     void testGetContainer() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
-        final URI song1 = URI.create("https://library.test/12345/song1.mp3");
-        final URI song2 = URI.create("https://library.test/12345/song2.mp3");
 
         final SolidContainer container = client.read(uri, SolidContainer.class).toCompletableFuture().join();
 
@@ -103,9 +99,9 @@ class SolidClientTest {
         assertEquals(2, container.getDataset().stream(Optional.empty(), RDFNode.namedNode(uri),
                     RDFNode.namedNode(URI.create("https://example.com/song")), null).count());
 
-        assertDoesNotThrow(client.create(URI.create(uri + "Create"), container).toCompletableFuture()::join);
-        assertDoesNotThrow(client.update(URI.create(uri + "Update"), container).toCompletableFuture()::join);
-        assertDoesNotThrow(client.delete(uri).toCompletableFuture()::join);
+        assertDoesNotThrow(client.update(container).toCompletableFuture()::join);
+        assertDoesNotThrow(client.create(container).toCompletableFuture()::join);
+        assertDoesNotThrow(client.delete(container).toCompletableFuture()::join);
     }
 
     @Test
@@ -116,6 +112,6 @@ class SolidClientTest {
         assertTrue(err1.getCause() instanceof SolidResourceException);
 
         final InvalidType type = new InvalidType(uri);
-        assertThrows(SolidResourceException.class, () -> client.update(uri, type));
+        assertThrows(SolidResourceException.class, () -> client.update(type));
     }
 }
