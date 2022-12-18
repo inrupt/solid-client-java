@@ -89,6 +89,8 @@ public class RDF4JService implements RdfService {
         }
     }
 
+
+
     @Override
     public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
         final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));

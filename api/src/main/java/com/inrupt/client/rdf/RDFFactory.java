@@ -62,6 +62,19 @@ public final class RDFFactory {
     }
 
     /**
+     * Create a quad in the default graph.
+     *
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     * @return the quad
+     */
+    public static Quad createQuad(final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+        return createQuad(subject, predicate, object, null);
+    }
+
+    /**
      * Create a quad.
      *
      * @param subject the subject

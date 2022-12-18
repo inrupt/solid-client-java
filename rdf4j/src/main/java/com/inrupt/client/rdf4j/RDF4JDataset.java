@@ -133,7 +133,7 @@ class RDF4JDataset implements Dataset {
                 }
                 if (graph.get().isBlankNode()) {
                     return new Resource[] {
-                        SimpleValueFactory.getInstance().createBNode(graph.get().getNodeId())
+                        VF.createBNode(graph.get().getNodeId())
                     };
                 }
             } else {

@@ -91,9 +91,17 @@ class JenaDataset implements Dataset {
     }
 
     @Override
+    public void remove(final Quad quad) {
+        dataset.delete(getGraphName(quad.getGraphName()),
+                JenaGraph.getSubject(quad.getSubject()),
+                JenaGraph.getPredicate(quad.getPredicate()),
+                JenaGraph.getObject(quad.getObject()));
+    }
+
+    @Override
     public void remove(final Optional<RDFNode> graphName, final RDFNode subject, final RDFNode predicate,
             final RDFNode object) {
-        dataset.delete(getGraphName(graphName),
+        dataset.deleteAny(getGraphName(graphName),
                 JenaGraph.getSubject(subject),
                 JenaGraph.getPredicate(predicate),
                 JenaGraph.getObject(object));

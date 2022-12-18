@@ -63,7 +63,7 @@ public interface Dataset {
      * @param quad the quad
      */
     default void remove(final Quad quad) {
-        remove(quad.getGraphName(), quad.getSubject(), quad.getPredicate(), quad.getSubject());
+        remove(quad.getGraphName(), quad.getSubject(), quad.getPredicate(), quad.getObject());
     }
 
     /**

@@ -85,8 +85,7 @@ class JenaGraph implements Graph {
 
     @Override
     public void remove(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
-        model.getGraph().delete(JenaUtils.toNode(subject), JenaUtils.toNode(predicate),
-                JenaUtils.toNode(object));
+        model.getGraph().remove(getSubject(subject), getPredicate(predicate), getObject(object));
     }
 
     /**
