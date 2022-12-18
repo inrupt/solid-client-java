@@ -23,23 +23,53 @@ package com.inrupt.client.rdf;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
+/**
+ * A class for creating RDF objects.
+ */
 public final class RDFFactory {
 
     private static final RdfService service = ServiceProvider.getRdfService();
 
+    /**
+     * Create an empty dataset.
+     *
+     * @return the dataset
+     */
     public static Dataset createDataset() {
         return service.createDataset();
     }
 
+    /**
+     * Create an empty graph.
+     *
+     * @return the graph
+     */
     public static Graph createGraph() {
         return service.createGraph();
     }
 
+    /**
+     * Create a triple.
+     *
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     * @return the triple
+     */
     public static Triple createTriple(final RDFNode subject, final RDFNode predicate,
             final RDFNode object) {
         return service.createTriple(subject, predicate, object);
     }
 
+    /**
+     * Create a quad.
+     *
+     * @param subject the subject
+     * @param predicate the predicate
+     * @param object the object
+     * @param graph the graph name, may be {@code null}
+     * @return the quad
+     */
     public static Quad createQuad(final RDFNode subject, final RDFNode predicate,
             final RDFNode object, final RDFNode graph) {
         return service.createQuad(subject, predicate, object, graph);

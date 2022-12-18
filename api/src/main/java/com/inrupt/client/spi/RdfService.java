@@ -132,7 +132,7 @@ public interface RdfService {
      * @param subject the subject
      * @param predicate the predicate
      * @param object the object
-     * @param graphName the graph name
+     * @param graphName the graph name, may be {@code null}
      * @return the quad
      */
     Quad createQuad(RDFNode subject, RDFNode predicate, RDFNode object, RDFNode graphName);
