@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.inrupt.client.Headers.Link;
 import com.inrupt.client.vocabulary.LDP;
+import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.Collections;
@@ -50,13 +51,50 @@ public class SolidMockHttpService {
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
                 .withHeader("Link", Link.of(URI.create("http://storage.example/"),
-                        "http://www.w3.org/ns/pim/space#storage").toString())
+                        PIM.storage).toString())
+                .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
                 .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
                 .withHeader("Allow", "POST, PUT, PATCH")
                 .withHeader("Accept-Post", "application/ld+json, text/turtle")
                 .withHeader("Accept-Put", "application/ld+json, text/turtle")
                 .withHeader("Accept-Patch", "application/sparql-update, text/n3")
                 .withBodyFile("solidResourceExample.ttl")
+            )
+        );
+
+        wireMockServer.stubFor(get(urlEqualTo("/playlist"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withHeader("Link", Link.of(LDP.RDFSource, "type").toString())
+                .withHeader("Link", Link.of(URI.create("http://storage.example/"),
+                        PIM.storage).toString())
+                .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
+                .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
+                .withHeader("Allow", "POST, PUT, PATCH")
+                .withHeader("Accept-Post", "application/ld+json, text/turtle")
+                .withHeader("Accept-Put", "application/ld+json, text/turtle")
+                .withHeader("Accept-Patch", "application/sparql-update, text/n3")
+                .withBodyFile("playlist.ttl")
+            )
+        );
+
+        wireMockServer.stubFor(put(urlEqualTo("/playlist"))
+            .withHeader("Content-Type", containing("text/turtle"))
+            .withRequestBody(containing(
+                    "<https://library.test/12345/song1.mp3>"))
+            .willReturn(aResponse()
+                .withStatus(204)));
+
+        wireMockServer.stubFor(delete(urlEqualTo("/playlist"))
+                .willReturn(aResponse()
+                    .withStatus(204)));
+
+        wireMockServer.stubFor(get(urlEqualTo("/nonRDF"))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/turtle")
+                    .withBody("This isn't valid turtle.")
             )
         );
     }

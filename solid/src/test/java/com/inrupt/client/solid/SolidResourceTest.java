@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,19 +77,19 @@ class SolidResourceTest {
         assertEquals(200, response.statusCode());
 
         final SolidResource resource = response.body();
-        assertEquals(uri, resource.getId());
-        assertTrue(resource.getType().contains(LDP.BasicContainer));
-        assertEquals(Optional.of(URI.create("http://storage.example/")), resource.getStorage());
-        assertTrue(resource.getWacAllow().get("user").containsAll(Arrays.asList("read", "write")));
-        assertEquals(resource.getWacAllow().get("public"), Collections.singleton("read"));
+        assertEquals(uri, resource.getIdentifier());
+        assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+        assertEquals(Optional.of(URI.create("http://storage.example/")), resource.getMetadata().getStorage());
+        assertTrue(resource.getMetadata().getWacAllow().get("user").containsAll(Arrays.asList("read", "write")));
+        assertEquals(resource.getMetadata().getWacAllow().get("public"), Collections.singleton("read"));
         assertEquals(13, resource.getDataset().stream().count());
-        assertEquals(3, resource.getAllowedMethods().size());
-        assertTrue(resource.getAllowedMethods().containsAll(Arrays.asList("PUT", "POST", "PATCH")));
-        assertTrue(resource.getAllowedPatchSyntaxes()
+        assertEquals(3, resource.getMetadata().getAllowedMethods().size());
+        assertTrue(resource.getMetadata().getAllowedMethods().containsAll(Arrays.asList("PUT", "POST", "PATCH")));
+        assertTrue(resource.getMetadata().getAllowedPatchSyntaxes()
                 .containsAll(Arrays.asList("application/sparql-update", "text/n3")));
-        assertTrue(resource.getAllowedPostSyntaxes()
+        assertTrue(resource.getMetadata().getAllowedPostSyntaxes()
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
-        assertTrue(resource.getAllowedPutSyntaxes()
+        assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
     }
 
@@ -109,7 +110,7 @@ class SolidResourceTest {
         assertEquals(200, response.statusCode());
 
         final SolidContainer container = response.body();
-        assertEquals(resource, container.getId());
+        assertEquals(resource, container.getIdentifier());
         assertEquals(3, container.getContainedResources().count());
 
         final Set<URI> uris = new HashSet<>();
@@ -118,6 +119,50 @@ class SolidResourceTest {
         uris.add(URIBuilder.newBuilder(resource).path("newContainer/").build());
 
         container.getContainedResources().forEach(child ->
-            assertTrue(uris.contains(child.getId())));
+            assertTrue(uris.contains(child.getIdentifier())));
+    }
+
+    @Test
+    void testEmptyResourceBuilder() {
+        final URI id = URI.create("https://resource.example/");
+        final SolidResource res = new SolidResource(id, null, null);
+
+        assertFalse(res.getMetadata().getStorage().isPresent());
+        assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
+        assertEquals(0, res.getDataset().stream().count());
+        assertEquals(id, res.getIdentifier());
+    }
+
+    @Test
+    void testEmptyContainerBuilder() {
+        final URI id = URI.create("https://resource.example/");
+        final SolidContainer res = new SolidContainer(id, null, null);
+
+        assertFalse(res.getMetadata().getStorage().isPresent());
+        assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
+        assertEquals(0, res.getDataset().stream().count());
+        assertEquals(id, res.getIdentifier());
+    }
+
+    @Test
+    void testInvalidRdf() {
+        final URI resource = URI.create(config.get("solid_resource_uri") + "/nonRDF");
+        final Request request = Request.newBuilder()
+            .uri(resource)
+            .header("Accept", "text/turtle")
+            .GET()
+            .build();
+
+        final CompletionException err1 = assertThrows(CompletionException.class, () -> client.sendAsync(
+            request,
+            SolidResourceHandlers.ofSolidContainer()
+        ).toCompletableFuture().join());
+        assertTrue(err1.getCause() instanceof SolidResourceException);
+
+        final CompletionException err2 = assertThrows(CompletionException.class, () -> client.sendAsync(
+            request,
+            SolidResourceHandlers.ofSolidResource()
+        ).toCompletableFuture().join());
+        assertTrue(err2.getCause() instanceof SolidResourceException);
     }
 }

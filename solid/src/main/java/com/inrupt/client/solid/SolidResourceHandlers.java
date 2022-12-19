@@ -23,7 +23,7 @@ package com.inrupt.client.solid;
 import com.inrupt.client.Headers.Link;
 import com.inrupt.client.Headers.WacAllow;
 import com.inrupt.client.Response;
-import com.inrupt.client.Syntax;
+import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;
@@ -52,7 +52,9 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidResource> ofSolidResource() {
         return responseInfo -> {
-            final SolidResource.Builder builder = SolidResource.newResourceBuilder();
+            final SolidResource.Builder builder = SolidResource.newResourceBuilder()
+                .metadata(buildMetadata(responseInfo));
+
             responseInfo.headers().firstValue("Content-Type")
                 .flatMap(SolidResourceHandlers::toSyntax)
                 .ifPresent(syntax -> {
@@ -62,42 +64,6 @@ public final class SolidResourceHandlers {
                         throw new SolidResourceException("Error parsing Solid Resource as RDF", ex);
                     }
                 });
-
-            responseInfo.headers().allValues("Link").stream()
-                .flatMap(l -> Link.parse(l).stream())
-                .forEach(link -> {
-                    if (link.getParameter("rel").contains("type")) {
-                        builder.type(link.getUri());
-                    } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
-                        builder.storage(link.getUri());
-                    }
-                });
-
-            responseInfo.headers().allValues("WAC-Allow").stream()
-                .map(WacAllow::parse)
-                .map(WacAllow::getAccessParams)
-                .flatMap(p -> p.entrySet().stream())
-                .forEach(builder::wacAllow);
-
-            responseInfo.headers().allValues("Allow").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedMethod);
-
-            responseInfo.headers().allValues("Accept-Post").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedPostSyntax);
-
-            responseInfo.headers().allValues("Accept-Patch").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedPatchSyntax);
-
-            responseInfo.headers().allValues("Accept-Put").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedPutSyntax);
 
             return builder.build(responseInfo.uri());
         };
@@ -110,7 +76,9 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final SolidContainer.Builder builder = SolidContainer.newContainerBuilder();
+            final SolidContainer.Builder builder = SolidContainer.newContainerBuilder()
+                .metadata(buildMetadata(responseInfo));
+
             responseInfo.headers().firstValue("Content-Type")
                 .flatMap(SolidResourceHandlers::toSyntax)
                 .ifPresent(syntax -> {
@@ -121,42 +89,6 @@ public final class SolidResourceHandlers {
                     }
                 });
 
-            responseInfo.headers().allValues("Link").stream()
-                .flatMap(l -> Link.parse(l).stream())
-                .forEach(link -> {
-                    if (link.getParameter("rel").contains("type")) {
-                        builder.type(link.getUri());
-                    } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
-                        builder.storage(link.getUri());
-                    }
-                });
-
-            responseInfo.headers().allValues("WAC-Allow").stream()
-                .map(WacAllow::parse)
-                .map(WacAllow::getAccessParams)
-                .flatMap(p -> p.entrySet().stream())
-                .forEach(builder::wacAllow);
-
-            responseInfo.headers().allValues("Allow").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedMethod);
-
-            responseInfo.headers().allValues("Accept-Post").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedPostSyntax);
-
-            responseInfo.headers().allValues("Accept-Patch").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedPatchSyntax);
-
-            responseInfo.headers().allValues("Accept-Put").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .forEach(builder::allowedPutSyntax);
-
             return builder.build(responseInfo.uri());
         };
     }
@@ -164,6 +96,48 @@ public final class SolidResourceHandlers {
     static Optional<Syntax> toSyntax(final String contentType) {
         final String type = contentType.split(";")[0].trim();
         return Optional.ofNullable(SYNTAX_MAPPING.get(type));
+    }
+
+    static Metadata buildMetadata(final Response.ResponseInfo responseInfo) {
+        // Gather metadata from HTTP headers
+        final Metadata.Builder metadata = Metadata.newBuilder();
+        responseInfo.headers().allValues("Link").stream()
+            .flatMap(l -> Link.parse(l).stream())
+            .forEach(link -> {
+                if (link.getParameter("rel").contains("type")) {
+                    metadata.type(link.getUri());
+                } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
+                    metadata.storage(link.getUri());
+                }
+            });
+
+        responseInfo.headers().allValues("WAC-Allow").stream()
+            .map(WacAllow::parse)
+            .map(WacAllow::getAccessParams)
+            .flatMap(p -> p.entrySet().stream())
+            .forEach(metadata::wacAllow);
+
+        responseInfo.headers().allValues("Allow").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedMethod);
+
+        responseInfo.headers().allValues("Accept-Post").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedPostSyntax);
+
+        responseInfo.headers().allValues("Accept-Patch").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedPatchSyntax);
+
+        responseInfo.headers().allValues("Accept-Put").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedPutSyntax);
+
+        return metadata.build();
     }
 
     static Map<String, Syntax> buildMapping() {
