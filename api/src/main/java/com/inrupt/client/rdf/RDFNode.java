@@ -21,6 +21,7 @@
 package com.inrupt.client.rdf;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -166,6 +167,30 @@ public final class RDFNode {
      */
     public static RDFNode literal(final String literal, final String language) {
         return new RDFNode(null, literal, language, null, null);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof RDFNode)) {
+            return false;
+        }
+
+        final RDFNode n = (RDFNode) obj;
+
+        return Objects.equals(n.getURI(), this.getURI()) &&
+            Objects.equals(n.getLiteral(), this.getLiteral()) &&
+            Objects.equals(n.getLanguage(), this.getLanguage()) &&
+            Objects.equals(n.getDatatype(), this.getDatatype()) &&
+            Objects.equals(n.getNodeId(), this.getNodeId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getURI(), getLiteral(), getLanguage(), getDatatype(), getNodeId());
     }
 
     private RDFNode(final URI uri, final String literal, final String language,
