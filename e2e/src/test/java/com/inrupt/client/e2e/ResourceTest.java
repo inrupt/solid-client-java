@@ -21,12 +21,12 @@
 package com.inrupt.client.e2e;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.jose4j.jwx.HeaderParameterNames.TYPE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.apache.jena.rdf.model.ResourceFactory.createResource;
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
+import static org.apache.jena.rdf.model.ResourceFactory.createResource;
 import static org.apache.jena.rdf.model.ResourceFactory.createStatement;
 import static org.apache.jena.rdf.model.ResourceFactory.createTypedLiteral;
+import static org.jose4j.jwx.HeaderParameterNames.TYPE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
@@ -72,7 +72,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class ResourceTest {
-    
+
     private static Config config = ConfigProvider.getConfig();
     private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
     private static Client session = ClientProvider.getClient();
@@ -82,35 +82,36 @@ public class ResourceTest {
 
     @BeforeAll
     static void setup() {
-        final var WEBID = URI.create(smallRyeConfig.getValue("webid", String.class));
-        final var SUB = smallRyeConfig.getValue("username", String.class);
-        final var ISS = smallRyeConfig.getValue("issuer", String.class);
-        final var AZP = smallRyeConfig.getValue("azp", String.class);
-        
+        final var webid = URI.create(smallRyeConfig.getValue("webid", String.class));
+        final var sub = smallRyeConfig.getValue("username", String.class);
+        final var iss = smallRyeConfig.getValue("issuer", String.class);
+        final var azp = smallRyeConfig.getValue("azp", String.class);
+
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID.toString());
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
+        claims.put("webid", webid.toString());
+        claims.put("sub", sub);
+        claims.put("iss", iss);
+        claims.put("azp", azp);
 
         final String token = generateIdToken(claims);
         session = session.session(OpenIdSession.ofIdToken(token));
 
-        final var req = Request.newBuilder(WEBID).header("Accept", "text/turtle").GET().build();
-        final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(WEBID)).body();
+        final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
+        final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
 
         if (!profile.getStorage().isEmpty()) {
             podUrl = profile.getStorage().iterator().next().toString();
-            if (!podUrl.endsWith("/"))
+            if (!podUrl.endsWith("/")) {
                 podUrl += "/";
+            }
             testResource = podUrl + "resource/";
         }
     }
 
     @Disabled("until proper token available")
     @Test
-    @DisplayName("user creates a Solid resource and adds a boolean triple to it")
+    @DisplayName("CRUD on RDF resource")
     void createResourceTest() {
         final var newResource = testResource + "e2e-test-subject";
         final var newResourceURL = URI.create(testResource + "e2e-test-subject");
@@ -125,25 +126,32 @@ public class ResourceTest {
                 .build();
         final Response<Void> resp = session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
         if (resp.statusCode() != 204) {
-            throw new InruptClientException("Failed to create solid resource at " + newResource); 
+            throw new InruptClientException("Failed to create solid resource at " + newResource);
         }
 
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();
-        if (resp.statusCode() == 412) { 
+        if (resp.statusCode() == 412) {
             final Request requestRdf = Request.newBuilder(newResourceURL).GET().build();
             final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
-            statementsToDelete = responseRdf.body().listStatements(createResource(newResource), createProperty(predicate), (org.apache.jena.rdf.model.RDFNode)null).toList();
+            statementsToDelete = responseRdf.body().listStatements(
+                    createResource(newResource),
+                    createProperty(predicate),
+                    (org.apache.jena.rdf.model.RDFNode)null).toList();
         }
 
-        final List<Statement> statementsToAdd = List.of(createStatement(createResource(newResource), createProperty(predicate), createTypedLiteral(true)));
+        final List<Statement> statementsToAdd = List.of(
+                createStatement(
+                        createResource(newResource),
+                        createProperty(predicate),
+                        createTypedLiteral(true)));
 
         final var ur = UpdateFactory.create(createDeleteInsertSparqlQuery(statementsToDelete, statementsToAdd));
         final Request requestPatch = Request.newBuilder(newResourceURL)
             .header("Content-Type", "application/sparql-update")
             .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
         final var responsePatch = session.send(requestPatch, Response.BodyHandlers.discarding());
-        
+
         assertEquals(204, responsePatch.statusCode());
 
         final Request requestRdf = Request.newBuilder(newResourceURL).GET().build();
@@ -153,7 +161,7 @@ public class ResourceTest {
                                 createProperty(predicate), createTypedLiteral(true))
                         .toList();
         assertEquals(1, insertedStatement.size());
-        
+
     }
 
     @Disabled("until proper token available")
@@ -162,8 +170,9 @@ public class ResourceTest {
     void containerCreateDeleteTest() {
         //create
         var containerURL = testResource + "newContainer";
-        if (!containerURL.endsWith("/"))
+        if (!containerURL.endsWith("/")) {
             containerURL += "/";
+        }
 
         final Request reqCreate = Request.newBuilder(URI.create(containerURL))
             .header("Content-Type", "text/turtle")
@@ -174,7 +183,7 @@ public class ResourceTest {
 
         final var responseCreate =
                 session.send(reqCreate, Response.BodyHandlers.discarding());
-        
+
         assertEquals(204, responseCreate.statusCode());
 
         //TODO
@@ -185,10 +194,10 @@ public class ResourceTest {
 
         final Response<Void> responseDelete =
                 session.send(reqDelete, Response.BodyHandlers.discarding());
-        
+
         assertEquals(200, responseDelete.statusCode());
     }
-    
+
     @Disabled("until proper token available")
     @Test
     @DisplayName("can create, delete, and differentiate between RDF and non-RDF Resources")
@@ -204,7 +213,7 @@ public class ResourceTest {
 
         final Response<Void> responseCreate =
                 session.send(reqCreate, Response.BodyHandlers.discarding());
-        
+
         assertEquals(204, responseCreate.statusCode());
 
         //TODO
@@ -214,7 +223,7 @@ public class ResourceTest {
         final Request reqDelete = Request.newBuilder(URI.create(fileURL)).DELETE().build();
         final Response<String> responseDelete =
                 session.send(reqDelete, Response.BodyHandlers.ofString());
-        
+
         assertEquals(200, responseDelete.statusCode());
     }
 
@@ -240,15 +249,24 @@ public class ResourceTest {
 
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();
-        if (resp.statusCode() == 412) { 
+        if (resp.statusCode() == 412) {
             final Request requestRdf = Request.newBuilder(newResourceURL).GET().build();
             final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
-            statementsToDelete = responseRdf.body().listStatements(createResource(newResource), createProperty(predicate), (org.apache.jena.rdf.model.RDFNode)null).toList();
+            statementsToDelete = responseRdf.body().listStatements(
+                    createResource(newResource),
+                    createProperty(predicate),
+                    (org.apache.jena.rdf.model.RDFNode)null).toList();
         }
 
         final List<Statement> statementsToAdd = List.of(
-            createStatement(createResource(newResource), createProperty(predicate), ResourceFactory.createTypedLiteral(true)),
-            createStatement(createResource(newResource), createProperty(predicateForBalnk), ResourceFactory.createResource())); //blankNode
+                createStatement(
+                        createResource(newResource),
+                        createProperty(predicate),
+                        ResourceFactory.createTypedLiteral(true)),
+                createStatement(
+                        createResource(newResource),
+                        createProperty(predicateForBalnk),
+                        ResourceFactory.createResource())); //blankNode
 
         final var ur = UpdateFactory.create(createDeleteInsertSparqlQuery(statementsToDelete, statementsToAdd));
 
@@ -257,26 +275,34 @@ public class ResourceTest {
             .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
 
         final var responseCreate = session.send(requestCreate, Response.BodyHandlers.discarding());
-        
+
         assertEquals(204, responseCreate.statusCode());
-        
+
         //get the newly created dataset and change the non blank node
         final Request req = Request.newBuilder(URI.create(testResource)).GET().build();
         final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
-        
+
         assertEquals(200, res.statusCode());
-        final List<Statement> statementsToDeleteAgain = res.body().listStatements(createResource(newResource), createProperty(predicate), (org.apache.jena.rdf.model.RDFNode)null).toList();
+        final List<Statement> statementsToDeleteAgain = res.body().listStatements(
+                createResource(newResource),
+                createProperty(predicate),
+                (org.apache.jena.rdf.model.RDFNode)null).toList();
 
-        final List<Statement> statementsToAddAgain = List.of(createStatement(createResource(newResource), createProperty(predicate), ResourceFactory.createTypedLiteral(false)));
+        final List<Statement> statementsToAddAgain = List.of(
+                createStatement(
+                        createResource(newResource),
+                        createProperty(predicate),
+                        ResourceFactory.createTypedLiteral(false)));
 
-        final var ur2 = UpdateFactory.create(createDeleteInsertSparqlQuery(statementsToDeleteAgain, statementsToAddAgain));
+        final var ur2 = UpdateFactory.create(
+            createDeleteInsertSparqlQuery(statementsToDeleteAgain, statementsToAddAgain));
 
         final Request requestCreate2 = Request.newBuilder(URI.create(testResource))
             .header("Content-Type", "application/sparql-update")
             .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur2)).build();
 
         final var responseCreate2 = session.send(requestCreate2, Response.BodyHandlers.discarding());
-        
+
         assertEquals(204, responseCreate2.statusCode());
 
         //clean up -> delete all
@@ -293,8 +319,8 @@ public class ResourceTest {
     }
 
     //utility method
-    private String createDeleteInsertSparqlQuery(List<Statement> quadsToDelete,
-            List<Statement> quadsToAdd) {
+    private String createDeleteInsertSparqlQuery(final List<Statement> quadsToDelete,
+            final List<Statement> quadsToAdd) {
         //use a SparqlBuilder....
         var sparql = "";
         if (!quadsToDelete.isEmpty()) {
@@ -317,7 +343,7 @@ public class ResourceTest {
         }
         return sparql;
     }
-    
+
     static String generateIdToken(final Map<String, Object> claims) {
         try (final InputStream resource = ResourceTest.class.getResourceAsStream("/signing-key.json")) {
             final String jwks = IOUtils.toString(resource, UTF_8);
