@@ -54,6 +54,15 @@ public final class LDP {
      * The ldp:BasicContainer URI.
      */
     public static final URI BasicContainer = URI.create(namespace + "BasicContainer");
+    /**
+     * The ldp:NonRDFSource URI.
+     */
+    public static final URI NonRDFSource = URI.create(namespace + "NonRDFSource");
+    /**
+     * The ldp:Resource URI.
+     */
+    public static final URI Resource = URI.create(namespace + "Resource");
+
 
     /**
      * Get the LDP namespace URI.
