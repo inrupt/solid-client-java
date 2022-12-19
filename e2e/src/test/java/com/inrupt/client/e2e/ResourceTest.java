@@ -20,12 +20,10 @@
  */
 package com.inrupt.client.e2e;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.apache.jena.rdf.model.ResourceFactory.createResource;
 import static org.apache.jena.rdf.model.ResourceFactory.createStatement;
 import static org.apache.jena.rdf.model.ResourceFactory.createTypedLiteral;
-import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.Client;
@@ -42,30 +40,19 @@ import com.inrupt.client.webid.WebIdBodyHandlers;
 
 import io.smallrye.config.SmallRyeConfig;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.update.UpdateFactory;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.jose4j.jwk.PublicJsonWebKey;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
-import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -94,7 +81,7 @@ public class ResourceTest {
         claims.put("iss", iss);
         claims.put("azp", azp);
 
-        final String token = generateIdToken(claims);
+        final String token = Utils.generateIdToken(claims);
         session = session.session(OpenIdSession.ofIdToken(token));
 
         final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
@@ -308,16 +295,6 @@ public class ResourceTest {
         //clean up -> delete all
     }
 
-    @Test
-    @DisplayName("cannot fetch non public resources unauthenticated")
-    void fetchPrivateResourceUnauthenticatedTest() {
-        final Client client = ClientProvider.getClient();
-        final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
-        final var response = client.send(request, JenaBodyHandlers.ofModel());
-
-        assertEquals(401, response.statusCode());
-    }
-
     //utility method
     private String createDeleteInsertSparqlQuery(final List<Statement> quadsToDelete,
             final List<Statement> quadsToAdd) {
@@ -344,30 +321,5 @@ public class ResourceTest {
         return sparql;
     }
 
-    static String generateIdToken(final Map<String, Object> claims) {
-        try (final InputStream resource = ResourceTest.class.getResourceAsStream("/signing-key.json")) {
-            final String jwks = IOUtils.toString(resource, UTF_8);
-            final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
-                .newPublicJwk(jwks);
-
-            final JsonWebSignature jws = new JsonWebSignature();
-            jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
-            jws.setHeader(TYPE, "JWT");
-            jws.setKey(jwk.getPrivateKey());
-            final JwtClaims jwtClaims = new JwtClaims();
-            jwtClaims.setJwtId(UUID.randomUUID().toString());
-            jwtClaims.setExpirationTimeMinutesInTheFuture(5);
-            jwtClaims.setIssuedAtToNow();
-            // override/set claims
-            claims.entrySet().forEach(entry -> jwtClaims.setClaim(entry.getKey(), entry.getValue()));
-            jws.setPayload(jwtClaims.toJson());
-
-            return jws.getCompactSerialization();
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Unable to read JWK", ex);
-        } catch (final JoseException ex) {
-            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
-        }
-    }
 }
 
