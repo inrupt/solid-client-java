@@ -77,16 +77,16 @@ class JenaGraph implements Graph {
 <span class="nc" id="L77">        return Iter.asStream(iter).map(JenaTriple::new);</span>
     }
 
-    /**
-     * Return a sequential stream of Triples with this JenaDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Triple}s
-     */
     @Override
-    public Stream&lt;Triple&gt; stream() {
-<span class="nc" id="L87">        final var iter = model.getGraph().find();</span>
-<span class="nc" id="L88">        return Iter.asStream(iter).map(JenaTriple::new);</span>
-    }
+    public void add(final Triple triple) {
+<span class="nc" id="L82">        model.getGraph().add(JenaUtils.toNode(triple.getSubject()), JenaUtils.toNode(triple.getPredicate()),</span>
+<span class="nc" id="L83">                JenaUtils.toNode(triple.getObject()));</span>
+<span class="nc" id="L84">    }</span>
+
+    @Override
+    public void remove(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+<span class="nc" id="L88">        model.getGraph().remove(getSubject(subject), getPredicate(predicate), getObject(object));</span>
+<span class="nc" id="L89">    }</span>
 
     /**
      * Retrieve the Jena subject from a RDFNode subject.

@@ -28,10 +28,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
@@ -43,6 +43,8 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
  */
 class RDF4JDataset implements Dataset {
 
+<span class="fc" id="L46">    private static final ValueFactory VF = SimpleValueFactory.getInstance();</span>
+
     private final Repository repository;
 
     /**
@@ -50,9 +52,9 @@ class RDF4JDataset implements Dataset {
      *
      * @param repository the RDF4J {@link Repository}
      */
-<span class="fc" id="L53">    public RDF4JDataset(final Repository repository) {</span>
-<span class="fc" id="L54">        this.repository = repository;</span>
-<span class="fc" id="L55">    }</span>
+<span class="fc" id="L55">    public RDF4JDataset(final Repository repository) {</span>
+<span class="fc" id="L56">        this.repository = repository;</span>
+<span class="fc" id="L57">    }</span>
 
     /**
      * Return the RDF4JDataset {@code repository} value.
@@ -60,7 +62,7 @@ class RDF4JDataset implements Dataset {
      * @return the repository as a RDF4J {@link Repository}
      */
     public Repository asRDF4JRepository() {
-<span class="fc" id="L63">        return repository;</span>
+<span class="fc" id="L65">        return repository;</span>
     }
 
     /**
@@ -75,31 +77,42 @@ class RDF4JDataset implements Dataset {
     @Override
     public Stream&lt;Quad&gt; stream(final Optional&lt;RDFNode&gt; graph, final RDFNode subject, final RDFNode predicate,
             final RDFNode object) {
-<span class="fc" id="L78">        final Resource[] c = getContexts(graph);</span>
-<span class="fc" id="L79">        final Resource s = RDF4JGraph.getSubject(subject);</span>
-<span class="fc" id="L80">        final IRI p = RDF4JGraph.getPredicate(predicate);</span>
-<span class="fc" id="L81">        final Value o = RDF4JGraph.getObject(object);</span>
+<span class="fc" id="L80">        final Resource[] c = getContexts(graph);</span>
+<span class="fc" id="L81">        final Resource s = RDF4JGraph.getSubject(subject);</span>
+<span class="fc" id="L82">        final IRI p = RDF4JGraph.getPredicate(predicate);</span>
+<span class="fc" id="L83">        final Value o = RDF4JGraph.getObject(object);</span>
 
-<span class="fc" id="L83">        try (final RepositoryConnection conn = repository.getConnection();</span>
-<span class="fc" id="L84">                final RepositoryResult&lt;Statement&gt; statements = conn.getStatements(s, p, o, c)) {</span>
-<span class="fc" id="L85">            return QueryResults.asModel(statements).stream().map(RDF4JQuad::new);</span>
+<span class="fc" id="L85">        try (final RepositoryConnection conn = repository.getConnection();</span>
+<span class="fc" id="L86">                final RepositoryResult&lt;Statement&gt; statements = conn.getStatements(s, p, o, c)) {</span>
+<span class="fc" id="L87">            return QueryResults.asModel(statements).stream().map(RDF4JQuad::new);</span>
         }
     }
 
-    /**
-     * Return a sequential stream of Quads with this RDF4JDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Quad}
-     */
     @Override
-    public Stream&lt;Quad&gt; stream() {
-<span class="fc" id="L96">        try (final RepositoryConnection conn = repository.getConnection()) {</span>
-<span class="fc" id="L97">            try (final RepositoryResult&lt;Statement&gt; statements = conn.getStatements(null, null, null)) {</span>
-<span class="fc" id="L98">                final Model model = QueryResults.asModel(statements);</span>
-<span class="fc" id="L99">                return model.stream().map(RDF4JQuad::new);</span>
+    public void add(final Quad quad) {
+<span class="fc" id="L93">        try (final RepositoryConnection conn = repository.getConnection()) {</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            if (quad.getGraphName().isPresent()) {</span>
+<span class="fc" id="L95">                conn.add(VF.createStatement(RDF4JUtils.fromSubject(quad.getSubject()),</span>
+<span class="fc" id="L96">                            RDF4JUtils.fromPredicate(quad.getPredicate()),</span>
+<span class="fc" id="L97">                            RDF4JUtils.fromObject(quad.getObject()),</span>
+<span class="fc" id="L98">                            RDF4JUtils.fromSubject(quad.getGraphName().get())));</span>
+            } else {
+<span class="fc" id="L100">                conn.add(VF.createStatement(RDF4JUtils.fromSubject(quad.getSubject()),</span>
+<span class="fc" id="L101">                            RDF4JUtils.fromPredicate(quad.getPredicate()),</span>
+<span class="fc" id="L102">                            RDF4JUtils.fromObject(quad.getObject())));</span>
             }
         }
-    }
+<span class="fc" id="L105">    }</span>
+
+    @Override
+    public void remove(final Optional&lt;RDFNode&gt; graphName, final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+<span class="fc" id="L110">        try (final RepositoryConnection conn = repository.getConnection()) {</span>
+<span class="fc" id="L111">            conn.remove(RDF4JUtils.fromSubject(subject), RDF4JUtils.fromPredicate(predicate),</span>
+<span class="fc" id="L112">                    RDF4JUtils.fromObject(object),</span>
+<span class="fc" id="L113">                    getContexts(graphName));</span>
+        }
+<span class="fc" id="L115">    }</span>
 
     /**
      * Retrieve the RDF4J context from a RDFNode graph.
@@ -108,28 +121,28 @@ class RDF4JDataset implements Dataset {
      * @return the context as an Array of RDF4J {@link Resource}s
      */
     static Resource[] getContexts(final Optional&lt;RDFNode&gt; graph) {
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (graph != null) {</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">            if (graph.isPresent()) {</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">                if (graph.get().isLiteral()) {</span>
-<span class="fc" id="L114">                    throw new IllegalArgumentException(&quot;Graph cannot be an RDF literal&quot;);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (graph != null) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if (graph.isPresent()) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">                if (graph.get().isLiteral()) {</span>
+<span class="fc" id="L127">                    throw new IllegalArgumentException(&quot;Graph cannot be an RDF literal&quot;);</span>
                 }
-<span class="fc bfc" id="L116" title="All 2 branches covered.">                if (graph.get().isNamedNode()) {</span>
-<span class="fc" id="L117">                    return new Resource[] {</span>
-<span class="fc" id="L118">                        SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString())</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                if (graph.get().isNamedNode()) {</span>
+<span class="fc" id="L130">                    return new Resource[] {</span>
+<span class="fc" id="L131">                        VF.createIRI(graph.get().getURI().toString())</span>
                     };
                 }
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">                if (graph.get().isBlankNode()) {</span>
-<span class="fc" id="L122">                    return new Resource[] {</span>
-<span class="fc" id="L123">                        SimpleValueFactory.getInstance().createBNode(graph.get().getNodeId())</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                if (graph.get().isBlankNode()) {</span>
+<span class="fc" id="L135">                    return new Resource[] {</span>
+<span class="fc" id="L136">                        VF.createBNode(graph.get().getNodeId())</span>
                     };
                 }
             } else {
                 // a non-null but empty graph means the RDF4J default graph
-<span class="fc" id="L128">                return new Resource[] { null };</span>
+<span class="fc" id="L141">                return new Resource[] { null };</span>
             }
         }
         // a null graph means any context
-<span class="fc" id="L132">        return new Resource[0];</span>
+<span class="fc" id="L145">        return new Resource[0];</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

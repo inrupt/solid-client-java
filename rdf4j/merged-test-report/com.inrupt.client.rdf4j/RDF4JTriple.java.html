@@ -54,10 +54,10 @@ class RDF4JTriple implements Triple {
     @Override
     public RDFNode getSubject() {
 <span class="fc" id="L56">        final Resource s = triple.getSubject();</span>
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (s.isIRI()) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (s.isIRI()) {</span>
 <span class="fc" id="L58">            return RDFNode.namedNode(URI.create(s.stringValue()));</span>
         }
-<span class="nc" id="L60">        return RDFNode.blankNode();</span>
+<span class="fc" id="L60">        return RDFNode.blankNode(s.stringValue());</span>
     }
 
     /**
@@ -81,7 +81,7 @@ class RDF4JTriple implements Triple {
 <span class="fc" id="L81">        final Value o = triple.getObject();</span>
 <span class="fc bfc" id="L82" title="All 2 branches covered.">        if (o.isIRI()) {</span>
 <span class="fc" id="L83">            return RDFNode.namedNode(URI.create(o.stringValue()));</span>
-<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        } else if (o.isLiteral()) {</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        } else if (o.isLiteral()) {</span>
 <span class="fc" id="L85">            final Literal lo = (Literal) o;</span>
 <span class="fc bfc" id="L86" title="All 2 branches covered.">            if (lo.getLanguage().isPresent()) {</span>
 <span class="fc" id="L87">                return RDFNode.literal(lo.getLabel(), lo.getLanguage().get());</span>
@@ -90,7 +90,7 @@ class RDF4JTriple implements Triple {
             }
 <span class="nc" id="L91">            return RDFNode.literal(lo.getLabel());</span>
         } else {
-<span class="nc" id="L93">            return RDFNode.blankNode();</span>
+<span class="fc" id="L93">            return RDFNode.blankNode(o.stringValue());</span>
         }
     }
 }

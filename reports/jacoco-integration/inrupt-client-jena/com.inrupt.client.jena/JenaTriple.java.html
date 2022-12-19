@@ -52,7 +52,7 @@ class JenaTriple implements Triple {
 <span class="nc bnc" id="L52" title="All 2 branches missed.">        if (s.isURI()) {</span>
 <span class="nc" id="L53">            return RDFNode.namedNode(URI.create(s.getURI()));</span>
         }
-<span class="nc" id="L55">        return RDFNode.blankNode();</span>
+<span class="nc" id="L55">        return RDFNode.blankNode(s.getBlankNodeLabel());</span>
     }
 
     /**
@@ -85,7 +85,7 @@ class JenaTriple implements Triple {
             }
 <span class="nc" id="L86">            return RDFNode.literal(o.getLiteralLexicalForm());</span>
         } else {
-<span class="nc" id="L88">            return RDFNode.blankNode();</span>
+<span class="nc" id="L88">            return RDFNode.blankNode(o.getBlankNodeLabel());</span>
         }
     }
 }

@@ -21,6 +21,7 @@
 package com.inrupt.client.rdf;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -40,7 +41,7 @@ public final class RDFNode {
      * @return true if this is a named RDF node; false otherwise
      */
     public boolean isNamedNode() {
-<span class="fc bfc" id="L43" title="All 2 branches covered.">        return uri != null;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        return uri != null;</span>
     }
 
     /**
@@ -49,7 +50,7 @@ public final class RDFNode {
      * @return true if this is a blank node; false otherwise
      */
     public boolean isBlankNode() {
-<span class="pc bpc" id="L52" title="2 of 6 branches missed.">        return uri == null &amp;&amp; lexicalValue == null &amp;&amp; nodeId != null;</span>
+<span class="pc bpc" id="L53" title="2 of 6 branches missed.">        return uri == null &amp;&amp; lexicalValue == null &amp;&amp; nodeId != null;</span>
     }
 
     /**
@@ -58,7 +59,7 @@ public final class RDFNode {
      * @return true if this is an RDF literal; false otherwise
      */
     public boolean isLiteral() {
-<span class="fc bfc" id="L61" title="All 2 branches covered.">        return lexicalValue != null;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        return lexicalValue != null;</span>
     }
 
     /**
@@ -67,7 +68,7 @@ public final class RDFNode {
      * @return the URI associated with the node or {@code null}
      */
     public URI getURI() {
-<span class="fc" id="L70">        return uri;</span>
+<span class="fc" id="L71">        return uri;</span>
     }
 
     /**
@@ -76,7 +77,7 @@ public final class RDFNode {
      * @return the lexical value associated with the node or {@code null}
      */
     public String getLiteral() {
-<span class="fc" id="L79">        return lexicalValue;</span>
+<span class="fc" id="L80">        return lexicalValue;</span>
     }
 
     /**
@@ -85,7 +86,7 @@ public final class RDFNode {
      * @return the datatype associated with the node or {@code null}
      */
     public URI getDatatype() {
-<span class="fc" id="L88">        return datatype;</span>
+<span class="fc" id="L89">        return datatype;</span>
     }
 
     /**
@@ -94,7 +95,7 @@ public final class RDFNode {
      * @return the language tag associated with the node or {@code null}
      */
     public String getLanguage() {
-<span class="fc" id="L97">        return language;</span>
+<span class="fc" id="L98">        return language;</span>
     }
 
     /**
@@ -103,7 +104,7 @@ public final class RDFNode {
      * @return the nodeId associated with the node or {@code null}
      */
     public String getNodeId() {
-<span class="fc" id="L106">        return nodeId;</span>
+<span class="fc" id="L107">        return nodeId;</span>
     }
 
     /**
@@ -112,8 +113,8 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode() {
-<span class="fc" id="L115">        final String nodeId = UUID.randomUUID().toString();</span>
-<span class="fc" id="L116">        return new RDFNode(null, null, null, null, nodeId);</span>
+<span class="fc" id="L116">        final String nodeId = UUID.randomUUID().toString();</span>
+<span class="fc" id="L117">        return new RDFNode(null, null, null, null, nodeId);</span>
     }
 
     /**
@@ -123,7 +124,7 @@ public final class RDFNode {
      * @return an RDF blank node
      */
     public static RDFNode blankNode(final String nodeId) {
-<span class="fc" id="L126">        return new RDFNode(null, null, null, null, nodeId);</span>
+<span class="fc" id="L127">        return new RDFNode(null, null, null, null, nodeId);</span>
     }
 
     /**
@@ -133,7 +134,7 @@ public final class RDFNode {
      * @return the RDF named node
      */
     public static RDFNode namedNode(final URI uri) {
-<span class="fc" id="L136">        return new RDFNode(uri, null, null, null, null);</span>
+<span class="fc" id="L137">        return new RDFNode(uri, null, null, null, null);</span>
     }
 
     /**
@@ -143,7 +144,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal) {
-<span class="fc" id="L146">        return new RDFNode(null, literal, null, null, null);</span>
+<span class="fc" id="L147">        return new RDFNode(null, literal, null, null, null);</span>
     }
 
     /**
@@ -154,7 +155,7 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final URI datatype) {
-<span class="fc" id="L157">        return new RDFNode(null, literal, null, datatype, null);</span>
+<span class="fc" id="L158">        return new RDFNode(null, literal, null, datatype, null);</span>
     }
 
     /**
@@ -165,16 +166,40 @@ public final class RDFNode {
      * @return the RDF literal
      */
     public static RDFNode literal(final String literal, final String language) {
-<span class="fc" id="L168">        return new RDFNode(null, literal, language, null, null);</span>
+<span class="fc" id="L169">        return new RDFNode(null, literal, language, null, null);</span>
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (obj == this) {</span>
+<span class="fc" id="L175">            return true;</span>
+        }
+
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (!(obj instanceof RDFNode)) {</span>
+<span class="fc" id="L179">            return false;</span>
+        }
+
+<span class="fc" id="L182">        final RDFNode n = (RDFNode) obj;</span>
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        return Objects.equals(n.getURI(), this.getURI()) &amp;&amp;</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            Objects.equals(n.getLiteral(), this.getLiteral()) &amp;&amp;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            Objects.equals(n.getLanguage(), this.getLanguage()) &amp;&amp;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            Objects.equals(n.getDatatype(), this.getDatatype()) &amp;&amp;</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            Objects.equals(n.getNodeId(), this.getNodeId());</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L193">        return Objects.hash(getURI(), getLiteral(), getLanguage(), getDatatype(), getNodeId());</span>
     }
 
     private RDFNode(final URI uri, final String literal, final String language,
-<span class="fc" id="L172">        final URI datatype, final String nodeId) {</span>
-<span class="fc" id="L173">        this.uri = uri;</span>
-<span class="fc" id="L174">        this.lexicalValue = literal;</span>
-<span class="fc" id="L175">        this.language = language;</span>
-<span class="fc" id="L176">        this.datatype = datatype;</span>
-<span class="fc" id="L177">        this.nodeId = nodeId;</span>
-<span class="fc" id="L178">    }</span>
+<span class="fc" id="L197">        final URI datatype, final String nodeId) {</span>
+<span class="fc" id="L198">        this.uri = uri;</span>
+<span class="fc" id="L199">        this.lexicalValue = literal;</span>
+<span class="fc" id="L200">        this.language = language;</span>
+<span class="fc" id="L201">        this.datatype = datatype;</span>
+<span class="fc" id="L202">        this.nodeId = nodeId;</span>
+<span class="fc" id="L203">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

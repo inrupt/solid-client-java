@@ -1,8 +1,9 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaService,14,127,0,2,4,31,0,7,0,6
+Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaService,14,259,0,10,4,64,0,18,0,13
 Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaQuad,0,44,0,6,0,10,0,6,0,3
 Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaBodyHandlers,21,109,0,0,6,22,0,10,0,10
 Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaBodyPublishers,0,46,0,0,0,7,0,10,0,10
-Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaGraph,0,133,0,22,0,36,0,18,0,7
-Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaTriple,8,65,4,8,3,16,4,6,0,4
-Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaDataset,0,86,1,9,0,22,1,9,0,5
+Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaGraph,0,148,0,22,0,39,0,19,0,8
+Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaUtils,2,45,1,9,1,14,1,5,0,1
+Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaTriple,4,73,2,10,1,18,2,8,0,4
+Inrupt Client Libraries - Jena,com.inrupt.client.jena,JenaDataset,0,121,1,9,0,35,1,11,0,7

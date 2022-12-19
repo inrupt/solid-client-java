@@ -49,10 +49,10 @@ class JenaTriple implements Triple {
     @Override
     public RDFNode getSubject() {
 <span class="fc" id="L51">        final var s = triple.getSubject();</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (s.isURI()) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (s.isURI()) {</span>
 <span class="fc" id="L53">            return RDFNode.namedNode(URI.create(s.getURI()));</span>
         }
-<span class="nc" id="L55">        return RDFNode.blankNode();</span>
+<span class="fc" id="L55">        return RDFNode.blankNode(s.getBlankNodeLabel());</span>
     }
 
     /**
@@ -77,7 +77,7 @@ class JenaTriple implements Triple {
 <span class="fc" id="L77">        final var o = triple.getObject();</span>
 <span class="fc bfc" id="L78" title="All 2 branches covered.">        if (o.isURI()) {</span>
 <span class="fc" id="L79">            return RDFNode.namedNode(URI.create(o.getURI()));</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        } else if (o.isLiteral()) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        } else if (o.isLiteral()) {</span>
 <span class="pc bpc" id="L81" title="1 of 4 branches missed.">            if (o.getLiteralLanguage() != null &amp;&amp; !o.getLiteralLanguage().isBlank()) {</span>
 <span class="fc" id="L82">                return RDFNode.literal(o.getLiteralLexicalForm(), o.getLiteralLanguage());</span>
 <span class="pc bpc" id="L83" title="1 of 2 branches missed.">            } else if (o.getLiteralDatatypeURI() != null) {</span>
@@ -85,7 +85,7 @@ class JenaTriple implements Triple {
             }
 <span class="nc" id="L86">            return RDFNode.literal(o.getLiteralLexicalForm());</span>
         } else {
-<span class="nc" id="L88">            return RDFNode.blankNode();</span>
+<span class="fc" id="L88">            return RDFNode.blankNode(o.getBlankNodeLabel());</span>
         }
     }
 }

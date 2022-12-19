@@ -76,15 +76,16 @@ class RDF4JGraph implements Graph {
 <span class="nc" id="L76">        return model.filter(s, p, o).stream().map(Values::triple).map(RDF4JTriple::new);</span>
     }
 
-    /**
-     * Return a sequential stream of Triples with this RDF4JDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Triple}s
-     */
     @Override
-    public Stream&lt;Triple&gt; stream() {
-<span class="nc" id="L86">        return model.filter(null, null, null).stream().map(Values::triple).map(RDF4JTriple::new);</span>
-    }
+    public void add(final Triple triple) {
+<span class="nc" id="L81">        model.add(getSubject(triple.getSubject()), getPredicate(triple.getPredicate()),</span>
+<span class="nc" id="L82">                getObject(triple.getObject()));</span>
+<span class="nc" id="L83">    }</span>
+
+    @Override
+    public void remove(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+<span class="nc" id="L87">        model.remove(getSubject(subject), getPredicate(predicate), getObject(object));</span>
+<span class="nc" id="L88">    }</span>
 
     /**
      * Retrieve the RDF4J subject from a RDFNode subject.
@@ -92,16 +93,16 @@ class RDF4JGraph implements Graph {
      * @return the subject as a RDF4J {@link Resource}, may be {@code null}
      */
     static Resource getSubject(final RDFNode subject) {
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (subject != null) {</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (subject.isLiteral()) {</span>
-<span class="nc" id="L97">                throw new IllegalArgumentException(&quot;Subject cannot be an RDF literal&quot;);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (subject != null) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (subject.isLiteral()) {</span>
+<span class="nc" id="L98">                throw new IllegalArgumentException(&quot;Subject cannot be an RDF literal&quot;);</span>
             }
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (subject.isNamedNode()) {</span>
-<span class="nc" id="L100">                return VF.createIRI(subject.getURI().toString());</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (subject.isNamedNode()) {</span>
+<span class="nc" id="L101">                return VF.createIRI(subject.getURI().toString());</span>
             }
-<span class="nc" id="L102">            return VF.createBNode(subject.getNodeId());</span>
+<span class="nc" id="L103">            return VF.createBNode(subject.getNodeId());</span>
         }
-<span class="nc" id="L104">        return null;</span>
+<span class="nc" id="L105">        return null;</span>
     }
 
     /**
@@ -110,16 +111,16 @@ class RDF4JGraph implements Graph {
      * @return the predicate as a RDF4J {@link IRI}, may be {@code null}
      */
     static IRI getPredicate(final RDFNode predicate) {
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (predicate != null) {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (predicate.isLiteral()) {</span>
-<span class="nc" id="L115">                throw new IllegalArgumentException(&quot;Predicate cannot be an RDF literal&quot;);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (predicate != null) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (predicate.isLiteral()) {</span>
+<span class="nc" id="L116">                throw new IllegalArgumentException(&quot;Predicate cannot be an RDF literal&quot;);</span>
             }
-<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (predicate.isBlankNode()) {</span>
-<span class="nc" id="L118">                throw new IllegalArgumentException(&quot;Predicate cannot be a blank node&quot;);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (predicate.isBlankNode()) {</span>
+<span class="nc" id="L119">                throw new IllegalArgumentException(&quot;Predicate cannot be a blank node&quot;);</span>
             }
-<span class="nc" id="L120">            return VF.createIRI(predicate.getURI().toString());</span>
+<span class="nc" id="L121">            return VF.createIRI(predicate.getURI().toString());</span>
         }
-<span class="nc" id="L122">        return null;</span>
+<span class="nc" id="L123">        return null;</span>
     }
 
     /**
@@ -128,24 +129,24 @@ class RDF4JGraph implements Graph {
      * @return the object as a RDF4J {@link Value}, may be {@code null}
      */
     static Value getObject(final RDFNode object) {
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (object != null) {</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (object.isNamedNode()) {</span>
-<span class="nc" id="L133">                return VF.createIRI(object.getURI().toString());</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            } else if (object.isLiteral()) {</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                if (object.getDatatype() != null) {</span>
-<span class="nc" id="L136">                    return VF.createLiteral(object.getLiteral(),</span>
-<span class="nc" id="L137">                            VF.createIRI(object.getDatatype().toString())</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (object != null) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (object.isNamedNode()) {</span>
+<span class="nc" id="L134">                return VF.createIRI(object.getURI().toString());</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            } else if (object.isLiteral()) {</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (object.getDatatype() != null) {</span>
+<span class="nc" id="L137">                    return VF.createLiteral(object.getLiteral(),</span>
+<span class="nc" id="L138">                            VF.createIRI(object.getDatatype().toString())</span>
                     );
-<span class="nc bnc" id="L139" title="All 2 branches missed.">                } else if (object.getLanguage() != null) {</span>
-<span class="nc" id="L140">                    return VF.createLiteral(object.getLiteral(), object.getLanguage());</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                } else if (object.getLanguage() != null) {</span>
+<span class="nc" id="L141">                    return VF.createLiteral(object.getLiteral(), object.getLanguage());</span>
                 } else {
-<span class="nc" id="L142">                    return VF.createLiteral(object.getLiteral());</span>
+<span class="nc" id="L143">                    return VF.createLiteral(object.getLiteral());</span>
                 }
             } else {
-<span class="nc" id="L145">                return VF.createBNode(object.getNodeId());</span>
+<span class="nc" id="L146">                return VF.createBNode(object.getNodeId());</span>
             }
         }
-<span class="nc" id="L148">        return null;</span>
+<span class="nc" id="L149">        return null;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

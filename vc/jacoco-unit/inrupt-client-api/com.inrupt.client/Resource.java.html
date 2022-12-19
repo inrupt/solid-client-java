@@ -21,8 +21,6 @@
 package com.inrupt.client;
 
 import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -30,8 +28,6 @@ import com.inrupt.client.spi.ServiceProvider;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * A base class for resource mapping.
@@ -40,7 +36,7 @@ import java.util.stream.Stream;
  */
 public class Resource {
 
-<span class="nc" id="L43">    private static final RdfService service = ServiceProvider.getRdfService();</span>
+<span class="nc" id="L39">    private static final RdfService service = ServiceProvider.getRdfService();</span>
 
     private final Dataset dataset;
     private final URI identifier;
@@ -53,10 +49,10 @@ public class Resource {
      * @param identifier the resource identifier
      * @param dataset the dataset corresponding to this resource, may be {@code null}
      */
-<span class="nc" id="L56">    protected Resource(final URI identifier, final Dataset dataset) {</span>
-<span class="nc" id="L57">        this.identifier = identifier;</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        this.dataset = dataset != null ? dataset : new EmptyDataset();</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L52">    protected Resource(final URI identifier, final Dataset dataset) {</span>
+<span class="nc" id="L53">        this.identifier = identifier;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        this.dataset = dataset != null ? dataset : service.createDataset();</span>
+<span class="nc" id="L55">    }</span>
 
     /**
      * Get the identifier for this resource.
@@ -64,7 +60,7 @@ public class Resource {
      * @return the resource identifier
      */
     public URI getIdentifier() {
-<span class="nc" id="L67">        return identifier;</span>
+<span class="nc" id="L63">        return identifier;</span>
     }
 
     /**
@@ -73,7 +69,7 @@ public class Resource {
      * @return the resource dataset
      */
     public Dataset getDataset() {
-<span class="nc" id="L76">        return dataset;</span>
+<span class="nc" id="L72">        return dataset;</span>
     }
 
     /**
@@ -84,8 +80,8 @@ public class Resource {
      * @throws IOException in the case of an I/O error
      */
     public void serialize(final Syntax syntax, final OutputStream out) throws IOException {
-<span class="nc" id="L87">        service.fromDataset(getDataset(), syntax, out);</span>
-<span class="nc" id="L88">    }</span>
+<span class="nc" id="L83">        service.fromDataset(getDataset(), syntax, out);</span>
+<span class="nc" id="L84">    }</span>
 
     /**
      * Validate the dataset for this object.
@@ -95,19 +91,6 @@ public class Resource {
      */
     public void validate() {
         // no-op
-<span class="nc" id="L98">    }</span>
-
-<span class="nc" id="L100">    class EmptyDataset implements Dataset {</span>
-        @Override
-        public Stream&lt;Quad&gt; stream(final Optional&lt;RDFNode&gt; graph, final RDFNode subject, final RDFNode predicate,
-                final RDFNode object) {
-<span class="nc" id="L104">            return Stream.empty();</span>
-        }
-
-        @Override
-        public Stream&lt;Quad&gt; stream() {
-<span class="nc" id="L109">            return Stream.empty();</span>
-        }
-    }
+<span class="nc" id="L94">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

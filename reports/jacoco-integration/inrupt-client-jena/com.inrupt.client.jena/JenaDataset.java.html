@@ -82,16 +82,30 @@ class JenaDataset implements Dataset {
 <span class="nc" id="L82">        return Iter.asStream(iter).map(JenaQuad::new);</span>
     }
 
-    /**
-     * Return a sequential stream of Quads with this JenaDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Quad}
-     */
     @Override
-    public Stream&lt;Quad&gt; stream() {
-<span class="nc" id="L92">        final var iter = dataset.find();</span>
-<span class="nc" id="L93">        return Iter.asStream(iter).map(JenaQuad::new);</span>
-    }
+    public void add(final Quad quad) {
+<span class="nc" id="L87">        dataset.add(getGraphName(quad.getGraphName()),</span>
+<span class="nc" id="L88">                JenaGraph.getSubject(quad.getSubject()),</span>
+<span class="nc" id="L89">                JenaGraph.getPredicate(quad.getPredicate()),</span>
+<span class="nc" id="L90">                JenaGraph.getObject(quad.getObject()));</span>
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public void remove(final Quad quad) {
+<span class="nc" id="L95">        dataset.delete(getGraphName(quad.getGraphName()),</span>
+<span class="nc" id="L96">                JenaGraph.getSubject(quad.getSubject()),</span>
+<span class="nc" id="L97">                JenaGraph.getPredicate(quad.getPredicate()),</span>
+<span class="nc" id="L98">                JenaGraph.getObject(quad.getObject()));</span>
+<span class="nc" id="L99">    }</span>
+
+    @Override
+    public void remove(final Optional&lt;RDFNode&gt; graphName, final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+<span class="nc" id="L104">        dataset.deleteAny(getGraphName(graphName),</span>
+<span class="nc" id="L105">                JenaGraph.getSubject(subject),</span>
+<span class="nc" id="L106">                JenaGraph.getPredicate(predicate),</span>
+<span class="nc" id="L107">                JenaGraph.getObject(object));</span>
+<span class="nc" id="L108">    }</span>
 
     /**
      * Retrieve the Jena graph node from a RDFNode graph.
@@ -100,22 +114,22 @@ class JenaDataset implements Dataset {
      * @return the graph as a Jena {@link Node}
      */
     static Node getGraphName(final Optional&lt;RDFNode&gt; graph) {
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (graph != null) {</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (graph.isPresent()) {</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (graph.get().isLiteral()) {</span>
-<span class="nc" id="L106">                    throw new IllegalArgumentException(&quot;Graph cannot be an RDF literal&quot;);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (graph != null) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (graph.isPresent()) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (graph.get().isLiteral()) {</span>
+<span class="nc" id="L120">                    throw new IllegalArgumentException(&quot;Graph cannot be an RDF literal&quot;);</span>
                 }
-<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (graph.get().isNamedNode()) {</span>
-<span class="nc" id="L109">                    return NodeFactory.createURI(graph.get().getURI().toString());</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                if (graph.get().isNamedNode()) {</span>
+<span class="nc" id="L123">                    return NodeFactory.createURI(graph.get().getURI().toString());</span>
                 }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (graph.get().isBlankNode()) {</span>
-<span class="nc" id="L112">                    return NodeFactory.createBlankNode(BlankNodeId.create(graph.get().getNodeId()));</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (graph.get().isBlankNode()) {</span>
+<span class="nc" id="L126">                    return NodeFactory.createBlankNode(BlankNodeId.create(graph.get().getNodeId()));</span>
                 }
             } else {
-<span class="nc" id="L115">                return defaultGraphNodeGenerated;</span>
+<span class="nc" id="L129">                return defaultGraphNodeGenerated;</span>
             }
         }
-<span class="nc" id="L118">        return Node.ANY;</span>
+<span class="nc" id="L132">        return Node.ANY;</span>
     }
 
 }
