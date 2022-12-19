@@ -48,7 +48,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @ApplicationScoped
 @Path("/solid")
-public class SolidResource {
+public class SolidStorage {
 
     final Client client = ClientProvider.getClient();
 
