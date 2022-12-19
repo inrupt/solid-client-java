@@ -114,7 +114,7 @@ public final class Request {
 <span class="nc" id="L114">        return new Builder().uri(uri);</span>
     }
 
-    private Request(final URI uri, final String method, final Map&lt;String, List&lt;String&gt;&gt; headers,
+    Request(final URI uri, final String method, final Map&lt;String, List&lt;String&gt;&gt; headers,
 <span class="nc" id="L118">            final BodyPublisher publisher, final Duration timeout) {</span>
 <span class="nc" id="L119">        this.uri = Objects.requireNonNull(uri, &quot;Request URI may not be null!&quot;);</span>
 <span class="nc" id="L120">        this.method = Objects.requireNonNull(method, &quot;Request method may not be null!&quot;);</span>
@@ -345,7 +345,7 @@ public final class Request {
 <span class="nc" id="L345">            return new Request(uri, method, headers, publisher, timeout);</span>
         }
 
-<span class="nc" id="L348">        private Builder() {</span>
+<span class="nc" id="L348">        Builder() {</span>
             // Prevent direct instantiation.
 <span class="nc" id="L350">        }</span>
     }

@@ -27,11 +27,7 @@ import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -39,31 +35,16 @@ import java.util.stream.Stream;
  */
 public final class SolidContainer extends SolidResource {
 
-    private SolidContainer(final URI id, final Dataset dataset, final URI storage) {
-<span class="fc" id="L43">        super(id, dataset, storage);</span>
-<span class="fc" id="L44">    }</span>
-
     /**
      * Create a new SolidContainer.
      *
-     * @param id the container's unique identifier
-     * @return the new {@link SolidContainer} object
-     */
-    public static SolidContainer of(final URI id) {
-<span class="nc" id="L53">        return of(id, null, null);</span>
-    }
-
-    /**
-     * Create a new SolidContainer.
-     *
-     * @param id the container's unique identifier
+     * @param identifier the container's unique identifier
      * @param dataset the dataset for this container, may be {@code null}
-     * @param storage the container's storage URI, may be {@code null}
-     * @return the new {@link SolidContainer} object
+     * @param metadata the container's metadata, may be {@code null}
      */
-    public static SolidContainer of(final URI id, final Dataset dataset, final URI storage) {
-<span class="fc" id="L65">        return new SolidContainer(id, dataset, storage);</span>
-    }
+    public SolidContainer(final URI identifier, final Dataset dataset, final Metadata metadata) {
+<span class="fc" id="L46">        super(identifier, dataset, metadata);</span>
+<span class="fc" id="L47">    }</span>
 
     /**
      * Retrieve the resources contained in this SolidContainer.
@@ -71,19 +52,22 @@ public final class SolidContainer extends SolidResource {
      * @return the contained resources
      */
     public Stream&lt;SolidResource&gt; getContainedResources() {
-<span class="fc" id="L74">        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getId()), RDFNode.namedNode(LDP.contains), null)</span>
-<span class="fc" id="L75">            .map(Quad::getObject)</span>
-<span class="fc" id="L76">            .filter(RDFNode::isNamedNode)</span>
-<span class="fc" id="L77">            .map(RDFNode::getURI)</span>
-<span class="fc" id="L78">            .map(child -&gt; {</span>
-<span class="fc" id="L79">                final SolidResource.Builder builder = SolidResource.newResourceBuilder();</span>
-<span class="fc" id="L80">                getStorage().ifPresent(builder::storage);</span>
-<span class="fc" id="L81">                getDataset().stream(Optional.empty(), RDFNode.namedNode(child), RDFNode.namedNode(RDF.type), null)</span>
-<span class="fc" id="L82">                    .map(Quad::getObject)</span>
-<span class="fc" id="L83">                    .filter(RDFNode::isNamedNode)</span>
-<span class="fc" id="L84">                    .map(RDFNode::getURI)</span>
-<span class="fc" id="L85">                    .forEach(builder::type);</span>
-<span class="fc" id="L86">                return builder.build(child);</span>
+<span class="fc" id="L55">        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getIdentifier()),</span>
+<span class="fc" id="L56">                RDFNode.namedNode(LDP.contains), null)</span>
+<span class="fc" id="L57">            .map(Quad::getObject)</span>
+<span class="fc" id="L58">            .filter(RDFNode::isNamedNode)</span>
+<span class="fc" id="L59">            .map(RDFNode::getURI)</span>
+<span class="fc" id="L60">            .map(child -&gt; {</span>
+<span class="fc" id="L61">                final SolidResource.Builder builder = SolidResource.newResourceBuilder();</span>
+<span class="fc" id="L62">                final Metadata.Builder metadata = Metadata.newBuilder();</span>
+<span class="fc" id="L63">                getMetadata().getStorage().ifPresent(metadata::storage);</span>
+<span class="fc" id="L64">                getDataset().stream(Optional.empty(), RDFNode.namedNode(child), RDFNode.namedNode(RDF.type), null)</span>
+<span class="fc" id="L65">                    .map(Quad::getObject)</span>
+<span class="fc" id="L66">                    .filter(RDFNode::isNamedNode)</span>
+<span class="fc" id="L67">                    .map(RDFNode::getURI)</span>
+<span class="fc" id="L68">                    .forEach(metadata::type);</span>
+<span class="fc" id="L69">                builder.metadata(metadata.build());</span>
+<span class="fc" id="L70">                return builder.build(child);</span>
             });
     }
 
@@ -93,7 +77,7 @@ public final class SolidContainer extends SolidResource {
      * @return the builder
      */
     public static Builder newContainerBuilder() {
-<span class="fc" id="L96">        return new Builder();</span>
+<span class="fc" id="L80">        return new Builder();</span>
     }
 
     /**
@@ -101,90 +85,18 @@ public final class SolidContainer extends SolidResource {
      */
     public static final class Builder{
 
-        private URI builderStorage;
+        private Metadata builderMetadata;
         private Dataset builderDataset;
-<span class="fc" id="L106">        private Set&lt;URI&gt; builderType = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L107">        private Map&lt;String, Set&lt;String&gt;&gt; builderWacAllow = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L108">        private Set&lt;String&gt; builderAllowedMethods = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L109">        private Set&lt;String&gt; builderAllowedPatchSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L110">        private Set&lt;String&gt; builderAllowedPostSyntaxes = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L111">        private Set&lt;String&gt; builderAllowedPutSyntaxes = new HashSet&lt;&gt;();</span>
 
         /**
-         * Add a storage property.
+         * Add a metadata property.
          *
-         * @param uri the storage URI
+         * @param metadata the resource metadata
          * @return this builder
          */
-        public Builder storage(final URI uri) {
-<span class="fc" id="L120">            builderStorage = uri;</span>
-<span class="fc" id="L121">            return this;</span>
-        }
-
-        /**
-         * Add a type property.
-         *
-         * @param uri the type URI
-         * @return this builder
-         */
-        public Builder type(final URI uri) {
-<span class="fc" id="L131">            builderType.add(uri);</span>
-<span class="fc" id="L132">            return this;</span>
-        }
-
-        /**
-         * Add a wacAllow property.
-         *
-         * @param accessParam the Access Parameter
-         * @return this builder
-         */
-        public Builder wacAllow(final Map.Entry&lt;String, Set&lt;String&gt;&gt; accessParam) {
-<span class="fc" id="L142">            builderWacAllow.put(accessParam.getKey(), accessParam.getValue());</span>
-<span class="fc" id="L143">            return this;</span>
-        }
-
-        /**
-         * Add an allowedMethod property.
-         *
-         * @param method the method
-         * @return this builder
-         */
-        public Builder allowedMethod(final String method) {
-<span class="fc" id="L153">            builderAllowedMethods.add(method);</span>
-<span class="fc" id="L154">            return this;</span>
-        }
-
-        /**
-         * Add a allowedPatchSyntax property.
-         *
-         * @param syntax the syntax
-         * @return this builder
-         */
-        public Builder allowedPatchSyntax(final String syntax) {
-<span class="fc" id="L164">            builderAllowedPatchSyntaxes.add(syntax);</span>
-<span class="fc" id="L165">            return this;</span>
-        }
-
-        /**
-         * Add a allowedPostSyntax property.
-         *
-         * @param syntax the syntax
-         * @return this builder
-         */
-        public Builder allowedPostSyntax(final String syntax) {
-<span class="fc" id="L175">            builderAllowedPostSyntaxes.add(syntax);</span>
-<span class="fc" id="L176">            return this;</span>
-        }
-
-        /**
-         * Add a allowedPutSyntax property.
-         *
-         * @param syntax the syntax
-         * @return this builder
-         */
-        public Builder allowedPutSyntax(final String syntax) {
-<span class="fc" id="L186">            builderAllowedPutSyntaxes.add(syntax);</span>
-<span class="fc" id="L187">            return this;</span>
+        public Builder metadata(final Metadata metadata) {
+<span class="fc" id="L98">            builderMetadata = metadata;</span>
+<span class="fc" id="L99">            return this;</span>
         }
 
         /**
@@ -194,31 +106,23 @@ public final class SolidContainer extends SolidResource {
          * @return this builder
          */
         public Builder dataset(final Dataset dataset) {
-<span class="fc" id="L197">            builderDataset = dataset;</span>
-<span class="fc" id="L198">            return this;</span>
+<span class="fc" id="L109">            builderDataset = dataset;</span>
+<span class="fc" id="L110">            return this;</span>
         }
 
         /**
          * Build the SolidContainer object.
          *
-         * @param id the Solid container's unique identifier
+         * @param identifier the Solid container's unique identifier
          * @return the Solid container
          */
-        public SolidContainer build(final URI id) {
-<span class="fc" id="L208">            final SolidContainer container = SolidContainer.of(id, builderDataset, builderStorage);</span>
-<span class="fc" id="L209">            container.getType().addAll(builderType);</span>
-<span class="fc" id="L210">            container.getWacAllow().putAll(builderWacAllow);</span>
-<span class="fc" id="L211">            container.getAllowedMethods().addAll(builderAllowedMethods);</span>
-<span class="fc" id="L212">            container.getAllowedPatchSyntaxes().addAll(builderAllowedPatchSyntaxes);</span>
-<span class="fc" id="L213">            container.getAllowedPostSyntaxes().addAll(builderAllowedPostSyntaxes);</span>
-<span class="fc" id="L214">            container.getAllowedPutSyntaxes().addAll(builderAllowedPutSyntaxes);</span>
-
-<span class="fc" id="L216">            return container;</span>
+        public SolidContainer build(final URI identifier) {
+<span class="fc" id="L120">            return new SolidContainer(identifier, builderDataset, builderMetadata);</span>
         }
 
-<span class="fc" id="L219">        private Builder() {</span>
+<span class="fc" id="L123">        Builder() {</span>
             // Prevent instantiations
-<span class="fc" id="L221">        }</span>
+<span class="fc" id="L125">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

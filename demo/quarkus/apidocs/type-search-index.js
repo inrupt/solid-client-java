@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.demo.quarkus","l":"SolidResource"}]
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.demo.quarkus","l":"SolidStorage"}]

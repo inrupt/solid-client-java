@@ -65,10 +65,10 @@ public final class Headers {
      */
     public List&lt;String&gt; allValues(final String name) {
 <span class="fc" id="L67">        final List&lt;String&gt; values = data.get(Objects.requireNonNull(name));</span>
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (values != null) {</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (values != null) {</span>
 <span class="fc" id="L69">            return Collections.unmodifiableList(values);</span>
         }
-<span class="nc" id="L71">        return Collections.emptyList();</span>
+<span class="fc" id="L71">        return Collections.emptyList();</span>
     }
 
     public Map&lt;String, List&lt;String&gt;&gt; asMap() {
@@ -94,8 +94,8 @@ public final class Headers {
         private final Map&lt;String, String&gt; parameters;
 
 <span class="fc" id="L96">        private Link(final URI uri, final Map&lt;String, String&gt; parameters) {</span>
-<span class="fc" id="L97">            this.uri = Objects.requireNonNull(uri);</span>
-<span class="fc" id="L98">            this.parameters = Objects.requireNonNull(parameters);</span>
+<span class="fc" id="L97">            this.uri = Objects.requireNonNull(uri, &quot;Link uri may not be null!&quot;);</span>
+<span class="fc" id="L98">            this.parameters = Objects.requireNonNull(parameters, &quot;Link parameters may not be null!&quot;);</span>
 <span class="fc" id="L99">        }</span>
 
         public URI getUri() {
@@ -163,8 +163,22 @@ public final class Headers {
          * @return the new {@link Link} object
          */
         public static Link of(final URI uri, final String rel) {
-<span class="fc" id="L166">            return of(uri, Collections.singletonMap(&quot;rel&quot;, rel));</span>
+<span class="fc" id="L166">            Objects.requireNonNull(&quot;rel value may not be null!&quot;);</span>
+<span class="fc" id="L167">            return of(uri, Collections.singletonMap(&quot;rel&quot;, rel));</span>
         }
+
+        /**
+         * Create a new Link object with a specific URI-Reference and relation parameter.
+         *
+         * @param uri the link URI
+         * @param rel the relation value
+         * @return the new {@link Link} object
+         */
+        public static Link of(final URI uri, final URI rel) {
+<span class="fc" id="L178">            Objects.requireNonNull(&quot;rel value may not be null!&quot;);</span>
+<span class="fc" id="L179">            return of(uri, rel.toString());</span>
+        }
+
         /**
          * Create a new Link object with a specific URI-Reference and parameters.
          *
@@ -173,7 +187,7 @@ public final class Headers {
          * @return the new {@link Link} object
          */
         public static Link of(final URI uri, final Map&lt;String, String&gt; parameters) {
-<span class="fc" id="L176">            return new Link(uri, parameters);</span>
+<span class="fc" id="L190">            return new Link(uri, parameters);</span>
         }
 
         /**
@@ -183,7 +197,7 @@ public final class Headers {
          * @return a list of links
          */
         public static List&lt;Link&gt; parse(final String... headers) {
-<span class="fc" id="L186">            return ServiceProvider.getHeaderParser().parseLink(Arrays.asList(headers));</span>
+<span class="fc" id="L200">            return ServiceProvider.getHeaderParser().parseLink(Arrays.asList(headers));</span>
         }
     }
 
@@ -197,9 +211,9 @@ public final class Headers {
 
         private final List&lt;Challenge&gt; challenges;
 
-<span class="fc" id="L200">        private WwwAuthenticate(final List&lt;Challenge&gt; challenges) {</span>
-<span class="fc" id="L201">            this.challenges = Objects.requireNonNull(challenges);</span>
-<span class="fc" id="L202">        }</span>
+<span class="fc" id="L214">        private WwwAuthenticate(final List&lt;Challenge&gt; challenges) {</span>
+<span class="fc" id="L215">            this.challenges = Objects.requireNonNull(challenges);</span>
+<span class="fc" id="L216">        }</span>
 
         /**
          * Get the challenges associated with this HTTP authentication interaction.
@@ -207,7 +221,7 @@ public final class Headers {
          * @return the challenges
          */
         public List&lt;Challenge&gt; getChallenges() {
-<span class="fc" id="L210">            return Collections.unmodifiableList(challenges);</span>
+<span class="fc" id="L224">            return Collections.unmodifiableList(challenges);</span>
         }
 
         /**
@@ -217,7 +231,7 @@ public final class Headers {
          * @return the www-authenticate object
          */
         public static WwwAuthenticate of(final Challenge... challenges) {
-<span class="fc" id="L220">            return of(Arrays.asList(challenges));</span>
+<span class="fc" id="L234">            return of(Arrays.asList(challenges));</span>
         }
 
         /**
@@ -227,7 +241,7 @@ public final class Headers {
          * @return the www-authenticate object
          */
         public static WwwAuthenticate of(final List&lt;Challenge&gt; challenges) {
-<span class="fc" id="L230">            return new WwwAuthenticate(challenges);</span>
+<span class="fc" id="L244">            return new WwwAuthenticate(challenges);</span>
         }
 
         /**
@@ -237,7 +251,7 @@ public final class Headers {
          * @return the challenge objects
          */
         public static WwwAuthenticate parse(final String... headers) {
-<span class="fc" id="L240">            return ServiceProvider.getHeaderParser().parseWwwAuthenticate(Arrays.asList(headers));</span>
+<span class="fc" id="L254">            return ServiceProvider.getHeaderParser().parseWwwAuthenticate(Arrays.asList(headers));</span>
         }
     }
 
@@ -250,9 +264,9 @@ public final class Headers {
 
         private final Map&lt;String, Set&lt;String&gt;&gt; accessParams;
 
-<span class="fc" id="L253">        private WacAllow(final Map&lt;String, Set&lt;String&gt;&gt; accessParams) {</span>
-<span class="fc" id="L254">            this.accessParams = Objects.requireNonNull(accessParams);</span>
-<span class="fc" id="L255">        }</span>
+<span class="fc" id="L267">        private WacAllow(final Map&lt;String, Set&lt;String&gt;&gt; accessParams) {</span>
+<span class="fc" id="L268">            this.accessParams = Objects.requireNonNull(accessParams);</span>
+<span class="fc" id="L269">        }</span>
 
         /**
          * Create a new WAC-Allow object with a collection of Access Parameters.
@@ -261,7 +275,7 @@ public final class Headers {
          * @return the WAC-Allow object
          */
         public static WacAllow of(final Map&lt;String, Set&lt;String&gt;&gt; accessParams) {
-<span class="fc" id="L264">            return new WacAllow(accessParams);</span>
+<span class="fc" id="L278">            return new WacAllow(accessParams);</span>
         }
 
         /**
@@ -270,27 +284,27 @@ public final class Headers {
          * @return the  Access Parameters
          */
         public Map&lt;String, Set&lt;String&gt;&gt; getAccessParams() {
-<span class="fc" id="L273">            return Collections.unmodifiableMap(accessParams);</span>
+<span class="fc" id="L287">            return Collections.unmodifiableMap(accessParams);</span>
         }
 
         @Override
         public boolean equals(final Object obj) {
-<span class="fc bfc" id="L278" title="All 2 branches covered.">            if (obj == this) {</span>
-<span class="fc" id="L279">                return true;</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">            if (obj == this) {</span>
+<span class="fc" id="L293">                return true;</span>
             }
 
-<span class="fc bfc" id="L282" title="All 2 branches covered.">            if (!(obj instanceof WacAllow)) {</span>
-<span class="fc" id="L283">                return false;</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">            if (!(obj instanceof WacAllow)) {</span>
+<span class="fc" id="L297">                return false;</span>
             }
 
-<span class="fc" id="L286">            final WacAllow c = (WacAllow) obj;</span>
+<span class="fc" id="L300">            final WacAllow c = (WacAllow) obj;</span>
 
-<span class="fc" id="L288">            return Objects.equals(new HashMap&lt;&gt;(accessParams), new HashMap&lt;&gt;(c.accessParams));</span>
+<span class="fc" id="L302">            return Objects.equals(new HashMap&lt;&gt;(accessParams), new HashMap&lt;&gt;(c.accessParams));</span>
         }
 
         @Override
         public int hashCode() {
-<span class="fc" id="L293">            return Objects.hash(this.getAccessParams());</span>
+<span class="fc" id="L307">            return Objects.hash(this.getAccessParams());</span>
         }
 
         /**
@@ -300,7 +314,7 @@ public final class Headers {
          * @return WAC-Allow object containig Access Parameters from headers
          */
         public static WacAllow parse(final String... headers) {
-<span class="fc" id="L303">            return ServiceProvider.getHeaderParser().parseWacAllow(Arrays.asList(headers));</span>
+<span class="fc" id="L317">            return ServiceProvider.getHeaderParser().parseWacAllow(Arrays.asList(headers));</span>
         }
     }
 }

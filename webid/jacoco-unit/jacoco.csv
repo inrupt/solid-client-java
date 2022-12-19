@@ -1,25 +1,27 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Headers.WwwAuthenticate,0,26,0,0,0,7,0,5,0,5
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Response.BodyHandlers,0,29,0,0,0,4,0,8,0,8
-Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Headers.Link,10,139,0,8,2,22,2,13,2,9
+Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Headers.Link,18,144,0,8,4,23,3,13,3,9
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Authenticator.AccessToken,7,43,0,0,2,12,2,5,2,5
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,InruptClientException,5,4,0,0,2,2,1,1,1,1
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Session.new Session() {...},3,13,0,0,1,4,1,4,1,4
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,VerifiablePresentation,3,0,0,0,1,0,1,0,1,0
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Authenticator.DPoP,5,7,0,0,1,2,1,2,1,2
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Headers.WacAllow,0,56,0,4,0,13,0,8,0,6
+Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Resource.EmptyDataset,10,0,0,0,3,0,3,0,3,0
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Request.BodyPublishers,13,16,0,0,3,3,1,3,1,3
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,ByteBufferPublisher,5,16,0,0,1,6,1,3,1,3
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Headers,2,56,2,4,1,13,2,6,0,5
-Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Request.Builder,20,94,0,0,5,21,4,11,4,11
+Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Request.Builder,20,93,0,0,5,21,4,11,4,11
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Authenticator.Challenge,0,117,0,6,0,21,0,13,0,10
+Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Resource,33,0,2,0,10,0,7,0,6,0
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,VerifiableCredential,3,0,0,0,1,0,1,0,1,0
-Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Syntax,0,54,0,0,0,6,0,1,0,1
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,ClientProvider,3,3,0,0,1,1,1,1,1,1
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Session,0,8,0,0,0,2,0,1,0,1
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Session.Credential,0,27,0,0,0,10,0,5,0,5
-Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Request,0,57,0,0,0,14,0,8,0,8
+Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client,Request,0,55,0,0,0,14,0,8,0,8
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client.rdf,RDFNode,0,117,2,8,0,22,2,18,0,15
+Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client.rdf,Syntax,0,54,0,0,0,6,0,1,0,1
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client.spi,ReactiveAuthorization,0,128,0,12,0,30,0,11,0,5
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client.spi,RdfService,0,12,0,0,0,2,0,2,0,2
 Inrupt Client Libraries - WebID/inrupt-client-api,com.inrupt.client.spi,ClientProviderResolver,9,37,3,3,2,12,3,4,0,4

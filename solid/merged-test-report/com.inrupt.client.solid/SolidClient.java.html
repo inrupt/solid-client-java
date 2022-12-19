@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolidClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inrupt Client Libraries - Solid</a> &gt; <a href="index.source.html" class="el_package">com.inrupt.client.solid</a> &gt; <span class="el_source">SolidClient.java</span></div><h1>SolidClient.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 Inrupt Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.solid;
+
+import com.inrupt.client.Client;
+import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.Session;
+import com.inrupt.client.rdf.Dataset;
+import com.inrupt.client.rdf.Syntax;
+import com.inrupt.client.util.IOUtils;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * A high-level client for interacting with Solid resources.
+ */
+public class SolidClient {
+
+    private final Client client;
+
+<span class="fc" id="L43">    SolidClient(final Client client) {</span>
+<span class="fc" id="L44">        this.client = client;</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * Create a session-scoped client.
+     *
+     * @param session the session
+     * @return a session-scoped client
+     */
+    public SolidClient session(final Session session) {
+<span class="fc" id="L54">        return new SolidClient(client.session(session));</span>
+    }
+
+    /**
+     * Read a Solid Resource into a particular defined type.
+     *
+     * @param identifier the identifier
+     * @param clazz the desired resource type
+     * @param &lt;T&gt; the resource type
+     * @return the next stage of completion, including the new resource
+     */
+    public &lt;T extends SolidResource&gt; CompletionStage&lt;T&gt; read(final URI identifier, final Class&lt;T&gt; clazz) {
+<span class="fc" id="L66">        final Request req = Request.newBuilder(identifier)</span>
+<span class="fc" id="L67">            .header(&quot;Accept&quot;, &quot;text/turtle&quot;)</span>
+<span class="fc" id="L68">            .GET().build();</span>
+
+<span class="fc" id="L70">        return client.sendAsync(req, SolidResourceHandlers.ofSolidResource())</span>
+<span class="fc" id="L71">            .thenApply(Response::body)</span>
+<span class="fc" id="L72">            .thenApply(resource -&gt; {</span>
+                try {
+<span class="fc" id="L74">                    return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)</span>
+<span class="fc" id="L75">                            .newInstance(identifier, resource.getDataset(), resource.getMetadata());</span>
+<span class="fc" id="L76">                } catch (final ReflectiveOperationException ex) {</span>
+<span class="fc" id="L77">                    throw new SolidResourceException(&quot;Unable to read resource into type &quot; + clazz.getName(), ex);</span>
+                }
+            });
+    }
+
+    /**
+     * Create a new Solid Resource.
+     *
+     * @param resource the resource
+     * @param &lt;T&gt; the resource type
+     * @return the next stage of completion
+     */
+    public &lt;T extends SolidResource&gt; CompletionStage&lt;Response&lt;Void&gt;&gt; create(final T resource) {
+<span class="fc" id="L90">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
+<span class="fc" id="L91">            .header(&quot;Content-Type&quot;, &quot;text/turtle&quot;)</span>
+<span class="fc" id="L92">            .header(&quot;If-None-Match&quot;, &quot;*&quot;)</span>
+<span class="fc" id="L93">            .PUT(cast(resource))</span>
+<span class="fc" id="L94">            .build();</span>
+
+<span class="fc" id="L96">        return client.sendAsync(req, Response.BodyHandlers.discarding());</span>
+    }
+
+    /**
+     * Update an existing Solid Resource.
+     *
+     * @param resource the resource
+     * @param &lt;T&gt; the resource type
+     * @return the next stage of completion
+     */
+    public &lt;T extends SolidResource&gt; CompletionStage&lt;Response&lt;Void&gt;&gt; update(final T resource) {
+<span class="fc" id="L107">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
+<span class="fc" id="L108">            .header(&quot;Content-Type&quot;, &quot;text/turtle&quot;)</span>
+<span class="fc" id="L109">            .PUT(cast(resource))</span>
+<span class="fc" id="L110">            .build();</span>
+
+<span class="fc" id="L112">        return client.sendAsync(req, Response.BodyHandlers.discarding());</span>
+    }
+
+    /**
+     * Delete an existing Solid Resource.
+     *
+     * @param resource the resource
+     * @param &lt;T&gt; the resource type
+     * @return the next stage of completion
+     */
+    public &lt;T extends SolidResource&gt; CompletionStage&lt;Response&lt;Void&gt;&gt; delete(final T resource) {
+<span class="fc" id="L123">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
+<span class="fc" id="L124">            .DELETE()</span>
+<span class="fc" id="L125">            .build();</span>
+<span class="fc" id="L126">        return client.sendAsync(req, Response.BodyHandlers.discarding());</span>
+    }
+
+    /**
+     * Create a new SolidClient from an underlying {@link Client} instance.
+     *
+     * @param client the client
+     * @return the new solid client
+     */
+    public static SolidClient of(final Client client) {
+<span class="fc" id="L136">        return new SolidClient(client);</span>
+    }
+
+    /**
+     * Get the {@link SolidClient} for the current application.
+     *
+     * @return the client instance
+     */
+    public static SolidClient getClient() {
+<span class="fc" id="L145">        return SolidClient.of(ClientProvider.getClient());</span>
+    }
+
+    static Request.BodyPublisher cast(final SolidResource resource) {
+<span class="fc" id="L149">        return IOUtils.buffer(out -&gt; {</span>
+            try {
+<span class="fc" id="L151">                resource.serialize(Syntax.TURTLE, out);</span>
+<span class="fc" id="L152">            } catch (final IOException ex) {</span>
+<span class="fc" id="L153">                throw new SolidResourceException(&quot;Unable to serialize &quot; + resource.getClass().getName() +</span>
+                        &quot; into Solid Resource&quot;, ex);
+<span class="fc" id="L155">            }</span>
+<span class="fc" id="L156">        });</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
