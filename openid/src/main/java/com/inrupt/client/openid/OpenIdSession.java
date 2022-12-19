@@ -61,13 +61,13 @@ public final class OpenIdSession implements Session {
     private final OpenIdVerificationConfig config;
     private final URI issuer;
     private final Set<String> schemes;
-    private final List<String> scopes;
     private final Supplier<CompletionStage<Session.Credential>> authenticator;
 
     private OpenIdSession(final String idToken, final OpenIdVerificationConfig config,
             final Supplier<CompletionStage<Session.Credential>> authenticator) {
         this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
         this.jwt = Objects.requireNonNull(idToken, "ID Token may not be null!");
+        this.authenticator = Objects.requireNonNull(authenticator);
 
         final JwtClaims claims = parseIdToken(idToken, config);
         this.id = getSessionIdentifier(claims);
@@ -79,7 +79,6 @@ public final class OpenIdSession implements Session {
         schemeNames.add("Bearer");
 
         this.schemes = Collections.unmodifiableSet(schemeNames);
-        this.authenticator = authenticator;
     }
 
     /**
@@ -134,9 +133,8 @@ public final class OpenIdSession implements Session {
                 .authMethod(authMethod)
                 .scopes(scopes)
                 .build("client_credentials", clientId))
-            .thenApply(response -> Optional.of(new AccessToken(response.idToken, response.tokenType,
-                        toInstant(response.expiresIn), provider.getIssuer(),
-                        Arrays.asList(scopes), null)));
+            .thenApply(response -> new Credential(response.tokenType, provider.getIssuer(), response.idToken,
+                        toInstant(response.expiresIn)));
     }
 
     @Override
@@ -150,11 +148,6 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
-    public List<String> getScope() {
-        return scopes;
-    }
-
-    @Override
     public Optional<Session.Credential> getCredential(final String name) {
         if (ID_TOKEN.equals(name) && !hasExpired()) {
             return Optional.of(new Session.Credential("Bearer", issuer, jwt, expiration));
@@ -165,6 +158,11 @@ public final class OpenIdSession implements Session {
     @Override
     public Optional<Session.Credential> fromCache(final Request request) {
         return Optional.empty();
+    }
+
+    @Override
+    public CompletionStage<Optional<Session.Credential>> authenticate(final Request request) {
+        return authenticator.get().thenApply(Optional::ofNullable);
     }
 
     boolean hasExpired() {
