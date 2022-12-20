@@ -25,6 +25,7 @@
     <commons.codec.version>1.15</commons.codec.version>
     <commons.cli.version>1.5.0</commons.cli.version>
     <commons.io.version>2.11.0</commons.io.version>
+    <commons.rdf.version>0.5.0</commons.rdf.version>
     <jackson.version>2.14.1</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.6.1</jena.version>
@@ -137,6 +138,11 @@
         <version>${jena.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-commonsrdf</artifactId>
+        <version>${jena.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.bitbucket.b_c</groupId>
         <artifactId>jose4j</artifactId>
         <version>${jose4j.version}</version>
@@ -147,9 +153,24 @@
         <version>${caffeine.version}</version>
       </dependency>
       <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons.codec.version}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons.io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-rdf-api</artifactId>
+        <version>${commons.rdf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-rdf-rdf4j</artifactId>
+        <version>${commons.rdf.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -160,11 +181,6 @@
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
         <version>${okhttp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons.codec.version}</version>
       </dependency>
 
       <!-- testing -->

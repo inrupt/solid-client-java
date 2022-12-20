@@ -20,14 +20,17 @@
  */
 package com.inrupt.client;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Syntax;
+import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * A base class for resource mapping.
@@ -37,6 +40,7 @@ import java.net.URI;
 public class Resource {
 
     private static final RdfService service = ServiceProvider.getRdfService();
+    private static final RDF rdf = RDFFactory.getInstance();
 
     private final Dataset dataset;
     private final URI identifier;
@@ -51,7 +55,7 @@ public class Resource {
      */
     protected Resource(final URI identifier, final Dataset dataset) {
         this.identifier = identifier;
-        this.dataset = dataset != null ? dataset : service.createDataset();
+        this.dataset = dataset != null ? dataset : rdf.createDataset();
     }
 
     /**
@@ -79,7 +83,7 @@ public class Resource {
      * @param out the output stream
      * @throws IOException in the case of an I/O error
      */
-    public void serialize(final Syntax syntax, final OutputStream out) throws IOException {
+    public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
         service.fromDataset(getDataset(), syntax, out);
     }
 
