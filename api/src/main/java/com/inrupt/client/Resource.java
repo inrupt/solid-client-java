@@ -21,8 +21,6 @@
 package com.inrupt.client;
 
 import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -30,8 +28,6 @@ import com.inrupt.client.spi.ServiceProvider;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * A base class for resource mapping.
@@ -55,7 +51,7 @@ public class Resource {
      */
     protected Resource(final URI identifier, final Dataset dataset) {
         this.identifier = identifier;
-        this.dataset = dataset != null ? dataset : new EmptyDataset();
+        this.dataset = dataset != null ? dataset : service.createDataset();
     }
 
     /**
@@ -95,18 +91,5 @@ public class Resource {
      */
     public void validate() {
         // no-op
-    }
-
-    class EmptyDataset implements Dataset {
-        @Override
-        public Stream<Quad> stream(final Optional<RDFNode> graph, final RDFNode subject, final RDFNode predicate,
-                final RDFNode object) {
-            return Stream.empty();
-        }
-
-        @Override
-        public Stream<Quad> stream() {
-            return Stream.empty();
-        }
     }
 }

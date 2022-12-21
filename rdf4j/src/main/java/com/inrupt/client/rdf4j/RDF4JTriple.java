@@ -57,7 +57,7 @@ class RDF4JTriple implements Triple {
         if (s.isIRI()) {
             return RDFNode.namedNode(URI.create(s.stringValue()));
         }
-        return RDFNode.blankNode();
+        return RDFNode.blankNode(s.stringValue());
     }
 
     /**
@@ -90,7 +90,7 @@ class RDF4JTriple implements Triple {
             }
             return RDFNode.literal(lo.getLabel());
         } else {
-            return RDFNode.blankNode();
+            return RDFNode.blankNode(o.stringValue());
         }
     }
 }
