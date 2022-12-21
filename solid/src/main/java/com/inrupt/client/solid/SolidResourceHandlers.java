@@ -23,7 +23,6 @@ package com.inrupt.client.solid;
 import com.inrupt.client.Headers.Link;
 import com.inrupt.client.Headers.WacAllow;
 import com.inrupt.client.Response;
-import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;
@@ -32,10 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+
+import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * Body handlers for Solid Resources.
@@ -43,7 +40,6 @@ import java.util.TreeMap;
 public final class SolidResourceHandlers {
 
     private static final RdfService service = ServiceProvider.getRdfService();
-    private static final Map<String, Syntax> SYNTAX_MAPPING = buildMapping();
 
     /**
      * Transform an HTTP response into a Solid Resource.
@@ -56,7 +52,7 @@ public final class SolidResourceHandlers {
                 .metadata(buildMetadata(responseInfo));
 
             responseInfo.headers().firstValue("Content-Type")
-                .flatMap(SolidResourceHandlers::toSyntax)
+                .flatMap(RDFSyntax::byMediaType)
                 .ifPresent(syntax -> {
                     try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
                         builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
@@ -80,7 +76,7 @@ public final class SolidResourceHandlers {
                 .metadata(buildMetadata(responseInfo));
 
             responseInfo.headers().firstValue("Content-Type")
-                .flatMap(SolidResourceHandlers::toSyntax)
+                .flatMap(RDFSyntax::byMediaType)
                 .ifPresent(syntax -> {
                     try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
                         builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
@@ -91,11 +87,6 @@ public final class SolidResourceHandlers {
 
             return builder.build(responseInfo.uri());
         };
-    }
-
-    static Optional<Syntax> toSyntax(final String contentType) {
-        final String type = contentType.split(";")[0].trim();
-        return Optional.ofNullable(SYNTAX_MAPPING.get(type));
     }
 
     static Metadata buildMetadata(final Response.ResponseInfo responseInfo) {
@@ -138,16 +129,6 @@ public final class SolidResourceHandlers {
             .forEach(metadata::allowedPutSyntax);
 
         return metadata.build();
-    }
-
-    static Map<String, Syntax> buildMapping() {
-        final Map<String, Syntax> mapping = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        mapping.put("text/turtle", Syntax.TURTLE);
-        mapping.put("application/n-triples", Syntax.NTRIPLES);
-        mapping.put("application/trig", Syntax.TRIG);
-        mapping.put("application/n-quads", Syntax.NQUADS);
-        mapping.put("application/ld+json", Syntax.JSONLD);
-        return Collections.unmodifiableMap(mapping);
     }
 
     private SolidResourceHandlers() {

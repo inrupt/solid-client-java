@@ -25,13 +25,14 @@ import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.Session;
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
+
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * A high-level client for interacting with Solid resources.
@@ -161,7 +162,7 @@ public class SolidClient {
     static Request.BodyPublisher cast(final SolidResource resource) {
         return IOUtils.buffer(out -> {
             try {
-                resource.serialize(Syntax.TURTLE, out);
+                resource.serialize(RDFSyntax.TURTLE, out);
             } catch (final IOException ex) {
                 throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
                         " into Solid Resource", ex);

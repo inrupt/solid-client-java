@@ -40,7 +40,11 @@ import org.apache.commons.rdf.api.RDFSyntax;
 public class Resource {
 
     private static final RdfService service = ServiceProvider.getRdfService();
-    private static final RDF rdf = RDFFactory.getInstance();
+
+    /**
+     * The RDF Factory instance.
+     */
+    protected static final RDF rdf = RDFFactory.getInstance();
 
     private final Dataset dataset;
     private final URI identifier;

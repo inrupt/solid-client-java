@@ -21,9 +21,10 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Resource;
-import com.inrupt.client.rdf.Dataset;
 
 import java.net.URI;
+
+import org.apache.commons.rdf.api.Dataset;
 
 /**
  * A Solid Resource Object.

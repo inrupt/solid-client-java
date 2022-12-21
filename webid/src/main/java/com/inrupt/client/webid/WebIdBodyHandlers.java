@@ -20,20 +20,26 @@
  */
 package com.inrupt.client.webid;
 
+import static com.inrupt.client.vocabulary.RDF.type;
+
 import com.inrupt.client.*;
-import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.rdf.Syntax;
-import com.inrupt.client.rdf.Triple;
+import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.vocabulary.PIM;
-import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.vocabulary.RDFS;
 import com.inrupt.client.vocabulary.Solid;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.RDFSyntax;
+import org.apache.commons.rdf.api.Triple;
 
 /**
  * Body handlers for WebID Profiles.
@@ -41,6 +47,7 @@ import java.net.URI;
 public final class WebIdBodyHandlers {
 
     private static final RdfService service = ServiceProvider.getRdfService();
+    private static final RDF rdf = RDFFactory.getInstance();
 
     /**
      * Transform an HTTP response into a WebID Profile object.
@@ -49,34 +56,32 @@ public final class WebIdBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
+        final IRI oidcIssuer = rdf.createIRI(Solid.oidcIssuer.toString());
+        final IRI seeAlso = rdf.createIRI(RDFS.seeAlso.toString());
+        final IRI storage = rdf.createIRI(PIM.storage.toString());
+        final IRI rdfType = rdf.createIRI(type.toString());
+
         return responseInfo -> {
-            final var builder = WebIdProfile.newBuilder();
-            try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final var graph = service.toGraph(Syntax.TURTLE, input);
+            final WebIdProfile.Builder builder = WebIdProfile.newBuilder();
+            try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
+                final Graph graph = service.toGraph(RDFSyntax.TURTLE, input, responseInfo.uri().toString());
+                final IRI subject = rdf.createIRI(webid.toString());
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(Solid.oidcIssuer), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::oidcIssuer);
+                graph.stream(subject, oidcIssuer, null)
+                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).map(URI::create).forEach(builder::oidcIssuer);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDFS.seeAlso), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::seeAlso);
+                graph.stream(subject, seeAlso, null)
+                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).map(URI::create).forEach(builder::seeAlso);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(PIM.storage), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::storage);
+                graph.stream(subject, storage, null)
+                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).map(URI::create).forEach(builder::storage);
 
-                graph.stream(RDFNode.namedNode(webid), RDFNode.namedNode(RDF.type), null)
-                    .map(Triple::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(builder::type);
+                graph.stream(subject, rdfType, null)
+                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).map(URI::create).forEach(builder::type);
 
             } catch (final IOException ex) {
                 throw new WebIdException("Error parsing WebId profile resource", ex);
