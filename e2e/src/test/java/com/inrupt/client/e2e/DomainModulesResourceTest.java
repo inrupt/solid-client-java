@@ -20,53 +20,37 @@
  */
 package com.inrupt.client.e2e;
 
-import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
-import static org.apache.jena.rdf.model.ResourceFactory.createResource;
-import static org.apache.jena.rdf.model.ResourceFactory.createStatement;
-import static org.apache.jena.rdf.model.ResourceFactory.createTypedLiteral;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Headers;
-import com.inrupt.client.InruptClientException;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.jena.JenaBodyHandlers;
-import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.rdf.Dataset;
+import com.inrupt.client.rdf.RDFFactory;
+import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdBodyHandlers;
+import com.inrupt.client.webid.WebIdProfile;
 
 import io.smallrye.config.SmallRyeConfig;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.update.UpdateFactory;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 public class DomainModulesResourceTest {
 
@@ -77,10 +61,11 @@ public class DomainModulesResourceTest {
 
     private static String podUrl = "";
     private static String testResource = "";
+    private static final URI webid = URI.create(smallRyeConfig.getValue("webid", String.class));
 
     @BeforeAll
     static void setup() {
-        final var webid = URI.create(smallRyeConfig.getValue("webid", String.class));
+
         final var sub = smallRyeConfig.getValue("username", String.class);
         final var iss = smallRyeConfig.getValue("issuer", String.class);
         final var azp = smallRyeConfig.getValue("azp", String.class);
@@ -108,154 +93,141 @@ public class DomainModulesResourceTest {
         }
     }
 
-    @Nested
-    @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
+    @Test
+    @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     @Disabled()
-    class CRUDrdfTest {
+    void crudRdfTest() {
         final String newResourceName = testResource + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
-        @Test
-        @DisplayName("create RDF resource")
-        void createResourceTest() {
+        final RDFNode newResourceNode = RDFNode.namedNode(URI.create(newResourceName));
+        final RDFNode newPredicateNode = RDFNode.namedNode(URI.create(newPredicateName));
+        final RDFNode object =
+                RDFNode.literal("true", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
 
-            final List<Statement> statementsToAdd = List.of(createStatement(createResource(newResourceName),
-                    createProperty(newPredicateName), createTypedLiteral(true)));
-            final Dataset dataset;
-            SolidResource newResource =
-                    SolidResource.newResourceBuilder().dataset(null).build(URI.create(newResourceName));
-            final var newResourceCreated = client.create(newResource)
-                    .toCompletableFuture().join();
-            
-        }
+        final Dataset dataset = RDFFactory.createDataset();
+        dataset.add(RDFFactory.createQuad(newResourceNode, newPredicateNode, object));
 
-        @Test
-        @DisplayName("read RDF resource")
-        void readResourceTest() {
+        SolidResource newResource =
+                SolidResource.newResourceBuilder().dataset(dataset)
+                        .build(URI.create(newResourceName));
 
-        }
+        assertDoesNotThrow(client.create(newResource).toCompletableFuture()::join);
 
-        @Test
-        @DisplayName("update RDF resource")
-        void updateResourceTest() {
-        }
+        newResource = client.read(URI.create(newResourceName), SolidResource.class)
+                        .toCompletableFuture().join();
+        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
+        assertEquals(1, newResource.getDataset().stream().count());
 
-        @Test
-        @DisplayName("delete RDF resource")
-        void deleteResourceTest() {
-        }
+        final RDFNode newObject =
+                RDFNode.literal("false", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
+        final Dataset newDataset = RDFFactory.createDataset();
+        newResource.getDataset().stream(null, newResourceNode, null, null)
+                .map(quad ->
+                    RDFFactory.createQuad(quad.getSubject(), quad.getPredicate(), newObject))
+                .collect(Collectors.toList()).forEach(newDataset::add);
+        final SolidResource updatedResource =
+                SolidResource.newResourceBuilder().dataset(newDataset)
+                        .build(URI.create(newResourceName));
+        assertDoesNotThrow(client.update(updatedResource).toCompletableFuture()::join);
 
+        assertDoesNotThrow(client.delete(updatedResource).toCompletableFuture()::join);
     }
 
-    @Nested
+    @Test
     @Disabled()
     @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
-    class ContainerCreateDeleteTest {
+    void containerCreateDeleteTest() {
 
         final String containerURL = testResource + "newContainer/";
-        final String containerURL2 = testResource + "newContainer2/";
 
-        @Test
-        @DisplayName("create a Container")
-        void createContainer() {
-        }
-        
-        @Test
-        @DisplayName("create a Container in a Container")
-        void createSlugInContainer() {
-        }
+        final SolidContainer newContainer =
+                SolidContainer.newContainerBuilder().build(URI.create(containerURL));
+        assertDoesNotThrow(client.create(newContainer).toCompletableFuture()::join);
 
-        @Test
-        @DisplayName("delete a Container")
-        @ParameterizedTest
-        @MethodSource
-        void deleteContainer(String containerURL) {
-        }
-
-        private Stream<Arguments> deleteContainer() {
-            return Stream.of(
-            Arguments.of(containerURL),
-            Arguments.of(containerURL2)
-            );
-        }
+        assertDoesNotThrow(client.delete(newContainer).toCompletableFuture()::join);
     }
 
     @Disabled()
-    @Nested
-    @DisplayName("./solid-client-java:coreModulesLayerNonRdfSourceCrud " +
-        "can create, delete, and differentiate between RDF and non-RDF Resources")
-    class NonRdfTest {
-        final String fileName = "myFile.txt";
-        final String fileURL = testResource + fileName;
-
-        @Test
-        @DisplayName("create non RDF resource")
-        void createNonRDFTest() {
-
-        }
-        //TODO
-        //test if file is a SolidResource or raw file and read and update - for now we have:
-        @Test
-        void throwOnNonRDFTest() {
-        }
-
-        @Test
-        @DisplayName("delete non RDF resource")
-        void deleteNonRDFTest() {
-        }
-    }
-
-    @Disabled()
-    @Nested
-    @DisplayName("./solid-client-java:coreModulesLayerBlankNodeSupport " +
+    @Test
+    @DisplayName("./solid-client-java:blankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
-    class BlankNodesTest {
+    void blankNodesTest() {
 
-        final String newResource = testResource + "e2e-test-subject";
-        final String predicate = "https://example.example/predicate";
-        final String predicateForBlank = "https://example.example/predicateForBlank";
+        final String newResourceName = testResource + "e2e-test-subject";
+        final String predicateName = "https://example.example/predicate";
+        final String predicateForBlankName = "https://example.example/predicateForBlank";
 
-        @Test
-        @DisplayName("add blank node and boolean triple to solid resource")
-        void createSolidResource() {
-        }
+        final Dataset dataset = RDFFactory.createDataset();
 
-        @Test
-        @DisplayName("change non blank node")
-        void changeNonBlankNode() {
-        }
+        final RDFNode newResourceNode = RDFNode.namedNode(URI.create(newResourceName));
+        final RDFNode newPredicateNode = RDFNode.namedNode(URI.create(predicateName));
+        final RDFNode object =
+                RDFNode.literal("true", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
 
-        @Test
-        @DisplayName("cleanup resources")
-        void deleteResources() {
-        }
+        dataset.add(RDFFactory.createQuad(newResourceNode, newPredicateNode, object));
+
+        final RDFNode newBNPredicateNode = RDFNode.namedNode(URI.create(predicateForBlankName));
+        final RDFNode bn =
+                RDFNode.blankNode("blank");
+        dataset.add(RDFFactory.createQuad(newResourceNode, newBNPredicateNode, bn));
+
+        SolidResource newResource =
+                SolidResource.newResourceBuilder().dataset(dataset)
+                        .build(URI.create(newResourceName));
+
+        assertDoesNotThrow(client.create(newResource).toCompletableFuture()::join);
+
+        newResource = client.read(URI.create(newResourceName), SolidResource.class)
+                        .toCompletableFuture().join();
+        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
+        assertEquals(2, newResource.getDataset().stream().count());
+
+        final RDFNode newObject =
+                RDFNode.literal("false", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
+        final Dataset newDataset = RDFFactory.createDataset();
+
+        final var allQuads = newResource.getDataset().stream().collect(Collectors.toList());
+        final var toDeleteQuads =
+                newResource.getDataset()
+                        .stream(null, newResourceNode, newPredicateNode, null)
+                        .collect(Collectors.toList());
+        final var toAddQuad = RDFFactory.createQuad(newResourceNode, newPredicateNode, newObject);
+
+        toDeleteQuads.forEach(allQuads::remove);
+        allQuads.add(toAddQuad);
+        allQuads.forEach(newDataset::add);
+
+        final SolidResource updatedResource =
+                SolidResource.newResourceBuilder().dataset(newDataset)
+                        .build(URI.create(newResourceName));
+        assertDoesNotThrow(client.update(updatedResource).toCompletableFuture()::join);
+
+        assertDoesNotThrow(client.delete(updatedResource).toCompletableFuture()::join);
     }
 
-    //utility method
-    private String deleteInsertSparqlQuery(final List<Statement> quadsToDelete,
-            final List<Statement> quadsToAdd) {
-        //TODO use a SparqlBuilder
-        var sparql = "";
-        if (!quadsToDelete.isEmpty()) {
-            sparql += "DELETE DATA { ";
-            sparql +=
-                    quadsToDelete.stream()
-                            .map(quad -> "<" + quad.getSubject() + "> <" + quad.getPredicate()
-                                    + "> " + quad.getObject() + "'. ")
-                            .collect(Collectors.joining());
-            sparql += " }; \n";
-        }
-        if (!quadsToAdd.isEmpty()) {
-            sparql += "INSERT DATA { ";
-            sparql +=
-                    quadsToAdd.stream()
-                            .map(quad -> "<" + quad.getSubject() + "> <" + quad.getPredicate()
-                                    + "> " + quad.getObject() + "'. ")
-                            .collect(Collectors.joining());
-            sparql += " }";
-        }
-        return sparql;
+    @Test
+    @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
+    void findStorageTest() {
+        final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
+        final Response<WebIdProfile> res = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid));
+
+        assertEquals(200, res.statusCode());
+        assertFalse(res.body().getStorage().isEmpty());
     }
 
+    @Test
+    @DisplayName("./solid-client-java:ldpNavigation navigate to a container's lefes")
+    void ldpNavigationTest() {
+
+        final String startingResourceName = podUrl + "/testContainer/anotherContainer/endResource";
+
+        final SolidResource startingResource = client.read(URI.create(startingResourceName), SolidResource.class)
+                .toCompletableFuture().join();
+
+        if (startingResource.getMetadata().getStorage().isPresent()) {
+            assertEquals(podUrl, startingResource.getMetadata().getStorage().get().toString());
+        }
+
+    }
 }
-

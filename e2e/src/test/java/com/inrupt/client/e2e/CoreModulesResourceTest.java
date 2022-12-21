@@ -37,7 +37,7 @@ import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.webid.WebIdBodyHandlers;
+import com.inrupt.client.vocabulary.PIM;
 
 import io.smallrye.config.SmallRyeConfig;
 
@@ -91,11 +91,14 @@ public class CoreModulesResourceTest {
         final String token = Utils.generateIdToken(claims);
         session = session.session(OpenIdSession.ofIdToken(token));
 
-        final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
+        final Request requestRdf = Request.newBuilder(webid).GET().build();
+        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+        final var storages = responseRdf.body().listStatements(null,
+                createProperty(PIM.storage.toString()), (org.apache.jena.rdf.model.RDFNode) null)
+                .toList();
 
-        if (!profile.getStorage().isEmpty()) {
-            podUrl = profile.getStorage().iterator().next().toString();
+        if (!storages.isEmpty()) {
+            podUrl = storages.get(0).toString();
             if (!podUrl.endsWith("/")) {
                 podUrl += "/";
             }
@@ -199,7 +202,7 @@ public class CoreModulesResourceTest {
 
     @Nested
     @Disabled()
-    @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
+    @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     class ContainerCreateDeleteTest {
 
         final String containerName = testResource + "newContainer/";
@@ -219,7 +222,7 @@ public class CoreModulesResourceTest {
             assertEquals(204, resp.statusCode());
 
         }
-        
+
         @Test
         @DisplayName("create a Container in a Container")
         void createSlugInContainer() {
@@ -240,7 +243,7 @@ public class CoreModulesResourceTest {
         @DisplayName("delete a Container")
         @ParameterizedTest
         @MethodSource
-        void deleteContainer(String containerURL) {
+        void deleteContainer(final String containerURL) {
             final Request reqDelete = Request.newBuilder(URI.create(containerURL)).DELETE().build();
             final Response<Void> responseDelete =
                     session.send(reqDelete, Response.BodyHandlers.discarding());

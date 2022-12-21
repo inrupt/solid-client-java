@@ -92,13 +92,13 @@ solidClient: a earl:Software;
 
 :podStorageFinding a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Finding the Pod storage from a given resource"@en;
-  dcterms:description "A user finds the Pod storage."@en;
+  dcterms:title "Finding the Pod storage"@en;
+  dcterms:description "A user finds the Pod storage from a webId"@en;
   td:reviewStatus td:approved.
 
 :ldpNavigation a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Navigation through the containment hierarchy of a Solid storage"@en;
+  dcterms:title "Navigation through the containment hierarchy of a Solid Pod"@en;
   dcterms:description "Starting from a given container a user can navigate to the lefes."@en;
   td:reviewStatus td:approved.
 
