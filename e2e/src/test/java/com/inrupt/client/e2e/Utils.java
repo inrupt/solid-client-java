@@ -37,10 +37,10 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 
-public class Utils {
+public final class Utils {
 
     static String generateIdToken(final Map<String, Object> claims) {
-        try (final InputStream resource = ResourceTest.class.getResourceAsStream("/signing-key.json")) {
+        try (final InputStream resource = DomainModulesResourceTest.class.getResourceAsStream("/signing-key.json")) {
             final String jwks = IOUtils.toString(resource, UTF_8);
             final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
                 .newPublicJwk(jwks);
@@ -63,5 +63,9 @@ public class Utils {
         } catch (final JoseException ex) {
             throw new UncheckedJoseException("Unable to generate DPoP token", ex);
         }
+    }
+
+    private Utils() {
+        // Prevent instantiation
     }
 }

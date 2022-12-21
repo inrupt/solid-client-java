@@ -21,28 +21,32 @@
 package com.inrupt.client.e2e;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.webid.WebIdBodyHandlers;
+
+import io.smallrye.config.SmallRyeConfig;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import io.smallrye.config.SmallRyeConfig;
 
 public class AuthenticationTest {
 
     private static Config config = ConfigProvider.getConfig();
     private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
     private static Client session = ClientProvider.getClient();
-    
+
     private static String podUrl = "";
     private static String testResource = "";
 
@@ -74,9 +78,9 @@ public class AuthenticationTest {
             testResource = podUrl + "resource/";
         }
     }
-    
+
     @Test
-    @DisplayName("cannot fetch non public resources unauthenticated")
+    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of private resource")
     void fetchPrivateResourceUnauthenticatedTest() {
         final Client client = ClientProvider.getClient();
         final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
