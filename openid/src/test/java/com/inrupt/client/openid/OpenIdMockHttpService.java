@@ -29,10 +29,17 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
 class OpenIdMockHttpService {
+
+    private static final String WEBID = "https://id.example/username";
+    private static final String SUB = "username";
+    private static final String ISS = "https://iss.example";
+    private static final String AZP = "https://app.example";
 
     private final WireMockServer wireMockServer;
 
@@ -86,6 +93,15 @@ class OpenIdMockHttpService {
                     .withRequestBody(containing("code=none"))
                     .willReturn(aResponse()
                         .withStatus(404)));
+
+        wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
+                .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
+                    .atPriority(2)
+                    .withRequestBody(containing("grant_type=client_credentials"))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getTokenResponseJSON())));
     }
 
     private String getMetadataJSON() {
@@ -97,12 +113,22 @@ class OpenIdMockHttpService {
     }
 
     private String getTokenResponseJSON() {
-        try (final InputStream res = OpenIdMockHttpService.class.getResourceAsStream("/tokenResponse.json")) {
-            return new String(IOUtils.toByteArray(res), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
-        }
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+
+        return "{" +
+            "\"access_token\": \"123456\"," +
+            "\"id_token\": \"" + OpenIdTestUtils.generateIdToken(claims) + "\"," +
+            "\"token_type\": \"Bearer\"," +
+            "\"expires_in\": 300" +
+            "}";
     }
+
+
+
 
     public String start() {
         wireMockServer.start();

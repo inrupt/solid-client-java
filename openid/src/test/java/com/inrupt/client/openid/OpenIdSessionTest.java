@@ -20,36 +20,24 @@
  */
 package com.inrupt.client.openid;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Authenticator;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
-import org.jose4j.jwk.PublicJsonWebKey;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
-import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -81,7 +69,7 @@ class OpenIdSessionTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token));
     }
 
@@ -94,7 +82,7 @@ class OpenIdSessionTest {
         claims.put("azp", AZP);
         claims.put("aud", Arrays.asList("solid", AZP));
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setPublicKeyLocation(URI.create(baseUrl + "/jwks"));
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
@@ -109,7 +97,7 @@ class OpenIdSessionTest {
         claims.put("azp", AZP);
         claims.put("aud", Arrays.asList("solid", AZP));
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setPublicKeyLocation(URI.create(baseUrl + "/jwks-other"));
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
@@ -124,7 +112,7 @@ class OpenIdSessionTest {
         claims.put("azp", AZP);
         claims.put("aud", Arrays.asList("solid", AZP));
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpectedAudience("https://app.example");
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
@@ -139,10 +127,32 @@ class OpenIdSessionTest {
         claims.put("azp", AZP);
         claims.put("aud", Arrays.asList("solid", AZP));
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpectedAudience("https://app10.example");
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
+    }
+
+    @Test
+    void testClientCredentials() {
+        final URI issuer = URI.create(baseUrl);
+        final String clientId = "app1";
+        final String clientSecret = "secret";
+        final String authMethod = "client_secret_basic";
+        final Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, authMethod);
+        assertFalse(session.fromCache(null).isPresent());
+        final Optional<URI> principal = session.getPrincipal();
+        assertEquals(Optional.of(URI.create(WEBID)), principal);
+        assertTrue(session.fromCache(null).isPresent());
+        final Optional<Session.Credential> credential = session.authenticate(null)
+            .toCompletableFuture().join();
+        assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Session.Credential::getPrincipal));
+    }
+
+    @Test
+    void testSessionExpiry() {
+        assertEquals(Instant.MAX, OpenIdSession.toInstant(0));
+        assertTrue(OpenIdSession.toInstant(1).isBefore(Instant.MAX));
     }
 
     @Test
@@ -153,7 +163,7 @@ class OpenIdSessionTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final Session session = OpenIdSession.ofIdToken(token);
 
         final String id = DigestUtils.sha256Hex(WEBID);
@@ -165,7 +175,7 @@ class OpenIdSessionTest {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("sub", SUB);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token));
     }
 
@@ -174,7 +184,7 @@ class OpenIdSessionTest {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("iss", ISS);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token));
     }
 
@@ -185,7 +195,7 @@ class OpenIdSessionTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final Session session = OpenIdSession.ofIdToken(token);
 
         final String id = DigestUtils.sha256Hex(ISS + "|" + SUB);
@@ -200,7 +210,7 @@ class OpenIdSessionTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpGracePeriodSecs(0);
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
@@ -214,7 +224,7 @@ class OpenIdSessionTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpGracePeriodSecs(0);
         final Session session = OpenIdSession.ofIdToken(token, config);
@@ -232,7 +242,7 @@ class OpenIdSessionTest {
         claims.put("exp", Instant.now().minusSeconds(1).getEpochSecond());
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpGracePeriodSecs(0);
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
@@ -248,7 +258,7 @@ class OpenIdSessionTest {
         claims.put("exp", Instant.now().plusSeconds(2).getEpochSecond());
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpGracePeriodSecs(0);
         final Session s = OpenIdSession.ofIdToken(token, config);
@@ -267,7 +277,7 @@ class OpenIdSessionTest {
         claims.put("exp", Instant.now().minusSeconds(1).getEpochSecond());
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
-        final String token = generateIdToken(claims);
+        final String token = OpenIdTestUtils.generateIdToken(claims);
         final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
         config.setExpGracePeriodSecs(60);
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
@@ -303,29 +313,4 @@ class OpenIdSessionTest {
         }
     }
 
-    static String generateIdToken(final Map<String, Object> claims) {
-        try (final InputStream resource = OpenIdSessionTest.class.getResourceAsStream("/signing-key.json")) {
-            final String jwks = IOUtils.toString(resource, UTF_8);
-            final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
-                .newPublicJwk(jwks);
-
-            final JsonWebSignature jws = new JsonWebSignature();
-            jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
-            jws.setHeader(TYPE, "JWT");
-            jws.setKey(jwk.getPrivateKey());
-            final JwtClaims jwtClaims = new JwtClaims();
-            jwtClaims.setJwtId(UUID.randomUUID().toString());
-            jwtClaims.setExpirationTimeMinutesInTheFuture(5);
-            jwtClaims.setIssuedAtToNow();
-            // override/set claims
-            claims.entrySet().forEach(entry -> jwtClaims.setClaim(entry.getKey(), entry.getValue()));
-            jws.setPayload(jwtClaims.toJson());
-
-            return jws.getCompactSerialization();
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Unable to read JWK", ex);
-        } catch (final JoseException ex) {
-            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
-        }
-    }
 }

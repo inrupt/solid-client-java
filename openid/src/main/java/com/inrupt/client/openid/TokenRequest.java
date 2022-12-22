@@ -21,6 +21,8 @@
 package com.inrupt.client.openid;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,6 +37,7 @@ public final class TokenRequest {
     private final String clientSecret;
     private final String authMethod;
     private final URI redirectUri;
+    private final List<String> scopes;
 
     /**
      * Get the grant type value.
@@ -43,6 +46,15 @@ public final class TokenRequest {
      */
     public String getGrantType() {
         return grantType;
+    }
+
+    /**
+     * Get the scope values.
+     *
+     * @return the scopes
+     */
+    public List<String> getScopes() {
+        return scopes;
     }
 
     /**
@@ -110,7 +122,7 @@ public final class TokenRequest {
 
     /* package-private */
     TokenRequest(final String clientId, final String clientSecret, final URI redirectUri, final String grantType,
-            final String authMethod, final String code, final String codeVerifier) {
+            final String authMethod, final String code, final String codeVerifier, final List<String> scopes) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
@@ -118,6 +130,7 @@ public final class TokenRequest {
         this.authMethod = authMethod;
         this.code = code;
         this.codeVerifier = codeVerifier;
+        this.scopes = scopes;
     }
 
     /**
@@ -129,6 +142,8 @@ public final class TokenRequest {
         private String builderAuthMethod;
         private String builderCode;
         private String builderCodeVerifier;
+        private URI builderRedirectUri;
+        private List<String> builderScopes = new ArrayList<>();
 
         /**
          * Set the client secret value.
@@ -149,6 +164,19 @@ public final class TokenRequest {
          */
         public Builder codeVerifier(final String codeVerifier) {
             builderCodeVerifier = codeVerifier;
+            return this;
+        }
+
+        /**
+         * Set one or more scope values.
+         *
+         * @param scopes the scope values
+         * @return this builder
+         */
+        public Builder scopes(final String... scopes) {
+            for (final String scope : scopes) {
+                builderScopes.add(scope);
+            }
             return this;
         }
 
@@ -175,29 +203,43 @@ public final class TokenRequest {
         }
 
         /**
+         * Set the redirect URI value.
+         *
+         * @param redirectUri the redirect URI
+         * @return this builder
+         */
+        public Builder redirectUri(final URI redirectUri) {
+            builderRedirectUri = redirectUri;
+            return this;
+        }
+
+        /**
          * Build a token request.
          *
          * @param grantType the grant type
          * @param clientId the client id
-         * @param redirectUri the redirect URI
          * @return the token request
          */
-        public TokenRequest build(final String grantType, final String clientId, final URI redirectUri) {
+        public TokenRequest build(final String grantType, final String clientId) {
 
             Objects.requireNonNull(clientId, "Client ID may not be null!");
-            Objects.requireNonNull(redirectUri, "Redirect URI may not be null!");
             final String grant = Objects.requireNonNull(grantType, "Grant type may not be null!");
 
-            if ("authorization_code".equals(grantType) && builderCode == null) {
-                throw new IllegalArgumentException(
-                    "Missing code parameter for authorization_code grant type");
+            if ("authorization_code".equals(grantType)) {
+                if (builderCode == null) {
+                    throw new IllegalArgumentException(
+                        "Missing code parameter for authorization_code grant type");
+                } else if (builderRedirectUri == null) {
+                    throw new IllegalArgumentException(
+                        "Missing redirectUri parameter for authorization_code grant type");
+                }
             } else if ("client_credentials".equals(grantType) && builderClientSecret == null) {
                 throw new IllegalArgumentException(
                     "Missing client_secret parameter for client_credentials grant type");
             }
 
-            return new TokenRequest(clientId, builderClientSecret, redirectUri, grant, builderAuthMethod,
-                    builderCode, builderCodeVerifier);
+            return new TokenRequest(clientId, builderClientSecret, builderRedirectUri, grant, builderAuthMethod,
+                    builderCode, builderCodeVerifier, builderScopes);
         }
     }
 }
