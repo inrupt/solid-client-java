@@ -6,6 +6,7 @@
   <artifactId>inrupt-client</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <name>Inrupt Java Client Libraries</name>
+  <url>https://inrupt.github.io/solid-client-java/</url>
   <description>
     Inrupt Java Client Libraries for use with Solid.
   </description>
@@ -54,6 +55,7 @@
     <release.plugin.version>2.5.3</release.plugin.version>
     <resources.plugin.version>3.3.0</resources.plugin.version>
     <sonar.plugin.version>3.9.1.2184</sonar.plugin.version>
+    <source.plugin.version>3.2.1</source.plugin.version>
     <surefire.plugin.version>3.0.0-M7</surefire.plugin.version>
 
     <!-- tooling -->
@@ -299,6 +301,18 @@
               <phase>verify</phase>
               <goals>
                 <goal>sign</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${source.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar-no-fork</goal>
               </goals>
             </execution>
           </executions>
@@ -814,6 +828,10 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
           </plugin>
         </plugins>
       </build>
