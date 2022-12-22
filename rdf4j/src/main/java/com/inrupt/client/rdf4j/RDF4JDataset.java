@@ -28,10 +28,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
@@ -42,6 +42,8 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
  * The RDF4J implementation of a {@link Dataset}.
  */
 class RDF4JDataset implements Dataset {
+
+    private static final ValueFactory VF = SimpleValueFactory.getInstance();
 
     private final Repository repository;
 
@@ -86,18 +88,29 @@ class RDF4JDataset implements Dataset {
         }
     }
 
-    /**
-     * Return a sequential stream of Quads with this RDF4JDataset as its source.
-     *
-     * @return a sequential {@link Stream} of {@link Quad}
-     */
     @Override
-    public Stream<Quad> stream() {
+    public void add(final Quad quad) {
         try (final RepositoryConnection conn = repository.getConnection()) {
-            try (final RepositoryResult<Statement> statements = conn.getStatements(null, null, null)) {
-                final Model model = QueryResults.asModel(statements);
-                return model.stream().map(RDF4JQuad::new);
+            if (quad.getGraphName().isPresent()) {
+                conn.add(VF.createStatement(RDF4JUtils.fromSubject(quad.getSubject()),
+                            RDF4JUtils.fromPredicate(quad.getPredicate()),
+                            RDF4JUtils.fromObject(quad.getObject()),
+                            RDF4JUtils.fromSubject(quad.getGraphName().get())));
+            } else {
+                conn.add(VF.createStatement(RDF4JUtils.fromSubject(quad.getSubject()),
+                            RDF4JUtils.fromPredicate(quad.getPredicate()),
+                            RDF4JUtils.fromObject(quad.getObject())));
             }
+        }
+    }
+
+    @Override
+    public void remove(final Optional<RDFNode> graphName, final RDFNode subject, final RDFNode predicate,
+            final RDFNode object) {
+        try (final RepositoryConnection conn = repository.getConnection()) {
+            conn.remove(RDF4JUtils.fromSubject(subject), RDF4JUtils.fromPredicate(predicate),
+                    RDF4JUtils.fromObject(object),
+                    getContexts(graphName));
         }
     }
 
@@ -115,12 +128,12 @@ class RDF4JDataset implements Dataset {
                 }
                 if (graph.get().isNamedNode()) {
                     return new Resource[] {
-                        SimpleValueFactory.getInstance().createIRI(graph.get().getURI().toString())
+                        VF.createIRI(graph.get().getURI().toString())
                     };
                 }
                 if (graph.get().isBlankNode()) {
                     return new Resource[] {
-                        SimpleValueFactory.getInstance().createBNode(graph.get().getNodeId())
+                        VF.createBNode(graph.get().getNodeId())
                     };
                 }
             } else {

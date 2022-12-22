@@ -114,7 +114,7 @@ public final class Request {
         return new Builder().uri(uri);
     }
 
-    private Request(final URI uri, final String method, final Map<String, List<String>> headers,
+    Request(final URI uri, final String method, final Map<String, List<String>> headers,
             final BodyPublisher publisher, final Duration timeout) {
         this.uri = Objects.requireNonNull(uri, "Request URI may not be null!");
         this.method = Objects.requireNonNull(method, "Request method may not be null!");
@@ -345,7 +345,7 @@ public final class Request {
             return new Request(uri, method, headers, publisher, timeout);
         }
 
-        private Builder() {
+        Builder() {
             // Prevent direct instantiation.
         }
     }

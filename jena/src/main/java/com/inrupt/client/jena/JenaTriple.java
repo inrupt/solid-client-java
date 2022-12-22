@@ -52,7 +52,7 @@ public class JenaTriple implements Triple {
         if (s.isURI()) {
             return RDFNode.namedNode(URI.create(s.getURI()));
         }
-        return RDFNode.blankNode();
+        return RDFNode.blankNode(s.getBlankNodeLabel());
     }
 
     /**
@@ -85,7 +85,7 @@ public class JenaTriple implements Triple {
             }
             return RDFNode.literal(o.getLiteralLexicalForm());
         } else {
-            return RDFNode.blankNode();
+            return RDFNode.blankNode(o.getBlankNodeLabel());
         }
     }
 }

@@ -18,46 +18,42 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.jena;
 
-/**
- * The names of concrete RDF Syntaxes.
- */
-public enum Syntax {
+import com.inrupt.client.rdf.RDFNode;
 
-    /**
-     * Turtle.
-     *
-     * @see <a href="https://www.w3.org/TR/turtle/">RDF 1.1 Turtle</a>
-     */
-    TURTLE,
+import java.net.URI;
 
-    /**
-     * N-Triples.
-     *
-     * @see <a href="https://www.w3.org/TR/n-triples/">RDF 1.1 N-Triples</a>
-     */
-    NTRIPLES,
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 
-    /**
-     * TriG.
-     *
-     * @see <a href="https://www.w3.org/TR/trig/">RDF 1.1 TriG</a>
-     */
-    TRIG,
+final class JenaUtils {
 
-    /**
-     * N-Quads.
-     *
-     * @see <a href="https://www.w3.org/TR/n-quads/">RDF 1.1 N-Quads</a>
-     */
-    NQUADS,
+    static Node toNode(final RDFNode node) {
+        if (node.isNamedNode()) {
+            return NodeFactory.createURI(node.getURI().toString());
+        } else if (node.isLiteral()) {
+            final String lang = node.getLanguage();
+            if (lang != null) {
+                return NodeFactory.createLiteral(node.getLiteral(), lang);
+            }
 
-    /**
-     * JSON-LD.
-     *
-     * @see <a href="https://www.w3.org/TR/json-ld/">JSON-LD 1.1</a>
-     */
-    JSONLD;
+            final URI datatype = node.getDatatype();
+            if (datatype != null) {
+                return NodeFactory.createLiteral(node.getLiteral(),
+                        NodeFactory.getType(datatype.toString()));
+            }
 
+            return NodeFactory.createLiteral(node.getLiteral());
+        }
+
+        final String label = node.getNodeId();
+        if (label != null) {
+            return NodeFactory.createBlankNode(label);
+        }
+        return NodeFactory.createBlankNode();
+    }
+
+    private JenaUtils() {
+    }
 }

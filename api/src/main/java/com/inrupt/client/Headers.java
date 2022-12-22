@@ -94,8 +94,8 @@ public final class Headers {
         private final Map<String, String> parameters;
 
         private Link(final URI uri, final Map<String, String> parameters) {
-            this.uri = Objects.requireNonNull(uri);
-            this.parameters = Objects.requireNonNull(parameters);
+            this.uri = Objects.requireNonNull(uri, "Link uri may not be null!");
+            this.parameters = Objects.requireNonNull(parameters, "Link parameters may not be null!");
         }
 
         public URI getUri() {
@@ -163,8 +163,22 @@ public final class Headers {
          * @return the new {@link Link} object
          */
         public static Link of(final URI uri, final String rel) {
+            Objects.requireNonNull("rel value may not be null!");
             return of(uri, Collections.singletonMap("rel", rel));
         }
+
+        /**
+         * Create a new Link object with a specific URI-Reference and relation parameter.
+         *
+         * @param uri the link URI
+         * @param rel the relation value
+         * @return the new {@link Link} object
+         */
+        public static Link of(final URI uri, final URI rel) {
+            Objects.requireNonNull("rel value may not be null!");
+            return of(uri, rel.toString());
+        }
+
         /**
          * Create a new Link object with a specific URI-Reference and parameters.
          *

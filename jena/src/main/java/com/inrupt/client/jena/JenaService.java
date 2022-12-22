@@ -20,9 +20,15 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.Syntax;
+import static org.apache.jena.sparql.core.Quad.create;
+import static org.apache.jena.sparql.core.Quad.defaultGraphIRI;
+
 import com.inrupt.client.rdf.Dataset;
 import com.inrupt.client.rdf.Graph;
+import com.inrupt.client.rdf.Quad;
+import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.rdf.Syntax;
+import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
 
 import java.io.IOException;
@@ -37,6 +43,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotException;
+import org.apache.jena.sparql.core.DatasetGraph;
 
 /**
  * An {@link RdfService} that uses the Jena library.
@@ -57,10 +64,10 @@ public class JenaService implements RdfService {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         try {
             if (SUPPORTS_QUADS.contains(syntax)) {
-                RDFDataMgr.write(output, ((JenaDataset) dataset).asJenaDatasetGraph(), lang);
+                RDFDataMgr.write(output, asDatasetGraph(dataset), lang);
             } else {
                 // Collapse all statements into a single union model
-                final var jds = ((JenaDataset) dataset).asJenaDatasetGraph();
+                final var jds = asDatasetGraph(dataset);
                 final var union = ModelFactory.createUnion(
                         ModelFactory.createModelForGraph(jds.getDefaultGraph()),
                         ModelFactory.createModelForGraph(jds.getUnionGraph()));
@@ -71,11 +78,43 @@ public class JenaService implements RdfService {
         }
     }
 
+    static DatasetGraph asDatasetGraph(final Dataset dataset) {
+        // If this is already a Jena dataset, just return that
+        if (dataset instanceof JenaDataset) {
+            return ((JenaDataset) dataset).asJenaDatasetGraph();
+        }
+        // Otherwise, copy the data into a structure that Jena understands
+        final var dsgraph = DatasetFactory.create().asDatasetGraph();
+
+        dataset.stream().forEach(quad -> {
+            if (quad.getGraphName().isPresent()) {
+                dsgraph.add(JenaUtils.toNode(quad.getGraphName().get()),
+                        JenaUtils.toNode(quad.getSubject()),
+                        JenaUtils.toNode(quad.getPredicate()),
+                        JenaUtils.toNode(quad.getObject()));
+            } else {
+                dsgraph.getDefaultGraph().add(JenaUtils.toNode(quad.getSubject()),
+                            JenaUtils.toNode(quad.getPredicate()),
+                            JenaUtils.toNode(quad.getObject()));
+            }
+        });
+        return dsgraph;
+    }
+
     @Override
     public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
         final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));
         try {
-            RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
+            if (graph instanceof JenaGraph) {
+                RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);
+            } else {
+                final var model = ModelFactory.createDefaultModel();
+                graph.stream().forEach(triple ->
+                    model.getGraph().add(JenaUtils.toNode(triple.getSubject()),
+                            JenaUtils.toNode(triple.getPredicate()),
+                            JenaUtils.toNode(triple.getObject())));
+                RDFDataMgr.write(output, model, lang);
+            }
         } catch (final RiotException ex) {
             throw new IOException("Error serializing graph", ex);
         }
@@ -105,6 +144,36 @@ public class JenaService implements RdfService {
         }
 
         return new JenaGraph(model);
+    }
+
+    @Override
+    public Dataset createDataset() {
+        final var dataset = DatasetFactory.create();
+        return new JenaDataset(dataset.asDatasetGraph());
+    }
+
+    @Override
+    public Graph createGraph() {
+        final var model = ModelFactory.createDefaultModel();
+        return new JenaGraph(model);
+    }
+
+    @Override
+    public Triple createTriple(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
+        final var triple = org.apache.jena.graph.Triple.create(JenaUtils.toNode(subject),
+                JenaUtils.toNode(predicate), JenaUtils.toNode(object));
+        return new JenaTriple(triple);
+    }
+
+    @Override
+    public Quad createQuad(final RDFNode subject, final RDFNode predicate, final RDFNode object,
+            final RDFNode graphName) {
+        if (graphName != null) {
+            return new JenaQuad(create(JenaUtils.toNode(graphName),
+                        JenaUtils.toNode(subject), JenaUtils.toNode(predicate), JenaUtils.toNode(object)));
+        }
+        return new JenaQuad(create(defaultGraphIRI, JenaUtils.toNode(subject),
+                    JenaUtils.toNode(predicate), JenaUtils.toNode(object)));
     }
 }
 

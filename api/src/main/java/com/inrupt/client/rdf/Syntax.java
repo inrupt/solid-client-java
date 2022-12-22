@@ -20,56 +20,44 @@
  */
 package com.inrupt.client.rdf;
 
-import java.util.stream.Stream;
-
 /**
- * A simple RDF graph abstraction.
+ * The names of concrete RDF Syntaxes.
  */
-public interface Graph {
+public enum Syntax {
 
     /**
-     * Stream all matched triples.
+     * Turtle.
      *
-     * <p>Using {@code null} acts as a wildcard.
-     *
-     * @param subject the subject node. May be {@code null}
-     * @param predicate the predicate node. May be {@code null}
-     * @param object the object node. May be {@code null}
-     * @return a stream of matched triples
+     * @see <a href="https://www.w3.org/TR/turtle/">RDF 1.1 Turtle</a>
      */
-    Stream<Triple> stream(RDFNode subject, RDFNode predicate, RDFNode object);
+    TURTLE,
 
     /**
-     * Stream all triples from the graph.
+     * N-Triples.
      *
-     * @return a stream of all triples
+     * @see <a href="https://www.w3.org/TR/n-triples/">RDF 1.1 N-Triples</a>
      */
-    default Stream<Triple> stream() {
-        return stream(null, null, null);
-    }
+    NTRIPLES,
 
     /**
-     * Add a triple to the graph.
+     * TriG.
      *
-     * @param triple the triple
+     * @see <a href="https://www.w3.org/TR/trig/">RDF 1.1 TriG</a>
      */
-    void add(Triple triple);
+    TRIG,
 
     /**
-     * Remove a triple from the graph.
+     * N-Quads.
      *
-     * @param triple the triple
+     * @see <a href="https://www.w3.org/TR/n-quads/">RDF 1.1 N-Quads</a>
      */
-    default void remove(final Triple triple) {
-        remove(triple.getSubject(), triple.getPredicate(), triple.getObject());
-    }
+    NQUADS,
 
     /**
-     * Remove a pattern of triples from the graph.
+     * JSON-LD.
      *
-     * @param subject the subject
-     * @param predicate the predicate
-     * @param object the object
+     * @see <a href="https://www.w3.org/TR/json-ld/">JSON-LD 1.1</a>
      */
-    void remove(RDFNode subject, RDFNode predicate, RDFNode object);
+    JSONLD;
+
 }
