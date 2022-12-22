@@ -20,13 +20,11 @@
  */
 package com.inrupt.client.openid;
 
-import com.inrupt.client.Authenticator.AccessToken;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;

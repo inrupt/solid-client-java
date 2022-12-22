@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
  * A session implementation for use with UMA Authorization Servers.
@@ -94,5 +96,10 @@ public final class UmaSession implements Session {
     @Override
     public Optional<Session.Credential> fromCache(final Request request) {
         return Optional.empty();
+    }
+
+    @Override
+    public CompletionStage<Optional<Session.Credential>> authenticate(final Request request) {
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 }
