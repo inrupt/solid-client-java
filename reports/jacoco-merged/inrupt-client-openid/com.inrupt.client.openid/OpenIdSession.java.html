@@ -30,6 +30,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jwk.HttpsJwks;
@@ -50,28 +55,21 @@ public final class OpenIdSession implements Session {
 
     public static final String ID_TOKEN = &quot;http://openid.net/specs/openid-connect-core-1_0.html#IDToken&quot;;
 
-    private final String jwt;
     private final String id;
-    private final Instant expiration;
-    private final OpenIdVerificationConfig config;
-    private final URI issuer;
     private final Set&lt;String&gt; schemes;
+    private final Supplier&lt;CompletionStage&lt;Session.Credential&gt;&gt; authenticator;
+<span class="fc" id="L61">    private final AtomicReference&lt;Session.Credential&gt; credential = new AtomicReference&lt;&gt;();</span>
 
-<span class="fc" id="L60">    private OpenIdSession(final String idToken, final OpenIdVerificationConfig config) {</span>
-<span class="fc" id="L61">        this.config = Objects.requireNonNull(config, &quot;OpenID verification configuration may not be null!&quot;);</span>
-<span class="fc" id="L62">        this.jwt = Objects.requireNonNull(idToken, &quot;ID Token may not be null!&quot;);</span>
-
-<span class="fc" id="L64">        final JwtClaims claims = parseIdToken(idToken, config);</span>
-<span class="fc" id="L65">        this.id = getSessionIdentifier(claims);</span>
-<span class="fc" id="L66">        this.issuer = getIssuer(claims);</span>
-<span class="fc" id="L67">        this.expiration = getExpiration(claims);</span>
+<span class="fc" id="L63">    private OpenIdSession(final String id, final Supplier&lt;CompletionStage&lt;Session.Credential&gt;&gt; authenticator) {</span>
+<span class="fc" id="L64">        this.id = Objects.requireNonNull(id, &quot;Session id may not be null!&quot;);</span>
+<span class="fc" id="L65">        this.authenticator = Objects.requireNonNull(authenticator, &quot;OpenID authenticator may not be null!&quot;);</span>
 
         // Support case-insensitive lookups
-<span class="fc" id="L70">        final Set&lt;String&gt; schemeNames = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
-<span class="fc" id="L71">        schemeNames.add(&quot;Bearer&quot;);</span>
+<span class="fc" id="L68">        final Set&lt;String&gt; schemeNames = new TreeSet&lt;&gt;(String.CASE_INSENSITIVE_ORDER);</span>
+<span class="fc" id="L69">        schemeNames.add(&quot;Bearer&quot;);</span>
 
-<span class="fc" id="L73">        this.schemes = Collections.unmodifiableSet(schemeNames);</span>
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L71">        this.schemes = Collections.unmodifiableSet(schemeNames);</span>
+<span class="fc" id="L72">    }</span>
 
     /**
      * Create a session from an ID token, using the default validation rules.
@@ -80,7 +78,7 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken) {
-<span class="fc" id="L83">        return ofIdToken(idToken, new OpenIdVerificationConfig());</span>
+<span class="fc" id="L81">        return ofIdToken(idToken, new OpenIdVerificationConfig());</span>
     }
 
     /**
@@ -91,104 +89,191 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config) {
-<span class="fc" id="L94">        return new OpenIdSession(idToken, config);</span>
+<span class="fc" id="L92">        final JwtClaims claims = parseIdToken(idToken, config);</span>
+<span class="fc" id="L93">        final String id = getSessionIdentifier(claims);</span>
+<span class="fc" id="L94">        final Session.Credential credential = new Session.Credential(&quot;Bearer&quot;, getIssuer(claims), idToken,</span>
+<span class="fc" id="L95">                getExpiration(claims), getPrincipal(claims));</span>
+
+<span class="fc" id="L97">        return new OpenIdSession(id, () -&gt; CompletableFuture.completedFuture(credential));</span>
+    }
+
+    /**
+     * Create a session using OAuth2 client credentials.
+     *
+     * @param issuer the OpenID Provider URL
+     * @param clientId the client id value
+     * @param clientSecret the client secret value
+     * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
+     * @return the session
+     */
+    public static Session ofClientCredentials(final URI issuer, final String clientId, final String clientSecret,
+            final String authMethod) {
+<span class="fc" id="L111">        return ofClientCredentials(new OpenIdProvider(issuer), clientId, clientSecret, authMethod,</span>
+                new OpenIdVerificationConfig());
+    }
+
+    /**
+     * Create a session using OAuth2 client credentials.
+     *
+     * @param provider an OpenID Provider instance
+     * @param clientId the client id value
+     * @param clientSecret the client secret value
+     * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
+     * @param config the ID token verifification config
+     * @param scopes an array of scope values
+     * @return the session
+     */
+    public static Session ofClientCredentials(final OpenIdProvider provider,
+            final String clientId, final String clientSecret, final String authMethod,
+            final OpenIdVerificationConfig config, final String... scopes) {
+<span class="fc" id="L129">        final String id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L130">        return new OpenIdSession(id, () -&gt; provider.tokenAsync(TokenRequest.newBuilder()</span>
+<span class="fc" id="L131">                .clientSecret(clientSecret)</span>
+<span class="fc" id="L132">                .authMethod(authMethod)</span>
+<span class="fc" id="L133">                .scopes(scopes)</span>
+<span class="fc" id="L134">                .build(&quot;client_credentials&quot;, clientId))</span>
+<span class="fc" id="L135">            .thenApply(response -&gt; {</span>
+<span class="fc" id="L136">                final JwtClaims claims = parseIdToken(response.idToken, config);</span>
+<span class="fc" id="L137">                return new Session.Credential(response.tokenType, getIssuer(claims), response.idToken,</span>
+<span class="fc" id="L138">                        toInstant(response.expiresIn), getPrincipal(claims));</span>
+            }));
     }
 
     @Override
     public String getId() {
-<span class="fc" id="L99">        return id;</span>
+<span class="fc" id="L144">        return id;</span>
+    }
+
+    @Override
+    public Optional&lt;URI&gt; getPrincipal() {
+<span class="fc" id="L149">        return getCredential(ID_TOKEN).flatMap(Session.Credential::getPrincipal);</span>
     }
 
     @Override
     public Set&lt;String&gt; supportedSchemes() {
-<span class="fc" id="L104">        return schemes;</span>
+<span class="fc" id="L154">        return schemes;</span>
     }
 
     @Override
     public Optional&lt;Session.Credential&gt; getCredential(final String name) {
-<span class="fc bfc" id="L109" title="All 4 branches covered.">        if (ID_TOKEN.equals(name) &amp;&amp; !hasExpired()) {</span>
-<span class="fc" id="L110">            return Optional.of(new Session.Credential(&quot;Bearer&quot;, issuer, jwt, expiration));</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (ID_TOKEN.equals(name)) {</span>
+<span class="fc" id="L160">            final Session.Credential c = credential.get();</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (!hasExpired(c)) {</span>
+<span class="fc" id="L162">                return Optional.of(c);</span>
+            }
+<span class="fc" id="L164">            final Session.Credential freshCredential = authenticator.get().toCompletableFuture().join();</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            if (!hasExpired(freshCredential)) {</span>
+<span class="fc" id="L166">                credential.set(freshCredential);</span>
+<span class="fc" id="L167">                return Optional.of(freshCredential);</span>
+            }
         }
-<span class="fc" id="L112">        return Optional.empty();</span>
+<span class="fc" id="L170">        return Optional.empty();</span>
     }
 
     @Override
     public Optional&lt;Session.Credential&gt; fromCache(final Request request) {
-<span class="fc" id="L117">        return Optional.empty();</span>
+<span class="fc" id="L175">        final Session.Credential c = credential.get();</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (!hasExpired(c)) {</span>
+<span class="fc" id="L177">            return Optional.of(c);</span>
+        }
+<span class="fc" id="L179">        return Optional.empty();</span>
     }
 
-    boolean hasExpired() {
-<span class="fc" id="L121">        return expiration.plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());</span>
+    @Override
+    public CompletionStage&lt;Optional&lt;Session.Credential&gt;&gt; authenticate(final Request request) {
+<span class="fc" id="L184">        return authenticator.get().thenApply(Optional::ofNullable);</span>
+    }
+
+    boolean hasExpired(final Session.Credential credential) {
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (credential != null) {</span>
+<span class="fc" id="L189">            return credential.getExpiration().isBefore(Instant.now());</span>
+        }
+<span class="fc" id="L191">        return true;</span>
     }
 
     static String getSessionIdentifier(final JwtClaims claims) {
-<span class="fc" id="L125">        final String webid = claims.getClaimValueAsString(&quot;webid&quot;);</span>
-<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (webid != null) {</span>
-<span class="fc" id="L127">            return DigestUtils.sha256Hex(webid);</span>
+<span class="fc" id="L195">        final String webid = claims.getClaimValueAsString(&quot;webid&quot;);</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        if (webid != null) {</span>
+<span class="fc" id="L197">            return DigestUtils.sha256Hex(webid);</span>
         }
         try {
-<span class="fc" id="L130">            return DigestUtils.sha256Hex(String.join(&quot;|&quot;, claims.getIssuer(), claims.getSubject()));</span>
-<span class="nc" id="L131">        } catch (final MalformedClaimException ex) {</span>
+<span class="fc" id="L200">            return DigestUtils.sha256Hex(String.join(&quot;|&quot;, claims.getIssuer(), claims.getSubject()));</span>
+<span class="nc" id="L201">        } catch (final MalformedClaimException ex) {</span>
             // This exception will never occur because of the validation rules in parseIdToken
-<span class="nc" id="L133">            throw new OpenIdException(&quot;Malformed ID Token: unable to extract issuer and subject&quot;, ex);</span>
+<span class="nc" id="L203">            throw new OpenIdException(&quot;Malformed ID Token: unable to extract issuer and subject&quot;, ex);</span>
         }
     }
 
     static Instant getExpiration(final JwtClaims claims) {
         try {
-<span class="fc" id="L139">            return Instant.ofEpochSecond(claims.getExpirationTime().getValue());</span>
-<span class="nc" id="L140">        } catch (final MalformedClaimException ex) {</span>
+<span class="fc" id="L209">            return Instant.ofEpochSecond(claims.getExpirationTime().getValue());</span>
+<span class="nc" id="L210">        } catch (final MalformedClaimException ex) {</span>
             // This exception will never occur because of the validation rules in parseIdToken
-<span class="nc" id="L142">            throw new OpenIdException(&quot;Malformed ID Token: unable to extract expiration time&quot;, ex);</span>
+<span class="nc" id="L212">            throw new OpenIdException(&quot;Malformed ID Token: unable to extract expiration time&quot;, ex);</span>
         }
     }
 
     static URI getIssuer(final JwtClaims claims) {
         try {
-<span class="fc" id="L148">            return URI.create(claims.getIssuer());</span>
-<span class="nc" id="L149">        } catch (final MalformedClaimException ex) {</span>
+<span class="fc" id="L218">            return URI.create(claims.getIssuer());</span>
+<span class="nc" id="L219">        } catch (final MalformedClaimException ex) {</span>
             // This exception will never occur because of the validation rules in parseIdToken
-<span class="nc" id="L151">            throw new OpenIdException(&quot;Malformed ID Token: unable to extract expiration time&quot;, ex);</span>
+<span class="nc" id="L221">            throw new OpenIdException(&quot;Malformed ID Token: unable to extract expiration time&quot;, ex);</span>
         }
+    }
+
+    static URI getPrincipal(final JwtClaims claims) {
+<span class="fc" id="L226">        final String webid = claims.getClaimValueAsString(&quot;webid&quot;);</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (webid != null) {</span>
+<span class="fc" id="L228">            return URI.create(webid);</span>
+        }
+<span class="fc" id="L230">        return null;</span>
+    }
+
+    static Instant toInstant(final int expiresIn) {
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (expiresIn == 0) {</span>
+<span class="fc" id="L235">            return Instant.MAX;</span>
+        }
+<span class="fc" id="L237">        return Instant.now().plusSeconds(expiresIn);</span>
     }
 
     static JwtClaims parseIdToken(final String idToken, final OpenIdVerificationConfig config) {
         try {
-<span class="fc" id="L157">            final JwtConsumerBuilder builder = new JwtConsumerBuilder();</span>
+<span class="fc" id="L242">            final JwtConsumerBuilder builder = new JwtConsumerBuilder();</span>
 
             // Required by OpenID Connect
-<span class="fc" id="L160">            builder.setRequireExpirationTime();</span>
-<span class="fc" id="L161">            builder.setExpectedIssuers(true, null);</span>
-<span class="fc" id="L162">            builder.setRequireSubject();</span>
-<span class="fc" id="L163">            builder.setRequireIssuedAt();</span>
+<span class="fc" id="L245">            builder.setRequireExpirationTime();</span>
+<span class="fc" id="L246">            builder.setExpectedIssuers(true, null);</span>
+<span class="fc" id="L247">            builder.setRequireSubject();</span>
+<span class="fc" id="L248">            builder.setRequireIssuedAt();</span>
 
             // If a grace period is set, allow for some clock skew
-<span class="fc bfc" id="L166" title="All 2 branches covered.">            if (config.getExpGracePeriodSecs() &gt; 0) {</span>
-<span class="fc" id="L167">                builder.setAllowedClockSkewInSeconds(config.getExpGracePeriodSecs());</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (config.getExpGracePeriodSecs() &gt; 0) {</span>
+<span class="fc" id="L252">                builder.setAllowedClockSkewInSeconds(config.getExpGracePeriodSecs());</span>
             } else {
-<span class="fc" id="L169">                builder.setEvaluationTime(NumericDate.fromSeconds(Instant.now().getEpochSecond()));</span>
+<span class="fc" id="L254">                builder.setEvaluationTime(NumericDate.fromSeconds(Instant.now().getEpochSecond()));</span>
             }
 
             // If an expected audience is set, verify that we have the correct value
-<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (config.getExpectedAudience() != null) {</span>
-<span class="fc" id="L174">                builder.setExpectedAudience(true, config.getExpectedAudience());</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if (config.getExpectedAudience() != null) {</span>
+<span class="fc" id="L259">                builder.setExpectedAudience(true, config.getExpectedAudience());</span>
             } else {
-<span class="fc" id="L176">                builder.setSkipDefaultAudienceValidation();</span>
+<span class="fc" id="L261">                builder.setSkipDefaultAudienceValidation();</span>
             }
 
             // If a JWKS location is set, perform signature validation
-<span class="fc bfc" id="L180" title="All 2 branches covered.">            if (config.getPublicKeyLocation() != null) {</span>
-<span class="fc" id="L181">                final HttpsJwks jwks = new HttpsJwks(config.getPublicKeyLocation().toString());</span>
-<span class="fc" id="L182">                final VerificationKeyResolver resolver = new HttpsJwksVerificationKeyResolver(jwks);</span>
-<span class="fc" id="L183">                builder.setVerificationKeyResolver(resolver);</span>
-<span class="fc" id="L184">            } else {</span>
-<span class="fc" id="L185">                builder.setSkipSignatureVerification();</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">            if (config.getPublicKeyLocation() != null) {</span>
+<span class="fc" id="L266">                final HttpsJwks jwks = new HttpsJwks(config.getPublicKeyLocation().toString());</span>
+<span class="fc" id="L267">                final VerificationKeyResolver resolver = new HttpsJwksVerificationKeyResolver(jwks);</span>
+<span class="fc" id="L268">                builder.setVerificationKeyResolver(resolver);</span>
+<span class="fc" id="L269">            } else {</span>
+<span class="fc" id="L270">                builder.setSkipSignatureVerification();</span>
             }
 
-<span class="fc" id="L188">            final JwtConsumer consumer = builder.build();</span>
-<span class="fc" id="L189">            return consumer.processToClaims(idToken);</span>
-<span class="fc" id="L190">        } catch (final InvalidJwtException ex) {</span>
-<span class="fc" id="L191">            throw new OpenIdException(&quot;Unable to parse ID token&quot;, ex);</span>
+<span class="fc" id="L273">            final JwtConsumer consumer = builder.build();</span>
+<span class="fc" id="L274">            return consumer.processToClaims(idToken);</span>
+<span class="fc" id="L275">        } catch (final InvalidJwtException ex) {</span>
+<span class="fc" id="L276">            throw new OpenIdException(&quot;Unable to parse ID token&quot;, ex);</span>
         }
     }
 }

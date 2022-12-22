@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A class for interacting with an OpenID Provider.
@@ -63,8 +64,8 @@ public class OpenIdProvider {
      * @param issuer the OpenID provider issuer
      */
     public OpenIdProvider(final URI issuer) {
-<span class="fc" id="L66">        this(issuer, ServiceProvider.getHttpService());</span>
-<span class="fc" id="L67">    }</span>
+<span class="fc" id="L67">        this(issuer, ServiceProvider.getHttpService());</span>
+<span class="fc" id="L68">    }</span>
 
     /**
      * Create an OpenID Provider client.
@@ -72,11 +73,11 @@ public class OpenIdProvider {
      * @param issuer the OpenID provider issuer
      * @param httpClient an HTTP client
      */
-<span class="fc" id="L75">    public OpenIdProvider(final URI issuer, final HttpService httpClient) {</span>
-<span class="fc" id="L76">        this.issuer = Objects.requireNonNull(issuer);</span>
-<span class="fc" id="L77">        this.httpClient = Objects.requireNonNull(httpClient);</span>
-<span class="fc" id="L78">        this.jsonService = ServiceProvider.getJsonService();</span>
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L76">    public OpenIdProvider(final URI issuer, final HttpService httpClient) {</span>
+<span class="fc" id="L77">        this.issuer = Objects.requireNonNull(issuer);</span>
+<span class="fc" id="L78">        this.httpClient = Objects.requireNonNull(httpClient);</span>
+<span class="fc" id="L79">        this.jsonService = ServiceProvider.getJsonService();</span>
+<span class="fc" id="L80">    }</span>
 
     /**
      * Fetch the OpenID metadata resource.
@@ -85,9 +86,9 @@ public class OpenIdProvider {
      */
     public Metadata metadata() {
         try {
-<span class="fc" id="L88">            return metadataAsync().toCompletableFuture().join();</span>
-<span class="fc" id="L89">        } catch (final CompletionException ex) {</span>
-<span class="fc" id="L90">            throw new OpenIdException(&quot;Error fetching OpenID metadata resoruce&quot;, ex);</span>
+<span class="fc" id="L89">            return metadataAsync().toCompletableFuture().join();</span>
+<span class="fc" id="L90">        } catch (final CompletionException ex) {</span>
+<span class="fc" id="L91">            throw new OpenIdException(&quot;Error fetching OpenID metadata resoruce&quot;, ex);</span>
         }
     }
 
@@ -98,19 +99,19 @@ public class OpenIdProvider {
      */
     public CompletionStage&lt;Metadata&gt; metadataAsync() {
         // consider caching this response
-<span class="fc" id="L101">        final Request req = Request.newBuilder(getMetadataUrl()).header(&quot;Accept&quot;, &quot;application/json&quot;).build();</span>
-<span class="fc" id="L102">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())</span>
-<span class="fc" id="L103">            .thenApply(res -&gt; {</span>
+<span class="fc" id="L102">        final Request req = Request.newBuilder(getMetadataUrl()).header(&quot;Accept&quot;, &quot;application/json&quot;).build();</span>
+<span class="fc" id="L103">        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())</span>
+<span class="fc" id="L104">            .thenApply(res -&gt; {</span>
                 try {
-<span class="fc" id="L105">                    final int httpStatus = res.statusCode();</span>
-<span class="pc bpc" id="L106" title="1 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
-<span class="fc" id="L107">                        return jsonService.fromJson(res.body(), Metadata.class);</span>
+<span class="fc" id="L106">                    final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L107" title="1 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L108">                        return jsonService.fromJson(res.body(), Metadata.class);</span>
                     }
-<span class="fc" id="L109">                    throw new OpenIdException(</span>
+<span class="fc" id="L110">                    throw new OpenIdException(</span>
                         &quot;Unexpected error while fetching the OpenID metadata resource.&quot;,
                         httpStatus);
-<span class="nc" id="L112">                } catch (final IOException ex) {</span>
-<span class="nc" id="L113">                    throw new OpenIdException(</span>
+<span class="nc" id="L113">                } catch (final IOException ex) {</span>
+<span class="nc" id="L114">                    throw new OpenIdException(</span>
                         &quot;Unexpected I/O exception while fetching the OpenID metadata resource.&quot;,
                         ex);
                 }
@@ -118,7 +119,7 @@ public class OpenIdProvider {
     }
 
     private URI getMetadataUrl() {
-<span class="fc" id="L121">        return URIBuilder.newBuilder(issuer).path(&quot;.well-known/openid-configuration&quot;).build();</span>
+<span class="fc" id="L122">        return URIBuilder.newBuilder(issuer).path(&quot;.well-known/openid-configuration&quot;).build();</span>
     }
 
     /**
@@ -128,7 +129,7 @@ public class OpenIdProvider {
      * @return the URI for performing the authorization request
      */
     public URI authorize(final AuthorizationRequest request) {
-<span class="fc" id="L131">        return authorizeAsync(request).toCompletableFuture().join();</span>
+<span class="fc" id="L132">        return authorizeAsync(request).toCompletableFuture().join();</span>
     }
 
     /**
@@ -138,22 +139,22 @@ public class OpenIdProvider {
      * @return the next stage of completion, containing URI for performing the authorization request
      */
     public CompletionStage&lt;URI&gt; authorizeAsync(final AuthorizationRequest request) {
-<span class="fc" id="L141">        return metadataAsync()</span>
-<span class="fc" id="L142">            .thenApply(metadata -&gt; authorize(metadata.authorizationEndpoint, request));</span>
+<span class="fc" id="L142">        return metadataAsync()</span>
+<span class="fc" id="L143">            .thenApply(metadata -&gt; authorize(metadata.authorizationEndpoint, request));</span>
     }
 
     private URI authorize(final URI authorizationEndpoint, final AuthorizationRequest request) {
-<span class="fc" id="L146">        final URIBuilder builder = URIBuilder.newBuilder(authorizationEndpoint)</span>
-<span class="fc" id="L147">            .queryParam(CLIENT_ID, request.getClientId())</span>
-<span class="fc" id="L148">            .queryParam(REDIRECT_URI, request.getRedirectUri().toString())</span>
-<span class="fc" id="L149">            .queryParam(&quot;response_type&quot;, request.getResponseType());</span>
+<span class="fc" id="L147">        final URIBuilder builder = URIBuilder.newBuilder(authorizationEndpoint)</span>
+<span class="fc" id="L148">            .queryParam(CLIENT_ID, request.getClientId())</span>
+<span class="fc" id="L149">            .queryParam(REDIRECT_URI, request.getRedirectUri().toString())</span>
+<span class="fc" id="L150">            .queryParam(&quot;response_type&quot;, request.getResponseType());</span>
 
-<span class="pc bpc" id="L151" title="2 of 4 branches missed.">        if (request.getCodeChallenge() != null &amp;&amp; request.getCodeChallengeMethod() != null) {</span>
-<span class="fc" id="L152">            builder.queryParam(&quot;code_challenge&quot;, request.getCodeChallenge());</span>
-<span class="fc" id="L153">            builder.queryParam(&quot;code_challenge_method&quot;, request.getCodeChallengeMethod());</span>
+<span class="pc bpc" id="L152" title="2 of 4 branches missed.">        if (request.getCodeChallenge() != null &amp;&amp; request.getCodeChallengeMethod() != null) {</span>
+<span class="fc" id="L153">            builder.queryParam(&quot;code_challenge&quot;, request.getCodeChallenge());</span>
+<span class="fc" id="L154">            builder.queryParam(&quot;code_challenge_method&quot;, request.getCodeChallengeMethod());</span>
         }
 
-<span class="fc" id="L156">        return builder.build();</span>
+<span class="fc" id="L157">        return builder.build();</span>
     }
 
     /**
@@ -164,9 +165,9 @@ public class OpenIdProvider {
      */
     public TokenResponse token(final TokenRequest request) {
         try {
-<span class="fc" id="L167">            return tokenAsync(request).toCompletableFuture().join();</span>
-<span class="nc" id="L168">        } catch (final CompletionException ex) {</span>
-<span class="nc" id="L169">            throw new OpenIdException(&quot;Error fetching OpenID token&quot;, ex);</span>
+<span class="fc" id="L168">            return tokenAsync(request).toCompletableFuture().join();</span>
+<span class="nc" id="L169">        } catch (final CompletionException ex) {</span>
+<span class="nc" id="L170">            throw new OpenIdException(&quot;Error fetching OpenID token&quot;, ex);</span>
         }
     }
 
@@ -177,20 +178,20 @@ public class OpenIdProvider {
      * @return the next stage of completion, containing the token response
      */
     public CompletionStage&lt;TokenResponse&gt; tokenAsync(final TokenRequest request) {
-<span class="fc" id="L180">        return metadataAsync()</span>
-<span class="fc" id="L181">            .thenApply(metadata -&gt; tokenRequest(metadata, request))</span>
-<span class="fc" id="L182">            .thenCompose(req -&gt; httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()))</span>
-<span class="fc" id="L183">            .thenApply(res -&gt; {</span>
+<span class="fc" id="L181">        return metadataAsync()</span>
+<span class="fc" id="L182">            .thenApply(metadata -&gt; tokenRequest(metadata, request))</span>
+<span class="fc" id="L183">            .thenCompose(req -&gt; httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()))</span>
+<span class="fc" id="L184">            .thenApply(res -&gt; {</span>
                 try {
-<span class="fc" id="L185">                    final int httpStatus = res.statusCode();</span>
-<span class="pc bpc" id="L186" title="1 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
-<span class="fc" id="L187">                        return jsonService.fromJson(res.body(), TokenResponse.class);</span>
+<span class="fc" id="L186">                    final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L187" title="1 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L188">                        return jsonService.fromJson(res.body(), TokenResponse.class);</span>
                     }
-<span class="fc" id="L189">                    throw new OpenIdException(</span>
+<span class="fc" id="L190">                    throw new OpenIdException(</span>
                         &quot;Unexpected error while interacting with the OpenID Provider's token endpoint.&quot;,
                         httpStatus);
-<span class="nc" id="L192">                } catch (final IOException ex) {</span>
-<span class="nc" id="L193">                    throw new OpenIdException(</span>
+<span class="nc" id="L193">                } catch (final IOException ex) {</span>
+<span class="nc" id="L194">                    throw new OpenIdException(</span>
                         &quot;Unexpected I/O exception while interacting with the OpenID Provider's token endpoint.&quot;,
                         ex);
                 }
@@ -198,36 +199,47 @@ public class OpenIdProvider {
     }
 
     private Request tokenRequest(final Metadata metadata, final TokenRequest request) {
-<span class="fc" id="L201">        final Map&lt;String, String&gt; data = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L202">        data.put(&quot;grant_type&quot;, request.getGrantType());</span>
-<span class="fc" id="L203">        data.put(&quot;code&quot;, request.getCode());</span>
-<span class="fc" id="L204">        data.put(&quot;code_verifier&quot;, request.getCodeVerifier());</span>
-<span class="fc" id="L205">        data.put(REDIRECT_URI, request.getRedirectUri().toString());</span>
-
-        final Optional&lt;String&gt; authHeader;
-<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (request.getClientSecret() != null) {</span>
-<span class="fc bfc" id="L209" title="All 2 branches covered.">            if (&quot;client_secret_basic&quot;.equals(request.getAuthMethod())) {</span>
-<span class="fc" id="L210">                authHeader = getBasicAuthHeader(request.getClientId(), request.getClientSecret());</span>
-            } else {
-<span class="pc bpc" id="L212" title="1 of 2 branches missed.">                if (&quot;client_secret_post&quot;.equals(request.getAuthMethod())) {</span>
-<span class="fc" id="L213">                    data.put(CLIENT_ID, request.getClientId());</span>
-<span class="fc" id="L214">                    data.put(&quot;client_secret&quot;, request.getClientSecret());</span>
-                }
-<span class="fc" id="L216">                authHeader = Optional.empty();</span>
-            }
-        } else {
-<span class="fc" id="L219">            data.put(CLIENT_ID, request.getClientId());</span>
-<span class="fc" id="L220">            authHeader = Optional.empty();</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (!metadata.grantTypesSupported.contains(request.getGrantType())) {</span>
+<span class="nc" id="L203">            throw new OpenIdException(&quot;Grant type [&quot; + request.getGrantType() + &quot;] is not supported by this provider.&quot;);</span>
         }
 
-<span class="fc" id="L223">        final Request.Builder req = Request.newBuilder(metadata.tokenEndpoint)</span>
-<span class="fc" id="L224">            .header(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;)</span>
-<span class="fc" id="L225">            .POST(ofFormData(data));</span>
+<span class="fc" id="L206">        final Map&lt;String, String&gt; data = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L207">        data.put(&quot;grant_type&quot;, request.getGrantType());</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (request.getCode() != null) {</span>
+<span class="fc" id="L209">            data.put(&quot;code&quot;, request.getCode());</span>
+        }
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (request.getCodeVerifier() != null) {</span>
+<span class="fc" id="L212">            data.put(&quot;code_verifier&quot;, request.getCodeVerifier());</span>
+        }
+
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (request.getRedirectUri() != null) {</span>
+<span class="fc" id="L216">            data.put(REDIRECT_URI, request.getRedirectUri().toString());</span>
+        }
+
+        final Optional&lt;String&gt; authHeader;
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        if (request.getClientSecret() != null) {</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            if (&quot;client_secret_basic&quot;.equals(request.getAuthMethod())) {</span>
+<span class="fc" id="L222">                authHeader = getBasicAuthHeader(request.getClientId(), request.getClientSecret());</span>
+            } else {
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">                if (&quot;client_secret_basic&quot;.equals(request.getAuthMethod())) {</span>
+<span class="nc" id="L225">                    data.put(CLIENT_ID, request.getClientId());</span>
+<span class="nc" id="L226">                    data.put(&quot;client_secret&quot;, request.getClientSecret());</span>
+                }
+<span class="fc" id="L228">                authHeader = Optional.empty();</span>
+            }
+        } else {
+<span class="fc" id="L231">            data.put(CLIENT_ID, request.getClientId());</span>
+<span class="fc" id="L232">            authHeader = Optional.empty();</span>
+        }
+
+<span class="fc" id="L235">        final Request.Builder req = Request.newBuilder(metadata.tokenEndpoint)</span>
+<span class="fc" id="L236">            .header(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="fc" id="L237">            .POST(ofFormData(data));</span>
 
         // Add auth header, if relevant
-<span class="fc" id="L228">        authHeader.ifPresent(header -&gt; req.header(&quot;Authorization&quot;, header));</span>
+<span class="fc" id="L240">        authHeader.ifPresent(header -&gt; req.header(&quot;Authorization&quot;, header));</span>
 
-<span class="fc" id="L230">        return req.build();</span>
+<span class="fc" id="L242">        return req.build();</span>
     }
 
     /**
@@ -237,7 +249,7 @@ public class OpenIdProvider {
      * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
      */
     public URI endSession(final EndSessionRequest request) {
-<span class="fc" id="L240">        return endSessionAsync(request).toCompletableFuture().join();</span>
+<span class="fc" id="L252">        return endSessionAsync(request).toCompletableFuture().join();</span>
     }
 
     /**
@@ -247,44 +259,47 @@ public class OpenIdProvider {
      * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
      */
     public CompletionStage&lt;URI&gt; endSessionAsync(final EndSessionRequest request) {
-<span class="fc" id="L250">        return metadataAsync()</span>
-<span class="fc" id="L251">            .thenApply(metadata -&gt; {</span>
-<span class="pc bpc" id="L252" title="1 of 2 branches missed.">                if (metadata.endSessionEndpoint != null) {</span>
-<span class="fc" id="L253">                    return endSession(metadata.endSessionEndpoint, request);</span>
+<span class="fc" id="L262">        return metadataAsync()</span>
+<span class="fc" id="L263">            .thenApply(metadata -&gt; {</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">                if (metadata.endSessionEndpoint != null) {</span>
+<span class="fc" id="L265">                    return endSession(metadata.endSessionEndpoint, request);</span>
                 }
-<span class="nc" id="L255">                return null;</span>
+<span class="nc" id="L267">                return null;</span>
             });
     }
 
     static Request.BodyPublisher ofFormData(final Map&lt;String, String&gt; data) {
-<span class="fc" id="L260">        final String form = data.entrySet().stream().map(entry -&gt; {</span>
+<span class="fc" id="L272">        final String form = data.entrySet().stream().flatMap(entry -&gt; {</span>
             try {
-<span class="fc" id="L262">                final String name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
-<span class="fc" id="L263">                final String value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
-<span class="fc" id="L264">                return String.join(EQUALS, name, value);</span>
-<span class="nc" id="L265">            } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L266">                throw new OpenIdException(&quot;Error encoding form data&quot;, e);</span>
+<span class="pc bpc" id="L274" title="2 of 4 branches missed.">                if (entry.getKey() != null &amp;&amp; entry.getValue() != null) {</span>
+<span class="fc" id="L275">                    final String name = URLEncoder.encode(entry.getKey(), UTF_8.toString());</span>
+<span class="fc" id="L276">                    final String value = URLEncoder.encode(entry.getValue(), UTF_8.toString());</span>
+<span class="fc" id="L277">                    return Stream.of(String.join(EQUALS, name, value));</span>
+                }
+<span class="nc" id="L279">                return Stream.empty();</span>
+<span class="nc" id="L280">            } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L281">                throw new OpenIdException(&quot;Error encoding form data&quot;, e);</span>
             }
-<span class="fc" id="L268">        }).collect(Collectors.joining(ETC));</span>
+<span class="fc" id="L283">        }).collect(Collectors.joining(ETC));</span>
 
-<span class="fc" id="L270">        return Request.BodyPublishers.ofString(form);</span>
+<span class="fc" id="L285">        return Request.BodyPublishers.ofString(form);</span>
     }
 
     private URI endSession(final URI endSessionEndpoint, final EndSessionRequest request) {
-<span class="fc" id="L274">        return URIBuilder.newBuilder(endSessionEndpoint)</span>
-<span class="fc" id="L275">            .queryParam(CLIENT_ID, request.getClientId())</span>
-<span class="fc" id="L276">            .queryParam(&quot;post_logout_redirect_uri&quot;, request.getPostLogoutRedirectUri().toString())</span>
-<span class="fc" id="L277">            .queryParam(&quot;id_token_hint&quot;, request.getIdTokenHint())</span>
-<span class="fc" id="L278">            .queryParam(&quot;state&quot;, request.getState())</span>
-<span class="fc" id="L279">            .build();</span>
+<span class="fc" id="L289">        return URIBuilder.newBuilder(endSessionEndpoint)</span>
+<span class="fc" id="L290">            .queryParam(CLIENT_ID, request.getClientId())</span>
+<span class="fc" id="L291">            .queryParam(&quot;post_logout_redirect_uri&quot;, request.getPostLogoutRedirectUri().toString())</span>
+<span class="fc" id="L292">            .queryParam(&quot;id_token_hint&quot;, request.getIdTokenHint())</span>
+<span class="fc" id="L293">            .queryParam(&quot;state&quot;, request.getState())</span>
+<span class="fc" id="L294">            .build();</span>
     }
 
     static Optional&lt;String&gt; getBasicAuthHeader(final String clientId, final String clientSecret) {
-<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        if (clientSecret != null) {</span>
-<span class="fc" id="L284">            final String raw = String.join(&quot;:&quot;, clientId, clientSecret);</span>
-<span class="fc" id="L285">            return Optional.of(&quot;Basic &quot; + Base64.getEncoder().encodeToString(raw.getBytes(UTF_8)));</span>
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">        if (clientSecret != null) {</span>
+<span class="fc" id="L299">            final String raw = String.join(&quot;:&quot;, clientId, clientSecret);</span>
+<span class="fc" id="L300">            return Optional.of(&quot;Basic &quot; + Base64.getEncoder().encodeToString(raw.getBytes(UTF_8)));</span>
         }
-<span class="nc" id="L287">        return Optional.empty();</span>
+<span class="nc" id="L302">        return Optional.empty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

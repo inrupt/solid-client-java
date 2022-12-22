@@ -36,20 +36,39 @@ public class SolidResource extends Resource {
      * Create a Solid resource.
      *
      * @param identifier the Solid Resource identifier
+     */
+    public SolidResource(final URI identifier) {
+<span class="nc" id="L41">        this(identifier, null);</span>
+<span class="nc" id="L42">    }</span>
+
+    /**
+     * Create a Solid resource.
+     *
+     * @param identifier the Solid Resource identifier
+     * @param dataset the resource dataset, may be {@code null}
+     */
+    public SolidResource(final URI identifier, final Dataset dataset) {
+<span class="nc" id="L51">        this(identifier, dataset, null);</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * Create a Solid resource.
+     *
+     * @param identifier the Solid Resource identifier
      * @param dataset the resource dataset, may be {@code null}
      * @param metadata metadata associated with this resource, may be {@code null}
      */
     public SolidResource(final URI identifier, final Dataset dataset, final Metadata metadata) {
-<span class="fc" id="L43">        super(identifier, dataset);</span>
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (metadata == null) {</span>
-<span class="fc" id="L45">            this.metadata = Metadata.newBuilder().build();</span>
+<span class="fc" id="L62">        super(identifier, dataset);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (metadata == null) {</span>
+<span class="fc" id="L64">            this.metadata = Metadata.newBuilder().build();</span>
         } else {
-<span class="fc" id="L47">            this.metadata = metadata;</span>
+<span class="fc" id="L66">            this.metadata = metadata;</span>
         }
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L68">    }</span>
 
     public Metadata getMetadata() {
-<span class="fc" id="L52">        return metadata;</span>
+<span class="fc" id="L71">        return metadata;</span>
     }
 
     /**
@@ -58,7 +77,7 @@ public class SolidResource extends Resource {
      * @return the builder
      */
     public static Builder newResourceBuilder() {
-<span class="fc" id="L61">        return new Builder();</span>
+<span class="fc" id="L80">        return new Builder();</span>
     }
 
     /**
@@ -76,8 +95,8 @@ public class SolidResource extends Resource {
          * @return this builder
          */
         public Builder metadata(final Metadata metadata) {
-<span class="fc" id="L79">            builderMetadata = metadata;</span>
-<span class="fc" id="L80">            return this;</span>
+<span class="fc" id="L98">            builderMetadata = metadata;</span>
+<span class="fc" id="L99">            return this;</span>
         }
 
         /**
@@ -87,8 +106,8 @@ public class SolidResource extends Resource {
          * @return this builder
          */
         public Builder dataset(final Dataset dataset) {
-<span class="fc" id="L90">            builderDataset = dataset;</span>
-<span class="fc" id="L91">            return this;</span>
+<span class="fc" id="L109">            builderDataset = dataset;</span>
+<span class="fc" id="L110">            return this;</span>
         }
 
         /**
@@ -98,12 +117,12 @@ public class SolidResource extends Resource {
          * @return the Solid resource
          */
         public SolidResource build(final URI identifier) {
-<span class="fc" id="L101">            return new SolidResource(identifier, builderDataset, builderMetadata);</span>
+<span class="fc" id="L120">            return new SolidResource(identifier, builderDataset, builderMetadata);</span>
         }
 
-<span class="fc" id="L104">        Builder() {</span>
+<span class="fc" id="L123">        Builder() {</span>
             // Prevent instantiations
-<span class="fc" id="L106">        }</span>
+<span class="fc" id="L125">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

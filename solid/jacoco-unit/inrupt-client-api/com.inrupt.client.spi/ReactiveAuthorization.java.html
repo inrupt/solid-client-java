@@ -91,7 +91,7 @@ public class ReactiveAuthorization {
 <span class="fc" id="L91">            LOGGER.debug(&quot;Using {} authenticator&quot;, auth.getName());</span>
 <span class="fc" id="L92">            return auth.authenticateAsync(session, request)</span>
 <span class="fc" id="L93">                .thenApply(token -&gt; new Session.Credential(token.getType(), token.getIssuer(),</span>
-<span class="fc" id="L94">                            token.getToken(), token.getExpiration()))</span>
+<span class="fc" id="L94">                            token.getToken(), token.getExpiration(), session.getPrincipal().orElse(null)))</span>
 <span class="fc" id="L95">                .thenApply(Optional::of);</span>
         }
 <span class="fc" id="L97">        return CompletableFuture.completedFuture(Optional.empty());</span>

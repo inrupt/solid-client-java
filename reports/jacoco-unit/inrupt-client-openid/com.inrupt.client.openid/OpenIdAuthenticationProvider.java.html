@@ -26,6 +26,8 @@ import com.inrupt.client.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -39,35 +41,35 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
     private final int priorityLevel;
 
     public OpenIdAuthenticationProvider() {
-<span class="fc" id="L42">        this(50);</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L44">        this(50);</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * Create an {@link OpenIdAuthenticationProvider} with a defined priority.
      *
      * @param priority the priority of this authentication mechanism
      */
-<span class="fc" id="L50">    public OpenIdAuthenticationProvider(final int priority) {</span>
-<span class="fc" id="L51">        this.priorityLevel = priority;</span>
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L52">    public OpenIdAuthenticationProvider(final int priority) {</span>
+<span class="fc" id="L53">        this.priorityLevel = priority;</span>
+<span class="fc" id="L54">    }</span>
 
     @Override
     public String getScheme() {
-<span class="fc" id="L56">        return BEARER;</span>
+<span class="fc" id="L58">        return BEARER;</span>
     }
 
     @Override
     public Authenticator getAuthenticator(final Authenticator.Challenge challenge) {
-<span class="fc" id="L61">        validate(challenge);</span>
-<span class="fc" id="L62">        return new OpenIdAuthenticator(challenge, priorityLevel);</span>
+<span class="fc" id="L63">        validate(challenge);</span>
+<span class="fc" id="L64">        return new OpenIdAuthenticator(challenge, priorityLevel);</span>
     }
 
     static void validate(final Authenticator.Challenge challenge) {
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (challenge == null ||</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">                !BEARER.equalsIgnoreCase(challenge.getScheme())) {</span>
-<span class="nc" id="L68">            throw new OpenIdException(&quot;Invalid challenge for OpenID authentication&quot;);</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (challenge == null ||</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                !BEARER.equalsIgnoreCase(challenge.getScheme())) {</span>
+<span class="nc" id="L70">            throw new OpenIdException(&quot;Invalid challenge for OpenID authentication&quot;);</span>
         }
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L72">    }</span>
 
     /**
      * A mechanism capable of retrieving an access token from an OpenId Provider.
@@ -83,33 +85,40 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
          * @param challenge the resource server challenge
          * @param priority the priority of this authentication mechanism
          */
-<span class="fc" id="L86">        protected OpenIdAuthenticator(final Authenticator.Challenge challenge, final int priority) {</span>
-<span class="fc" id="L87">            this.priorityLevel = priority;</span>
-<span class="fc" id="L88">            this.challenge = challenge;</span>
-<span class="fc" id="L89">        }</span>
+<span class="fc" id="L88">        protected OpenIdAuthenticator(final Authenticator.Challenge challenge, final int priority) {</span>
+<span class="fc" id="L89">            this.priorityLevel = priority;</span>
+<span class="fc" id="L90">            this.challenge = challenge;</span>
+<span class="fc" id="L91">        }</span>
 
         @Override
         public String getName() {
-<span class="fc" id="L93">            return &quot;OpenId&quot;;</span>
+<span class="fc" id="L95">            return &quot;OpenId&quot;;</span>
         }
 
         @Override
         public int getPriority() {
-<span class="fc" id="L98">            return priorityLevel;</span>
+<span class="fc" id="L100">            return priorityLevel;</span>
         }
 
         @Override
         public AccessToken authenticate(final Session session, final Request request) {
-<span class="nc" id="L103">            return authenticateAsync(session, request).toCompletableFuture().join();</span>
+<span class="nc" id="L105">            return authenticateAsync(session, request).toCompletableFuture().join();</span>
         }
 
         @Override
         public CompletionStage&lt;AccessToken&gt; authenticateAsync(final Session session, final Request request) {
-<span class="fc" id="L108">            return session.getCredential(OpenIdSession.ID_TOKEN)</span>
-<span class="fc" id="L109">                .map(credential -&gt; new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),</span>
-<span class="fc" id="L110">                            credential.getExpiration(), credential.getIssuer(), Arrays.asList(&quot;webid&quot;, &quot;openid&quot;), null))</span>
-<span class="fc" id="L111">                .map(CompletableFuture::completedFuture)</span>
-<span class="pc" id="L112">                .orElseThrow(() -&gt; new OpenIdException(&quot;Unable to perform OpenID authentication&quot;));</span>
+            // TODO don't hard-code this
+<span class="fc" id="L111">            final List&lt;String&gt; scopes = Arrays.asList(&quot;webid&quot;, &quot;openid&quot;);</span>
+<span class="fc" id="L112">            final Optional&lt;CompletionStage&lt;AccessToken&gt;&gt; token = session.getCredential(OpenIdSession.ID_TOKEN)</span>
+<span class="fc" id="L113">                .map(credential -&gt; new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),</span>
+<span class="fc" id="L114">                            credential.getExpiration(), credential.getIssuer(), scopes, null))</span>
+<span class="fc" id="L115">                .map(CompletableFuture::completedFuture);</span>
+<span class="fc" id="L116">            return token</span>
+<span class="pc" id="L117">                .orElseGet(() -&gt; session.authenticate(request)</span>
+<span class="nc" id="L118">                    .thenApply(credential -&gt; credential</span>
+<span class="nc" id="L119">                        .map(c -&gt; new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(), c.getIssuer(),</span>
+                                scopes, null))
+<span class="nc" id="L121">                        .orElseThrow(() -&gt; new OpenIdException(&quot;Unable to perform OpenID authentication&quot;))));</span>
         }
     }
 }
