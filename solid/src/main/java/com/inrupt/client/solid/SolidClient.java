@@ -55,6 +55,19 @@ public class SolidClient {
     }
 
     /**
+     * Perform a low-level HTTP request.
+     *
+     * @param request the request
+     * @param responseBodyHandler the body handler
+     * @param <T> the response handler type
+     * @return the response
+     */
+    public <T> CompletionStage<Response<T>> sendAsync(final Request request,
+            final Response.BodyHandler<T> responseBodyHandler) {
+        return client.sendAsync(request, responseBodyHandler);
+    }
+
+    /**
      * Read a Solid Resource into a particular defined type.
      *
      * @param identifier the identifier

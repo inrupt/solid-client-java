@@ -56,15 +56,12 @@ public final class OpenIdSession implements Session {
     public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
 
     private final String id;
-    private final OpenIdVerificationConfig config;
     private final Set<String> schemes;
     private final Supplier<CompletionStage<Session.Credential>> authenticator;
-    private final AtomicReference<Session.Credential> credential = new AtomicReference();
+    private final AtomicReference<Session.Credential> credential = new AtomicReference<>();
 
-    private OpenIdSession(final String id, final Supplier<CompletionStage<Session.Credential>> authenticator,
-            final OpenIdVerificationConfig config) {
+    private OpenIdSession(final String id, final Supplier<CompletionStage<Session.Credential>> authenticator) {
         this.id = Objects.requireNonNull(id, "Session id may not be null!");
-        this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
         this.authenticator = Objects.requireNonNull(authenticator, "OpenID authenticator may not be null!");
 
         // Support case-insensitive lookups
@@ -97,7 +94,7 @@ public final class OpenIdSession implements Session {
         final Session.Credential credential = new Session.Credential("Bearer", getIssuer(claims), idToken,
                 getExpiration(claims), getPrincipal(claims));
 
-        return new OpenIdSession(id, () -> CompletableFuture.completedFuture(credential), config);
+        return new OpenIdSession(id, () -> CompletableFuture.completedFuture(credential));
     }
 
     /**
@@ -139,7 +136,7 @@ public final class OpenIdSession implements Session {
                 final JwtClaims claims = parseIdToken(response.idToken, config);
                 return new Session.Credential(response.tokenType, getIssuer(claims), response.idToken,
                         toInstant(response.expiresIn), getPrincipal(claims));
-            }), config);
+            }));
     }
 
     @Override
@@ -189,7 +186,7 @@ public final class OpenIdSession implements Session {
 
     boolean hasExpired(final Session.Credential credential) {
         if (credential != null) {
-            return credential.getExpiration().plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());
+            return credential.getExpiration().isBefore(Instant.now());
         }
         return true;
     }
