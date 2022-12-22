@@ -23,6 +23,7 @@ package com.inrupt.client.uma;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +76,17 @@ public final class UmaSession implements Session {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public Optional<URI> getPrincipal() {
+        for (final Session session : internalSessions) {
+            final Optional<URI> principal = session.getPrincipal();
+            if (principal.isPresent()) {
+                return principal;
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

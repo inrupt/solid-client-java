@@ -39,6 +39,15 @@ public interface Session {
     String getId();
 
     /**
+     * Retrieve the principal associated with this session.
+     *
+     * <p>Typically, this will be a WebID or other globally unique value
+     *
+     * @return the principal identifier, if present
+     */
+    Optional<URI> getPrincipal();
+
+    /**
      * Retrieve the authentication schemes supported by this session.
      *
      * @return the scheme identifiers
@@ -74,16 +83,23 @@ public interface Session {
         private final URI issuer;
         private final String token;
         private final Instant expiration;
+        private final URI principal;
 
-        public Credential(final String scheme, final URI issuer, final String token, final Instant expiration) {
+        public Credential(final String scheme, final URI issuer, final String token, final Instant expiration,
+                final URI principal) {
             this.scheme = scheme;
             this.issuer = issuer;
             this.token = token;
             this.expiration = expiration;
+            this.principal = principal;
         }
 
         public String getScheme() {
             return scheme;
+        }
+
+        public Optional<URI> getPrincipal() {
+            return Optional.ofNullable(principal);
         }
 
         public URI getIssuer() {
@@ -111,6 +127,11 @@ public interface Session {
             @Override
             public String getId() {
                 return sessionId;
+            }
+
+            @Override
+            public Optional<URI> getPrincipal() {
+                return Optional.empty();
             }
 
             @Override

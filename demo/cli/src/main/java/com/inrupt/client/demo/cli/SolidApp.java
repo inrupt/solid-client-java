@@ -20,22 +20,25 @@
  */
 package com.inrupt.client.demo.cli;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.ECParameterSpec;
-import java.util.Base64;
-import java.util.Set;
+import com.inrupt.client.Client;
+import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Request;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidResourceHandlers;
+import com.inrupt.client.vocabulary.LDP;
+import com.inrupt.client.webid.WebIdBodyHandlers;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
+import io.quarkus.runtime.QuarkusApplication;
+import io.quarkus.runtime.annotations.QuarkusMain;
+
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.Collection;
+
+import javax.inject.Inject;
+
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -45,35 +48,63 @@ import org.slf4j.Logger;
 /**
  * A CLI utility for interacting with a Solid Storage.
  */
-public class SolidApp {
+@QuarkusMain
+public class SolidApp implements QuarkusApplication {
 
     private static final Logger LOGGER = getLogger(SolidApp.class);
 
-    // By default send output to stdout
-    private PrintWriter printWriter = new PrintWriter(System.out, true);
+    private final Client client = ClientProvider.getClient();
+    private final PrintWriter printWriter = new PrintWriter(System.out, true);
+
+    @Inject
+    AppConfig config;
 
     @Override
     public int run(final String... args) {
-        final Options options = new Options();
-        options.addOption("c", "client", true, "The client id");
-        options.addOption("s", "secret", true, "The client secret");
-        options.addOption("m", "method", true, "The authentication method [default: post]");
-        options.addOption("i", "issuer", true, "The authentication server");
+        final var options = new Options();
+        options.addOption("c", "containers", false, "Show containers");
+        options.addOption("r", "rdf", false, "Show RDF resources");
+        options.addOption("n", "nonrdf", false, "Show non-RDF resources");
         options.addOption("h", "help", false, "Print this menu");
 
-        final CommandLineParser parser = new DefaultParser();
+        final var parser = new DefaultParser();
         try {
-            final CommandLine cmd = parser.parse(options, args);
-            final String clientId = cmd.getOptionValue("c");
-            final String clientSecret = cmd.getOptionValue("s");
-            final String issuer = cmd.getOptionValue("i");
-            final String method = cmd.getOptionValue("m", "post");
+            final var cmd = parser.parse(options, args);
 
             if (cmd.hasOption("h")) {
                 showHelp(options);
                 return 0;
             }
 
+            final var session = OpenIdSession.ofClientCredentials(config.issuer(), config.clientId(),
+                        config.clientSecret(), config.authMethod());
+
+            final var client = ClientProvider.getClient().session(session);
+            session.getPrincipal().ifPresent(webid -> {
+                printWriter.format("WebID: %s", webid);
+                printWriter.println();
+                final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
+                final var profile = client.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
+
+                profile.getStorage().stream().findFirst()
+                    .map(storage -> Request.newBuilder(storage).build())
+                    .map(request -> client.send(request, SolidResourceHandlers.ofSolidContainer()).body())
+                    .ifPresent(model -> model.getContainedResources()
+                            .filter(r -> {
+                                if (cmd.hasOption("c") && r.getMetadata().getType().contains(LDP.BasicContainer)) {
+                                    return true;
+                                }
+                                if (cmd.hasOption("r") && r.getMetadata().getType().contains(LDP.RDFSource)) {
+                                    return true;
+                                }
+                                return cmd.hasOption("n") && r.getMetadata().getType().contains(LDP.NonRDFSource);
+                            })
+                            .forEach(r -> {
+                                printWriter.format("Resource: %s, %s", r.getIdentifier(),
+                                    principalType(r.getMetadata().getType()));
+                                printWriter.println();
+                            }));
+            });
         } catch (final ParseException ex) {
             LOGGER.error("Error parsing command line arguments: {}", ex.getMessage());
             showHelp(options);
@@ -82,29 +113,21 @@ public class SolidApp {
         return 0;
     }
 
-    void setPrintWriter(final PrintWriter printWriter) {
-        this.printWriter = printWriter;
+    public URI principalType(final Collection<URI> types) {
+        if (types.contains(LDP.BasicContainer)) {
+            return LDP.BasicContainer;
+        } else if (types.contains(LDP.RDFSource)) {
+            return LDP.RDFSource;
+        } else if (types.contains(LDP.NonRDFSource)) {
+            return LDP.NonRDFSource;
+        }
+        return LDP.Resource;
     }
 
     void showHelp(final Options options) {
-        final HelpFormatter formatter = new HelpFormatter();
+        final var formatter = new HelpFormatter();
         formatter.printHelp(printWriter, formatter.getWidth(), "java -jar inrupt-openid-jwk-runner.jar",
                 null, options, formatter.getLeftPadding(), formatter.getDescPadding(), null, false);
     }
 
-    static String getAlgorithm(final String type, final String algorithm) {
-        if ("EC".equals(type)) {
-            if (EC_ALGORITHMS.contains(algorithm)) {
-                return algorithm;
-            }
-            LOGGER.warn("Invalid ECDSA algorithm, using ES256");
-            return "ES256";
-        } else {
-            if (RSA_ALGORITHMS.contains(algorithm)) {
-                return algorithm;
-            }
-            LOGGER.warn("Invalid RSA algorithm, using RS256");
-            return "RS256";
-        }
-    }
 }

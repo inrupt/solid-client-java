@@ -30,8 +30,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -53,24 +55,17 @@ public final class OpenIdSession implements Session {
 
     public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
 
-    private final String jwt;
     private final String id;
-    private final Instant expiration;
     private final OpenIdVerificationConfig config;
-    private final URI issuer;
     private final Set<String> schemes;
     private final Supplier<CompletionStage<Session.Credential>> authenticator;
+    private final AtomicReference<Session.Credential> credential = new AtomicReference();
 
-    private OpenIdSession(final String idToken, final OpenIdVerificationConfig config,
-            final Supplier<CompletionStage<Session.Credential>> authenticator) {
+    private OpenIdSession(final String id, final Supplier<CompletionStage<Session.Credential>> authenticator,
+            final OpenIdVerificationConfig config) {
+        this.id = Objects.requireNonNull(id, "Session id may not be null!");
         this.config = Objects.requireNonNull(config, "OpenID verification configuration may not be null!");
-        this.jwt = Objects.requireNonNull(idToken, "ID Token may not be null!");
-        this.authenticator = Objects.requireNonNull(authenticator);
-
-        final JwtClaims claims = parseIdToken(idToken, config);
-        this.id = getSessionIdentifier(claims);
-        this.issuer = getIssuer(claims);
-        this.expiration = getExpiration(claims);
+        this.authenticator = Objects.requireNonNull(authenticator, "OpenID authenticator may not be null!");
 
         // Support case-insensitive lookups
         final Set<String> schemeNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -97,7 +92,12 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config) {
-        return new OpenIdSession(idToken, config, () -> CompletableFuture.completedFuture(null));
+        final JwtClaims claims = parseIdToken(idToken, config);
+        final String id = getSessionIdentifier(claims);
+        final Session.Credential credential = new Session.Credential("Bearer", getIssuer(claims), idToken,
+                getExpiration(claims), getPrincipal(claims));
+
+        return new OpenIdSession(id, () -> CompletableFuture.completedFuture(credential), config);
     }
 
     /**
@@ -107,11 +107,12 @@ public final class OpenIdSession implements Session {
      * @param clientId the client id value
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
-     * @return the next stage of completion, containing a credential
+     * @return the session
      */
-    public static Supplier<CompletionStage<Session.Credential>> ofClientCredentials(final URI issuer,
-            final String clientId, final String clientSecret, final String authMethod) {
-        return ofClientCredentials(new OpenIdProvider(issuer), clientId, clientSecret, authMethod);
+    public static Session ofClientCredentials(final URI issuer, final String clientId, final String clientSecret,
+            final String authMethod) {
+        return ofClientCredentials(new OpenIdProvider(issuer), clientId, clientSecret, authMethod,
+                new OpenIdVerificationConfig());
     }
 
     /**
@@ -121,23 +122,34 @@ public final class OpenIdSession implements Session {
      * @param clientId the client id value
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
+     * @param config the ID token verifification config
      * @param scopes an array of scope values
-     * @return the next stage of completion, containing a credential
+     * @return the session
      */
-    public static Supplier<CompletionStage<Session.Credential>> ofClientCredentials(final OpenIdProvider provider,
-            final String clientId, final String clientSecret, final String authMethod, final String... scopes) {
-        return () -> provider.tokenAsync(TokenRequest.newBuilder()
+    public static Session ofClientCredentials(final OpenIdProvider provider,
+            final String clientId, final String clientSecret, final String authMethod,
+            final OpenIdVerificationConfig config, final String... scopes) {
+        final String id = UUID.randomUUID().toString();
+        return new OpenIdSession(id, () -> provider.tokenAsync(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
                 .scopes(scopes)
                 .build("client_credentials", clientId))
-            .thenApply(response -> new Credential(response.tokenType, provider.getIssuer(), response.idToken,
-                        toInstant(response.expiresIn)));
+            .thenApply(response -> {
+                final JwtClaims claims = parseIdToken(response.idToken, config);
+                return new Session.Credential(response.tokenType, getIssuer(claims), response.idToken,
+                        toInstant(response.expiresIn), getPrincipal(claims));
+            }), config);
     }
 
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public Optional<URI> getPrincipal() {
+        return getCredential(ID_TOKEN).flatMap(Session.Credential::getPrincipal);
     }
 
     @Override
@@ -147,14 +159,26 @@ public final class OpenIdSession implements Session {
 
     @Override
     public Optional<Session.Credential> getCredential(final String name) {
-        if (ID_TOKEN.equals(name) && !hasExpired()) {
-            return Optional.of(new Session.Credential("Bearer", issuer, jwt, expiration));
+        if (ID_TOKEN.equals(name)) {
+            final Session.Credential c = credential.get();
+            if (c != null && !hasExpired(c)) {
+                return Optional.of(c);
+            }
+            final Session.Credential freshCredential = authenticator.get().toCompletableFuture().join();
+            if (freshCredential != null && !hasExpired(freshCredential)) {
+                credential.set(freshCredential);
+                return Optional.of(freshCredential);
+            }
         }
         return Optional.empty();
     }
 
     @Override
     public Optional<Session.Credential> fromCache(final Request request) {
+        final Session.Credential c = credential.get();
+        if (c != null && !hasExpired(c)) {
+            return Optional.of(c);
+        }
         return Optional.empty();
     }
 
@@ -163,8 +187,8 @@ public final class OpenIdSession implements Session {
         return authenticator.get().thenApply(Optional::ofNullable);
     }
 
-    boolean hasExpired() {
-        return expiration.plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());
+    boolean hasExpired(final Session.Credential c) {
+        return c.getExpiration().plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());
     }
 
     static String getSessionIdentifier(final JwtClaims claims) {
@@ -196,6 +220,14 @@ public final class OpenIdSession implements Session {
             // This exception will never occur because of the validation rules in parseIdToken
             throw new OpenIdException("Malformed ID Token: unable to extract expiration time", ex);
         }
+    }
+
+    static URI getPrincipal(final JwtClaims claims) {
+        final String webid = claims.getClaimValueAsString("webid");
+        if (webid != null) {
+            return URI.create(webid);
+        }
+        return null;
     }
 
     static Instant toInstant(final int expiresIn) {

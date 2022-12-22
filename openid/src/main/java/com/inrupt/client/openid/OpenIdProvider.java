@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A class for interacting with an OpenID Provider.
@@ -213,16 +214,23 @@ public class OpenIdProvider {
 
         final Map<String, String> data = new HashMap<>();
         data.put("grant_type", request.getGrantType());
-        data.put("code", request.getCode());
-        data.put("code_verifier", request.getCodeVerifier());
-        data.put(REDIRECT_URI, request.getRedirectUri().toString());
+        if (request.getCode() != null) {
+            data.put("code", request.getCode());
+        }
+        if (request.getCodeVerifier() != null) {
+            data.put("code_verifier", request.getCodeVerifier());
+        }
+
+        if (request.getRedirectUri() != null) {
+            data.put(REDIRECT_URI, request.getRedirectUri().toString());
+        }
 
         final Optional<String> authHeader;
         if (request.getClientSecret() != null) {
             if ("client_secret_basic".equals(request.getAuthMethod())) {
                 authHeader = getBasicAuthHeader(request.getClientId(), request.getClientSecret());
             } else {
-                if ("client_secret_post".equals(request.getAuthMethod())) {
+                if ("client_secret_basic".equals(request.getAuthMethod())) {
                     data.put(CLIENT_ID, request.getClientId());
                     data.put("client_secret", request.getClientSecret());
                 }
@@ -270,11 +278,14 @@ public class OpenIdProvider {
     }
 
     static Request.BodyPublisher ofFormData(final Map<String, String> data) {
-        final String form = data.entrySet().stream().map(entry -> {
+        final String form = data.entrySet().stream().flatMap(entry -> {
             try {
-                final String name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
-                final String value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
-                return String.join(EQUALS, name, value);
+                if (entry.getKey() != null && entry.getValue() != null) {
+                    final String name = URLEncoder.encode(entry.getKey(), UTF_8.toString());
+                    final String value = URLEncoder.encode(entry.getValue(), UTF_8.toString());
+                    return Stream.of(String.join(EQUALS, name, value));
+                }
+                return Stream.empty();
             } catch (UnsupportedEncodingException e) {
                 throw new OpenIdException("Error encoding form data", e);
             }
