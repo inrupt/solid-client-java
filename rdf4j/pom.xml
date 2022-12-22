@@ -48,7 +48,6 @@
     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-commons-rdf4j</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.rdf4j</groupId>
