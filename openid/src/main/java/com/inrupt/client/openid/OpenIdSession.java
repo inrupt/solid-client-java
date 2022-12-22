@@ -161,11 +161,11 @@ public final class OpenIdSession implements Session {
     public Optional<Session.Credential> getCredential(final String name) {
         if (ID_TOKEN.equals(name)) {
             final Session.Credential c = credential.get();
-            if (c != null && !hasExpired(c)) {
+            if (!hasExpired(c)) {
                 return Optional.of(c);
             }
             final Session.Credential freshCredential = authenticator.get().toCompletableFuture().join();
-            if (freshCredential != null && !hasExpired(freshCredential)) {
+            if (!hasExpired(freshCredential)) {
                 credential.set(freshCredential);
                 return Optional.of(freshCredential);
             }
@@ -176,7 +176,7 @@ public final class OpenIdSession implements Session {
     @Override
     public Optional<Session.Credential> fromCache(final Request request) {
         final Session.Credential c = credential.get();
-        if (c != null && !hasExpired(c)) {
+        if (!hasExpired(c)) {
             return Optional.of(c);
         }
         return Optional.empty();
@@ -187,8 +187,11 @@ public final class OpenIdSession implements Session {
         return authenticator.get().thenApply(Optional::ofNullable);
     }
 
-    boolean hasExpired(final Session.Credential c) {
-        return c.getExpiration().plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());
+    boolean hasExpired(final Session.Credential credential) {
+        if (credential != null) {
+            return credential.getExpiration().plusSeconds(config.getExpGracePeriodSecs()).isBefore(Instant.now());
+        }
+        return true;
     }
 
     static String getSessionIdentifier(final JwtClaims claims) {

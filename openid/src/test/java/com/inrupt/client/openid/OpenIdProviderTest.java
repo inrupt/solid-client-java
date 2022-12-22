@@ -133,8 +133,8 @@ class OpenIdProviderTest {
                 "myClientId"
             );
         final TokenResponse token = openIdProvider.token(tokenReq);
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
@@ -151,8 +151,8 @@ class OpenIdProviderTest {
                 "myClientId"
             );
         final TokenResponse token = openIdProvider.token(tokenReq);
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
@@ -169,8 +169,8 @@ class OpenIdProviderTest {
                 "myClientId"
             );
         final TokenResponse token = openIdProvider.token(tokenReq);
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
@@ -182,8 +182,8 @@ class OpenIdProviderTest {
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build("authorization_code", "myClientId");
         final TokenResponse token = openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join();
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
