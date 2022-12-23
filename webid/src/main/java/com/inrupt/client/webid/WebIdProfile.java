@@ -20,156 +20,33 @@
  */
 package com.inrupt.client.webid;
 
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
+import com.inrupt.client.spi.RDFFactory;
+import com.inrupt.client.vocabulary.FOAF;
+import com.inrupt.client.wrapping.WrapperGraph;
 
-/**
- * A WebID Profile for use with Solid.
- */
-public class WebIdProfile {
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.Triple;
 
-    private final URI id;
+public class WebIdProfile extends WrapperGraph {
+    private static final RDF FACTORY = RDFFactory.getInstance();
 
-    protected final Set<URI> seeAlso = new HashSet<>();
-    protected final Set<URI> oidcIssuer = new HashSet<>();
-    protected final Set<URI> storage = new HashSet<>();
-    protected final Set<URI> type = new HashSet<>();
-
-    /**
-     * Create a new WebID profile resource.
-     *
-     * @param id the webid URI
-     */
-    protected WebIdProfile(final URI id) {
-        this.id = id;
+    protected WebIdProfile(final Graph graph) {
+        super(graph);
     }
 
-    /**
-     * Retrieve the WebID URI.
-     *
-     * @return the WebID
-     */
-    public URI getId() {
-        return id;
+    public static WebIdProfile wrap(final Graph original) {
+        return new WebIdProfile(original);
     }
 
-    /**
-     * Retrieve the RDF type values.
-     *
-     * @return the {@code rdf:type} values
-     */
-    public Set<URI> getType() {
-        return type;
-    }
-
-    /**
-     * Retrieve the list of OIDC issuers.
-     *
-     * @return the {@code solid:oidcIssuer} values
-     */
-    public Set<URI> getOidcIssuer() {
-        return oidcIssuer;
-    }
-
-    /**
-     * Retrieve the list of related profile resources.
-     *
-     * @return the {@code rdfs:seeAlso} values
-     */
-    public Set<URI> getSeeAlso() {
-        return seeAlso;
-    }
-
-    /**
-     * Retrieve the list of storage locations.
-     *
-     * @return the {@code pim:storage} values
-     */
-    public Set<URI> getStorage() {
-        return storage;
-    }
-
-    /**
-     * Create a new {@link WebIdProfile} builder.
-     *
-     * @return the builder
-     */
-    static Builder newBuilder() {
-        return new Builder();
-    }
-
-    /**
-     * A builder class for WebIdProfile objects.
-     */
-    public static final class Builder {
-
-        private Set<URI> builderSeeAlso = new HashSet<>();
-        private Set<URI> builderStorage = new HashSet<>();
-        private Set<URI> builderOidcIssuer = new HashSet<>();
-        private Set<URI> builderType = new HashSet<>();
-
-        /**
-         * Add a seeAlso property.
-         *
-         * @param uri the seeAlso URI
-         * @return this builder
-         */
-        public Builder seeAlso(final URI uri) {
-            builderSeeAlso.add(uri);
-            return this;
-        }
-
-        /**
-         * Add a storage property.
-         *
-         * @param uri the storage URI
-         * @return this builder
-         */
-        public Builder storage(final URI uri) {
-            builderStorage.add(uri);
-            return this;
-        }
-
-        /**
-         * Add an oidcIssuer property.
-         *
-         * @param uri the oidcIssuer URI
-         * @return this builder
-         */
-        public Builder oidcIssuer(final URI uri) {
-            builderOidcIssuer.add(uri);
-            return this;
-        }
-
-        /**
-         * Add a type property.
-         *
-         * @param uri the type URI
-         * @return this builder
-         */
-        public Builder type(final URI uri) {
-            builderType.add(uri);
-            return this;
-        }
-
-        /**
-         * Build the WebIdProfile object.
-         *
-         * @param id the WebID URI
-         * @return the WebID profile
-         */
-        public WebIdProfile build(final URI id) {
-            final var profile = new WebIdProfile(id);
-            profile.oidcIssuer.addAll(builderOidcIssuer);
-            profile.storage.addAll(builderStorage);
-            profile.seeAlso.addAll(builderSeeAlso);
-            profile.type.addAll(builderType);
-            return profile;
-        }
-
-        private Builder() {
-            // Prevent instantiation
-        }
+    public WebIdAgent getAgent() {
+        return stream(null, FACTORY.createIRI(FOAF.primaryTopic.toString()), null)
+                .map(Triple::getObject)
+                .filter(IRI.class::isInstance)
+                .map(IRI.class::cast)
+                .map(agent -> WebIdAgent.wrap(agent, this))
+                .findFirst()
+                .orElse(null);
     }
 }

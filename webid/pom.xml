@@ -24,6 +24,11 @@
       <artifactId>inrupt-client-vocabulary</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-wrapping</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- test dependencies -->
     <dependency>
