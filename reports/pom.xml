@@ -76,6 +76,11 @@
       <artifactId>inrupt-client-webid</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-commons-wrapping</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
