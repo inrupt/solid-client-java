@@ -69,6 +69,7 @@
     <junit.version>5.9.1</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
+    <hamcrest.version>2.2</hamcrest.version>
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -97,6 +98,7 @@
     <module>webid</module>
     <module>vocabulary</module>
     <module>vc</module>
+    <module>wrapping</module>
   </modules>
 
   <distributionManagement>
@@ -226,6 +228,11 @@
         <groupId>nl.jqno.equalsverifier</groupId>
         <artifactId>equalsverifier</artifactId>
         <version>${equalsverifier.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>${hamcrest.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
