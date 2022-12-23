@@ -24,12 +24,21 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.spi.RdfService;
+import com.inrupt.client.spi.ServiceProvider;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
+
+import org.apache.commons.rdf.api.RDFSyntax;
 
 public class WebIdMockHttpService {
 
     private final WireMockServer wireMockServer;
+
+    private static final RdfService rdf = ServiceProvider.getRdfService();
 
     public WebIdMockHttpService() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
@@ -40,13 +49,27 @@ public class WebIdMockHttpService {
     }
 
     private void setupMocks() {
-        wireMockServer.stubFor(get(urlEqualTo("/webId"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "text/turtle")
-                .withBodyFile("webIdExample.ttl")
-            )
-        );
+        final var profile = WebIdProfile.create();
+        final var agent = WebIdAgent.create(URI.create("https://example.test/username"), profile);
+        agent.getType().add(URI.create("http://xmlns.test/foaf/0.1/Agent"));
+        agent.getSeeAlso().add(URI.create("https://storage.example.test/storage-id/extendedProfile"));
+        agent.getStorage().add(URI.create("https://storage.example.test/storage-id/"));
+        agent.getOidcIssuer().add(URI.create("https://login.example.test"));
+        profile.setAgent(agent);
+
+        try (final var output = new ByteArrayOutputStream()) {
+            rdf.fromGraph(profile, RDFSyntax.TURTLE, output);
+
+            wireMockServer.stubFor(get(urlEqualTo("/webId"))
+                    .willReturn(aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "text/turtle")
+                            .withBody(output.toByteArray())
+                    )
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Map<String, String> start() {

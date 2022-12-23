@@ -40,6 +40,10 @@ public class WebIdProfile extends WrapperGraph {
         return new WebIdProfile(original);
     }
 
+    public static WebIdProfile create() {
+        return wrap(FACTORY.createGraph());
+    }
+
     public WebIdAgent getAgent() {
         return stream(null, FACTORY.createIRI(FOAF.primaryTopic.toString()), null)
                 .map(Triple::getObject)
@@ -48,5 +52,15 @@ public class WebIdProfile extends WrapperGraph {
                 .map(agent -> WebIdAgent.wrap(agent, this))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void setAgent(final WebIdAgent value) {
+        remove(null, FACTORY.createIRI(FOAF.primaryTopic.toString()), null);
+
+        if (value == null) {
+            return;
+        }
+
+        add(FACTORY.createBlankNode(), FACTORY.createIRI(FOAF.primaryTopic.toString()), value);
     }
 }

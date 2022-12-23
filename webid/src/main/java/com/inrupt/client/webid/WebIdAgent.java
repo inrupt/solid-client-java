@@ -51,6 +51,10 @@ public class WebIdAgent extends WrapperIRI {
         return new WebIdAgent(original, graph);
     }
 
+    public static WebIdAgent create(final URI uri, final Graph graph) {
+        return wrap(FACTORY.createIRI(uri.toString()), graph);
+    }
+
     public Set<URI> getType() {
         return new PredicateObjectSet<>(
                 this,
