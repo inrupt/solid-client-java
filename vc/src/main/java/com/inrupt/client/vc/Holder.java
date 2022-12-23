@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -84,9 +83,9 @@ public class Holder {
     /**
      * List all verifiable credentials.
      *
-     * @return a list of verifiable credentials
+     * @return the next stage of completion, including the list of verifiable credentials
      */
-    public List<VerifiableCredential> listCredentials() {
+    public CompletionStage<List<VerifiableCredential>> listCredentials() {
         return listCredentials(Collections.emptyList());
     }
 
@@ -94,30 +93,11 @@ public class Holder {
      * List all verifiable credentials, filtered by a list of types.
      *
      * @param types the VC types on which to filter
-     * @return a list of verifiable credentials
-     */
-    public List<VerifiableCredential> listCredentials(final List<URI> types) {
-        return awaitAsync(listCredentialsAsync(Objects.requireNonNull(types)));
-    }
-
-    /**
-     * List all verifiable credentials.
-     *
      * @return the next stage of completion, including the list of verifiable credentials
      */
-    public CompletionStage<List<VerifiableCredential>> listCredentialsAsync() {
-        return listCredentialsAsync(Collections.emptyList());
-    }
-
-    /**
-     * List all verifiable credentials, filtered by a list of types.
-     *
-     * @param types the VC types on which to filter
-     * @return the next stage of completion, including the list of verifiable credentials
-     */
-    public CompletionStage<List<VerifiableCredential>> listCredentialsAsync(final List<URI> types) {
+    public CompletionStage<List<VerifiableCredential>> listCredentials(final List<URI> types) {
         final var req = Request.newBuilder(getCredentialListEndpoint(Objects.requireNonNull(types))).build();
-        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
+        return httpClient.send(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
@@ -140,32 +120,13 @@ public class Holder {
      * Retrieve a verifiable credential.
      *
      * @param credentialId the credential identifier
-     * @return the verifiable credential
-     */
-    public VerifiableCredential getCredential(final String credentialId) {
-        return getCredentialAsync(Objects.requireNonNull(credentialId)).toCompletableFuture().join();
-    }
-
-    /**
-     * Retrieve a verifiable credential.
-     *
-     * @param credentialId the credential identifier
      * @return the next stage of completion, including a verifiable credential
      */
-    public CompletionStage<VerifiableCredential> getCredentialAsync(final String credentialId) {
+    public CompletionStage<VerifiableCredential> getCredential(final String credentialId) {
         final var req = Request
                 .newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId))).build();
-        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+        return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
                 .thenApply(Response::body);
-    }
-
-    /**
-     * Delete a credential.
-     *
-     * @param credentialId the credential identifier
-     */
-    public void deleteCredential(final String credentialId) {
-        awaitAsync(deleteCredentialAsync(Objects.requireNonNull(credentialId)));
     }
 
     /**
@@ -174,11 +135,11 @@ public class Holder {
      * @param credentialId the credential identifier
      * @return the next stage of compltion
      */
-    public CompletionStage<Void> deleteCredentialAsync(final String credentialId) {
+    public CompletionStage<Void> deleteCredential(final String credentialId) {
         final var req = Request.newBuilder(getCredentialEndpoint(Objects.requireNonNull(credentialId)))
             .DELETE().build();
 
-        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())
+        return httpClient.send(req, Response.BodyHandlers.discarding())
             .thenApply(res -> {
                 final int httpStatus = res.statusCode();
                 if (httpStatus >= 200 && httpStatus < 300) {
@@ -194,34 +155,24 @@ public class Holder {
      * Derive a credential.
      *
      * @param request the selective disclosure request
-     * @return the derived verifiable credential
-     */
-    public VerifiableCredential derive(final DerivationRequest request) {
-        return awaitAsync(deriveAsync(request));
-    }
-
-    /**
-     * Derive a credential.
-     *
-     * @param request the selective disclosure request
      * @return the next stage of completion, including the derived verifiable credential
      */
-    public CompletionStage<VerifiableCredential> deriveAsync(final DerivationRequest request) {
+    public CompletionStage<VerifiableCredential> derive(final DerivationRequest request) {
         final var req = Request.newBuilder(getDeriveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(serialize(request))
             .build();
 
-        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+        return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
                 .thenApply(Response::body);
     }
 
     /**
      * Retrieve a list of presentations.
      *
-     * @return a list of presentations
+     * @return the next stage of completion, including a list of presentations
      */
-    public List<VerifiablePresentation> listPresentations() {
+    public CompletionStage<List<VerifiablePresentation>> listPresentations() {
         return listPresentations(Collections.emptyList());
     }
 
@@ -229,30 +180,11 @@ public class Holder {
      * Retrieve a list of presentations.
      *
      * @param types presentation type filters
-     * @return a list of presentations
-     */
-    public List<VerifiablePresentation> listPresentations(final List<URI> types) {
-        return awaitAsync(listPresentationsAsync(Objects.requireNonNull(types)));
-    }
-
-    /**
-     * Retrieve a list of presentations.
-     *
      * @return the next stage of completion, including a list of presentations
      */
-    public CompletionStage<List<VerifiablePresentation>> listPresentationsAsync() {
-        return listPresentationsAsync(Collections.emptyList());
-    }
-
-    /**
-     * Retrieve a list of presentations.
-     *
-     * @param types presentation type filters
-     * @return the next stage of completion, including a list of presentations
-     */
-    public CompletionStage<List<VerifiablePresentation>> listPresentationsAsync(final List<URI> types) {
+    public CompletionStage<List<VerifiablePresentation>> listPresentations(final List<URI> types) {
         final var req = Request.newBuilder(getPresentationListEndpoint(Objects.requireNonNull(types))).build();
-        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
+        return httpClient.send(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
@@ -275,33 +207,14 @@ public class Holder {
      * Retrieve a verifiable presentation.
      *
      * @param presentationId the presentation identifier
-     * @return the verifiable presentation
-     */
-    public VerifiablePresentation getPresentation(final String presentationId) {
-        return awaitAsync(getPresentationAsync(Objects.requireNonNull(presentationId)));
-    }
-
-    /**
-     * Retrieve a verifiable presentation.
-     *
-     * @param presentationId the presentation identifier
      * @return the next stage of completion, including the verifiable presentation
      */
-    public CompletionStage<VerifiablePresentation> getPresentationAsync(final String presentationId) {
+    public CompletionStage<VerifiablePresentation> getPresentation(final String presentationId) {
         final var req = Request
             .newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId)))
                 .build();
-        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
+        return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
                 .thenApply(Response::body);
-    }
-
-    /**
-     * Delete a presentation.
-     *
-     * @param presentationId the presentation identifier
-     */
-    public void deletePresentation(final String presentationId) {
-        awaitAsync(deletePresentationAsync(Objects.requireNonNull(presentationId)));
     }
 
     /**
@@ -310,11 +223,11 @@ public class Holder {
      * @param presentationId the presentation identifier
      * @return the next stage of completion
      */
-    public CompletionStage<Void> deletePresentationAsync(final String presentationId) {
+    public CompletionStage<Void> deletePresentation(final String presentationId) {
         final var req = Request.newBuilder(getPresentationEndpoint(Objects.requireNonNull(presentationId)))
             .DELETE().build();
 
-        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())
+        return httpClient.send(req, Response.BodyHandlers.discarding())
             .thenApply(res -> {
                 final int httpStatus = res.statusCode();
                 if (httpStatus >= 200 && httpStatus < 300) {
@@ -330,33 +243,15 @@ public class Holder {
      * Prove a presentation.
      *
      * @param request the prove request
-     * @return the verifiable presentation
-     */
-    public VerifiablePresentation prove(final ProveRequest request) {
-        return awaitAsync(proveAsync(request));
-    }
-
-    <T, R extends Throwable> T awaitAsync(final CompletionStage<T> future) throws R {
-        try {
-            return future.toCompletableFuture().join();
-        } catch (final CompletionException ex) {
-            throw (R) ex.getCause();
-        }
-    }
-
-    /**
-     * Prove a presentation.
-     *
-     * @param request the prove request
      * @return the next stage of completion, including the verifiable presentation
      */
-    public CompletionStage<VerifiablePresentation> proveAsync(final ProveRequest request) {
+    public CompletionStage<VerifiablePresentation> prove(final ProveRequest request) {
         final var req = Request.newBuilder(getProveEndpoint())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(serialize(request))
             .build();
 
-        return httpClient.sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
+        return httpClient.send(req, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
             .thenApply(Response::body);
     }
 
@@ -395,10 +290,6 @@ public class Holder {
     //   "domain": "credentials.example",
     //   "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f"
     // }
-    public VerifiablePresentationRequest initiateExchange(final String exchangeId, final ExchangeRequest request) {
-        return initiateExchangeAsync(Objects.requireNonNull(exchangeId), request).toCompletableFuture().join();
-    }
-
     /**
      * Initiate a presentation exchange.
      *
@@ -406,31 +297,15 @@ public class Holder {
      * @param request the exchange request
      * @return the next stage of completion, including a server-generated VP Request
      */
-    public CompletionStage<VerifiablePresentationRequest> initiateExchangeAsync(final String exchangeId,
+    public CompletionStage<VerifiablePresentationRequest> initiateExchange(final String exchangeId,
             final ExchangeRequest request) {
         final var req = Request.newBuilder(getExchangeEndpoint(Objects.requireNonNull(exchangeId)))
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(serialize(request))
             .build();
 
-        return httpClient.sendAsync(req, ofVerifiablePresentationRequest())
+        return httpClient.send(req, ofVerifiablePresentationRequest())
             .thenApply(Response::body);
-    }
-
-    /**
-     * Continue an existing exchange.
-     *
-     * @param exchangeId the exchange identifier
-     * @param transactionId the transaction identifier
-     * @param presentation the verifiable presentation
-     */
-    public void continueExchange(final String exchangeId, final String transactionId,
-            final VerifiablePresentation presentation) {
-        continueExchangeAsync(
-                Objects.requireNonNull(exchangeId),
-                Objects.requireNonNull(transactionId),
-                Objects.requireNonNull(presentation))
-                    .toCompletableFuture().join();
     }
 
     /**
@@ -441,7 +316,7 @@ public class Holder {
      * @param presentation the verifiable presentation
      * @return the next stage of completion
      */
-    public CompletionStage<Void> continueExchangeAsync(final String exchangeId, final String transactionId,
+    public CompletionStage<Void> continueExchange(final String exchangeId, final String transactionId,
             final VerifiablePresentation presentation) {
         // TODO - implement
         return null;

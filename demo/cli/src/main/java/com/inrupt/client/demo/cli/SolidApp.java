@@ -25,6 +25,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.vocabulary.LDP;
@@ -84,11 +85,13 @@ public class SolidApp implements QuarkusApplication {
                 printWriter.format("WebID: %s", webid);
                 printWriter.println();
                 final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
-                final var profile = client.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
+                final var profile = client.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
+                    .thenApply(Response::body).toCompletableFuture().join();
 
                 profile.getStorage().stream().findFirst()
                     .map(storage -> Request.newBuilder(storage).build())
-                    .map(request -> client.send(request, SolidResourceHandlers.ofSolidContainer()).body())
+                    .map(request -> client.send(request, SolidResourceHandlers.ofSolidContainer())
+                            .thenApply(Response::body).toCompletableFuture().join())
                     .ifPresent(model -> model.getContainedResources()
                             .filter(r -> {
                                 if (cmd.hasOption("c") && r.getMetadata().getType().contains(LDP.BasicContainer)) {

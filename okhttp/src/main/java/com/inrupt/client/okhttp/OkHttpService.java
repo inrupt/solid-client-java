@@ -58,16 +58,7 @@ public class OkHttpService implements HttpService {
     }
 
     @Override
-    public <T> Response<T> send(final Request request, final Response.BodyHandler<T> handler)
-            throws IOException {
-        try (final okhttp3.Response res = client.newCall(prepareRequest(request)).execute()) {
-            final Response.ResponseInfo info = new OkHttpResponseInfo(res);
-            return new OkHttpResponse<>(res.request().url().uri(), info, handler.apply(info));
-        }
-    }
-
-    @Override
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request, final Response.BodyHandler<T> handler) {
+    public <T> CompletionStage<Response<T>> send(final Request request, final Response.BodyHandler<T> handler) {
         final CompletableFuture<Response<T>> future = new CompletableFuture<>();
         client.newCall(prepareRequest(request)).enqueue(new Callback() {
             @Override

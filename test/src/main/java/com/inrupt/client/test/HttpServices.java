@@ -59,7 +59,6 @@ public class HttpServices {
         mockHttpServer.stop();
     }
 
-
     @Test
     void testSendOfString() throws IOException {
         final URI uri = URI.create(config.get(HTTP_URI) + "/file");
@@ -68,26 +67,7 @@ public class HttpServices {
             .GET()
             .build();
 
-        final Response<String> response = httpService.send(request, Response.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode());
-        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE_LOWERCASE));
-        assertEquals(Optional.of(TEXT_PLAIN), response.headers().firstValue(CONTENT_TYPE));
-        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE_LOWERCASE));
-        assertEquals(Arrays.asList(TEXT_PLAIN), response.headers().asMap().get(CONTENT_TYPE));
-        assertEquals(uri, response.uri());
-        assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
-    }
-
-    @Test
-    void testSendOfStringAsync() throws IOException {
-        final URI uri = URI.create(config.get(HTTP_URI) + "/file");
-        final Request request = Request.newBuilder()
-            .uri(uri)
-            .GET()
-            .build();
-
-        final Response<String> response = httpService.sendAsync(request,
+        final Response<String> response = httpService.send(request,
                 Response.BodyHandlers.ofString()).toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -107,7 +87,8 @@ public class HttpServices {
                 .GET()
                 .build();
 
-        final Response<byte[]> response = httpService.send(request, Response.BodyHandlers.ofByteArray());
+        final Response<byte[]> response = httpService.send(request, Response.BodyHandlers.ofByteArray())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         assertEquals(uri, response.uri());
@@ -127,7 +108,8 @@ public class HttpServices {
                 .POST(Request.BodyPublishers.ofString(triple))
                 .build();
 
-        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(201, response.statusCode());
         assertEquals(uri, response.uri());
@@ -144,7 +126,7 @@ public class HttpServices {
                 .PATCH(Request.BodyPublishers.ofString(triple))
                 .build();
 
-        final Response<Void> response = httpService.sendAsync(request, Response.BodyHandlers.discarding())
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
@@ -157,7 +139,8 @@ public class HttpServices {
         final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
         final Request request = Request.newBuilder().uri(uri).DELETE().build();
 
-        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = httpService.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
         assertEquals(uri, response.uri());

@@ -55,22 +55,13 @@ public interface Authenticator {
     int getPriority();
 
     /**
-     * Perform a synchronous authentication process, resulting in an access token.
-     *
-     * @param session the client session
-     * @param request the HTTP request
-     * @return the access token
-     */
-    AccessToken authenticate(Session session, Request request);
-
-    /**
      * Perform an ansynchronous authentication process, resulting in an access token.
      *
      * @param session the client session
      * @param request the HTTP request
      * @return the next stage of completion, containing the access token
      */
-    CompletionStage<AccessToken> authenticateAsync(Session session, Request request);
+    CompletionStage<AccessToken> authenticate(Session session, Request request);
 
     /**
      * A class containing information about an OAuth 2.0 access token.

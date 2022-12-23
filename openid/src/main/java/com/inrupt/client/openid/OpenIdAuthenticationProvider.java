@@ -101,12 +101,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public AccessToken authenticate(final Session session, final Request request) {
-            return authenticateAsync(session, request).toCompletableFuture().join();
-        }
-
-        @Override
-        public CompletionStage<AccessToken> authenticateAsync(final Session session, final Request request) {
+        public CompletionStage<AccessToken> authenticate(final Session session, final Request request) {
             // TODO don't hard-code this
             final List<String> scopes = Arrays.asList("webid", "openid");
             final Optional<CompletionStage<AccessToken>> token = session.getCredential(OpenIdSession.ID_TOKEN)

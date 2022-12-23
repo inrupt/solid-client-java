@@ -23,6 +23,7 @@ package com.inrupt.client.demo.quarkus;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.vocabulary.LDP;
@@ -70,10 +71,12 @@ public class SolidStorage {
             final var webid = URI.create((String) claim);
             final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
             final var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
-            final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
+            final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
+                .thenApply(Response::body).toCompletableFuture().join();
 
             return profile.getStorage().stream().findFirst().map(storage -> Request.newBuilder(storage).build())
-                .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer()).body())
+                .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer())
+                        .thenApply(Response::body).toCompletableFuture().join())
                 .map(model -> {
                     final var resources = model.getContainedResources()
                         .collect(Collectors.groupingBy(c -> getPrincipalType(c.getMetadata().getType()),

@@ -57,168 +57,10 @@ class UmaClientTest {
     }
 
     @Test
-    void testMetadata() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        checkMetadata(metadata);
-    }
-
-    @Test
-    void testMetadataNotFound() {
-        final URI asUri = URI.create(config.get("as_uri") + "/not-found");
-        final UmaClient client = new UmaClient();
-        assertThrows(UmaException.class, () -> client.metadata(asUri));
-    }
-
-    @Test
-    void testMetadataMalformed() {
-        final URI asUri = URI.create(config.get("as_uri") + "/malformed");
-        final UmaClient client = new UmaClient();
-        assertThrows(UmaException.class, () -> client.metadata(asUri));
-    }
-
-    @ParameterizedTest
-    @MethodSource
-    void testSimpleTokenError(final String ticket) {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(UmaException.class,
-                () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-                    throw new UmaException("Unable to negotiation a token");
-                }));
-    }
-
-    private static Stream<Arguments> testSimpleTokenError() {
-        return Stream.of(
-            Arguments.of("ticket-unknown-error"),
-            Arguments.of("ticket-malformed-response"),
-            Arguments.of("ticket-invalid-response"));
-    }
-
-    @Test
-    void testSimpleTokenNegotiationInvalidTicket() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-invalid-grant";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(InvalidGrantException.class,
-                () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-                    throw new UmaException("Unable to negotiation a token");
-                }));
-    }
-
-    @Test
-    void testSimpleTokenNegotiationRequestDenied() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-request-denied";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(RequestDeniedException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiation a token");
-        }));
-    }
-
-    @Test
-    void testSimpleTokenInvalidScope() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-invalid-scope";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, Arrays.asList("invalid-scope"));
-
-        assertThrows(InvalidScopeException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiation a token");
-        }));
-    }
-
-    @Test
-    void testSimpleTokenNegotiation() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-12345";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        final TokenResponse res = client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiate a simple token");
-        });
-
-        assertEquals("token-12345", res.accessToken);
-        assertEquals("Bearer", res.tokenType);
-    }
-
-    @Test
-    void testTokenNegotiationMissingResponseTicket() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-need-info-no-response-ticket";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(RequestDeniedException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> {
-            throw new UmaException("Unable to negotiate a simple token");
-        }));
-    }
-
-    @Test
-    void testTokenNegotiationNullResponse() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String ticket = "ticket-need-info-with-ticket";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(RequestDeniedException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo -> null));
-    }
-
-    @Test
-    void testTokenNegotiationOidcMapper() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadata(asUri);
-        final String idToken = "oidc-id-token";
-
-        final String ticket = "ticket-need-info-oidc-requirement";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        final TokenResponse token = client.token(metadata.tokenEndpoint, req, needInfo ->
-                ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT));
-
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("Bearer", token.tokenType);
-    }
-
-    @Test
-    void testTokenNegotiationRecursionLimit() {
-        final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient(0);
-        final Metadata metadata = client.metadata(asUri);
-        final String idToken = "oidc-id-token";
-
-        final String ticket = "ticket-need-info-oidc-requirement";
-        final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
-
-        assertThrows(UmaException.class, () -> client.token(metadata.tokenEndpoint, req, needInfo ->
-                ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT)));
-    }
-
-
-    // ---------------
-    //   Async tests
-    // ---------------
-    @Test
     void testMetadataAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
         final UmaClient client = new UmaClient();
-        final Metadata metadata = client.metadataAsync(asUri).toCompletableFuture().join();
+        final Metadata metadata = client.metadata(asUri).toCompletableFuture().join();
         checkMetadata(metadata);
     }
 
@@ -227,7 +69,7 @@ class UmaClientTest {
         final URI asUri = URI.create(config.get("as_uri") + "/not-found");
         final UmaClient client = new UmaClient();
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri).toCompletableFuture()::join);
+                client.metadata(asUri).toCompletableFuture()::join);
         assertTrue(err.getCause() instanceof UmaException);
     }
 
@@ -236,7 +78,7 @@ class UmaClientTest {
         final URI asUri = URI.create(config.get("as_uri") + "/malformed");
         final UmaClient client = new UmaClient();
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri).toCompletableFuture()::join);
+                client.metadata(asUri).toCompletableFuture()::join);
         assertTrue(err.getCause() instanceof UmaException);
     }
 
@@ -248,9 +90,9 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
+                client.metadata(asUri)
                     .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+                        client.token(metadata.tokenEndpoint, req, needInfo -> {
                             throw new UmaException("Unable to negotiation a token");
                         }))
                     .toCompletableFuture()::join);
@@ -266,9 +108,9 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
+                client.metadata(asUri)
                     .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+                        client.token(metadata.tokenEndpoint, req, needInfo -> {
                             throw new UmaException("Unable to negotiation a token");
                         }))
                     .toCompletableFuture()::join);
@@ -284,8 +126,8 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err =
-                assertThrows(CompletionException.class, client.metadataAsync(asUri).thenCompose(
-                        metadata -> client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+                assertThrows(CompletionException.class, client.metadata(asUri).thenCompose(
+                        metadata -> client.token(metadata.tokenEndpoint, req, needInfo -> {
                             throw new UmaException("Unable to negotiation a token");
                         })).toCompletableFuture()::join);
 
@@ -307,9 +149,9 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, Arrays.asList("invalid-scope"));
 
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
+                client.metadata(asUri)
                     .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+                        client.token(metadata.tokenEndpoint, req, needInfo -> {
                             throw new UmaException("Unable to negotiation a token");
                         }))
                     .toCompletableFuture()::join);
@@ -324,8 +166,8 @@ class UmaClientTest {
         final String ticket = "ticket-12345";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
-        final TokenResponse res = client.metadataAsync(asUri).thenCompose(metadata ->
-                client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+        final TokenResponse res = client.metadata(asUri).thenCompose(metadata ->
+                client.token(metadata.tokenEndpoint, req, needInfo -> {
                     throw new UmaException("Unable to negotiate a simple token");
                 })).toCompletableFuture().join();
 
@@ -341,9 +183,9 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
+                client.metadata(asUri)
                     .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo -> {
+                        client.token(metadata.tokenEndpoint, req, needInfo -> {
                             throw new UmaException("Unable to negotiate a simple token");
                         }))
                     .toCompletableFuture()::join);
@@ -359,9 +201,9 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
+                client.metadata(asUri)
                     .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo ->
+                        client.token(metadata.tokenEndpoint, req, needInfo ->
                             CompletableFuture.completedFuture(null)))
                     .toCompletableFuture()::join);
 
@@ -376,9 +218,9 @@ class UmaClientTest {
         final String ticket = "ticket-need-info-oidc-requirement";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
-        final TokenResponse token = client.metadataAsync(asUri)
+        final TokenResponse token = client.metadata(asUri)
                 .thenCompose(metadata ->
-                    client.tokenAsync(metadata.tokenEndpoint, req, needInfo ->
+                    client.token(metadata.tokenEndpoint, req, needInfo ->
                         CompletableFuture.completedFuture(ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT))))
                 .toCompletableFuture().join();
 
@@ -395,9 +237,9 @@ class UmaClientTest {
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err = assertThrows(CompletionException.class,
-                client.metadataAsync(asUri)
+                client.metadata(asUri)
                     .thenCompose(metadata ->
-                        client.tokenAsync(metadata.tokenEndpoint, req, needInfo ->
+                        client.token(metadata.tokenEndpoint, req, needInfo ->
                             CompletableFuture.completedFuture(ClaimToken.of(idToken, ID_TOKEN_CLAIM_TOKEN_FORMAT))))
                     .toCompletableFuture()::join);
 
