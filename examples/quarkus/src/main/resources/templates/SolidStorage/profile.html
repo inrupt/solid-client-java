@@ -4,12 +4,12 @@
             <p>You are not logged in.</p>
         {#else}
         <br/><br/>
-            <p>You are logged in as <code>{profile.id}</code>.</p>
+            <p>You are logged in as <code>{profile.agent.getIRIString}</code>.</p>
 
-            {#if profile.storage.size > 0}
+            {#if profile.agent.storage.size > 0}
             <h3>Solid Storage</h3>
             <ul>
-            {#for pod in profile.storage}
+            {#for pod in profile.agent.storage}
               <li>&rsaquo; {pod}</li>
             {/for}
             </ul>
@@ -38,4 +38,3 @@
         {/if}
   {/body}
 {/include}
-

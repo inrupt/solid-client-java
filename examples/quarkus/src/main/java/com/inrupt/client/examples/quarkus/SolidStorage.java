@@ -71,10 +71,11 @@ public class SolidStorage {
             final var webid = URI.create((String) claim);
             final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
             final var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
-            final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
+            final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile())
                 .thenApply(Response::body).toCompletableFuture().join();
+            final var agent = profile.getAgent();
 
-            return profile.getStorage().stream().findFirst().map(storage -> Request.newBuilder(storage).build())
+            return agent.getStorage().stream().findFirst().map(storage -> Request.newBuilder(storage).build())
                 .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer())
                         .thenApply(Response::body).toCompletableFuture().join())
                 .map(model -> {

@@ -83,10 +83,10 @@ public class SolidApp implements QuarkusApplication {
                 printWriter.format("WebID: %s", webid);
                 printWriter.println();
                 final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
-                final var profile = client.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
+                final var profile = client.send(req, WebIdBodyHandlers.ofWebIdProfile())
                     .thenApply(Response::body).toCompletableFuture().join();
 
-                profile.getStorage().stream().findFirst()
+                profile.getAgent().getStorage().stream().findFirst()
                     .map(storage -> Request.newBuilder(storage).build())
                     .map(request -> client.send(request, SolidResourceHandlers.ofSolidContainer())
                             .thenApply(Response::body).toCompletableFuture().join())

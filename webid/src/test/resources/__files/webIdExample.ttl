@@ -1,3 +1,5 @@
+[ <http://xmlns.com/foaf/0.1/primaryTopic> <https://example.test/username> ] .
+
 <https://example.test/username>
     a <http://xmlns.test/foaf/0.1/Agent>; 
     <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://storage.example.test/storage-id/extendedProfile> ;

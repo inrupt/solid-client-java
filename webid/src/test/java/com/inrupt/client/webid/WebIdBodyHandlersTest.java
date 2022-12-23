@@ -61,17 +61,17 @@ class WebIdBodyHandlersTest {
             .build();
 
         final Response<WebIdProfile> response = client.send(request,
-                WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username")))
+                WebIdBodyHandlers.ofWebIdProfile())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body();
-        assertEquals("https://example.test/username", responseBody.getId().toString());
-        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
-        assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.example.test")));
-        assertTrue(responseBody.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
-        assertTrue(responseBody.getSeeAlso().contains(
+        final var agent = response.body().getAgent();
+        assertEquals("https://example.test/username", agent.getIRIString());
+        assertTrue(agent.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+        assertTrue(agent.getOidcIssuer().contains(URI.create("https://login.example.test")));
+        assertTrue(agent.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
+        assertTrue(agent.getSeeAlso().contains(
             URI.create("https://storage.example.test/storage-id/extendedProfile"))
         );
     }
