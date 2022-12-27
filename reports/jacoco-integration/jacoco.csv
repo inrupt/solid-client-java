@@ -63,7 +63,7 @@ Inrupt Client Libraries - Report/inrupt-client-jsonb,com.inrupt.client.jsonb,VPA
 Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,EndSessionRequest,27,0,0,0,10,0,5,0,5,0
 Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,OpenIdSession,375,0,22,0,85,0,32,0,21,0
 Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,Metadata,3,0,0,0,1,0,1,0,1,0
-Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,TokenRequest.Builder,115,0,12,0,25,0,14,0,8,0
+Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,TokenRequest.Builder,99,0,10,0,24,0,13,0,8,0
 Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,OpenIdProvider,432,0,34,0,86,0,37,0,20,0
 Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,OpenIdAuthenticationProvider,35,0,4,0,12,0,7,0,5,0
 Inrupt Client Libraries - Report/inrupt-client-openid,com.inrupt.client.openid,AuthorizationRequest,57,0,0,0,19,0,10,0,10,0

@@ -38,11 +38,17 @@ import java.util.concurrent.CompletionStage;
  */
 public class SolidClient {
 
+    private static final String ACCEPT = &quot;Accept&quot;;
+    private static final String CONTENT_TYPE = &quot;Content-Type&quot;;
+    private static final String IF_NONE_MATCH = &quot;If-None-Match&quot;;
+    private static final String TEXT_TURTLE = &quot;text/turtle&quot;;
+    private static final String WILDCARD = &quot;*&quot;;
+
     private final Client client;
 
-<span class="nc" id="L43">    SolidClient(final Client client) {</span>
-<span class="nc" id="L44">        this.client = client;</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L49">    SolidClient(final Client client) {</span>
+<span class="nc" id="L50">        this.client = client;</span>
+<span class="nc" id="L51">    }</span>
 
     /**
      * Create a session-scoped client.
@@ -51,7 +57,7 @@ public class SolidClient {
      * @return a session-scoped client
      */
     public SolidClient session(final Session session) {
-<span class="nc" id="L54">        return new SolidClient(client.session(session));</span>
+<span class="nc" id="L60">        return new SolidClient(client.session(session));</span>
     }
 
     /**
@@ -64,7 +70,7 @@ public class SolidClient {
      */
     public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; send(final Request request,
             final Response.BodyHandler&lt;T&gt; responseBodyHandler) {
-<span class="nc" id="L67">        return client.send(request, responseBodyHandler);</span>
+<span class="nc" id="L73">        return client.send(request, responseBodyHandler);</span>
     }
 
     /**
@@ -76,18 +82,18 @@ public class SolidClient {
      * @return the next stage of completion, including the new resource
      */
     public &lt;T extends SolidResource&gt; CompletionStage&lt;T&gt; read(final URI identifier, final Class&lt;T&gt; clazz) {
-<span class="nc" id="L79">        final Request req = Request.newBuilder(identifier)</span>
-<span class="nc" id="L80">            .header(&quot;Accept&quot;, &quot;text/turtle&quot;)</span>
-<span class="nc" id="L81">            .GET().build();</span>
+<span class="nc" id="L85">        final Request req = Request.newBuilder(identifier)</span>
+<span class="nc" id="L86">            .header(ACCEPT, TEXT_TURTLE)</span>
+<span class="nc" id="L87">            .GET().build();</span>
 
-<span class="nc" id="L83">        return client.send(req, SolidResourceHandlers.ofSolidResource())</span>
-<span class="nc" id="L84">            .thenApply(Response::body)</span>
-<span class="nc" id="L85">            .thenApply(resource -&gt; {</span>
+<span class="nc" id="L89">        return client.send(req, SolidResourceHandlers.ofSolidResource())</span>
+<span class="nc" id="L90">            .thenApply(Response::body)</span>
+<span class="nc" id="L91">            .thenApply(resource -&gt; {</span>
                 try {
-<span class="nc" id="L87">                    return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)</span>
-<span class="nc" id="L88">                            .newInstance(identifier, resource.getDataset(), resource.getMetadata());</span>
-<span class="nc" id="L89">                } catch (final ReflectiveOperationException ex) {</span>
-<span class="nc" id="L90">                    throw new SolidResourceException(&quot;Unable to read resource into type &quot; + clazz.getName(), ex);</span>
+<span class="nc" id="L93">                    return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)</span>
+<span class="nc" id="L94">                            .newInstance(identifier, resource.getDataset(), resource.getMetadata());</span>
+<span class="nc" id="L95">                } catch (final ReflectiveOperationException ex) {</span>
+<span class="nc" id="L96">                    throw new SolidResourceException(&quot;Unable to read resource into type &quot; + clazz.getName(), ex);</span>
                 }
             });
     }
@@ -100,13 +106,13 @@ public class SolidClient {
      * @return the next stage of completion
      */
     public &lt;T extends SolidResource&gt; CompletionStage&lt;Response&lt;Void&gt;&gt; create(final T resource) {
-<span class="nc" id="L103">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
-<span class="nc" id="L104">            .header(&quot;Content-Type&quot;, &quot;text/turtle&quot;)</span>
-<span class="nc" id="L105">            .header(&quot;If-None-Match&quot;, &quot;*&quot;)</span>
-<span class="nc" id="L106">            .PUT(cast(resource))</span>
-<span class="nc" id="L107">            .build();</span>
+<span class="nc" id="L109">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
+<span class="nc" id="L110">            .header(CONTENT_TYPE, TEXT_TURTLE)</span>
+<span class="nc" id="L111">            .header(IF_NONE_MATCH, WILDCARD)</span>
+<span class="nc" id="L112">            .PUT(cast(resource))</span>
+<span class="nc" id="L113">            .build();</span>
 
-<span class="nc" id="L109">        return client.send(req, Response.BodyHandlers.discarding());</span>
+<span class="nc" id="L115">        return client.send(req, Response.BodyHandlers.discarding());</span>
     }
 
     /**
@@ -117,12 +123,12 @@ public class SolidClient {
      * @return the next stage of completion
      */
     public &lt;T extends SolidResource&gt; CompletionStage&lt;Response&lt;Void&gt;&gt; update(final T resource) {
-<span class="nc" id="L120">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
-<span class="nc" id="L121">            .header(&quot;Content-Type&quot;, &quot;text/turtle&quot;)</span>
-<span class="nc" id="L122">            .PUT(cast(resource))</span>
-<span class="nc" id="L123">            .build();</span>
+<span class="nc" id="L126">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
+<span class="nc" id="L127">            .header(CONTENT_TYPE, TEXT_TURTLE)</span>
+<span class="nc" id="L128">            .PUT(cast(resource))</span>
+<span class="nc" id="L129">            .build();</span>
 
-<span class="nc" id="L125">        return client.send(req, Response.BodyHandlers.discarding());</span>
+<span class="nc" id="L131">        return client.send(req, Response.BodyHandlers.discarding());</span>
     }
 
     /**
@@ -133,10 +139,10 @@ public class SolidClient {
      * @return the next stage of completion
      */
     public &lt;T extends SolidResource&gt; CompletionStage&lt;Response&lt;Void&gt;&gt; delete(final T resource) {
-<span class="nc" id="L136">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
-<span class="nc" id="L137">            .DELETE()</span>
-<span class="nc" id="L138">            .build();</span>
-<span class="nc" id="L139">        return client.send(req, Response.BodyHandlers.discarding());</span>
+<span class="nc" id="L142">        final Request req = Request.newBuilder(resource.getIdentifier())</span>
+<span class="nc" id="L143">            .DELETE()</span>
+<span class="nc" id="L144">            .build();</span>
+<span class="nc" id="L145">        return client.send(req, Response.BodyHandlers.discarding());</span>
     }
 
     /**
@@ -146,7 +152,7 @@ public class SolidClient {
      * @return the new solid client
      */
     public static SolidClient of(final Client client) {
-<span class="nc" id="L149">        return new SolidClient(client);</span>
+<span class="nc" id="L155">        return new SolidClient(client);</span>
     }
 
     /**
@@ -155,18 +161,18 @@ public class SolidClient {
      * @return the client instance
      */
     public static SolidClient getClient() {
-<span class="nc" id="L158">        return SolidClient.of(ClientProvider.getClient());</span>
+<span class="nc" id="L164">        return SolidClient.of(ClientProvider.getClient());</span>
     }
 
     static Request.BodyPublisher cast(final SolidResource resource) {
-<span class="nc" id="L162">        return IOUtils.buffer(out -&gt; {</span>
+<span class="nc" id="L168">        return IOUtils.buffer(out -&gt; {</span>
             try {
-<span class="nc" id="L164">                resource.serialize(Syntax.TURTLE, out);</span>
-<span class="nc" id="L165">            } catch (final IOException ex) {</span>
-<span class="nc" id="L166">                throw new SolidResourceException(&quot;Unable to serialize &quot; + resource.getClass().getName() +</span>
+<span class="nc" id="L170">                resource.serialize(Syntax.TURTLE, out);</span>
+<span class="nc" id="L171">            } catch (final IOException ex) {</span>
+<span class="nc" id="L172">                throw new SolidResourceException(&quot;Unable to serialize &quot; + resource.getClass().getName() +</span>
                         &quot; into Solid Resource&quot;, ex);
-<span class="nc" id="L168">            }</span>
-<span class="nc" id="L169">        });</span>
+<span class="nc" id="L174">            }</span>
+<span class="nc" id="L175">        });</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

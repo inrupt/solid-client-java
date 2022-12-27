@@ -22,6 +22,7 @@ package com.inrupt.client.openid;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +46,7 @@ public final class TokenRequest {
      * @return the grant type
      */
     public String getGrantType() {
-<span class="nc" id="L48">        return grantType;</span>
+<span class="nc" id="L49">        return grantType;</span>
     }
 
     /**
@@ -54,7 +55,7 @@ public final class TokenRequest {
      * @return the scopes
      */
     public List&lt;String&gt; getScopes() {
-<span class="nc" id="L57">        return scopes;</span>
+<span class="nc" id="L58">        return scopes;</span>
     }
 
     /**
@@ -63,7 +64,7 @@ public final class TokenRequest {
      * @return the authentication method
      */
     public String getAuthMethod() {
-<span class="nc" id="L66">        return authMethod;</span>
+<span class="nc" id="L67">        return authMethod;</span>
     }
 
     /**
@@ -72,7 +73,7 @@ public final class TokenRequest {
      * @return the authorization code
      */
     public String getCode() {
-<span class="nc" id="L75">        return code;</span>
+<span class="nc" id="L76">        return code;</span>
     }
 
     /**
@@ -81,7 +82,7 @@ public final class TokenRequest {
      * @return the code verifier
      */
     public String getCodeVerifier() {
-<span class="nc" id="L84">        return codeVerifier;</span>
+<span class="nc" id="L85">        return codeVerifier;</span>
     }
 
     /**
@@ -90,7 +91,7 @@ public final class TokenRequest {
      * @return the client id
      */
     public String getClientId() {
-<span class="nc" id="L93">        return clientId;</span>
+<span class="nc" id="L94">        return clientId;</span>
     }
 
     /**
@@ -99,7 +100,7 @@ public final class TokenRequest {
      * @return the client secret
      */
     public String getClientSecret() {
-<span class="nc" id="L102">        return clientSecret;</span>
+<span class="nc" id="L103">        return clientSecret;</span>
     }
 
     /**
@@ -108,7 +109,7 @@ public final class TokenRequest {
      * @return the redirect URI
      */
     public URI getRedirectUri() {
-<span class="nc" id="L111">        return redirectUri;</span>
+<span class="nc" id="L112">        return redirectUri;</span>
     }
 
     /**
@@ -117,33 +118,33 @@ public final class TokenRequest {
      * @return the new builder
      */
     public static Builder newBuilder() {
-<span class="nc" id="L120">        return new Builder();</span>
+<span class="nc" id="L121">        return new Builder();</span>
     }
 
     /* package-private */
     TokenRequest(final String clientId, final String clientSecret, final URI redirectUri, final String grantType,
-<span class="nc" id="L125">            final String authMethod, final String code, final String codeVerifier, final List&lt;String&gt; scopes) {</span>
-<span class="nc" id="L126">        this.clientId = clientId;</span>
-<span class="nc" id="L127">        this.clientSecret = clientSecret;</span>
-<span class="nc" id="L128">        this.redirectUri = redirectUri;</span>
-<span class="nc" id="L129">        this.grantType = grantType;</span>
-<span class="nc" id="L130">        this.authMethod = authMethod;</span>
-<span class="nc" id="L131">        this.code = code;</span>
-<span class="nc" id="L132">        this.codeVerifier = codeVerifier;</span>
-<span class="nc" id="L133">        this.scopes = scopes;</span>
-<span class="nc" id="L134">    }</span>
+<span class="nc" id="L126">            final String authMethod, final String code, final String codeVerifier, final List&lt;String&gt; scopes) {</span>
+<span class="nc" id="L127">        this.clientId = clientId;</span>
+<span class="nc" id="L128">        this.clientSecret = clientSecret;</span>
+<span class="nc" id="L129">        this.redirectUri = redirectUri;</span>
+<span class="nc" id="L130">        this.grantType = grantType;</span>
+<span class="nc" id="L131">        this.authMethod = authMethod;</span>
+<span class="nc" id="L132">        this.code = code;</span>
+<span class="nc" id="L133">        this.codeVerifier = codeVerifier;</span>
+<span class="nc" id="L134">        this.scopes = scopes;</span>
+<span class="nc" id="L135">    }</span>
 
     /**
      * A builder class for {@link TokenRequest} objects.
      */
-<span class="nc" id="L139">    public static class Builder {</span>
+<span class="nc" id="L140">    public static class Builder {</span>
 
         private String builderClientSecret;
         private String builderAuthMethod;
         private String builderCode;
         private String builderCodeVerifier;
         private URI builderRedirectUri;
-<span class="nc" id="L146">        private List&lt;String&gt; builderScopes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L147">        private List&lt;String&gt; builderScopes = new ArrayList&lt;&gt;();</span>
 
         /**
          * Set the client secret value.
@@ -152,8 +153,8 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder clientSecret(final String clientSecret) {
-<span class="nc" id="L155">            builderClientSecret = clientSecret;</span>
-<span class="nc" id="L156">            return this;</span>
+<span class="nc" id="L156">            builderClientSecret = clientSecret;</span>
+<span class="nc" id="L157">            return this;</span>
         }
 
         /**
@@ -163,8 +164,8 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder codeVerifier(final String codeVerifier) {
-<span class="nc" id="L166">            builderCodeVerifier = codeVerifier;</span>
-<span class="nc" id="L167">            return this;</span>
+<span class="nc" id="L167">            builderCodeVerifier = codeVerifier;</span>
+<span class="nc" id="L168">            return this;</span>
         }
 
         /**
@@ -174,10 +175,8 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder scopes(final String... scopes) {
-<span class="nc bnc" id="L177" title="All 2 branches missed.">            for (final String scope : scopes) {</span>
-<span class="nc" id="L178">                builderScopes.add(scope);</span>
-            }
-<span class="nc" id="L180">            return this;</span>
+<span class="nc" id="L178">            Collections.addAll(builderScopes, scopes);</span>
+<span class="nc" id="L179">            return this;</span>
         }
 
         /**
@@ -187,8 +186,8 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder authMethod(final String authMethod) {
-<span class="nc" id="L190">            builderAuthMethod = authMethod;</span>
-<span class="nc" id="L191">            return this;</span>
+<span class="nc" id="L189">            builderAuthMethod = authMethod;</span>
+<span class="nc" id="L190">            return this;</span>
         }
 
         /**
@@ -198,8 +197,8 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder code(final String code) {
-<span class="nc" id="L201">            builderCode = code;</span>
-<span class="nc" id="L202">            return this;</span>
+<span class="nc" id="L200">            builderCode = code;</span>
+<span class="nc" id="L201">            return this;</span>
         }
 
         /**
@@ -209,8 +208,8 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder redirectUri(final URI redirectUri) {
-<span class="nc" id="L212">            builderRedirectUri = redirectUri;</span>
-<span class="nc" id="L213">            return this;</span>
+<span class="nc" id="L211">            builderRedirectUri = redirectUri;</span>
+<span class="nc" id="L212">            return this;</span>
         }
 
         /**
@@ -222,23 +221,23 @@ public final class TokenRequest {
          */
         public TokenRequest build(final String grantType, final String clientId) {
 
-<span class="nc" id="L225">            Objects.requireNonNull(clientId, &quot;Client ID may not be null!&quot;);</span>
-<span class="nc" id="L226">            final String grant = Objects.requireNonNull(grantType, &quot;Grant type may not be null!&quot;);</span>
+<span class="nc" id="L224">            Objects.requireNonNull(clientId, &quot;Client ID may not be null!&quot;);</span>
+<span class="nc" id="L225">            final String grant = Objects.requireNonNull(grantType, &quot;Grant type may not be null!&quot;);</span>
 
-<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (&quot;authorization_code&quot;.equals(grantType)) {</span>
-<span class="nc bnc" id="L229" title="All 2 branches missed.">                if (builderCode == null) {</span>
-<span class="nc" id="L230">                    throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (&quot;authorization_code&quot;.equals(grantType)) {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">                if (builderCode == null) {</span>
+<span class="nc" id="L229">                    throw new IllegalArgumentException(</span>
                         &quot;Missing code parameter for authorization_code grant type&quot;);
-<span class="nc bnc" id="L232" title="All 2 branches missed.">                } else if (builderRedirectUri == null) {</span>
-<span class="nc" id="L233">                    throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                } else if (builderRedirectUri == null) {</span>
+<span class="nc" id="L232">                    throw new IllegalArgumentException(</span>
                         &quot;Missing redirectUri parameter for authorization_code grant type&quot;);
                 }
-<span class="nc bnc" id="L236" title="All 4 branches missed.">            } else if (&quot;client_credentials&quot;.equals(grantType) &amp;&amp; builderClientSecret == null) {</span>
-<span class="nc" id="L237">                throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L235" title="All 4 branches missed.">            } else if (&quot;client_credentials&quot;.equals(grantType) &amp;&amp; builderClientSecret == null) {</span>
+<span class="nc" id="L236">                throw new IllegalArgumentException(</span>
                     &quot;Missing client_secret parameter for client_credentials grant type&quot;);
             }
 
-<span class="nc" id="L241">            return new TokenRequest(clientId, builderClientSecret, builderRedirectUri, grant, builderAuthMethod,</span>
+<span class="nc" id="L240">            return new TokenRequest(clientId, builderClientSecret, builderRedirectUri, grant, builderAuthMethod,</span>
                     builderCode, builderCodeVerifier, builderScopes);
         }
     }
