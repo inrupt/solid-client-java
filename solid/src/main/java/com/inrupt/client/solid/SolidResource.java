@@ -36,6 +36,25 @@ public class SolidResource extends Resource {
      * Create a Solid resource.
      *
      * @param identifier the Solid Resource identifier
+     */
+    public SolidResource(final URI identifier) {
+        this(identifier, null);
+    }
+
+    /**
+     * Create a Solid resource.
+     *
+     * @param identifier the Solid Resource identifier
+     * @param dataset the resource dataset, may be {@code null}
+     */
+    public SolidResource(final URI identifier, final Dataset dataset) {
+        this(identifier, dataset, null);
+    }
+
+    /**
+     * Create a Solid resource.
+     *
+     * @param identifier the Solid Resource identifier
      * @param dataset the resource dataset, may be {@code null}
      * @param metadata metadata associated with this resource, may be {@code null}
      */

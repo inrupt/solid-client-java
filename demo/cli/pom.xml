@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -9,9 +8,9 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-demo-quarkus</artifactId>
+  <artifactId>inrupt-client-demo-cli</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <name>Inrupt Client Libraries - Quarkus Demo</name>
+  <name>Inrupt Client Libraries - CLI Demo</name>
 
   <properties>
     <quarkus.version>2.15.1.Final</quarkus.version>
@@ -30,6 +29,10 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-arc</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-api</artifactId>
@@ -57,7 +60,7 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-okhttp</artifactId>
+      <artifactId>inrupt-client-httpclient</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -77,20 +80,13 @@
     </dependency>
 
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-oidc</artifactId>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>${commons.cli.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-qute</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-arc</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
   </dependencies>
 
@@ -125,4 +121,3 @@
     </plugins>
   </build>
 </project>
-

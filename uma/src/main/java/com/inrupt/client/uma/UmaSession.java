@@ -23,6 +23,7 @@ package com.inrupt.client.uma;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
  * A session implementation for use with UMA Authorization Servers.
@@ -76,6 +79,17 @@ public final class UmaSession implements Session {
     }
 
     @Override
+    public Optional<URI> getPrincipal() {
+        for (final Session session : internalSessions) {
+            final Optional<URI> principal = session.getPrincipal();
+            if (principal.isPresent()) {
+                return principal;
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Set<String> supportedSchemes() {
         return schemes;
     }
@@ -94,5 +108,10 @@ public final class UmaSession implements Session {
     @Override
     public Optional<Session.Credential> fromCache(final Request request) {
         return Optional.empty();
+    }
+
+    @Override
+    public CompletionStage<Optional<Session.Credential>> authenticate(final Request request) {
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 }

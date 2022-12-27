@@ -106,23 +106,20 @@ class OpenIdProviderTest {
 
     @Test
     void tokenRequestIllegalArgumentsTest() {
-        final Builder builder = TokenRequest.newBuilder();
-        final URI uri = URI.create("myRedirectUri");
-        assertThrows(
-            NullPointerException.class,
-            () -> builder.build(null,"myClientId",uri));
+        final Builder builder = TokenRequest.newBuilder()
+            .redirectUri(URI.create("https://app.example/callback"));
         assertThrows(
             IllegalArgumentException.class,
-            () -> builder.build("authorization_code", "myClientId", uri));
+            () -> builder.build("authorization_code", "myClientId"));
         assertThrows(
             IllegalArgumentException.class,
-            () -> builder.build("client_credentials", "myClientId", uri));
+            () -> builder.build("client_credentials", "myClientId"));
         assertThrows(
             NullPointerException.class,
-            () -> builder.build("myGrantType", null, uri));
+            () -> builder.build(null,"myClientId"));
         assertThrows(
             NullPointerException.class,
-            () -> builder.build("myGrantType", "myClientId", null));
+            () -> builder.build("myGrantType", null));
     }
 
     @Test
@@ -130,14 +127,14 @@ class OpenIdProviderTest {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
+            .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
                 "authorization_code",
-                "myClientId",
-                URI.create("https://example.test/redirectUri")
+                "myClientId"
             );
         final TokenResponse token = openIdProvider.token(tokenReq);
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
@@ -148,14 +145,14 @@ class OpenIdProviderTest {
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
             .authMethod("client_secret_basic")
+            .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
                 "authorization_code",
-                "myClientId",
-                URI.create("https://example.test/redirectUri")
+                "myClientId"
             );
         final TokenResponse token = openIdProvider.token(tokenReq);
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
@@ -166,34 +163,37 @@ class OpenIdProviderTest {
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
             .authMethod("client_secret_post")
+            .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
                 "authorization_code",
-                "myClientId",
-                URI.create("https://example.test/redirectUri")
+                "myClientId"
             );
         final TokenResponse token = openIdProvider.token(tokenReq);
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
     }
 
     @Test
     void tokenAsyncTest() {
-        final TokenRequest tokenReq = TokenRequest.newBuilder().code("someCode")
-                .codeVerifier("myCodeverifier").build("authorization_code", "myClientId",
-                        URI.create("https://example.test/redirectUri"));
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
+            .code("someCode")
+            .codeVerifier("myCodeverifier")
+            .redirectUri(URI.create("https://example.test/redirectUri"))
+            .build("authorization_code", "myClientId");
         final TokenResponse token = openIdProvider.tokenAsync(tokenReq).toCompletableFuture().join();
-        assertEquals("token-from-id-token", token.accessToken);
-        assertEquals("123456", token.idToken);
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
         assertEquals("Bearer", token.tokenType);
-
     }
 
     @Test
     void tokenAsyncStatusCodesTest() {
-        final TokenRequest tokenReq = TokenRequest.newBuilder().code("none")
-                .codeVerifier("none").build("authorization_code", "none",
-                        URI.create("none"));
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
+            .code("none")
+            .codeVerifier("none")
+            .redirectUri(URI.create("none"))
+            .build("authorization_code", "none");
 
         assertAll("Not found",
             () -> {

@@ -28,4 +28,11 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.microprofile\.config/microprofile\-config\-api@.*$</packageUrl>
     <cpe>cpe:/a:payara:payara</cpe>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+        This vulnerability does not affect the client code
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty\-.*@.*$</packageUrl>
+    <cve>CVE-2022-41881</cve>
+  </suppress>
 </suppressions>

@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public interface Session {
 
@@ -35,6 +37,15 @@ public interface Session {
      * @return a session identifier
      */
     String getId();
+
+    /**
+     * Retrieve the principal associated with this session.
+     *
+     * <p>Typically, this will be a WebID or other globally unique value
+     *
+     * @return the principal identifier, if present
+     */
+    Optional<URI> getPrincipal();
 
     /**
      * Retrieve the authentication schemes supported by this session.
@@ -59,21 +70,36 @@ public interface Session {
      */
     Optional<Credential> fromCache(Request request);
 
+    /**
+     * Fetch an authentication token from session values.
+     *
+     * @param request the HTTP request
+     * @return the next stage of completion, containing an access token, if present
+     */
+    CompletionStage<Optional<Credential>> authenticate(Request request);
+
     class Credential {
         private final String scheme;
         private final URI issuer;
         private final String token;
         private final Instant expiration;
+        private final URI principal;
 
-        public Credential(final String scheme, final URI issuer, final String token, final Instant expiration) {
+        public Credential(final String scheme, final URI issuer, final String token, final Instant expiration,
+                final URI principal) {
             this.scheme = scheme;
             this.issuer = issuer;
             this.token = token;
             this.expiration = expiration;
+            this.principal = principal;
         }
 
         public String getScheme() {
             return scheme;
+        }
+
+        public Optional<URI> getPrincipal() {
+            return Optional.ofNullable(principal);
         }
 
         public URI getIssuer() {
@@ -104,6 +130,11 @@ public interface Session {
             }
 
             @Override
+            public Optional<URI> getPrincipal() {
+                return Optional.empty();
+            }
+
+            @Override
             public Set<String> supportedSchemes() {
                 return Collections.singleton("UMA");
             }
@@ -116,6 +147,11 @@ public interface Session {
             @Override
             public Optional<Credential> fromCache(final Request request) {
                 return Optional.empty();
+            }
+
+            @Override
+            public CompletionStage<Optional<Credential>> authenticate(final Request request) {
+                return CompletableFuture.completedFuture(Optional.empty());
             }
         };
     }

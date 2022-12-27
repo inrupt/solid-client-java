@@ -26,6 +26,8 @@ import com.inrupt.client.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -105,11 +107,18 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
 
         @Override
         public CompletionStage<AccessToken> authenticateAsync(final Session session, final Request request) {
-            return session.getCredential(OpenIdSession.ID_TOKEN)
+            // TODO don't hard-code this
+            final List<String> scopes = Arrays.asList("webid", "openid");
+            final Optional<CompletionStage<AccessToken>> token = session.getCredential(OpenIdSession.ID_TOKEN)
                 .map(credential -> new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),
-                            credential.getExpiration(), credential.getIssuer(), Arrays.asList("webid", "openid"), null))
-                .map(CompletableFuture::completedFuture)
-                .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"));
+                            credential.getExpiration(), credential.getIssuer(), scopes, null))
+                .map(CompletableFuture::completedFuture);
+            return token
+                .orElseGet(() -> session.authenticate(request)
+                    .thenApply(credential -> credential
+                        .map(c -> new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(), c.getIssuer(),
+                                scopes, null))
+                        .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"))));
         }
     }
 }
