@@ -20,9 +20,6 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
 
@@ -30,10 +27,18 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Quad;
+
 /**
  * A Solid Container Object.
  */
 public final class SolidContainer extends SolidResource {
+
+    private final IRI rdfType;
+    private final IRI ldpContains;
+    private final IRI subject;
 
     /**
      * Create a new SolidContainer.
@@ -44,6 +49,10 @@ public final class SolidContainer extends SolidResource {
      */
     public SolidContainer(final URI identifier, final Dataset dataset, final Metadata metadata) {
         super(identifier, dataset, metadata);
+
+        this.rdfType = rdf.createIRI(RDF.type.toString());
+        this.ldpContains = rdf.createIRI(LDP.contains.toString());
+        this.subject = rdf.createIRI(identifier.toString());
     }
 
     /**
@@ -52,22 +61,17 @@ public final class SolidContainer extends SolidResource {
      * @return the contained resources
      */
     public Stream<SolidResource> getContainedResources() {
-        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getIdentifier()),
-                RDFNode.namedNode(LDP.contains), null)
-            .map(Quad::getObject)
-            .filter(RDFNode::isNamedNode)
-            .map(RDFNode::getURI)
+        return getDataset().stream(Optional.empty(), subject, ldpContains, null)
+            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
             .map(child -> {
                 final SolidResource.Builder builder = SolidResource.newResourceBuilder();
                 final Metadata.Builder metadata = Metadata.newBuilder();
                 getMetadata().getStorage().ifPresent(metadata::storage);
-                getDataset().stream(Optional.empty(), RDFNode.namedNode(child), RDFNode.namedNode(RDF.type), null)
-                    .map(Quad::getObject)
-                    .filter(RDFNode::isNamedNode)
-                    .map(RDFNode::getURI)
-                    .forEach(metadata::type);
+                getDataset().stream(Optional.empty(), child, rdfType, null)
+                    .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).map(URI::create).forEach(metadata::type);
                 builder.metadata(metadata.build());
-                return builder.build(child);
+                return builder.build(URI.create(child.toString()));
             });
     }
 

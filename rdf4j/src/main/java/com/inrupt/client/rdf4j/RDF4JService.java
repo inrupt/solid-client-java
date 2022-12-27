@@ -20,28 +20,26 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Graph;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.rdf.Syntax;
-import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
+import com.inrupt.commons.rdf4j.RDF4J;
+import com.inrupt.commons.rdf4j.RDF4JDataset;
+import com.inrupt.commons.rdf4j.RDF4JGraph;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.RDFSyntax;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.DynamicModelFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -56,32 +54,16 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public class RDF4JService implements RdfService {
 
-    private static final Map<Syntax, RDFFormat> SYNTAX_TO_FORMAT = buildSyntaxMapping();
-    private static final ValueFactory VF = SimpleValueFactory.getInstance();
+    private static final Map<RDFSyntax, RDFFormat> SYNTAX_TO_FORMAT = buildSyntaxMapping();
+    private static final RDF4J rdf = new RDF4J();
 
     @Override
-    public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
+    public void fromDataset(final Dataset dataset, final RDFSyntax syntax, final OutputStream output)
+            throws IOException {
         final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
         try {
-            if (dataset instanceof RDF4JDataset) {
-                try (final RepositoryConnection conn = ((RDF4JDataset) dataset)
-                        .asRDF4JRepository()
-                        .getConnection()) {
-                    final Model m = QueryResults.asModel(conn.getStatements(null, null, null));
-                    Rio.write(m, output, format);
-                }
-            } else {
-                final Model m = new DynamicModelFactory().createEmptyModel();
-                dataset.stream().forEach(quad -> {
-                    if (quad.getGraphName().isPresent()) {
-                        m.add(RDF4JUtils.fromSubject(quad.getSubject()), RDF4JUtils.fromPredicate(quad.getPredicate()),
-                                RDF4JUtils.fromObject(quad.getObject()),
-                                RDF4JUtils.fromSubject(quad.getGraphName().get()));
-                    } else {
-                        m.add(RDF4JUtils.fromSubject(quad.getSubject()), RDF4JUtils.fromPredicate(quad.getPredicate()),
-                                RDF4JUtils.fromObject(quad.getObject()));
-                    }
-                });
+            try (final RepositoryConnection conn = toRdf4j(dataset).getConnection()) {
+                final Model m = QueryResults.asModel(conn.getStatements(null, null, null));
                 Rio.write(m, output, format);
             }
         } catch (final RDF4JException ex) {
@@ -89,24 +71,14 @@ public class RDF4JService implements RdfService {
         }
     }
 
-
-
     @Override
-    public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
+    public void fromGraph(final Graph graph, final RDFSyntax syntax, final OutputStream output) throws IOException {
         final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
         final RDFWriter writer = Rio.createWriter(format, output);
         try {
             writer.startRDF();
-            if (graph instanceof RDF4JGraph) {
-                for (final Statement st : ((RDF4JGraph) graph).asRDF4JModel()) {
-                    writer.handleStatement(st);
-                }
-            } else {
-                graph.stream().forEach(triple -> {
-                    writer.handleStatement(VF.createStatement(RDF4JUtils.fromSubject(triple.getSubject()),
-                                RDF4JUtils.fromPredicate(triple.getPredicate()),
-                                RDF4JUtils.fromObject(triple.getObject())));
-                });
+            for (final Statement st : toRdf4j(graph)) {
+                writer.handleStatement(st);
             }
             writer.endRDF();
         } catch (final RDF4JException ex) {
@@ -114,70 +86,65 @@ public class RDF4JService implements RdfService {
         }
     }
 
+    static Model toRdf4j(final Graph graph) {
+        if (graph instanceof RDF4JGraph) {
+            final Optional<Model> model = ((RDF4JGraph) graph).asModel();
+            if (model.isPresent()) {
+                return model.get();
+            }
+        }
+        final RDF4JGraph g = rdf.createGraph();
+        graph.stream().forEach(g::add);
+        return g.asModel()
+            .orElseThrow(() -> new IllegalStateException("Could not adapt RDF4J graph"));
+    }
+
+    static Repository toRdf4j(final Dataset dataset) {
+        if (dataset instanceof RDF4JDataset) {
+            final Optional<Repository> repo = ((RDF4JDataset) dataset).asRepository();
+            if (repo.isPresent()) {
+                return repo.get();
+            }
+        }
+        final RDF4JDataset d = rdf.createDataset();
+        dataset.stream().forEach(d::add);
+        return d.asRepository()
+            .orElseThrow(() -> new IllegalStateException("Could not adapt RDF4J dataset"));
+    }
+
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
+    public Dataset toDataset(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
         final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
         final Repository repository = new SailRepository(new MemoryStore());
         try {
             try (final RepositoryConnection conn = repository.getConnection()) {
                 conn.add(input, baseUri, format);
             }
-            return new RDF4JDataset(repository);
+            return rdf.asDataset(repository);
         } catch (final RDF4JException ex) {
             throw new IOException("Error parsing dataset", ex);
         }
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
+    public Graph toGraph(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
         final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
 
         try {
             final Model model = Rio.parse(input, baseUri, format);
-            return new RDF4JGraph(model);
+            return rdf.asGraph(model);
         } catch (final RDF4JException ex) {
             throw new IOException("Error parsing graph", ex);
         }
     }
 
-    @Override
-    public Graph createGraph() {
-        final Model m = new DynamicModelFactory().createEmptyModel();
-        return new RDF4JGraph(m);
-    }
-
-    @Override
-    public Dataset createDataset() {
-        final Repository repository = new SailRepository(new MemoryStore());
-        return new RDF4JDataset(repository);
-    }
-
-    @Override
-    public Triple createTriple(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
-        final org.eclipse.rdf4j.model.Triple triple = VF.createTriple(RDF4JUtils.fromSubject(subject),
-                RDF4JUtils.fromPredicate(predicate), RDF4JUtils.fromObject(object));
-        return new RDF4JTriple(triple);
-    }
-
-    @Override
-    public Quad createQuad(final RDFNode subject, final RDFNode predicate, final RDFNode object,
-            final RDFNode graphName) {
-        if (graphName != null) {
-            return new RDF4JQuad(VF.createStatement(RDF4JUtils.fromSubject(subject),
-                        RDF4JUtils.fromPredicate(predicate), RDF4JUtils.fromObject(object),
-                        RDF4JUtils.fromSubject(graphName)));
-        }
-        return new RDF4JQuad(VF.createStatement(RDF4JUtils.fromSubject(subject), RDF4JUtils.fromPredicate(predicate),
-                    RDF4JUtils.fromObject(object)));
-    }
-
-    static Map<Syntax, RDFFormat> buildSyntaxMapping() {
-        final Map<Syntax, RDFFormat> mapping = new EnumMap<>(Syntax.class);
-        mapping.put(Syntax.TURTLE, RDFFormat.TURTLE);
-        mapping.put(Syntax.TRIG, RDFFormat.TRIG);
-        mapping.put(Syntax.JSONLD, RDFFormat.JSONLD);
-        mapping.put(Syntax.NTRIPLES, RDFFormat.NTRIPLES);
-        mapping.put(Syntax.NQUADS, RDFFormat.NQUADS);
+    static Map<RDFSyntax, RDFFormat> buildSyntaxMapping() {
+        final Map<RDFSyntax, RDFFormat> mapping = new HashMap<>();
+        mapping.put(RDFSyntax.TURTLE, RDFFormat.TURTLE);
+        mapping.put(RDFSyntax.TRIG, RDFFormat.TRIG);
+        mapping.put(RDFSyntax.JSONLD, RDFFormat.JSONLD);
+        mapping.put(RDFSyntax.NTRIPLES, RDFFormat.NTRIPLES);
+        mapping.put(RDFSyntax.NQUADS, RDFFormat.NQUADS);
         return Collections.unmodifiableMap(mapping);
     }
 }

@@ -20,38 +20,40 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
-
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.Quad;
+
 public class Playlist extends SolidResource {
+
+    private final IRI dcTitle;
+    private final IRI exSong;
+    private final IRI subject;
 
     public Playlist(final URI identifier, final Dataset dataset, final Metadata metadata) {
         super(identifier, dataset, metadata);
+
+        this.subject = rdf.createIRI(identifier.toString());
+        this.dcTitle = rdf.createIRI("http://purl.org/dc/terms/title");
+        this.exSong = rdf.createIRI("https://example.com/song");
     }
 
     public String getTitle() {
-        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getIdentifier()),
-                    RDFNode.namedNode(URI.create("http://purl.org/dc/terms/title")), null)
-            .map(Quad::getObject)
-            .filter(RDFNode::isLiteral)
-            .map(RDFNode::getLiteral)
-            .findFirst()
-            .orElse("Untitled");
+        return getDataset().stream(Optional.empty(), subject, dcTitle, null)
+            .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
+            .findFirst().map(Literal::getLexicalForm).orElse("Untitled");
     }
 
     public List<URI> getSongs() {
-        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getIdentifier()),
-                RDFNode.namedNode(URI.create("https://example.com/song")), null)
-            .map(Quad::getObject)
-            .filter(RDFNode::isNamedNode)
-            .map(RDFNode::getURI)
-            .collect(Collectors.toList());
+        return getDataset().stream(Optional.empty(), subject, exSong, null)
+            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+            .map(IRI::getIRIString).map(URI::create).collect(Collectors.toList());
     }
 }
 

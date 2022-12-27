@@ -20,16 +20,13 @@
  */
 package com.inrupt.client.spi;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Graph;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.rdf.Syntax;
-import com.inrupt.client.rdf.Triple;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * A generic abstraction for interacting with different underlying RDF libraries.
@@ -44,7 +41,7 @@ public interface RdfService {
      * @param output the output stream
      * @throws IOException when there is an error serializing the dataset
      */
-    void fromDataset(Dataset dataset, Syntax syntax, OutputStream output) throws IOException;
+    void fromDataset(Dataset dataset, RDFSyntax syntax, OutputStream output) throws IOException;
 
     /**
      * Serialize a graph to an output stream.
@@ -54,7 +51,7 @@ public interface RdfService {
      * @param output the output stream
      * @throws IOException when there is an error serializing the graph
      */
-    void fromGraph(Graph graph, Syntax syntax, OutputStream output) throws IOException;
+    void fromGraph(Graph graph, RDFSyntax syntax, OutputStream output) throws IOException;
 
     /**
      * Parse an input stream into a Dataset.
@@ -65,19 +62,7 @@ public interface RdfService {
      * @return a dataset
      * @throws IOException when there is an error parsing the dataset
      */
-    Dataset toDataset(Syntax syntax, InputStream input, String baseUri) throws IOException;
-
-    /**
-     * Parse an input stream into a Dataset.
-     *
-     * @param syntax the concrete RDF syntax
-     * @param input the input stream
-     * @return a dataset
-     * @throws IOException when there is an error parsing the dataset
-     */
-    default Dataset toDataset(Syntax syntax, InputStream input) throws IOException {
-        return toDataset(syntax, input, null);
-    }
+    Dataset toDataset(RDFSyntax syntax, InputStream input, String baseUri) throws IOException;
 
     /**
      * Parse an input stream into a Graph.
@@ -88,52 +73,5 @@ public interface RdfService {
      * @return a graph
      * @throws IOException when there is an error parsing the graph
      */
-    Graph toGraph(Syntax syntax, InputStream input, String baseUri) throws IOException;
-
-    /**
-     * Parse an input stream into a Graph.
-     *
-     * @param syntax the concrete RDF syntax
-     * @param input the input stream
-     * @return a graph
-     * @throws IOException when there is an error parsing the graph
-     */
-    default Graph toGraph(Syntax syntax, InputStream input) throws IOException {
-        return toGraph(syntax, input, null);
-    }
-
-    /**
-     * Create a new, empty dataset.
-     *
-     * @return a dataset
-     */
-    Dataset createDataset();
-
-    /**
-     * Create a new, empty graph.
-     *
-     * @return a graph
-     */
-    Graph createGraph();
-
-    /**
-     * Create a triple.
-     *
-     * @param subject the subject
-     * @param predicate the predicate
-     * @param object the object
-     * @return the triple
-     */
-    Triple createTriple(RDFNode subject, RDFNode predicate, RDFNode object);
-
-    /**
-     * Create a quad.
-     *
-     * @param subject the subject
-     * @param predicate the predicate
-     * @param object the object
-     * @param graphName the graph name, may be {@code null}
-     * @return the quad
-     */
-    Quad createQuad(RDFNode subject, RDFNode predicate, RDFNode object, RDFNode graphName);
+    Graph toGraph(RDFSyntax syntax, InputStream input, String baseUri) throws IOException;
 }
