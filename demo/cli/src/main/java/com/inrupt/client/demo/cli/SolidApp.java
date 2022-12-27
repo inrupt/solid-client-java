@@ -22,7 +22,6 @@ package com.inrupt.client.demo.cli;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
@@ -54,7 +53,6 @@ public class SolidApp implements QuarkusApplication {
 
     private static final Logger LOGGER = getLogger(SolidApp.class);
 
-    private final Client client = ClientProvider.getClient();
     private final PrintWriter printWriter = new PrintWriter(System.out, true);
 
     @Inject

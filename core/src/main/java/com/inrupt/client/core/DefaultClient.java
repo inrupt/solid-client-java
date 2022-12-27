@@ -78,7 +78,7 @@ public final class DefaultClient implements Client {
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
                         final List<Authenticator.Challenge> challenges = WwwAuthenticate
-                            .parse(res.headers().allValues("WWW-Authenticate").toArray(String[]::new))
+                            .parse(res.headers().allValues("WWW-Authenticate").toArray(new String[0]))
                             .getChallenges();
 
                         return authHandler.negotiate(session, request, challenges)
