@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,25 +81,12 @@ public class OpenIdProvider {
     /**
      * Fetch the OpenID metadata resource.
      *
-     * @return the OpenID Provider's metadata resource
-     */
-    public Metadata metadata() {
-        try {
-            return metadataAsync().toCompletableFuture().join();
-        } catch (final CompletionException ex) {
-            throw new OpenIdException("Error fetching OpenID metadata resoruce", ex);
-        }
-    }
-
-    /**
-     * Fetch the OpenID metadata resource.
-     *
      * @return the next stage of completion, containing the OpenID Provider's metadata resource
      */
-    public CompletionStage<Metadata> metadataAsync() {
+    public CompletionStage<Metadata> metadata() {
         // consider caching this response
         final Request req = Request.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
-        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
+        return httpClient.send(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
@@ -123,23 +109,13 @@ public class OpenIdProvider {
     }
 
     /**
-     * Construct the OpenID authorization URI.
-     *
-     * @param request the authorization request
-     * @return the URI for performing the authorization request
-     */
-    public URI authorize(final AuthorizationRequest request) {
-        return authorizeAsync(request).toCompletableFuture().join();
-    }
-
-    /**
      * Construct the OpenID authorization URI asynchronously.
      *
      * @param request the authorization request
      * @return the next stage of completion, containing URI for performing the authorization request
      */
-    public CompletionStage<URI> authorizeAsync(final AuthorizationRequest request) {
-        return metadataAsync()
+    public CompletionStage<URI> authorize(final AuthorizationRequest request) {
+        return metadata()
             .thenApply(metadata -> authorize(metadata.authorizationEndpoint, request));
     }
 
@@ -158,29 +134,15 @@ public class OpenIdProvider {
     }
 
     /**
-     * Interact with the OpenID Provider's token endpoint.
-     *
-     * @param request the token request
-     * @return the token response
-     */
-    public TokenResponse token(final TokenRequest request) {
-        try {
-            return tokenAsync(request).toCompletableFuture().join();
-        } catch (final CompletionException ex) {
-            throw new OpenIdException("Error fetching OpenID token", ex);
-        }
-    }
-
-    /**
      * Interact asynchronously with the OpenID Provider's token endpoint.
      *
      * @param request the token request
      * @return the next stage of completion, containing the token response
      */
-    public CompletionStage<TokenResponse> tokenAsync(final TokenRequest request) {
-        return metadataAsync()
+    public CompletionStage<TokenResponse> token(final TokenRequest request) {
+        return metadata()
             .thenApply(metadata -> tokenRequest(metadata, request))
-            .thenCompose(req -> httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()))
+            .thenCompose(req -> httpClient.send(req, Response.BodyHandlers.ofInputStream()))
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
@@ -243,23 +205,13 @@ public class OpenIdProvider {
     }
 
     /**
-     * End the session with the OpenID Provider.
-     *
-     * @param request the end session request
-     * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
-     */
-    public URI endSession(final EndSessionRequest request) {
-        return endSessionAsync(request).toCompletableFuture().join();
-    }
-
-    /**
      * End the session asynchronously with the OpenID Provider.
      *
      * @param request the end session request
      * @return a URI to which the app should be redirected, may be {@code null} if RP-initiated logout is not supported
      */
-    public CompletionStage<URI> endSessionAsync(final EndSessionRequest request) {
-        return metadataAsync()
+    public CompletionStage<URI> endSession(final EndSessionRequest request) {
+        return metadata()
             .thenApply(metadata -> {
                 if (metadata.endSessionEndpoint != null) {
                     return endSession(metadata.endSessionEndpoint, request);

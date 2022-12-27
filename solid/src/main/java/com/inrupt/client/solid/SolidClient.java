@@ -63,9 +63,9 @@ public class SolidClient {
      * @param <T> the response handler type
      * @return the response
      */
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request,
+    public <T> CompletionStage<Response<T>> send(final Request request,
             final Response.BodyHandler<T> responseBodyHandler) {
-        return client.sendAsync(request, responseBodyHandler);
+        return client.send(request, responseBodyHandler);
     }
 
     /**
@@ -81,7 +81,7 @@ public class SolidClient {
             .header("Accept", "text/turtle")
             .GET().build();
 
-        return client.sendAsync(req, SolidResourceHandlers.ofSolidResource())
+        return client.send(req, SolidResourceHandlers.ofSolidResource())
             .thenApply(Response::body)
             .thenApply(resource -> {
                 try {
@@ -107,7 +107,7 @@ public class SolidClient {
             .PUT(cast(resource))
             .build();
 
-        return client.sendAsync(req, Response.BodyHandlers.discarding());
+        return client.send(req, Response.BodyHandlers.discarding());
     }
 
     /**
@@ -123,7 +123,7 @@ public class SolidClient {
             .PUT(cast(resource))
             .build();
 
-        return client.sendAsync(req, Response.BodyHandlers.discarding());
+        return client.send(req, Response.BodyHandlers.discarding());
     }
 
     /**
@@ -137,7 +137,7 @@ public class SolidClient {
         final Request req = Request.newBuilder(resource.getIdentifier())
             .DELETE()
             .build();
-        return client.sendAsync(req, Response.BodyHandlers.discarding());
+        return client.send(req, Response.BodyHandlers.discarding());
     }
 
     /**

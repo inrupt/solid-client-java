@@ -49,18 +49,11 @@ public interface ClaimGatheringHandler {
     String getClaimType();
 
     /**
-     * Gather a claim token.
-     *
-     * @return a new claim token for use with the UMA claims gathering interaction
-     */
-    ClaimToken gather();
-
-    /**
      * Gather a claim token asynchronously.
      *
      * @return the next stage of completion containing a new claim token
      */
-    CompletionStage<ClaimToken> gatherAsync();
+    CompletionStage<ClaimToken> gather();
 
     /**
      * Determine if this handler is compatible with the listed UMA requirements.

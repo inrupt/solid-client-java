@@ -114,7 +114,7 @@ client.delete(uri).toCompletableFuture().join();
 
 -----------------------
 session.getPrincipal().ifPresent(webid ->
-    client.sendAsync(Request.newBuilder(webid).header("Accept", "text/turtle").build(),
+    client.send(Request.newBuilder(webid).header("Accept", "text/turtle").build(),
             WebIdBodyHandlers.ofWebIdProfile(webid))
         .thenApply(Response::body)
         .thenAccept(profile ->

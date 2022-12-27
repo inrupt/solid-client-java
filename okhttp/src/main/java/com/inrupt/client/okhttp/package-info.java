@@ -40,11 +40,11 @@
         .uri("https://example.example/solid.png")
         .GET()
         .build();
-    Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+    Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray()).toCompletableFuture().join();
 
     System.out.println("HTTP status code: " + response.statusCode());
     System.out.println("Response uri: " + response.uri());
-    System.out.println("Content type: " + response.headers().get("Content-Type"));
+    System.out.println("Content type: " + response.headers().asMap().get(CONTENT_TYPE));
  * }</pre>
  */
 package com.inrupt.client.okhttp;

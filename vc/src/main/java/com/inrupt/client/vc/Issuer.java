@@ -72,39 +72,20 @@ public class Issuer {
     }
 
     /**
-     * Synchronously issue a new verifiable credential.
-     *
-     * @param credential the credential to be signed and issued
-     * @return a new Verifiable Credential
-     */
-    public VerifiableCredential issue(final VerifiableCredential credential) {
-        return issueAsync(credential).toCompletableFuture().join();
-    }
-
-    /**
      * Asynchronously issue a new verifiable credential.
      *
      * @param credential the credential to be signed and issued
      * @return the next stage of completion, containing the new Verifiable Credential
      */
-    public CompletionStage<VerifiableCredential> issueAsync(final VerifiableCredential credential) {
+    public CompletionStage<VerifiableCredential> issue(final VerifiableCredential credential) {
         final var req = Request.newBuilder(getIssueUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
         return httpClient
-                .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+                .send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
                 .thenApply(Response::body);
-    }
-
-    /**
-     * Synchronously update the status of a verifiable credential.
-     *
-     * @param request the status request
-     */
-    public void status(final StatusRequest request) {
-        statusAsync(request).toCompletableFuture().join();
     }
 
     /**
@@ -113,13 +94,13 @@ public class Issuer {
      * @param request the status request
      * @return the next stage of completion
      */
-    public CompletionStage<Void> statusAsync(final StatusRequest request) {
+    public CompletionStage<Void> status(final StatusRequest request) {
         final var req = Request.newBuilder(getStatusUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(ofStatusRequest(request))
             .build();
 
-        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())
+        return httpClient.send(req, Response.BodyHandlers.discarding())
                 .thenApply(res -> {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {

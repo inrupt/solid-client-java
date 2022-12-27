@@ -72,41 +72,21 @@ public class Verifier {
     }
 
     /**
-     * Synchronously verify a credential.
-     *
-     * @param credential the verifiable credential
-     * @return a verification response
-     */
-    public VerificationResponse verify(final VerifiableCredential credential) {
-        return verifyAsync(credential).toCompletableFuture().join();
-    }
-
-    /**
      * Asynchronously verify a credential.
      *
      * @param credential the verifiable credential
      * @return the next stage of completion, containing a verification response
      */
-    public CompletionStage<VerificationResponse> verifyAsync(final VerifiableCredential credential) {
+    public CompletionStage<VerificationResponse> verify(final VerifiableCredential credential) {
         final var req = Request.newBuilder(getCredentialVerifierUrl())
             .header(CONTENT_TYPE, APPLICATION_JSON)
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))
             .build();
 
-        return httpClient.sendAsync(req, ofVerificationResponse())
+        return httpClient.send(req, ofVerificationResponse())
             .thenApply(Response::body);
     }
 
-
-    /**
-     * Synchronously verify a presentation.
-     *
-     * @param presentation the verifiable presentation
-     * @return a verification response
-     */
-    public VerificationResponse verify(final VerifiablePresentation presentation) {
-        return verifyAsync(presentation).toCompletableFuture().join();
-    }
 
     /**
      * Asynchronously verify a presentation.
@@ -114,14 +94,14 @@ public class Verifier {
      * @param presentation the verifiable presentation
      * @return the next stage of completion, containing a verification response
      */
-    public CompletionStage<VerificationResponse> verifyAsync(
+    public CompletionStage<VerificationResponse> verify(
             final VerifiablePresentation presentation) {
         final var req = Request.newBuilder(getPresentationVerifierUrl())
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))
                 .build();
 
-        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(Response::body);
+        return httpClient.send(req, ofVerificationResponse()).thenApply(Response::body);
 
     }
 
