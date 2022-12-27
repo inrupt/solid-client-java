@@ -83,7 +83,7 @@ public final class DefaultClient implements Client {
 <span class="nc" id="L83">                .thenCompose(res -&gt; {</span>
 <span class="nc bnc" id="L84" title="All 2 branches missed.">                    if (res.statusCode() == UNAUTHORIZED) {</span>
 <span class="nc" id="L85">                        final List&lt;Authenticator.Challenge&gt; challenges = WwwAuthenticate</span>
-<span class="nc" id="L86">                            .parse(res.headers().allValues(&quot;WWW-Authenticate&quot;).toArray(String[]::new))</span>
+<span class="nc" id="L86">                            .parse(res.headers().allValues(&quot;WWW-Authenticate&quot;).toArray(new String[0]))</span>
 <span class="nc" id="L87">                            .getChallenges();</span>
 
 <span class="nc" id="L89">                        return authHandler.negotiate(session, request, challenges)</span>
