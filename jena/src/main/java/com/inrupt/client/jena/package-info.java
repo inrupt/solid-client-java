@@ -31,7 +31,7 @@
     RdfService service = ServiceProvider.getRdfService();
     Dataset dataset;
     try (InputStream input = Test.class.getResourceAsStream("/tripleExamples.trig")) {
-        dataset = service.toDataset(Syntax.TRIG, input);
+        dataset = service.toDataset(RDFSyntax.TRIG, input);
     }
     System.out.println("Number of triples in file: " + dataset.stream().count());
  * }</pre>
