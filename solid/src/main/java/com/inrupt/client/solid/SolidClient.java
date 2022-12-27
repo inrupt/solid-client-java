@@ -38,6 +38,12 @@ import java.util.concurrent.CompletionStage;
  */
 public class SolidClient {
 
+    private static final String ACCEPT = "Accept";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String IF_NONE_MATCH = "If-None-Match";
+    private static final String TEXT_TURTLE = "text/turtle";
+    private static final String WILDCARD = "*";
+
     private final Client client;
 
     SolidClient(final Client client) {
@@ -77,7 +83,7 @@ public class SolidClient {
      */
     public <T extends SolidResource> CompletionStage<T> read(final URI identifier, final Class<T> clazz) {
         final Request req = Request.newBuilder(identifier)
-            .header("Accept", "text/turtle")
+            .header(ACCEPT, TEXT_TURTLE)
             .GET().build();
 
         return client.send(req, SolidResourceHandlers.ofSolidResource())
@@ -101,8 +107,8 @@ public class SolidClient {
      */
     public <T extends SolidResource> CompletionStage<Response<Void>> create(final T resource) {
         final Request req = Request.newBuilder(resource.getIdentifier())
-            .header("Content-Type", "text/turtle")
-            .header("If-None-Match", "*")
+            .header(CONTENT_TYPE, TEXT_TURTLE)
+            .header(IF_NONE_MATCH, WILDCARD)
             .PUT(cast(resource))
             .build();
 
@@ -118,7 +124,7 @@ public class SolidClient {
      */
     public <T extends SolidResource> CompletionStage<Response<Void>> update(final T resource) {
         final Request req = Request.newBuilder(resource.getIdentifier())
-            .header("Content-Type", "text/turtle")
+            .header(CONTENT_TYPE, TEXT_TURTLE)
             .PUT(cast(resource))
             .build();
 

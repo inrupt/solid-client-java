@@ -22,6 +22,7 @@ package com.inrupt.client.openid;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -174,9 +175,7 @@ public final class TokenRequest {
          * @return this builder
          */
         public Builder scopes(final String... scopes) {
-            for (final String scope : scopes) {
-                builderScopes.add(scope);
-            }
+            Collections.addAll(builderScopes, scopes);
             return this;
         }
 
