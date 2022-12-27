@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.demo.cli;
+package com.inrupt.client.examples.cli;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
@@ -26,7 +26,7 @@ import io.smallrye.config.WithName;
 
 import java.net.URI;
 
-@ConfigMapping(prefix = "inrupt.demo.cli")
+@ConfigMapping(prefix = "inrupt.examples.cli")
 public interface AppConfig {
 
     URI issuer();
