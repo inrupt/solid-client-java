@@ -50,7 +50,8 @@
               .uri("https://example.example/solid.png")
               .GET()
               .build();
-       Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+       Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray())
+                                    .toCompletableFuture().join();
 
        System.out.println("HTTP status code: " + response.statusCode());
        System.out.println("Response uri: " + response.uri());

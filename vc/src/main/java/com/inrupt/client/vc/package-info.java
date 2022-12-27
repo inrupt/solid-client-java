@@ -34,11 +34,10 @@
         .GET()
         .build();
 
-    client.send(request, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
-      .thenAccept(response -> {
-        System.out.println( HTTP status code: " + response.statusCode());
-        System.out.println("Verifiable Credential issuer is: " + response.body().issuer);
-      });
+    Response response = client.send(request, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+                        .toCompletableFuture().join();
+    System.out.println( HTTP status code: " + response.statusCode());
+    System.out.println("Verifiable Credential issuer is: " + response.body().issuer);
  * }</pre>
  *
  * <p>This module also contains dedicated Java Objects for:
@@ -78,11 +77,10 @@
    HttpService client = ServiceProvider.getHttpService();
    Verifier verifier = new Verifier(URI.create("https://example.example"), client);
 
-   verifier.verify(myVC).thenAccept(verificationResponse -> {
-       System.out.println("The verification checks are: " + verificationResponse.checks);
-       System.out.println("The verification warnings are: " + verificationResponse.warnings);
-       System.out.println("The verification errors are: " + verificationResponse.errors);
-   });
+   Verifier.VerificationResponse verificationResponse = verifier.verify(myVC).toCompletableFuture().join();
+   System.out.println("The verification checks are: " + verificationResponse.checks);
+   System.out.println("The verification warnings are: " + verificationResponse.warnings);
+   System.out.println("The verification errors are: " + verificationResponse.errors);
  * }</pre>
  * 
  * <h3>Interacting with the VC-API Holder endpoint</h3>
@@ -93,9 +91,10 @@
    HttpService client = ServiceProvider.getHttpService();
    Holder holder = new Holder(URI.create("https://example.example"), client);
 
-   holder.listCredentials(List.of(URI.create("VerifiableCredential"), URI.create("UniversityDegreeCredential")))
-       .thenAccept(vcList ->
-           System.out.println("We found exactly " + vcList.size() + " VCs")
+   var vcList = holder.listCredentials(List.of(URI.create("VerifiableCredential"),
+                                               URI.create("UniversityDegreeCredential")))
+                    .toCompletableFuture().join();
+   System.out.println("We found exactly " + vcList.size() + " VCs");
  * }</pre>
  * 
  * <p>To retrieve a certain credential (and similar a presentation) one needs a credentialId:
@@ -104,13 +103,13 @@
    HttpService client = ServiceProvider.getHttpService();
    Holder holder = new Holder(URI.create("https://example.example"), client);
 
-   holder.getCredential(aVCid).thenAccept(vc ->
-       System.out.println("The retrieved Verifiable Credential's issuer is: " + vc.issuer));
+   var vc = holder.getCredential(aVCid).toCompletableFuture().join();
+   System.out.println("The retrieved Verifiable Credential's issuer is: " + vc.issuer);
  * }</pre>
  * 
  * <p>To delete a credential (and similar a presentation) asynchronously one can call:
  * <pre>{@code
-   holder.deleteCredential(aVCid));
+   holder.deleteCredential(aVCid)).toCompletableFuture().join();
  * }</pre>
  * 
  * <p>To derive a credential one can call:
@@ -121,8 +120,8 @@
    derivationReq.options = Map.of("nonce",
             "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
-   holder.derive(derivationReq).thenAccept(vc ->
-       System.out.println("The retrieved Verifiable Credential's issuer is: " + vc.issuer));
+   var vc = holder.derive(derivationReq).toCompletableFuture().join();
+   System.out.println("The retrieved Verifiable Credential's issuer is: " + vc.issuer);
  * }</pre>
  * 
  * <p>To prove a presentation asynchronously, one would call:
@@ -132,9 +131,8 @@
    derivationReq.options = Map.of("nonce",
             "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
-   holder.prove(derivationReq)
-       .thenAccept(vp ->
-           System.out.println("The retrieved Verifiable Presentation's holder is: " + vp.holder));
+   var vp = holder.prove(derivationReq).toCompletableFuture().join();
+   System.out.println("The retrieved Verifiable Presentation's holder is: " + vp.holder);
  * }</pre>
  * 
  * <p>To initiate a presentation exchange, one would use:
@@ -150,11 +148,9 @@
                            "https://www.w3.org/2018/credentials/examples/v1"),
                "type", "UniversityDegreeCredential"));
 
-   holder.initiateExchange("credential-refresh", exchangeReq)
-       .thenAccept(vpr -> {
-           System.out.println("The Verifiable Presentation Request domain: " + vpr.domain);
-           System.out.println("The Verifiable Presentation Request challenge: " + vpr.challenge);
-       });
+   var vpr = holder.initiateExchange("credential-refresh", exchangeReq).toCompletableFuture().join();
+   System.out.println("The Verifiable Presentation Request domain: " + vpr.domain);
+   System.out.println("The Verifiable Presentation Request challenge: " + vpr.challenge);
  * }</pre>
  */
 package com.inrupt.client.vc;

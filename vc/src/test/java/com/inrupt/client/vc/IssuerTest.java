@@ -82,6 +82,6 @@ class IssuerTest {
                 .credentialStatus(URI.create("CredentialStatusList2017"), true)
                 .build("http://example.test/credentials/1872");
 
-        issuer.status(statusRequest);
+        issuer.status(statusRequest).toCompletableFuture().join();
     }
 }
