@@ -23,7 +23,7 @@ package com.inrupt.client.solid;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Session;
-import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.spi.RDFFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 
+import org.apache.commons.rdf.api.RDF;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,8 @@ import org.junit.jupiter.api.Test;
 class SolidClientTest {
 
     private static final SolidMockHttpService mockHttpServer = new SolidMockHttpService();
-    private static Map<String, String> config = new HashMap<>();
+    private static final Map<String, String> config = new HashMap<>();
+    private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidClient client = SolidClient.getClient().session(Session.anonymous());
 
     @BeforeAll
@@ -79,8 +81,8 @@ class SolidClientTest {
 
         assertEquals(uri, resource.getIdentifier());
         assertEquals(4, resource.getDataset().stream().count());
-        assertEquals(2, resource.getDataset().stream(Optional.empty(), RDFNode.namedNode(uri),
-                    RDFNode.namedNode(URI.create("https://example.com/song")), null).count());
+        assertEquals(2, resource.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                    rdf.createIRI("https://example.com/song"), null).count());
 
         assertDoesNotThrow(client.create(resource).toCompletableFuture()::join);
         assertDoesNotThrow(client.update(resource).toCompletableFuture()::join);
@@ -96,8 +98,8 @@ class SolidClientTest {
         assertEquals(uri, container.getIdentifier());
         assertEquals(0, container.getContainedResources().count());
         assertEquals(4, container.getDataset().stream().count());
-        assertEquals(2, container.getDataset().stream(Optional.empty(), RDFNode.namedNode(uri),
-                    RDFNode.namedNode(URI.create("https://example.com/song")), null).count());
+        assertEquals(2, container.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                    rdf.createIRI("https://example.com/song"), null).count());
 
         assertDoesNotThrow(client.update(container).toCompletableFuture()::join);
         assertDoesNotThrow(client.create(container).toCompletableFuture()::join);

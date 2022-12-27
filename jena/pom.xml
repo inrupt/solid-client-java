@@ -21,6 +21,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.jena</groupId>
+      <artifactId>jena-commonsrdf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
       <artifactId>jena-arq</artifactId>
       <exclusions>
         <exclusion>

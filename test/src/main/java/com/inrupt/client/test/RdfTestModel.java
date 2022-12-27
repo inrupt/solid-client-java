@@ -1,16 +1,16 @@
 /*
  * Copyright 2022 Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -20,11 +20,15 @@
  */
 package com.inrupt.client.test;
 
-import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.spi.RDFFactory;
 
-import java.net.URI;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDF;
 
 public final class RdfTestModel {
+
+    private static final RDF rdf = RDFFactory.getInstance();
 
     public static final String TEST_NAMESPACE = "http://example.test/";
 
@@ -42,18 +46,18 @@ public final class RdfTestModel {
     public static final String O2_VALUE = "object2";
 
     //RDFNode properties
-    public static final RDFNode S_RDFNode = RDFNode.namedNode(URI.create(S_VALUE));
-    public static final RDFNode P_RDFNode = RDFNode.namedNode(URI.create(P_VALUE));
-    public static final RDFNode O_RDFNode = RDFNode.literal(O_VALUE);
-    public static final RDFNode G_RDFNode = RDFNode.namedNode(URI.create(G_VALUE));
+    public static final IRI S_RDFNode = rdf.createIRI(S_VALUE);
+    public static final IRI P_RDFNode = rdf.createIRI(P_VALUE);
+    public static final Literal O_RDFNode = rdf.createLiteral(O_VALUE);
+    public static final IRI G_RDFNode = rdf.createIRI(G_VALUE);
 
-    public static final RDFNode S1_RDFNode = RDFNode.namedNode(URI.create(S1_VALUE));
-    public static final RDFNode P1_RDFNode = RDFNode.namedNode(URI.create(P1_VALUE));
-    public static final RDFNode O1_RDFNode = RDFNode.literal(O1_VALUE);
+    public static final IRI S1_RDFNode = rdf.createIRI(S1_VALUE);
+    public static final IRI P1_RDFNode = rdf.createIRI(P1_VALUE);
+    public static final Literal O1_RDFNode = rdf.createLiteral(O1_VALUE);
 
-    public static final RDFNode S2_RDFNode = RDFNode.namedNode(URI.create(S2_VALUE));
-    public static final RDFNode P2_RDFNode = RDFNode.namedNode(URI.create(P2_VALUE));
-    public static final RDFNode O2_RDFNode = RDFNode.literal(O2_VALUE);
+    public static final IRI S2_RDFNode = rdf.createIRI(S2_VALUE);
+    public static final IRI P2_RDFNode = rdf.createIRI(P2_VALUE);
+    public static final Literal O2_RDFNode = rdf.createLiteral(O2_VALUE);
 
     private RdfTestModel() {
         // Prevent instantiation

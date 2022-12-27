@@ -18,42 +18,22 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.jena;
+package com.inrupt.client.spi;
 
-import com.inrupt.client.rdf.RDFNode;
+import java.util.ServiceLoader;
 
-import java.net.URI;
+import org.apache.commons.rdf.api.RDF;
 
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
+public final class RDFFactory {
 
-final class JenaUtils {
+    private static final RDF rdf = ServiceLoader.load(RDF.class).findFirst()
+        .orElseThrow(() ->
+                new IllegalStateException("No RDF Commons implementation available"));
 
-    static Node toNode(final RDFNode node) {
-        if (node.isNamedNode()) {
-            return NodeFactory.createURI(node.getURI().toString());
-        } else if (node.isLiteral()) {
-            final String lang = node.getLanguage();
-            if (lang != null) {
-                return NodeFactory.createLiteral(node.getLiteral(), lang);
-            }
-
-            final URI datatype = node.getDatatype();
-            if (datatype != null) {
-                return NodeFactory.createLiteral(node.getLiteral(),
-                        NodeFactory.getType(datatype.toString()));
-            }
-
-            return NodeFactory.createLiteral(node.getLiteral());
-        }
-
-        final String label = node.getNodeId();
-        if (label != null) {
-            return NodeFactory.createBlankNode(label);
-        }
-        return NodeFactory.createBlankNode();
+    public static RDF getInstance() {
+        return rdf;
     }
 
-    private JenaUtils() {
+    private RDFFactory() {
     }
 }

@@ -22,7 +22,6 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.test.RdfServices;
@@ -35,24 +34,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Optional;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Quad;
+import org.apache.commons.rdf.api.RDFSyntax;
+import org.apache.commons.rdf.api.Triple;
 import org.apache.jena.atlas.RuntimeIOException;
+import org.apache.jena.commonsrdf.JenaCommonsRDF;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class JenaServiceTest extends RdfServices {
 
     private final RdfService service = ServiceProvider.getRdfService();
-    private static JenaDataset jenaDataset;
-    private static JenaGraph jenaGraph;
 
     private static final Model model = ModelFactory.createDefaultModel();
 
-    @BeforeAll
-    static void setup() {
+    Dataset jenaDataset;
+    Graph jenaGraph;
+
+    @BeforeEach
+    void setup() {
         // create a JenaDataset
         final DatasetGraph dsg = DatasetGraphFactory.create();
         dsg.add(JenaTestModel.G_NODE,
@@ -66,12 +73,12 @@ class JenaServiceTest extends RdfServices {
                 JenaTestModel.O1_NODE
             );
 
-        jenaDataset = new JenaDataset(dsg);
+        jenaDataset = JenaCommonsRDF.fromJena(dsg);
 
         // create a JenaGraph
         model.add(JenaTestModel.S_JENA, JenaTestModel.P_JENA, JenaTestModel.O_JENA);
         model.add(JenaTestModel.S1_JENA, JenaTestModel.P_JENA, JenaTestModel.O1_JENA);
-        jenaGraph = new JenaGraph(model);
+        jenaGraph = JenaCommonsRDF.fromJena(model.getGraph());
     }
 
     @Test
@@ -82,34 +89,30 @@ class JenaServiceTest extends RdfServices {
     @Test
     void parseToDatasetRelativeURIsButNoBaseURI() throws IOException {
         try (final var input = JenaServiceTest.class.getResourceAsStream("/relativeURIs.ttl")) {
-            final var dataset = service.toDataset(Syntax.TURTLE, input);
+            final var dataset = service.toDataset(RDFSyntax.TURTLE, input, null);
             assertEquals(2, dataset.stream().count());
-            assertTrue(dataset.stream().findFirst().get().getSubject().getURI().toString()
-                .contains("file://") //treats relative URIs like local files
-            );
+            assertTrue(dataset.stream()
+                    .map(Quad::getSubject)
+                    .filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).anyMatch(iri -> iri.contains("file://")));
         }
     }
 
     @Test
     void serializeFromDatasetTRIGRoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
-            service.fromDataset(jenaDataset, Syntax.TRIG, output);
+            service.fromDataset(jenaDataset, RDFSyntax.TRIG, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = service.toDataset(Syntax.TRIG, input);
+            final var roundtrip = service.toDataset(RDFSyntax.TRIG, input, null);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(jenaDataset.stream().count(), roundtrip.stream().count());
-            final var st = jenaDataset.stream(
-                            Optional.of(RdfTestModel.G_RDFNode),
-                            null,
-                            null,
-                            null
-                            ).findFirst().get().getSubject().getURI().toString();
-            final var st1 = roundtrip.stream(
-                            Optional.of(RdfTestModel.G_RDFNode),
-                            RdfTestModel.S_RDFNode,
-                            RdfTestModel.P_RDFNode,
-                            RdfTestModel.O_RDFNode
-                            ).findFirst().get().getSubject().getURI().toString();
+            final var st = jenaDataset.stream(Optional.of(RdfTestModel.G_RDFNode), null, null, null)
+                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                .map(IRI::getIRIString).findFirst();
+            final var st1 = roundtrip.stream(Optional.of(RdfTestModel.G_RDFNode),
+                    RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
+                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                .map(IRI::getIRIString).findFirst();
             assertEquals(st, st1);
         }
     }
@@ -117,24 +120,19 @@ class JenaServiceTest extends RdfServices {
     @Test
     void serializeFromDatasetTURTLERoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
-            service.fromDataset(jenaDataset, Syntax.TURTLE, output);
+            service.fromDataset(jenaDataset, RDFSyntax.TURTLE, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = service.toDataset(Syntax.TURTLE, input);
+            final var roundtrip = service.toDataset(RDFSyntax.TURTLE, input, null);
 
             assertEquals(2, roundtrip.stream().count());
             assertEquals(jenaDataset.stream().count(), roundtrip.stream().count());
-            final var st = jenaDataset.stream(
-                            Optional.of(RdfTestModel.G_RDFNode),
-                            null,
-                            null,
-                            null
-                            ).findFirst().get().getSubject().getURI().toString();
-            final var st1 = roundtrip.stream(
-                            null,
-                            RdfTestModel.S_RDFNode,
-                            RdfTestModel.P_RDFNode,
-                            RdfTestModel.O_RDFNode
-                            ).findFirst().get().getSubject().getURI().toString();
+            final var st = jenaDataset.stream(Optional.of(RdfTestModel.G_RDFNode), null, null, null)
+                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                .map(IRI::getIRIString).findFirst();
+            final var st1 = roundtrip.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode,
+                    RdfTestModel.O_RDFNode)
+                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                .map(IRI::getIRIString).findFirst();
             assertEquals(st, st1);
         }
     }
@@ -142,16 +140,18 @@ class JenaServiceTest extends RdfServices {
     @Test
     void serializeFromGraphRoundtrip() throws IOException {
         try (final var output = new ByteArrayOutputStream()) {
-            service.fromGraph(jenaGraph, Syntax.TURTLE, output);
+            service.fromGraph(jenaGraph, RDFSyntax.TURTLE, output);
             final var input = new ByteArrayInputStream(output.toByteArray());
-            final var roundtrip = service.toGraph(Syntax.TURTLE, input);
+            final var roundtrip = service.toGraph(RDFSyntax.TURTLE, input, null);
             assertEquals(2, roundtrip.stream().count());
             assertEquals(jenaGraph.stream().count(), roundtrip.stream().count());
-            final var st = jenaGraph.stream(RdfTestModel.S_RDFNode, null, null).findFirst().get()
-                    .getSubject().getURI().toString();
-            final var st1 = roundtrip
-                    .stream(RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
-                    .findFirst().get().getSubject().getURI().toString();
+            final var st = jenaGraph.stream(RdfTestModel.S_RDFNode, null, null)
+                .map(Triple::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                .map(IRI::getIRIString).findFirst();
+            final var st1 = roundtrip.stream(RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode,
+                    RdfTestModel.O_RDFNode)
+                .map(Triple::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                .map(IRI::getIRIString).findFirst();
             assertEquals(st, st1);
         }
     }
@@ -161,7 +161,7 @@ class JenaServiceTest extends RdfServices {
         final var tmp = Files.createTempFile(null, null).toFile();
         try (final var output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(RuntimeIOException.class, () -> service.fromDataset(jenaDataset, Syntax.TRIG, output));
+            assertThrows(RuntimeIOException.class, () -> service.fromDataset(jenaDataset, RDFSyntax.TRIG, output));
         }
     }
 
@@ -170,7 +170,7 @@ class JenaServiceTest extends RdfServices {
         final var tmp = Files.createTempFile(null, null).toFile();
         try (final var output = new FileOutputStream(tmp)) {
             output.close();
-            assertThrows(RuntimeIOException.class, () -> service.fromGraph(jenaGraph, Syntax.TURTLE, output));
+            assertThrows(RuntimeIOException.class, () -> service.fromGraph(jenaGraph, RDFSyntax.TURTLE, output));
         }
     }
 }
