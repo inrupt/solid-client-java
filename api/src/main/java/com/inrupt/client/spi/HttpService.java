@@ -23,25 +23,12 @@ package com.inrupt.client.spi;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 
-import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 
 /**
  * An HTTP handling abstraction.
  */
 public interface HttpService {
-
-    /**
-     * Perform a synchonous HTTP request.
-     *
-     * @param request the request
-     * @param responseBodyHandler the response body handler
-     * @param <T> the response type
-     * @return the response
-     * @throws IOException when there is an I/O error
-     */
-    <T> Response<T> send(Request request, Response.BodyHandler<T> responseBodyHandler) throws IOException;
-
     /**
      * Perform an asynchonous HTTP request.
      *
@@ -50,5 +37,5 @@ public interface HttpService {
      * @param <T> the response type
      * @return the next stage of completion, containing the response
      */
-    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler);
+    <T> CompletionStage<Response<T>> send(Request request, Response.BodyHandler<T> responseBodyHandler);
 }

@@ -61,34 +61,29 @@ public final class DefaultClient implements Client {
     }
 
     @Override
-    public <T> Response<T> send(final Request request, final Response.BodyHandler<T> responseBodyHandler) {
-        return sendAsync(request, responseBodyHandler).toCompletableFuture().join();
-    }
-
-    @Override
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request,
+    public <T> CompletionStage<Response<T>> send(final Request request,
             final Response.BodyHandler<T> responseBodyHandler) {
         // if there is already an auth header, just pass the request directly through
         if (request.headers().firstValue("Authorization").isPresent()) {
             LOGGER.debug("Sending user-supplied authorization, skipping Solid authorization handling");
-            return httpClient.sendAsync(request, responseBodyHandler);
+            return httpClient.send(request, responseBodyHandler);
         }
 
         // Check session cache for a relevant access token
         return session.fromCache(request)
             // Use that token, if present
-            .map(token -> httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler))
+            .map(token -> httpClient.send(upgradeRequest(request, token), responseBodyHandler))
             // Otherwise perform the regular HTTP authorization dance
-            .orElseGet(() -> httpClient.sendAsync(request, responseBodyHandler)
+            .orElseGet(() -> httpClient.send(request, responseBodyHandler)
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
                         final List<Authenticator.Challenge> challenges = WwwAuthenticate
-                            .parse(res.headers().allValues("WWW-Authenticate").toArray(String[]::new))
+                            .parse(res.headers().allValues("WWW-Authenticate").toArray(new String[0]))
                             .getChallenges();
 
                         return authHandler.negotiate(session, request, challenges)
                             .thenCompose(token -> token.map(t ->
-                                        httpClient.sendAsync(upgradeRequest(request, t), responseBodyHandler))
+                                        httpClient.send(upgradeRequest(request, t), responseBodyHandler))
                                     .orElseGet(() -> CompletableFuture.completedFuture(res)))
                             .exceptionally(err -> {
                                 LOGGER.debug("Unable to negotiate an authentication token: {}", err.getMessage());

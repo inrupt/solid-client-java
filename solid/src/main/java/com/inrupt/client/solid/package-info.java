@@ -37,7 +37,7 @@
         Response<SolidContainer> response = client.send(
             request,
             SolidResourceHandlers.ofSolidContainer()
-        );
+        ).toCompletableFuture().join();
         System.out.println("HTTP status: " + response.statusCode());
         System.out.println("Resource URI: " + response.body().getId());}
  * </pre>

@@ -76,7 +76,8 @@ class JenaBodyPublishersTest {
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
 
-        final var response = client.send(request, Response.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
     }
@@ -96,7 +97,8 @@ class JenaBodyPublishersTest {
                 .POST(JenaBodyPublishers.ofDataset(ds))
                 .build();
 
-        final var response = client.send(request, Response.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
     }
@@ -112,7 +114,8 @@ class JenaBodyPublishersTest {
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur))
                     .build();
-        final var response = client.send(request, Response.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
         assertEquals(204, response.statusCode());
     }
 
@@ -129,7 +132,8 @@ class JenaBodyPublishersTest {
                 .POST(JenaBodyPublishers.ofGraph(graph))
                 .build();
 
-        final var response = client.send(request, Response.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
     }

@@ -71,16 +71,8 @@ class HolderTest {
     }
 
     @Test
-    void listCredentialsTest() {
-        final var vcList = holder.listCredentials(List.of(
-                    URI.create("VerifiableCredential"), URI.create("UniversityDegreeCredential")));
-
-        assertEquals(2, vcList.size());
-    }
-
-    @Test
     void listCredentialsAsyncTest() {
-        final var vcList = holder.listCredentialsAsync(List.of(
+        final var vcList = holder.listCredentials(List.of(
                     URI.create("VerifiableCredential"), URI.create("UniversityDegreeCredential")))
             .toCompletableFuture().join();
 
@@ -88,71 +80,16 @@ class HolderTest {
     }
 
     @Test
-    void getCredentialTest() {
-        final var vc = holder.getCredential(getId(expectedVC.id));
-
-        assertEquals(expectedVC.id, vc.id);
-    }
-
-    @Test
     void getCredentialAsyncTest() {
-        final var vc = holder.getCredentialAsync(getId(expectedVC.id))
+        final var vc = holder.getCredential(getId(expectedVC.id))
             .toCompletableFuture().join();
 
         assertEquals(expectedVC.id, vc.id);
     }
 
     @Test
-    void getCredentialStatusCodesTest() {
-        assertAll("Bad request because of non existent credentialID",
-            () -> {
-                final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> holder.getCredential("http://example.test/credentials/0000")
-                );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when handling a verifiable credential.", cause.getMessage());
-                assertEquals(Optional.of(400), cause.getStatus());
-            });
-    }
-
-    @Test
-    void getDeleteCredentialTest() {
-        holder.deleteCredential(getId(expectedVC.id));
-    }
-
-    @Test
     void getDeleteCredentialAsyncTest() {
-        holder.deleteCredentialAsync(getId(expectedVC.id));
-    }
-
-    @Test
-    void getDeriveTest() {
-
-        final var derivationReq = new Holder.DerivationRequest();
-        derivationReq.verifiableCredential = expectedVC;
-        derivationReq.frame = Collections.emptyMap();
-        derivationReq.options = Map.of("nonce",
-                "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
-
-        final var vc = holder.derive(derivationReq);
-
-        assertEquals(expectedVC.id, vc.id);
-    }
-
-    @Test
-    void deriveStatusCodesTest() {
-        final var derivationReq = new Holder.DerivationRequest();
-        derivationReq.verifiableCredential = new VerifiableCredential();
-        derivationReq.frame = Collections.emptyMap();
-        derivationReq.options = Collections.emptyMap();
-        assertAll("Invalid request because of empty request",
-            () -> {
-                final VerifiableCredentialException ex = assertThrows(VerifiableCredentialException.class,
-                    () -> holder.derive(derivationReq));
-                assertEquals("Unexpected error response when handling a verifiable credential.", ex.getMessage());
-                assertEquals(Optional.of(400), ex.getStatus());
-            });
+        holder.deleteCredential(getId(expectedVC.id));
     }
 
     @Test
@@ -164,7 +101,7 @@ class HolderTest {
         derivationReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
-        final var vc = holder.deriveAsync(derivationReq).toCompletableFuture().join();
+        final var vc = holder.derive(derivationReq).toCompletableFuture().join();
 
         assertEquals(expectedVC.id, vc.id);
     }
@@ -173,31 +110,16 @@ class HolderTest {
     //----- Presentation Tests -----
 
     @Test
-    void listPresentationsTest() {
-        final var vcList = holder.listPresentations(List.of(URI.create("VerifiablePresentation")));
-
-        assertEquals(1, vcList.size());
-    }
-
-    @Test
     void listPresentationsAsyncTest() {
-        final var vcList = holder.listPresentationsAsync(List.of(URI.create("VerifiablePresentation")))
+        final var vcList = holder.listPresentations(List.of(URI.create("VerifiablePresentation")))
             .toCompletableFuture().join();
 
         assertEquals(1, vcList.size());
-    }
-
-    @Test
-    void getPresentationTest() {
-        final var vp = holder.getPresentation(getId(expectedVC.id));
-
-        assertEquals(expectedVP.context, vp.context);
-        assertEquals(expectedVP.id, vp.id);
     }
 
     @Test
     void getPresentationAsyncTest() {
-        final var vp = holder.getPresentationAsync(getId(expectedVC.id))
+        final var vp = holder.getPresentation(getId(expectedVC.id))
             .toCompletableFuture().join();
 
         assertEquals(expectedVP.context, vp.context);
@@ -205,27 +127,8 @@ class HolderTest {
     }
 
     @Test
-    void deletePresentationTest() {
-        assertDoesNotThrow(() -> holder.deletePresentation(getId(expectedVP.id)));
-    }
-
-    @Test
     void deletePresentationAsyncTest() {
-        assertDoesNotThrow(() -> holder.deletePresentationAsync(getId(expectedVP.id)).toCompletableFuture().join());
-    }
-
-    @Test
-    void proveTest() {
-
-        final var derivationReq = new Holder.ProveRequest();
-        derivationReq.presentation = expectedVP;
-        derivationReq.options = Map.of("nonce",
-                "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
-
-        final var vp = holder.prove(derivationReq);
-
-        assertEquals(expectedVP.context, vp.context);
-        assertEquals(expectedVP.id, vp.id);
+        assertDoesNotThrow(() -> holder.deletePresentation(getId(expectedVP.id)).toCompletableFuture().join());
     }
 
     @Test
@@ -236,45 +139,10 @@ class HolderTest {
         proveReq.options = Map.of("nonce",
                 "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=");
 
-        final var vp = holder.proveAsync(proveReq).toCompletableFuture().join();
+        final var vp = holder.prove(proveReq).toCompletableFuture().join();
 
         assertEquals(expectedVP.context, vp.context);
         assertEquals(expectedVP.id, vp.id);
-    }
-
-    @Test
-    void proveStatusCodesTest() {
-        final var proveReq = new Holder.ProveRequest();
-        proveReq.presentation = new VerifiablePresentation();
-        proveReq.options = Collections.emptyMap();
-
-        assertAll("Invalid input becuase of empty request",
-            () -> {
-                final VerifiableCredentialException ex = assertThrows(VerifiableCredentialException.class,
-                        () -> holder.prove(proveReq));
-                assertEquals("Unexpected error response when handling a verifiable presentation.", ex.getMessage());
-                assertEquals(Optional.of(400), ex.getStatus());
-            });
-    }
-
-    @Test
-    void initiateExchangeTest() {
-
-        final var exchangeReq = new Holder.ExchangeRequest();
-        exchangeReq.query = new Holder.Query();
-        exchangeReq.query.type = URI.create("QueryByExample");
-        exchangeReq.query.credentialQuery = Map.of(
-                "reason", "We need to see your existing University Degree credential.",
-                "example", Map.of(
-                    "@context", List.of(
-                                "https://www.w3.org/2018/credentials/v1",
-                                "https://www.w3.org/2018/credentials/examples/v1"),
-                    "type", "UniversityDegreeCredential"));
-
-        final var vpr = holder.initiateExchange("credential-refresh", exchangeReq);
-
-        assertEquals("edu.example", vpr.domain);
-        assertEquals("3182bdea-63d9-11ea-b6de-3b7c1404d57f", vpr.challenge);
     }
 
     @Test
@@ -290,7 +158,7 @@ class HolderTest {
                                 "https://www.w3.org/2018/credentials/examples/v1"),
                         "type", "UniversityDegreeCredential"));
 
-        final var vpr = holder.initiateExchangeAsync("credential-refresh", exchangeReq)
+        final var vpr = holder.initiateExchange("credential-refresh", exchangeReq)
                 .toCompletableFuture().join();
 
         assertEquals("edu.example", vpr.domain);
@@ -306,7 +174,7 @@ class HolderTest {
 
         assertAll("Request is malformed because of empty credential query",
             () -> {
-                final var completionStage = holder.initiateExchangeAsync("credential-refresh", exchangeReq);
+                final var completionStage = holder.initiateExchange("credential-refresh", exchangeReq);
                 final var completableFuture = completionStage.toCompletableFuture();
                 final CompletionException exception = assertThrows(CompletionException.class,
                     () -> completableFuture.join()
@@ -316,18 +184,6 @@ class HolderTest {
                 assertEquals("Unexpected error response when handling a verifiable presentation.", cause.getMessage());
                 assertEquals(Optional.of(400), cause.getStatus());
             });
-    }
-
-    @Test
-    void continueExchangeTest() {
-
-        // TODO - implement
-    }
-
-    @Test
-    void continueExchangeAsyncTest() {
-
-        // TODO - implement
     }
 
     static String getId(final String uri) {

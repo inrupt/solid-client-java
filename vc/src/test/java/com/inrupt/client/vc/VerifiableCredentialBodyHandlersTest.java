@@ -58,7 +58,8 @@ class VerifiableCredentialBodyHandlersTest {
             .GET()
             .build();
 
-        final var response = client.send(request, VerifiableCredentialBodyHandlers.ofVerifiableCredential());
+        final var response = client.send(request, VerifiableCredentialBodyHandlers.ofVerifiableCredential())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
@@ -73,7 +74,8 @@ class VerifiableCredentialBodyHandlersTest {
             .GET()
             .build();
 
-        final var response = client.send(request, VerifiableCredentialBodyHandlers.ofVerifiablePresentation());
+        final var response = client.send(request, VerifiableCredentialBodyHandlers.ofVerifiablePresentation())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();

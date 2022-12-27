@@ -83,7 +83,8 @@ class RDF4JBodyPublishersTest {
                 .POST(RDF4JBodyPublishers.ofModel(model))
                 .build();
 
-        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding())
+                .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
     }
@@ -114,7 +115,8 @@ class RDF4JBodyPublishersTest {
                 .POST(RDF4JBodyPublishers.ofRepository(repository))
                 .build();
 
-        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding())
+                .toCompletableFuture().join();
 
         assertEquals(204, response.statusCode());
     }
@@ -139,7 +141,8 @@ class RDF4JBodyPublishersTest {
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", RDF4JBodyPublishers.ofSparqlUpdate(sU))
                     .build();
-            final Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+            final Response<Void> response = client.send(request, Response.BodyHandlers.discarding())
+                .toCompletableFuture().join();
             assertEquals(204, response.statusCode());
         }
     }
