@@ -72,40 +72,21 @@ public class Issuer {
 <span class="fc" id="L72">    }</span>
 
     /**
-     * Synchronously issue a new verifiable credential.
-     *
-     * @param credential the credential to be signed and issued
-     * @return a new Verifiable Credential
-     */
-    public VerifiableCredential issue(final VerifiableCredential credential) {
-<span class="fc" id="L81">        return issueAsync(credential).toCompletableFuture().join();</span>
-    }
-
-    /**
      * Asynchronously issue a new verifiable credential.
      *
      * @param credential the credential to be signed and issued
      * @return the next stage of completion, containing the new Verifiable Credential
      */
-    public CompletionStage&lt;VerifiableCredential&gt; issueAsync(final VerifiableCredential credential) {
-<span class="fc" id="L91">        final var req = Request.newBuilder(getIssueUrl())</span>
-<span class="fc" id="L92">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
-<span class="fc" id="L93">            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))</span>
-<span class="fc" id="L94">            .build();</span>
+    public CompletionStage&lt;VerifiableCredential&gt; issue(final VerifiableCredential credential) {
+<span class="fc" id="L81">        final var req = Request.newBuilder(getIssueUrl())</span>
+<span class="fc" id="L82">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L83">            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))</span>
+<span class="fc" id="L84">            .build();</span>
 
-<span class="fc" id="L96">        return httpClient</span>
-<span class="fc" id="L97">                .sendAsync(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())</span>
-<span class="fc" id="L98">                .thenApply(Response::body);</span>
+<span class="fc" id="L86">        return httpClient</span>
+<span class="fc" id="L87">                .send(req, VerifiableCredentialBodyHandlers.ofVerifiableCredential())</span>
+<span class="fc" id="L88">                .thenApply(Response::body);</span>
     }
-
-    /**
-     * Synchronously update the status of a verifiable credential.
-     *
-     * @param request the status request
-     */
-    public void status(final StatusRequest request) {
-<span class="fc" id="L107">        statusAsync(request).toCompletableFuture().join();</span>
-<span class="fc" id="L108">    }</span>
 
     /**
      * Asynchronously update the status of a verifiable credential.
@@ -113,19 +94,19 @@ public class Issuer {
      * @param request the status request
      * @return the next stage of completion
      */
-    public CompletionStage&lt;Void&gt; statusAsync(final StatusRequest request) {
-<span class="fc" id="L117">        final var req = Request.newBuilder(getStatusUrl())</span>
-<span class="fc" id="L118">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
-<span class="fc" id="L119">            .POST(ofStatusRequest(request))</span>
-<span class="fc" id="L120">            .build();</span>
+    public CompletionStage&lt;Void&gt; status(final StatusRequest request) {
+<span class="fc" id="L98">        final var req = Request.newBuilder(getStatusUrl())</span>
+<span class="fc" id="L99">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L100">            .POST(ofStatusRequest(request))</span>
+<span class="fc" id="L101">            .build();</span>
 
-<span class="fc" id="L122">        return httpClient.sendAsync(req, Response.BodyHandlers.discarding())</span>
-<span class="fc" id="L123">                .thenApply(res -&gt; {</span>
-<span class="fc" id="L124">                    final int httpStatus = res.statusCode();</span>
-<span class="pc bpc" id="L125" title="1 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
-<span class="fc" id="L126">                        return res.body();</span>
+<span class="fc" id="L103">        return httpClient.send(req, Response.BodyHandlers.discarding())</span>
+<span class="fc" id="L104">                .thenApply(res -&gt; {</span>
+<span class="fc" id="L105">                    final int httpStatus = res.statusCode();</span>
+<span class="pc bpc" id="L106" title="2 of 4 branches missed.">                    if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L107">                        return res.body();</span>
                     }
-<span class="fc" id="L128">                    throw new VerifiableCredentialException(</span>
+<span class="nc" id="L109">                    throw new VerifiableCredentialException(</span>
                         &quot;Unexpected error response when updating status.&quot;,
                         httpStatus);
                 });
@@ -144,7 +125,7 @@ public class Issuer {
          * @return the credential identifier
          */
         public String getCredentialId() {
-<span class="fc" id="L147">            return credentialId;</span>
+<span class="fc" id="L128">            return credentialId;</span>
         }
 
         /**
@@ -153,20 +134,20 @@ public class Issuer {
          * @return the credential status values
          */
         public List&lt;CredentialStatus&gt; getCredentialStatus() {
-<span class="fc" id="L156">            return credentialStatus;</span>
+<span class="fc" id="L137">            return credentialStatus;</span>
         }
 
-<span class="fc" id="L159">        private StatusRequest(final String credentialId, final List&lt;CredentialStatus&gt; credentialStatus) {</span>
-<span class="fc" id="L160">            this.credentialId = credentialId;</span>
-<span class="fc" id="L161">            this.credentialStatus = credentialStatus;</span>
-<span class="fc" id="L162">        }</span>
+<span class="fc" id="L140">        private StatusRequest(final String credentialId, final List&lt;CredentialStatus&gt; credentialStatus) {</span>
+<span class="fc" id="L141">            this.credentialId = credentialId;</span>
+<span class="fc" id="L142">            this.credentialStatus = credentialStatus;</span>
+<span class="fc" id="L143">        }</span>
 
         /**
          * A builder of {@link StatusRequest} objects.
          */
-<span class="fc" id="L167">        public static final class Builder {</span>
+<span class="fc" id="L148">        public static final class Builder {</span>
 
-<span class="fc" id="L169">            private List&lt;CredentialStatus&gt; builderCredentialStatus = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L150">            private List&lt;CredentialStatus&gt; builderCredentialStatus = new ArrayList&lt;&gt;();</span>
 
             /**
              * Create a status request builder.
@@ -174,7 +155,7 @@ public class Issuer {
              * @return the builder object
              */
             public static Builder newBuilder() {
-<span class="fc" id="L177">                return new Builder();</span>
+<span class="fc" id="L158">                return new Builder();</span>
             }
 
             /**
@@ -185,8 +166,8 @@ public class Issuer {
              * @return this builder object
              */
             public Builder credentialStatus(final URI type, final boolean revoked) {
-<span class="fc" id="L188">                builderCredentialStatus.add(new CredentialStatus(type, revoked));</span>
-<span class="fc" id="L189">                return this;</span>
+<span class="fc" id="L169">                builderCredentialStatus.add(new CredentialStatus(type, revoked));</span>
+<span class="fc" id="L170">                return this;</span>
             }
 
             /**
@@ -196,7 +177,7 @@ public class Issuer {
              * @return the status request
              */
             public StatusRequest build(final String credentialId) {
-<span class="fc" id="L199">                return new StatusRequest(Objects.requireNonNull(credentialId), builderCredentialStatus);</span>
+<span class="fc" id="L180">                return new StatusRequest(Objects.requireNonNull(credentialId), builderCredentialStatus);</span>
             }
         }
     }
@@ -215,7 +196,7 @@ public class Issuer {
          * @return the type URI
          */
         public URI getType() {
-<span class="fc" id="L218">            return type;</span>
+<span class="fc" id="L199">            return type;</span>
         }
 
         /**
@@ -226,31 +207,31 @@ public class Issuer {
          * @return true if the credential has been revoked; false otherwise
          */
         public Boolean getStatus() {
-<span class="fc" id="L229">            return status;</span>
+<span class="fc" id="L210">            return status;</span>
         }
 
-<span class="fc" id="L232">        private CredentialStatus(final URI type, final boolean status) {</span>
-<span class="fc" id="L233">            this.type = type;</span>
-<span class="fc" id="L234">            this.status = status;</span>
-<span class="fc" id="L235">        }</span>
+<span class="fc" id="L213">        private CredentialStatus(final URI type, final boolean status) {</span>
+<span class="fc" id="L214">            this.type = type;</span>
+<span class="fc" id="L215">            this.status = status;</span>
+<span class="fc" id="L216">        }</span>
     }
 
     private Request.BodyPublisher ofStatusRequest(final StatusRequest request) {
-<span class="fc" id="L239">        return IOUtils.buffer(out -&gt; {</span>
+<span class="fc" id="L220">        return IOUtils.buffer(out -&gt; {</span>
             try {
-<span class="fc" id="L241">                jsonService.toJson(request, out);</span>
-<span class="nc" id="L242">            } catch (final IOException ex) {</span>
-<span class="nc" id="L243">                throw new VerifiableCredentialException(&quot;Error serializing status request&quot;, ex);</span>
-<span class="fc" id="L244">            }</span>
-<span class="fc" id="L245">        });</span>
+<span class="fc" id="L222">                jsonService.toJson(request, out);</span>
+<span class="nc" id="L223">            } catch (final IOException ex) {</span>
+<span class="nc" id="L224">                throw new VerifiableCredentialException(&quot;Error serializing status request&quot;, ex);</span>
+<span class="fc" id="L225">            }</span>
+<span class="fc" id="L226">        });</span>
     }
 
     private URI getIssueUrl() {
-<span class="fc" id="L249">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/issue&quot;).build();</span>
+<span class="fc" id="L230">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/issue&quot;).build();</span>
     }
 
     private URI getStatusUrl() {
-<span class="fc" id="L253">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/status&quot;).build();</span>
+<span class="fc" id="L234">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/status&quot;).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

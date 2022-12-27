@@ -49,18 +49,11 @@ public interface ClaimGatheringHandler {
     String getClaimType();
 
     /**
-     * Gather a claim token.
-     *
-     * @return a new claim token for use with the UMA claims gathering interaction
-     */
-    ClaimToken gather();
-
-    /**
      * Gather a claim token asynchronously.
      *
      * @return the next stage of completion containing a new claim token
      */
-    CompletionStage&lt;ClaimToken&gt; gatherAsync();
+    CompletionStage&lt;ClaimToken&gt; gather();
 
     /**
      * Determine if this handler is compatible with the listed UMA requirements.
@@ -69,17 +62,17 @@ public interface ClaimGatheringHandler {
      * @return true if this handler is compatible with the described requirements; false otherwise
      */
     default boolean isCompatibleWith(final RequiredClaims requirements) {
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!requirements.getClaimTokenFormats().isEmpty() &amp;&amp;</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                !requirements.getClaimTokenFormats().contains(getClaimTokenFormat())) {</span>
-<span class="nc" id="L74">            return false;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (!requirements.getClaimTokenFormats().isEmpty() &amp;&amp;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                !requirements.getClaimTokenFormats().contains(getClaimTokenFormat())) {</span>
+<span class="nc" id="L67">            return false;</span>
         }
 
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (!requirements.getIssuers().isEmpty() &amp;&amp;</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">                !requirements.getIssuers().contains(getIssuer())) {</span>
-<span class="nc" id="L79">            return false;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (!requirements.getIssuers().isEmpty() &amp;&amp;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                !requirements.getIssuers().contains(getIssuer())) {</span>
+<span class="nc" id="L72">            return false;</span>
         }
 
-<span class="nc" id="L82">        return requirements.getClaimType().filter(getClaimType()::equals).isPresent();</span>
+<span class="nc" id="L75">        return requirements.getClaimType().filter(getClaimType()::equals).isPresent();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -72,41 +72,21 @@ public class Verifier {
 <span class="fc" id="L72">    }</span>
 
     /**
-     * Synchronously verify a credential.
-     *
-     * @param credential the verifiable credential
-     * @return a verification response
-     */
-    public VerificationResponse verify(final VerifiableCredential credential) {
-<span class="fc" id="L81">        return verifyAsync(credential).toCompletableFuture().join();</span>
-    }
-
-    /**
      * Asynchronously verify a credential.
      *
      * @param credential the verifiable credential
      * @return the next stage of completion, containing a verification response
      */
-    public CompletionStage&lt;VerificationResponse&gt; verifyAsync(final VerifiableCredential credential) {
-<span class="fc" id="L91">        final var req = Request.newBuilder(getCredentialVerifierUrl())</span>
-<span class="fc" id="L92">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
-<span class="fc" id="L93">            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))</span>
-<span class="fc" id="L94">            .build();</span>
+    public CompletionStage&lt;VerificationResponse&gt; verify(final VerifiableCredential credential) {
+<span class="fc" id="L81">        final var req = Request.newBuilder(getCredentialVerifierUrl())</span>
+<span class="fc" id="L82">            .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L83">            .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(credential))</span>
+<span class="fc" id="L84">            .build();</span>
 
-<span class="fc" id="L96">        return httpClient.sendAsync(req, ofVerificationResponse())</span>
-<span class="fc" id="L97">            .thenApply(Response::body);</span>
+<span class="fc" id="L86">        return httpClient.send(req, ofVerificationResponse())</span>
+<span class="fc" id="L87">            .thenApply(Response::body);</span>
     }
 
-
-    /**
-     * Synchronously verify a presentation.
-     *
-     * @param presentation the verifiable presentation
-     * @return a verification response
-     */
-    public VerificationResponse verify(final VerifiablePresentation presentation) {
-<span class="fc" id="L108">        return verifyAsync(presentation).toCompletableFuture().join();</span>
-    }
 
     /**
      * Asynchronously verify a presentation.
@@ -114,21 +94,21 @@ public class Verifier {
      * @param presentation the verifiable presentation
      * @return the next stage of completion, containing a verification response
      */
-    public CompletionStage&lt;VerificationResponse&gt; verifyAsync(
+    public CompletionStage&lt;VerificationResponse&gt; verify(
             final VerifiablePresentation presentation) {
-<span class="fc" id="L119">        final var req = Request.newBuilder(getPresentationVerifierUrl())</span>
-<span class="fc" id="L120">                .header(CONTENT_TYPE, APPLICATION_JSON)</span>
-<span class="fc" id="L121">                .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))</span>
-<span class="fc" id="L122">                .build();</span>
+<span class="fc" id="L99">        final var req = Request.newBuilder(getPresentationVerifierUrl())</span>
+<span class="fc" id="L100">                .header(CONTENT_TYPE, APPLICATION_JSON)</span>
+<span class="fc" id="L101">                .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(presentation))</span>
+<span class="fc" id="L102">                .build();</span>
 
-<span class="fc" id="L124">        return httpClient.sendAsync(req, ofVerificationResponse()).thenApply(Response::body);</span>
+<span class="fc" id="L104">        return httpClient.send(req, ofVerificationResponse()).thenApply(Response::body);</span>
 
     }
 
     /**
      * A data objects for verification responses.
      */
-<span class="fc" id="L131">    public static class VerificationResponse {</span>
+<span class="fc" id="L111">    public static class VerificationResponse {</span>
         /**
          * The verification checks that were performed.
          */
@@ -146,28 +126,28 @@ public class Verifier {
     }
 
     private Response.BodyHandler&lt;VerificationResponse&gt; ofVerificationResponse() {
-<span class="fc" id="L149">        return responseInfo -&gt; {</span>
-<span class="fc" id="L150">            final int httpStatus = responseInfo.statusCode();</span>
-<span class="pc bpc" id="L151" title="1 of 4 branches missed.">            if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
-<span class="fc" id="L152">                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
-<span class="fc" id="L153">                    return jsonService.fromJson(input, VerificationResponse.class);</span>
-<span class="nc" id="L154">                } catch (final IOException ex) {</span>
-<span class="nc" id="L155">                    throw new VerifiableCredentialException(</span>
+<span class="fc" id="L129">        return responseInfo -&gt; {</span>
+<span class="fc" id="L130">            final int httpStatus = responseInfo.statusCode();</span>
+<span class="pc bpc" id="L131" title="2 of 4 branches missed.">            if (httpStatus &gt;= 200 &amp;&amp; httpStatus &lt; 300) {</span>
+<span class="fc" id="L132">                try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
+<span class="fc" id="L133">                    return jsonService.fromJson(input, VerificationResponse.class);</span>
+<span class="nc" id="L134">                } catch (final IOException ex) {</span>
+<span class="nc" id="L135">                    throw new VerifiableCredentialException(</span>
                             &quot;Error parsing verification request&quot;, ex);
                 }
             }
-<span class="fc" id="L159">            throw new VerifiableCredentialException(</span>
+<span class="nc" id="L139">            throw new VerifiableCredentialException(</span>
                     &quot;Unexpected error response when verifying a resource.&quot;,
                     httpStatus);
         };
     }
 
     private URI getCredentialVerifierUrl() {
-<span class="fc" id="L166">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/verify&quot;).build();</span>
+<span class="fc" id="L146">        return URIBuilder.newBuilder(baseUri).path(&quot;credentials/verify&quot;).build();</span>
     }
 
     private URI getPresentationVerifierUrl() {
-<span class="fc" id="L170">        return URIBuilder.newBuilder(baseUri).path(&quot;presentations/verify&quot;).build();</span>
+<span class="fc" id="L150">        return URIBuilder.newBuilder(baseUri).path(&quot;presentations/verify&quot;).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

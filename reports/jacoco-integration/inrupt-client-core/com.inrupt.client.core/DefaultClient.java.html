@@ -61,59 +61,54 @@ public final class DefaultClient implements Client {
     }
 
     @Override
-    public &lt;T&gt; Response&lt;T&gt; send(final Request request, final Response.BodyHandler&lt;T&gt; responseBodyHandler) {
-<span class="nc" id="L65">        return sendAsync(request, responseBodyHandler).toCompletableFuture().join();</span>
-    }
-
-    @Override
-    public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; sendAsync(final Request request,
+    public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; send(final Request request,
             final Response.BodyHandler&lt;T&gt; responseBodyHandler) {
         // if there is already an auth header, just pass the request directly through
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (request.headers().firstValue(&quot;Authorization&quot;).isPresent()) {</span>
-<span class="nc" id="L73">            LOGGER.debug(&quot;Sending user-supplied authorization, skipping Solid authorization handling&quot;);</span>
-<span class="nc" id="L74">            return httpClient.sendAsync(request, responseBodyHandler);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (request.headers().firstValue(&quot;Authorization&quot;).isPresent()) {</span>
+<span class="nc" id="L68">            LOGGER.debug(&quot;Sending user-supplied authorization, skipping Solid authorization handling&quot;);</span>
+<span class="nc" id="L69">            return httpClient.send(request, responseBodyHandler);</span>
         }
 
         // Check session cache for a relevant access token
-<span class="nc" id="L78">        return session.fromCache(request)</span>
+<span class="nc" id="L73">        return session.fromCache(request)</span>
             // Use that token, if present
-<span class="nc" id="L80">            .map(token -&gt; httpClient.sendAsync(upgradeRequest(request, token), responseBodyHandler))</span>
+<span class="nc" id="L75">            .map(token -&gt; httpClient.send(upgradeRequest(request, token), responseBodyHandler))</span>
             // Otherwise perform the regular HTTP authorization dance
-<span class="nc" id="L82">            .orElseGet(() -&gt; httpClient.sendAsync(request, responseBodyHandler)</span>
-<span class="nc" id="L83">                .thenCompose(res -&gt; {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">                    if (res.statusCode() == UNAUTHORIZED) {</span>
-<span class="nc" id="L85">                        final List&lt;Authenticator.Challenge&gt; challenges = WwwAuthenticate</span>
-<span class="nc" id="L86">                            .parse(res.headers().allValues(&quot;WWW-Authenticate&quot;).toArray(new String[0]))</span>
-<span class="nc" id="L87">                            .getChallenges();</span>
+<span class="nc" id="L77">            .orElseGet(() -&gt; httpClient.send(request, responseBodyHandler)</span>
+<span class="nc" id="L78">                .thenCompose(res -&gt; {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                    if (res.statusCode() == UNAUTHORIZED) {</span>
+<span class="nc" id="L80">                        final List&lt;Authenticator.Challenge&gt; challenges = WwwAuthenticate</span>
+<span class="nc" id="L81">                            .parse(res.headers().allValues(&quot;WWW-Authenticate&quot;).toArray(new String[0]))</span>
+<span class="nc" id="L82">                            .getChallenges();</span>
 
-<span class="nc" id="L89">                        return authHandler.negotiate(session, request, challenges)</span>
-<span class="nc" id="L90">                            .thenCompose(token -&gt; token.map(t -&gt;</span>
-<span class="nc" id="L91">                                        httpClient.sendAsync(upgradeRequest(request, t), responseBodyHandler))</span>
-<span class="nc" id="L92">                                    .orElseGet(() -&gt; CompletableFuture.completedFuture(res)))</span>
-<span class="nc" id="L93">                            .exceptionally(err -&gt; {</span>
-<span class="nc" id="L94">                                LOGGER.debug(&quot;Unable to negotiate an authentication token: {}&quot;, err.getMessage());</span>
-<span class="nc" id="L95">                                return res;</span>
+<span class="nc" id="L84">                        return authHandler.negotiate(session, request, challenges)</span>
+<span class="nc" id="L85">                            .thenCompose(token -&gt; token.map(t -&gt;</span>
+<span class="nc" id="L86">                                        httpClient.send(upgradeRequest(request, t), responseBodyHandler))</span>
+<span class="nc" id="L87">                                    .orElseGet(() -&gt; CompletableFuture.completedFuture(res)))</span>
+<span class="nc" id="L88">                            .exceptionally(err -&gt; {</span>
+<span class="nc" id="L89">                                LOGGER.debug(&quot;Unable to negotiate an authentication token: {}&quot;, err.getMessage());</span>
+<span class="nc" id="L90">                                return res;</span>
                             });
                     }
-<span class="nc" id="L98">                    return CompletableFuture.completedFuture(res);</span>
+<span class="nc" id="L93">                    return CompletableFuture.completedFuture(res);</span>
                 }));
     }
 
     Request upgradeRequest(final Request request, final Session.Credential token) {
-<span class="nc" id="L103">        final Request.Builder builder = Request.newBuilder()</span>
-<span class="nc" id="L104">            .uri(request.uri())</span>
-<span class="nc" id="L105">            .method(request.method(), request.bodyPublisher().orElseGet(Request.BodyPublishers::noBody));</span>
+<span class="nc" id="L98">        final Request.Builder builder = Request.newBuilder()</span>
+<span class="nc" id="L99">            .uri(request.uri())</span>
+<span class="nc" id="L100">            .method(request.method(), request.bodyPublisher().orElseGet(Request.BodyPublishers::noBody));</span>
 
-<span class="nc" id="L107">        LOGGER.debug(&quot;Sending upgraded request: {}&quot;, request.uri());</span>
-<span class="nc" id="L108">        request.timeout().ifPresent(builder::timeout);</span>
-<span class="nc" id="L109">        request.headers().asMap().forEach((name, values) -&gt; {</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">            for (final String value : values) {</span>
-<span class="nc" id="L111">                builder.header(name, value);</span>
-<span class="nc" id="L112">            }</span>
-<span class="nc" id="L113">        });</span>
+<span class="nc" id="L102">        LOGGER.debug(&quot;Sending upgraded request: {}&quot;, request.uri());</span>
+<span class="nc" id="L103">        request.timeout().ifPresent(builder::timeout);</span>
+<span class="nc" id="L104">        request.headers().asMap().forEach((name, values) -&gt; {</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            for (final String value : values) {</span>
+<span class="nc" id="L106">                builder.header(name, value);</span>
+<span class="nc" id="L107">            }</span>
+<span class="nc" id="L108">        });</span>
 
         // Use setHeader to overwrite any possible existing authorization header
-<span class="nc" id="L116">        builder.setHeader(&quot;Authorization&quot;, String.join(&quot; &quot;, token.getScheme(), token.getToken()));</span>
+<span class="nc" id="L111">        builder.setHeader(&quot;Authorization&quot;, String.join(&quot; &quot;, token.getScheme(), token.getToken()));</span>
         // TODO - Support DPoP proofs, if relevant
         //session.getProofAlgorithm().ifPresent(algorithm -&gt; {
             //if (&quot;DPoP&quot;.equalsIgnoreCase(token.getType())) {
@@ -122,29 +117,29 @@ public final class DefaultClient implements Client {
             //}
         //});
 
-<span class="nc" id="L125">        return builder.build();</span>
+<span class="nc" id="L120">        return builder.build();</span>
     }
 
     public static Client.Builder newBuilder() {
-<span class="nc" id="L129">        return new Builder();</span>
+<span class="nc" id="L124">        return new Builder();</span>
     }
 
-<span class="nc" id="L132">    public static class Builder implements Client.Builder {</span>
+<span class="nc" id="L127">    public static class Builder implements Client.Builder {</span>
 
         private HttpService instance;
 
         @Override
         public Client.Builder withInstance(final HttpService instance) {
-<span class="nc" id="L138">            this.instance = instance;</span>
-<span class="nc" id="L139">            return this;</span>
+<span class="nc" id="L133">            this.instance = instance;</span>
+<span class="nc" id="L134">            return this;</span>
         }
 
         @Override
         public Client build() {
-<span class="nc bnc" id="L144" title="All 2 branches missed.">            if (instance == null) {</span>
-<span class="nc" id="L145">                return new DefaultClient(ServiceProvider.getHttpService());</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (instance == null) {</span>
+<span class="nc" id="L140">                return new DefaultClient(ServiceProvider.getHttpService());</span>
             }
-<span class="nc" id="L147">            return new DefaultClient(instance);</span>
+<span class="nc" id="L142">            return new DefaultClient(instance);</span>
         }
     }
 }

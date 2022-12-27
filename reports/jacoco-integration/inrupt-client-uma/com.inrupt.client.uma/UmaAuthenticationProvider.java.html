@@ -147,64 +147,55 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public AccessToken authenticate(final Session session, final Request request) {
-<span class="nc" id="L151">            return authenticateAsync(session, request).toCompletableFuture().join();</span>
-        }
+        public CompletionStage&lt;AccessToken&gt; authenticate(final Session session, final Request request) {
+<span class="nc" id="L151">            final URI as = URI.create(challenge.getParameter(AS_URI));</span>
+<span class="nc" id="L152">            final String ticket = challenge.getParameter(TICKET);</span>
 
-        @Override
-        public CompletionStage&lt;AccessToken&gt; authenticateAsync(final Session session, final Request request) {
-<span class="nc" id="L156">            final URI as = URI.create(challenge.getParameter(AS_URI));</span>
-<span class="nc" id="L157">            final String ticket = challenge.getParameter(TICKET);</span>
-
-<span class="nc" id="L159">            final ClaimToken claimToken = session.getCredential(ID_TOKEN)</span>
-<span class="nc" id="L160">                .map(credential -&gt; ClaimToken.of(credential.getToken(), ID_TOKEN))</span>
-<span class="nc" id="L161">                .orElse(null);</span>
+<span class="nc" id="L154">            final ClaimToken claimToken = session.getCredential(ID_TOKEN)</span>
+<span class="nc" id="L155">                .map(credential -&gt; ClaimToken.of(credential.getToken(), ID_TOKEN))</span>
+<span class="nc" id="L156">                .orElse(null);</span>
 
             // TODO add Access Grant support
 
-<span class="nc" id="L165">            final TokenRequest req = new TokenRequest(ticket, null, null, claimToken, Collections.emptyList());</span>
+<span class="nc" id="L160">            final TokenRequest req = new TokenRequest(ticket, null, null, claimToken, Collections.emptyList());</span>
             // TODO add the dpop algorithm
-<span class="nc" id="L167">            final String proofAlgorithm = null;</span>
-<span class="nc" id="L168">            return umaClient.metadataAsync(as)</span>
-<span class="nc" id="L169">                .thenCompose(metadata -&gt; umaClient.tokenAsync(metadata.tokenEndpoint, req,</span>
-<span class="nc" id="L170">                            claimHandler::async))</span>
-<span class="nc" id="L171">                .thenApply(token -&gt; new AccessToken(token.accessToken, token.tokenType,</span>
-<span class="nc" id="L172">                            Instant.now().plusSeconds(token.expiresIn), as, getScopes(token), proofAlgorithm));</span>
+<span class="nc" id="L162">            final String proofAlgorithm = null;</span>
+<span class="nc" id="L163">            return umaClient.metadata(as)</span>
+<span class="nc" id="L164">                .thenCompose(metadata -&gt; umaClient.token(metadata.tokenEndpoint, req,</span>
+<span class="nc" id="L165">                            claimHandler::getToken))</span>
+<span class="nc" id="L166">                .thenApply(token -&gt; new AccessToken(token.accessToken, token.tokenType,</span>
+<span class="nc" id="L167">                            Instant.now().plusSeconds(token.expiresIn), as, getScopes(token), proofAlgorithm));</span>
         }
     }
 
     static List&lt;String&gt; getScopes(final TokenResponse token) {
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (token.scope != null) {</span>
-<span class="nc" id="L178">            return Arrays.asList(token.scope.split(&quot; &quot;));</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (token.scope != null) {</span>
+<span class="nc" id="L173">            return Arrays.asList(token.scope.split(&quot; &quot;));</span>
         }
-<span class="nc" id="L180">        return Collections.emptyList();</span>
+<span class="nc" id="L175">        return Collections.emptyList();</span>
     }
 
     static class NeedInfoHandler {
 
-<span class="nc" id="L185">        private final List&lt;ClaimGatheringHandler&gt; handlers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L180">        private final List&lt;ClaimGatheringHandler&gt; handlers = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L187">        public NeedInfoHandler(final ClaimGatheringHandler... handlers) {</span>
-<span class="nc" id="L188">            this.handlers.addAll(Arrays.asList(handlers));</span>
-<span class="nc" id="L189">        }</span>
+<span class="nc" id="L182">        public NeedInfoHandler(final ClaimGatheringHandler... handlers) {</span>
+<span class="nc" id="L183">            this.handlers.addAll(Arrays.asList(handlers));</span>
+<span class="nc" id="L184">        }</span>
 
         public void addHandler(final ClaimGatheringHandler handler) {
-<span class="nc" id="L192">            this.handlers.add(handler);</span>
-<span class="nc" id="L193">        }</span>
+<span class="nc" id="L187">            this.handlers.add(handler);</span>
+<span class="nc" id="L188">        }</span>
 
-        public ClaimToken sync(final NeedInfo needInfo) {
-<span class="nc" id="L196">            return async(needInfo).toCompletableFuture().join();</span>
-        }
-
-        public CompletionStage&lt;ClaimToken&gt; async(final NeedInfo needInfo) {
-<span class="nc bnc" id="L200" title="All 2 branches missed.">            for (final RequiredClaims requiredClaims : needInfo.getRequiredClaims()) {</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">                for (final ClaimGatheringHandler handler : handlers) {</span>
-<span class="nc bnc" id="L202" title="All 2 branches missed.">                    if (handler.isCompatibleWith(requiredClaims)) {</span>
-<span class="nc" id="L203">                        return handler.gatherAsync();</span>
+        public CompletionStage&lt;ClaimToken&gt; getToken(final NeedInfo needInfo) {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            for (final RequiredClaims requiredClaims : needInfo.getRequiredClaims()) {</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                for (final ClaimGatheringHandler handler : handlers) {</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                    if (handler.isCompatibleWith(requiredClaims)) {</span>
+<span class="nc" id="L194">                        return handler.gather();</span>
                     }
-<span class="nc" id="L205">                }</span>
-<span class="nc" id="L206">            }</span>
-<span class="nc" id="L207">            return CompletableFuture.completedFuture(null);</span>
+<span class="nc" id="L196">                }</span>
+<span class="nc" id="L197">            }</span>
+<span class="nc" id="L198">            return CompletableFuture.completedFuture(null);</span>
         }
     }
 }

@@ -58,70 +58,61 @@ public class OkHttpService implements HttpService {
 <span class="nc" id="L58">    }</span>
 
     @Override
-    public &lt;T&gt; Response&lt;T&gt; send(final Request request, final Response.BodyHandler&lt;T&gt; handler)
-            throws IOException {
-<span class="nc" id="L63">        try (final okhttp3.Response res = client.newCall(prepareRequest(request)).execute()) {</span>
-<span class="nc" id="L64">            final Response.ResponseInfo info = new OkHttpResponseInfo(res);</span>
-<span class="nc" id="L65">            return new OkHttpResponse&lt;&gt;(res.request().url().uri(), info, handler.apply(info));</span>
-        }
-    }
-
-    @Override
-    public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; sendAsync(final Request request, final Response.BodyHandler&lt;T&gt; handler) {
-<span class="nc" id="L71">        final CompletableFuture&lt;Response&lt;T&gt;&gt; future = new CompletableFuture&lt;&gt;();</span>
-<span class="nc" id="L72">        client.newCall(prepareRequest(request)).enqueue(new Callback() {</span>
+    public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; send(final Request request, final Response.BodyHandler&lt;T&gt; handler) {
+<span class="nc" id="L62">        final CompletableFuture&lt;Response&lt;T&gt;&gt; future = new CompletableFuture&lt;&gt;();</span>
+<span class="nc" id="L63">        client.newCall(prepareRequest(request)).enqueue(new Callback() {</span>
             @Override
             public void onResponse(final Call call, final okhttp3.Response res) throws IOException {
-<span class="nc" id="L75">                try (final okhttp3.Response r = res) {</span>
-<span class="nc" id="L76">                    final Response.ResponseInfo info = new OkHttpResponseInfo(r);</span>
-<span class="nc" id="L77">                    future.complete(new OkHttpResponse&lt;&gt;(res.request().url().uri(), info, handler.apply(info)));</span>
+<span class="nc" id="L66">                try (final okhttp3.Response r = res) {</span>
+<span class="nc" id="L67">                    final Response.ResponseInfo info = new OkHttpResponseInfo(r);</span>
+<span class="nc" id="L68">                    future.complete(new OkHttpResponse&lt;&gt;(res.request().url().uri(), info, handler.apply(info)));</span>
                 }
-<span class="nc" id="L79">            }</span>
+<span class="nc" id="L70">            }</span>
 
             @Override
             public void onFailure(final Call call, final IOException ex) {
-<span class="nc" id="L83">                future.completeExceptionally(ex);</span>
-<span class="nc" id="L84">            }</span>
+<span class="nc" id="L74">                future.completeExceptionally(ex);</span>
+<span class="nc" id="L75">            }</span>
         });
 
-<span class="nc" id="L87">        return future;</span>
+<span class="nc" id="L78">        return future;</span>
     }
 
     static RequestBody prepareBody(final Request request, final MediaType mediaType) {
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (NO_BODY_METHODS.contains(request.method())) {</span>
-<span class="nc" id="L92">            return null;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (NO_BODY_METHODS.contains(request.method())) {</span>
+<span class="nc" id="L83">            return null;</span>
         }
-<span class="nc" id="L94">        return RequestBody.Companion.create(request.bodyPublisher()</span>
-<span class="nc" id="L95">                .orElseGet(Request.BodyPublishers::noBody).getBytes().array(), mediaType);</span>
+<span class="nc" id="L85">        return RequestBody.Companion.create(request.bodyPublisher()</span>
+<span class="nc" id="L86">                .orElseGet(Request.BodyPublishers::noBody).getBytes().array(), mediaType);</span>
     }
 
     static okhttp3.Request prepareRequest(final Request request) {
-<span class="nc" id="L99">        final Headers headers = prepareHeaders(request.headers().asMap());</span>
-<span class="nc" id="L100">        final MediaType mediaType = getContentType(headers);</span>
+<span class="nc" id="L90">        final Headers headers = prepareHeaders(request.headers().asMap());</span>
+<span class="nc" id="L91">        final MediaType mediaType = getContentType(headers);</span>
 
-<span class="nc" id="L102">        return new okhttp3.Request.Builder()</span>
-<span class="nc" id="L103">            .url(request.uri().toString())</span>
-<span class="nc" id="L104">            .headers(headers)</span>
-<span class="nc" id="L105">            .method(request.method(), prepareBody(request, mediaType))</span>
-<span class="nc" id="L106">            .build();</span>
+<span class="nc" id="L93">        return new okhttp3.Request.Builder()</span>
+<span class="nc" id="L94">            .url(request.uri().toString())</span>
+<span class="nc" id="L95">            .headers(headers)</span>
+<span class="nc" id="L96">            .method(request.method(), prepareBody(request, mediaType))</span>
+<span class="nc" id="L97">            .build();</span>
     }
 
     static Headers prepareHeaders(final Map&lt;String, List&lt;String&gt;&gt; headers) {
-<span class="nc" id="L110">        final Headers.Builder builder = Headers.of().newBuilder();</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (final Map.Entry&lt;String, List&lt;String&gt;&gt; entry : headers.entrySet()) {</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            for (final String value : entry.getValue()) {</span>
-<span class="nc" id="L113">                builder.add(entry.getKey(), value);</span>
-<span class="nc" id="L114">            }</span>
-<span class="nc" id="L115">        }</span>
-<span class="nc" id="L116">        return builder.build();</span>
+<span class="nc" id="L101">        final Headers.Builder builder = Headers.of().newBuilder();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (final Map.Entry&lt;String, List&lt;String&gt;&gt; entry : headers.entrySet()) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            for (final String value : entry.getValue()) {</span>
+<span class="nc" id="L104">                builder.add(entry.getKey(), value);</span>
+<span class="nc" id="L105">            }</span>
+<span class="nc" id="L106">        }</span>
+<span class="nc" id="L107">        return builder.build();</span>
     }
 
     static MediaType getContentType(final Headers headers) {
-<span class="nc" id="L120">        final String ct = headers.get(&quot;Content-Type&quot;);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (ct != null) {</span>
-<span class="nc" id="L122">            return MediaType.parse(ct);</span>
+<span class="nc" id="L111">        final String ct = headers.get(&quot;Content-Type&quot;);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (ct != null) {</span>
+<span class="nc" id="L113">            return MediaType.parse(ct);</span>
         }
-<span class="nc" id="L124">        return MediaType.parse(&quot;application/octet-stream&quot;);</span>
+<span class="nc" id="L115">        return MediaType.parse(&quot;application/octet-stream&quot;);</span>
     }
 
 }

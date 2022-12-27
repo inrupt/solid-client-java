@@ -6,7 +6,7 @@ Inrupt Client Libraries - Core,com.inrupt.client.core,AuthenticationException,5,
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultDpopService,7,17,0,0,2,4,0,3,0,3
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser,0,116,0,8,0,24,0,9,0,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.WwwAuthenticateHeaderParser.ChallengeListener,0,61,1,5,0,12,1,5,0,3
-Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultClient,18,210,1,5,2,40,2,17,1,15
+Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultClient,18,202,1,5,2,39,2,16,1,14
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.WacAllowHeaderParser,0,74,2,2,0,20,2,5,0,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.LinkHeaderParser,0,87,2,2,0,23,2,5,0,5
 Inrupt Client Libraries - Core,com.inrupt.client.core,DefaultHeaderParser.LinkHeaderParser.LinkListener,5,96,6,12,1,15,6,8,0,5

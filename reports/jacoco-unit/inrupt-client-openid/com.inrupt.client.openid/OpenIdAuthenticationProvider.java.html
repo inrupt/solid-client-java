@@ -101,24 +101,19 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public AccessToken authenticate(final Session session, final Request request) {
-<span class="nc" id="L105">            return authenticateAsync(session, request).toCompletableFuture().join();</span>
-        }
-
-        @Override
-        public CompletionStage&lt;AccessToken&gt; authenticateAsync(final Session session, final Request request) {
+        public CompletionStage&lt;AccessToken&gt; authenticate(final Session session, final Request request) {
             // TODO don't hard-code this
-<span class="fc" id="L111">            final List&lt;String&gt; scopes = Arrays.asList(&quot;webid&quot;, &quot;openid&quot;);</span>
-<span class="fc" id="L112">            final Optional&lt;CompletionStage&lt;AccessToken&gt;&gt; token = session.getCredential(OpenIdSession.ID_TOKEN)</span>
-<span class="fc" id="L113">                .map(credential -&gt; new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),</span>
-<span class="fc" id="L114">                            credential.getExpiration(), credential.getIssuer(), scopes, null))</span>
-<span class="fc" id="L115">                .map(CompletableFuture::completedFuture);</span>
-<span class="fc" id="L116">            return token</span>
-<span class="pc" id="L117">                .orElseGet(() -&gt; session.authenticate(request)</span>
-<span class="nc" id="L118">                    .thenApply(credential -&gt; credential</span>
-<span class="nc" id="L119">                        .map(c -&gt; new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(), c.getIssuer(),</span>
+<span class="fc" id="L106">            final List&lt;String&gt; scopes = Arrays.asList(&quot;webid&quot;, &quot;openid&quot;);</span>
+<span class="fc" id="L107">            final Optional&lt;CompletionStage&lt;AccessToken&gt;&gt; token = session.getCredential(OpenIdSession.ID_TOKEN)</span>
+<span class="fc" id="L108">                .map(credential -&gt; new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),</span>
+<span class="fc" id="L109">                            credential.getExpiration(), credential.getIssuer(), scopes, null))</span>
+<span class="fc" id="L110">                .map(CompletableFuture::completedFuture);</span>
+<span class="fc" id="L111">            return token</span>
+<span class="pc" id="L112">                .orElseGet(() -&gt; session.authenticate(request)</span>
+<span class="nc" id="L113">                    .thenApply(credential -&gt; credential</span>
+<span class="nc" id="L114">                        .map(c -&gt; new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(), c.getIssuer(),</span>
                                 scopes, null))
-<span class="nc" id="L121">                        .orElseThrow(() -&gt; new OpenIdException(&quot;Unable to perform OpenID authentication&quot;))));</span>
+<span class="nc" id="L116">                        .orElseThrow(() -&gt; new OpenIdException(&quot;Unable to perform OpenID authentication&quot;))));</span>
         }
     }
 }

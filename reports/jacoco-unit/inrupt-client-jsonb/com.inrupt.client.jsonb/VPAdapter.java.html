@@ -50,27 +50,27 @@ import javax.json.bind.adapter.JsonbAdapter;
 
 <span class="fc" id="L51">        final var result = Json.createObjectBuilder();</span>
 
-<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (vp.context != null) {</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (vp.context != null) {</span>
 <span class="fc" id="L54">            final var arrayBuilder = Json.createArrayBuilder();</span>
 <span class="fc" id="L55">            vp.context.forEach(arrayBuilder::add);</span>
 <span class="fc" id="L56">            result.add(CONTEXT, arrayBuilder.build());</span>
         }
 
-<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (vp.type != null) {</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (vp.type != null) {</span>
 <span class="fc" id="L60">            final var arrayBuilder = Json.createArrayBuilder();</span>
 <span class="fc" id="L61">            vp.type.forEach(arrayBuilder::add);</span>
 <span class="fc" id="L62">            result.add(TYPE, arrayBuilder.build());</span>
         }
 
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (vp.id != null) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (vp.id != null) {</span>
 <span class="fc" id="L66">            result.add(ID, vp.id);</span>
         }
 
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (vp.holder != null) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (vp.holder != null) {</span>
 <span class="fc" id="L70">            result.add(HOLDER, vp.holder);</span>
         }
 
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (vp.verifiableCredential != null) {</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (vp.verifiableCredential != null) {</span>
 <span class="fc" id="L74">            final var arrayBuilder = Json.createArrayBuilder();</span>
 <span class="fc bfc" id="L75" title="All 2 branches covered.">            for (final var oneVC : vp.verifiableCredential) {</span>
 <span class="fc" id="L76">                arrayBuilder.add(new VCAdapter().adaptToJson(oneVC));</span>

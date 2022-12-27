@@ -27,7 +27,6 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 
-import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -41,45 +40,39 @@ public class HttpClientService implements HttpService {
     private final HttpClient client;
 
     public HttpClientService() {
-<span class="nc" id="L44">        this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build());</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L43">        this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build());</span>
+<span class="nc" id="L44">    }</span>
 
-<span class="nc" id="L47">    private HttpClientService(final HttpClient client) {</span>
+<span class="nc" id="L46">    private HttpClientService(final HttpClient client) {</span>
         // TODO log that this was initialized at DEBUG level
-<span class="nc" id="L49">        this.client = client;</span>
-<span class="nc" id="L50">    }</span>
+<span class="nc" id="L48">        this.client = client;</span>
+<span class="nc" id="L49">    }</span>
 
     @Override
-    public &lt;T&gt; Response&lt;T&gt; send(final Request request, final Response.BodyHandler&lt;T&gt; handler)
-            throws IOException {
-<span class="nc" id="L55">        return sendAsync(request, handler).toCompletableFuture().join();</span>
-    }
+    public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; send(final Request request, final Response.BodyHandler&lt;T&gt; handler) {
+<span class="nc" id="L53">        final var builder = HttpRequest.newBuilder(request.uri());</span>
 
-    @Override
-    public &lt;T&gt; CompletionStage&lt;Response&lt;T&gt;&gt; sendAsync(final Request request, final Response.BodyHandler&lt;T&gt; handler) {
-<span class="nc" id="L60">        final var builder = HttpRequest.newBuilder(request.uri());</span>
+<span class="nc" id="L55">        final var publisher = request.bodyPublisher().map(Request.BodyPublisher::getBytes)</span>
+<span class="nc" id="L56">            .map(buf -&gt; HttpRequest.BodyPublishers.ofByteArray(buf.array()))</span>
+<span class="nc" id="L57">            .orElseGet(HttpRequest.BodyPublishers::noBody);</span>
 
-<span class="nc" id="L62">        final var publisher = request.bodyPublisher().map(Request.BodyPublisher::getBytes)</span>
-<span class="nc" id="L63">            .map(buf -&gt; HttpRequest.BodyPublishers.ofByteArray(buf.array()))</span>
-<span class="nc" id="L64">            .orElseGet(HttpRequest.BodyPublishers::noBody);</span>
+<span class="nc" id="L59">        builder.method(request.method(), publisher);</span>
 
-<span class="nc" id="L66">        builder.method(request.method(), publisher);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        for (final Map.Entry&lt;String, List&lt;String&gt;&gt; entry : request.headers().asMap().entrySet()) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            for (final String value : entry.getValue()) {</span>
+<span class="nc" id="L63">                builder.header(entry.getKey(), value);</span>
+<span class="nc" id="L64">            }</span>
+<span class="nc" id="L65">        }</span>
 
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (final Map.Entry&lt;String, List&lt;String&gt;&gt; entry : request.headers().asMap().entrySet()) {</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">            for (final String value : entry.getValue()) {</span>
-<span class="nc" id="L70">                builder.header(entry.getKey(), value);</span>
-<span class="nc" id="L71">            }</span>
-<span class="nc" id="L72">        }</span>
-
-<span class="nc" id="L74">        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofByteArray())</span>
-<span class="nc" id="L75">            .thenApply(res -&gt; {</span>
-<span class="nc" id="L76">                final var info = new HttpClientResponseInfo(res, ByteBuffer.wrap(res.body()));</span>
-<span class="nc" id="L77">                return new HttpClientResponse&lt;&gt;(res.uri(), info, handler.apply(info));</span>
+<span class="nc" id="L67">        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofByteArray())</span>
+<span class="nc" id="L68">            .thenApply(res -&gt; {</span>
+<span class="nc" id="L69">                final var info = new HttpClientResponseInfo(res, ByteBuffer.wrap(res.body()));</span>
+<span class="nc" id="L70">                return new HttpClientResponse&lt;&gt;(res.uri(), info, handler.apply(info));</span>
             });
     }
 
     public static HttpClientService ofHttpClient(final HttpClient client) {
-<span class="nc" id="L82">        return new HttpClientService(client);</span>
+<span class="nc" id="L75">        return new HttpClientService(client);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

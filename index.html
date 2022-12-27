@@ -192,7 +192,7 @@ playlist.thenCompose(p -&gt; {
 <p>One can use the provided Solid classes to list resources across a user's storage locations.</p>
 <div>
 <pre>session.getPrincipal().ifPresent(webid -&gt;
-    client.sendAsync(Request.newBuilder(webid).header(&quot;Accept&quot;, &quot;text/turtle&quot;).build(),
+    client.send(Request.newBuilder(webid).header(&quot;Accept&quot;, &quot;text/turtle&quot;).build(),
             WebIdBodyHandlers.ofWebIdProfile(webid))
         .thenApply(Response::body)
         .thenAccept(profile -&gt;

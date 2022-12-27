@@ -127,7 +127,7 @@ public final class OpenIdSession implements Session {
             final String clientId, final String clientSecret, final String authMethod,
             final OpenIdVerificationConfig config, final String... scopes) {
 <span class="nc" id="L129">        final String id = UUID.randomUUID().toString();</span>
-<span class="nc" id="L130">        return new OpenIdSession(id, () -&gt; provider.tokenAsync(TokenRequest.newBuilder()</span>
+<span class="nc" id="L130">        return new OpenIdSession(id, () -&gt; provider.token(TokenRequest.newBuilder()</span>
 <span class="nc" id="L131">                .clientSecret(clientSecret)</span>
 <span class="nc" id="L132">                .authMethod(authMethod)</span>
 <span class="nc" id="L133">                .scopes(scopes)</span>
