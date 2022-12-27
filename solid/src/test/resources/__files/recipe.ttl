@@ -1,0 +1,26 @@
+PREFIX ex: <https://example.com/>
+PREFIX dc: <http://purl.org/dc/terms/>
+
+<> a ex:Recipe ;
+  dc:title "Molasses Cookies"@en ;
+  ex:ingredient
+    "1 1/2 cups butter, softened"@en ,
+    "1 cup sugar"@en ,
+    "1 cup brown sugar"@en ,
+    "1/2 cup molasses"@en ,
+    "2 eggs"@en ,
+    "4 1/2 cups flour"@en ,
+    "4 tsp baking soda"@en ,
+    "1 Tbsp ginger, ground"@en ,
+    "2 tsp cinnamon, ground"@en ,
+    "1 tsp cloves, ground"@en ,
+    "1 tsp salt"@en ;
+  ex:step
+    "1. Mix flour, soda, spices and salt. Set aside."@en ,
+    "2. Separately, cream butter and sugars. Mix in eggs and molasses"@en ,
+    "3. Gradually add dry ingredients"@en ,
+    "4. Refrigerate until dough is completely chilled"@en ,
+    "5. Preheat oven to 350 degrees F"@en ,
+    "6. Roll dough into balls, place on baking sheet"@en ,
+    "7. Bake for 8-10 minutes"@en .
+
