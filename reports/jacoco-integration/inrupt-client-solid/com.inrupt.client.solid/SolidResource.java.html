@@ -21,9 +21,10 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Resource;
-import com.inrupt.client.rdf.Dataset;
 
 import java.net.URI;
+
+import org.apache.commons.rdf.api.Dataset;
 
 /**
  * A Solid Resource Object.
@@ -38,8 +39,8 @@ public class SolidResource extends Resource {
      * @param identifier the Solid Resource identifier
      */
     public SolidResource(final URI identifier) {
-<span class="nc" id="L41">        this(identifier, null);</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L42">        this(identifier, null);</span>
+<span class="nc" id="L43">    }</span>
 
     /**
      * Create a Solid resource.
@@ -48,8 +49,8 @@ public class SolidResource extends Resource {
      * @param dataset the resource dataset, may be {@code null}
      */
     public SolidResource(final URI identifier, final Dataset dataset) {
-<span class="nc" id="L51">        this(identifier, dataset, null);</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L52">        this(identifier, dataset, null);</span>
+<span class="nc" id="L53">    }</span>
 
     /**
      * Create a Solid resource.
@@ -59,16 +60,16 @@ public class SolidResource extends Resource {
      * @param metadata metadata associated with this resource, may be {@code null}
      */
     public SolidResource(final URI identifier, final Dataset dataset, final Metadata metadata) {
-<span class="nc" id="L62">        super(identifier, dataset);</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (metadata == null) {</span>
-<span class="nc" id="L64">            this.metadata = Metadata.newBuilder().build();</span>
+<span class="nc" id="L63">        super(identifier, dataset);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (metadata == null) {</span>
+<span class="nc" id="L65">            this.metadata = Metadata.newBuilder().build();</span>
         } else {
-<span class="nc" id="L66">            this.metadata = metadata;</span>
+<span class="nc" id="L67">            this.metadata = metadata;</span>
         }
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L69">    }</span>
 
     public Metadata getMetadata() {
-<span class="nc" id="L71">        return metadata;</span>
+<span class="nc" id="L72">        return metadata;</span>
     }
 
     /**
@@ -77,7 +78,7 @@ public class SolidResource extends Resource {
      * @return the builder
      */
     public static Builder newResourceBuilder() {
-<span class="nc" id="L80">        return new Builder();</span>
+<span class="nc" id="L81">        return new Builder();</span>
     }
 
     /**
@@ -95,8 +96,8 @@ public class SolidResource extends Resource {
          * @return this builder
          */
         public Builder metadata(final Metadata metadata) {
-<span class="nc" id="L98">            builderMetadata = metadata;</span>
-<span class="nc" id="L99">            return this;</span>
+<span class="nc" id="L99">            builderMetadata = metadata;</span>
+<span class="nc" id="L100">            return this;</span>
         }
 
         /**
@@ -106,8 +107,8 @@ public class SolidResource extends Resource {
          * @return this builder
          */
         public Builder dataset(final Dataset dataset) {
-<span class="nc" id="L109">            builderDataset = dataset;</span>
-<span class="nc" id="L110">            return this;</span>
+<span class="nc" id="L110">            builderDataset = dataset;</span>
+<span class="nc" id="L111">            return this;</span>
         }
 
         /**
@@ -117,12 +118,12 @@ public class SolidResource extends Resource {
          * @return the Solid resource
          */
         public SolidResource build(final URI identifier) {
-<span class="nc" id="L120">            return new SolidResource(identifier, builderDataset, builderMetadata);</span>
+<span class="nc" id="L121">            return new SolidResource(identifier, builderDataset, builderMetadata);</span>
         }
 
-<span class="nc" id="L123">        Builder() {</span>
+<span class="nc" id="L124">        Builder() {</span>
             // Prevent instantiations
-<span class="nc" id="L125">        }</span>
+<span class="nc" id="L126">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -20,14 +20,17 @@
  */
 package com.inrupt.client;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Syntax;
+import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * A base class for resource mapping.
@@ -36,7 +39,12 @@ import java.net.URI;
  */
 public class Resource {
 
-<span class="fc" id="L39">    private static final RdfService service = ServiceProvider.getRdfService();</span>
+<span class="fc" id="L42">    private static final RdfService service = ServiceProvider.getRdfService();</span>
+
+    /**
+     * The RDF Factory instance.
+     */
+<span class="fc" id="L47">    protected static final RDF rdf = RDFFactory.getInstance();</span>
 
     private final Dataset dataset;
     private final URI identifier;
@@ -49,10 +57,10 @@ public class Resource {
      * @param identifier the resource identifier
      * @param dataset the dataset corresponding to this resource, may be {@code null}
      */
-<span class="fc" id="L52">    protected Resource(final URI identifier, final Dataset dataset) {</span>
-<span class="fc" id="L53">        this.identifier = identifier;</span>
-<span class="fc bfc" id="L54" title="All 2 branches covered.">        this.dataset = dataset != null ? dataset : service.createDataset();</span>
-<span class="fc" id="L55">    }</span>
+<span class="fc" id="L60">    protected Resource(final URI identifier, final Dataset dataset) {</span>
+<span class="fc" id="L61">        this.identifier = identifier;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        this.dataset = dataset != null ? dataset : rdf.createDataset();</span>
+<span class="fc" id="L63">    }</span>
 
     /**
      * Get the identifier for this resource.
@@ -60,7 +68,7 @@ public class Resource {
      * @return the resource identifier
      */
     public URI getIdentifier() {
-<span class="fc" id="L63">        return identifier;</span>
+<span class="fc" id="L71">        return identifier;</span>
     }
 
     /**
@@ -69,7 +77,7 @@ public class Resource {
      * @return the resource dataset
      */
     public Dataset getDataset() {
-<span class="fc" id="L72">        return dataset;</span>
+<span class="fc" id="L80">        return dataset;</span>
     }
 
     /**
@@ -79,9 +87,9 @@ public class Resource {
      * @param out the output stream
      * @throws IOException in the case of an I/O error
      */
-    public void serialize(final Syntax syntax, final OutputStream out) throws IOException {
-<span class="fc" id="L83">        service.fromDataset(getDataset(), syntax, out);</span>
-<span class="fc" id="L84">    }</span>
+    public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
+<span class="fc" id="L91">        service.fromDataset(getDataset(), syntax, out);</span>
+<span class="fc" id="L92">    }</span>
 
     /**
      * Validate the dataset for this object.
@@ -91,6 +99,6 @@ public class Resource {
      */
     public void validate() {
         // no-op
-<span class="nc" id="L94">    }</span>
+<span class="nc" id="L102">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

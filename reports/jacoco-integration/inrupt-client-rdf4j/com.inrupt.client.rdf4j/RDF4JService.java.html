@@ -20,28 +20,26 @@
  */
 package com.inrupt.client.rdf4j;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Graph;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.rdf.Syntax;
-import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
+import com.inrupt.commons.rdf4j.RDF4J;
+import com.inrupt.commons.rdf4j.RDF4JDataset;
+import com.inrupt.commons.rdf4j.RDF4JGraph;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.RDFSyntax;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.DynamicModelFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -54,131 +52,100 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 /**
  * An {@link RdfService} that uses the RDF4J library.
  */
-<span class="nc" id="L57">public class RDF4JService implements RdfService {</span>
+<span class="nc" id="L55">public class RDF4JService implements RdfService {</span>
 
-<span class="nc" id="L59">    private static final Map&lt;Syntax, RDFFormat&gt; SYNTAX_TO_FORMAT = buildSyntaxMapping();</span>
-<span class="nc" id="L60">    private static final ValueFactory VF = SimpleValueFactory.getInstance();</span>
-
-    @Override
-    public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
-<span class="nc" id="L64">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
-        try {
-<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (dataset instanceof RDF4JDataset) {</span>
-<span class="nc" id="L67">                try (final RepositoryConnection conn = ((RDF4JDataset) dataset)</span>
-<span class="nc" id="L68">                        .asRDF4JRepository()</span>
-<span class="nc" id="L69">                        .getConnection()) {</span>
-<span class="nc" id="L70">                    final Model m = QueryResults.asModel(conn.getStatements(null, null, null));</span>
-<span class="nc" id="L71">                    Rio.write(m, output, format);</span>
-                }
-            } else {
-<span class="nc" id="L74">                final Model m = new DynamicModelFactory().createEmptyModel();</span>
-<span class="nc" id="L75">                dataset.stream().forEach(quad -&gt; {</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">                    if (quad.getGraphName().isPresent()) {</span>
-<span class="nc" id="L77">                        m.add(RDF4JUtils.fromSubject(quad.getSubject()), RDF4JUtils.fromPredicate(quad.getPredicate()),</span>
-<span class="nc" id="L78">                                RDF4JUtils.fromObject(quad.getObject()),</span>
-<span class="nc" id="L79">                                RDF4JUtils.fromSubject(quad.getGraphName().get()));</span>
-                    } else {
-<span class="nc" id="L81">                        m.add(RDF4JUtils.fromSubject(quad.getSubject()), RDF4JUtils.fromPredicate(quad.getPredicate()),</span>
-<span class="nc" id="L82">                                RDF4JUtils.fromObject(quad.getObject()));</span>
-                    }
-<span class="nc" id="L84">                });</span>
-<span class="nc" id="L85">                Rio.write(m, output, format);</span>
-            }
-<span class="nc" id="L87">        } catch (final RDF4JException ex) {</span>
-<span class="nc" id="L88">            throw new IOException(&quot;Error serializing dataset&quot;, ex);</span>
-<span class="nc" id="L89">        }</span>
-<span class="nc" id="L90">    }</span>
-
-
+<span class="nc" id="L57">    private static final Map&lt;RDFSyntax, RDFFormat&gt; SYNTAX_TO_FORMAT = buildSyntaxMapping();</span>
+<span class="nc" id="L58">    private static final RDF4J rdf = new RDF4J();</span>
 
     @Override
-    public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
-<span class="nc" id="L96">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
-<span class="nc" id="L97">        final RDFWriter writer = Rio.createWriter(format, output);</span>
+    public void fromDataset(final Dataset dataset, final RDFSyntax syntax, final OutputStream output)
+            throws IOException {
+<span class="nc" id="L63">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
         try {
-<span class="nc" id="L99">            writer.startRDF();</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (graph instanceof RDF4JGraph) {</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">                for (final Statement st : ((RDF4JGraph) graph).asRDF4JModel()) {</span>
-<span class="nc" id="L102">                    writer.handleStatement(st);</span>
-<span class="nc" id="L103">                }</span>
-            } else {
-<span class="nc" id="L105">                graph.stream().forEach(triple -&gt; {</span>
-<span class="nc" id="L106">                    writer.handleStatement(VF.createStatement(RDF4JUtils.fromSubject(triple.getSubject()),</span>
-<span class="nc" id="L107">                                RDF4JUtils.fromPredicate(triple.getPredicate()),</span>
-<span class="nc" id="L108">                                RDF4JUtils.fromObject(triple.getObject())));</span>
-<span class="nc" id="L109">                });</span>
+<span class="nc" id="L65">            try (final RepositoryConnection conn = toRdf4j(dataset).getConnection()) {</span>
+<span class="nc" id="L66">                final Model m = QueryResults.asModel(conn.getStatements(null, null, null));</span>
+<span class="nc" id="L67">                Rio.write(m, output, format);</span>
             }
-<span class="nc" id="L111">            writer.endRDF();</span>
-<span class="nc" id="L112">        } catch (final RDF4JException ex) {</span>
-<span class="nc" id="L113">            throw new IOException(&quot;Error serializing graph&quot;, ex);</span>
-<span class="nc" id="L114">        }</span>
-<span class="nc" id="L115">    }</span>
+<span class="nc" id="L69">        } catch (final RDF4JException ex) {</span>
+<span class="nc" id="L70">            throw new IOException(&quot;Error serializing dataset&quot;, ex);</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">    }</span>
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
-<span class="nc" id="L119">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
-<span class="nc" id="L120">        final Repository repository = new SailRepository(new MemoryStore());</span>
+    public void fromGraph(final Graph graph, final RDFSyntax syntax, final OutputStream output) throws IOException {
+<span class="nc" id="L76">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+<span class="nc" id="L77">        final RDFWriter writer = Rio.createWriter(format, output);</span>
         try {
-<span class="nc" id="L122">            try (final RepositoryConnection conn = repository.getConnection()) {</span>
-<span class="nc" id="L123">                conn.add(input, baseUri, format);</span>
+<span class="nc" id="L79">            writer.startRDF();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            for (final Statement st : toRdf4j(graph)) {</span>
+<span class="nc" id="L81">                writer.handleStatement(st);</span>
+<span class="nc" id="L82">            }</span>
+<span class="nc" id="L83">            writer.endRDF();</span>
+<span class="nc" id="L84">        } catch (final RDF4JException ex) {</span>
+<span class="nc" id="L85">            throw new IOException(&quot;Error serializing graph&quot;, ex);</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">    }</span>
+
+    static Model toRdf4j(final Graph graph) {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (graph instanceof RDF4JGraph) {</span>
+<span class="nc" id="L91">            final Optional&lt;Model&gt; model = ((RDF4JGraph) graph).asModel();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (model.isPresent()) {</span>
+<span class="nc" id="L93">                return model.get();</span>
             }
-<span class="nc" id="L125">            return new RDF4JDataset(repository);</span>
-<span class="nc" id="L126">        } catch (final RDF4JException ex) {</span>
-<span class="nc" id="L127">            throw new IOException(&quot;Error parsing dataset&quot;, ex);</span>
+        }
+<span class="nc" id="L96">        final RDF4JGraph g = rdf.createGraph();</span>
+<span class="nc" id="L97">        graph.stream().forEach(g::add);</span>
+<span class="nc" id="L98">        return g.asModel()</span>
+<span class="nc" id="L99">            .orElseThrow(() -&gt; new IllegalStateException(&quot;Could not adapt RDF4J graph&quot;));</span>
+    }
+
+    static Repository toRdf4j(final Dataset dataset) {
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (dataset instanceof RDF4JDataset) {</span>
+<span class="nc" id="L104">            final Optional&lt;Repository&gt; repo = ((RDF4JDataset) dataset).asRepository();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (repo.isPresent()) {</span>
+<span class="nc" id="L106">                return repo.get();</span>
+            }
+        }
+<span class="nc" id="L109">        final RDF4JDataset d = rdf.createDataset();</span>
+<span class="nc" id="L110">        dataset.stream().forEach(d::add);</span>
+<span class="nc" id="L111">        return d.asRepository()</span>
+<span class="nc" id="L112">            .orElseThrow(() -&gt; new IllegalStateException(&quot;Could not adapt RDF4J dataset&quot;));</span>
+    }
+
+    @Override
+    public Dataset toDataset(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
+<span class="nc" id="L117">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+<span class="nc" id="L118">        final Repository repository = new SailRepository(new MemoryStore());</span>
+        try {
+<span class="nc" id="L120">            try (final RepositoryConnection conn = repository.getConnection()) {</span>
+<span class="nc" id="L121">                conn.add(input, baseUri, format);</span>
+            }
+<span class="nc" id="L123">            return rdf.asDataset(repository);</span>
+<span class="nc" id="L124">        } catch (final RDF4JException ex) {</span>
+<span class="nc" id="L125">            throw new IOException(&quot;Error parsing dataset&quot;, ex);</span>
         }
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
-<span class="nc" id="L133">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+    public Graph toGraph(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
+<span class="nc" id="L131">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
 
         try {
-<span class="nc" id="L136">            final Model model = Rio.parse(input, baseUri, format);</span>
-<span class="nc" id="L137">            return new RDF4JGraph(model);</span>
-<span class="nc" id="L138">        } catch (final RDF4JException ex) {</span>
-<span class="nc" id="L139">            throw new IOException(&quot;Error parsing graph&quot;, ex);</span>
+<span class="nc" id="L134">            final Model model = Rio.parse(input, baseUri, format);</span>
+<span class="nc" id="L135">            return rdf.asGraph(model);</span>
+<span class="nc" id="L136">        } catch (final RDF4JException ex) {</span>
+<span class="nc" id="L137">            throw new IOException(&quot;Error parsing graph&quot;, ex);</span>
         }
     }
 
-    @Override
-    public Graph createGraph() {
-<span class="nc" id="L145">        final Model m = new DynamicModelFactory().createEmptyModel();</span>
-<span class="nc" id="L146">        return new RDF4JGraph(m);</span>
-    }
-
-    @Override
-    public Dataset createDataset() {
-<span class="nc" id="L151">        final Repository repository = new SailRepository(new MemoryStore());</span>
-<span class="nc" id="L152">        return new RDF4JDataset(repository);</span>
-    }
-
-    @Override
-    public Triple createTriple(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
-<span class="nc" id="L157">        final org.eclipse.rdf4j.model.Triple triple = VF.createTriple(RDF4JUtils.fromSubject(subject),</span>
-<span class="nc" id="L158">                RDF4JUtils.fromPredicate(predicate), RDF4JUtils.fromObject(object));</span>
-<span class="nc" id="L159">        return new RDF4JTriple(triple);</span>
-    }
-
-    @Override
-    public Quad createQuad(final RDFNode subject, final RDFNode predicate, final RDFNode object,
-            final RDFNode graphName) {
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (graphName != null) {</span>
-<span class="nc" id="L166">            return new RDF4JQuad(VF.createStatement(RDF4JUtils.fromSubject(subject),</span>
-<span class="nc" id="L167">                        RDF4JUtils.fromPredicate(predicate), RDF4JUtils.fromObject(object),</span>
-<span class="nc" id="L168">                        RDF4JUtils.fromSubject(graphName)));</span>
-        }
-<span class="nc" id="L170">        return new RDF4JQuad(VF.createStatement(RDF4JUtils.fromSubject(subject), RDF4JUtils.fromPredicate(predicate),</span>
-<span class="nc" id="L171">                    RDF4JUtils.fromObject(object)));</span>
-    }
-
-    static Map&lt;Syntax, RDFFormat&gt; buildSyntaxMapping() {
-<span class="nc" id="L175">        final Map&lt;Syntax, RDFFormat&gt; mapping = new EnumMap&lt;&gt;(Syntax.class);</span>
-<span class="nc" id="L176">        mapping.put(Syntax.TURTLE, RDFFormat.TURTLE);</span>
-<span class="nc" id="L177">        mapping.put(Syntax.TRIG, RDFFormat.TRIG);</span>
-<span class="nc" id="L178">        mapping.put(Syntax.JSONLD, RDFFormat.JSONLD);</span>
-<span class="nc" id="L179">        mapping.put(Syntax.NTRIPLES, RDFFormat.NTRIPLES);</span>
-<span class="nc" id="L180">        mapping.put(Syntax.NQUADS, RDFFormat.NQUADS);</span>
-<span class="nc" id="L181">        return Collections.unmodifiableMap(mapping);</span>
+    static Map&lt;RDFSyntax, RDFFormat&gt; buildSyntaxMapping() {
+<span class="nc" id="L142">        final Map&lt;RDFSyntax, RDFFormat&gt; mapping = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L143">        mapping.put(RDFSyntax.TURTLE, RDFFormat.TURTLE);</span>
+<span class="nc" id="L144">        mapping.put(RDFSyntax.TRIG, RDFFormat.TRIG);</span>
+<span class="nc" id="L145">        mapping.put(RDFSyntax.JSONLD, RDFFormat.JSONLD);</span>
+<span class="nc" id="L146">        mapping.put(RDFSyntax.NTRIPLES, RDFFormat.NTRIPLES);</span>
+<span class="nc" id="L147">        mapping.put(RDFSyntax.NQUADS, RDFFormat.NQUADS);</span>
+<span class="nc" id="L148">        return Collections.unmodifiableMap(mapping);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

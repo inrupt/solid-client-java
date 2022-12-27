@@ -20,160 +20,83 @@
  */
 package com.inrupt.client.jena;
 
-import static org.apache.jena.sparql.core.Quad.create;
-import static org.apache.jena.sparql.core.Quad.defaultGraphIRI;
-
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Graph;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.rdf.Syntax;
-import com.inrupt.client.rdf.Triple;
 import com.inrupt.client.spi.RdfService;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
-import org.apache.jena.query.DatasetFactory;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.RDFSyntax;
+import org.apache.jena.commonsrdf.JenaCommonsRDF;
+import org.apache.jena.graph.Factory;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotException;
-import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
 
 /**
  * An {@link RdfService} that uses the Jena library.
  */
-<span class="fc" id="L51">public class JenaService implements RdfService {</span>
-
-<span class="fc" id="L53">    private static final Map&lt;Syntax, Lang&gt; SYNTAX_TO_LANG = Map.of(</span>
-            Syntax.TURTLE, Lang.TURTLE,
-            Syntax.TRIG, Lang.TRIG,
-            Syntax.JSONLD, Lang.JSONLD,
-            Syntax.NTRIPLES, Lang.NTRIPLES,
-            Syntax.NQUADS, Lang.NQUADS);
-
-<span class="fc" id="L60">    private static final Set&lt;Syntax&gt; SUPPORTS_QUADS = Set.of(Syntax.JSONLD, Syntax.TRIG, Syntax.NQUADS);</span>
+<span class="fc" id="L42">public class JenaService implements RdfService {</span>
 
     @Override
-    public void fromDataset(final Dataset dataset, final Syntax syntax, final OutputStream output) throws IOException {
-<span class="fc" id="L64">        final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));</span>
+    public void fromDataset(final Dataset dataset, final RDFSyntax syntax, final OutputStream output)
+            throws IOException {
+<span class="fc" id="L47">        final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() -&gt;</span>
+<span class="nc" id="L48">                new IllegalArgumentException(&quot;Unsupported syntax: &quot; + syntax.title()));</span>
         try {
-<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (SUPPORTS_QUADS.contains(syntax)) {</span>
-<span class="fc" id="L67">                RDFDataMgr.write(output, asDatasetGraph(dataset), lang);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            if (syntax.supportsDataset()) {</span>
+<span class="fc" id="L51">                RDFDataMgr.write(output, JenaCommonsRDF.toJena(dataset), lang);</span>
             } else {
-                // Collapse all statements into a single union model
-<span class="fc" id="L70">                final var jds = asDatasetGraph(dataset);</span>
-<span class="fc" id="L71">                final var union = ModelFactory.createUnion(</span>
-<span class="fc" id="L72">                        ModelFactory.createModelForGraph(jds.getDefaultGraph()),</span>
-<span class="fc" id="L73">                        ModelFactory.createModelForGraph(jds.getUnionGraph()));</span>
-<span class="fc" id="L74">                RDFDataMgr.write(output, union, lang);</span>
+<span class="fc" id="L53">                final var dsg = JenaCommonsRDF.toJena(dataset);</span>
+<span class="fc" id="L54">                final var union = ModelFactory.createUnion(</span>
+<span class="fc" id="L55">                        ModelFactory.createModelForGraph(dsg.getDefaultGraph()),</span>
+<span class="fc" id="L56">                        ModelFactory.createModelForGraph(dsg.getUnionGraph()));</span>
+<span class="fc" id="L57">                RDFDataMgr.write(output, union, lang);</span>
             }
-<span class="nc" id="L76">        } catch (final RiotException ex) {</span>
-<span class="nc" id="L77">            throw new IOException(&quot;Error serializing dataset&quot;, ex);</span>
-<span class="fc" id="L78">        }</span>
-<span class="fc" id="L79">    }</span>
-
-    static DatasetGraph asDatasetGraph(final Dataset dataset) {
-        // If this is already a Jena dataset, just return that
-<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (dataset instanceof JenaDataset) {</span>
-<span class="fc" id="L84">            return ((JenaDataset) dataset).asJenaDatasetGraph();</span>
-        }
-        // Otherwise, copy the data into a structure that Jena understands
-<span class="fc" id="L87">        final var dsgraph = DatasetFactory.create().asDatasetGraph();</span>
-
-<span class="fc" id="L89">        dataset.stream().forEach(quad -&gt; {</span>
-<span class="fc bfc" id="L90" title="All 2 branches covered.">            if (quad.getGraphName().isPresent()) {</span>
-<span class="fc" id="L91">                dsgraph.add(JenaUtils.toNode(quad.getGraphName().get()),</span>
-<span class="fc" id="L92">                        JenaUtils.toNode(quad.getSubject()),</span>
-<span class="fc" id="L93">                        JenaUtils.toNode(quad.getPredicate()),</span>
-<span class="fc" id="L94">                        JenaUtils.toNode(quad.getObject()));</span>
-            } else {
-<span class="fc" id="L96">                dsgraph.getDefaultGraph().add(JenaUtils.toNode(quad.getSubject()),</span>
-<span class="fc" id="L97">                            JenaUtils.toNode(quad.getPredicate()),</span>
-<span class="fc" id="L98">                            JenaUtils.toNode(quad.getObject()));</span>
-            }
-<span class="fc" id="L100">        });</span>
-<span class="fc" id="L101">        return dsgraph;</span>
-    }
+<span class="nc" id="L59">        } catch (final RiotException ex) {</span>
+<span class="nc" id="L60">            throw new IOException(&quot;Error serializing dataset&quot;, ex);</span>
+<span class="fc" id="L61">        }</span>
+<span class="fc" id="L62">    }</span>
 
     @Override
-    public void fromGraph(final Graph graph, final Syntax syntax, final OutputStream output) throws IOException {
-<span class="fc" id="L106">        final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));</span>
+    public void fromGraph(final Graph graph, final RDFSyntax syntax, final OutputStream output) throws IOException {
+<span class="fc" id="L66">        final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() -&gt;</span>
+<span class="nc" id="L67">                new IllegalArgumentException(&quot;Unsupported syntax: &quot; + syntax.title()));</span>
         try {
-<span class="fc bfc" id="L108" title="All 2 branches covered.">            if (graph instanceof JenaGraph) {</span>
-<span class="fc" id="L109">                RDFDataMgr.write(output, ((JenaGraph) graph).asJenaModel(), lang);</span>
-            } else {
-<span class="fc" id="L111">                final var model = ModelFactory.createDefaultModel();</span>
-<span class="fc" id="L112">                graph.stream().forEach(triple -&gt;</span>
-<span class="fc" id="L113">                    model.getGraph().add(JenaUtils.toNode(triple.getSubject()),</span>
-<span class="fc" id="L114">                            JenaUtils.toNode(triple.getPredicate()),</span>
-<span class="fc" id="L115">                            JenaUtils.toNode(triple.getObject())));</span>
-<span class="fc" id="L116">                RDFDataMgr.write(output, model, lang);</span>
-            }
-<span class="nc" id="L118">        } catch (final RiotException ex) {</span>
-<span class="nc" id="L119">            throw new IOException(&quot;Error serializing graph&quot;, ex);</span>
-<span class="fc" id="L120">        }</span>
-<span class="fc" id="L121">    }</span>
+<span class="fc" id="L69">            RDFDataMgr.write(output, JenaCommonsRDF.toJena(graph), lang);</span>
+<span class="nc" id="L70">        } catch (final RiotException ex) {</span>
+<span class="nc" id="L71">            throw new IOException(&quot;Error serializing graph&quot;, ex);</span>
+<span class="fc" id="L72">        }</span>
+<span class="fc" id="L73">    }</span>
 
     @Override
-    public Dataset toDataset(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
-<span class="fc" id="L125">        final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));</span>
-<span class="fc" id="L126">        final var dataset = DatasetFactory.create();</span>
+    public Dataset toDataset(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
+<span class="fc" id="L77">        final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() -&gt;</span>
+<span class="nc" id="L78">                new IllegalArgumentException(&quot;Unsupported syntax: &quot; + syntax.title()));</span>
+<span class="fc" id="L79">        final var dataset = DatasetGraphFactory.createTxnMem();</span>
         try {
-<span class="fc" id="L128">            RDFDataMgr.read(dataset, input, baseUri, lang);</span>
-<span class="fc" id="L129">        } catch (final RiotException ex) {</span>
-<span class="fc" id="L130">            throw new IOException(&quot;Error parsing dataset&quot;, ex);</span>
-<span class="fc" id="L131">        }</span>
+<span class="fc" id="L81">            RDFDataMgr.read(dataset, input, baseUri, lang);</span>
+<span class="fc" id="L82">        } catch (final RiotException ex) {</span>
+<span class="fc" id="L83">            throw new IOException(&quot;Error parsing dataset&quot;, ex);</span>
+<span class="fc" id="L84">        }</span>
 
-<span class="fc" id="L133">        return new JenaDataset(dataset.asDatasetGraph());</span>
+<span class="fc" id="L86">        return JenaCommonsRDF.fromJena(dataset);</span>
     }
 
     @Override
-    public Graph toGraph(final Syntax syntax, final InputStream input, final String baseUri) throws IOException {
-<span class="fc" id="L138">        final var lang = Objects.requireNonNull(SYNTAX_TO_LANG.get(syntax));</span>
-<span class="fc" id="L139">        final var model = ModelFactory.createDefaultModel();</span>
+    public Graph toGraph(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
+<span class="fc" id="L91">        final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() -&gt;</span>
+<span class="nc" id="L92">                new IllegalArgumentException(&quot;Unsupported syntax: &quot; + syntax.title()));</span>
+<span class="fc" id="L93">        final var graph = Factory.createDefaultGraph();</span>
         try {
-<span class="fc" id="L141">            RDFDataMgr.read(model, input, baseUri, lang);</span>
-<span class="fc" id="L142">        } catch (final RiotException ex) {</span>
-<span class="fc" id="L143">            throw new IOException(&quot;Error parsing graph&quot;, ex);</span>
-<span class="fc" id="L144">        }</span>
-
-<span class="fc" id="L146">        return new JenaGraph(model);</span>
-    }
-
-    @Override
-    public Dataset createDataset() {
-<span class="fc" id="L151">        final var dataset = DatasetFactory.create();</span>
-<span class="fc" id="L152">        return new JenaDataset(dataset.asDatasetGraph());</span>
-    }
-
-    @Override
-    public Graph createGraph() {
-<span class="fc" id="L157">        final var model = ModelFactory.createDefaultModel();</span>
-<span class="fc" id="L158">        return new JenaGraph(model);</span>
-    }
-
-    @Override
-    public Triple createTriple(final RDFNode subject, final RDFNode predicate, final RDFNode object) {
-<span class="fc" id="L163">        final var triple = org.apache.jena.graph.Triple.create(JenaUtils.toNode(subject),</span>
-<span class="fc" id="L164">                JenaUtils.toNode(predicate), JenaUtils.toNode(object));</span>
-<span class="fc" id="L165">        return new JenaTriple(triple);</span>
-    }
-
-    @Override
-    public Quad createQuad(final RDFNode subject, final RDFNode predicate, final RDFNode object,
-            final RDFNode graphName) {
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (graphName != null) {</span>
-<span class="fc" id="L172">            return new JenaQuad(create(JenaUtils.toNode(graphName),</span>
-<span class="fc" id="L173">                        JenaUtils.toNode(subject), JenaUtils.toNode(predicate), JenaUtils.toNode(object)));</span>
-        }
-<span class="fc" id="L175">        return new JenaQuad(create(defaultGraphIRI, JenaUtils.toNode(subject),</span>
-<span class="fc" id="L176">                    JenaUtils.toNode(predicate), JenaUtils.toNode(object)));</span>
+<span class="fc" id="L95">            RDFDataMgr.read(graph, input, baseUri, lang);</span>
+<span class="fc" id="L96">        } catch (final RiotException ex) {</span>
+<span class="fc" id="L97">            throw new IOException(&quot;Error parsing graph&quot;, ex);</span>
+<span class="fc" id="L98">        }</span>
+<span class="fc" id="L99">        return JenaCommonsRDF.fromJena(graph);</span>
     }
 }
 

@@ -20,9 +20,6 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Quad;
-import com.inrupt.client.rdf.RDFNode;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
 
@@ -30,10 +27,18 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Quad;
+
 /**
  * A Solid Container Object.
  */
 public final class SolidContainer extends SolidResource {
+
+    private final IRI rdfType;
+    private final IRI ldpContains;
+    private final IRI subject;
 
     /**
      * Create a new SolidContainer.
@@ -43,8 +48,12 @@ public final class SolidContainer extends SolidResource {
      * @param metadata the container's metadata, may be {@code null}
      */
     public SolidContainer(final URI identifier, final Dataset dataset, final Metadata metadata) {
-<span class="nc" id="L46">        super(identifier, dataset, metadata);</span>
-<span class="nc" id="L47">    }</span>
+<span class="nc" id="L51">        super(identifier, dataset, metadata);</span>
+
+<span class="nc" id="L53">        this.rdfType = rdf.createIRI(RDF.type.toString());</span>
+<span class="nc" id="L54">        this.ldpContains = rdf.createIRI(LDP.contains.toString());</span>
+<span class="nc" id="L55">        this.subject = rdf.createIRI(identifier.toString());</span>
+<span class="nc" id="L56">    }</span>
 
     /**
      * Retrieve the resources contained in this SolidContainer.
@@ -52,22 +61,17 @@ public final class SolidContainer extends SolidResource {
      * @return the contained resources
      */
     public Stream&lt;SolidResource&gt; getContainedResources() {
-<span class="nc" id="L55">        return getDataset().stream(Optional.empty(), RDFNode.namedNode(getIdentifier()),</span>
-<span class="nc" id="L56">                RDFNode.namedNode(LDP.contains), null)</span>
-<span class="nc" id="L57">            .map(Quad::getObject)</span>
-<span class="nc" id="L58">            .filter(RDFNode::isNamedNode)</span>
-<span class="nc" id="L59">            .map(RDFNode::getURI)</span>
-<span class="nc" id="L60">            .map(child -&gt; {</span>
-<span class="nc" id="L61">                final SolidResource.Builder builder = SolidResource.newResourceBuilder();</span>
-<span class="nc" id="L62">                final Metadata.Builder metadata = Metadata.newBuilder();</span>
-<span class="nc" id="L63">                getMetadata().getStorage().ifPresent(metadata::storage);</span>
-<span class="nc" id="L64">                getDataset().stream(Optional.empty(), RDFNode.namedNode(child), RDFNode.namedNode(RDF.type), null)</span>
-<span class="nc" id="L65">                    .map(Quad::getObject)</span>
-<span class="nc" id="L66">                    .filter(RDFNode::isNamedNode)</span>
-<span class="nc" id="L67">                    .map(RDFNode::getURI)</span>
-<span class="nc" id="L68">                    .forEach(metadata::type);</span>
-<span class="nc" id="L69">                builder.metadata(metadata.build());</span>
-<span class="nc" id="L70">                return builder.build(child);</span>
+<span class="nc" id="L64">        return getDataset().stream(Optional.empty(), subject, ldpContains, null)</span>
+<span class="nc" id="L65">            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L66">            .map(child -&gt; {</span>
+<span class="nc" id="L67">                final SolidResource.Builder builder = SolidResource.newResourceBuilder();</span>
+<span class="nc" id="L68">                final Metadata.Builder metadata = Metadata.newBuilder();</span>
+<span class="nc" id="L69">                getMetadata().getStorage().ifPresent(metadata::storage);</span>
+<span class="nc" id="L70">                getDataset().stream(Optional.empty(), child, rdfType, null)</span>
+<span class="nc" id="L71">                    .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L72">                    .map(IRI::getIRIString).map(URI::create).forEach(metadata::type);</span>
+<span class="nc" id="L73">                builder.metadata(metadata.build());</span>
+<span class="nc" id="L74">                return builder.build(URI.create(child.toString()));</span>
             });
     }
 
@@ -77,7 +81,7 @@ public final class SolidContainer extends SolidResource {
      * @return the builder
      */
     public static Builder newContainerBuilder() {
-<span class="nc" id="L80">        return new Builder();</span>
+<span class="nc" id="L84">        return new Builder();</span>
     }
 
     /**
@@ -95,8 +99,8 @@ public final class SolidContainer extends SolidResource {
          * @return this builder
          */
         public Builder metadata(final Metadata metadata) {
-<span class="nc" id="L98">            builderMetadata = metadata;</span>
-<span class="nc" id="L99">            return this;</span>
+<span class="nc" id="L102">            builderMetadata = metadata;</span>
+<span class="nc" id="L103">            return this;</span>
         }
 
         /**
@@ -106,8 +110,8 @@ public final class SolidContainer extends SolidResource {
          * @return this builder
          */
         public Builder dataset(final Dataset dataset) {
-<span class="nc" id="L109">            builderDataset = dataset;</span>
-<span class="nc" id="L110">            return this;</span>
+<span class="nc" id="L113">            builderDataset = dataset;</span>
+<span class="nc" id="L114">            return this;</span>
         }
 
         /**
@@ -117,12 +121,12 @@ public final class SolidContainer extends SolidResource {
          * @return the Solid container
          */
         public SolidContainer build(final URI identifier) {
-<span class="nc" id="L120">            return new SolidContainer(identifier, builderDataset, builderMetadata);</span>
+<span class="nc" id="L124">            return new SolidContainer(identifier, builderDataset, builderMetadata);</span>
         }
 
-<span class="nc" id="L123">        Builder() {</span>
+<span class="nc" id="L127">        Builder() {</span>
             // Prevent instantiations
-<span class="nc" id="L125">        }</span>
+<span class="nc" id="L129">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
