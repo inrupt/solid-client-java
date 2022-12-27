@@ -6,6 +6,8 @@ on:
       - main
     tags:
       - inrupt-client-[0-9]+.[0-9]+.[0-9]+
+      - inrupt-client-[0-9]+.[0-9]+.[0-9]+.Alpha[0-9]+
+      - inrupt-client-[0-9]+.[0-9]+.[0-9]+.Beta[0-9]+
 
 jobs:
   publish:
