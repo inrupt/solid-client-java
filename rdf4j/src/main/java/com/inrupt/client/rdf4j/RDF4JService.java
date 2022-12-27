@@ -34,13 +34,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFSyntax;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -61,11 +64,13 @@ public class RDF4JService implements RdfService {
     public void fromDataset(final Dataset dataset, final RDFSyntax syntax, final OutputStream output)
             throws IOException {
         final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));
+        final RDFWriter writer = Rio.createWriter(format, output);
         try {
-            try (final RepositoryConnection conn = toRdf4j(dataset).getConnection()) {
-                final Model m = QueryResults.asModel(conn.getStatements(null, null, null));
-                Rio.write(m, output, format);
+            writer.startRDF();
+            for (final Statement st : toRdf4j(dataset)) {
+                writer.handleStatement(st);
             }
+            writer.endRDF();
         } catch (final RDF4JException ex) {
             throw new IOException("Error serializing dataset", ex);
         }
@@ -93,23 +98,34 @@ public class RDF4JService implements RdfService {
                 return model.get();
             }
         }
-        final RDF4JGraph g = rdf.createGraph();
-        graph.stream().forEach(g::add);
-        return g.asModel()
-            .orElseThrow(() -> new IllegalStateException("Could not adapt RDF4J graph"));
+        final Model model = new LinkedHashModel();
+        graph.stream().forEach(triple ->
+                model.add((Resource) rdf.asValue(triple.getSubject()),
+                    (IRI) rdf.asValue(triple.getPredicate()),
+                    rdf.asValue(triple.getObject())));
+        return model;
     }
 
-    static Repository toRdf4j(final Dataset dataset) {
+    static Model toRdf4j(final Dataset dataset) {
         if (dataset instanceof RDF4JDataset) {
-            final Optional<Repository> repo = ((RDF4JDataset) dataset).asRepository();
-            if (repo.isPresent()) {
-                return repo.get();
+            final Optional<Model> model = ((RDF4JDataset) dataset).asModel();
+            if (model.isPresent()) {
+                return model.get();
             }
         }
-        final RDF4JDataset d = rdf.createDataset();
-        dataset.stream().forEach(d::add);
-        return d.asRepository()
-            .orElseThrow(() -> new IllegalStateException("Could not adapt RDF4J dataset"));
+        final Model model = new LinkedHashModel();
+        dataset.stream().forEach(quad ->
+                model.add((Resource) rdf.asValue(quad.getSubject()),
+                    (IRI) rdf.asValue(quad.getPredicate()),
+                    rdf.asValue(quad.getObject()),
+                    asContext(quad.getGraphName())));
+        return model;
+    }
+
+    static Resource[] asContext(final Optional<BlankNodeOrIRI> graphName) {
+        final BlankNodeOrIRI g = graphName.orElse(null);
+        final Resource context = (Resource) rdf.asValue(g);
+        return new Resource[] { context };
     }
 
     @Override
