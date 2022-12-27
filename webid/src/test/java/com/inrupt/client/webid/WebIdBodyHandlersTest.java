@@ -60,10 +60,9 @@ class WebIdBodyHandlersTest {
             .GET()
             .build();
 
-        final Response<WebIdProfile> response = client.send(
-            request,
-            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username"))
-        );
+        final Response<WebIdProfile> response = client.send(request,
+                WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username")))
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
 

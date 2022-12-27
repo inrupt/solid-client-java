@@ -147,12 +147,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public AccessToken authenticate(final Session session, final Request request) {
-            return authenticateAsync(session, request).toCompletableFuture().join();
-        }
-
-        @Override
-        public CompletionStage<AccessToken> authenticateAsync(final Session session, final Request request) {
+        public CompletionStage<AccessToken> authenticate(final Session session, final Request request) {
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
 
@@ -165,9 +160,9 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
             final TokenRequest req = new TokenRequest(ticket, null, null, claimToken, Collections.emptyList());
             // TODO add the dpop algorithm
             final String proofAlgorithm = null;
-            return umaClient.metadataAsync(as)
-                .thenCompose(metadata -> umaClient.tokenAsync(metadata.tokenEndpoint, req,
-                            claimHandler::async))
+            return umaClient.metadata(as)
+                .thenCompose(metadata -> umaClient.token(metadata.tokenEndpoint, req,
+                            claimHandler::getToken))
                 .thenApply(token -> new AccessToken(token.accessToken, token.tokenType,
                             Instant.now().plusSeconds(token.expiresIn), as, getScopes(token), proofAlgorithm));
         }
@@ -192,15 +187,11 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
             this.handlers.add(handler);
         }
 
-        public ClaimToken sync(final NeedInfo needInfo) {
-            return async(needInfo).toCompletableFuture().join();
-        }
-
-        public CompletionStage<ClaimToken> async(final NeedInfo needInfo) {
+        public CompletionStage<ClaimToken> getToken(final NeedInfo needInfo) {
             for (final RequiredClaims requiredClaims : needInfo.getRequiredClaims()) {
                 for (final ClaimGatheringHandler handler : handlers) {
                     if (handler.isCompatibleWith(requiredClaims)) {
-                        return handler.gatherAsync();
+                        return handler.gather();
                     }
                 }
             }

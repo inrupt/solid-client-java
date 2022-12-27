@@ -37,7 +37,7 @@
         Response<WebIdProfile> response = client.send(
             request,
             WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.example/username"))
-        );
+        ).toCompletableFuture().join();
         System.out.println("HTTP status: " + response.statusCode());
         System.out.println("WebID URI: " + response.body().getId());}
  * </pre>

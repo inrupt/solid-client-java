@@ -38,9 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -105,55 +103,12 @@ public class UmaClient {
      * Fetch the UMA metadata resource.
      *
      * @param authorizationServer the authorization server URI
-     * @return the authorization server discovery metadata
-     */
-    public Metadata metadata(final URI authorizationServer) {
-        try {
-            return metadataAsync(authorizationServer).toCompletableFuture().join();
-        } catch (final CompletionException ex) {
-            if (ex.getCause() instanceof UmaException) {
-                sneakyThrow(ex.getCause());
-            }
-            throw new UmaException("Error performing UMA metadata discovery", ex);
-        }
-    }
-
-    /**
-     * Fetch the UMA metadata resource.
-     *
-     * @param authorizationServer the authorization server URI
      * @return the next stage of completion, containing the authorization server discovery metadata
      */
-    public CompletionStage<Metadata> metadataAsync(final URI authorizationServer) {
+    public CompletionStage<Metadata> metadata(final URI authorizationServer) {
         final Request req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
-        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream())
+        return httpClient.send(req, Response.BodyHandlers.ofInputStream())
             .thenApply(this::processMetadataResponse);
-    }
-
-    /**
-     * Fetch the UMA token resource.
-     *
-     * @param tokenEndpoint the token endpoint
-     * @param tokenRequest the token request data
-     * @param claimMapper a mapping function for interactive claim gathering
-     * @return the token response
-     */
-    public TokenResponse token(final URI tokenEndpoint, final TokenRequest tokenRequest,
-            final Function<NeedInfo, ClaimToken> claimMapper) {
-        final Function<NeedInfo, ClaimToken> mapper = Objects.requireNonNull(claimMapper);
-        try {
-            return negotiateToken(Objects.requireNonNull(tokenEndpoint),
-                    Objects.requireNonNull(tokenRequest),
-                    needInfo -> CompletableFuture.completedFuture(mapper.apply(needInfo)), 1)
-                .toCompletableFuture().get();
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new UmaException("Error processing UMA token negotiation", ex);
-        } catch (final ExecutionException ex) {
-            // Handle any execution exceptions as runtime errors
-            sneakyThrow(ex.getCause());
-        }
-        throw new UmaException("Unable to negotiate UMA token");
     }
 
     /**
@@ -164,7 +119,7 @@ public class UmaClient {
      * @param claimMapper a mapping function for interactive claim gathering
      * @return the next stage of completion, containing the token response
      */
-    public CompletionStage<TokenResponse> tokenAsync(final URI tokenEndpoint, final TokenRequest tokenRequest,
+    public CompletionStage<TokenResponse> token(final URI tokenEndpoint, final TokenRequest tokenRequest,
             final Function<NeedInfo, CompletionStage<ClaimToken>> claimMapper) {
         return negotiateToken(Objects.requireNonNull(tokenEndpoint),
                 Objects.requireNonNull(tokenRequest), Objects.requireNonNull(claimMapper), 1);
@@ -178,7 +133,7 @@ public class UmaClient {
         }
 
         final Request req = buildTokenRequest(tokenEndpoint, tokenRequest);
-        return httpClient.sendAsync(req, Response.BodyHandlers.ofInputStream()).thenCompose(res -> {
+        return httpClient.send(req, Response.BodyHandlers.ofInputStream()).thenCompose(res -> {
             try {
                 // Successful terminal state
                 if (SUCCESS == res.statusCode()) {
@@ -242,10 +197,6 @@ public class UmaClient {
         }
     }
 
-
-    static <T extends Throwable> void sneakyThrow(final Throwable ex) throws T {
-        throw (T) ex;
-    }
 
     private Request buildTokenRequest(final URI tokenEndpoint, final TokenRequest request) {
         final Map<String, String> data = new HashMap<>();

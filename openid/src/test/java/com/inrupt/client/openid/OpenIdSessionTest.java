@@ -301,15 +301,12 @@ class OpenIdSessionTest {
         }
 
         @Override
-        public Authenticator.AccessToken authenticate(final Session session, final Request request) {
-            return new Authenticator.AccessToken(this.token, "Bearer", Instant.now().plusSeconds(3600),
-                    URI.create(ISS), Arrays.asList("openid", "webid"), null);
-        }
-
-        @Override
-        public CompletionStage<Authenticator.AccessToken> authenticateAsync(final Session session,
+        public CompletionStage<Authenticator.AccessToken> authenticate(final Session session,
                 final Request request) {
-            return CompletableFuture.completedFuture(authenticate(session, request));
+            final Authenticator.AccessToken token = new Authenticator.AccessToken(this.token,
+                    "Bearer", Instant.now().plusSeconds(3600),
+                    URI.create(ISS), Arrays.asList("openid", "webid"), null);
+            return CompletableFuture.completedFuture(token);
         }
     }
 

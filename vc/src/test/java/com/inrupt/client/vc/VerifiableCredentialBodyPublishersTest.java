@@ -75,7 +75,8 @@ class VerifiableCredentialBodyPublishersTest {
             .POST(VerifiableCredentialBodyPublishers.ofVerifiableCredential(expectedVC))
             .build();
 
-        final var response = client.send(request, Response.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(201, response.statusCode());
     }
@@ -88,7 +89,8 @@ class VerifiableCredentialBodyPublishersTest {
             .POST(VerifiableCredentialBodyPublishers.ofVerifiablePresentation(expectedVP))
             .build();
 
-        final var response = client.send(request, Response.BodyHandlers.discarding());
+        final var response = client.send(request, Response.BodyHandlers.discarding())
+            .toCompletableFuture().join();
 
         assertEquals(201, response.statusCode());
     }

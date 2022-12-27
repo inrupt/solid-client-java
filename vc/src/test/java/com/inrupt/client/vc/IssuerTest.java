@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,23 +62,8 @@ class IssuerTest {
     }
 
     @Test
-    void issueTest() throws IOException {
-        final var vc = issuer.issue(expectedVC);
-
-        assertEquals(expectedVC.context, vc.context);
-        assertEquals(expectedVC.id, vc.id);
-        assertEquals(expectedVC.type, vc.type);
-        assertEquals(expectedVC.issuer, vc.issuer);
-        assertEquals(expectedVC.issuanceDate, vc.issuanceDate);
-        assertEquals(expectedVC.expirationDate, vc.expirationDate);
-        assertEquals(expectedVC.credentialSubject, vc.credentialSubject);
-        assertEquals(expectedVC.credentialStatus, vc.credentialStatus);
-        assertEquals(expectedVC.proof, vc.proof);
-    }
-
-    @Test
     void issueAsyncTest() throws IOException {
-        final var vc = issuer.issueAsync(expectedVC).toCompletableFuture().join();
+        final var vc = issuer.issue(expectedVC).toCompletableFuture().join();
 
         assertEquals(expectedVC.context, vc.context);
         assertEquals(expectedVC.id, vc.id);
@@ -91,31 +74,6 @@ class IssuerTest {
         assertEquals(expectedVC.credentialSubject, vc.credentialSubject);
         assertEquals(expectedVC.credentialStatus, vc.credentialStatus);
         assertEquals(expectedVC.proof, vc.proof);
-    }
-
-    @Test
-    void issueStatusCodesTest() {
-        assertAll("Bad request because of empty VC",
-            () -> {
-                final var vc = new VerifiableCredential();
-                final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> issuer.issue(vc)
-                );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when handling a verifiable credential.", cause.getMessage());
-                assertEquals(Optional.of(400), cause.getStatus());
-            });
-    }
-
-    @Test
-    void statusTest() {
-        final var statusRequest = StatusRequest.Builder.newBuilder()
-            .credentialStatus(URI.create("CredentialStatusList2017"), true)
-            .build("http://example.test/credentials/1872");
-
-        issuer.status(statusRequest);
-
     }
 
     @Test
@@ -124,24 +82,6 @@ class IssuerTest {
                 .credentialStatus(URI.create("CredentialStatusList2017"), true)
                 .build("http://example.test/credentials/1872");
 
-        issuer.statusAsync(statusRequest);
+        issuer.status(statusRequest).toCompletableFuture().join();
     }
-
-    @Test
-    void statusAsyncTestStatusCodesTest() {
-        final var statusRequest = StatusRequest.Builder.newBuilder()
-                .credentialStatus(URI.create("CredentialStatusList2017"), true)
-                .build("http://example.test/credentials/0000");
-        assertAll("Not found because of non existent credentialID",
-            () -> {
-                final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> issuer.status(statusRequest)
-                );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when updating status.", cause.getMessage());
-                assertEquals(Optional.of(404), cause.getStatus());
-            });
-    }
-
 }

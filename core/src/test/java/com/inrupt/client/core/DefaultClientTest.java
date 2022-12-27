@@ -88,26 +88,13 @@ class DefaultClientTest {
     }
 
     @Test
-    void testSendOfString() throws IOException, InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(baseUri.get() + "/file"))
-                .GET()
-                .build();
-
-        final Response<String> response = client.send(request, Response.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode());
-        assertTrue(response.body().contains("Julie C. Sparks and David Widger"));
-    }
-
-    @Test
     void testSendOfStringAsync() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(baseUri.get() + "/file"))
                 .GET()
                 .build();
 
-        final Response<String> response = client.sendAsync(request, Response.BodyHandlers.ofString())
+        final Response<String> response = client.send(request, Response.BodyHandlers.ofString())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -123,7 +110,8 @@ class DefaultClientTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, JenaBodyHandlers.ofModel());
+        final Response<Model> response = client.send(request, JenaBodyHandlers.ofModel())
+            .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 
         final Model responseBody = response.body();
@@ -143,7 +131,9 @@ class DefaultClientTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, JenaBodyHandlers.ofModel());
+        final Response<Model> response = client.send(request, JenaBodyHandlers.ofModel())
+            .toCompletableFuture().join();
+
         assertEquals(200, response.statusCode());
 
         final Model responseBody = response.body();
@@ -162,7 +152,7 @@ class DefaultClientTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.sendAsync(request, JenaBodyHandlers.ofModel())
+        final Response<Model> response = client.send(request, JenaBodyHandlers.ofModel())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -192,7 +182,7 @@ class DefaultClientTest {
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
 
-        final Response<Void> response = client.sendAsync(request, Response.BodyHandlers.discarding())
+        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
@@ -206,7 +196,7 @@ class DefaultClientTest {
         final String token = generateIdToken(claims);
         final Session session = OpenIdSession.ofIdToken(token);
         assertDoesNotThrow(() -> {
-            final Response<Void> res = client.session(session).sendAsync(request, Response.BodyHandlers.discarding())
+            final Response<Void> res = client.session(session).send(request, Response.BodyHandlers.discarding())
                 .toCompletableFuture().join();
             assertEquals(201, res.statusCode());
         });
@@ -228,7 +218,7 @@ class DefaultClientTest {
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
 
-        final Response<Void> response = client.sendAsync(request, Response.BodyHandlers.discarding())
+        final Response<Void> response = client.send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
@@ -260,7 +250,7 @@ class DefaultClientTest {
                 .build();
 
         final Response<Void> response = client.session(OpenIdSession.ofIdToken(token))
-            .sendAsync(request, Response.BodyHandlers.discarding())
+            .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
@@ -284,7 +274,7 @@ class DefaultClientTest {
                 .build();
 
         final Response<Void> response = client.session(UmaSession.of(OpenIdSession.ofIdToken(token)))
-            .sendAsync(request, Response.BodyHandlers.discarding())
+            .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(201, response.statusCode());
@@ -299,7 +289,7 @@ class DefaultClientTest {
                 .build();
 
         final Response<Void> response = client.session(UmaSession.of())
-            .sendAsync(request, Response.BodyHandlers.discarding())
+            .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
@@ -330,7 +320,7 @@ class DefaultClientTest {
                 .build();
 
         final Response<Void> response = client.session(UmaSession.of(s))
-            .sendAsync(request, Response.BodyHandlers.discarding())
+            .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
@@ -343,7 +333,8 @@ class DefaultClientTest {
                 .GET()
                 .build();
 
-        final Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+        final Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
     }

@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -74,65 +72,17 @@ class VerifierTest {
     }
 
     @Test
-    void verifyTest() {
-        final var verificationResponse = verifier.verify(expectedVC);
-
-        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
-        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
-        assertNull(verificationResponse.errors);
-    }
-
-    @Test
-    void verifyStatusCodesTest() {
-        assertAll("Invalid or malformed input because of empty VC",
-            () -> {
-                final var vc = new VerifiableCredential();
-                final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> verifier.verify(vc)
-                );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when verifying a resource.", cause.getMessage());
-                assertEquals(Optional.of(400), cause.getStatus());
-            });
-    }
-
-    @Test
     void verifyAsyncTest() {
-        final var verificationResponse = verifier.verifyAsync(expectedVC).toCompletableFuture().join();
+        final var verificationResponse = verifier.verify(expectedVC).toCompletableFuture().join();
 
         assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
         assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
         assertNull(verificationResponse.errors);
-    }
-
-    @Test
-    void verifyPresentationTest() {
-        final var verificationResponse = verifier.verify(expectedVP);
-
-        assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
-        assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
-        assertNull(verificationResponse.errors);
-    }
-
-    @Test
-    void verifyPresentationStatusCodesTest() {
-        assertAll("Invalid of malformed input because of empty VP",
-            () -> {
-                final var vc = new VerifiableCredential();
-                final CompletionException exception = assertThrows(CompletionException.class,
-                    () -> verifier.verify(vc)
-                );
-                assertTrue(exception.getCause() instanceof VerifiableCredentialException);
-                final var cause = (VerifiableCredentialException) exception.getCause();
-                assertEquals("Unexpected error response when verifying a resource.", cause.getMessage());
-                assertEquals(Optional.of(400), cause.getStatus());
-            });
     }
 
     @Test
     void verifyPresentationAsyncTest() {
-        final var verificationResponse = verifier.verifyAsync(expectedVP).toCompletableFuture().join();
+        final var verificationResponse = verifier.verify(expectedVP).toCompletableFuture().join();
 
         assertEquals(expectedVerificationResponse.checks, verificationResponse.checks);
         assertEquals(expectedVerificationResponse.warnings, verificationResponse.warnings);
