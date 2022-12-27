@@ -855,9 +855,27 @@
     </profile>
   </profiles>
 
+  <developers>
+    <developer>
+      <id>acoburn</id>
+      <name>Aaron Coburn</name>
+      <organization>Inrupt</organization>
+    </developer>
+    <developer>
+      <id>timea-solid</id>
+      <name>Timea Turdean</name>
+      <organization>Inrupt</organization>
+    </developer>
+    <developer>
+      <id>BnjmnCummings</id>
+      <name>Ben Cummings</name>
+      <organization>Inrupt</organization>
+    </developer>
+  </developers>
+
   <scm>
     <connection>scm:git:https://github.com/inrupt/solid-client-java.git</connection>
-    <developerConnection>scm:git:https://github.com/inrupt/solid-client-java.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:inrupt/solid-client-java.git</developerConnection>
     <url>https://github.com/inrupt/solid-client-java</url>
     <tag>HEAD</tag>
   </scm>
