@@ -68,7 +68,7 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final Response<Model> res = client.sendAsync(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture().join();
+        final Response<Model> res = client.send(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture().join();
 
         final int statusCode = res.statusCode();
         final Model responseBody = res.body();
@@ -91,7 +91,8 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel());
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final Model responseBody = response.body();
@@ -111,7 +112,8 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel());
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final Model responseBody = response.body();
@@ -133,7 +135,7 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final Response<Repository> res = client.sendAsync(request, RDF4JBodyHandlers.ofRepository())
+        final Response<Repository> res = client.send(request, RDF4JBodyHandlers.ofRepository())
             .toCompletableFuture().join();
 
         final int statusCode = res.statusCode();
@@ -160,7 +162,8 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository());
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository())
+            .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 
         final Repository responseBody = response.body();
@@ -183,7 +186,8 @@ class RDF4JBodyHandlersTest {
                 .GET()
                 .build();
 
-        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository());
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository())
+            .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 
         final Repository responseBody = response.body();

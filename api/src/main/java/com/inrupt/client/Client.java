@@ -32,19 +32,9 @@ public interface Client {
      * @param request the request
      * @param responseBodyHandler the response body handler
      * @param <T> the response handler type
-     * @return the response
-     */
-    <T> Response<T> send(Request request, Response.BodyHandler<T> responseBodyHandler);
-
-    /**
-     * Perform an HTTP request.
-     *
-     * @param request the request
-     * @param responseBodyHandler the response body handler
-     * @param <T> the response handler type
      * @return the next stage of completion, containing the response
      */
-    <T> CompletionStage<Response<T>> sendAsync(Request request, Response.BodyHandler<T> responseBodyHandler);
+    <T> CompletionStage<Response<T>> send(Request request, Response.BodyHandler<T> responseBodyHandler);
 
     /**
      * Create a session-scoped client.

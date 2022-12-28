@@ -50,7 +50,8 @@
               .uri("https://example.example/solid.png")
               .GET()
               .build();
-       Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray());
+       Response<byte[]> response = client.send(request, Response.BodyHandlers.ofByteArray())
+                                    .toCompletableFuture().join();
 
        System.out.println("HTTP status code: " + response.statusCode());
        System.out.println("Response uri: " + response.uri());
@@ -76,7 +77,7 @@
        RdfService processor = ServiceProvider.getRdfService();
        Dataset dataset;
        try (InputStream input = Test.class.getResourceAsStream("/oneTriple.trig")) {
-              dataset = processor.toDataset(Syntax.TRIG, input);
+              dataset = processor.toDataset(RDFSyntax.TRIG, input);
        }
        System.out.println("Number of triples in file: " + dataset.stream().count());
  * }</pre>

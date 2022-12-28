@@ -64,7 +64,8 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofModel());
+        final var response = client.send(request, JenaBodyHandlers.ofModel())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
@@ -85,7 +86,7 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofModel());
+        final var asyncResponse = client.send(request, JenaBodyHandlers.ofModel());
 
         final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
         assertEquals(200, statusCode);
@@ -106,7 +107,8 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofModel());
+        final var response = client.send(request, JenaBodyHandlers.ofModel())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
@@ -125,7 +127,8 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofDataset());
+        final var response = client.send(request, JenaBodyHandlers.ofDataset())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
@@ -145,7 +148,8 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofDataset());
+        final var response = client.send(request, JenaBodyHandlers.ofDataset())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
@@ -167,7 +171,7 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var asyncResponse = client.sendAsync(request, JenaBodyHandlers.ofGraph());
+        final var asyncResponse = client.send(request, JenaBodyHandlers.ofGraph());
 
         final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
         assertEquals(200, statusCode);
@@ -189,7 +193,8 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofGraph());
+        final var response = client.send(request, JenaBodyHandlers.ofGraph())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
@@ -208,7 +213,8 @@ class JenaBodyHandlersTest {
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofGraph());
+        final var response = client.send(request, JenaBodyHandlers.ofGraph())
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();

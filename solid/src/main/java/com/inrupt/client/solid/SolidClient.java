@@ -23,20 +23,28 @@ package com.inrupt.client.solid;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
+import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
 import com.inrupt.client.Session;
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.Syntax;
 import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
 
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.RDFSyntax;
+
 /**
  * A high-level client for interacting with Solid resources.
  */
 public class SolidClient {
+
+    private static final String ACCEPT = "Accept";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String IF_NONE_MATCH = "If-None-Match";
+    private static final String TEXT_TURTLE = "text/turtle";
+    private static final String WILDCARD = "*";
 
     private final Client client;
 
@@ -62,9 +70,9 @@ public class SolidClient {
      * @param <T> the response handler type
      * @return the response
      */
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request,
+    public <T> CompletionStage<Response<T>> send(final Request request,
             final Response.BodyHandler<T> responseBodyHandler) {
-        return client.sendAsync(request, responseBodyHandler);
+        return client.send(request, responseBodyHandler);
     }
 
     /**
@@ -75,17 +83,16 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion, including the new resource
      */
-    public <T extends SolidResource> CompletionStage<T> read(final URI identifier, final Class<T> clazz) {
+    public <T extends Resource> CompletionStage<T> read(final URI identifier, final Class<T> clazz) {
         final Request req = Request.newBuilder(identifier)
-            .header("Accept", "text/turtle")
+            .header(ACCEPT, TEXT_TURTLE)
             .GET().build();
 
-        return client.sendAsync(req, SolidResourceHandlers.ofSolidResource())
+        return client.send(req, SolidResourceHandlers.ofSolidResource())
             .thenApply(Response::body)
             .thenApply(resource -> {
                 try {
-                    return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)
-                            .newInstance(identifier, resource.getDataset(), resource.getMetadata());
+                    return construct(identifier, clazz, resource);
                 } catch (final ReflectiveOperationException ex) {
                     throw new SolidResourceException("Unable to read resource into type " + clazz.getName(), ex);
                 }
@@ -99,14 +106,14 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends SolidResource> CompletionStage<Response<Void>> create(final T resource) {
+    public <T extends Resource> CompletionStage<Response<Void>> create(final T resource) {
         final Request req = Request.newBuilder(resource.getIdentifier())
-            .header("Content-Type", "text/turtle")
-            .header("If-None-Match", "*")
+            .header(CONTENT_TYPE, TEXT_TURTLE)
+            .header(IF_NONE_MATCH, WILDCARD)
             .PUT(cast(resource))
             .build();
 
-        return client.sendAsync(req, Response.BodyHandlers.discarding());
+        return client.send(req, Response.BodyHandlers.discarding());
     }
 
     /**
@@ -116,13 +123,13 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends SolidResource> CompletionStage<Response<Void>> update(final T resource) {
+    public <T extends Resource> CompletionStage<Response<Void>> update(final T resource) {
         final Request req = Request.newBuilder(resource.getIdentifier())
-            .header("Content-Type", "text/turtle")
+            .header(CONTENT_TYPE, TEXT_TURTLE)
             .PUT(cast(resource))
             .build();
 
-        return client.sendAsync(req, Response.BodyHandlers.discarding());
+        return client.send(req, Response.BodyHandlers.discarding());
     }
 
     /**
@@ -132,11 +139,11 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends SolidResource> CompletionStage<Response<Void>> delete(final T resource) {
+    public <T extends Resource> CompletionStage<Response<Void>> delete(final T resource) {
         final Request req = Request.newBuilder(resource.getIdentifier())
             .DELETE()
             .build();
-        return client.sendAsync(req, Response.BodyHandlers.discarding());
+        return client.send(req, Response.BodyHandlers.discarding());
     }
 
     /**
@@ -158,10 +165,23 @@ public class SolidClient {
         return SolidClient.of(ClientProvider.getClient());
     }
 
-    static Request.BodyPublisher cast(final SolidResource resource) {
+    static <T extends Resource> T construct(final URI identifier, final Class<T> clazz, final SolidResource resource)
+            throws ReflectiveOperationException {
+        try {
+            // First try an arity-3 ctor
+            return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)
+                        .newInstance(identifier, resource.getDataset(), resource.getMetadata());
+        } catch (final NoSuchMethodException ex) {
+            // Fall back to an arity-2 ctor
+            return clazz.getConstructor(URI.class, Dataset.class)
+                        .newInstance(identifier, resource.getDataset());
+        }
+    }
+
+    static Request.BodyPublisher cast(final Resource resource) {
         return IOUtils.buffer(out -> {
             try {
-                resource.serialize(Syntax.TURTLE, out);
+                resource.serialize(RDFSyntax.TURTLE, out);
             } catch (final IOException ex) {
                 throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
                         " into Solid Resource", ex);

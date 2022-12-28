@@ -72,7 +72,7 @@ class SolidResourceTest {
         final Response<SolidResource> response = client.send(
             request,
             SolidResourceHandlers.ofSolidResource()
-        );
+        ).toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
 
@@ -105,7 +105,7 @@ class SolidResourceTest {
         final Response<SolidContainer> response = client.send(
             request,
             SolidResourceHandlers.ofSolidContainer()
-        );
+        ).toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
 
@@ -153,13 +153,13 @@ class SolidResourceTest {
             .GET()
             .build();
 
-        final CompletionException err1 = assertThrows(CompletionException.class, () -> client.sendAsync(
+        final CompletionException err1 = assertThrows(CompletionException.class, () -> client.send(
             request,
             SolidResourceHandlers.ofSolidContainer()
         ).toCompletableFuture().join());
         assertTrue(err1.getCause() instanceof SolidResourceException);
 
-        final CompletionException err2 = assertThrows(CompletionException.class, () -> client.sendAsync(
+        final CompletionException err2 = assertThrows(CompletionException.class, () -> client.send(
             request,
             SolidResourceHandlers.ofSolidResource()
         ).toCompletableFuture().join());

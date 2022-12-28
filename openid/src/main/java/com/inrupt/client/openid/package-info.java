@@ -56,7 +56,8 @@
             .GET()
             .build();
 
-   Response authorizationResponse = client.send(authorizationRequest, Response.BodyHandlers.ofString());
+   Response authorizationResponse = client.send(authorizationRequest, Response.BodyHandlers.ofString())
+                                    .toCompletableFuture().join();
  * }</pre>
  *
  * <h3>Obtaining an ID token</h3>
@@ -72,7 +73,7 @@
                 "authorization_code",
                 "s6BhdRkqt3") //same client_id as from the authorization
             );
-   TokenResponse token = openIdProvider.token(tokenReq);
+   TokenResponse token = openIdProvider.token(tokenReq).toCompletableFuture().join();
 
    System.out.println("ID Token: " + token.idToken);
    System.out.println("Token type: " + token.tokenType);
@@ -85,7 +86,7 @@
  * <pre>{@code
    Client client = ClientProvider.getClient();
    Session session = client.session(OpenIdSession.ofIdToken(jwt));
-   Response res = session.send(req, bodyHandler);
+   Response res = session.send(req, bodyHandler).toCompletableFuture().join();
  * }</pre>
  *
  * <p>A developer can configure aspects of the ID Token validation.
@@ -103,7 +104,7 @@
 
    Session session = client.session(OpenIdSession.ofIdToken(jwt, config));
 
-   Response res = session.send(req, bodyHandler);
+   Response res = session.send(req, bodyHandler).toCompletableFuture().join();
  * }</pre>
  *
  * <p>An invalid token will throw an {@link OpenIdException} during session creation.
@@ -117,7 +118,7 @@
          .state("code")
          .build();
 
-   URI uri = openIdProvider.endSession(endReq);
+   URI uri = openIdProvider.endSession(endReq).toCompletableFuture().join();
  * }</pre>
  *
  * <h3>Generating a PKCE code challenge and verifier.</h3>

@@ -62,6 +62,23 @@ public class SolidMockHttpService {
             )
         );
 
+        wireMockServer.stubFor(get(urlEqualTo("/recipe"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withHeader("Link", Link.of(LDP.RDFSource, "type").toString())
+                .withHeader("Link", Link.of(URI.create("http://storage.example/"),
+                        PIM.storage).toString())
+                .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
+                .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
+                .withHeader("Allow", "POST, PUT, PATCH")
+                .withHeader("Accept-Post", "application/ld+json, text/turtle")
+                .withHeader("Accept-Put", "application/ld+json, text/turtle")
+                .withHeader("Accept-Patch", "application/sparql-update, text/n3")
+                .withBodyFile("recipe.ttl")
+            )
+        );
+
         wireMockServer.stubFor(get(urlEqualTo("/playlist"))
             .willReturn(aResponse()
                 .withStatus(200)

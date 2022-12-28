@@ -55,7 +55,7 @@
         .GET()
         .build();
 
-    Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel());
+    Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture().join();
 
     System.out.println("HTTP status code: " + response.statusCode());
     System.out.println("Number of triples in file: " + response.body().size());
@@ -77,7 +77,7 @@
             .POST(RDF4JBodyPublishers.ofModel(model))
             .build();
 
-    Response<Void> response = client.send(request, Response.BodyHandlers.discarding());
+    Response<Void> response = client.send(request, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
     System.out.println("HTTP status code: " + response.statusCode());
  * }</pre>

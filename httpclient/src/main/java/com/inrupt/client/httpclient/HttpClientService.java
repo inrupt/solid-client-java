@@ -27,7 +27,6 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 
-import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -50,13 +49,7 @@ public class HttpClientService implements HttpService {
     }
 
     @Override
-    public <T> Response<T> send(final Request request, final Response.BodyHandler<T> handler)
-            throws IOException {
-        return sendAsync(request, handler).toCompletableFuture().join();
-    }
-
-    @Override
-    public <T> CompletionStage<Response<T>> sendAsync(final Request request, final Response.BodyHandler<T> handler) {
+    public <T> CompletionStage<Response<T>> send(final Request request, final Response.BodyHandler<T> handler) {
         final var builder = HttpRequest.newBuilder(request.uri());
 
         final var publisher = request.bodyPublisher().map(Request.BodyPublisher::getBytes)
