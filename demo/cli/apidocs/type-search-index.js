@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.demo.cli","l":"AppConfig"},{"p":"com.inrupt.client.demo.cli","l":"SolidApp"}]
