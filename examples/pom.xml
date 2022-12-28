@@ -7,8 +7,8 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-demo-parent</artifactId>
-  <name>Inrupt Client Libraries - Demo Parent</name>
+  <artifactId>inrupt-client-examples-parent</artifactId>
+  <name>Inrupt Client Libraries - Examples Parent</name>
   <packaging>pom</packaging>
 
   <modules>
