@@ -116,4 +116,16 @@ class SolidClientTest {
         final InvalidType type = new InvalidType(uri);
         assertThrows(SolidResourceException.class, () -> client.update(type));
     }
+
+    @Test
+    void testGetRecipeType() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/recipe");
+
+        final Recipe recipe = client.read(uri, Recipe.class).toCompletableFuture().join();
+
+        assertEquals(uri, recipe.getIdentifier());
+        assertEquals("Molasses Cookies", recipe.getTitle());
+        assertEquals(11, recipe.getIngredients().size());
+        assertEquals(7, recipe.getSteps().size());
+    }
 }
