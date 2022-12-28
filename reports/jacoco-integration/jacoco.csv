@@ -93,7 +93,7 @@ Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer.Builder,22,0,0,0,7,0,4,0,4,0
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResourceHandlers,257,0,4,0,58,0,18,0,16,0
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResource.Builder,22,0,0,0,7,0,4,0,4,0
-Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidClient,175,0,0,0,38,0,12,0,12,0
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidClient,207,0,0,0,42,0,13,0,13,0
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,Metadata.Builder,128,0,0,0,30,0,9,0,9,0
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResourceException,9,0,0,0,4,0,2,0,2,0
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer,111,0,0,0,17,0,4,0,4,0
