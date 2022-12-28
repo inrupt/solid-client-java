@@ -35,7 +35,7 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 |  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/test/package-summary.html}test}} | Common tests shared across library modules. |
 *-------*-----------------*--------*--------------*
-|| Example Applications |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/demo/quarkus/package-summary.html}demo}} | A Quarkus demo application. |
+|| Example Applications |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/quarkus/package-summary.html}examples}} | A Sample Quarkus application. |
 *-------*-----------------*--------*--------------*
 
 * Getting started
@@ -126,9 +126,9 @@ session.getPrincipal().ifPresent(webid ->
         .toCompletableFuture().join());
 -----------------------
 
-** Quarkus demo
+** Quarkus example
 
-    The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/demo/quarkus/package-summary.html}demo module}} contains a Quarkus application implementing a similar pattern to look up a user's WebID profile and then display the contents of a user's storage.
+    The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/quarkus/package-summary.html}examples module}} contains a Quarkus application implementing a similar pattern to look up a user's WebID profile and then display the contents of a user's storage.
 
     To set up the example application the following configuration values need to be added for this to work properly:
 
@@ -150,7 +150,7 @@ $ ./mvnw package
     To run the application, use this command:
 
 ---------------------
-$ java -jar demo/quarkus/target/quarkus-app/quarkus-run.jar
+$ java -jar examples/quarkus/target/quarkus-app/quarkus-run.jar
 ---------------------
 
     The application will be available at <<<http://localhost:8080>>>.
