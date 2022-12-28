@@ -22,8 +22,6 @@ package com.inrupt.client.rdf4j;
 
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.commons.rdf4j.RDF4J;
-import com.inrupt.commons.rdf4j.RDF4JDataset;
-import com.inrupt.commons.rdf4j.RDF4JGraph;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,18 +30,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Stream;
 
-import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFSyntax;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -67,8 +61,8 @@ public class RDF4JService implements RdfService {
         final RDFWriter writer = Rio.createWriter(format, output);
         try {
             writer.startRDF();
-            for (final Statement st : toRdf4j(dataset)) {
-                writer.handleStatement(st);
+            try (final Stream<Statement> statements = dataset.stream().map(rdf::asStatement)) {
+                statements.sequential().forEach(writer::handleStatement);
             }
             writer.endRDF();
         } catch (final RDF4JException ex) {
@@ -82,50 +76,13 @@ public class RDF4JService implements RdfService {
         final RDFWriter writer = Rio.createWriter(format, output);
         try {
             writer.startRDF();
-            for (final Statement st : toRdf4j(graph)) {
-                writer.handleStatement(st);
+            try (final Stream<Statement> statements = graph.stream().map(rdf::asStatement)) {
+                statements.sequential().forEach(writer::handleStatement);
             }
             writer.endRDF();
         } catch (final RDF4JException ex) {
             throw new IOException("Error serializing graph", ex);
         }
-    }
-
-    static Model toRdf4j(final Graph graph) {
-        if (graph instanceof RDF4JGraph) {
-            final Optional<Model> model = ((RDF4JGraph) graph).asModel();
-            if (model.isPresent()) {
-                return model.get();
-            }
-        }
-        final Model model = new LinkedHashModel();
-        graph.stream().forEach(triple ->
-                model.add((Resource) rdf.asValue(triple.getSubject()),
-                    (IRI) rdf.asValue(triple.getPredicate()),
-                    rdf.asValue(triple.getObject())));
-        return model;
-    }
-
-    static Model toRdf4j(final Dataset dataset) {
-        if (dataset instanceof RDF4JDataset) {
-            final Optional<Model> model = ((RDF4JDataset) dataset).asModel();
-            if (model.isPresent()) {
-                return model.get();
-            }
-        }
-        final Model model = new LinkedHashModel();
-        dataset.stream().forEach(quad ->
-                model.add((Resource) rdf.asValue(quad.getSubject()),
-                    (IRI) rdf.asValue(quad.getPredicate()),
-                    rdf.asValue(quad.getObject()),
-                    asContext(quad.getGraphName())));
-        return model;
-    }
-
-    static Resource[] asContext(final Optional<BlankNodeOrIRI> graphName) {
-        final BlankNodeOrIRI g = graphName.orElse(null);
-        final Resource context = (Resource) rdf.asValue(g);
-        return new Resource[] { context };
     }
 
     @Override
