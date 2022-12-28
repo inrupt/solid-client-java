@@ -78,10 +78,13 @@ public class SolidStorage {
                 .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer())
                         .thenApply(Response::body).toCompletableFuture().join())
                 .map(model -> {
-                    final var resources = model.getContainedResources()
-                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getMetadata().getType()),
-                                    Collectors.mapping(c -> c.getIdentifier().toString(), Collectors.toList())));
-                    return Templates.profile(profile, resources.get(LDP.BasicContainer), resources.get(LDP.RDFSource));
+                    try (final var stream = model.getContainedResources()) {
+                        final var resources = stream.collect(Collectors.groupingBy(c ->
+                                    getPrincipalType(c.getMetadata().getType()), Collectors.mapping(c ->
+                                        c.getIdentifier().toString(), Collectors.toList())));
+                        return Templates.profile(profile, resources.get(LDP.BasicContainer),
+                                resources.get(LDP.RDFSource));
+                    }
                 });
         }).orElseGet(() -> Templates.profile(null, List.of(), List.of()));
     }
