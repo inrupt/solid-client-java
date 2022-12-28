@@ -87,7 +87,7 @@ Inrupt Client Libraries - Report/inrupt-client-okhttp,com.inrupt.client.okhttp,O
 Inrupt Client Libraries - Report/inrupt-client-httpclient,com.inrupt.client.httpclient,HttpClientService,5,100,0,4,1,19,1,7,1,5
 Inrupt Client Libraries - Report/inrupt-client-httpclient,com.inrupt.client.httpclient,HttpClientResponseInfo,0,26,0,0,0,8,0,5,0,5
 Inrupt Client Libraries - Report/inrupt-client-httpclient,com.inrupt.client.httpclient,HttpClientResponse,0,26,0,0,0,9,0,5,0,5
-Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JService,44,204,4,6,8,49,6,10,2,9
+Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JService,35,255,4,8,7,61,5,13,1,11
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JBodyPublishers,0,44,0,0,0,9,0,7,0,7
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JBodyHandlers,26,83,0,0,4,15,2,7,2,7
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer.Builder,0,22,0,0,0,7,0,4,0,4
