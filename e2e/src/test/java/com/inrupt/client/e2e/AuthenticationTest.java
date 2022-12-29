@@ -52,10 +52,10 @@ public class AuthenticationTest {
 
     @BeforeAll
     static void setup() {
-        final var webid = URI.create(smallRyeConfig.getValue("webid", String.class));
-        final var sub = smallRyeConfig.getValue("username", String.class);
-        final var iss = smallRyeConfig.getValue("issuer", String.class);
-        final var azp = smallRyeConfig.getValue("azp", String.class);
+        final var webid = URI.create(smallRyeConfig.getValue("E2E_TEST_WEBID", String.class));
+        final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
+        final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
+        final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
 
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
@@ -68,7 +68,8 @@ public class AuthenticationTest {
         session = session.session(OpenIdSession.ofIdToken(token));
 
         final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
+        final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
+                            .toCompletableFuture().join().body();
 
         if (!profile.getStorage().isEmpty()) {
             podUrl = profile.getStorage().iterator().next().toString();
@@ -84,7 +85,7 @@ public class AuthenticationTest {
     void fetchPrivateResourceUnauthenticatedTest() {
         final Client client = ClientProvider.getClient();
         final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
-        final var response = client.send(request, JenaBodyHandlers.ofModel());
+        final var response = client.send(request, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
     }

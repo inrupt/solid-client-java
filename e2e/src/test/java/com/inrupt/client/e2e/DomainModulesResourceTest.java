@@ -29,9 +29,9 @@ import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.RDFNode;
+import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.solid.SolidContainer;
+import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
@@ -40,9 +40,16 @@ import io.smallrye.config.SmallRyeConfig;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.Quad;
+import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,17 +63,18 @@ public class DomainModulesResourceTest {
     private static Client http = ClientProvider.getClient();
     private static SolidClient client;
     private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
+    private static final RDF rdf = RDFFactory.getInstance();
 
     private static String podUrl = "";
     private static String testResource = "";
-    private static final URI webid = URI.create(smallRyeConfig.getValue("webid", String.class));
+    private static final URI webid = URI.create(smallRyeConfig.getValue("E2E_TEST_WEBID", String.class));
 
     @BeforeAll
     static void setup() {
 
-        final var sub = smallRyeConfig.getValue("username", String.class);
-        final var iss = smallRyeConfig.getValue("issuer", String.class);
-        final var azp = smallRyeConfig.getValue("azp", String.class);
+        final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
+        final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
+        final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
 
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
@@ -80,7 +88,7 @@ public class DomainModulesResourceTest {
         client = SolidClient.of(http);
 
         final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final var profile = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).body();
+        final var profile = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).toCompletableFuture().join().body();
 
         if (!profile.getStorage().isEmpty()) {
             podUrl = profile.getStorage().iterator().next().toString();
@@ -98,13 +106,12 @@ public class DomainModulesResourceTest {
         final String newResourceName = testResource + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
-        final RDFNode newResourceNode = RDFNode.namedNode(URI.create(newResourceName));
-        final RDFNode newPredicateNode = RDFNode.namedNode(URI.create(newPredicateName));
-        final RDFNode object =
-                RDFNode.literal("true", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
+        final IRI newResourceNode = rdf.createIRI(newResourceName);
+        final IRI newPredicateNode = rdf.createIRI(newPredicateName);
+        final Literal object = rdf.createLiteral("true", "http://www.w3.org/2001/XMLSchema#boolean");
 
-        final Dataset dataset = RDFFactory.createDataset();
-        dataset.add(RDFFactory.createQuad(newResourceNode, newPredicateNode, object));
+        final Dataset dataset = rdf.createDataset();
+        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
         SolidResource newResource =
                 SolidResource.newResourceBuilder().dataset(dataset)
@@ -114,15 +121,14 @@ public class DomainModulesResourceTest {
 
         newResource = client.read(URI.create(newResourceName), SolidResource.class)
                         .toCompletableFuture().join();
-        assertEquals(URI.create(newResourceName), newResource.getId());
+        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
         assertEquals(1, newResource.getDataset().stream().count());
 
-        final RDFNode newObject =
-                RDFNode.literal("false", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
-        final Dataset newDataset = RDFFactory.createDataset();
+        final Literal newObject = rdf.createLiteral("false", "http://www.w3.org/2001/XMLSchema#boolean");
+        final Dataset newDataset = rdf.createDataset();
         newResource.getDataset().stream(null, newResourceNode, null, null)
                 .map(quad ->
-                    RDFFactory.createQuad(quad.getSubject(), quad.getPredicate(), newObject))
+                    rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
                 .collect(Collectors.toList()).forEach(newDataset::add);
         final SolidResource updatedResource =
                 SolidResource.newResourceBuilder().dataset(newDataset)
@@ -156,19 +162,16 @@ public class DomainModulesResourceTest {
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 
-        final Dataset dataset = RDFFactory.createDataset();
+        final Dataset dataset = rdf.createDataset();
 
-        final RDFNode newResourceNode = RDFNode.namedNode(URI.create(newResourceName));
-        final RDFNode newPredicateNode = RDFNode.namedNode(URI.create(predicateName));
-        final RDFNode object =
-                RDFNode.literal("true", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
+        final IRI newResourceNode = rdf.createIRI(newResourceName);
+        final IRI newPredicateNode = rdf.createIRI(predicateName);
+        final Literal object = rdf.createLiteral("true", "http://www.w3.org/2001/XMLSchema#boolean");
+        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
-        dataset.add(RDFFactory.createQuad(newResourceNode, newPredicateNode, object));
-
-        final RDFNode newBNPredicateNode = RDFNode.namedNode(URI.create(predicateForBlankName));
-        final RDFNode bn =
-                RDFNode.blankNode("blank");
-        dataset.add(RDFFactory.createQuad(newResourceNode, newBNPredicateNode, bn));
+        final IRI newBNPredicateNode = rdf.createIRI(predicateForBlankName);
+        final BlankNode bn = rdf.createBlankNode("blank");
+        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newBNPredicateNode, bn));
 
         SolidResource newResource =
                 SolidResource.newResourceBuilder().dataset(dataset)
@@ -178,19 +181,18 @@ public class DomainModulesResourceTest {
 
         newResource = client.read(URI.create(newResourceName), SolidResource.class)
                         .toCompletableFuture().join();
-        assertEquals(URI.create(newResourceName), newResource.getId());
+        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
         assertEquals(2, newResource.getDataset().stream().count());
 
-        final RDFNode newObject =
-                RDFNode.literal("false", URI.create("http://www.w3.org/2001/XMLSchema#boolean"));
-        final Dataset newDataset = RDFFactory.createDataset();
+        final Literal newObject = rdf.createLiteral("false", "http://www.w3.org/2001/XMLSchema#boolean");
+        final Dataset newDataset = rdf.createDataset();
 
-        final var allQuads = newResource.getDataset().stream().collect(Collectors.toList());
+        final List<Quad> allQuads = newResource.getDataset().stream().collect(Collectors.toList());
         final var toDeleteQuads =
                 newResource.getDataset()
                         .stream(null, newResourceNode, newPredicateNode, null)
                         .collect(Collectors.toList());
-        final var toAddQuad = RDFFactory.createQuad(newResourceNode, newPredicateNode, newObject);
+        final Quad toAddQuad = rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, newObject);
 
         toDeleteQuads.forEach(allQuads::remove);
         allQuads.add(toAddQuad);
@@ -208,7 +210,8 @@ public class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
         final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final Response<WebIdProfile> res = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid));
+        final Response<WebIdProfile> res = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
+                                            .toCompletableFuture().join();
 
         assertEquals(200, res.statusCode());
         assertFalse(res.body().getStorage().isEmpty());

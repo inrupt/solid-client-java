@@ -76,10 +76,10 @@ public class CoreModulesResourceTest {
 
     @BeforeAll
     static void setup() {
-        final var webid = URI.create(smallRyeConfig.getValue("webid", String.class));
-        final var sub = smallRyeConfig.getValue("username", String.class);
-        final var iss = smallRyeConfig.getValue("issuer", String.class);
-        final var azp = smallRyeConfig.getValue("azp", String.class);
+        final var webid = URI.create(smallRyeConfig.getValue("E2E_TEST_WEBID", String.class));
+        final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
+        final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
+        final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
 
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
@@ -92,7 +92,7 @@ public class CoreModulesResourceTest {
         session = session.session(OpenIdSession.ofIdToken(token));
 
         final Request requestRdf = Request.newBuilder(webid).GET().build();
-        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
         final var storages = responseRdf.body().listStatements(null,
                 createProperty(PIM.storage.toString()), (org.apache.jena.rdf.model.RDFNode) null)
                 .toList();
@@ -122,7 +122,8 @@ public class CoreModulesResourceTest {
                     .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
                     .PUT(Request.BodyPublishers.noBody()).build();
             final var res =
-                    session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
+                    session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding())
+                    .toCompletableFuture().join();
             if (res.statusCode() != 204) {
                 throw new InruptClientException("Failed to create solid resource at " + newResourceName);
             }
@@ -131,7 +132,8 @@ public class CoreModulesResourceTest {
             List<Statement> statementsToDelete = new ArrayList<>();
             if (res.statusCode() == 412) {
                 final Request requestRdf = Request.newBuilder(URI.create(newResourceName)).GET().build();
-                final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+                final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel())
+                                        .toCompletableFuture().join();
                 statementsToDelete = responseRdf.body().listStatements(createResource(newResourceName),
                         createProperty(newPredicateName), (org.apache.jena.rdf.model.RDFNode) null)
                         .toList();
@@ -147,7 +149,7 @@ public class CoreModulesResourceTest {
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
             final var responsePatch =
-                    session.send(requestPatch, Response.BodyHandlers.discarding());
+                    session.send(requestPatch, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(204, responsePatch.statusCode());
         }
@@ -156,7 +158,7 @@ public class CoreModulesResourceTest {
         @DisplayName("read RDF resource")
         void readResourceTest() {
             final Request req = Request.newBuilder(URI.create(newResourceName)).GET().build();
-            final var res = session.send(req, JenaBodyHandlers.ofModel());
+            final var res = session.send(req, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
             final var insertedStatement = res.body().listStatements(createResource(newResourceName),
                     createProperty(newPredicateName), createTypedLiteral(true)).toList();
             assertEquals(1, insertedStatement.size());
@@ -167,7 +169,7 @@ public class CoreModulesResourceTest {
         void updateResourceTest() {
             //get the newly created dataset and change the non blank node
             final Request req = Request.newBuilder(URI.create(newResourceName)).GET().build();
-            final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
+            final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
 
             assertEquals(200, res.statusCode());
             final List<Statement> statementsToDelete =
@@ -184,7 +186,8 @@ public class CoreModulesResourceTest {
                     .header("Content-Type", "application/sparql-update")
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
 
-            final var resPatch = session.send(reqPatch, Response.BodyHandlers.discarding());
+            final var resPatch = session.send(reqPatch, Response.BodyHandlers.discarding())
+                                    .toCompletableFuture().join();
 
             assertEquals(204, resPatch.statusCode());
         }
@@ -193,7 +196,8 @@ public class CoreModulesResourceTest {
         @DisplayName("delete RDF resource")
         void deleteResourceTest() {
             final Request req = Request.newBuilder(URI.create(newResourceName)).DELETE().build();
-            final Response<Void> res = session.send(req, Response.BodyHandlers.discarding());
+            final Response<Void> res = session.send(req, Response.BodyHandlers.discarding())
+                                        .toCompletableFuture().join();
 
             assertEquals(200, res.statusCode());
         }
@@ -217,7 +221,7 @@ public class CoreModulesResourceTest {
                     .header("Link", "<" + LDP.BasicContainer + ">; rel=\"type\"")
                     .PUT(Request.BodyPublishers.noBody()).build();
 
-            final var resp = session.send(req, Response.BodyHandlers.discarding());
+            final var resp = session.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(204, resp.statusCode());
 
@@ -233,7 +237,7 @@ public class CoreModulesResourceTest {
                     .header("Slug", "newContainer")
                     .POST(Request.BodyPublishers.noBody()).build();
 
-            final var resp = session.send(req, Response.BodyHandlers.discarding());
+            final var resp = session.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(204, resp.statusCode());
 
@@ -246,7 +250,7 @@ public class CoreModulesResourceTest {
         void deleteContainer(final String containerURL) {
             final Request reqDelete = Request.newBuilder(URI.create(containerURL)).DELETE().build();
             final Response<Void> responseDelete =
-                    session.send(reqDelete, Response.BodyHandlers.discarding());
+                    session.send(reqDelete, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(200, responseDelete.statusCode());
         }
@@ -275,7 +279,7 @@ public class CoreModulesResourceTest {
                             .PUT(Request.BodyPublishers.noBody()).build();
 
             final Response<Void> responseCreate =
-                    session.send(reqCreate, Response.BodyHandlers.discarding());
+                    session.send(reqCreate, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(204, responseCreate.statusCode());
 
@@ -293,7 +297,7 @@ public class CoreModulesResourceTest {
         void deleteNonRDFTest() {
             final Request reqDelete = Request.newBuilder(URI.create(fileURL)).DELETE().build();
             final Response<String> responseDelete =
-                    session.send(reqDelete, Response.BodyHandlers.ofString());
+                    session.send(reqDelete, Response.BodyHandlers.ofString()).toCompletableFuture().join();
 
             assertEquals(200, responseDelete.statusCode());
         }
@@ -318,14 +322,16 @@ public class CoreModulesResourceTest {
                     .header("Link", "<" + LDP.RDFSource + ">; rel=\"type\"")
                     .PUT(Request.BodyPublishers.noBody()).build();
             final Response<Void> resp =
-                    session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
+                    session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding())
+                        .toCompletableFuture().join();
             assertEquals(204, resp.statusCode());
 
             //if the resource already exists -> we get all its statements and filter out the ones we are interested in
             List<Statement> statementsToDelete = new ArrayList<>();
             if (resp.statusCode() == 412) {
                 final Request requestRdf = Request.newBuilder(URI.create(newResourceName)).GET().build();
-                final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+                final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel())
+                                        .toCompletableFuture().join();
                 statementsToDelete = responseRdf
                         .body().listStatements(createResource(newResourceName),
                                 createProperty(predicate), (org.apache.jena.rdf.model.RDFNode) null)
@@ -346,7 +352,7 @@ public class CoreModulesResourceTest {
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
 
             final var responseCreate =
-                    session.send(requestCreate, Response.BodyHandlers.discarding());
+                    session.send(requestCreate, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(204, responseCreate.statusCode());
         }
@@ -356,7 +362,7 @@ public class CoreModulesResourceTest {
         void changeNonBlankNode() {
             //get the newly created dataset and change the non blank node
             final Request req = Request.newBuilder(URI.create(testResource)).GET().build();
-            final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
+            final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
 
             assertEquals(200, res.statusCode());
             final List<Statement> statementsToDeleteAgain = res.body()
@@ -376,7 +382,7 @@ public class CoreModulesResourceTest {
                     .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur2)).build();
 
             final var responseCreate2 =
-                    session.send(requestCreate2, Response.BodyHandlers.discarding());
+                    session.send(requestCreate2, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(204, responseCreate2.statusCode());
         }
@@ -386,7 +392,7 @@ public class CoreModulesResourceTest {
         void deleteResources() {
             final Request reqDelete = Request.newBuilder(URI.create(newResourceName)).DELETE().build();
             final Response<Void> responseDelete =
-                    session.send(reqDelete, Response.BodyHandlers.discarding());
+                    session.send(reqDelete, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
             assertEquals(200, responseDelete.statusCode());
         }
