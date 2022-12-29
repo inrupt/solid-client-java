@@ -26,7 +26,9 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 class MockSolidServer {
@@ -38,7 +40,8 @@ class MockSolidServer {
 
     public MockSolidServer() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .dynamicPort());
+                .dynamicPort()
+                .extensions(SolidServerTransformer.class));
     }
 
     public int getPort() {
@@ -46,45 +49,11 @@ class MockSolidServer {
     }
 
     private void setupMocks() {
+        wireMockServer.stubFor(get("*"));
+        wireMockServer.stubFor(put("*"));
+        //wireMockServer.stubFor(patch("*"));
+        wireMockServer.stubFor(delete("*"));
 
-        wireMockServer.stubFor(get(urlEqualTo("/file"))
-                    .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader(CONTENT_TYPE, "text/plain")
-                        .withBodyFile("clarissa-sample.txt")));
-
-        wireMockServer.stubFor(get(urlEqualTo("/example"))
-                    .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader(CONTENT_TYPE, TEXT_TURTLE)
-                        .withBodyFile("profileExample.ttl")));
-
-        wireMockServer.stubFor(post(urlEqualTo("/rdf"))
-                    .withRequestBody(equalTo(
-                            "<http://example.test/s> " +
-                            "<http://example.test/p> \"object\" ."))
-                    .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
-                    .willReturn(aResponse()
-                        .withStatus(201)));
-
-        wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
-                    .willReturn(aResponse()
-                        .withHeader(CONTENT_TYPE, "image/png")
-                        .withBodyFile("SolidOS.png")
-                        .withStatus(200)));
-
-        wireMockServer.stubFor(patch(urlEqualTo("/rdf"))
-                    .withRequestBody(equalTo(
-                            "INSERT DATA { " +
-                            "<http://example.test/s> " +
-                            "<http://example.test/p> \"data\" . }"))
-                    .withHeader(CONTENT_TYPE, containing("application/sparql-update"))
-                    .willReturn(aResponse()
-                        .withStatus(204)));
-
-        wireMockServer.stubFor(delete(urlEqualTo("/rdf"))
-                    .willReturn(aResponse()
-                        .withStatus(204)));
     }
 
     public Map<String, String> start() {

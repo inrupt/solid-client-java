@@ -30,9 +30,7 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.rdf.Dataset;
-import com.inrupt.client.rdf.RDFFactory;
 import com.inrupt.client.rdf.RDFNode;
-import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.webid.WebIdBodyHandlers;
@@ -116,7 +114,7 @@ public class DomainModulesResourceTest {
 
         newResource = client.read(URI.create(newResourceName), SolidResource.class)
                         .toCompletableFuture().join();
-        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
+        assertEquals(URI.create(newResourceName), newResource.getId());
         assertEquals(1, newResource.getDataset().stream().count());
 
         final RDFNode newObject =
@@ -180,7 +178,7 @@ public class DomainModulesResourceTest {
 
         newResource = client.read(URI.create(newResourceName), SolidResource.class)
                         .toCompletableFuture().join();
-        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
+        assertEquals(URI.create(newResourceName), newResource.getId());
         assertEquals(2, newResource.getDataset().stream().count());
 
         final RDFNode newObject =

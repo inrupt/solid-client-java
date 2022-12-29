@@ -119,7 +119,7 @@ public class CoreModulesResourceTest {
             //we create the Solid resource if it does not exist
             final Request requestCreateIfNotExist = Request.newBuilder(URI.create(newResourceName))
                     .header("Content-Type", "text/turtle").header("If-None-Match", "*")
-                    .header("Link", Headers.Link.of(LDP.Resource, "type").toString())
+                    .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
                     .PUT(Request.BodyPublishers.noBody()).build();
             final var res =
                     session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
@@ -315,7 +315,7 @@ public class CoreModulesResourceTest {
             //we create the Solid resource if it does not exist
             final Request requestCreateIfNotExist = Request.newBuilder(URI.create(newResourceName))
                     .header("Content-Type", "text/turtle").header("If-None-Match", "*")
-                    .header("Link", "<" + LDP.Resource + ">; rel=\"type\"")
+                    .header("Link", "<" + LDP.RDFSource + ">; rel=\"type\"")
                     .PUT(Request.BodyPublishers.noBody()).build();
             final Response<Void> resp =
                     session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
