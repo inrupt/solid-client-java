@@ -20,18 +20,21 @@
  */
 package com.inrupt.client.spi;
 
+import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.apache.commons.rdf.api.RDF;
 
 public final class RDFFactory {
 
-    private static final RDF rdf = ServiceLoader.load(RDF.class).findFirst()
-        .orElseThrow(() ->
-                new IllegalStateException("No RDF Commons implementation available"));
+    private static final ServiceLoader<RDF> loader = ServiceLoader.load(RDF.class);
 
     public static RDF getInstance() {
-        return rdf;
+        final Iterator<RDF> iterator = loader.iterator();
+        if (iterator.hasNext()) {
+            return iterator.next();
+        }
+        throw new IllegalStateException("No RDF Commons implementation available");
     }
 
     private RDFFactory() {
