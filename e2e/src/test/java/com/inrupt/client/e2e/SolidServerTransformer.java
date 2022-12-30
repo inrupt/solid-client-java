@@ -32,12 +32,15 @@ import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
-import java.util.HashSet;
 import java.util.Set;
 
 public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
-    private final Set<String> storage = new HashSet<>();
+    private final Set<String> storage;
+
+    public SolidServerTransformer(Set<String> storage) {
+        this.storage = storage;
+    }
 
     @Override
     public String getName() {
@@ -49,32 +52,38 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
             final FileSource files, final Parameters parameters) {
 
         if (request.getMethod().isOneOf(RequestMethod.GET)) {
-            if (storage.contains(request.getUrl())) {
-                if (request.getUrl().contains("/resource/e2e-test-subject")) {
-                    new ResponseDefinitionBuilder()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "text/turtle")
-                    .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
-                    .withHeader("Link", Link.of(URI.create("http://storage.example/"),
-                            PIM.storage).toString())
-                    .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
-                    .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
-                    .withHeader("Allow", "POST, PUT, PATCH")
-                    .withHeader("Accept-Post", "application/ld+json, text/turtle")
-                    .withHeader("Accept-Put", "application/ld+json, text/turtle")
-                    .withHeader("Accept-Patch", "application/sparql-update, text/n3")
-                    .withBodyFile("solidResourceExample.ttl")
-                                .build();
+            if (this.storage.contains(request.getUrl())) {
+                if (request.getUrl().contains("/playlist")) {
+                    return new ResponseDefinitionBuilder()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/turtle")
+                        .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
+                        .withHeader("Link", Link.of(URI.create("http://storage.example/"),
+                                PIM.storage).toString())
+                        .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
+                        .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
+                        .withHeader("Allow", "POST, PUT, PATCH")
+                        .withHeader("Accept-Post", "application/ld+json, text/turtle")
+                        .withHeader("Accept-Put", "application/ld+json, text/turtle")
+                        .withHeader("Accept-Patch", "application/sparql-update, text/n3")
+                        .withBodyFile("playlist.ttl")
+                        .build();
                 }
             }
         }
 
         if (request.getMethod().isOneOf(RequestMethod.PUT)) {
-            storage.add(request.getUrl());
+            this.storage.add(request.getUrl());
+            return new ResponseDefinitionBuilder()
+                    .withStatus(204)
+                    .build();
         }
 
         if (request.getMethod().isOneOf(RequestMethod.DELETE)) {
-            storage.remove(request.getUrl());
+            this.storage.remove(request.getUrl());
+            return new ResponseDefinitionBuilder()
+                    .withStatus(204)
+                    .build();
         }
         return null;
     }
