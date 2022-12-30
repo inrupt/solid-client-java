@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp clean verify -Pci
+        run: mvn -B -ntp verify -Pci
 
   site:
     name: Project site
@@ -43,10 +43,10 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp clean install -Pwebsite
+        run: mvn -B -ntp install -Pwebsite
 
       - name: Build the site with Maven
-        run: mvn -B -ntp clean site -Pwebsite
+        run: mvn -B -ntp site -Pwebsite
 
   dependencies:
     name: Dependency Check
@@ -66,5 +66,5 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp clean verify -Pdependencies
+        run: mvn -B -ntp verify -Pdependencies
 
