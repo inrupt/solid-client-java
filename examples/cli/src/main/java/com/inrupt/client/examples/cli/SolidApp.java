@@ -90,21 +90,25 @@ public class SolidApp implements QuarkusApplication {
                     .map(storage -> Request.newBuilder(storage).build())
                     .map(request -> client.send(request, SolidResourceHandlers.ofSolidContainer())
                             .thenApply(Response::body).toCompletableFuture().join())
-                    .ifPresent(model -> model.getContainedResources()
-                            .filter(r -> {
-                                if (cmd.hasOption("c") && r.getMetadata().getType().contains(LDP.BasicContainer)) {
-                                    return true;
-                                }
-                                if (cmd.hasOption("r") && r.getMetadata().getType().contains(LDP.RDFSource)) {
-                                    return true;
-                                }
-                                return cmd.hasOption("n") && r.getMetadata().getType().contains(LDP.NonRDFSource);
-                            })
-                            .forEach(r -> {
-                                printWriter.format("Resource: %s, %s", r.getIdentifier(),
-                                    principalType(r.getMetadata().getType()));
-                                printWriter.println();
-                            }));
+                    .ifPresent(model -> {
+                        try (final var stream = model.getContainedResources()) {
+                            stream
+                                .filter(r -> {
+                                    if (cmd.hasOption("c") && r.getMetadata().getType().contains(LDP.BasicContainer)) {
+                                        return true;
+                                    }
+                                    if (cmd.hasOption("r") && r.getMetadata().getType().contains(LDP.RDFSource)) {
+                                        return true;
+                                    }
+                                    return cmd.hasOption("n") && r.getMetadata().getType().contains(LDP.NonRDFSource);
+                                })
+                                .forEach(r -> {
+                                    printWriter.format("Resource: %s, %s", r.getIdentifier(),
+                                        principalType(r.getMetadata().getType()));
+                                    printWriter.println();
+                                });
+                        }
+                    });
             });
         } catch (final ParseException ex) {
             LOGGER.error("Error parsing command line arguments: {}", ex.getMessage());

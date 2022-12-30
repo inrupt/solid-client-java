@@ -31,9 +31,9 @@ import com.inrupt.client.vocabulary.RDFS;
 import com.inrupt.client.vocabulary.Solid;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
@@ -63,28 +63,32 @@ public final class WebIdBodyHandlers {
 
         return responseInfo -> {
             final WebIdProfile.Builder builder = WebIdProfile.newBuilder();
-            try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                final Graph graph = service.toGraph(RDFSyntax.TURTLE, input, responseInfo.uri().toString());
+            try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array());
+                    final Graph graph = service.toGraph(RDFSyntax.TURTLE, input, responseInfo.uri().toString())) {
                 final IRI subject = rdf.createIRI(webid.toString());
 
-                graph.stream(subject, oidcIssuer, null)
-                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                    .map(IRI::getIRIString).map(URI::create).forEach(builder::oidcIssuer);
+                try (final Stream<Triple> stream = graph.stream(subject, oidcIssuer, null).map(Triple.class::cast)) {
+                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).map(URI::create).forEach(builder::oidcIssuer);
+                }
 
-                graph.stream(subject, seeAlso, null)
-                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                    .map(IRI::getIRIString).map(URI::create).forEach(builder::seeAlso);
+                try (final Stream<Triple> stream = graph.stream(subject, seeAlso, null).map(Triple.class::cast)) {
+                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).map(URI::create).forEach(builder::seeAlso);
+                }
 
-                graph.stream(subject, storage, null)
-                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                    .map(IRI::getIRIString).map(URI::create).forEach(builder::storage);
+                try (final Stream<Triple> stream = graph.stream(subject, storage, null).map(Triple.class::cast)) {
+                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).map(URI::create).forEach(builder::storage);
+                }
 
-                graph.stream(subject, rdfType, null)
-                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                    .map(IRI::getIRIString).map(URI::create).forEach(builder::type);
+                try (final Stream<Triple> stream = graph.stream(subject, rdfType, null).map(Triple.class::cast)) {
+                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).map(URI::create).forEach(builder::type);
+                }
 
-            } catch (final IOException ex) {
-                throw new WebIdException("Error parsing WebId profile resource", ex);
+            } catch (final Exception ex) {
+                throw new WebIdException("Error processing WebId profile resource", ex);
             }
             return builder.build(webid);
         };

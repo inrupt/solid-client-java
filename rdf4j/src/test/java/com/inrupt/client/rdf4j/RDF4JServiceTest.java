@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
@@ -111,60 +112,83 @@ class RDF4JServiceTest extends RdfServices {
     }
 
     @Test
-    void serializeFromDatasetTRIGRoundtrip() throws IOException {
+    void serializeFromDatasetTRIGRoundtrip() throws Exception {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             service.fromDataset(rdf4jDataset, RDFSyntax.TRIG, output);
-            final InputStream input = new ByteArrayInputStream(output.toByteArray());
-            final Dataset roundtrip = service.toDataset(RDFSyntax.TRIG, input, null);
-            assertEquals(2, roundtrip.stream().count());
-            assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
-            final Optional<String> st = rdf4jDataset.stream(Optional.of(RdfTestModel.G_RDFNode), null, null, null)
-                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                .map(IRI::getIRIString).findFirst();
-            final Optional<String> st1 = roundtrip.stream(Optional.of(RdfTestModel.G_RDFNode),
-                    RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
-                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                .map(IRI::getIRIString).findFirst();
-            assertEquals(st, st1);
+            try (final InputStream input = new ByteArrayInputStream(output.toByteArray());
+                    final Dataset roundtrip = service.toDataset(RDFSyntax.TRIG, input, null)) {
+                assertEquals(2, roundtrip.size());
+                assertEquals(rdf4jDataset.size(), roundtrip.size());
+                String st1 = null;
+                try (final Stream<Quad> stream = rdf4jDataset
+                        .stream(Optional.of(RdfTestModel.G_RDFNode), null, null, null).map(Quad.class::cast)) {
+                    st1 = stream.map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).findFirst().orElse(null);
+                }
+
+                String st2 = null;
+                try (final Stream<Quad> stream = roundtrip.stream(Optional.of(RdfTestModel.G_RDFNode),
+                        RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode).map(Quad.class::cast)) {
+                    st2 = stream.map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).findFirst().orElse(null);
+                }
+                assertEquals(st1, st2);
+            }
         }
     }
 
     @Test
-    void serializeFromDatasetTURTLERoundtrip() throws IOException {
+    void serializeFromDatasetTURTLERoundtrip() throws Exception {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             service.fromDataset(rdf4jDataset, RDFSyntax.TURTLE, output);
-            final InputStream input = new ByteArrayInputStream(output.toByteArray());
-            final Dataset roundtrip = service.toDataset(RDFSyntax.TURTLE, input, null);
+            try (final InputStream input = new ByteArrayInputStream(output.toByteArray());
+                    final Dataset roundtrip = service.toDataset(RDFSyntax.TURTLE, input, null)) {
 
-            assertEquals(2, roundtrip.stream().count());
-            assertEquals(rdf4jDataset.stream().count(), roundtrip.stream().count());
-            final Optional<String> st = rdf4jDataset.stream(Optional.of(RdfTestModel.G_RDFNode), null, null, null)
-                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                .map(IRI::getIRIString).findFirst();
-            final Optional<String> st1 = roundtrip.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode,
-                    RdfTestModel.O_RDFNode)
-                .map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                .map(IRI::getIRIString).findFirst();
-            assertEquals(st, st1);
+                assertEquals(2, roundtrip.size());
+                assertEquals(rdf4jDataset.size(), roundtrip.size());
+
+                String st1 = null;
+                try (final Stream<Quad> stream = rdf4jDataset
+                        .stream(Optional.of(RdfTestModel.G_RDFNode), null, null, null).map(Quad.class::cast)) {
+                    st1 = stream.map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).findFirst().orElse(null);
+                }
+                String st2 = null;
+                try (final Stream<Quad> stream = roundtrip.stream(null, RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode,
+                        RdfTestModel.O_RDFNode).map(Quad.class::cast)) {
+                    st2 = stream.map(Quad::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).findFirst().orElse(null);
+                }
+                assertEquals(st1, st2);
+            }
         }
     }
 
     @Test
-    void serializeFromGraphRoundtrip() throws IOException {
+    void serializeFromGraphRoundtrip() throws Exception {
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             service.fromGraph(rdf4jGraph, RDFSyntax.TURTLE, output);
-            final InputStream input = new ByteArrayInputStream(output.toByteArray());
-            final Graph roundtrip = service.toGraph(RDFSyntax.TURTLE, input, null);
-            assertEquals(2, roundtrip.stream().count());
-            assertEquals(rdf4jGraph.stream().count(), roundtrip.stream().count());
-            final Optional<String> st = rdf4jGraph.stream(RdfTestModel.S_RDFNode, null, null)
-                .map(Triple::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                .map(IRI::getIRIString).findFirst();
-            final Optional<String> st1 = roundtrip
-                    .stream(RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
-                .map(Triple::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                .map(IRI::getIRIString).findFirst();
-            assertEquals(st, st1);
+            try (final InputStream input = new ByteArrayInputStream(output.toByteArray());
+                    final Graph roundtrip = service.toGraph(RDFSyntax.TURTLE, input, null)) {
+                assertEquals(2, roundtrip.size());
+                assertEquals(rdf4jGraph.size(), roundtrip.size());
+
+                String st1 = null;
+                try (final Stream<Triple> stream = rdf4jGraph.stream(RdfTestModel.S_RDFNode, null, null)
+                        .map(Triple.class::cast)) {
+                    st1 = stream.map(Triple::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).findFirst().orElse(null);
+                }
+
+                String st2 = null;
+                try (final Stream<Triple> stream = roundtrip
+                        .stream(RdfTestModel.S_RDFNode, RdfTestModel.P_RDFNode, RdfTestModel.O_RDFNode)
+                        .map(Triple.class::cast)) {
+                    st2 = stream.map(Triple::getSubject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                        .map(IRI::getIRIString).findFirst().orElse(null);
+                }
+                assertEquals(st1, st2);
+            }
         }
     }
 
