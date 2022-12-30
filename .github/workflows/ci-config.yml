@@ -26,7 +26,7 @@ jobs:
         run: mvn -B -ntp clean verify -Pci
 
   site:
-    name: Java environment
+    name: Project site
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -43,6 +43,9 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp clean verify site -Pwebsite
+        run: mvn -B -ntp clean install -Pwebsite
+
+      - name: Build the site with Maven
+        run: mvn -B -ntp clean site -Pwebsite
 
 
