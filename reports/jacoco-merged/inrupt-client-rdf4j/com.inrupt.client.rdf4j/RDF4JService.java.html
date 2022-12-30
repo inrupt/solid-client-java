@@ -22,8 +22,6 @@ package com.inrupt.client.rdf4j;
 
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.commons.rdf4j.RDF4J;
-import com.inrupt.commons.rdf4j.RDF4JDataset;
-import com.inrupt.commons.rdf4j.RDF4JGraph;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,18 +30,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Stream;
 
-import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFSyntax;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -55,113 +49,76 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 /**
  * An {@link RdfService} that uses the RDF4J library.
  */
-<span class="fc" id="L58">public class RDF4JService implements RdfService {</span>
+<span class="fc" id="L52">public class RDF4JService implements RdfService {</span>
 
-<span class="fc" id="L60">    private static final Map&lt;RDFSyntax, RDFFormat&gt; SYNTAX_TO_FORMAT = buildSyntaxMapping();</span>
-<span class="fc" id="L61">    private static final RDF4J rdf = new RDF4J();</span>
+<span class="fc" id="L54">    private static final Map&lt;RDFSyntax, RDFFormat&gt; SYNTAX_TO_FORMAT = buildSyntaxMapping();</span>
+<span class="fc" id="L55">    private static final RDF4J rdf = new RDF4J();</span>
 
     @Override
     public void fromDataset(final Dataset dataset, final RDFSyntax syntax, final OutputStream output)
             throws IOException {
-<span class="fc" id="L66">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
-<span class="fc" id="L67">        final RDFWriter writer = Rio.createWriter(format, output);</span>
+<span class="fc" id="L60">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+<span class="fc" id="L61">        final RDFWriter writer = Rio.createWriter(format, output);</span>
         try {
-<span class="fc" id="L69">            writer.startRDF();</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">            for (final Statement st : toRdf4j(dataset)) {</span>
-<span class="fc" id="L71">                writer.handleStatement(st);</span>
-<span class="fc" id="L72">            }</span>
-<span class="fc" id="L73">            writer.endRDF();</span>
-<span class="fc" id="L74">        } catch (final RDF4JException ex) {</span>
-<span class="fc" id="L75">            throw new IOException(&quot;Error serializing dataset&quot;, ex);</span>
-<span class="fc" id="L76">        }</span>
-<span class="fc" id="L77">    }</span>
+<span class="fc" id="L63">            writer.startRDF();</span>
+<span class="fc" id="L64">            try (final Stream&lt;Statement&gt; statements = dataset.stream().map(rdf::asStatement)) {</span>
+<span class="fc" id="L65">                statements.sequential().forEach(writer::handleStatement);</span>
+            }
+<span class="fc" id="L67">            writer.endRDF();</span>
+<span class="fc" id="L68">        } catch (final RDF4JException ex) {</span>
+<span class="fc" id="L69">            throw new IOException(&quot;Error serializing dataset&quot;, ex);</span>
+<span class="fc" id="L70">        }</span>
+<span class="fc" id="L71">    }</span>
 
     @Override
     public void fromGraph(final Graph graph, final RDFSyntax syntax, final OutputStream output) throws IOException {
-<span class="fc" id="L81">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
-<span class="fc" id="L82">        final RDFWriter writer = Rio.createWriter(format, output);</span>
+<span class="fc" id="L75">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+<span class="fc" id="L76">        final RDFWriter writer = Rio.createWriter(format, output);</span>
         try {
-<span class="fc" id="L84">            writer.startRDF();</span>
-<span class="fc bfc" id="L85" title="All 2 branches covered.">            for (final Statement st : toRdf4j(graph)) {</span>
-<span class="fc" id="L86">                writer.handleStatement(st);</span>
-<span class="fc" id="L87">            }</span>
-<span class="fc" id="L88">            writer.endRDF();</span>
-<span class="fc" id="L89">        } catch (final RDF4JException ex) {</span>
-<span class="fc" id="L90">            throw new IOException(&quot;Error serializing graph&quot;, ex);</span>
-<span class="fc" id="L91">        }</span>
-<span class="fc" id="L92">    }</span>
-
-    static Model toRdf4j(final Graph graph) {
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (graph instanceof RDF4JGraph) {</span>
-<span class="fc" id="L96">            final Optional&lt;Model&gt; model = ((RDF4JGraph) graph).asModel();</span>
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if (model.isPresent()) {</span>
-<span class="fc" id="L98">                return model.get();</span>
+<span class="fc" id="L78">            writer.startRDF();</span>
+<span class="fc" id="L79">            try (final Stream&lt;Statement&gt; statements = graph.stream().map(rdf::asStatement)) {</span>
+<span class="fc" id="L80">                statements.sequential().forEach(writer::handleStatement);</span>
             }
-        }
-<span class="nc" id="L101">        final Model model = new LinkedHashModel();</span>
-<span class="nc" id="L102">        graph.stream().forEach(triple -&gt;</span>
-<span class="nc" id="L103">                model.add((Resource) rdf.asValue(triple.getSubject()),</span>
-<span class="nc" id="L104">                    (IRI) rdf.asValue(triple.getPredicate()),</span>
-<span class="nc" id="L105">                    rdf.asValue(triple.getObject())));</span>
-<span class="nc" id="L106">        return model;</span>
-    }
-
-    static Model toRdf4j(final Dataset dataset) {
-<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (dataset instanceof RDF4JDataset) {</span>
-<span class="fc" id="L111">            final Optional&lt;Model&gt; model = ((RDF4JDataset) dataset).asModel();</span>
-<span class="pc bpc" id="L112" title="1 of 2 branches missed.">            if (model.isPresent()) {</span>
-<span class="nc" id="L113">                return model.get();</span>
-            }
-        }
-<span class="fc" id="L116">        final Model model = new LinkedHashModel();</span>
-<span class="fc" id="L117">        dataset.stream().forEach(quad -&gt;</span>
-<span class="fc" id="L118">                model.add((Resource) rdf.asValue(quad.getSubject()),</span>
-<span class="fc" id="L119">                    (IRI) rdf.asValue(quad.getPredicate()),</span>
-<span class="fc" id="L120">                    rdf.asValue(quad.getObject()),</span>
-<span class="fc" id="L121">                    asContext(quad.getGraphName())));</span>
-<span class="fc" id="L122">        return model;</span>
-    }
-
-    static Resource[] asContext(final Optional&lt;BlankNodeOrIRI&gt; graphName) {
-<span class="fc" id="L126">        final BlankNodeOrIRI g = graphName.orElse(null);</span>
-<span class="fc" id="L127">        final Resource context = (Resource) rdf.asValue(g);</span>
-<span class="fc" id="L128">        return new Resource[] { context };</span>
-    }
+<span class="fc" id="L82">            writer.endRDF();</span>
+<span class="fc" id="L83">        } catch (final RDF4JException ex) {</span>
+<span class="fc" id="L84">            throw new IOException(&quot;Error serializing graph&quot;, ex);</span>
+<span class="fc" id="L85">        }</span>
+<span class="fc" id="L86">    }</span>
 
     @Override
     public Dataset toDataset(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
-<span class="fc" id="L133">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
-<span class="fc" id="L134">        final Repository repository = new SailRepository(new MemoryStore());</span>
+<span class="fc" id="L90">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+<span class="fc" id="L91">        final Repository repository = new SailRepository(new MemoryStore());</span>
         try {
-<span class="fc" id="L136">            try (final RepositoryConnection conn = repository.getConnection()) {</span>
-<span class="fc" id="L137">                conn.add(input, baseUri, format);</span>
+<span class="fc" id="L93">            try (final RepositoryConnection conn = repository.getConnection()) {</span>
+<span class="fc" id="L94">                conn.add(input, baseUri, format);</span>
             }
-<span class="fc" id="L139">            return rdf.asDataset(repository);</span>
-<span class="fc" id="L140">        } catch (final RDF4JException ex) {</span>
-<span class="fc" id="L141">            throw new IOException(&quot;Error parsing dataset&quot;, ex);</span>
+<span class="fc" id="L96">            return rdf.asDataset(repository);</span>
+<span class="fc" id="L97">        } catch (final RDF4JException ex) {</span>
+<span class="fc" id="L98">            throw new IOException(&quot;Error parsing dataset&quot;, ex);</span>
         }
     }
 
     @Override
     public Graph toGraph(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
-<span class="fc" id="L147">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
+<span class="fc" id="L104">        final RDFFormat format = Objects.requireNonNull(SYNTAX_TO_FORMAT.get(syntax));</span>
 
         try {
-<span class="fc" id="L150">            final Model model = Rio.parse(input, baseUri, format);</span>
-<span class="fc" id="L151">            return rdf.asGraph(model);</span>
-<span class="fc" id="L152">        } catch (final RDF4JException ex) {</span>
-<span class="fc" id="L153">            throw new IOException(&quot;Error parsing graph&quot;, ex);</span>
+<span class="fc" id="L107">            final Model model = Rio.parse(input, baseUri, format);</span>
+<span class="fc" id="L108">            return rdf.asGraph(model);</span>
+<span class="fc" id="L109">        } catch (final RDF4JException ex) {</span>
+<span class="fc" id="L110">            throw new IOException(&quot;Error parsing graph&quot;, ex);</span>
         }
     }
 
     static Map&lt;RDFSyntax, RDFFormat&gt; buildSyntaxMapping() {
-<span class="fc" id="L158">        final Map&lt;RDFSyntax, RDFFormat&gt; mapping = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L159">        mapping.put(RDFSyntax.TURTLE, RDFFormat.TURTLE);</span>
-<span class="fc" id="L160">        mapping.put(RDFSyntax.TRIG, RDFFormat.TRIG);</span>
-<span class="fc" id="L161">        mapping.put(RDFSyntax.JSONLD, RDFFormat.JSONLD);</span>
-<span class="fc" id="L162">        mapping.put(RDFSyntax.NTRIPLES, RDFFormat.NTRIPLES);</span>
-<span class="fc" id="L163">        mapping.put(RDFSyntax.NQUADS, RDFFormat.NQUADS);</span>
-<span class="fc" id="L164">        return Collections.unmodifiableMap(mapping);</span>
+<span class="fc" id="L115">        final Map&lt;RDFSyntax, RDFFormat&gt; mapping = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L116">        mapping.put(RDFSyntax.TURTLE, RDFFormat.TURTLE);</span>
+<span class="fc" id="L117">        mapping.put(RDFSyntax.TRIG, RDFFormat.TRIG);</span>
+<span class="fc" id="L118">        mapping.put(RDFSyntax.JSONLD, RDFFormat.JSONLD);</span>
+<span class="fc" id="L119">        mapping.put(RDFSyntax.NTRIPLES, RDFFormat.NTRIPLES);</span>
+<span class="fc" id="L120">        mapping.put(RDFSyntax.NQUADS, RDFFormat.NQUADS);</span>
+<span class="fc" id="L121">        return Collections.unmodifiableMap(mapping);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

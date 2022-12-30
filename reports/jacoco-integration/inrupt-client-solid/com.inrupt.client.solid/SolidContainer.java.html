@@ -67,11 +67,13 @@ public final class SolidContainer extends SolidResource {
 <span class="nc" id="L67">                final SolidResource.Builder builder = SolidResource.newResourceBuilder();</span>
 <span class="nc" id="L68">                final Metadata.Builder metadata = Metadata.newBuilder();</span>
 <span class="nc" id="L69">                getMetadata().getStorage().ifPresent(metadata::storage);</span>
-<span class="nc" id="L70">                getDataset().stream(Optional.empty(), child, rdfType, null)</span>
-<span class="nc" id="L71">                    .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
-<span class="nc" id="L72">                    .map(IRI::getIRIString).map(URI::create).forEach(metadata::type);</span>
-<span class="nc" id="L73">                builder.metadata(metadata.build());</span>
-<span class="nc" id="L74">                return builder.build(URI.create(child.toString()));</span>
+<span class="nc" id="L70">                try (final Stream&lt;Quad&gt; stream = getDataset().stream(Optional.empty(), child, rdfType, null)</span>
+<span class="nc" id="L71">                        .map(Quad.class::cast)) {</span>
+<span class="nc" id="L72">                    stream.map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L73">                        .map(IRI::getIRIString).map(URI::create).forEach(metadata::type);</span>
+                }
+<span class="nc" id="L75">                builder.metadata(metadata.build());</span>
+<span class="nc" id="L76">                return builder.build(URI.create(child.toString()));</span>
             });
     }
 
@@ -81,7 +83,7 @@ public final class SolidContainer extends SolidResource {
      * @return the builder
      */
     public static Builder newContainerBuilder() {
-<span class="nc" id="L84">        return new Builder();</span>
+<span class="nc" id="L86">        return new Builder();</span>
     }
 
     /**
@@ -99,8 +101,8 @@ public final class SolidContainer extends SolidResource {
          * @return this builder
          */
         public Builder metadata(final Metadata metadata) {
-<span class="nc" id="L102">            builderMetadata = metadata;</span>
-<span class="nc" id="L103">            return this;</span>
+<span class="nc" id="L104">            builderMetadata = metadata;</span>
+<span class="nc" id="L105">            return this;</span>
         }
 
         /**
@@ -110,8 +112,8 @@ public final class SolidContainer extends SolidResource {
          * @return this builder
          */
         public Builder dataset(final Dataset dataset) {
-<span class="nc" id="L113">            builderDataset = dataset;</span>
-<span class="nc" id="L114">            return this;</span>
+<span class="nc" id="L115">            builderDataset = dataset;</span>
+<span class="nc" id="L116">            return this;</span>
         }
 
         /**
@@ -121,12 +123,12 @@ public final class SolidContainer extends SolidResource {
          * @return the Solid container
          */
         public SolidContainer build(final URI identifier) {
-<span class="nc" id="L124">            return new SolidContainer(identifier, builderDataset, builderMetadata);</span>
+<span class="nc" id="L126">            return new SolidContainer(identifier, builderDataset, builderMetadata);</span>
         }
 
-<span class="nc" id="L127">        Builder() {</span>
+<span class="nc" id="L129">        Builder() {</span>
             // Prevent instantiations
-<span class="nc" id="L129">        }</span>
+<span class="nc" id="L131">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

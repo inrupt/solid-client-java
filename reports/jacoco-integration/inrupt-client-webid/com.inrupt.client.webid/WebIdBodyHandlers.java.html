@@ -31,9 +31,9 @@ import com.inrupt.client.vocabulary.RDFS;
 import com.inrupt.client.vocabulary.Solid;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
@@ -63,30 +63,34 @@ public final class WebIdBodyHandlers {
 
 <span class="nc" id="L64">        return responseInfo -&gt; {</span>
 <span class="nc" id="L65">            final WebIdProfile.Builder builder = WebIdProfile.newBuilder();</span>
-<span class="nc" id="L66">            try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {</span>
-<span class="nc" id="L67">                final Graph graph = service.toGraph(RDFSyntax.TURTLE, input, responseInfo.uri().toString());</span>
+<span class="nc" id="L66">            try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array());</span>
+<span class="nc" id="L67">                    final Graph graph = service.toGraph(RDFSyntax.TURTLE, input, responseInfo.uri().toString())) {</span>
 <span class="nc" id="L68">                final IRI subject = rdf.createIRI(webid.toString());</span>
 
-<span class="nc" id="L70">                graph.stream(subject, oidcIssuer, null)</span>
-<span class="nc" id="L71">                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
-<span class="nc" id="L72">                    .map(IRI::getIRIString).map(URI::create).forEach(builder::oidcIssuer);</span>
+<span class="nc" id="L70">                try (final Stream&lt;Triple&gt; stream = graph.stream(subject, oidcIssuer, null).map(Triple.class::cast)) {</span>
+<span class="nc" id="L71">                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L72">                        .map(IRI::getIRIString).map(URI::create).forEach(builder::oidcIssuer);</span>
+                }
 
-<span class="nc" id="L74">                graph.stream(subject, seeAlso, null)</span>
-<span class="nc" id="L75">                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
-<span class="nc" id="L76">                    .map(IRI::getIRIString).map(URI::create).forEach(builder::seeAlso);</span>
+<span class="nc" id="L75">                try (final Stream&lt;Triple&gt; stream = graph.stream(subject, seeAlso, null).map(Triple.class::cast)) {</span>
+<span class="nc" id="L76">                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L77">                        .map(IRI::getIRIString).map(URI::create).forEach(builder::seeAlso);</span>
+                }
 
-<span class="nc" id="L78">                graph.stream(subject, storage, null)</span>
-<span class="nc" id="L79">                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
-<span class="nc" id="L80">                    .map(IRI::getIRIString).map(URI::create).forEach(builder::storage);</span>
+<span class="nc" id="L80">                try (final Stream&lt;Triple&gt; stream = graph.stream(subject, storage, null).map(Triple.class::cast)) {</span>
+<span class="nc" id="L81">                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L82">                        .map(IRI::getIRIString).map(URI::create).forEach(builder::storage);</span>
+                }
 
-<span class="nc" id="L82">                graph.stream(subject, rdfType, null)</span>
-<span class="nc" id="L83">                    .map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
-<span class="nc" id="L84">                    .map(IRI::getIRIString).map(URI::create).forEach(builder::type);</span>
+<span class="nc" id="L85">                try (final Stream&lt;Triple&gt; stream = graph.stream(subject, rdfType, null).map(Triple.class::cast)) {</span>
+<span class="nc" id="L86">                    stream.map(Triple::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)</span>
+<span class="nc" id="L87">                        .map(IRI::getIRIString).map(URI::create).forEach(builder::type);</span>
+                }
 
-<span class="nc" id="L86">            } catch (final IOException ex) {</span>
-<span class="nc" id="L87">                throw new WebIdException(&quot;Error parsing WebId profile resource&quot;, ex);</span>
-<span class="nc" id="L88">            }</span>
-<span class="nc" id="L89">            return builder.build(webid);</span>
+<span class="nc" id="L90">            } catch (final Exception ex) {</span>
+<span class="nc" id="L91">                throw new WebIdException(&quot;Error processing WebId profile resource&quot;, ex);</span>
+<span class="nc" id="L92">            }</span>
+<span class="nc" id="L93">            return builder.build(webid);</span>
         };
     }
 

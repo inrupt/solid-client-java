@@ -87,7 +87,7 @@ Inrupt Client Libraries - Report/inrupt-client-okhttp,com.inrupt.client.okhttp,O
 Inrupt Client Libraries - Report/inrupt-client-httpclient,com.inrupt.client.httpclient,HttpClientService,5,100,0,4,1,19,1,7,1,5
 Inrupt Client Libraries - Report/inrupt-client-httpclient,com.inrupt.client.httpclient,HttpClientResponseInfo,0,26,0,0,0,8,0,5,0,5
 Inrupt Client Libraries - Report/inrupt-client-httpclient,com.inrupt.client.httpclient,HttpClientResponse,0,26,0,0,0,9,0,5,0,5
-Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JService,35,255,4,8,7,61,5,13,1,11
+Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JService,0,188,0,0,0,42,0,7,0,7
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JBodyPublishers,0,44,0,0,0,9,0,7,0,7
 Inrupt Client Libraries - Report/inrupt-client-rdf4j,com.inrupt.client.rdf4j,RDF4JBodyHandlers,26,83,0,0,4,15,2,7,2,7
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer.Builder,0,22,0,0,0,7,0,4,0,4
@@ -96,7 +96,7 @@ Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,Sol
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidClient,6,201,0,0,1,41,1,12,1,12
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,Metadata.Builder,0,128,0,0,0,30,0,9,0,9
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResourceException,0,9,0,0,0,4,0,2,0,2
-Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer,0,111,0,0,0,17,0,4,0,4
+Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidContainer,0,119,0,0,0,18,0,4,0,4
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,SolidResource,11,22,0,2,4,7,2,4,2,3
 Inrupt Client Libraries - Report/inrupt-client-solid,com.inrupt.client.solid,Metadata,0,62,0,0,0,17,0,9,0,9
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,UmaClient,19,371,0,16,2,73,2,27,2,18
@@ -116,7 +116,7 @@ Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,Require
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,TokenRequest,0,43,0,2,0,14,0,7,0,6
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,RequestDeniedException,5,4,0,0,2,2,1,1,1,1
 Inrupt Client Libraries - Report/inrupt-client-uma,com.inrupt.client.uma,UmaAuthenticationProvider,11,66,5,5,2,19,5,7,0,7
-Inrupt Client Libraries - Report/inrupt-client-webid,com.inrupt.client.webid,WebIdBodyHandlers,7,175,0,0,2,25,0,3,0,3
+Inrupt Client Libraries - Report/inrupt-client-webid,com.inrupt.client.webid,WebIdBodyHandlers,7,207,0,0,2,25,0,3,0,3
 Inrupt Client Libraries - Report/inrupt-client-webid,com.inrupt.client.webid,WebIdProfile.Builder,0,82,0,0,0,20,0,6,0,6
 Inrupt Client Libraries - Report/inrupt-client-webid,com.inrupt.client.webid,WebIdException,9,0,0,0,4,0,2,0,2,0
 Inrupt Client Libraries - Report/inrupt-client-webid,com.inrupt.client.webid,WebIdProfile,0,45,0,0,0,13,0,7,0,7
