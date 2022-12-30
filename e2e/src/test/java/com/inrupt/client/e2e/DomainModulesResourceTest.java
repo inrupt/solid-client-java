@@ -52,8 +52,8 @@ import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -65,16 +65,24 @@ public class DomainModulesResourceTest {
     private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
     private static final RDF rdf = RDFFactory.getInstance();
 
+    private static String testEnv = smallRyeConfig.getValue("E2E_TEST_ENVIRONMENT", String.class);
     private static String podUrl = "";
     private static String testResource = "";
-    private static final URI webid = URI.create(smallRyeConfig.getValue("E2E_TEST_WEBID", String.class));
+    private static URI webid;
 
     @BeforeAll
     static void setup() {
 
+        final var username = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
         final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
         final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
         final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
+
+        if (testEnv.contains("MockSolidServer")) {
+            Utils.initMockServer();
+            podUrl = Utils.getMockServerUrl();
+        }
+        final var webid = URI.create(podUrl + "/" + username);
 
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
@@ -92,16 +100,22 @@ public class DomainModulesResourceTest {
 
         if (!profile.getStorage().isEmpty()) {
             podUrl = profile.getStorage().iterator().next().toString();
-            if (!podUrl.endsWith("/")) {
+        }
+        if (!podUrl.endsWith("/")) {
                 podUrl += "/";
             }
             testResource = podUrl + "resource/";
-        }
     }
 
+    @AfterAll
+    static void teardown() {
+        if (testEnv.equals("MockSolidServer")) {
+            Utils.stopMockServer();
+        }
+    }
+    
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
-    @Disabled()
     void crudRdfTest() {
         final String newResourceName = testResource + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
@@ -139,7 +153,6 @@ public class DomainModulesResourceTest {
     }
 
     @Test
-    @Disabled()
     @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
@@ -152,7 +165,6 @@ public class DomainModulesResourceTest {
         assertDoesNotThrow(client.delete(newContainer).toCompletableFuture()::join);
     }
 
-    @Disabled()
     @Test
     @DisplayName("./solid-client-java:blankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")

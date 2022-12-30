@@ -27,18 +27,16 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.inrupt.client.Headers.Link;
-import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.e2e.MockSolidServer.ServerBody;
 
-import java.net.URI;
-import java.util.Set;
+import java.io.IOException;
+import java.util.Map;
 
 public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
-    private final Set<String> storage;
+    private final Map<String, ServerBody> storage;
 
-    public SolidServerTransformer(Set<String> storage) {
+    public SolidServerTransformer(Map<String, ServerBody> storage) {
         this.storage = storage;
     }
 
@@ -51,40 +49,79 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
     public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
             final FileSource files, final Parameters parameters) {
 
+        final var res = new ResponseDefinitionBuilder();
+
         if (request.getMethod().isOneOf(RequestMethod.GET)) {
-            if (this.storage.contains(request.getUrl())) {
-                if (request.getUrl().contains("/playlist")) {
-                    return new ResponseDefinitionBuilder()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/turtle")
-                        .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
-                        .withHeader("Link", Link.of(URI.create("http://storage.example/"),
-                                PIM.storage).toString())
-                        .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
-                        .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
-                        .withHeader("Allow", "POST, PUT, PATCH")
-                        .withHeader("Accept-Post", "application/ld+json, text/turtle")
-                        .withHeader("Accept-Put", "application/ld+json, text/turtle")
-                        .withHeader("Accept-Patch", "application/sparql-update, text/n3")
-                        .withBodyFile("playlist.ttl")
-                        .build();
-                }
+            if (this.storage.containsKey(request.getUrl())) {
+                final var serverBody = this.storage.get(request.getUrl());
+                res
+                    .withStatus(Utils.SUCCESS)
+                    .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
+                    .withBody(serverBody.body);
+
+            } else {
+                res.withStatus(Utils.NOT_FOUND);
             }
+            return res.build();
+        }
+
+        if (request.getMethod().isOneOf(RequestMethod.POST)) {
+            if (!this.storage.containsKey(request.getUrl())) {
+                this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
+                        request.contentTypeHeader().mimeTypePart()));
+                res.withStatus(Utils.NO_CONTENT);
+            } else {
+                res.withStatus(Utils.PRECONDITION_FAILED);
+            }
+            return res.build();
         }
 
         if (request.getMethod().isOneOf(RequestMethod.PUT)) {
-            this.storage.add(request.getUrl());
-            return new ResponseDefinitionBuilder()
-                    .withStatus(204)
-                    .build();
+            if (!this.storage.containsKey(request.getUrl())) {
+                this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
+                        request.contentTypeHeader().mimeTypePart()));
+                res.withStatus(Utils.NO_CONTENT);
+            } else {
+                //should create the resource with new URI?
+                res.withStatus(Utils.CONFLICT);
+            }
+            return res.build();
+        }
+
+        if (request.getMethod().isOneOf(RequestMethod.PATCH)) {
+            if (this.storage.containsKey(request.getUrl())) {
+                if (request.contentTypeHeader().containsValue(Utils.SPARQL_UPDATE)) {
+                    final var serverBody = this.storage.get(request.getUrl());
+                    try {
+                        final byte[] newBody = Utils.modifyBody(serverBody.body, request.getBodyAsString());
+                        this.storage.remove(request.getUrl());
+                        this.storage.put(request.getUrl(), new ServerBody(newBody,
+                                serverBody.contentType));
+
+                        res.withStatus(Utils.NO_CONTENT);
+                    } catch (IOException e) {
+                        res.withStatus(Utils.ERROR);
+                    }
+                }
+                else {
+                    res.withStatus(Utils.ERROR);
+                }
+            } else {
+                res.withStatus(Utils.PRECONDITION_FAILED);
+            }
+            return res.build();
         }
 
         if (request.getMethod().isOneOf(RequestMethod.DELETE)) {
-            this.storage.remove(request.getUrl());
-            return new ResponseDefinitionBuilder()
-                    .withStatus(204)
-                    .build();
+            if (this.storage.containsKey(request.getUrl())) {
+                this.storage.remove(request.getUrl());
+                res.withStatus(Utils.NO_CONTENT);
+            } else {
+                res.withStatus(Utils.NOT_FOUND);
+            }
+            return res.build();
         }
+
         return null;
     }
 

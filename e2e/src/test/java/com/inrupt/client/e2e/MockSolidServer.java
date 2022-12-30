@@ -27,25 +27,28 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 class MockSolidServer {
 
     private final WireMockServer wireMockServer;
-    private Set<String> storage = new HashSet<>();
+    private Map<String, ServerBody> storage = new ConcurrentHashMap<>();
 
     public MockSolidServer() {
-        wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .dynamicPort()
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort()
                 .extensions(new SolidServerTransformer(storage))
                 .notifier(new ConsoleNotifier(true)));
+    }
+    
+    public int getPort() {
+        return wireMockServer.port();
     }
 
     private void setupMocks() {
         wireMockServer.stubFor(get(anyUrl()));
         wireMockServer.stubFor(put(anyUrl()));
+        wireMockServer.stubFor(post(anyUrl()));
         wireMockServer.stubFor(patch(anyUrl()));
         wireMockServer.stubFor(delete(anyUrl()));
     }
@@ -59,6 +62,16 @@ class MockSolidServer {
 
     public void stop() {
         wireMockServer.stop();
+    }
+
+    static class ServerBody {
+        final byte[] body;
+        final String contentType;
+
+        public ServerBody(final byte[] body, final String contentType) {
+            this.body = body.clone();
+            this.contentType = contentType;
+        }
     }
 
 }
