@@ -6,7 +6,7 @@ on:
 
 jobs:
   dependencies:
-    name: Java environment
+    name: Dependency Check
     runs-on: ubuntu-latest
     strategy:
       matrix:
