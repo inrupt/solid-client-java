@@ -883,7 +883,7 @@
     <profile>
       <id>website</id>
       <properties>
-        <skipTests>false</skipTests>
+        <skipTests>true</skipTests>
         <pmd.skip>true</pmd.skip>
         <cpd.skip>true</cpd.skip>
         <jacoco.skip>true</jacoco.skip>
