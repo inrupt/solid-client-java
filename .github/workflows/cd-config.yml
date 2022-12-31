@@ -32,13 +32,6 @@ jobs:
       - name: Build the code with Maven
         run: mvn -B -ntp install -Pci
 
-      - name: Publish to GitHub pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.actor != 'dependabot[bot]'
-        with:
-          publish_dir: ./target/staging/
-          personal_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Deploy Artifacts
         run: mvn deploy -P publish
         if: github.actor != 'dependabot[bot]'
@@ -51,7 +44,7 @@ jobs:
         run: mvn sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
 
   site:
-    name: Publish site
+    name: Publish version-specific site
     runs-on: ubuntu-latest
 
     steps:
@@ -67,10 +60,23 @@ jobs:
       - name: Build the site with Maven
         run: mvn -B -ntp install site site:stage -Pwebsite
 
-      - name: Publish to GitHub pages
+      - name: Set site version
+        run: |
+          VERSION=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "VERSION_DIR=./${VERSION}/" >> $GITHUB_ENV
+
+      - name: Publish tagged site to GitHub pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.actor != 'dependabot[bot]' && startsWith(github.event.ref, 'refs/tags/inrupt-client'
+        with:
+          publish_dir: ./target/staging/
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish versioned site to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.actor != 'dependabot[bot]'
         with:
           publish_dir: ./target/staging/
+          destination_dir: ${{ env.VERSION_DIR }}
           personal_token: ${{ secrets.GITHUB_TOKEN }}
 
