@@ -37,7 +37,7 @@ import org.apache.commons.rdf.api.RDFSyntax;
  *
  * <p>This class can be used as a basis for object mapping with higher-level client applications.
  */
-public class Resource {
+public class Resource implements AutoCloseable {
 
     private static final RdfService service = ServiceProvider.getRdfService();
 
@@ -94,10 +94,19 @@ public class Resource {
     /**
      * Validate the dataset for this object.
      *
-     * <p>Subclasses may override this method to perform validation on the provided dataset during object creation.
+     * <p>Subclasses may override this method to perform validation on the provided dataset.
      * By default, this method is a no-op.
      */
     public void validate() {
         // no-op
+    }
+
+    @Override
+    public void close() {
+        try {
+            dataset.close();
+        } catch (final Exception ex) {
+            throw new InruptClientException("Error closing dataset", ex);
+        }
     }
 }
