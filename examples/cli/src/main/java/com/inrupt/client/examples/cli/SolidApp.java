@@ -22,13 +22,11 @@ package com.inrupt.client.examples.cli;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidResourceHandlers;
+import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.webid.WebIdBodyHandlers;
+import com.inrupt.client.webid.WebIdProfile;
 
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
@@ -78,20 +76,17 @@ public class SolidApp implements QuarkusApplication {
             final var session = OpenIdSession.ofClientCredentials(config.issuer(), config.clientId(),
                         config.clientSecret(), config.authMethod());
 
-            final var client = ClientProvider.getClient().session(session);
+            final var client = SolidClient.getClient().session(session);
             session.getPrincipal().ifPresent(webid -> {
                 printWriter.format("WebID: %s", webid);
                 printWriter.println();
-                final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
-                final var profile = client.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
-                    .thenApply(Response::body).toCompletableFuture().join();
+                final var profile = client.read(webid, WebIdProfile.class)
+                    .toCompletableFuture().join();
 
                 profile.getStorage().stream().findFirst()
-                    .map(storage -> Request.newBuilder(storage).build())
-                    .map(request -> client.send(request, SolidResourceHandlers.ofSolidContainer())
-                            .thenApply(Response::body).toCompletableFuture().join())
-                    .ifPresent(model -> {
-                        try (final var stream = model.getContainedResources()) {
+                    .map(storage -> client.read(storage, SolidContainer.class).toCompletableFuture().join())
+                    .ifPresent(container -> {
+                        try (final var stream = container.getContainedResources()) {
                             stream
                                 .filter(r -> {
                                     if (cmd.hasOption("c") && r.getMetadata().getType().contains(LDP.BasicContainer)) {

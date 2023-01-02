@@ -73,7 +73,7 @@ public final class SolidContainer extends SolidResource {
                         .map(IRI::getIRIString).map(URI::create).forEach(metadata::type);
                 }
                 builder.metadata(metadata.build());
-                return builder.build(URI.create(child.toString()));
+                return builder.build(URI.create(child.getIRIString()));
             });
     }
 

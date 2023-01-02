@@ -20,14 +20,10 @@
  */
 package com.inrupt.client.examples.quarkus;
 
-import com.inrupt.client.Client;
-import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidResourceHandlers;
+import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
 
 import io.quarkus.qute.CheckedTemplate;
@@ -36,6 +32,8 @@ import io.quarkus.qute.TemplateInstance;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -51,7 +49,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 @Path("/solid")
 public class SolidStorage {
 
-    final Client client = ClientProvider.getClient();
+    final SolidClient client = SolidClient.getClient();
 
     @Inject
     JsonWebToken jwt;
@@ -66,30 +64,30 @@ public class SolidStorage {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance solid() {
-        return jwt.claim("webid").flatMap(claim -> {
-            final var webid = URI.create((String) claim);
-            final var req = Request.newBuilder(webid).header("Accept", "text/turtle").build();
+    public CompletionStage<TemplateInstance> solid() {
+        return jwt.claim("webid").map(String.class::cast).map(URI::create).map(webid -> {
             final var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
-            final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
-                .thenApply(Response::body).toCompletableFuture().join();
-
-            return profile.getStorage().stream().findFirst().map(storage -> Request.newBuilder(storage).build())
-                .map(request -> session.send(request, SolidResourceHandlers.ofSolidContainer())
-                        .thenApply(Response::body).toCompletableFuture().join())
-                .map(model -> {
-                    try (final var stream = model.getContainedResources()) {
-                        final var resources = stream.collect(Collectors.groupingBy(c ->
-                                    getPrincipalType(c.getMetadata().getType()), Collectors.mapping(c ->
-                                        c.getIdentifier().toString(), Collectors.toList())));
-                        return Templates.profile(profile, resources.get(LDP.BasicContainer),
-                                resources.get(LDP.RDFSource));
-                    }
-                });
-        }).orElseGet(() -> Templates.profile(null, List.of(), List.of()));
+            return session.read(webid, WebIdProfile.class)
+                .thenCompose(profile -> profile.getStorage().stream().findFirst()
+                        .map(storage ->
+                            session.read(storage, SolidContainer.class).thenApply(container -> {
+                                try (final var stream = container.getContainedResources()) {
+                                    final var resources = stream.collect(Collectors.groupingBy(c ->
+                                                getPrincipalType(c.getMetadata().getType()), Collectors.mapping(c ->
+                                                    c.getIdentifier().toString(), Collectors.toList())));
+                                    return Templates.profile(profile, resources.get(LDP.BasicContainer),
+                                            resources.get(LDP.RDFSource));
+                                }
+                            }))
+                        .orElseGet(SolidStorage::emptyProfile));
+        }).orElseGet(SolidStorage::emptyProfile);
     }
 
-    public URI getPrincipalType(final Collection<URI> types) {
+    static CompletionStage<TemplateInstance> emptyProfile() {
+        return CompletableFuture.completedFuture(Templates.profile(null, List.of(), List.of()));
+    }
+
+    static URI getPrincipalType(final Collection<URI> types) {
         if (types.contains(LDP.BasicContainer)) {
             return LDP.BasicContainer;
         } else if (types.contains(LDP.RDFSource)) {
