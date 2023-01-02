@@ -23,4 +23,25 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp clean install site
+        run: mvn -B -ntp verify -Pci
+
+  dependencies:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11 ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+
+      - name: Build the code with Maven
+        run: mvn -B -ntp verify -Pdependencies
+

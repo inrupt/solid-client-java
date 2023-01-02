@@ -30,17 +30,10 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Build the code with Maven
-        run: ./mvnw -B -ntp clean install site site:stage
-
-      - name: Publish to GitHub pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.actor != 'dependabot[bot]'
-        with:
-          publish_dir: ./target/staging/
-          personal_token: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B -ntp install -Pci
 
       - name: Deploy Artifacts
-        run: ./mvnw deploy -P publish
+        run: mvn deploy -P publish
         if: github.actor != 'dependabot[bot]'
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -48,5 +41,42 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Sonar Analysis
-        run: ./mvnw sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+        run: mvn sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+
+  site:
+    name: Publish version-specific site
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11
+          cache: 'maven'
+
+      - name: Build the site with Maven
+        run: mvn -B -ntp install site site:stage -Pwebsite
+
+      - name: Set site version
+        run: |
+          VERSION=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "VERSION_DIR=./${VERSION}/" >> $GITHUB_ENV
+
+      - name: Publish tagged site to GitHub pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.actor != 'dependabot[bot]' && startsWith(github.event.ref, 'refs/tags/inrupt-client'
+        with:
+          publish_dir: ./target/staging/
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish versioned site to GitHub pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.actor != 'dependabot[bot]'
+        with:
+          publish_dir: ./target/staging/
+          destination_dir: ${{ env.VERSION_DIR }}
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
 
