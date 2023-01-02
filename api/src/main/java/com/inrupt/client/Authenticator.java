@@ -24,9 +24,7 @@ import com.inrupt.client.spi.ServiceProvider;
 
 import java.net.URI;
 import java.security.KeyPair;
-import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -59,100 +57,10 @@ public interface Authenticator {
      *
      * @param session the client session
      * @param request the HTTP request
+     * @param algorithms the supported DPoP algorithms
      * @return the next stage of completion, containing the access token
      */
-    CompletionStage<AccessToken> authenticate(Session session, Request request);
-
-    /**
-     * A class containing information about an OAuth 2.0 access token.
-     *
-     * @see <a href="https://www.rfc-editor.org/rfc/rfc6749#section-1.4">OAuth 2.0 Authorization Framework.
-     * Section 1.4: Access Token</a>
-     */
-    class AccessToken {
-
-        private final Instant expiration;
-        private final List<String> scopes;
-        private final String token;
-        private final String type;
-        private final String algorithm;
-        private final URI issuer;
-
-        /**
-         * Create a new {@link AccessToken}.
-         *
-         * @param token the access token value
-         * @param type the access token type, e.g. Bearer or DPoP
-         * @param expiration the access token expiration
-         * @param issuer the access token issuer
-         * @param scopes a list of scopes for this access token
-         * @param algorithm the proofing algorithm used for this access token, may be {@code null}
-         */
-        public AccessToken(final String token, final String type, final Instant expiration,
-                    final URI issuer, final List<String> scopes, final String algorithm) {
-            this.token = Objects.requireNonNull(token);
-            this.type = Objects.requireNonNull(type);
-            this.expiration = Objects.requireNonNull(expiration);
-            this.scopes = Objects.requireNonNull(scopes);
-            this.issuer = Objects.requireNonNull(issuer);
-            this.algorithm = algorithm;
-        }
-
-        /**
-         * Retrieve a list of scope values for this token.
-         *
-         * @return the scope
-         */
-        public List<String> getScope() {
-            return scopes;
-        }
-
-        /**
-         * Retrieve the issuer for this token.
-         *
-         * @return the issuer
-         */
-        public URI getIssuer() {
-            return issuer;
-        }
-
-        /**
-         * Retrieve the expriation time for this token.
-         *
-         * @return the expiration time
-         */
-        public Instant getExpiration() {
-            return expiration;
-        }
-
-        /**
-         * Retrieve the token value.
-         *
-         * @return the token value
-         */
-        public String getToken() {
-            return token;
-        }
-
-        /**
-         * Retrieve the token type (e.g., Bearer or DPoP).
-         *
-         * @return the type
-         */
-        public String getType() {
-            return type;
-        }
-
-        /**
-         * Retrieve the proofing algorithm, if present.
-         *
-         * @return the proofing algorithm
-         */
-        public Optional<String> getProofAlgorithm() {
-            return Optional.ofNullable(algorithm);
-        }
-    }
-
+    CompletionStage<Credential> authenticate(Session session, Request request, Set<String> algorithms);
 
     /**
      * Part of the HTTP Challenge and Response authentication framework, this class represents a
@@ -276,7 +184,23 @@ public interface Authenticator {
         Set<String> algorithms();
 
         /**
-         * Create a DPoP manager with a default algorithm and keypair.
+         * Retrieve the algorithm for the given thumbprint, if available.
+         *
+         * @param jkt the JSON Key Thumbprint
+         * @return the algorithm, if present
+         */
+        Optional<String> lookupAlgorithm(String jkt);
+
+        /**
+         * Retrieve the thumbprint for a given algorithm, if available.
+         *
+         * @param algorithm the algorithm
+         * @return the thumbprint, if present
+         */
+        Optional<String> lookupThumbprint(String algorithm);
+
+        /**
+         * Create a DPoP manager that supports a default keypair.
          *
          * @return the DPoP manager
          */
@@ -285,20 +209,9 @@ public interface Authenticator {
         }
 
         /**
-         * Create a DPoP manager that supports a single algorithm and keypair.
+         * Create a DPoP manager that supports some number of keypairs.
          *
-         * @param algorithm the algorithm
-         * @param keypair the keypair
-         * @return the DPoP manager
-         */
-        static DPoP of(final String algorithm, final KeyPair keypair) {
-            return of(Collections.singletonMap(algorithm, keypair));
-        }
-
-        /**
-         * Create a DPoP manager that supports a collection of algorithms and keypairs.
-         *
-         * @param keypairs the algorithm-keypair combinations
+         * @param keypairs the keypairs
          * @return the DPoP manager
          */
         static DPoP of(final Map<String, KeyPair> keypairs) {

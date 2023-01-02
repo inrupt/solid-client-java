@@ -24,6 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
+import static org.jose4j.lang.HashUtil.SHA_256;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Client;
@@ -33,15 +34,17 @@ import com.inrupt.client.Response;
 import com.inrupt.client.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
+import com.inrupt.client.openid.OpenIdConfig;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.openid.OpenIdVerificationConfig;
 import com.inrupt.client.uma.UmaSession;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.security.KeyPair;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -186,15 +189,21 @@ class DefaultClientTest {
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("Bearer"), response.headers().firstValue("WWW-Authenticate"));
+        assertEquals(Optional.of("Bearer,DPoP algs=\"ES256\""), response.headers().firstValue("WWW-Authenticate"));
+
+        final PublicJsonWebKey jwk = getDpopKey();
+        final OpenIdConfig config = new OpenIdConfig();
+        config.setProofKeyPairs(Collections.singletonMap("ES256",
+                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
 
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
         claims.put("iss", ISS);
         claims.put("azp", AZP);
+        claims.put("cnf", Collections.singletonMap("jkt", jwk.calculateBase64urlEncodedThumbprint(SHA_256)));
         final String token = generateIdToken(claims);
-        final Session session = OpenIdSession.ofIdToken(token);
+        final Session session = OpenIdSession.ofIdToken(token, config);
         assertDoesNotThrow(() -> {
             final Response<Void> res = client.session(session).send(request, Response.BodyHandlers.discarding())
                 .toCompletableFuture().join();
@@ -222,7 +231,8 @@ class DefaultClientTest {
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("Unknown, Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
+        assertEquals(Optional.of("Unknown, Bearer, DPoP algs=\"ES256\", UMA ticket=\"ticket-12345\", as_uri=\"" +
+                    baseUri.get() + "\""),
                 response.headers().firstValue("WWW-Authenticate"));
     }
 
@@ -236,11 +246,17 @@ class DefaultClientTest {
             model.createLiteral("object")
         );
 
+        final PublicJsonWebKey jwk = getDpopKey();
+        final OpenIdConfig config = new OpenIdConfig();
+        config.setProofKeyPairs(Collections.singletonMap("ES256",
+                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
+
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
         claims.put("iss", ISS);
         claims.put("azp", AZP);
+        claims.put("cnf", Collections.singletonMap("jkt", jwk.calculateBase64urlEncodedThumbprint(SHA_256)));
         final String token = generateIdToken(claims);
 
         final Request request = Request.newBuilder()
@@ -249,12 +265,13 @@ class DefaultClientTest {
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
 
-        final Response<Void> response = client.session(OpenIdSession.ofIdToken(token))
+        final Response<Void> response = client.session(OpenIdSession.ofIdToken(token, config))
             .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
         assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("Unknown, Bearer, UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
+        assertEquals(Optional.of("Unknown, Bearer, DPoP algs=\"ES256\", UMA ticket=\"ticket-12345\", as_uri=\"" +
+                    baseUri.get() + "\""),
                 response.headers().firstValue("WWW-Authenticate"));
     }
 
@@ -306,7 +323,7 @@ class DefaultClientTest {
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
         final String token = generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(0);
         final Session s = OpenIdSession.ofIdToken(token, config);
 
@@ -337,6 +354,17 @@ class DefaultClientTest {
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
+    }
+
+    static PublicJsonWebKey getDpopKey() {
+        try (final InputStream resource = DefaultClientTest.class.getResourceAsStream("/dpop-key.json")) {
+            final String jwks = IOUtils.toString(resource, UTF_8);
+            return PublicJsonWebKey.Factory.newPublicJwk(jwks);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to read JWK", ex);
+        } catch (final JoseException ex) {
+            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
+        }
     }
 
     static String generateIdToken(final Map<String, Object> claims) {

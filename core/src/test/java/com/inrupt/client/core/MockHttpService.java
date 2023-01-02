@@ -75,7 +75,7 @@ class MockHttpService {
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
-                    .withHeader("Authorization", containing("Bearer "))
+                    .withHeader("Authorization", containing("DPoP "))
                     .willReturn(aResponse()
                         .withStatus(201)));
 
@@ -83,6 +83,7 @@ class MockHttpService {
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Unknown, Bearer, " +
+                            "DPoP algs=\"ES256\", " +
                             "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
@@ -91,7 +92,7 @@ class MockHttpService {
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
-                    .withHeader("Authorization", containing("Bearer "))
+                    .withHeader("Authorization", containing("DPoP "))
                     .willReturn(aResponse()
                         .withStatus(201)));
 
@@ -99,7 +100,7 @@ class MockHttpService {
                     .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(401)
-                        .withHeader("WWW-Authenticate", "Bearer")));
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postString"))
                     .atPriority(1)

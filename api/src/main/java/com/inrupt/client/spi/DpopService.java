@@ -31,9 +31,9 @@ import java.util.Map;
 public interface DpopService {
 
     /**
-     * Create a DPoP manager with a collection of algorithm-keypair sets.
+     * Create a DPoP manager with a collection of keypairs.
      *
-     * @param keypairs a mapping of algorithm to keypair
+     * @param keypairs the keypairs
      * @return the DPoP manager
      */
     DPoP ofKeyPairs(Map<String, KeyPair> keypairs);

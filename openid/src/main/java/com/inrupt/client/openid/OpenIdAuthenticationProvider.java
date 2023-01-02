@@ -21,13 +21,13 @@
 package com.inrupt.client.openid;
 
 import com.inrupt.client.Authenticator;
+import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -101,18 +101,15 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public CompletionStage<AccessToken> authenticate(final Session session, final Request request) {
-            // TODO don't hard-code this
-            final List<String> scopes = Arrays.asList("webid", "openid");
-            final Optional<CompletionStage<AccessToken>> token = session.getCredential(OpenIdSession.ID_TOKEN)
-                .map(credential -> new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),
-                            credential.getExpiration(), credential.getIssuer(), scopes, null))
+        public CompletionStage<Credential> authenticate(final Session session, final Request request,
+                final Set<String> algorithms) {
+            final String thumbprint = session.selectThumbprint(algorithms).orElse(null);
+
+            final Optional<CompletionStage<Credential>> token = session.getCredential(OpenIdSession.ID_TOKEN)
                 .map(CompletableFuture::completedFuture);
             return token
-                .orElseGet(() -> session.authenticate(request)
+                .orElseGet(() -> session.authenticate(request, algorithms)
                     .thenApply(credential -> credential
-                        .map(c -> new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(), c.getIssuer(),
-                                scopes, null))
                         .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"))));
         }
     }

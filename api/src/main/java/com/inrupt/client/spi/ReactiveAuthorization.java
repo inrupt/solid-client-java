@@ -21,16 +21,19 @@
 package com.inrupt.client.spi;
 
 import com.inrupt.client.Authenticator;
+import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -74,10 +77,16 @@ public class ReactiveAuthorization {
      * @param challenges the HTTP challenge schemes
      * @return the next stage of completion, possibly containing a credential
      */
-    public CompletionStage<Optional<Session.Credential>> negotiate(final Session session, final Request request,
+    public CompletionStage<Optional<Credential>> negotiate(final Session session, final Request request,
             final Collection<Authenticator.Challenge> challenges) {
         final List<Authenticator> authenticators = new ArrayList<>();
+        final Set<String> algorithms = new HashSet<>();
         for (final Authenticator.Challenge challenge : challenges) {
+            if (challenge.getParameter("algs") != null) {
+                for (final String alg : challenge.getParameter("algs").split(" ")) {
+                    algorithms.add(alg);
+                }
+            }
             final String scheme = challenge.getScheme();
             if (registry.containsKey(scheme) && sessionSupportsScheme(session, scheme)) {
                 authenticators.add(registry.get(scheme).getAuthenticator(challenge));
@@ -89,10 +98,7 @@ public class ReactiveAuthorization {
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);
             LOGGER.debug("Using {} authenticator", auth.getName());
-            return auth.authenticate(session, request)
-                .thenApply(token -> new Session.Credential(token.getType(), token.getIssuer(),
-                            token.getToken(), token.getExpiration(), session.getPrincipal().orElse(null)))
-                .thenApply(Optional::of);
+            return auth.authenticate(session, request, algorithms).thenApply(Optional::of);
         }
         return CompletableFuture.completedFuture(Optional.empty());
     }

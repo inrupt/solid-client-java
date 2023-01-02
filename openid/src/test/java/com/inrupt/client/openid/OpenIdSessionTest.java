@@ -25,15 +25,18 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Authenticator;
+import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -83,7 +86,7 @@ class OpenIdSessionTest {
         claims.put("aud", Arrays.asList("solid", AZP));
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setPublicKeyLocation(URI.create(baseUrl + "/jwks"));
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
     }
@@ -98,7 +101,7 @@ class OpenIdSessionTest {
         claims.put("aud", Arrays.asList("solid", AZP));
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setPublicKeyLocation(URI.create(baseUrl + "/jwks-other"));
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
     }
@@ -113,7 +116,7 @@ class OpenIdSessionTest {
         claims.put("aud", Arrays.asList("solid", AZP));
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpectedAudience("https://app.example");
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
     }
@@ -128,7 +131,7 @@ class OpenIdSessionTest {
         claims.put("aud", Arrays.asList("solid", AZP));
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpectedAudience("https://app10.example");
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
     }
@@ -144,9 +147,9 @@ class OpenIdSessionTest {
         final Optional<URI> principal = session.getPrincipal();
         assertEquals(Optional.of(URI.create(WEBID)), principal);
         assertTrue(session.fromCache(null).isPresent());
-        final Optional<Session.Credential> credential = session.authenticate(null)
+        final Optional<Credential> credential = session.authenticate(null, Collections.emptySet())
             .toCompletableFuture().join();
-        assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Session.Credential::getPrincipal));
+        assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
     }
 
     @Test
@@ -211,7 +214,7 @@ class OpenIdSessionTest {
         claims.put("azp", AZP);
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(0);
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
     }
@@ -225,7 +228,7 @@ class OpenIdSessionTest {
         claims.put("azp", AZP);
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(0);
         final Session session = OpenIdSession.ofIdToken(token, config);
         final Request req = Request.newBuilder(URI.create("https://storage.example")).build();
@@ -243,7 +246,7 @@ class OpenIdSessionTest {
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(0);
         assertThrows(OpenIdException.class, () -> OpenIdSession.ofIdToken(token, config));
     }
@@ -259,7 +262,7 @@ class OpenIdSessionTest {
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(0);
         final Session s = OpenIdSession.ofIdToken(token, config);
         assertTrue(s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
@@ -278,7 +281,7 @@ class OpenIdSessionTest {
         claims.put("iat", Instant.now().minusSeconds(61).getEpochSecond());
 
         final String token = OpenIdTestUtils.generateIdToken(claims);
-        final OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+        final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(60);
         assertDoesNotThrow(() -> OpenIdSession.ofIdToken(token, config));
     }
@@ -301,13 +304,11 @@ class OpenIdSessionTest {
         }
 
         @Override
-        public CompletionStage<Authenticator.AccessToken> authenticate(final Session session,
-                final Request request) {
-            final Authenticator.AccessToken token = new Authenticator.AccessToken(this.token,
-                    "Bearer", Instant.now().plusSeconds(3600),
-                    URI.create(ISS), Arrays.asList("openid", "webid"), null);
+        public CompletionStage<Credential> authenticate(final Session session,
+                final Request request, final Set<String> algorithms) {
+            final Credential token = new Credential("Bearer", URI.create(ISS), this.token,
+                    Instant.now().plusSeconds(3600), URI.create(WEBID), null);
             return CompletableFuture.completedFuture(token);
         }
     }
-
 }
