@@ -27,9 +27,22 @@ import org.apache.commons.rdf.api.RDF;
 
 public final class RDFFactory {
 
-    private static final ServiceLoader<RDF> loader = ServiceLoader.load(RDF.class);
+    private static RDF instance = null;
 
-    public static RDF getInstance() {
+    public static RDF instance() {
+        if (instance == null) {
+            synchronized (RDFFactory.class) {
+                if (instance != null) {
+                    return instance;
+                }
+                instance = loadSpi(RDFFactory.class.getClassLoader());
+            }
+        }
+        return instance;
+    }
+
+    private static RDF loadSpi(final ClassLoader cl) {
+        final ServiceLoader<RDF> loader = ServiceLoader.load(RDF.class, cl);
         final Iterator<RDF> iterator = loader.iterator();
         if (iterator.hasNext()) {
             return iterator.next();

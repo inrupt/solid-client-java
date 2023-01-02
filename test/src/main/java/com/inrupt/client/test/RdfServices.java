@@ -48,7 +48,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class RdfServices {
 
     private static final RdfService rdfService = ServiceProvider.getRdfService();
-    private static final RDF rdf = RDFFactory.getInstance();
+    private static final RDF rdf = RDFFactory.instance();
 
     @Test
     void parseToDatasetTurtle() throws IOException {

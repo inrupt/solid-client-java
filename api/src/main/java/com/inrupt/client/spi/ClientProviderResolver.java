@@ -27,7 +27,7 @@ import java.util.ServiceLoader;
 
 public abstract class ClientProviderResolver {
 
-    private static volatile ClientProviderResolver instance = null;
+    private static ClientProviderResolver instance = null;
 
     /**
      * Get the {@link Client} for this application.

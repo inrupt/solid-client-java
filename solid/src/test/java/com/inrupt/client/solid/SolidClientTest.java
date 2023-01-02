@@ -41,7 +41,7 @@ class SolidClientTest {
 
     private static final SolidMockHttpService mockHttpServer = new SolidMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final RDF rdf = RDFFactory.getInstance();
+    private static final RDF rdf = RDFFactory.instance();
     private static final SolidClient client = SolidClient.getClient().session(Session.anonymous());
 
     @BeforeAll

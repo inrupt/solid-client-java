@@ -47,7 +47,7 @@ import org.apache.commons.rdf.api.Triple;
 public final class WebIdBodyHandlers {
 
     private static final RdfService service = ServiceProvider.getRdfService();
-    private static final RDF rdf = RDFFactory.getInstance();
+    private static final RDF rdf = RDFFactory.instance();
 
     /**
      * Transform an HTTP response into a WebID Profile object.

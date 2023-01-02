@@ -44,7 +44,7 @@ public class Resource {
     /**
      * The RDF Factory instance.
      */
-    protected static final RDF rdf = RDFFactory.getInstance();
+    protected static final RDF rdf = RDFFactory.instance();
 
     private final Dataset dataset;
     private final URI identifier;

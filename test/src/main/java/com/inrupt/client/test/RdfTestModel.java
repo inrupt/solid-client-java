@@ -28,7 +28,7 @@ import org.apache.commons.rdf.api.RDF;
 
 public final class RdfTestModel {
 
-    private static final RDF rdf = RDFFactory.getInstance();
+    private static final RDF rdf = RDFFactory.instance();
 
     public static final String TEST_NAMESPACE = "http://example.test/";
 
