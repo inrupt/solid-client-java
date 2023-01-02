@@ -72,9 +72,12 @@
         <yasson.version>1.0.3</yasson.version>
         <wiremock.version>2.35.0</wiremock.version>
 
+        <!-- disable by default -->
+        <dependency-check.skip>true</dependency-check.skip>
+
         <!-- sonar -->
         <sonar.coverage.jacoco.xmlReportPaths>
-            ${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    ${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.host.url>https://sonarqube.dev.inrupt.com</sonar.host.url>
         <sonar.projectKey>solid-client-java</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -472,7 +475,7 @@
                             <configuration>
                                 <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
                                 <outputDirectory>
-                                    ${project.reporting.outputDirectory}/merged-test-report</outputDirectory>
+    ${project.reporting.outputDirectory}/merged-test-report</outputDirectory>
                             </configuration>
                         </execution>
                         <execution>
@@ -495,7 +498,7 @@
                             <configuration>
                                 <dataFileIncludes>*/jacoco-it.exec</dataFileIncludes>
                                 <outputDirectory>
-                                    ${project.reporting.outputDirectory}/jacoco-integration</outputDirectory>
+    ${project.reporting.outputDirectory}/jacoco-integration</outputDirectory>
                             </configuration>
                         </execution>
                         <execution>
@@ -608,129 +611,183 @@
         </pluginManagement>
 
 
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-            </plugin>
+        <
+        <
+        <
+        <
+        <
+        <
+        < HEAD
+=======
+        <profiles>
+        <profile>
+        <id>publish</id>
+        <!-- skip tests for publish profile, since these tests have already run -->
+        <properties>
+            <skipTests>true</skipTests>
+            <pmd.skip>true</pmd.skip>
+            <cpd.skip>true</cpd.skip>
+            <jacoco.skip>true</jacoco.skip>
+            <checkstyle.skip>true</checkstyle.skip>
+        </properties>
+        <build> >>>>>>> main <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <dependencies>
-                    <!-- Override dependencies to use latest version of checkstyle -->
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>${checkstyle.tool.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <consoleOutput>true</consoleOutput>
-                    <logViolationsToConsole>true</logViolationsToConsole>
-                    <failsOnError>true</failsOnError>
-                    <failOnViolation>true</failOnViolation>
-                    <violationSeverity>warning</violationSeverity>
-                    <configLocation>./build-tools/checkstyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>./build-tools/checkstyle/suppressions.xml</suppressionsLocation>
-                    <sourceDirectories>${project.build.sourceDirectory}</sourceDirectories>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>checkstyle</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <linkXRef>false</linkXRef>
-                    <failOnViolation>false</failOnViolation>
-                    <verbose>true</verbose>
-                    <rulesets>
-                        <ruleset>./build-tools/pmd/pmd.xml</ruleset>
-                    </rulesets>
-                    <excludeRoots>
-                        <excludeRoot>target/generated-sources</excludeRoot>
-                    </excludeRoots>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <configuration>
-                    <header>./build-tools/license/HEADER.txt</header>
-                    <mapping>
-                        <java>SLASHSTAR_STYLE</java>
-                    </mapping>
-                    <excludes>
-                        <exclude>**/src/main/resources/**</exclude>
-                        <exclude>**/src/test/resources/**</exclude>
-                    </excludes>
-                    <includes>
-                        <include>**/src/main/java/**</include>
-                        <include>**/src/test/java/**</include>
-                    </includes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failBuildOnCVSS>7</failBuildOnCVSS>
-                    <formats>
-                        <format>HTML</format>
-                        <format>JSON</format>
-                        <format>CSV</format>
-                    </formats>
-                    <suppressionFile>
-                        ./build-tools/owasp/suppressions.xml
-                    </suppressionFile>
-                </configuration>
-            </plugin>
-        </plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <dependencies>
+                        <!-- Override dependencies to use latest version of checkstyle -->
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.tool.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <consoleOutput>true</consoleOutput>
+                        <logViolationsToConsole>true</logViolationsToConsole>
+                        <failsOnError>true</failsOnError>
+                        <failOnViolation>true</failOnViolation>
+                        <violationSeverity>warning</violationSeverity>
+                        <configLocation>./build-tools/checkstyle/checkstyle.xml</configLocation>
+                        <suppressionsLocation>./build-tools/checkstyle/suppressions.xml</suppressionsLocation>
+                        <sourceDirectories>${project.build.sourceDirectory}</sourceDirectories>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>checkstyle</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <configuration>
+                        <linkXRef>false</linkXRef>
+                        <failOnViolation>false</failOnViolation>
+                        <verbose>true</verbose>
+                        <rulesets>
+                            <ruleset>./build-tools/pmd/pmd.xml</ruleset>
+                        </rulesets>
+                        <excludeRoots>
+                            <excludeRoot>target/generated-sources</excludeRoot>
+                        </excludeRoots>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <configuration>
+                        <header>./build-tools/license/HEADER.txt</header>
+                        <mapping>
+                            <java>SLASHSTAR_STYLE</java>
+                        </mapping>
+                        <excludes>
+                            <exclude>**/src/main/resources/**</exclude>
+                            <exclude>**/src/test/resources/**</exclude>
+                        </excludes>
+                        <includes>
+                            <include>**/src/main/java/**</include>
+                            <include>**/src/test/java/**</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <formats>
+                            <format>HTML</format>
+                            <format>JSON</format>
+                            <format>CSV</format>
+                        </formats>
+                        <suppressionFile>
+                            ./build-tools/owasp/suppressions.xml
+                        </suppressionFile>
+                    </configuration>
+                </plugin>
+            </plugins>
+<<<<<<< HEAD
+        </build>
+    =======
     </build>
-
-    <reporting>
+    </profile>
+    <profile>
+        <id>ci</id>
+        <properties>
+            <skipTests>false</skipTests>
+            <pmd.skip>true</pmd.skip>
+            <cpd.skip>true</cpd.skip>
+            <jacoco.skip>false</jacoco.skip>
+            <checkstyle.skip>false</checkstyle.skip>
+        </properties>
+    </profile>
+    <profile>
+        <id>website</id>
+        <properties>
+            <skipTests>true</skipTests>
+            <pmd.skip>true</pmd.skip>
+            <cpd.skip>true</cpd.skip>
+            <jacoco.skip>true</jacoco.skip>
+            <checkstyle.skip>true</checkstyle.skip>
+        </properties>
+    </profile>
+    <profile>
+        <id>dependencies</id>
+        <properties>
+            <skipTests>true</skipTests>
+            <pmd.skip>true</pmd.skip>
+            <cpd.skip>true</cpd.skip>
+            <dependency-check.skip>false</dependency-check.skip>
+            <jacoco.skip>true</jacoco.skip>
+            <checkstyle.skip>true</checkstyle.skip>
+        </properties>
+    </profile>
+  </profiles>
+    >>>>>>> main <reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

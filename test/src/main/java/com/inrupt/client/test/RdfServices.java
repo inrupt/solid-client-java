@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.Dataset;
@@ -51,40 +52,54 @@ public class RdfServices {
     private static final RDF rdf = RDFFactory.getInstance();
 
     @Test
-    void parseToDatasetTurtle() throws IOException {
+    void parseToDatasetTurtle() throws Exception {
         try (final InputStream input = RdfServices.class
-                .getResourceAsStream("/com/inrupt/client/test/rdf/profileExample.ttl")) {
-            final Dataset dataset = rdfService.toDataset(RDFSyntax.TURTLE, input, null);
-            assertTrue(dataset.stream().findFirst().isPresent());
-            assertTrue(dataset.stream().noneMatch(quad -> quad.getGraphName().isPresent()));
-            assertEquals(10, dataset.stream().count());
+                .getResourceAsStream("/com/inrupt/client/test/rdf/profileExample.ttl");
+                final Dataset dataset = rdfService.toDataset(RDFSyntax.TURTLE, input, null)) {
+            try (final Stream<Quad> stream = dataset.stream().map(Quad.class::cast)) {
+                assertTrue(stream.findFirst().isPresent());
+            }
+
+            try (final Stream<Quad> stream = dataset.stream().map(Quad.class::cast)) {
+                assertTrue(stream.noneMatch(quad -> quad.getGraphName().isPresent()));
+            }
+
+            assertEquals(10, dataset.size());
         }
     }
 
     @Test
-    void parseToDatasetTrig() throws IOException {
+    void parseToDatasetTrig() throws Exception {
         try (final InputStream input = RdfServices.class
-                .getResourceAsStream("/com/inrupt/client/test/rdf/oneTriple.trig")) {
-            final Dataset dataset = rdfService.toDataset(RDFSyntax.TRIG, input, null);
-            assertTrue(dataset.stream().anyMatch(quad -> quad.getGraphName().isPresent()));
-            assertTrue(
-                dataset.stream().map(Quad::getGraphName)
-                    .filter(Optional::isPresent).map(Optional::get)
-                    .filter(IRI.class::isInstance).map(IRI.class::cast).map(IRI::getIRIString)
-                    .anyMatch(RdfTestModel.G_VALUE::equals));
-            assertEquals(1, dataset.stream().count());
+                .getResourceAsStream("/com/inrupt/client/test/rdf/oneTriple.trig");
+                final Dataset dataset = rdfService.toDataset(RDFSyntax.TRIG, input, null)) {
+            try (final Stream<Quad> stream = dataset.stream().map(Quad.class::cast)) {
+                assertTrue(stream.anyMatch(quad -> quad.getGraphName().isPresent()));
+            }
+
+            try (final Stream<Quad> stream = dataset.stream().map(Quad.class::cast)) {
+                assertTrue(stream.map(Quad::getGraphName)
+                        .filter(Optional::isPresent).map(Optional::get)
+                        .filter(IRI.class::isInstance).map(IRI.class::cast).map(IRI::getIRIString)
+                        .anyMatch(RdfTestModel.G_VALUE::equals));
+            }
+
+            assertEquals(1, dataset.size());
         }
     }
 
     @Test
-    void parseToDataserRelativeURIs() throws IOException {
+    void parseToDataserRelativeURIs() throws Exception {
         try (final InputStream input = RdfServices.class
-                .getResourceAsStream("/com/inrupt/client/test/rdf/relativeURIs.ttl")) {
-            final Dataset dataset = rdfService.toDataset(RDFSyntax.TURTLE, input, RdfTestModel.TEST_NAMESPACE);
-            assertEquals(2, dataset.stream().count());
-            assertTrue(dataset.stream().map(Quad::getSubject)
-                    .filter(IRI.class::isInstance).map(IRI.class::cast).map(IRI::getIRIString)
-                    .anyMatch(iri -> iri.contains(RdfTestModel.TEST_NAMESPACE)));
+                .getResourceAsStream("/com/inrupt/client/test/rdf/relativeURIs.ttl");
+                final Dataset dataset = rdfService.toDataset(RDFSyntax.TURTLE, input, RdfTestModel.TEST_NAMESPACE)) {
+            assertEquals(2, dataset.size());
+
+            try (final Stream<Quad> stream = dataset.stream().map(Quad.class::cast)) {
+                assertTrue(stream.map(Quad::getSubject)
+                        .filter(IRI.class::isInstance).map(IRI.class::cast).map(IRI::getIRIString)
+                        .anyMatch(iri -> iri.contains(RdfTestModel.TEST_NAMESPACE)));
+            }
         }
     }
 
@@ -97,23 +112,25 @@ public class RdfServices {
     }
 
     @Test
-    void parseToGraph() throws IOException {
+    void parseToGraph() throws Exception {
         try (final InputStream input = RdfServices.class
-                .getResourceAsStream("/com/inrupt/client/test/rdf/profileExample.ttl")) {
-            final Graph graph = rdfService.toGraph(RDFSyntax.TURTLE, input, null);
-            assertEquals(10, graph.stream().count());
+                .getResourceAsStream("/com/inrupt/client/test/rdf/profileExample.ttl");
+                final Graph graph = rdfService.toGraph(RDFSyntax.TURTLE, input, null)) {
+            assertEquals(10, graph.size());
         }
     }
 
     @Test
-    void parseToGraphRelativeURIs() throws IOException {
+    void parseToGraphRelativeURIs() throws Exception {
         try (final InputStream input = RdfServices.class
-                .getResourceAsStream("/com/inrupt/client/test/rdf/relativeURIs.ttl")) {
-            final Graph graph = rdfService.toGraph(RDFSyntax.TURTLE, input, RdfTestModel.TEST_NAMESPACE);
-            assertEquals(2, graph.stream().count());
-            assertTrue(graph.stream().map(Triple::getSubject)
-                    .filter(IRI.class::isInstance).map(IRI.class::cast).map(IRI::getIRIString)
-                    .anyMatch(iri -> iri.contains(RdfTestModel.TEST_NAMESPACE)));
+                .getResourceAsStream("/com/inrupt/client/test/rdf/relativeURIs.ttl");
+                final Graph graph = rdfService.toGraph(RDFSyntax.TURTLE, input, RdfTestModel.TEST_NAMESPACE)) {
+            assertEquals(2, graph.size());
+            try (final Stream<Triple> stream = graph.stream().map(Triple.class::cast)) {
+                assertTrue(stream.map(Triple::getSubject)
+                        .filter(IRI.class::isInstance).map(IRI.class::cast).map(IRI::getIRIString)
+                        .anyMatch(iri -> iri.contains(RdfTestModel.TEST_NAMESPACE)));
+            }
         }
     }
 
@@ -126,29 +143,34 @@ public class RdfServices {
     }
 
     @Test
-    void createGraph() {
+    void createGraph() throws Exception {
         final IRI subject1 = rdf.createIRI("https://resource.test/1");
         final IRI subject2 = rdf.createIRI("https://resource.test/2");
         final IRI predicate = rdf.createIRI("http://purl.org/dc/terms/subject");
         final Literal object1 = rdf.createLiteral("Topic 1");
         final Literal object2 = rdf.createLiteral("Topic 2");
 
-        final Graph graph = rdf.createGraph();
-        assertEquals(0, graph.stream().count());
-        graph.add(rdf.createTriple(subject1, predicate, object1));
-        graph.add(rdf.createTriple(subject1, predicate, object2));
-        graph.add(rdf.createTriple(subject2, predicate, object2));
-        assertEquals(3, graph.stream().count());
-        graph.remove(subject1, subject2, subject1);
-        assertEquals(3, graph.stream().count());
-        graph.remove(rdf.createTriple(subject2, predicate, object2));
-        assertEquals(2, graph.stream().count());
-        graph.remove(subject1, null, null);
-        assertEquals(0, graph.stream().count());
+        try (final Graph graph = rdf.createGraph()) {
+            assertEquals(0, graph.size());
+
+            graph.add(rdf.createTriple(subject1, predicate, object1));
+            graph.add(rdf.createTriple(subject1, predicate, object2));
+            graph.add(rdf.createTriple(subject2, predicate, object2));
+            assertEquals(3, graph.size());
+
+            graph.remove(subject1, subject2, subject1);
+            assertEquals(3, graph.size());
+
+            graph.remove(rdf.createTriple(subject2, predicate, object2));
+            assertEquals(2, graph.size());
+
+            graph.remove(subject1, null, null);
+            assertEquals(0, graph.size());
+        }
     }
 
     @Test
-    void createDataset() {
+    void createDataset() throws Exception {
         final IRI graphName = rdf.createIRI("https://graph.test/");
         final IRI subject1 = rdf.createIRI("https://resource.test/1");
         final IRI subject2 = rdf.createIRI("https://resource.test/2");
@@ -156,26 +178,32 @@ public class RdfServices {
         final Literal object1 = rdf.createLiteral("Topic 1");
         final Literal object2 = rdf.createLiteral("Topic 2");
 
-        final Dataset dataset = rdf.createDataset();
-        assertEquals(0, dataset.stream().count());
-        dataset.add(rdf.createQuad(graphName, subject1, predicate, object1));
-        dataset.add(rdf.createQuad(null, subject1, predicate, object1));
-        dataset.add(rdf.createQuad(null, subject1, predicate, object2));
-        dataset.add(rdf.createQuad(null, subject2, predicate, object2));
-        assertEquals(4, dataset.stream().count());
-        dataset.remove(Optional.of(graphName), subject1, subject2, subject1);
-        assertEquals(4, dataset.stream().count());
-        dataset.remove(rdf.createQuad(null, subject2, predicate, object2));
-        assertEquals(3, dataset.stream().count());
-        dataset.remove(Optional.empty(), subject1, null, null);
-        assertEquals(1, dataset.stream().count());
-        dataset.remove(Optional.of(graphName), subject1, null, null);
-        assertEquals(0, dataset.stream().count());
+        try (final Dataset dataset = rdf.createDataset()) {
+            assertEquals(0, dataset.size());
+
+            dataset.add(rdf.createQuad(graphName, subject1, predicate, object1));
+            dataset.add(rdf.createQuad(null, subject1, predicate, object1));
+            dataset.add(rdf.createQuad(null, subject1, predicate, object2));
+            dataset.add(rdf.createQuad(null, subject2, predicate, object2));
+            assertEquals(4, dataset.size());
+
+            dataset.remove(Optional.of(graphName), subject1, subject2, subject1);
+            assertEquals(4, dataset.size());
+
+            dataset.remove(rdf.createQuad(null, subject2, predicate, object2));
+            assertEquals(3, dataset.size());
+
+            dataset.remove(Optional.empty(), subject1, null, null);
+            assertEquals(1, dataset.size());
+
+            dataset.remove(Optional.of(graphName), subject1, null, null);
+            assertEquals(0, dataset.size());
+        }
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"TriG", "N-Quads"})
-    void testRoundTripDataset(final String name) throws IOException {
+    void testRoundTripDataset(final String name) throws Exception {
         final Optional<RDFSyntax> syntax = RDFSyntax.byName(name);
         assertTrue(syntax.isPresent());
 
@@ -191,31 +219,37 @@ public class RdfServices {
         final IRI o2 = rdf.createIRI("https://vocab.example/Sub2");
         final BlankNode o3 = bnode;
 
-        final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(g1, s1, p1, o1));
-        dataset.add(rdf.createQuad(null, s2, p2, o2));
-        dataset.add(rdf.createQuad(null, s3, p3, o3));
-
-        assertEquals(3, dataset.stream().count());
-        assertEquals(1, dataset.stream(Optional.of(g1), s1, p1, o1).count());
-        assertEquals(1, dataset.stream(Optional.empty(), s2, p2, o2).count());
-        assertEquals(1, dataset.stream(Optional.empty(), s3, p3, o3).count());
-        assertEquals(2, dataset.stream(Optional.empty(), null, null, null).count());
-
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        rdfService.fromDataset(dataset, syntax.get(), out);
+        try (final Dataset dataset = rdf.createDataset()) {
+            dataset.add(rdf.createQuad(g1, s1, p1, o1));
+            dataset.add(rdf.createQuad(null, s2, p2, o2));
+            dataset.add(rdf.createQuad(null, s3, p3, o3));
 
-        final Dataset dataset2 = rdfService.toDataset(syntax.get(), new ByteArrayInputStream(out.toByteArray()), null);
-        assertEquals(3, dataset2.stream().count());
-        assertEquals(1, dataset2.stream(Optional.of(g1), s1, p1, o1).count());
-        assertEquals(1, dataset2.stream(Optional.empty(), null, p2, o2).count());
-        assertEquals(1, dataset2.stream(Optional.empty(), s3, p3, null).count());
-        assertEquals(2, dataset2.stream(Optional.empty(), null, null, null).count());
+            assertTrue(dataset.contains(Optional.of(g1), s1, p1, o1));
+            assertTrue(dataset.contains(Optional.empty(), s2, p2, o2));
+            assertTrue(dataset.contains(Optional.empty(), s3, p3, o3));
+            assertEquals(3, dataset.size());
+            try (final Stream<Quad> stream = dataset.stream().map(Quad.class::cast)) {
+                assertEquals(2, stream.filter(quad -> !quad.getGraphName().isPresent()).count());
+            }
+            rdfService.fromDataset(dataset, syntax.get(), out);
+        }
+
+        try (final Dataset dataset2 = rdfService.toDataset(syntax.get(),
+                    new ByteArrayInputStream(out.toByteArray()), null)) {
+            assertTrue(dataset2.contains(Optional.of(g1), s1, p1, o1));
+            assertTrue(dataset2.contains(Optional.empty(), null, p2, o2));
+            assertTrue(dataset2.contains(Optional.empty(), s3, p3, null));
+            assertEquals(3, dataset2.size());
+            try (final Stream<Quad> stream = dataset2.stream().map(Quad.class::cast)) {
+                assertEquals(2, stream.filter(quad -> !quad.getGraphName().isPresent()).count());
+            }
+        }
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"Turtle", "TriG", "N-Triples", "N-Quads"})
-    void testRoundTripGraph(final String name) throws IOException {
+    void testRoundTripGraph(final String name) throws Exception {
         final Optional<RDFSyntax> syntax = RDFSyntax.byName(name);
         assertTrue(syntax.isPresent());
 
@@ -230,23 +264,26 @@ public class RdfServices {
         final IRI o2 = rdf.createIRI("https://vocab.example/Sub2");
         final BlankNode o3 = bnode;
 
-        final Graph graph = rdf.createGraph();
-        graph.add(rdf.createTriple(s1, p1, o1));
-        graph.add(rdf.createTriple(s2, p2, o2));
-        graph.add(rdf.createTriple(s3, p3, o3));
-
-        assertEquals(3, graph.stream().count());
-        assertEquals(1, graph.stream(s1, p1, o1).count());
-        assertEquals(1, graph.stream(s2, p2, o2).count());
-        assertEquals(1, graph.stream(s3, p3, o3).count());
-
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        rdfService.fromGraph(graph, syntax.get(), out);
+        try (final Graph graph = rdf.createGraph()) {
+            graph.add(rdf.createTriple(s1, p1, o1));
+            graph.add(rdf.createTriple(s2, p2, o2));
+            graph.add(rdf.createTriple(s3, p3, o3));
 
-        final Graph graph2 = rdfService.toGraph(syntax.get(), new ByteArrayInputStream(out.toByteArray()), null);
-        assertEquals(3, graph2.stream().count());
-        assertEquals(1, graph2.stream(s1, p1, o1).count());
-        assertEquals(1, graph2.stream(null, p2, o2).count());
-        assertEquals(1, graph2.stream(s3, p3, null).count());
+            assertTrue(graph.contains(s1, p1, o1));
+            assertTrue(graph.contains(s2, p2, o2));
+            assertTrue(graph.contains(s3, p3, o3));
+            assertEquals(3, graph.size());
+
+            rdfService.fromGraph(graph, syntax.get(), out);
+        }
+
+        try (final Graph graph2 = rdfService.toGraph(syntax.get(),
+                    new ByteArrayInputStream(out.toByteArray()), null)) {
+            assertTrue(graph2.contains(s1, p1, o1));
+            assertTrue(graph2.contains(null, p2, o2));
+            assertTrue(graph2.contains(s3, p3, null));
+            assertEquals(3, graph2.size());
+        }
     }
 }
