@@ -39,6 +39,12 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-solid</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-httpclient</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

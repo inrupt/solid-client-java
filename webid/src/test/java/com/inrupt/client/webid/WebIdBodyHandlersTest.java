@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -54,20 +55,21 @@ class WebIdBodyHandlersTest {
 
     @Test
     void testGetOfWebIdProfile() throws IOException, InterruptedException {
-        final var request = Request.newBuilder()
-            .uri(URI.create(config.get("webid_uri") + "/webId"))
+        final URI webid = URI.create(config.get("webid_uri") + "/webId");
+        final Request request = Request.newBuilder()
+            .uri(webid)
             .header("Accept", "text/turtle")
             .GET()
             .build();
 
         final Response<WebIdProfile> response = client.send(request,
-                WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.test/username")))
+                WebIdBodyHandlers.ofWebIdProfile(webid))
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
 
-        final var responseBody = response.body();
-        assertEquals("https://example.test/username", responseBody.getId().toString());
+        final WebIdProfile responseBody = response.body();
+        assertEquals(webid, responseBody.getIdentifier());
         assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
         assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.example.test")));
         assertTrue(responseBody.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
@@ -76,4 +78,35 @@ class WebIdBodyHandlersTest {
         );
     }
 
+    @Test
+    void testHighLevelClient() throws Exception {
+        final URI webid = URI.create(config.get("webid_uri") + "/webId");
+        final SolidClient solidClient = SolidClient.getClient();
+        final WebIdProfile profile = solidClient.read(webid, WebIdProfile.class)
+            .toCompletableFuture().join();
+
+        assertEquals(webid, profile.getIdentifier());
+        assertTrue(profile.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+        assertTrue(profile.getOidcIssuer().contains(URI.create("https://login.example.test")));
+        assertTrue(profile.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
+        assertTrue(profile.getSeeAlso().contains(
+            URI.create("https://storage.example.test/storage-id/extendedProfile"))
+        );
+    }
+
+    @Test
+    void testHighLevelClientHash() throws Exception {
+        final URI webid = URI.create(config.get("webid_uri") + "/webIdHash#me");
+        final SolidClient solidClient = SolidClient.getClient();
+        final WebIdProfile profile = solidClient.read(webid, WebIdProfile.class)
+            .toCompletableFuture().join();
+
+        assertEquals(webid, profile.getIdentifier());
+        assertTrue(profile.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+        assertTrue(profile.getOidcIssuer().contains(URI.create("https://login.example.test")));
+        assertTrue(profile.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
+        assertTrue(profile.getSeeAlso().contains(
+            URI.create("https://storage.example.test/storage-id/extendedProfile"))
+        );
+    }
 }

@@ -47,6 +47,13 @@ public class WebIdMockHttpService {
                 .withBodyFile("webIdExample.ttl")
             )
         );
+        wireMockServer.stubFor(get(urlEqualTo("/webIdHash"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withBodyFile("webIdHashExample.ttl")
+            )
+        );
     }
 
     public Map<String, String> start() {

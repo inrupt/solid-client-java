@@ -20,38 +20,46 @@
  */
 package com.inrupt.client.webid;
 
+import com.inrupt.client.Resource;
+import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.vocabulary.RDF;
+import com.inrupt.client.vocabulary.RDFS;
+import com.inrupt.client.vocabulary.Solid;
+
 import java.net.URI;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Quad;
 
 /**
  * A WebID Profile for use with Solid.
  */
-public class WebIdProfile {
+public class WebIdProfile extends Resource {
 
-    private final URI id;
-
-    protected final Set<URI> seeAlso = new HashSet<>();
-    protected final Set<URI> oidcIssuer = new HashSet<>();
-    protected final Set<URI> storage = new HashSet<>();
-    protected final Set<URI> type = new HashSet<>();
+    private final IRI rdfType;
+    private final IRI subject;
+    private final IRI oidcIssuer;
+    private final IRI seeAlso;
+    private final IRI storage;
 
     /**
      * Create a new WebID profile resource.
      *
-     * @param id the webid URI
+     * @param identifier the webid URI
+     * @param dataset the webid profile dataset
      */
-    protected WebIdProfile(final URI id) {
-        this.id = id;
-    }
+    public WebIdProfile(final URI identifier, final Dataset dataset) {
+        super(identifier, dataset);
 
-    /**
-     * Retrieve the WebID URI.
-     *
-     * @return the WebID
-     */
-    public URI getId() {
-        return id;
+        this.subject = rdf.createIRI(identifier.toString());
+        this.rdfType = rdf.createIRI(RDF.type.toString());
+        this.oidcIssuer = rdf.createIRI(Solid.oidcIssuer.toString());
+        this.seeAlso = rdf.createIRI(RDFS.seeAlso.toString());
+        this.storage = rdf.createIRI(PIM.storage.toString());
     }
 
     /**
@@ -60,7 +68,12 @@ public class WebIdProfile {
      * @return the {@code rdf:type} values
      */
     public Set<URI> getType() {
-        return type;
+        try (final Stream<Quad> stream = getDataset().stream(null, subject, rdfType, null)
+                .map(Quad.class::cast)) {
+            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
+                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
+                .collect(Collectors.toSet());
+        }
     }
 
     /**
@@ -69,7 +82,12 @@ public class WebIdProfile {
      * @return the {@code solid:oidcIssuer} values
      */
     public Set<URI> getOidcIssuer() {
-        return oidcIssuer;
+        try (final Stream<Quad> stream = getDataset().stream(null, subject, oidcIssuer, null)
+                .map(Quad.class::cast)) {
+            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
+                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
+                .collect(Collectors.toSet());
+        }
     }
 
     /**
@@ -78,7 +96,12 @@ public class WebIdProfile {
      * @return the {@code rdfs:seeAlso} values
      */
     public Set<URI> getSeeAlso() {
-        return seeAlso;
+        try (final Stream<Quad> stream = getDataset().stream(null, subject, seeAlso, null)
+                .map(Quad.class::cast)) {
+            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
+                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
+                .collect(Collectors.toSet());
+        }
     }
 
     /**
@@ -87,89 +110,11 @@ public class WebIdProfile {
      * @return the {@code pim:storage} values
      */
     public Set<URI> getStorage() {
-        return storage;
-    }
-
-    /**
-     * Create a new {@link WebIdProfile} builder.
-     *
-     * @return the builder
-     */
-    static Builder newBuilder() {
-        return new Builder();
-    }
-
-    /**
-     * A builder class for WebIdProfile objects.
-     */
-    public static final class Builder {
-
-        private Set<URI> builderSeeAlso = new HashSet<>();
-        private Set<URI> builderStorage = new HashSet<>();
-        private Set<URI> builderOidcIssuer = new HashSet<>();
-        private Set<URI> builderType = new HashSet<>();
-
-        /**
-         * Add a seeAlso property.
-         *
-         * @param uri the seeAlso URI
-         * @return this builder
-         */
-        public Builder seeAlso(final URI uri) {
-            builderSeeAlso.add(uri);
-            return this;
-        }
-
-        /**
-         * Add a storage property.
-         *
-         * @param uri the storage URI
-         * @return this builder
-         */
-        public Builder storage(final URI uri) {
-            builderStorage.add(uri);
-            return this;
-        }
-
-        /**
-         * Add an oidcIssuer property.
-         *
-         * @param uri the oidcIssuer URI
-         * @return this builder
-         */
-        public Builder oidcIssuer(final URI uri) {
-            builderOidcIssuer.add(uri);
-            return this;
-        }
-
-        /**
-         * Add a type property.
-         *
-         * @param uri the type URI
-         * @return this builder
-         */
-        public Builder type(final URI uri) {
-            builderType.add(uri);
-            return this;
-        }
-
-        /**
-         * Build the WebIdProfile object.
-         *
-         * @param id the WebID URI
-         * @return the WebID profile
-         */
-        public WebIdProfile build(final URI id) {
-            final var profile = new WebIdProfile(id);
-            profile.oidcIssuer.addAll(builderOidcIssuer);
-            profile.storage.addAll(builderStorage);
-            profile.seeAlso.addAll(builderSeeAlso);
-            profile.type.addAll(builderType);
-            return profile;
-        }
-
-        private Builder() {
-            // Prevent instantiation
+        try (final Stream<Quad> stream = getDataset().stream(null, subject, storage, null)
+                .map(Quad.class::cast)) {
+            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
+                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
+                .collect(Collectors.toSet());
         }
     }
 }
