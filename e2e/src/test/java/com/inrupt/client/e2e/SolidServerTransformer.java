@@ -27,9 +27,11 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.inrupt.client.Headers;
 import com.inrupt.client.e2e.MockSolidServer.ServerBody;
-
+import com.inrupt.client.vocabulary.PIM;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 
 public class SolidServerTransformer extends ResponseDefinitionTransformer {
@@ -59,31 +61,32 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                     .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
                     .withBody(serverBody.body);
 
+                if (("/").equals(request.getUrl())) { //we found the storage and asume it is the root
+                    res.withHeader("Link", Headers.Link.of(PIM.storage, "type").toString());
+                }
+
             } else {
                 res.withStatus(Utils.NOT_FOUND);
             }
             return res.build();
         }
 
-        if (request.getMethod().isOneOf(RequestMethod.POST)) {
+        if (request.getMethod().isOneOf(RequestMethod.POST, RequestMethod.PUT)) {
             if (!this.storage.containsKey(request.getUrl())) {
                 this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
                         request.contentTypeHeader().mimeTypePart()));
-                res.withStatus(Utils.NO_CONTENT);
-            } else {
-                res.withStatus(Utils.PRECONDITION_FAILED);
-            }
-            return res.build();
-        }
-
-        if (request.getMethod().isOneOf(RequestMethod.PUT)) {
-            if (!this.storage.containsKey(request.getUrl())) {
-                this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
-                        request.contentTypeHeader().mimeTypePart()));
+                var uri = request.getUrl().substring(0, request.getUrl().lastIndexOf("/"));
+                while (!uri.isEmpty()) {
+                    if (!this.storage.containsKey(uri)) {
+                        this.storage.put(uri, new ServerBody(new byte[0],
+                                request.contentTypeHeader().mimeTypePart()));
+                        uri = uri.substring(0, uri.lastIndexOf("/"));
+                    }
+                }
                 res.withStatus(Utils.NO_CONTENT);
             } else {
                 //should create the resource with new URI?
-                res.withStatus(Utils.CONFLICT);
+                res.withStatus(Utils.PRECONDITION_FAILED);
             }
             return res.build();
         }

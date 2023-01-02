@@ -72,7 +72,6 @@ public class CoreModulesResourceTest {
     @BeforeAll
     static void setup() {
         final var username = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
-        final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
         final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
         final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
         if (testEnv.contains("MockSolidServer")) {
@@ -84,7 +83,7 @@ public class CoreModulesResourceTest {
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", webid.toString());
-        claims.put("sub", sub);
+        claims.put("sub", username);
         claims.put("iss", iss);
         claims.put("azp", azp);
 
@@ -105,7 +104,7 @@ public class CoreModulesResourceTest {
         if (!podUrl.endsWith("/")) {
                 podUrl += "/";
             }
-            testResource = podUrl + "resource/";
+        testResource = podUrl + "resource/";
     }
     
     @AfterAll

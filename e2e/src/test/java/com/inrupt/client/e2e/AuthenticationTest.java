@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.e2e;
 
+import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.inrupt.client.Client;
@@ -27,6 +28,7 @@ import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdBodyHandlers;
 
 import io.smallrye.config.SmallRyeConfig;
@@ -47,37 +49,45 @@ public class AuthenticationTest {
     private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
     private static Client session = ClientProvider.getClient();
 
-    private static String podUrl = "";
+    private static String testEnv = smallRyeConfig.getValue("E2E_TEST_ENVIRONMENT", String.class);
+    private static String podUrl = smallRyeConfig.getValue("E2E_TEST_ID", String.class);
     private static String testResource = "";
 
     @BeforeAll
     static void setup() {
-        final var webid = URI.create(smallRyeConfig.getValue("E2E_TEST_WEBID", String.class));
-        final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
+        final var username = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
         final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
         final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
-
+        if (testEnv.contains("MockSolidServer")) {
+            Utils.initMockServer();
+            podUrl = Utils.getMockServerUrl();
+        }
+        final var webid = URI.create(podUrl + "/" + username);
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", webid.toString());
-        claims.put("sub", sub);
+        claims.put("sub", username);
         claims.put("iss", iss);
         claims.put("azp", azp);
 
         final String token = Utils.generateIdToken(claims);
         session = session.session(OpenIdSession.ofIdToken(token));
 
-        final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final var profile = session.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
-                            .toCompletableFuture().join().body();
+        final Request requestRdf = Request.newBuilder(webid).GET().build();
+        final var responseRdf =
+                session.send(requestRdf, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
+        final var storages = responseRdf.body()
+                .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
+                .toList();
 
-        if (!profile.getStorage().isEmpty()) {
-            podUrl = profile.getStorage().iterator().next().toString();
-            if (!podUrl.endsWith("/")) {
+        if (!storages.isEmpty()) {
+            podUrl = storages.get(0).toString();
+
+        }
+        if (!podUrl.endsWith("/")) {
                 podUrl += "/";
             }
-            testResource = podUrl + "resource/";
-        }
+        testResource = podUrl + "resource/";
     }
 
     @Test

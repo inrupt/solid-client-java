@@ -23,27 +23,30 @@ package com.inrupt.client.e2e;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.spi.RDFFactory;
+import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
-
+import com.jayway.jsonpath.Option;
 import io.smallrye.config.SmallRyeConfig;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
+import java.util.stream.IntStream;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
@@ -82,7 +85,7 @@ public class DomainModulesResourceTest {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();
         }
-        final var webid = URI.create(podUrl + "/" + username);
+        webid = URI.create(podUrl + "/" + username);
 
         //create a test claim
         final Map<String, Object> claims = new HashMap<>();
@@ -95,16 +98,15 @@ public class DomainModulesResourceTest {
         http = http.session(OpenIdSession.ofIdToken(token));
         client = SolidClient.of(http);
 
-        final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final var profile = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid)).toCompletableFuture().join().body();
-
+        final var profile = client.read(webid, WebIdProfile.class).toCompletableFuture().join();
         if (!profile.getStorage().isEmpty()) {
             podUrl = profile.getStorage().iterator().next().toString();
         }
         if (!podUrl.endsWith("/")) {
-                podUrl += "/";
-            }
-            testResource = podUrl + "resource/";
+            podUrl += "/";
+        }
+        client.create(new SolidResource(URI.create(podUrl))); //adds the storage to the mockServer
+        testResource = podUrl + "resource/";
     }
 
     @AfterAll
@@ -122,7 +124,7 @@ public class DomainModulesResourceTest {
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
         final IRI newPredicateNode = rdf.createIRI(newPredicateName);
-        final Literal object = rdf.createLiteral("true", "http://www.w3.org/2001/XMLSchema#boolean");
+        final Literal object = rdf.createLiteral("true", rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
 
         final Dataset dataset = rdf.createDataset();
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
@@ -138,7 +140,7 @@ public class DomainModulesResourceTest {
         assertEquals(URI.create(newResourceName), newResource.getIdentifier());
         assertEquals(1, newResource.getDataset().stream().count());
 
-        final Literal newObject = rdf.createLiteral("false", "http://www.w3.org/2001/XMLSchema#boolean");
+        final Literal newObject = rdf.createLiteral("false", rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
         final Dataset newDataset = rdf.createDataset();
         newResource.getDataset().stream(null, newResourceNode, null, null)
                 .map(quad ->
@@ -178,7 +180,7 @@ public class DomainModulesResourceTest {
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
         final IRI newPredicateNode = rdf.createIRI(predicateName);
-        final Literal object = rdf.createLiteral("true", "http://www.w3.org/2001/XMLSchema#boolean");
+        final Literal object = rdf.createLiteral("true", rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
         final IRI newBNPredicateNode = rdf.createIRI(predicateForBlankName);
@@ -196,7 +198,7 @@ public class DomainModulesResourceTest {
         assertEquals(URI.create(newResourceName), newResource.getIdentifier());
         assertEquals(2, newResource.getDataset().stream().count());
 
-        final Literal newObject = rdf.createLiteral("false", "http://www.w3.org/2001/XMLSchema#boolean");
+        final Literal newObject = rdf.createLiteral("false", rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
         final Dataset newDataset = rdf.createDataset();
 
         final List<Quad> allQuads = newResource.getDataset().stream().collect(Collectors.toList());
@@ -221,26 +223,52 @@ public class DomainModulesResourceTest {
     @Test
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
-        final var req = Request.newBuilder(webid).header("Accept", "text/turtle").GET().build();
-        final Response<WebIdProfile> res = http.send(req, WebIdBodyHandlers.ofWebIdProfile(webid))
-                                            .toCompletableFuture().join();
+        final Dataset dataset = rdf.createDataset();
+        dataset.add(rdf.createQuad(rdf.createIRI(webid.toString()), rdf.createIRI(webid.toString()), rdf.createIRI(PIM.storage.toString()), rdf.createIRI(podUrl)));
 
-        assertEquals(200, res.statusCode());
-        assertFalse(res.body().getStorage().isEmpty());
+        var profile = new WebIdProfile(webid, dataset);
+        assertDoesNotThrow(client.create(profile).toCompletableFuture()::join);
+        profile = client.read(webid, WebIdProfile.class).toCompletableFuture().join();
+        assertFalse(profile.getStorage().isEmpty());
     }
 
     @Test
     @DisplayName("./solid-client-java:ldpNavigation navigate to a container's lefes")
     void ldpNavigationTest() {
 
-        final String startingResourceName = podUrl + "/testContainer/anotherContainer/endResource";
+        //populate pod with containers
+        var lefeContainer = populatePod(podUrl, 3);
+        final var containerURI = URI.create(podUrl + lefeContainer);
+        
+        Optional<URI> storage = client.read(containerURI, SolidResource.class).toCompletableFuture().join()
+                                .getMetadata()
+                .getStorage();
+        var parentContainer = lefeContainer;
+        while (!storage.isPresent() && !parentContainer.isEmpty()) {
 
-        final SolidResource startingResource = client.read(URI.create(startingResourceName), SolidResource.class)
-                .toCompletableFuture().join();
+            if (parentContainer.lastIndexOf("/") != -1) {
+                parentContainer = parentContainer.substring(0, parentContainer.lastIndexOf("/"));
+            }
+            else {
+                parentContainer = "";
+            }
+            final var resource = client.read(URI.create(podUrl + parentContainer), SolidResource.class)
+                                    .toCompletableFuture().join();
+            storage = resource.getMetadata().getStorage();
+        } 
 
-        if (startingResource.getMetadata().getStorage().isPresent()) {
-            assertEquals(podUrl, startingResource.getMetadata().getStorage().get().toString());
+        assertTrue(storage.isPresent());
+        assertEquals(podUrl, storage.get().toString());
+
+    }
+
+    private String populatePod(final String podUrl, final int depth) {
+        var tempUrl = "";
+        for (int i = 0; i < depth; i++) {
+            tempUrl = tempUrl + UUID.randomUUID().toString() + "/";
         }
-
+        final var resource = new SolidResource(URI.create(podUrl + tempUrl));
+        client.create(resource).toCompletableFuture().join();
+        return tempUrl;
     }
 }

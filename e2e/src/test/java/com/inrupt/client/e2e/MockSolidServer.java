@@ -40,10 +40,6 @@ class MockSolidServer {
                 .extensions(new SolidServerTransformer(storage))
                 .notifier(new ConsoleNotifier(true)));
     }
-    
-    public int getPort() {
-        return wireMockServer.port();
-    }
 
     private void setupMocks() {
         wireMockServer.stubFor(get(anyUrl()));
