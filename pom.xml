@@ -70,6 +70,9 @@
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
+    <!-- disable by default -->
+    <dependency-check.skip>true</dependency-check.skip>
+
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.host.url>https://sonarqube.dev.inrupt.com</sonar.host.url>
@@ -842,6 +845,14 @@
   <profiles>
     <profile>
       <id>publish</id>
+      <!-- skip tests for publish profile, since these tests have already run -->
+      <properties>
+        <skipTests>true</skipTests>
+        <pmd.skip>true</pmd.skip>
+        <cpd.skip>true</cpd.skip>
+        <jacoco.skip>true</jacoco.skip>
+        <checkstyle.skip>true</checkstyle.skip>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -858,6 +869,37 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>ci</id>
+      <properties>
+        <skipTests>false</skipTests>
+        <pmd.skip>true</pmd.skip>
+        <cpd.skip>true</cpd.skip>
+        <jacoco.skip>false</jacoco.skip>
+        <checkstyle.skip>false</checkstyle.skip>
+      </properties>
+    </profile>
+    <profile>
+      <id>website</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <pmd.skip>true</pmd.skip>
+        <cpd.skip>true</cpd.skip>
+        <jacoco.skip>true</jacoco.skip>
+        <checkstyle.skip>true</checkstyle.skip>
+      </properties>
+    </profile>
+    <profile>
+      <id>dependencies</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <pmd.skip>true</pmd.skip>
+        <cpd.skip>true</cpd.skip>
+        <dependency-check.skip>false</dependency-check.skip>
+        <jacoco.skip>true</jacoco.skip>
+        <checkstyle.skip>true</checkstyle.skip>
+      </properties>
     </profile>
   </profiles>
 
