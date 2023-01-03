@@ -68,10 +68,9 @@ public class SolidStorage {
         return jwt.claim("webid").map(String.class::cast).map(URI::create).map(webid -> {
             final var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
             return session.read(webid, WebIdProfile.class)
-                .thenCompose(profile -> profile.getStorage().stream().findFirst()
-                        .map(storage ->
+                .thenCompose(profile -> profile.getStorage().stream().findFirst().map(storage ->
                             session.read(storage, SolidContainer.class).thenApply(container -> {
-                                try (final var stream = container.getContainedResources()) {
+                                try (container; final var stream = container.getContainedResources()) {
                                     final var resources = stream.collect(Collectors.groupingBy(c ->
                                                 getPrincipalType(c.getMetadata().getType()), Collectors.mapping(c ->
                                                     c.getIdentifier().toString(), Collectors.toList())));
@@ -79,7 +78,8 @@ public class SolidStorage {
                                             resources.get(LDP.RDFSource));
                                 }
                             }))
-                        .orElseGet(SolidStorage::emptyProfile));
+                        .orElseGet(SolidStorage::emptyProfile)
+                        .whenComplete((a, b) -> profile.close()));
         }).orElseGet(SolidStorage::emptyProfile);
     }
 
