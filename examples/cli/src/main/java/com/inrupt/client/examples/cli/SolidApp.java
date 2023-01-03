@@ -25,6 +25,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
+import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -80,30 +81,21 @@ public class SolidApp implements QuarkusApplication {
             session.getPrincipal().ifPresent(webid -> {
                 printWriter.format("WebID: %s", webid);
                 printWriter.println();
-                final var profile = client.read(webid, WebIdProfile.class)
-                    .toCompletableFuture().join();
-
-                profile.getStorage().stream().findFirst()
-                    .map(storage -> client.read(storage, SolidContainer.class).toCompletableFuture().join())
-                    .ifPresent(container -> {
-                        try (final var stream = container.getContainedResources()) {
-                            stream
-                                .filter(r -> {
-                                    if (cmd.hasOption("c") && r.getMetadata().getType().contains(LDP.BasicContainer)) {
-                                        return true;
-                                    }
-                                    if (cmd.hasOption("r") && r.getMetadata().getType().contains(LDP.RDFSource)) {
-                                        return true;
-                                    }
-                                    return cmd.hasOption("n") && r.getMetadata().getType().contains(LDP.NonRDFSource);
-                                })
-                                .forEach(r -> {
-                                    printWriter.format("Resource: %s, %s", r.getIdentifier(),
-                                        principalType(r.getMetadata().getType()));
-                                    printWriter.println();
-                                });
-                        }
-                    });
+                try (final var profile = client.read(webid, WebIdProfile.class).toCompletableFuture().join()) {
+                    profile.getStorage().stream().findFirst()
+                        .map(storage -> client.read(storage, SolidContainer.class).toCompletableFuture().join())
+                        .ifPresent(container -> {
+                            try (container; final var stream = container.getContainedResources()) {
+                                stream.filter(r -> filterResource(r, cmd.hasOption("c"), cmd.hasOption("r"),
+                                            cmd.hasOption("n")))
+                                    .forEach(r -> {
+                                        printWriter.format("Resource: %s, %s", r.getIdentifier(),
+                                            principalType(r.getMetadata().getType()));
+                                        printWriter.println();
+                                    });
+                            }
+                        });
+                }
             });
         } catch (final ParseException ex) {
             LOGGER.error("Error parsing command line arguments: {}", ex.getMessage());
@@ -111,6 +103,16 @@ public class SolidApp implements QuarkusApplication {
             return 1;
         }
         return 0;
+    }
+
+    boolean filterResource(final SolidResource resource, final boolean c, final boolean r, final boolean n) {
+        if (c && resource.getMetadata().getType().contains(LDP.BasicContainer)) {
+            return true;
+        }
+        if (r && resource.getMetadata().getType().contains(LDP.RDFSource)) {
+            return true;
+        }
+        return n && resource.getMetadata().getType().contains(LDP.NonRDFSource);
     }
 
     public URI principalType(final Collection<URI> types) {

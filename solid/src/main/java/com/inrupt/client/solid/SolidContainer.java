@@ -38,7 +38,6 @@ public final class SolidContainer extends SolidResource {
 
     private final IRI rdfType;
     private final IRI ldpContains;
-    private final IRI subject;
 
     /**
      * Create a new SolidContainer.
@@ -52,7 +51,6 @@ public final class SolidContainer extends SolidResource {
 
         this.rdfType = rdf.createIRI(RDF.type.toString());
         this.ldpContains = rdf.createIRI(LDP.contains.toString());
-        this.subject = rdf.createIRI(identifier.toString());
     }
 
     /**
@@ -61,19 +59,17 @@ public final class SolidContainer extends SolidResource {
      * @return the contained resources
      */
     public Stream<SolidResource> getContainedResources() {
-        return getDataset().stream(Optional.empty(), subject, ldpContains, null)
+        return path(ldpContains)
             .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
             .map(child -> {
-                final SolidResource.Builder builder = SolidResource.newResourceBuilder();
-                final Metadata.Builder metadata = Metadata.newBuilder();
-                getMetadata().getStorage().ifPresent(metadata::storage);
+                final Metadata.Builder builder = Metadata.newBuilder();
+                getMetadata().getStorage().ifPresent(builder::storage);
                 try (final Stream<Quad> stream = getDataset().stream(Optional.empty(), child, rdfType, null)
                         .map(Quad.class::cast)) {
                     stream.map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                        .map(IRI::getIRIString).map(URI::create).forEach(metadata::type);
+                        .map(IRI::getIRIString).map(URI::create).forEach(builder::type);
                 }
-                builder.metadata(metadata.build());
-                return builder.build(URI.create(child.getIRIString()));
+                return new SolidResource(URI.create(child.getIRIString()), null, builder.build());
             });
     }
 
