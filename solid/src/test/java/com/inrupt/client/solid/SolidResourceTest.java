@@ -28,7 +28,7 @@ import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.vocabulary.PIM;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -92,7 +92,7 @@ class SolidResourceTest {
         assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
     }
-    
+
     @Test
     void testCheckRootOfSolidResource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/");
@@ -112,7 +112,7 @@ class SolidResourceTest {
         final SolidResource resource = response.body();
         assertEquals(uri, resource.getIdentifier());
         assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
-        assertEquals(Optional.of(PIM.StorageClass), resource.getMetadata().getStorage());
+        assertEquals(Optional.of(uri), resource.getMetadata().getStorage());
     }
 
     @Test
