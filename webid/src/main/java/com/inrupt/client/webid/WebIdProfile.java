@@ -41,7 +41,6 @@ import org.apache.commons.rdf.api.Quad;
 public class WebIdProfile extends Resource {
 
     private final IRI rdfType;
-    private final IRI subject;
     private final IRI oidcIssuer;
     private final IRI seeAlso;
     private final IRI storage;
@@ -55,7 +54,6 @@ public class WebIdProfile extends Resource {
     public WebIdProfile(final URI identifier, final Dataset dataset) {
         super(identifier, dataset);
 
-        this.subject = rdf.createIRI(identifier.toString());
         this.rdfType = rdf.createIRI(RDF.type.toString());
         this.oidcIssuer = rdf.createIRI(Solid.oidcIssuer.toString());
         this.seeAlso = rdf.createIRI(RDFS.seeAlso.toString());
@@ -68,8 +66,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code rdf:type} values
      */
     public Set<URI> getType() {
-        try (final Stream<Quad> stream = getDataset().stream(null, subject, rdfType, null)
-                .map(Quad.class::cast)) {
+        try (final Stream<Quad> stream = path(rdfType)) {
             return stream.map(Quad::getObject).filter(IRI.class::isInstance)
                 .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
                 .collect(Collectors.toSet());
@@ -82,8 +79,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code solid:oidcIssuer} values
      */
     public Set<URI> getOidcIssuer() {
-        try (final Stream<Quad> stream = getDataset().stream(null, subject, oidcIssuer, null)
-                .map(Quad.class::cast)) {
+        try (final Stream<Quad> stream = path(oidcIssuer)) {
             return stream.map(Quad::getObject).filter(IRI.class::isInstance)
                 .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
                 .collect(Collectors.toSet());
@@ -96,8 +92,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code rdfs:seeAlso} values
      */
     public Set<URI> getSeeAlso() {
-        try (final Stream<Quad> stream = getDataset().stream(null, subject, seeAlso, null)
-                .map(Quad.class::cast)) {
+        try (final Stream<Quad> stream = path(seeAlso)) {
             return stream.map(Quad::getObject).filter(IRI.class::isInstance)
                 .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
                 .collect(Collectors.toSet());
@@ -110,8 +105,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code pim:storage} values
      */
     public Set<URI> getStorage() {
-        try (final Stream<Quad> stream = getDataset().stream(null, subject, storage, null)
-                .map(Quad.class::cast)) {
+        try (final Stream<Quad> stream = path(storage)) {
             return stream.map(Quad::getObject).filter(IRI.class::isInstance)
                 .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
                 .collect(Collectors.toSet());
