@@ -45,6 +45,15 @@ public class SolidMockHttpService {
     }
 
     private void setupMocks() {
+        wireMockServer.stubFor(get(urlEqualTo("/"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
+                .withHeader("Link", Link.of(PIM.storage, "type").toString())
+            )
+        );
+
         wireMockServer.stubFor(get(urlEqualTo("/solid/"))
             .willReturn(aResponse()
                 .withStatus(200)

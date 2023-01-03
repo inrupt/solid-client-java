@@ -28,7 +28,7 @@ import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.LDP;
-
+import com.inrupt.client.vocabulary.PIM;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -63,6 +63,39 @@ class SolidResourceTest {
     @Test
     void testGetOfSolidResource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/solid/");
+        final Request request =
+                Request.newBuilder().uri(uri).header("Accept", "text/turtle").GET().build();
+
+        final Response<SolidResource> response =
+                client.send(request, SolidResourceHandlers.ofSolidResource()).toCompletableFuture()
+                        .join();
+
+        assertEquals(200, response.statusCode());
+
+        final SolidResource resource = response.body();
+        assertEquals(uri, resource.getIdentifier());
+        assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+        assertEquals(Optional.of(URI.create("http://storage.example/")),
+                resource.getMetadata().getStorage());
+        assertTrue(resource.getMetadata().getWacAllow().get("user")
+                .containsAll(Arrays.asList("read", "write")));
+        assertEquals(resource.getMetadata().getWacAllow().get("public"),
+                Collections.singleton("read"));
+        assertEquals(13, resource.getDataset().stream().count());
+        assertEquals(3, resource.getMetadata().getAllowedMethods().size());
+        assertTrue(resource.getMetadata().getAllowedMethods()
+                .containsAll(Arrays.asList("PUT", "POST", "PATCH")));
+        assertTrue(resource.getMetadata().getAllowedPatchSyntaxes()
+                .containsAll(Arrays.asList("application/sparql-update", "text/n3")));
+        assertTrue(resource.getMetadata().getAllowedPostSyntaxes()
+                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+        assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
+                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+    }
+    
+    @Test
+    void testCheckRootOfSolidResource() throws IOException, InterruptedException {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/");
         final Request request = Request.newBuilder()
             .uri(uri)
             .header("Accept", "text/turtle")
@@ -79,18 +112,7 @@ class SolidResourceTest {
         final SolidResource resource = response.body();
         assertEquals(uri, resource.getIdentifier());
         assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
-        assertEquals(Optional.of(URI.create("http://storage.example/")), resource.getMetadata().getStorage());
-        assertTrue(resource.getMetadata().getWacAllow().get("user").containsAll(Arrays.asList("read", "write")));
-        assertEquals(resource.getMetadata().getWacAllow().get("public"), Collections.singleton("read"));
-        assertEquals(13, resource.getDataset().stream().count());
-        assertEquals(3, resource.getMetadata().getAllowedMethods().size());
-        assertTrue(resource.getMetadata().getAllowedMethods().containsAll(Arrays.asList("PUT", "POST", "PATCH")));
-        assertTrue(resource.getMetadata().getAllowedPatchSyntaxes()
-                .containsAll(Arrays.asList("application/sparql-update", "text/n3")));
-        assertTrue(resource.getMetadata().getAllowedPostSyntaxes()
-                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
-        assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
-                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+        assertEquals(Optional.of(PIM.storage), resource.getMetadata().getStorage());
     }
 
     @Test

@@ -96,7 +96,7 @@ public final class SolidResourceHandlers {
             .flatMap(l -> Link.parse(l).stream())
             .forEach(link -> {
                     if (link.getParameter("rel").contains("type")) {
-                        if ((link.getUri().toString().contains(PIM.storage.toString()))) {
+                        if ((link.getUri().equals(PIM.storage))) {
                             metadata.storage(responseInfo.uri());
                         }
                     metadata.type(link.getUri());
