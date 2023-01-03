@@ -46,7 +46,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  *
  * <p>This class can be used as a basis for object mapping with higher-level client applications.
  */
-public class Resource {
+public class Resource implements AutoCloseable {
 
     private static final int SINGLETON = 1;
 
@@ -114,11 +114,20 @@ public class Resource {
     /**
      * Validate the dataset for this object.
      *
-     * <p>Subclasses may override this method to perform validation on the provided dataset during object creation.
+     * <p>Subclasses may override this method to perform validation on the provided dataset.
      * By default, this method is a no-op.
      */
     public void validate() {
         // no-op
+    }
+
+    @Override
+    public void close() {
+        try {
+            dataset.close();
+        } catch (final Exception ex) {
+            throw new InruptClientException("Error closing dataset", ex);
+        }
     }
 
     private Stream<Quad> pathRecursive(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
