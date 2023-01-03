@@ -30,7 +30,7 @@ public final class ClientProvider {
      * @return the client instance
      */
     public static Client getClient() {
-        return ClientProviderResolver.instance().getClient();
+        return ClientProviderResolver.getInstance().getClient();
     }
 
     /**
@@ -39,7 +39,7 @@ public final class ClientProvider {
      * @return the client builder
      */
     public static Client.Builder getClientBuilder() {
-        return ClientProviderResolver.instance().getClientBuilder();
+        return ClientProviderResolver.getInstance().getClientBuilder();
     }
 
     private ClientProvider() {

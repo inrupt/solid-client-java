@@ -53,7 +53,7 @@ public class Resource implements AutoCloseable {
     /**
      * The RDF Factory instance.
      */
-    protected static final RDF rdf = RDFFactory.instance();
+    protected static final RDF rdf = RDFFactory.getInstance();
 
     private final Dataset dataset;
     private final URI identifier;

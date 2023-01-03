@@ -25,11 +25,19 @@ import java.util.ServiceLoader;
 
 import org.apache.commons.rdf.api.RDF;
 
+/**
+ * A RDF commons handling abstraction.
+ */
 public final class RDFFactory {
 
     private static RDF instance = null;
 
-    public static RDF instance() {
+    /**
+     * Find and return the RDF instance.
+     *
+     * @return the RDF instance
+     */
+    public static RDF getInstance() {
         if (instance == null) {
             synchronized (RDFFactory.class) {
                 if (instance != null) {

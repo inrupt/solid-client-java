@@ -48,7 +48,7 @@ public abstract class ClientProviderResolver {
      *
      * @return the provider resolver instance
      */
-    public static ClientProviderResolver instance() {
+    public static ClientProviderResolver getInstance() {
         if (instance == null) {
             synchronized (ClientProviderResolver.class) {
                 if (instance != null) {
