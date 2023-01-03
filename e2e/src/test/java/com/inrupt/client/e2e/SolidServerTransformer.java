@@ -30,15 +30,16 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.inrupt.client.Headers;
 import com.inrupt.client.e2e.MockSolidServer.ServerBody;
 import com.inrupt.client.vocabulary.PIM;
+
 import java.io.IOException;
-import java.net.URI;
+import java.util.Arrays;
 import java.util.Map;
 
 public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
     private final Map<String, ServerBody> storage;
 
-    public SolidServerTransformer(Map<String, ServerBody> storage) {
+    public SolidServerTransformer(final Map<String, ServerBody> storage) {
         this.storage = storage;
     }
 
@@ -75,14 +76,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
             if (!this.storage.containsKey(request.getUrl())) {
                 this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
                         request.contentTypeHeader().mimeTypePart()));
-                var uri = request.getUrl().substring(0, request.getUrl().lastIndexOf("/"));
-                while (!uri.isEmpty()) {
-                    if (!this.storage.containsKey(uri)) {
-                        this.storage.put(uri, new ServerBody(new byte[0],
-                                request.contentTypeHeader().mimeTypePart()));
-                        uri = uri.substring(0, uri.lastIndexOf("/"));
-                    }
-                }
+                addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
                 res.withStatus(Utils.NO_CONTENT);
             } else {
                 //should create the resource with new URI?
@@ -105,8 +99,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                     } catch (IOException e) {
                         res.withStatus(Utils.ERROR);
                     }
-                }
-                else {
+                } else {
                     res.withStatus(Utils.ERROR);
                 }
             } else {
@@ -126,6 +119,18 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         }
 
         return null;
+    }
+
+    private void addSubContainersToStorage(final String path, final String mimeType) {
+        final var newPath = path.startsWith("/") ? path.substring(1, path.length()) : path;
+        var containers = newPath.split("/");
+        while (containers.length > 0) {
+            final var uri = "/" + String.join("/", containers);
+            if (!this.storage.containsKey(uri)) {
+                this.storage.put(uri, new ServerBody(new byte[0], mimeType));
+            }
+            containers = Arrays.copyOf(containers, containers.length - 1);
+        }
     }
 
 }

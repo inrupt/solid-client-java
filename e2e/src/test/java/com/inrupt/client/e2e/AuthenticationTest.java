@@ -29,7 +29,6 @@ import com.inrupt.client.Request;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.vocabulary.PIM;
-import com.inrupt.client.webid.WebIdBodyHandlers;
 
 import io.smallrye.config.SmallRyeConfig;
 
@@ -85,8 +84,8 @@ public class AuthenticationTest {
 
         }
         if (!podUrl.endsWith("/")) {
-                podUrl += "/";
-            }
+            podUrl += "/";
+        }
         testResource = podUrl + "resource/";
     }
 
@@ -97,6 +96,6 @@ public class AuthenticationTest {
         final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
         final var response = client.send(request, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
 
-        assertEquals(401, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 }

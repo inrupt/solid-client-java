@@ -22,6 +22,7 @@ package com.inrupt.client.e2e;
 
 import com.inrupt.client.solid.Metadata;
 import com.inrupt.client.solid.SolidResource;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;

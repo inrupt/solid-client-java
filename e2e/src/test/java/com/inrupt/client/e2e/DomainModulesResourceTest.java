@@ -24,29 +24,28 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.solid.SolidContainer;
+import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.PIM;
-import com.inrupt.client.solid.SolidContainer;
-import com.inrupt.client.solid.SolidClient;
-import com.inrupt.client.solid.SolidResource;
-import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
-import com.jayway.jsonpath.Option;
+
 import io.smallrye.config.SmallRyeConfig;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
@@ -105,7 +104,7 @@ public class DomainModulesResourceTest {
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
         }
-        client.create(new SolidResource(URI.create(podUrl))); //adds the storage to the mockServer
+        //client.create(new SolidResource(URI.create(podUrl))); //adds the storage to the mockServer
         testResource = podUrl + "resource/";
     }
 
@@ -115,7 +114,7 @@ public class DomainModulesResourceTest {
             Utils.stopMockServer();
         }
     }
-    
+
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
@@ -224,7 +223,10 @@ public class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
         final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(rdf.createIRI(webid.toString()), rdf.createIRI(webid.toString()), rdf.createIRI(PIM.storage.toString()), rdf.createIRI(podUrl)));
+        dataset.add(rdf.createQuad(rdf.createIRI(webid.toString()),
+                rdf.createIRI(webid.toString()),
+                rdf.createIRI(PIM.storage.toString()),
+                rdf.createIRI(podUrl)));
 
         var profile = new WebIdProfile(webid, dataset);
         assertDoesNotThrow(client.create(profile).toCompletableFuture()::join);
@@ -233,39 +235,35 @@ public class DomainModulesResourceTest {
     }
 
     @Test
-    @DisplayName("./solid-client-java:ldpNavigation navigate to a container's lefes")
+    @DisplayName("./solid-client-java:ldpNavigation from a lefe container navigate until finding the root")
     void ldpNavigationTest() {
 
-        //populate pod with containers
-        var lefeContainer = populatePod(podUrl, 3);
-        final var containerURI = URI.create(podUrl + lefeContainer);
-        
-        Optional<URI> storage = client.read(containerURI, SolidResource.class).toCompletableFuture().join()
-                                .getMetadata()
-                .getStorage();
-        var parentContainer = lefeContainer;
-        while (!storage.isPresent() && !parentContainer.isEmpty()) {
+        final var lefePath = getNestedContainer(podUrl, 3); //example: "UUID1/UUID2/UUID3"
 
-            if (parentContainer.lastIndexOf("/") != -1) {
-                parentContainer = parentContainer.substring(0, parentContainer.lastIndexOf("/"));
-            }
-            else {
-                parentContainer = "";
-            }
-            final var resource = client.read(URI.create(podUrl + parentContainer), SolidResource.class)
-                                    .toCompletableFuture().join();
-            storage = resource.getMetadata().getStorage();
-        } 
-
-        assertTrue(storage.isPresent());
-        assertEquals(podUrl, storage.get().toString());
+        Optional<URI> root = Optional.empty();
+        var containers = lefePath.split("/");
+        while (!root.isPresent() && containers.length > 0) {
+            root = client.read(URI.create(podUrl + String.join("/", containers)), SolidResource.class)
+                            .toCompletableFuture().join()
+                            .getMetadata()
+                            .getStorage();
+            containers = Arrays.copyOf(containers, containers.length - 1);
+        }
+        if (!root.isPresent() && containers.length == 0) {
+            root = client.read(URI.create(podUrl), SolidResource.class)
+                    .toCompletableFuture().join()
+                    .getMetadata()
+                    .getStorage();
+        }
+        assertTrue(root.isPresent());
+        assertEquals(podUrl, root.get().toString());
 
     }
 
-    private String populatePod(final String podUrl, final int depth) {
-        var tempUrl = "";
-        for (int i = 0; i < depth; i++) {
-            tempUrl = tempUrl + UUID.randomUUID().toString() + "/";
+    private String getNestedContainer(final String podUrl, final int depth) {
+        var tempUrl = UUID.randomUUID().toString();
+        for (int i = 1; i < depth; i++) {
+            tempUrl += "/" + UUID.randomUUID().toString();
         }
         final var resource = new SolidResource(URI.create(podUrl + tempUrl));
         client.create(resource).toCompletableFuture().join();

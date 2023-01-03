@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -97,27 +96,27 @@ public final class Utils {
     static String getMockServerUrl() {
         return config.get("solid_server");
     }
-    
-    static byte[] appendBytes(byte[] body, byte[] body2) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    static byte[] appendBytes(final byte[] body, final byte[] body2) throws IOException {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(body);
         outputStream.write(body2);
 
         return outputStream.toByteArray();
 
     }
-    
-    public static byte[] deleteBytes(byte[] newBody, String[] triplesToDelete) {
-        var body = new String(newBody);
+
+    public static byte[] deleteBytes(final byte[] newBody, final String[] triplesToDelete) {
+        final var body = new String(newBody);
         for (final var oneTriple : triplesToDelete) {
             body.replaceAll(oneTriple, "");
         }
         return body.getBytes();
     }
 
-    public static byte[] modifyBody(byte[] originalBody, String requestBody) throws IOException {
+    public static byte[] modifyBody(final byte[] originalBody, final String requestBody) throws IOException {
         byte[] newBody = originalBody;
-        
+
         final var insert = "INSERT DATA {";
         final var beginningOfInsert = requestBody.indexOf(insert);
         final var endOfInsert = requestBody.lastIndexOf("}");
@@ -134,16 +133,16 @@ public final class Utils {
         final var endOfDelete = requestBody.indexOf("};");
         String[] triplesToDelete = null;
         if (beginningOfDelete != -1 && endOfDelete != -1) {
-            triplesToDelete = 
+            triplesToDelete =
                 requestBody.substring(beginningOfDelete + delete.length(), endOfDelete).split(".");
         }
 
-        if (triplesToDelete != null && triplesToDelete.length > 0 )
-        newBody = Utils.deleteBytes(newBody, triplesToDelete);
-
+        if (triplesToDelete != null && triplesToDelete.length > 0) {
+            newBody = Utils.deleteBytes(newBody, triplesToDelete);
+        }
         return newBody;
     }
-    
+
     private Utils() {
         // Prevent instantiation
     }

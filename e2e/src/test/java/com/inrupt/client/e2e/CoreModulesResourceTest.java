@@ -102,11 +102,11 @@ public class CoreModulesResourceTest {
 
         }
         if (!podUrl.endsWith("/")) {
-                podUrl += "/";
-            }
+            podUrl += "/";
+        }
         testResource = podUrl + "resource/";
     }
-    
+
     @AfterAll
     static void teardown() {
         if (testEnv.equals("MockSolidServer")) {
@@ -116,7 +116,7 @@ public class CoreModulesResourceTest {
 
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
-    void CRUDrdfTest() {
+    void crudRdfTest() {
         final String newResourceName = testResource + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
@@ -153,7 +153,7 @@ public class CoreModulesResourceTest {
                 List.of(createStatement(createResource(newResourceName),
                         createProperty(newPredicateName), createTypedLiteral(true)));
 
-        var sparqlQuery = deleteInsertSparqlQuery(statementsToDelete, statementsToAdd);
+        final var sparqlQuery = deleteInsertSparqlQuery(statementsToDelete, statementsToAdd);
         final var ur = UpdateFactory.create(sparqlQuery);
 
         final var requestPatch = Request.newBuilder(URI.create(newResourceName))
@@ -241,7 +241,7 @@ public class CoreModulesResourceTest {
         final var res = session.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
 
         assertEquals(Utils.NO_CONTENT, res.statusCode());
-    
+
         //create a Container in a Container
         final Request reqPost = Request.newBuilder(URI.create(container2Name))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
