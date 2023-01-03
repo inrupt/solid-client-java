@@ -21,16 +21,25 @@
 package com.inrupt.client;
 
 import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFSyntax;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * A base class for resource mapping.
@@ -39,7 +48,7 @@ import org.apache.commons.rdf.api.RDFSyntax;
  */
 public class Resource {
 
-    private static final RdfService service = ServiceProvider.getRdfService();
+    private static final int SINGLETON = 1;
 
     /**
      * The RDF Factory instance.
@@ -88,7 +97,18 @@ public class Resource {
      * @throws IOException in the case of an I/O error
      */
     public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
-        service.fromDataset(getDataset(), syntax, out);
+        ServiceProvider.getRdfService().fromDataset(getDataset(), syntax, out);
+    }
+
+    /**
+     * Retrieve a path-based stream of quads, starting from the resource identifier.
+     *
+     * @param predicates the predicate path to follow
+     * @return all matching quads
+     */
+    public Stream<Quad> path(final IRI... predicates) {
+        final IRI root = rdf.createIRI(getIdentifier().toString());
+        return pathRecursive(Collections.singleton(root), predicates);
     }
 
     /**
@@ -99,5 +119,62 @@ public class Resource {
      */
     public void validate() {
         // no-op
+    }
+
+    private Stream<Quad> pathRecursive(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
+        // Trivial case: no predicates
+        if (predicates.length == 0) {
+            return Stream.empty();
+        }
+
+        // Cases with a single, defined subject
+        if (subjects.size() == SINGLETON) {
+            return pathWithSubject(subjects.iterator().next(), predicates);
+        }
+
+        // Everything else
+        return pathWithSubject(subjects, predicates);
+    }
+
+    private Stream<Quad> pathWithSubject(final BlankNodeOrIRI subject, final IRI... predicates) {
+        if (predicates.length == SINGLETON) {
+            return dataset.stream(null, subject, predicates[0], null).map(Quad.class::cast);
+        }
+
+        try (final Stream<? extends Quad> stream = dataset.stream(null, subject, predicates[0], null)) {
+            final Set<BlankNodeOrIRI> objects = stream.map(Quad::getObject)
+                .flatMap(Resource::asCandidateSubject)
+                .collect(Collectors.toSet());
+            return pathRecursive(objects, Arrays.copyOfRange(predicates, 1, predicates.length));
+        }
+    }
+
+    private Stream<Quad> pathWithSubject(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
+        // Short circuit
+        if (subjects.isEmpty()) {
+            return Stream.empty();
+        }
+
+        if (predicates.length == SINGLETON) {
+            return dataset.stream(null, null, predicates[0], null)
+                .filter(quad -> subjects.contains(quad.getSubject()))
+                .map(Quad.class::cast);
+        }
+
+        try (final Stream<? extends Quad> stream = dataset.stream(null, null, predicates[0], null)) {
+            final Set<BlankNodeOrIRI> objects = stream.filter(quad -> subjects.contains(quad.getSubject()))
+                .map(Quad::getObject).flatMap(Resource::asCandidateSubject)
+                .collect(Collectors.toSet());
+            return pathRecursive(objects, Arrays.copyOfRange(predicates, 1, predicates.length));
+        }
+    }
+
+    static Stream<BlankNodeOrIRI> asCandidateSubject(final RDFTerm term) {
+        if (term instanceof IRI) {
+            return Stream.of((IRI) term);
+        } else if (term instanceof BlankNode) {
+            return Stream.of((BlankNode) term);
+        }
+        return Stream.empty();
     }
 }
