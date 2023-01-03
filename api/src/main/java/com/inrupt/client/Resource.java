@@ -121,8 +121,6 @@ public class Resource implements AutoCloseable {
         // no-op
     }
 
-
-
     @Override
     public void close() {
         try {
@@ -131,7 +129,7 @@ public class Resource implements AutoCloseable {
             throw new InruptClientException("Error closing dataset", ex);
         }
     }
-    
+
     private Stream<Quad> pathRecursive(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
         // Trivial case: no predicates
         if (predicates.length == 0) {
@@ -187,6 +185,5 @@ public class Resource implements AutoCloseable {
             return Stream.of((BlankNode) term);
         }
         return Stream.empty();
-
     }
 }
