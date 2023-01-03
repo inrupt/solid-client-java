@@ -112,7 +112,7 @@ class SolidResourceTest {
         final SolidResource resource = response.body();
         assertEquals(uri, resource.getIdentifier());
         assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
-        assertEquals(Optional.of(PIM.storage), resource.getMetadata().getStorage());
+        assertEquals(Optional.of(PIM.StorageClass), resource.getMetadata().getStorage());
     }
 
     @Test

@@ -37,6 +37,12 @@ public final class PIM {
      */
     public static final URI storage = URI.create(namespace + "storage");
 
+    // Class
+    /**
+     * The pim:Storage URI.
+     */
+    public static final URI StorageClass = URI.create(namespace + "Storage");
+
     /**
      * Get the PIM namespace URI.
      *

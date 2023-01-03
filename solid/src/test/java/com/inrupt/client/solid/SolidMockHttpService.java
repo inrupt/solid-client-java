@@ -50,7 +50,7 @@ public class SolidMockHttpService {
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
-                .withHeader("Link", Link.of(PIM.storage, "type").toString())
+                .withHeader("Link", Link.of(PIM.StorageClass, "type").toString())
             )
         );
 
