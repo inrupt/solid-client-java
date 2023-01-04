@@ -30,6 +30,7 @@ import com.inrupt.client.vocabulary.PIM;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
 
 import org.apache.commons.rdf.api.RDFSyntax;
@@ -39,6 +40,7 @@ import org.apache.commons.rdf.api.RDFSyntax;
  */
 public final class SolidResourceHandlers {
 
+    private static final URI STORAGE = URI.create(PIM.getNamespace() + "Storage");
     private static final RdfService service = ServiceProvider.getRdfService();
 
     /**
@@ -96,6 +98,9 @@ public final class SolidResourceHandlers {
             .flatMap(l -> Link.parse(l).stream())
             .forEach(link -> {
                 if (link.getParameter("rel").contains("type")) {
+                    if ((link.getUri().equals(STORAGE))) {
+                        metadata.storage(responseInfo.uri());
+                    }
                     metadata.type(link.getUri());
                 } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
                     metadata.storage(link.getUri());
