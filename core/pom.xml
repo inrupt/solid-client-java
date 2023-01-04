@@ -135,7 +135,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <jdk.httpclient.HttpClient.log>headers</jdk.httpclient.HttpClient.log>
           </systemPropertyVariables>
         </configuration>
       </plugin>
