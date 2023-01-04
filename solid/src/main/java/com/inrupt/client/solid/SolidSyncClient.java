@@ -128,6 +128,7 @@ public class SolidSyncClient {
         return SolidSyncClient.of(ClientProvider.getClient());
     }
 
+    @SuppressWarnings("unchecked")
     static <T, R extends Throwable> T awaitAsync(final CompletionStage<T> future) throws R {
         try {
             return future.toCompletableFuture().join();
