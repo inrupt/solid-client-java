@@ -27,7 +27,7 @@
  * <p>This Solid domain-specific module containes two dedicated Solid clients one can make use of:
  * {@link SolidClient} which works asynchronously and {@link SolidSyncClient} which works synchronously.
  * 
- * <p>One can instanciate a Solid client in different ways, depending on the use case:
+ * <p>One can instantiate a Solid client in different ways, depending on the use case:
  * 
  * <p>A simple direct way is with the following line:
  * <pre>{@code
