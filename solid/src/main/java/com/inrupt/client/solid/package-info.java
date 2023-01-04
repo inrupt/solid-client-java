@@ -34,7 +34,8 @@
     SolidClient client = SolidClient.getClient();
     }
  * </pre>
- * <p> This will make use of the client that is currently loaded on the classpath. 
+ *
+ * <p>This will make use of the client that is currently loaded on the classpath.
  * (If you have the core module (inrupt-client-core) loaded, this will make use of the {@link DefaultClient}).
  *
  * <p>The above line is equivalent to:
