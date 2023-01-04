@@ -54,7 +54,7 @@
  * 
  * <p>The Solid client can be used to perform CRUD operations on Solid resources.
  * 
- * <p>Reading a playlist, which is a Solid resource.
+ * <p>In this example, the client reads a Solid resource as a {@code Playlist} object.
  * <pre>{@code
     var playlist = client.read(uri, Playlist.class);
     playlist.thenRun(p -> {
