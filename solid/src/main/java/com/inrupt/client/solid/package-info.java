@@ -52,7 +52,7 @@
     }
  * </pre>
  * 
- * <p>The Solid client can be used to do CRUD operations on Solid resources.
+ * <p>The Solid client can be used to perform CRUD operations on Solid resources.
  * 
  * <p>Reading a playlist, which is a Solid resource.
  * <pre>{@code
