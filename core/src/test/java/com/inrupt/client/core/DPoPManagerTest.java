@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.inrupt.client.Authenticator.DPoP;
 
 import java.net.URI;
+import java.util.Optional;
 
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -60,6 +61,16 @@ class DPoPManagerTest {
         final String method = "GET";
         final URI uri = URI.create("https://storage.example/resource");
         assertThrows(AuthenticationException.class, () -> dpop.generateProof("RS256", uri, method));
+    }
+
+    @Test
+    void testLookupAlgorithm() {
+        final DPoP dpop = DPoP.of();
+        assertEquals(Optional.of("ES256"), dpop.lookupThumbprint("ES256").flatMap(dpop::lookupAlgorithm));
+        assertFalse(dpop.lookupThumbprint("RS256").isPresent());
+        assertFalse(dpop.lookupThumbprint(null).isPresent());
+        assertFalse(dpop.lookupAlgorithm("not-a-thumbprint").isPresent());
+        assertFalse(dpop.lookupAlgorithm(null).isPresent());
     }
 
     static void verifyDpop(final String proof, final URI uri, final String method) {

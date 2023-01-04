@@ -20,8 +20,10 @@
  */
 package com.inrupt.client.openid;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.jose4j.lang.HashUtil.SHA_256;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Authenticator;
@@ -29,7 +31,11 @@ import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
 import com.inrupt.client.Session;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.security.KeyPair;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +47,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.lang.JoseException;
+import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -153,6 +163,25 @@ class OpenIdSessionTest {
     }
 
     @Test
+    void testClientCredentialsWithConfig() {
+        final URI issuer = URI.create(baseUrl);
+        final Authenticator.DPoP dpop = Authenticator.DPoP.of();
+        final OpenIdProvider provider = new OpenIdProvider(issuer, dpop);
+        final OpenIdConfig config = new OpenIdConfig();
+        final String clientId = "app1";
+        final String clientSecret = "secret";
+        final String authMethod = "client_secret_basic";
+        final Session session = OpenIdSession.ofClientCredentials(provider, clientId, clientSecret, authMethod, config);
+        assertFalse(session.fromCache(null).isPresent());
+        final Optional<URI> principal = session.getPrincipal();
+        assertEquals(Optional.of(URI.create(WEBID)), principal);
+        assertTrue(session.fromCache(null).isPresent());
+        final Optional<Credential> credential = session.authenticate(null, Collections.emptySet())
+            .toCompletableFuture().join();
+        assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
+    }
+
+    @Test
     void testSessionExpiry() {
         assertEquals(Instant.MAX, OpenIdSession.toInstant(0));
         assertTrue(OpenIdSession.toInstant(1).isBefore(Instant.MAX));
@@ -252,6 +281,32 @@ class OpenIdSessionTest {
     }
 
     @Test
+    void testThumbprint() {
+        final PublicJsonWebKey ecJwk = getDpopKey("/ec-key.json");
+        final PublicJsonWebKey rsaJwk = getDpopKey("/rsa-key.json");
+        final OpenIdConfig config = new OpenIdConfig();
+        final Map<String, KeyPair> keypairs = new HashMap<>();
+        keypairs.put("ES256", new KeyPair(ecJwk.getPublicKey(), ecJwk.getPrivateKey()));
+        keypairs.put("RS256", new KeyPair(rsaJwk.getPublicKey(), rsaJwk.getPrivateKey()));
+        config.setProofKeyPairs(keypairs);
+
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        claims.put("cnf", Collections.singletonMap("jkt", ecJwk.calculateBase64urlEncodedThumbprint(SHA_256)));
+
+        final String token = OpenIdTestUtils.generateIdToken(claims);
+        final Session session = OpenIdSession.ofIdToken(token, config);
+
+        assertTrue(session.selectThumbprint(Arrays.asList("HS256", "RS256", "ES256")).isPresent());
+        assertTrue(session.selectThumbprint(Arrays.asList("ES256")).isPresent());
+        assertTrue(session.selectThumbprint(Arrays.asList("RS256")).isPresent());
+        assertFalse(session.selectThumbprint(Arrays.asList("HS256")).isPresent());
+    }
+
+    @Test
     void testNearlyExpiredToken() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -309,6 +364,17 @@ class OpenIdSessionTest {
             final Credential token = new Credential("Bearer", URI.create(ISS), this.token,
                     Instant.now().plusSeconds(3600), URI.create(WEBID), null);
             return CompletableFuture.completedFuture(token);
+        }
+    }
+
+    static PublicJsonWebKey getDpopKey(final String resource) {
+        try (final InputStream stream = OpenIdSessionTest.class.getResourceAsStream(resource)) {
+            final String jwks = IOUtils.toString(stream, UTF_8);
+            return PublicJsonWebKey.Factory.newPublicJwk(jwks);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to read JWK", ex);
+        } catch (final JoseException ex) {
+            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
         }
     }
 }

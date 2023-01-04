@@ -127,7 +127,7 @@ public final class OpenIdSession implements Session {
                 .scopes(config.getScopes().toArray(new String[0]))
                 .build("client_credentials", clientId))
             .thenApply(response -> {
-                final JwtClaims claims = parseIdToken(response.idToken, new OpenIdConfig());
+                final JwtClaims claims = parseIdToken(response.idToken, config);
                 return new Credential(response.tokenType, getIssuer(claims), response.idToken,
                         toInstant(response.expiresIn), getPrincipal(claims), getProofThumbprint(claims));
             }));
@@ -195,10 +195,7 @@ public final class OpenIdSession implements Session {
     public Optional<String> selectThumbprint(final Collection<String> algorithms) {
         for (final String alg : algorithms) {
             if (dpop.algorithms().contains(alg)) {
-                final Optional<String> jkt = dpop.lookupThumbprint(alg);
-                if (jkt.isPresent()) {
-                    return jkt;
-                }
+                return dpop.lookupThumbprint(alg);
             }
         }
         return Optional.empty();

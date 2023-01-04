@@ -206,7 +206,15 @@ class DefaultClientTest {
         claims.put("azp", AZP);
         claims.put("cnf", Collections.singletonMap("jkt", ecJwk.calculateBase64urlEncodedThumbprint(SHA_256)));
         final String token = generateIdToken(claims);
-        final Session session = OpenIdSession.ofIdToken(token, config);
+        final Session session = UmaSession.of(OpenIdSession.ofIdToken(token, config));
+        assertEquals(Optional.of(URI.create(WEBID)), session.getPrincipal());
+
+        final Session session2 = UmaSession.of();
+        assertFalse(session2.getPrincipal().isPresent());
+        assertNotEquals(session2.getId(), session.getId());
+        assertFalse(session2.generateProof(null, null).isPresent());
+        assertFalse(session2.selectThumbprint(Collections.singleton("ES256")).isPresent());
+
         assertDoesNotThrow(() -> {
             final Response<Void> res = client.session(session).send(request, Response.BodyHandlers.discarding())
                 .toCompletableFuture().join();
@@ -249,17 +257,11 @@ class DefaultClientTest {
             model.createLiteral("object")
         );
 
-        final PublicJsonWebKey jwk = getDpopKey("/ec-key.json");
-        final OpenIdConfig config = new OpenIdConfig();
-        config.setProofKeyPairs(Collections.singletonMap("ES256",
-                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
-
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
         claims.put("iss", ISS);
         claims.put("azp", AZP);
-        claims.put("cnf", Collections.singletonMap("jkt", jwk.calculateBase64urlEncodedThumbprint(SHA_256)));
         final String token = generateIdToken(claims);
 
         final Request request = Request.newBuilder()
@@ -268,14 +270,14 @@ class DefaultClientTest {
                 .POST(JenaBodyPublishers.ofModel(model))
                 .build();
 
-        final Response<Void> response = client.session(OpenIdSession.ofIdToken(token, config))
-            .send(request, Response.BodyHandlers.discarding())
+        client.session(OpenIdSession.ofIdToken(token)).send(request, Response.BodyHandlers.discarding())
+            .thenAccept(response -> {
+                assertEquals(401, response.statusCode());
+                assertEquals(Optional.of("Unknown, Bearer, DPoP algs=\"ES256\", " +
+                            "UMA ticket=\"ticket-12345\", as_uri=\"" + baseUri.get() + "\""),
+                        response.headers().firstValue("WWW-Authenticate"));
+            })
             .toCompletableFuture().join();
-
-        assertEquals(401, response.statusCode());
-        assertEquals(Optional.of("Unknown, Bearer, DPoP algs=\"ES256\", UMA ticket=\"ticket-12345\", as_uri=\"" +
-                    baseUri.get() + "\""),
-                response.headers().firstValue("WWW-Authenticate"));
     }
 
     @Test
