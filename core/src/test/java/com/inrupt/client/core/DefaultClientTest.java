@@ -191,17 +191,20 @@ class DefaultClientTest {
         assertEquals(401, response.statusCode());
         assertEquals(Optional.of("Bearer,DPoP algs=\"ES256\""), response.headers().firstValue("WWW-Authenticate"));
 
-        final PublicJsonWebKey jwk = getDpopKey();
+        final PublicJsonWebKey ecJwk = getDpopKey("/ec-key.json");
+        final PublicJsonWebKey rsaJwk = getDpopKey("/rsa-key.json");
         final OpenIdConfig config = new OpenIdConfig();
-        config.setProofKeyPairs(Collections.singletonMap("ES256",
-                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
+        final Map<String, KeyPair> keypairs = new HashMap<>();
+        keypairs.put("ES256", new KeyPair(ecJwk.getPublicKey(), ecJwk.getPrivateKey()));
+        keypairs.put("RS256", new KeyPair(rsaJwk.getPublicKey(), rsaJwk.getPrivateKey()));
+        config.setProofKeyPairs(keypairs);
 
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
         claims.put("iss", ISS);
         claims.put("azp", AZP);
-        claims.put("cnf", Collections.singletonMap("jkt", jwk.calculateBase64urlEncodedThumbprint(SHA_256)));
+        claims.put("cnf", Collections.singletonMap("jkt", ecJwk.calculateBase64urlEncodedThumbprint(SHA_256)));
         final String token = generateIdToken(claims);
         final Session session = OpenIdSession.ofIdToken(token, config);
         assertDoesNotThrow(() -> {
@@ -246,7 +249,7 @@ class DefaultClientTest {
             model.createLiteral("object")
         );
 
-        final PublicJsonWebKey jwk = getDpopKey();
+        final PublicJsonWebKey jwk = getDpopKey("/ec-key.json");
         final OpenIdConfig config = new OpenIdConfig();
         config.setProofKeyPairs(Collections.singletonMap("ES256",
                     new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
@@ -290,7 +293,12 @@ class DefaultClientTest {
                 .POST(Request.BodyPublishers.ofString("Test String 1"))
                 .build();
 
-        final Response<Void> response = client.session(UmaSession.of(OpenIdSession.ofIdToken(token)))
+        final PublicJsonWebKey jwk = getDpopKey("/rsa-key.json");
+        final OpenIdConfig config = new OpenIdConfig();
+        config.setProofKeyPairs(Collections.singletonMap("RS256",
+                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
+
+        final Response<Void> response = client.session(UmaSession.of(OpenIdSession.ofIdToken(token, config)))
             .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
@@ -356,9 +364,9 @@ class DefaultClientTest {
         assertEquals(200, response.statusCode());
     }
 
-    static PublicJsonWebKey getDpopKey() {
-        try (final InputStream resource = DefaultClientTest.class.getResourceAsStream("/dpop-key.json")) {
-            final String jwks = IOUtils.toString(resource, UTF_8);
+    static PublicJsonWebKey getDpopKey(final String resource) {
+        try (final InputStream stream = DefaultClientTest.class.getResourceAsStream(resource)) {
+            final String jwks = IOUtils.toString(stream, UTF_8);
             return PublicJsonWebKey.Factory.newPublicJwk(jwks);
         } catch (final IOException ex) {
             throw new UncheckedIOException("Unable to read JWK", ex);
