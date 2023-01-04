@@ -33,13 +33,13 @@ public final class PIM {
 
     // Properties
     /**
-     * The pim:storage URI.
+     * The pim:storage property/relation URI.
      */
     public static final URI storage = URI.create(namespace + "storage");
 
     // Class
     /**
-     * The pim:Storage URI.
+     * The pim:Storage class/object URI.
      */
     public static final URI StorageClass = URI.create(namespace + "Storage");
 
