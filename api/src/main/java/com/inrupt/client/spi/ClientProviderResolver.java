@@ -27,7 +27,7 @@ import java.util.ServiceLoader;
 
 public abstract class ClientProviderResolver {
 
-    private static volatile ClientProviderResolver instance = null;
+    private static ClientProviderResolver instance = null;
 
     /**
      * Get the {@link Client} for this application.
@@ -48,7 +48,7 @@ public abstract class ClientProviderResolver {
      *
      * @return the provider resolver instance
      */
-    public static ClientProviderResolver instance() {
+    public static ClientProviderResolver getInstance() {
         if (instance == null) {
             synchronized (ClientProviderResolver.class) {
                 if (instance != null) {
