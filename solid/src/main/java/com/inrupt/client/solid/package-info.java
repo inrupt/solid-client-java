@@ -44,20 +44,13 @@
     SolidClient client = SolidClient.of(classPathClient);
     }
  * </pre>
- *
- * <p>Or to the following line:
- * <pre>{@code
-    Client classPathClient = ClientProvider.getClient();
-    SolidClient client = new SolidClient(classPathClient);
-    }
- * </pre>
  * 
  * <p>The Solid client can be used to perform CRUD operations on Solid resources.
  * 
  * <p>In this example, the client reads a Solid resource as a {@code Playlist} object.
  * <pre>{@code
     var playlist = client.read(uri, Playlist.class);
-    playlist.thenRun(p -> {
+    playlist.thenAccept(p -> {
         displayTitle(p.getTitle());
         displaySongs(p.getSongs());
     }).toCompletableFuture().join(); }

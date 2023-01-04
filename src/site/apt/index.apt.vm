@@ -75,7 +75,7 @@ var client = CLIENT.session(session);
 ----------------------
 var playlist = client.read(uri, Playlist.class);
 
-playlist.thenRun(p -> {
+playlist.thenAccept(p -> {
     displayTitle(p.getTitle());
     displaySongs(p.getSongs());
 }).toCompletableFuture().join();
