@@ -20,9 +20,78 @@
  */
 /**
  *
- * <h2>Solid Resource and Container support for the Inrupt client libraries.</h2>
+ * <h2>Support for Solid specific concepts for the Inrupt client libraries.</h2>
  *
- * <p>This module contains a BodyHandler which consumes the response body
+ * <h3>Solid Client</h3>
+ *
+ * <p>This Solid domain-specific module containes two dedicated Solid clients one can make use of:
+ * {@link SolidClient} which works asynchronously and {@link SolidSyncClient} which works synchronously.
+ * 
+ * <p>One can instanciate a Solid client in different ways, depending on the use case:
+ * 
+ * <p>A simple direct way is with the following line:
+ * <pre>{@code
+    SolidClient client = SolidClient.getClient();
+    }
+ * </pre>
+ * <p> This will make use of the client that is currently loaded on the classpath. 
+ * (If you have the core module (inrupt-client-core) loaded, this will make use of the {@link DefaultClient}).
+ *
+ * <p>The above line is equivalent to:
+ * <pre>{@code
+    Client classPathClient = ClientProvider.getClient();
+    SolidClient client = SolidClient.of(classPathClient);
+    }
+ * </pre>
+ *
+ * <p>Or to the following line:
+ * <pre>{@code
+    Client classPathClient = ClientProvider.getClient();
+    SolidClient client = new SolidClient(classPathClient);
+    }
+ * </pre>
+ * 
+ * <p>The Solid client can be used to do CRUD operations on Solid resources.
+ * 
+ * <p>Reading a playlist, which is a Solid resource.
+ * <pre>{@code
+    var playlist = client.read(uri, Playlist.class);
+    playlist.thenRun(p -> {
+        displayTitle(p.getTitle());
+        displaySongs(p.getSongs());
+    }).toCompletableFuture().join(); }
+ * </pre>
+ *
+ * <p>One may also create new resources.
+ * <pre>{@code
+    var playlist = new Playlist(uri);
+    playlist.setTitle("Jazz Collection");
+    playlist.addSong(song1);
+    playlist.addSong(song2);
+
+    client.create(playlist).toCompletableFuture().join(); }
+ * </pre>
+ *
+ * <p>Or update existing resources.
+ * <pre>{@code
+    var playlist = client.read(uri, Playlist.class);
+
+    playlist.thenCompose(p -> {
+        p.setTitle("Bossa Nova");
+        p.removeSong(song1);
+        p.addSong(song3);
+        return client.update(p);
+    }).toCompletableFuture().join(); }
+ * </pre>
+ *
+ * <p>Or delete resources.
+* <pre>{@code
+    client.delete(uri).toCompletableFuture().join(); }
+ * </pre>
+ * 
+ * <h3>Solid Resource and Solid Container</h3>
+ *
+ * <p>This module also contains a BodyHandler which consumes the response body
  *  and converts it into a {@link SolidResource} or a {@link SolidContainer} Java object.
  *
  * <p>The following example reads a Solid Container and presents it as a {@link SolidContainer} Java object:

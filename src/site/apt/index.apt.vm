@@ -69,7 +69,8 @@ var session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, 
 var client = CLIENT.session(session);
 ----------------------
 
-    With this <<<session>>> object, one can perform normal CRUD operations on Solid resources. Please note that all operations are asynchronous.
+    With this <<<session>>> object, one can perform normal CRUD operations on Solid resources.
+    Please note that in SolidClient all operations are asynchronous. For synchronous operations use SolidSyncClient.
 
 ----------------------
 var playlist = client.read(uri, Playlist.class);
