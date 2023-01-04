@@ -281,6 +281,52 @@ class DefaultClientTest {
     }
 
     @Test
+    void testPutRDF() throws Exception {
+        final Model model = ModelFactory.createDefaultModel();
+
+        model.add(
+            model.createResource("http://example.test/s"),
+            model.createProperty("http://example.test/p"),
+            model.createLiteral("object")
+        );
+
+        final Request request = Request.newBuilder()
+                .uri(URI.create(baseUri.get() + "/putRDF"))
+                .header("Content-Type", "text/turtle")
+                .PUT(JenaBodyPublishers.ofModel(model))
+                .build();
+
+        client.send(request, Response.BodyHandlers.discarding()).thenAccept(response -> {
+            assertEquals(401, response.statusCode());
+            assertEquals(Optional.of("Bearer, DPoP algs=\"ES256 PS256\""),
+                    response.headers().firstValue("WWW-Authenticate"));
+
+        }).toCompletableFuture().join();
+
+        final PublicJsonWebKey ecJwk = getDpopKey("/ec-key.json");
+        final PublicJsonWebKey rsaJwk = getDpopKey("/rsa-key.json");
+        final OpenIdConfig config = new OpenIdConfig();
+        final Map<String, KeyPair> keypairs = new HashMap<>();
+        keypairs.put("ES256", new KeyPair(ecJwk.getPublicKey(), ecJwk.getPrivateKey()));
+        keypairs.put("RS256", new KeyPair(rsaJwk.getPublicKey(), rsaJwk.getPrivateKey()));
+        config.setProofKeyPairs(keypairs);
+
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        claims.put("cnf", Collections.singletonMap("jkt", ecJwk.calculateBase64urlEncodedThumbprint(SHA_256)));
+        final String token = generateIdToken(claims);
+        final Session session = OpenIdSession.ofIdToken(token, config);
+        assertEquals(Optional.of(URI.create(WEBID)), session.getPrincipal());
+
+        client.session(session).send(request, Response.BodyHandlers.discarding()).thenAccept(response -> {
+            assertEquals(201, response.statusCode());
+        }).toCompletableFuture().join();
+    }
+
+    @Test
     void testOfStringPublisherUmaSession() throws IOException, InterruptedException {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);

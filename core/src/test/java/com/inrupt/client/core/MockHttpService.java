@@ -70,18 +70,26 @@ class MockHttpService {
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
                         .withBodyFile("profileExample.ttl")));
 
-        //wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
-                    //.withRequestBody(matching(
-                            //".*<http://example.test/s>\\s+" +
-                            //"<http://example.test/p>\\s+\"object\"\\s+\\..*"))
-                    //.withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
-                    //.withHeader("Authorization", containing("DPoP "))
-                    //.withHeader("DPoP", containing("eyJhbGciOiJFUzI1NiIsInR5cCI6ImRwb3Arand0Iiw" +
-                            //"iandrIjp7Imt0eSI6IkVDIiwieCI6IlNvS1BhS1ZfNXpPaDFMLVhMMmVLbWhXcXJEe" +
-                            //"U5uY01ZMkEtLVl6MFo2ZDAiLCJ5IjoicEJGRWxIYnpDY0V5ODdGUnBzajJ3VHZnT1l" +
-                            //"1S1BGS1o0VTFJbHpRZ1dQUSIsImNydiI6IlAtMjU2In19"))
-                    //.willReturn(aResponse()
-                        //.withStatus(201)));
+        wireMockServer.stubFor(put(urlEqualTo("/putRDF"))
+                    .atPriority(1)
+                    .withRequestBody(matching(
+                            ".*<http://example.test/s>\\s+" +
+                            "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
+                    .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
+                    .withHeader("Authorization", containing("DPoP "))
+                    .withHeader("DPoP", containing("eyJhbGciOiJFUzI1NiIsInR5cCI6ImRwb3Arand0Iiw" +
+                            "iandrIjp7Imt0eSI6IkVDIiwieCI6IlNvS1BhS1ZfNXpPaDFMLVhMMmVLbWhXcXJEe" +
+                            "U5uY01ZMkEtLVl6MFo2ZDAiLCJ5IjoicEJGRWxIYnpDY0V5ODdGUnBzajJ3VHZnT1l" +
+                            "1S1BGS1o0VTFJbHpRZ1dQUSIsImNydiI6IlAtMjU2In19"))
+                    .willReturn(aResponse()
+                        .withStatus(201)));
+
+        wireMockServer.stubFor(put(urlEqualTo("/putRDF"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256 PS256\"")));
+
 
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .willReturn(aResponse()
