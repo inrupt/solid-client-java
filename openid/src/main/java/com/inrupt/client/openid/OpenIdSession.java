@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -21,11 +21,15 @@
 package com.inrupt.client.openid;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.DPoP;
+import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -57,12 +61,15 @@ public final class OpenIdSession implements Session {
 
     private final String id;
     private final Set<String> schemes;
-    private final Supplier<CompletionStage<Session.Credential>> authenticator;
-    private final AtomicReference<Session.Credential> credential = new AtomicReference<>();
+    private final Supplier<CompletionStage<Credential>> authenticator;
+    private final AtomicReference<Credential> credential = new AtomicReference<>();
+    private final DPoP dpop;
 
-    private OpenIdSession(final String id, final Supplier<CompletionStage<Session.Credential>> authenticator) {
+    private OpenIdSession(final String id, final DPoP dpop,
+            final Supplier<CompletionStage<Credential>> authenticator) {
         this.id = Objects.requireNonNull(id, "Session id may not be null!");
         this.authenticator = Objects.requireNonNull(authenticator, "OpenID authenticator may not be null!");
+        this.dpop = Objects.requireNonNull(dpop);
 
         // Support case-insensitive lookups
         final Set<String> schemeNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -78,7 +85,7 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken) {
-        return ofIdToken(idToken, new OpenIdVerificationConfig());
+        return ofIdToken(idToken, new OpenIdConfig());
     }
 
     /**
@@ -88,13 +95,14 @@ public final class OpenIdSession implements Session {
      * @param config the validation configuration
      * @return the session
      */
-    public static Session ofIdToken(final String idToken, final OpenIdVerificationConfig config) {
+    public static Session ofIdToken(final String idToken, final OpenIdConfig config) {
+        final DPoP dpop = DPoP.of(config.getProofKeyPairs());
         final JwtClaims claims = parseIdToken(idToken, config);
         final String id = getSessionIdentifier(claims);
-        final Session.Credential credential = new Session.Credential("Bearer", getIssuer(claims), idToken,
-                getExpiration(claims), getPrincipal(claims));
-
-        return new OpenIdSession(id, () -> CompletableFuture.completedFuture(credential));
+        final String jkt = getProofThumbprint(claims);
+        final Credential credential = new Credential(jkt == null ? "Bearer" : "DPoP",
+                getIssuer(claims), idToken, getExpiration(claims), getPrincipal(claims), jkt);
+        return new OpenIdSession(id, dpop, () -> CompletableFuture.completedFuture(credential));
     }
 
     /**
@@ -108,8 +116,21 @@ public final class OpenIdSession implements Session {
      */
     public static Session ofClientCredentials(final URI issuer, final String clientId, final String clientSecret,
             final String authMethod) {
-        return ofClientCredentials(new OpenIdProvider(issuer), clientId, clientSecret, authMethod,
-                new OpenIdVerificationConfig());
+
+        final String id = UUID.randomUUID().toString();
+        final DPoP dpop = DPoP.of();
+        final OpenIdProvider provider = new OpenIdProvider(issuer, dpop);
+        final OpenIdConfig config = new OpenIdConfig();
+        return new OpenIdSession(id, dpop, () -> provider.token(TokenRequest.newBuilder()
+                .clientSecret(clientSecret)
+                .authMethod(authMethod)
+                .scopes(config.getScopes().toArray(new String[0]))
+                .build("client_credentials", clientId))
+            .thenApply(response -> {
+                final JwtClaims claims = parseIdToken(response.idToken, config);
+                return new Credential(response.tokenType, getIssuer(claims), response.idToken,
+                        toInstant(response.expiresIn), getPrincipal(claims), getProofThumbprint(claims));
+            }));
     }
 
     /**
@@ -120,22 +141,22 @@ public final class OpenIdSession implements Session {
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
      * @param config the ID token verifification config
-     * @param scopes an array of scope values
      * @return the session
      */
     public static Session ofClientCredentials(final OpenIdProvider provider,
             final String clientId, final String clientSecret, final String authMethod,
-            final OpenIdVerificationConfig config, final String... scopes) {
+            final OpenIdConfig config) {
         final String id = UUID.randomUUID().toString();
-        return new OpenIdSession(id, () -> provider.token(TokenRequest.newBuilder()
+        final DPoP dpop = DPoP.of(config.getProofKeyPairs());
+        return new OpenIdSession(id, dpop, () -> provider.token(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
-                .scopes(scopes)
+                .scopes(config.getScopes().toArray(new String[0]))
                 .build("client_credentials", clientId))
             .thenApply(response -> {
                 final JwtClaims claims = parseIdToken(response.idToken, config);
-                return new Session.Credential(response.tokenType, getIssuer(claims), response.idToken,
-                        toInstant(response.expiresIn), getPrincipal(claims));
+                return new Credential(response.tokenType, getIssuer(claims), response.idToken,
+                        toInstant(response.expiresIn), getPrincipal(claims), getProofThumbprint(claims));
             }));
     }
 
@@ -146,7 +167,7 @@ public final class OpenIdSession implements Session {
 
     @Override
     public Optional<URI> getPrincipal() {
-        return getCredential(ID_TOKEN).flatMap(Session.Credential::getPrincipal);
+        return getCredential(ID_TOKEN).flatMap(Credential::getPrincipal);
     }
 
     @Override
@@ -155,13 +176,13 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
-    public Optional<Session.Credential> getCredential(final String name) {
+    public Optional<Credential> getCredential(final String name) {
         if (ID_TOKEN.equals(name)) {
-            final Session.Credential c = credential.get();
+            final Credential c = credential.get();
             if (!hasExpired(c)) {
                 return Optional.of(c);
             }
-            final Session.Credential freshCredential = authenticator.get().toCompletableFuture().join();
+            final Credential freshCredential = authenticator.get().toCompletableFuture().join();
             if (!hasExpired(freshCredential)) {
                 credential.set(freshCredential);
                 return Optional.of(freshCredential);
@@ -171,8 +192,23 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
-    public Optional<Session.Credential> fromCache(final Request request) {
-        final Session.Credential c = credential.get();
+    public Optional<String> selectThumbprint(final Collection<String> algorithms) {
+        for (final String alg : algorithms) {
+            if (dpop.algorithms().contains(alg)) {
+                return dpop.lookupThumbprint(alg);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> generateProof(final String jkt, final Request request) {
+        return dpop.lookupAlgorithm(jkt).map(alg -> dpop.generateProof(alg, request.uri(), request.method()));
+    }
+
+    @Override
+    public Optional<Credential> fromCache(final Request request) {
+        final Credential c = credential.get();
         if (!hasExpired(c)) {
             return Optional.of(c);
         }
@@ -180,11 +216,12 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
-    public CompletionStage<Optional<Session.Credential>> authenticate(final Request request) {
+    public CompletionStage<Optional<Credential>> authenticate(final Request request,
+            final Set<String> algorithms) {
         return authenticator.get().thenApply(Optional::ofNullable);
     }
 
-    boolean hasExpired(final Session.Credential credential) {
+    boolean hasExpired(final Credential credential) {
         if (credential != null) {
             return credential.getExpiration().isBefore(Instant.now());
         }
@@ -230,6 +267,17 @@ public final class OpenIdSession implements Session {
         return null;
     }
 
+    static String getProofThumbprint(final JwtClaims claims) {
+        final Object cnf = claims.getClaimValue("cnf");
+        if (cnf instanceof Map) {
+            final Object jkt = ((Map) cnf).get("jkt");
+            if (jkt instanceof String) {
+                return (String) jkt;
+            }
+        }
+        return null;
+    }
+
     static Instant toInstant(final int expiresIn) {
         if (expiresIn == 0) {
             return Instant.MAX;
@@ -237,7 +285,7 @@ public final class OpenIdSession implements Session {
         return Instant.now().plusSeconds(expiresIn);
     }
 
-    static JwtClaims parseIdToken(final String idToken, final OpenIdVerificationConfig config) {
+    static JwtClaims parseIdToken(final String idToken, final OpenIdConfig config) {
         try {
             final JwtConsumerBuilder builder = new JwtConsumerBuilder();
 

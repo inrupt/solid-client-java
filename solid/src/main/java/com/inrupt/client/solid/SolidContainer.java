@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -71,59 +71,5 @@ public final class SolidContainer extends SolidResource {
                 }
                 return new SolidResource(URI.create(child.getIRIString()), null, builder.build());
             });
-    }
-
-    /**
-     * Create a new {@link SolidContainer} builder.
-     *
-     * @return the builder
-     */
-    public static Builder newContainerBuilder() {
-        return new Builder();
-    }
-
-    /**
-     * A builder class for SolidContainer objects.
-     */
-    public static final class Builder{
-
-        private Metadata builderMetadata;
-        private Dataset builderDataset;
-
-        /**
-         * Add a metadata property.
-         *
-         * @param metadata the resource metadata
-         * @return this builder
-         */
-        public Builder metadata(final Metadata metadata) {
-            builderMetadata = metadata;
-            return this;
-        }
-
-        /**
-         * Add a dataset property.
-         *
-         * @param dataset the RDF dataset
-         * @return this builder
-         */
-        public Builder dataset(final Dataset dataset) {
-            builderDataset = dataset;
-            return this;
-        }
-
-        /**
-         * Build the SolidContainer object.
-         *
-         * @param identifier the Solid container's unique identifier
-         * @return the Solid container
-         */
-        public SolidContainer build(final URI identifier) {
-            return new SolidContainer(identifier, builderDataset, builderMetadata);
-        }
-
-        Builder() {
-            // Prevent instantiations
-        }
     }
 }

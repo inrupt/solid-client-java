@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -30,6 +30,7 @@ import com.inrupt.client.vocabulary.PIM;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
 
 import org.apache.commons.rdf.api.RDFSyntax;
@@ -39,6 +40,7 @@ import org.apache.commons.rdf.api.RDFSyntax;
  */
 public final class SolidResourceHandlers {
 
+    private static final URI STORAGE = URI.create(PIM.getNamespace() + "Storage");
     private static final RdfService service = ServiceProvider.getRdfService();
 
     /**
@@ -48,20 +50,19 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidResource> ofSolidResource() {
         return responseInfo -> {
-            final SolidResource.Builder builder = SolidResource.newResourceBuilder()
-                .metadata(buildMetadata(responseInfo));
+            final Metadata metadata = buildMetadata(responseInfo);
 
-            responseInfo.headers().firstValue("Content-Type")
+            return responseInfo.headers().firstValue("Content-Type")
                 .flatMap(RDFSyntax::byMediaType)
-                .ifPresent(syntax -> {
+                .map(syntax -> {
                     try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
+                        return new SolidResource(responseInfo.uri(),
+                                service.toDataset(syntax, input, responseInfo.uri().toString()), metadata);
                     } catch (final IOException ex) {
                         throw new SolidResourceException("Error parsing Solid Resource as RDF", ex);
                     }
-                });
-
-            return builder.build(responseInfo.uri());
+                })
+                .orElseGet(() -> new SolidResource(responseInfo.uri(), null, metadata));
         };
     }
 
@@ -72,20 +73,19 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final SolidContainer.Builder builder = SolidContainer.newContainerBuilder()
-                .metadata(buildMetadata(responseInfo));
+            final Metadata metadata = buildMetadata(responseInfo);
 
-            responseInfo.headers().firstValue("Content-Type")
+            return responseInfo.headers().firstValue("Content-Type")
                 .flatMap(RDFSyntax::byMediaType)
-                .ifPresent(syntax -> {
+                .map(syntax -> {
                     try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
+                        return new SolidContainer(responseInfo.uri(),
+                                service.toDataset(syntax, input, responseInfo.uri().toString()), metadata);
                     } catch (final IOException ex) {
                         throw new SolidResourceException("Error parsing Solid Container as RDF", ex);
                     }
-                });
-
-            return builder.build(responseInfo.uri());
+                })
+                .orElseGet(() -> new SolidContainer(responseInfo.uri(), null, metadata));
         };
     }
 
@@ -96,6 +96,9 @@ public final class SolidResourceHandlers {
             .flatMap(l -> Link.parse(l).stream())
             .forEach(link -> {
                 if (link.getParameter("rel").contains("type")) {
+                    if ((link.getUri().equals(STORAGE))) {
+                        metadata.storage(responseInfo.uri());
+                    }
                     metadata.type(link.getUri());
                 } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
                     metadata.storage(link.getUri());

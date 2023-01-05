@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -70,19 +70,32 @@ class MockHttpService {
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
                         .withBodyFile("profileExample.ttl")));
 
-        wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
+        wireMockServer.stubFor(put(urlEqualTo("/putRDF"))
+                    .atPriority(1)
                     .withRequestBody(matching(
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
-                    .withHeader("Authorization", containing("Bearer "))
+                    .withHeader("Authorization", containing("DPoP "))
+                    .withHeader("DPoP", containing("eyJhbGciOiJFUzI1NiIsInR5cCI6ImRwb3Arand0Iiw" +
+                            "iandrIjp7Imt0eSI6IkVDIiwieCI6IlNvS1BhS1ZfNXpPaDFMLVhMMmVLbWhXcXJEe" +
+                            "U5uY01ZMkEtLVl6MFo2ZDAiLCJ5IjoicEJGRWxIYnpDY0V5ODdGUnBzajJ3VHZnT1l" +
+                            "1S1BGS1o0VTFJbHpRZ1dQUSIsImNydiI6IlAtMjU2In19"))
                     .willReturn(aResponse()
                         .withStatus(201)));
+
+        wireMockServer.stubFor(put(urlEqualTo("/putRDF"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256 PS256\"")));
+
 
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Unknown, Bearer, " +
+                            "DPoP algs=\"ES256\", " +
                             "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
@@ -91,7 +104,11 @@ class MockHttpService {
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
-                    .withHeader("Authorization", containing("Bearer "))
+                    .withHeader("Authorization", containing("DPoP "))
+                    .withHeader("DPoP", containing("eyJhbGciOiJFUzI1NiIsInR5cCI6ImRwb3Arand0Iiw" +
+                            "iandrIjp7Imt0eSI6IkVDIiwieCI6IlNvS1BhS1ZfNXpPaDFMLVhMMmVLbWhXcXJEe" +
+                            "U5uY01ZMkEtLVl6MFo2ZDAiLCJ5IjoicEJGRWxIYnpDY0V5ODdGUnBzajJ3VHZnT1l" +
+                            "1S1BGS1o0VTFJbHpRZ1dQUSIsImNydiI6IlAtMjU2In19"))
                     .willReturn(aResponse()
                         .withStatus(201)));
 
@@ -99,13 +116,14 @@ class MockHttpService {
                     .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(401)
-                        .withHeader("WWW-Authenticate", "Bearer")));
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postString"))
                     .atPriority(1)
                     .withRequestBody(matching("Test String 1"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
                     .withHeader("Authorization", containing("Bearer token-67890"))
+                    .withHeader("DPoP", absent())
                     .willReturn(aResponse()
                         .withStatus(201)));
 
@@ -113,7 +131,7 @@ class MockHttpService {
                     .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(401)
-                        .withHeader("WWW-Authenticate", "Bearer, " +
+                        .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
                             "UMA ticket=\"ticket-67890\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -22,10 +22,13 @@ package com.inrupt.client.openid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.openid.TokenRequest.Builder;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -42,12 +45,13 @@ class OpenIdProviderTest {
     private static OpenIdProvider openIdProvider;
     private static final OpenIdMockHttpService mockHttpService = new OpenIdMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
+    private static final DPoP dpop = DPoP.of();
 
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException {
         config.put("openid_uri", mockHttpService.start());
-        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")));
+        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")), dpop);
     }
 
     @AfterAll
@@ -65,7 +69,7 @@ class OpenIdProviderTest {
 
     @Test
     void unknownMetadata() {
-        final OpenIdProvider provider = new OpenIdProvider(URI.create(config.get("openid_uri") + "/not-found"));
+        final OpenIdProvider provider = new OpenIdProvider(URI.create(config.get("openid_uri") + "/not-found"), dpop);
         final CompletionException err = assertThrows(CompletionException.class,
                 provider.metadata().toCompletableFuture()::join);
         assertTrue(err.getCause() instanceof OpenIdException);
@@ -211,5 +215,16 @@ class OpenIdProviderTest {
             "client_id=myClientId&post_logout_redirect_uri=https://example.test/redirectUri&id_token_hint=&state=solid",
             uri.toString()
         );
+    }
+
+    @Test
+    void dpopAlgTest() {
+        assertFalse(OpenIdProvider.getDpopAlg(null, Collections.singleton("ES256")).isPresent());
+        assertFalse(OpenIdProvider.getDpopAlg(Arrays.asList("RS256"), Collections.singleton("ES256")).isPresent());
+    }
+
+    @Test
+    void getBasicAuthHeader() {
+        assertFalse(OpenIdProvider.getBasicAuthHeader("123456", null).isPresent());
     }
 }

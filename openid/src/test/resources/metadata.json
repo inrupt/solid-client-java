@@ -68,6 +68,6 @@
         "private_key_jwt"
     ],
     "dpop_signing_alg_values_supported":[
-        "RSA"
+        "RS256", "ES256"
     ]
 }

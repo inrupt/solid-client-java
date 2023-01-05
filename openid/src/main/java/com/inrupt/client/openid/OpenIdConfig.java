@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -21,18 +21,29 @@
 package com.inrupt.client.openid;
 
 import java.net.URI;
+import java.security.KeyPair;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * A class for configuring the verification rules for OpenID Connect ID Tokens.
+ * A class for configuring an Open ID session.
+ *
+ * <p>This includes verification rules for OpenID Connect ID Tokens.
  */
-public class OpenIdVerificationConfig {
+public class OpenIdConfig {
 
     private int graceSecs = 60; /* default: one minute */
     private URI publicKeyLocation; /* default: null */
     private String audience; /* default: null */
+    private Map<String, KeyPair> keypairs = new HashMap<>();
+    private List<String> scopes = new ArrayList<>(Arrays.asList("openid", "webid"));
 
     /**
-     * Get the expiration grace period for the token in seconds.
+     * Get the expiration grace period for an ID token in seconds.
      *
      * @return the expiration grace period, default is 60.
      */
@@ -41,7 +52,7 @@ public class OpenIdVerificationConfig {
     }
 
     /**
-     * Set an expiration grace period for the token in seconds.
+     * Set an expiration grace period for an ID token in seconds.
      *
      * @param graceSecs the expiration grace period
      */
@@ -50,7 +61,7 @@ public class OpenIdVerificationConfig {
     }
 
     /**
-     * Get the expected audience.
+     * Get the expected audience of an ID token.
      *
      * @return the expected audience, default is {@code null}
      */
@@ -59,7 +70,7 @@ public class OpenIdVerificationConfig {
     }
 
     /**
-     * Set the expected audience.
+     * Set the expected audience of an ID token.
      *
      * @param audience the expected audience
      */
@@ -68,7 +79,7 @@ public class OpenIdVerificationConfig {
     }
 
     /**
-     * Get the public signing key location.
+     * Get the public signing key location of an ID token.
      *
      * <p>If the public signing key is {@code null}, the ID Token signature is not verified
      *
@@ -79,7 +90,7 @@ public class OpenIdVerificationConfig {
     }
 
     /**
-     * Set the public signing key location.
+     * Set the public signing key location of an ID token.
      *
      * <p>If the public signing key location is {@code null}, the ID Token signature is not verified
      *
@@ -87,5 +98,58 @@ public class OpenIdVerificationConfig {
      */
     public void setPublicKeyLocation(final URI publicKeyLocation) {
         this.publicKeyLocation = publicKeyLocation;
+    }
+
+    /**
+     * Set any externally-defined Proofing (DPoP) keypairs.
+     *
+     * <p>Note: this will remove any previously set keypairs
+     *
+     * @param keypairs the keypair
+     */
+    public void setProofKeyPairs(final Map<String, KeyPair> keypairs) {
+        this.keypairs.clear();
+        this.keypairs.putAll(keypairs);
+    }
+
+    /**
+     * Add a Proofing (DPoP) keypair.
+     *
+     * @param algorithm the algorithm
+     * @param keypair the keypair
+     */
+    public void addProofKeyPair(final String algorithm, final KeyPair keypair) {
+        this.keypairs.put(algorithm, keypair);
+    }
+
+    /**
+     * Get any externally-defined Proofing (DPoP) keypairs.
+     *
+     * @return the keypairs
+     */
+    public Map<String, KeyPair> getProofKeyPairs() {
+        return keypairs;
+    }
+
+    /**
+     * Set any OAuth 2.0 scope values.
+     *
+     * <p>Note: by default, the scopes are "webid" and "openid". Setting new values will clear
+     * any existing values.
+     *
+     * @param scopes the scope values
+     */
+    public void setScopes(final String... scopes) {
+        this.scopes.clear();
+        Collections.addAll(this.scopes, scopes);
+    }
+
+    /**
+     * Get any OAuth 2.0 scope values.
+     *
+     * @return the scope values
+     */
+    public List<String> getScopes() {
+        return scopes;
     }
 }

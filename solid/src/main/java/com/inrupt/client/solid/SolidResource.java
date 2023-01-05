@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -68,61 +68,15 @@ public class SolidResource extends Resource {
         }
     }
 
+    /**
+     * Get the associated metadata about this resource.
+     *
+     * <p>Typically, this metadata will be populated with information from response headers.
+     * For manually created {@code SolidResource} objects, this will generally be empty.
+     *
+     * @return the metadata
+     */
     public Metadata getMetadata() {
         return metadata;
-    }
-
-    /**
-     * Create a new {@link SolidResource} builder.
-     *
-     * @return the builder
-     */
-    public static Builder newResourceBuilder() {
-        return new Builder();
-    }
-
-    /**
-     * A builder class for SolidResource objects.
-     */
-    public static final class Builder {
-
-        private Metadata builderMetadata;
-        private Dataset builderDataset;
-
-        /**
-         * Add a metadata property.
-         *
-         * @param metadata the resource metadata
-         * @return this builder
-         */
-        public Builder metadata(final Metadata metadata) {
-            builderMetadata = metadata;
-            return this;
-        }
-
-        /**
-         * Add a dataset property.
-         *
-         * @param dataset the RDF Dataset
-         * @return this builder
-         */
-        public Builder dataset(final Dataset dataset) {
-            builderDataset = dataset;
-            return this;
-        }
-
-        /**
-         * Build the SolidResource object.
-         *
-         * @param identifier the SolidResource's unique identifier
-         * @return the Solid resource
-         */
-        public SolidResource build(final URI identifier) {
-            return new SolidResource(identifier, builderDataset, builderMetadata);
-        }
-
-        Builder() {
-            // Prevent instantiations
-        }
     }
 }

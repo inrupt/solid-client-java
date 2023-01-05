@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -22,7 +22,7 @@ package com.inrupt.client.solid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
 
 import java.io.IOException;
@@ -60,50 +60,58 @@ class SolidClientTest {
         final URI song1 = URI.create("https://library.test/12345/song1.mp3");
         final URI song2 = URI.create("https://library.test/12345/song2.mp3");
 
-        final Playlist playlist = client.read(uri, Playlist.class).toCompletableFuture().join();
+        client.read(uri, Playlist.class).thenAccept(playlist -> {
+            try (final Playlist p = playlist) {
+                assertEquals(uri, p.getIdentifier());
+                assertEquals("My playlist", p.getTitle());
+                assertEquals(2, p.getSongs().size());
+                assertTrue(p.getSongs().contains(song1));
+                assertTrue(p.getSongs().contains(song2));
 
-        assertEquals(uri, playlist.getIdentifier());
-        assertEquals("My playlist", playlist.getTitle());
-        assertEquals(2, playlist.getSongs().size());
-        assertTrue(playlist.getSongs().contains(song1));
-        assertTrue(playlist.getSongs().contains(song2));
-
-        assertDoesNotThrow(client.create(playlist).toCompletableFuture()::join);
-        assertDoesNotThrow(client.update(playlist).toCompletableFuture()::join);
-        assertDoesNotThrow(client.delete(playlist).toCompletableFuture()::join);
+                assertDoesNotThrow(client.create(p).toCompletableFuture()::join);
+                assertDoesNotThrow(client.update(p).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(p).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
     }
 
     @Test
     void testGetResource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
 
-        final SolidResource resource = client.read(uri, SolidResource.class).toCompletableFuture().join();
+        client.read(uri, SolidResource.class).thenAccept(resource -> {
+            try (final SolidResource r = resource) {
+                assertEquals(uri, r.getIdentifier());
+                assertEquals(4, r.getDataset().stream().count());
+                assertEquals(2, r.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                            rdf.createIRI("https://example.com/song"), null).count());
 
-        assertEquals(uri, resource.getIdentifier());
-        assertEquals(4, resource.getDataset().stream().count());
-        assertEquals(2, resource.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
-                    rdf.createIRI("https://example.com/song"), null).count());
+                assertDoesNotThrow(client.create(r).toCompletableFuture()::join);
+                assertDoesNotThrow(client.update(r).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(r).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
 
-        assertDoesNotThrow(client.create(resource).toCompletableFuture()::join);
-        assertDoesNotThrow(client.update(resource).toCompletableFuture()::join);
-        assertDoesNotThrow(client.delete(resource).toCompletableFuture()::join);
     }
 
     @Test
     void testGetContainer() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
 
-        final SolidContainer container = client.read(uri, SolidContainer.class).toCompletableFuture().join();
+        client.read(uri, SolidContainer.class).thenAccept(container -> {
+            try (final SolidContainer c = container) {
+                assertEquals(uri, c.getIdentifier());
+                assertEquals(0, c.getContainedResources().count());
+                assertEquals(4, c.getDataset().stream().count());
+                assertEquals(2, c.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                            rdf.createIRI("https://example.com/song"), null).count());
 
-        assertEquals(uri, container.getIdentifier());
-        assertEquals(0, container.getContainedResources().count());
-        assertEquals(4, container.getDataset().stream().count());
-        assertEquals(2, container.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
-                    rdf.createIRI("https://example.com/song"), null).count());
+                assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
+                assertDoesNotThrow(client.create(c).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(c).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
 
-        assertDoesNotThrow(client.update(container).toCompletableFuture()::join);
-        assertDoesNotThrow(client.create(container).toCompletableFuture()::join);
-        assertDoesNotThrow(client.delete(container).toCompletableFuture()::join);
     }
 
     @Test
@@ -121,11 +129,14 @@ class SolidClientTest {
     void testGetRecipeType() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/recipe");
 
-        final Recipe recipe = client.read(uri, Recipe.class).toCompletableFuture().join();
-
-        assertEquals(uri, recipe.getIdentifier());
-        assertEquals("Molasses Cookies", recipe.getTitle());
-        assertEquals(11, recipe.getIngredients().size());
-        assertEquals(7, recipe.getSteps().size());
+        client.read(uri, Recipe.class).thenAccept(recipe -> {
+            try (final Recipe r = recipe) {
+                assertEquals(uri, r.getIdentifier());
+                assertEquals("Molasses Cookies", r.getTitle());
+                assertEquals(11, r.getIngredients().size());
+                assertEquals(7, r.getSteps().size());
+            }
+        })
+        .toCompletableFuture().join();
     }
 }

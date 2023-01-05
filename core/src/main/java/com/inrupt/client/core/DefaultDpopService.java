@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -21,15 +21,18 @@
 package com.inrupt.client.core;
 
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
+import static org.jose4j.lang.HashUtil.SHA_256;
 
-import com.inrupt.client.Authenticator;
+import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.spi.DpopService;
 
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.spec.ECParameterSpec;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -49,22 +52,48 @@ import org.jose4j.lang.JoseException;
 public class DefaultDpopService implements DpopService {
 
     @Override
-    public Authenticator.DPoP ofKeyPairs(final Map<String, KeyPair> keypairs) {
+    public DPoP ofKeyPairs(final Map<String, KeyPair> keypairs) {
         return new DPoPManager(keypairs);
     }
 
-    public class DPoPManager implements Authenticator.DPoP {
+    public class DPoPManager implements DPoP {
         private final Map<String, KeyPair> keypairs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        private final Map<String, String> thumbprints = new HashMap<>();
 
         public DPoPManager(final Map<String, KeyPair> keypairs) {
             super();
-            if (keypairs != null && !keypairs.isEmpty()) {
-                for (final Map.Entry<String, KeyPair> item : keypairs.entrySet()) {
-                    this.keypairs.put(item.getKey(), item.getValue());
+            try {
+                this.keypairs.putAll(keypairs);
+                if (this.keypairs.isEmpty()) {
+                    this.keypairs.put("ES256", defaultKeyPair(EllipticCurves.P256));
                 }
-            } else {
-                this.keypairs.put("ES256", defaultKeyPair(EllipticCurves.P256));
+
+                // Populate the thumbprints
+                for (final Map.Entry<String, KeyPair> item : this.keypairs.entrySet()) {
+                    final PublicJsonWebKey jwk = PublicJsonWebKey.Factory.newPublicJwk(item.getValue().getPublic());
+                    final String jkt = jwk.calculateBase64urlEncodedThumbprint(SHA_256);
+                    this.thumbprints.put(jkt, item.getKey());
+                }
+            } catch (final JoseException ex) {
+                throw new AuthenticationException("Unable to process provided keypair", ex);
             }
+        }
+
+        @Override
+        public Optional<String> lookupAlgorithm(final String jkt) {
+            if (jkt != null) {
+                return Optional.ofNullable(thumbprints.get(jkt));
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<String> lookupThumbprint(final String algorithm) {
+            if (algorithm != null) {
+                return thumbprints.entrySet().stream().filter(e -> algorithm.equals(e.getValue()))
+                    .map(Map.Entry::getKey).findFirst();
+            }
+            return Optional.empty();
         }
 
         @Override
