@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,7 @@ import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.util.concurrent.CompletionException;
@@ -128,6 +128,7 @@ public class SolidSyncClient {
         return SolidSyncClient.of(ClientProvider.getClient());
     }
 
+    @SuppressWarnings("unchecked")
     static <T, R extends Throwable> T awaitAsync(final CompletionStage<T> future) throws R {
         try {
             return future.toCompletableFuture().join();

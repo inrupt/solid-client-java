@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -21,10 +21,12 @@
 package com.inrupt.client.uma;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -95,7 +97,7 @@ public final class UmaSession implements Session {
     }
 
     @Override
-    public Optional<Session.Credential> getCredential(final String name) {
+    public Optional<Credential> getCredential(final String name) {
         for (final Session session : internalSessions) {
             final Optional<Credential> credential = session.getCredential(name);
             if (credential.isPresent()) {
@@ -106,12 +108,35 @@ public final class UmaSession implements Session {
     }
 
     @Override
-    public Optional<Session.Credential> fromCache(final Request request) {
+    public Optional<String> generateProof(final String jkt, final Request request) {
+        for (final Session session : internalSessions) {
+            final Optional<String> proof = session.generateProof(jkt, request);
+            if (proof.isPresent()) {
+                return proof;
+            }
+        }
         return Optional.empty();
     }
 
     @Override
-    public CompletionStage<Optional<Session.Credential>> authenticate(final Request request) {
+    public Optional<String> selectThumbprint(final Collection<String> algorithms) {
+        for (final Session session : internalSessions) {
+            final Optional<String> jkt = session.selectThumbprint(algorithms);
+            if (jkt.isPresent()) {
+                return jkt;
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Credential> fromCache(final Request request) {
+        return Optional.empty();
+    }
+
+    @Override
+    public CompletionStage<Optional<Credential>> authenticate(final Request request,
+            final Set<String> algorithms) {
         return CompletableFuture.completedFuture(Optional.empty());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.spi;
 
-import com.inrupt.client.Authenticator.DPoP;
+import com.inrupt.client.auth.DPoP;
 
 import java.security.KeyPair;
 import java.util.Map;
@@ -31,9 +31,9 @@ import java.util.Map;
 public interface DpopService {
 
     /**
-     * Create a DPoP manager with a collection of algorithm-keypair sets.
+     * Create a DPoP manager with a collection of keypairs.
      *
-     * @param keypairs a mapping of algorithm to keypair
+     * @param keypairs the keypairs
      * @return the DPoP manager
      */
     DPoP ofKeyPairs(Map<String, KeyPair> keypairs);

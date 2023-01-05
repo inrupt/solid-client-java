@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,11 @@
  */
 package com.inrupt.client.uma;
 
-import com.inrupt.client.Authenticator;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.net.URI;
@@ -32,6 +34,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -88,12 +92,12 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authenticator getAuthenticator(final Authenticator.Challenge challenge) {
+    public Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
         return new UmaAuthenticator(umaClient, claimHandler, challenge, priorityLevel);
     }
 
-    static void validate(final Authenticator.Challenge challenge) {
+    static void validate(final Challenge challenge) {
         if (challenge == null ||
                 !UMA.equalsIgnoreCase(challenge.getScheme()) ||
                 challenge.getParameter(AS_URI) == null ||
@@ -108,7 +112,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
     public class UmaAuthenticator implements Authenticator {
 
         private final UmaClient umaClient;
-        private final Authenticator.Challenge challenge;
+        private final Challenge challenge;
         private final int priorityLevel;
         private final NeedInfoHandler claimHandler;
 
@@ -120,7 +124,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
          * @param priority the priority of this authentication mechanism
          */
         protected UmaAuthenticator(final UmaClient umaClient, final NeedInfoHandler claimHandler,
-                final Authenticator.Challenge challenge, final int priority) {
+                final Challenge challenge, final int priority) {
             this.priorityLevel = priority;
             this.umaClient = umaClient;
             this.challenge = challenge;
@@ -147,25 +151,34 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public CompletionStage<AccessToken> authenticate(final Session session, final Request request) {
+        public CompletionStage<Credential> authenticate(final Session session, final Request request,
+                final Set<String> algorithms) {
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
 
-            final ClaimToken claimToken = session.getCredential(ID_TOKEN)
-                .map(credential -> ClaimToken.of(credential.getToken(), ID_TOKEN))
+            final Optional<Credential> credential = session.getCredential(ID_TOKEN);
+
+            final ClaimToken claimToken = credential.map(cred -> ClaimToken.of(cred.getToken(), ID_TOKEN))
                 .orElse(null);
+            final URI principal = credential.flatMap(Credential::getPrincipal).orElse(null);
+            final String jkt = credential.flatMap(Credential::getProofThumbprint).orElse(null);
 
             // TODO add Access Grant support
 
             final TokenRequest req = new TokenRequest(ticket, null, null, claimToken, Collections.emptyList());
-            // TODO add the dpop algorithm
-            final String proofAlgorithm = null;
             return umaClient.metadata(as)
-                .thenCompose(metadata -> umaClient.token(metadata.tokenEndpoint, req,
-                            claimHandler::getToken))
-                .thenApply(token -> new AccessToken(token.accessToken, token.tokenType,
-                            Instant.now().plusSeconds(token.expiresIn), as, getScopes(token), proofAlgorithm));
+                .thenCompose(metadata ->
+                    umaClient.token(metadata.tokenEndpoint, req, claimHandler::getToken)
+                        .thenApply(token -> new Credential(token.tokenType, as, token.accessToken,
+                            Instant.now().plusSeconds(token.expiresIn), principal, jkt)));
         }
+    }
+
+    static String getAlgorithm(final List<String> serverSupported, final Set<String> clientSupported) {
+        if (serverSupported != null) {
+            return serverSupported.stream().filter(clientSupported::contains).findFirst().orElse(null);
+        }
+        return null;
     }
 
     static List<String> getScopes(final TokenResponse token) {

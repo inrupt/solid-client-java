@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -97,7 +97,7 @@
  * <pre>{@code
    Client client = ClientProvider.getClient();
 
-   OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+   OpenIdConfig config = new OpenIdConfig();
    config.setExpectedAudience("https://app.example/id");
    config.setPublicKeyLocation("https://issuer.example/jwks");
    config.setExpGracePeriodSecs(60);

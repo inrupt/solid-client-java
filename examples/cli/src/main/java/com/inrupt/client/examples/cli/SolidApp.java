@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -23,9 +23,9 @@ package com.inrupt.client.examples.cli;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -38,6 +38,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -77,24 +78,21 @@ public class SolidApp implements QuarkusApplication {
             final var session = OpenIdSession.ofClientCredentials(config.issuer(), config.clientId(),
                         config.clientSecret(), config.authMethod());
 
-            final var client = SolidClient.getClient().session(session);
+            final var client = SolidSyncClient.getClient().session(session);
             session.getPrincipal().ifPresent(webid -> {
                 printWriter.format("WebID: %s", webid);
                 printWriter.println();
-                try (final var profile = client.read(webid, WebIdProfile.class).toCompletableFuture().join()) {
-                    profile.getStorage().stream().findFirst()
-                        .map(storage -> client.read(storage, SolidContainer.class).toCompletableFuture().join())
-                        .ifPresent(container -> {
-                            try (container; final var stream = container.getContainedResources()) {
-                                stream.filter(r -> filterResource(r, cmd.hasOption("c"), cmd.hasOption("r"),
-                                            cmd.hasOption("n")))
-                                    .forEach(r -> {
-                                        printWriter.format("Resource: %s, %s", r.getIdentifier(),
-                                            principalType(r.getMetadata().getType()));
-                                        printWriter.println();
-                                    });
-                            }
-                        });
+                try (final var profile = client.read(webid, WebIdProfile.class)) {
+                    profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                        try (final var container = client.read(storage, SolidContainer.class);
+                                final var stream = container.getContainedResources()) {
+                            stream.filter(r -> filterResource(r, cmd)).forEach(r -> {
+                                printWriter.format("Resource: %s, %s", r.getIdentifier(),
+                                    principalType(r.getMetadata().getType()));
+                                printWriter.println();
+                            });
+                        }
+                    });
                 }
             });
         } catch (final ParseException ex) {
@@ -105,14 +103,14 @@ public class SolidApp implements QuarkusApplication {
         return 0;
     }
 
-    boolean filterResource(final SolidResource resource, final boolean c, final boolean r, final boolean n) {
-        if (c && resource.getMetadata().getType().contains(LDP.BasicContainer)) {
+    boolean filterResource(final SolidResource resource, final CommandLine cl) {
+        if (cl.hasOption("c") && resource.getMetadata().getType().contains(LDP.BasicContainer)) {
             return true;
         }
-        if (r && resource.getMetadata().getType().contains(LDP.RDFSource)) {
+        if (cl.hasOption("r") && resource.getMetadata().getType().contains(LDP.RDFSource)) {
             return true;
         }
-        return n && resource.getMetadata().getType().contains(LDP.NonRDFSource);
+        return cl.hasOption("n") && resource.getMetadata().getType().contains(LDP.NonRDFSource);
     }
 
     public URI principalType(final Collection<URI> types) {

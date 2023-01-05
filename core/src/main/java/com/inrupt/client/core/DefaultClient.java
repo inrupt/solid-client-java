@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -20,14 +20,15 @@
  */
 package com.inrupt.client.core;
 
-import com.inrupt.client.Authenticator;
 import com.inrupt.client.Client;
 import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.ReactiveAuthorization;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.HttpService;
-import com.inrupt.client.spi.ReactiveAuthorization;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.util.List;
@@ -40,6 +41,8 @@ import org.slf4j.LoggerFactory;
 public final class DefaultClient implements Client {
 
     private static final int UNAUTHORIZED = 401;
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String DPOP = "DPoP";
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultClient.class);
 
     private final ReactiveAuthorization authHandler = new ReactiveAuthorization();
@@ -64,7 +67,7 @@ public final class DefaultClient implements Client {
     public <T> CompletionStage<Response<T>> send(final Request request,
             final Response.BodyHandler<T> responseBodyHandler) {
         // if there is already an auth header, just pass the request directly through
-        if (request.headers().firstValue("Authorization").isPresent()) {
+        if (request.headers().firstValue(AUTHORIZATION).isPresent()) {
             LOGGER.debug("Sending user-supplied authorization, skipping Solid authorization handling");
             return httpClient.send(request, responseBodyHandler);
         }
@@ -77,7 +80,7 @@ public final class DefaultClient implements Client {
             .orElseGet(() -> httpClient.send(request, responseBodyHandler)
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
-                        final List<Authenticator.Challenge> challenges = WwwAuthenticate
+                        final List<Challenge> challenges = WwwAuthenticate
                             .parse(res.headers().allValues("WWW-Authenticate").toArray(new String[0]))
                             .getChallenges();
 
@@ -94,7 +97,7 @@ public final class DefaultClient implements Client {
                 }));
     }
 
-    Request upgradeRequest(final Request request, final Session.Credential token) {
+    Request upgradeRequest(final Request request, final Credential token) {
         final Request.Builder builder = Request.newBuilder()
             .uri(request.uri())
             .method(request.method(), request.bodyPublisher().orElseGet(Request.BodyPublishers::noBody));
@@ -108,14 +111,11 @@ public final class DefaultClient implements Client {
         });
 
         // Use setHeader to overwrite any possible existing authorization header
-        builder.setHeader("Authorization", String.join(" ", token.getScheme(), token.getToken()));
-        // TODO - Support DPoP proofs, if relevant
-        //session.getProofAlgorithm().ifPresent(algorithm -> {
-            //if ("DPoP".equalsIgnoreCase(token.getType())) {
-                //builder.setHeader("DPoP",
-                        //authenticator.generateProof(algorithm, request.uri(), request.method()));
-            //}
-        //});
+        builder.setHeader(AUTHORIZATION, String.join(" ", token.getScheme(), token.getToken()));
+        if (DPOP.equalsIgnoreCase(token.getScheme())) {
+            token.getProofThumbprint().flatMap(jkt -> session.generateProof(jkt, request))
+                .ifPresent(proof -> builder.setHeader(DPOP, proof));
+        }
 
         return builder.build();
     }

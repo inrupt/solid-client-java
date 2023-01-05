@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -50,7 +50,9 @@ public class SolidMockHttpService {
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
-                .withHeader("Link", Link.of(PIM.StorageClass, "type").toString())
+                .withHeader("Link", Link.of(
+                    URI.create(PIM.getNamespace() + "Storage"),
+                    "type").toString())
             )
         );
 

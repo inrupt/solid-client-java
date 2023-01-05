@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -22,8 +22,8 @@ package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Authenticator.Challenge;
 import com.inrupt.client.Headers.WwwAuthenticate;
+import com.inrupt.client.auth.Challenge;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -23,6 +23,7 @@ package com.inrupt.client.openid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.*;
+import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -34,9 +35,11 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,26 +59,30 @@ public class OpenIdProvider {
     private final URI issuer;
     private final HttpService httpClient;
     private final JsonService jsonService;
+    private final DPoP dpop;
 
     /**
      * Create an OpenID Provider client.
      *
      * @param issuer the OpenID provider issuer
+     * @param dpop the DPoP manager
      */
-    public OpenIdProvider(final URI issuer) {
-        this(issuer, ServiceProvider.getHttpService());
+    public OpenIdProvider(final URI issuer, final DPoP dpop) {
+        this(issuer, dpop, ServiceProvider.getHttpService());
     }
 
     /**
      * Create an OpenID Provider client.
      *
      * @param issuer the OpenID provider issuer
+     * @param dpop the DPoP manager
      * @param httpClient an HTTP client
      */
-    public OpenIdProvider(final URI issuer, final HttpService httpClient) {
+    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpService httpClient) {
         this.issuer = Objects.requireNonNull(issuer);
         this.httpClient = Objects.requireNonNull(httpClient);
         this.jsonService = ServiceProvider.getJsonService();
+        this.dpop = dpop;
     }
 
     /**
@@ -183,7 +190,7 @@ public class OpenIdProvider {
             if ("client_secret_basic".equals(request.getAuthMethod())) {
                 authHeader = getBasicAuthHeader(request.getClientId(), request.getClientSecret());
             } else {
-                if ("client_secret_basic".equals(request.getAuthMethod())) {
+                if ("client_secret_post".equals(request.getAuthMethod())) {
                     data.put(CLIENT_ID, request.getClientId());
                     data.put("client_secret", request.getClientSecret());
                 }
@@ -200,6 +207,10 @@ public class OpenIdProvider {
 
         // Add auth header, if relevant
         authHeader.ifPresent(header -> req.header("Authorization", header));
+
+        // Add dpop header, if relevant
+        getDpopAlg(metadata.dpopSigningAlgValuesSupported, dpop.algorithms()).ifPresent(alg ->
+                req.header("DPoP", dpop.generateProof(alg, metadata.tokenEndpoint, "POST")));
 
         return req.build();
     }
@@ -250,6 +261,17 @@ public class OpenIdProvider {
         if (clientSecret != null) {
             final String raw = String.join(":", clientId, clientSecret);
             return Optional.of("Basic " + Base64.getEncoder().encodeToString(raw.getBytes(UTF_8)));
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> getDpopAlg(final List<String> serverSupport, final Set<String> clientSupport) {
+        if (serverSupport != null) {
+            for (final String alg : serverSupport) {
+                if (clientSupport.contains(alg)) {
+                    return Optional.of(alg);
+                }
+            }
         }
         return Optional.empty();
     }

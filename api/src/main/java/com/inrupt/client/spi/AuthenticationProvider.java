@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,8 @@
  */
 package com.inrupt.client.spi;
 
-import com.inrupt.client.Authenticator;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
 
 /**
  * An authentication mechanism that knows how to authenticate over network connections.
@@ -40,7 +41,7 @@ public interface AuthenticationProvider {
      * @param challenge the HTTP challenge value
      * @return an authenticator
      */
-    Authenticator getAuthenticator(Authenticator.Challenge challenge);
+    Authenticator getAuthenticator(Challenge challenge);
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -68,45 +68,47 @@ class WebIdBodyHandlersTest {
 
         assertEquals(200, response.statusCode());
 
-        final WebIdProfile responseBody = response.body();
-        assertEquals(webid, responseBody.getIdentifier());
-        assertTrue(responseBody.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
-        assertTrue(responseBody.getOidcIssuer().contains(URI.create("https://login.example.test")));
-        assertTrue(responseBody.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
-        assertTrue(responseBody.getSeeAlso().contains(
-            URI.create("https://storage.example.test/storage-id/extendedProfile"))
-        );
+        try (final WebIdProfile profile = response.body()) {
+            assertEquals(webid, profile.getIdentifier());
+            assertTrue(profile.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+            assertTrue(profile.getOidcIssuer().contains(URI.create("https://login.example.test")));
+            assertTrue(profile.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
+            assertTrue(profile.getSeeAlso()
+                    .contains(URI.create("https://storage.example.test/storage-id/extendedProfile")));
+        }
     }
 
     @Test
     void testHighLevelClient() throws Exception {
         final URI webid = URI.create(config.get("webid_uri") + "/webId");
         final SolidClient solidClient = SolidClient.getClient();
-        final WebIdProfile profile = solidClient.read(webid, WebIdProfile.class)
-            .toCompletableFuture().join();
 
-        assertEquals(webid, profile.getIdentifier());
-        assertTrue(profile.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
-        assertTrue(profile.getOidcIssuer().contains(URI.create("https://login.example.test")));
-        assertTrue(profile.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
-        assertTrue(profile.getSeeAlso().contains(
-            URI.create("https://storage.example.test/storage-id/extendedProfile"))
-        );
+        solidClient.read(webid, WebIdProfile.class).thenAccept(profile -> {
+            try (final WebIdProfile p = profile) {
+                assertEquals(webid, p.getIdentifier());
+                assertTrue(p.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+                assertTrue(p.getOidcIssuer().contains(URI.create("https://login.example.test")));
+                assertTrue(p.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
+                assertTrue(p.getSeeAlso()
+                        .contains(URI.create("https://storage.example.test/storage-id/extendedProfile")));
+            }
+        }).toCompletableFuture().join();
     }
 
     @Test
     void testHighLevelClientHash() throws Exception {
         final URI webid = URI.create(config.get("webid_uri") + "/webIdHash#me");
         final SolidClient solidClient = SolidClient.getClient();
-        final WebIdProfile profile = solidClient.read(webid, WebIdProfile.class)
-            .toCompletableFuture().join();
 
-        assertEquals(webid, profile.getIdentifier());
-        assertTrue(profile.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
-        assertTrue(profile.getOidcIssuer().contains(URI.create("https://login.example.test")));
-        assertTrue(profile.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
-        assertTrue(profile.getSeeAlso().contains(
-            URI.create("https://storage.example.test/storage-id/extendedProfile"))
-        );
+        solidClient.read(webid, WebIdProfile.class).thenAccept(profile -> {
+            try (final WebIdProfile p = profile) {
+                assertEquals(webid, p.getIdentifier());
+                assertTrue(p.getStorage().contains(URI.create("https://storage.example.test/storage-id/")));
+                assertTrue(p.getOidcIssuer().contains(URI.create("https://login.example.test")));
+                assertTrue(p.getType().contains(URI.create("http://xmlns.test/foaf/0.1/Agent")));
+                assertTrue(p.getSeeAlso()
+                        .contains(URI.create("https://storage.example.test/storage-id/extendedProfile")));
+            }
+        }).toCompletableFuture().join();
     }
 }

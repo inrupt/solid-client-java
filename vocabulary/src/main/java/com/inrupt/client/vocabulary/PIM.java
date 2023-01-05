@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -33,15 +33,9 @@ public final class PIM {
 
     // Properties
     /**
-     * The pim:storage property/relation URI.
+     * The pim:storage URI.
      */
     public static final URI storage = URI.create(namespace + "storage");
-
-    // Class
-    /**
-     * The pim:Storage class/object URI.
-     */
-    public static final URI StorageClass = URI.create(namespace + "Storage");
 
     /**
      * Get the PIM namespace URI.

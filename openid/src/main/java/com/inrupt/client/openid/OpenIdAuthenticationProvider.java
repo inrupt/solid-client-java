@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Inrupt Inc.
+ * Copyright 2023 Inrupt Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
@@ -20,14 +20,15 @@
  */
 package com.inrupt.client.openid;
 
-import com.inrupt.client.Authenticator;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -59,12 +60,12 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authenticator getAuthenticator(final Authenticator.Challenge challenge) {
+    public Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
         return new OpenIdAuthenticator(challenge, priorityLevel);
     }
 
-    static void validate(final Authenticator.Challenge challenge) {
+    static void validate(final Challenge challenge) {
         if (challenge == null ||
                 !BEARER.equalsIgnoreCase(challenge.getScheme())) {
             throw new OpenIdException("Invalid challenge for OpenID authentication");
@@ -76,7 +77,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
      */
     public class OpenIdAuthenticator implements Authenticator {
 
-        private final Authenticator.Challenge challenge;
+        private final Challenge challenge;
         private final int priorityLevel;
 
         /**
@@ -85,7 +86,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
          * @param challenge the resource server challenge
          * @param priority the priority of this authentication mechanism
          */
-        protected OpenIdAuthenticator(final Authenticator.Challenge challenge, final int priority) {
+        protected OpenIdAuthenticator(final Challenge challenge, final int priority) {
             this.priorityLevel = priority;
             this.challenge = challenge;
         }
@@ -101,18 +102,15 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         }
 
         @Override
-        public CompletionStage<AccessToken> authenticate(final Session session, final Request request) {
-            // TODO don't hard-code this
-            final List<String> scopes = Arrays.asList("webid", "openid");
-            final Optional<CompletionStage<AccessToken>> token = session.getCredential(OpenIdSession.ID_TOKEN)
-                .map(credential -> new Authenticator.AccessToken(credential.getToken(), credential.getScheme(),
-                            credential.getExpiration(), credential.getIssuer(), scopes, null))
+        public CompletionStage<Credential> authenticate(final Session session, final Request request,
+                final Set<String> algorithms) {
+            final String thumbprint = session.selectThumbprint(algorithms).orElse(null);
+
+            final Optional<CompletionStage<Credential>> token = session.getCredential(OpenIdSession.ID_TOKEN)
                 .map(CompletableFuture::completedFuture);
             return token
-                .orElseGet(() -> session.authenticate(request)
+                .orElseGet(() -> session.authenticate(request, algorithms)
                     .thenApply(credential -> credential
-                        .map(c -> new AccessToken(c.getToken(), c.getScheme(), c.getExpiration(), c.getIssuer(),
-                                scopes, null))
                         .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"))));
         }
     }
