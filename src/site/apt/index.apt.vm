@@ -69,12 +69,13 @@ var session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, 
 var client = CLIENT.session(session);
 ----------------------
 
-    With this <<<session>>> object, one can perform normal CRUD operations on Solid resources. Please note that all operations are asynchronous.
+    With this <<<session>>> object, one can perform normal CRUD operations on Solid resources.
+    Please note that, with <<<SolidClient>>>, all operations are asynchronous. For synchronous operations, use <<<SolidSyncClient>>>.
 
 ----------------------
 var playlist = client.read(uri, Playlist.class);
 
-playlist.thenRun(p -> {
+playlist.thenAccept(p -> {
     displayTitle(p.getTitle());
     displaySongs(p.getSongs());
 }).toCompletableFuture().join();
@@ -137,7 +138,7 @@ quarkus.oidc.auth-server-url=<URL of Solid-OIDC server>
 quarkus.oidc.client-id=<URL of Client Identifier>
 ---------------------
 
-    Remark: <<<client-id>>> is a {{{https://solidproject.org/TR/oidc/#clientids-document}Client ID Document}}.
+    Remark: <<<client-id>>> is a {{{https://solidproject.org/TR/oidc#clientids-document}Client ID Document}}.
 
     The above configuration values are typically added to a <<<./config/application.properties>>> file in the directory where the application is run.
 
