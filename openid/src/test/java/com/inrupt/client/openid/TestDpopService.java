@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.core;
+package com.inrupt.client.openid;
 
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.jose4j.lang.HashUtil.SHA_256;
@@ -49,7 +49,7 @@ import org.jose4j.lang.JoseException;
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop">DPoP draft specification</a>
  */
-public class DefaultDpopService implements DpopService {
+public class TestDpopService implements DpopService {
 
     @Override
     public Authenticator.DPoP ofKeyPairs(final Map<String, KeyPair> keypairs) {
@@ -75,16 +75,13 @@ public class DefaultDpopService implements DpopService {
                     this.thumbprints.put(jkt, item.getKey());
                 }
             } catch (final JoseException ex) {
-                throw new AuthenticationException("Unable to process provided keypair", ex);
+                throw new OpenIdException("Unable to process provided keypair", ex);
             }
         }
 
         @Override
         public Optional<String> lookupAlgorithm(final String jkt) {
-            if (jkt != null) {
-                return Optional.ofNullable(thumbprints.get(jkt));
-            }
-            return Optional.empty();
+            return Optional.ofNullable(thumbprints.get(jkt));
         }
 
         @Override
@@ -100,7 +97,7 @@ public class DefaultDpopService implements DpopService {
         public String generateProof(final String algorithm, final URI uri, final String method) {
             final KeyPair keypair = keypairs.get(Objects.requireNonNull(algorithm));
             if (keypair == null) {
-                throw new AuthenticationException("Unsupported DPoP algorithm: " + algorithm);
+                throw new OpenIdException("Unsupported DPoP algorithm: " + algorithm);
             }
 
             final String htm = Objects.requireNonNull(method);
@@ -123,7 +120,7 @@ public class DefaultDpopService implements DpopService {
 
                 return jws.getCompactSerialization();
             } catch (final JoseException ex) {
-                throw new AuthenticationException("Unable to generate DPoP proof", ex);
+                throw new OpenIdException("Unable to generate DPoP proof", ex);
             }
         }
 
@@ -138,7 +135,7 @@ public class DefaultDpopService implements DpopService {
             final EcKeyUtil keyUtil = new EcKeyUtil();
             return keyUtil.generateKeyPair(spec);
         } catch (final JoseException ex) {
-            throw new AuthenticationException("Unable to generate default keypair", ex);
+            throw new OpenIdException("Unable to generate default keypair", ex);
         }
     }
 }

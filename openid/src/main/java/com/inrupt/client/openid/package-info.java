@@ -97,7 +97,7 @@
  * <pre>{@code
    Client client = ClientProvider.getClient();
 
-   OpenIdVerificationConfig config = new OpenIdVerificationConfig();
+   OpenIdConfig config = new OpenIdConfig();
    config.setExpectedAudience("https://app.example/id");
    config.setPublicKeyLocation("https://issuer.example/jwks");
    config.setExpGracePeriodSecs(60);
