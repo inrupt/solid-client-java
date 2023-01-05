@@ -23,6 +23,7 @@ package com.inrupt.client.integration;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.update.UpdateAction;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -115,32 +123,17 @@ public final class Utils {
     }
 
     public static byte[] modifyBody(final byte[] originalBody, final String requestBody) throws IOException {
-        byte[] newBody = originalBody;
+        try (final InputStream input = new ByteArrayInputStream(originalBody)) {
+            final Model model = ModelFactory.createDefaultModel();
+            RDFDataMgr.read(model, input, Lang.TURTLE);
+            final UpdateRequest request = UpdateFactory.create(requestBody);
+            UpdateAction.execute(request, model);
 
-        final var insert = "INSERT DATA {";
-        final var beginningOfInsert = requestBody.indexOf(insert);
-        final var endOfInsert = requestBody.lastIndexOf("}");
-        var triplesToAdd = "";
-        if (beginningOfInsert != -1 && endOfInsert != -1) {
-            triplesToAdd = requestBody.substring(beginningOfInsert + insert.length(), endOfInsert);
+            try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                RDFDataMgr.write(output, model, Lang.TURTLE);
+                return output.toByteArray();
+            }
         }
-        if (!triplesToAdd.isEmpty()) {
-            newBody = Utils.appendBytes(originalBody, triplesToAdd.getBytes());
-        }
-
-        final var delete = "DELETE DATA {";
-        final var beginningOfDelete = requestBody.indexOf(delete);
-        final var endOfDelete = requestBody.indexOf("};");
-        String[] triplesToDelete = null;
-        if (beginningOfDelete != -1 && endOfDelete != -1) {
-            triplesToDelete =
-                requestBody.substring(beginningOfDelete + delete.length(), endOfDelete).split(".");
-        }
-
-        if (triplesToDelete != null && triplesToDelete.length > 0) {
-            newBody = Utils.deleteBytes(newBody, triplesToDelete);
-        }
-        return newBody;
     }
 
     private Utils() {
