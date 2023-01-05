@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.e2e;
+package com.inrupt.client.integration;
 
 import com.inrupt.client.solid.Metadata;
 import com.inrupt.client.solid.SolidResource;

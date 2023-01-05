@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.e2e;
+package com.inrupt.client.integration;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.inrupt.client.Headers;
-import com.inrupt.client.e2e.MockSolidServer.ServerBody;
+import com.inrupt.client.integration.MockSolidServer.ServerBody;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.io.IOException;
