@@ -1,16 +1,16 @@
 /*
- * Copyright 2022 Inrupt Inc.
- * 
+ * Copyright 2023 Inrupt Inc.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -128,9 +128,7 @@ public class DomainModulesResourceTest {
         final Dataset dataset = rdf.createDataset();
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
-        SolidResource newResource =
-                SolidResource.newResourceBuilder().dataset(dataset)
-                        .build(URI.create(newResourceName));
+        SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null);
 
         assertDoesNotThrow(client.create(newResource).toCompletableFuture()::join);
 
@@ -145,9 +143,7 @@ public class DomainModulesResourceTest {
                 .map(quad ->
                     rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
                 .collect(Collectors.toList()).forEach(newDataset::add);
-        final SolidResource updatedResource =
-                SolidResource.newResourceBuilder().dataset(newDataset)
-                        .build(URI.create(newResourceName));
+        final SolidResource updatedResource = new SolidResource(URI.create(newResourceName), dataset, null);
         assertDoesNotThrow(client.update(updatedResource).toCompletableFuture()::join);
 
         assertDoesNotThrow(client.delete(updatedResource).toCompletableFuture()::join);
@@ -159,8 +155,7 @@ public class DomainModulesResourceTest {
 
         final String containerURL = testResource + "newContainer/";
 
-        final SolidContainer newContainer =
-                SolidContainer.newContainerBuilder().build(URI.create(containerURL));
+        final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(client.create(newContainer).toCompletableFuture()::join);
 
         assertDoesNotThrow(client.delete(newContainer).toCompletableFuture()::join);
@@ -186,9 +181,7 @@ public class DomainModulesResourceTest {
         final BlankNode bn = rdf.createBlankNode("blank");
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newBNPredicateNode, bn));
 
-        SolidResource newResource =
-                SolidResource.newResourceBuilder().dataset(dataset)
-                        .build(URI.create(newResourceName));
+        SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null);
 
         assertDoesNotThrow(client.create(newResource).toCompletableFuture()::join);
 
@@ -211,9 +204,7 @@ public class DomainModulesResourceTest {
         allQuads.add(toAddQuad);
         allQuads.forEach(newDataset::add);
 
-        final SolidResource updatedResource =
-                SolidResource.newResourceBuilder().dataset(newDataset)
-                        .build(URI.create(newResourceName));
+        final SolidResource updatedResource = new SolidResource(URI.create(newResourceName), newDataset, null);
         assertDoesNotThrow(client.update(updatedResource).toCompletableFuture()::join);
 
         assertDoesNotThrow(client.delete(updatedResource).toCompletableFuture()::join);
@@ -228,10 +219,13 @@ public class DomainModulesResourceTest {
                 rdf.createIRI(PIM.storage.toString()),
                 rdf.createIRI(podUrl)));
 
-        var profile = new WebIdProfile(webid, dataset);
-        assertDoesNotThrow(client.create(profile).toCompletableFuture()::join);
-        profile = client.read(webid, WebIdProfile.class).toCompletableFuture().join();
-        assertFalse(profile.getStorage().isEmpty());
+        try (final WebIdProfile profile = new WebIdProfile(webid, dataset)) {
+            assertDoesNotThrow(client.create(profile).toCompletableFuture()::join);
+            try (final WebIdProfile sameProfile =
+                    client.read(webid, WebIdProfile.class).toCompletableFuture().join()) {
+                assertFalse(sameProfile.getStorage().isEmpty());
+            }
+        }
     }
 
     @Test
