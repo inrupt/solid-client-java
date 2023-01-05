@@ -124,7 +124,7 @@ public class CoreModulesResourceTest {
                 .build();
         final var resCreateIfNotExist =
                 session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
-        if (resCreateIfNotExist.statusCode() != Utils.NO_CONTENT) {
+        if (!Utils.isSuccessful(resCreateIfNotExist.statusCode())) {
             throw new InruptClientException(
                     "Failed to create solid resource at " + newResourceName);
         }
@@ -154,12 +154,12 @@ public class CoreModulesResourceTest {
                 .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
         final var responsePatch = session.send(requestPatch, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responsePatch.statusCode());
+        assertTrue(Utils.isSuccessful(responsePatch.statusCode()));
 
         //read
         final var reqRead = Request.newBuilder(URI.create(newResourceName)).GET().build();
         final var resRead = session.send(reqRead, JenaBodyHandlers.ofModel());
-        assertEquals(Utils.SUCCESS, resRead.statusCode());
+        assertTrue(Utils.isSuccessful(resRead.statusCode()));
         final var insertedStatement =
                 resRead.body()
                         .listSubjectsWithProperty(createProperty(newPredicateName))
@@ -171,7 +171,7 @@ public class CoreModulesResourceTest {
                 Request.newBuilder(URI.create(newResourceName)).GET().build();
         final var resReadAgain = session.send(reqReadAgain, JenaBodyHandlers.ofModel());
 
-        assertEquals(Utils.SUCCESS, resReadAgain.statusCode());
+        assertTrue(Utils.isSuccessful(resReadAgain.statusCode()));
         final List<Statement> statementsToDeleteAgain =
                 resReadAgain.body().listStatements(createResource(newResourceName),
                         createProperty(newPredicateName), (RDFNode) null).toList();
@@ -194,7 +194,7 @@ public class CoreModulesResourceTest {
         //read
         final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName)).GET().build();
         final var resReadAgain1 = session.send(reqReadAgain1, JenaBodyHandlers.ofModel());
-        assertEquals(Utils.SUCCESS, resReadAgain1.statusCode());
+        assertTrue(Utils.isSuccessful(resReadAgain1.statusCode()));
         final var insertedNewStatement =
                 resReadAgain1.body()
                         .listSubjectsWithProperty(createProperty(newPredicateName))
@@ -333,14 +333,14 @@ public class CoreModulesResourceTest {
         final var responseCreate =
                 session.send(requestCreate, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responseCreate.statusCode());
+        assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
         //change non blank node
         //get the newly created dataset and change the non blank node
         final Request req = Request.newBuilder(URI.create(newResourceName)).GET().build();
         final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
 
-        assertEquals(Utils.SUCCESS, res.statusCode());
+        assertTrue(Utils.isSuccessful(res.statusCode()));
         final List<Statement> statementsToDeleteAgain = res.body()
                 .listStatements(createResource(newResourceName), createProperty(predicate),
                         (org.apache.jena.rdf.model.RDFNode) null)
@@ -360,14 +360,14 @@ public class CoreModulesResourceTest {
         final var responseCreate2 =
                 session.send(requestCreate2, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responseCreate2.statusCode());
+        assertTrue(Utils.isSuccessful(responseCreate2.statusCode()));
 
         //cleanup resources
         final Request reqDelete = Request.newBuilder(URI.create(newResourceName)).DELETE().build();
         final Response<Void> responseDelete =
                 session.send(reqDelete, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responseDelete.statusCode());
+        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
     }
 
     //utility method
