@@ -20,9 +20,9 @@
  */
 package com.inrupt.client.uma;
 
-import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.util.ArrayList;

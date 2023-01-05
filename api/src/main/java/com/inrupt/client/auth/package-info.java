@@ -18,23 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
-
-import com.inrupt.client.auth.DPoP;
-
-import java.security.KeyPair;
-import java.util.Map;
-
 /**
- * A DPoP management abstraction.
+ * <h2>Authentication and Authorization classes for the Inrupt client libraries.</h2>
  */
-public interface DpopService {
-
-    /**
-     * Create a DPoP manager with a collection of keypairs.
-     *
-     * @param keypairs the keypairs
-     * @return the DPoP manager
-     */
-    DPoP ofKeyPairs(Map<String, KeyPair> keypairs);
-}
+package com.inrupt.client.auth;

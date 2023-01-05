@@ -20,10 +20,10 @@
  */
 package com.inrupt.client.core;
 
-import com.inrupt.client.Authenticator.Challenge;
 import com.inrupt.client.Headers.Link;
 import com.inrupt.client.Headers.WacAllow;
 import com.inrupt.client.Headers.WwwAuthenticate;
+import com.inrupt.client.auth.Challenge;
 import com.inrupt.client.parser.ConsumerErrorListener;
 import com.inrupt.client.parser.LinkBaseListener;
 import com.inrupt.client.parser.LinkLexer;

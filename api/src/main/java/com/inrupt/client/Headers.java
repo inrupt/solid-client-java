@@ -20,7 +20,7 @@
  */
 package com.inrupt.client;
 
-import com.inrupt.client.Authenticator.Challenge;
+import com.inrupt.client.auth.Challenge;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.net.URI;

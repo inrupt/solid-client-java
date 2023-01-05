@@ -20,15 +20,15 @@
  */
 package com.inrupt.client.core;
 
-import com.inrupt.client.Authenticator;
 import com.inrupt.client.Client;
-import com.inrupt.client.Credential;
 import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.ReactiveAuthorization;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.HttpService;
-import com.inrupt.client.spi.ReactiveAuthorization;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.util.List;
@@ -80,7 +80,7 @@ public final class DefaultClient implements Client {
             .orElseGet(() -> httpClient.send(request, responseBodyHandler)
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
-                        final List<Authenticator.Challenge> challenges = WwwAuthenticate
+                        final List<Challenge> challenges = WwwAuthenticate
                             .parse(res.headers().allValues("WWW-Authenticate").toArray(new String[0]))
                             .getChallenges();
 

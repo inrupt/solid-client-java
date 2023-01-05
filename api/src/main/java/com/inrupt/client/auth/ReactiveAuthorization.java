@@ -18,12 +18,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
+package com.inrupt.client.auth;
 
-import com.inrupt.client.Authenticator;
-import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,10 +76,10 @@ public class ReactiveAuthorization {
      * @return the next stage of completion, possibly containing a credential
      */
     public CompletionStage<Optional<Credential>> negotiate(final Session session, final Request request,
-            final Collection<Authenticator.Challenge> challenges) {
+            final Collection<Challenge> challenges) {
         final List<Authenticator> authenticators = new ArrayList<>();
         final Set<String> algorithms = new HashSet<>();
-        for (final Authenticator.Challenge challenge : challenges) {
+        for (final Challenge challenge : challenges) {
             if (challenge.getParameter("algs") != null) {
                 for (final String alg : challenge.getParameter("algs").split(" ")) {
                     algorithms.add(alg);

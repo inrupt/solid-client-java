@@ -20,10 +20,11 @@
  */
 package com.inrupt.client.uma;
 
-import com.inrupt.client.Authenticator;
-import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.net.URI;
@@ -91,12 +92,12 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authenticator getAuthenticator(final Authenticator.Challenge challenge) {
+    public Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
         return new UmaAuthenticator(umaClient, claimHandler, challenge, priorityLevel);
     }
 
-    static void validate(final Authenticator.Challenge challenge) {
+    static void validate(final Challenge challenge) {
         if (challenge == null ||
                 !UMA.equalsIgnoreCase(challenge.getScheme()) ||
                 challenge.getParameter(AS_URI) == null ||
@@ -111,7 +112,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
     public class UmaAuthenticator implements Authenticator {
 
         private final UmaClient umaClient;
-        private final Authenticator.Challenge challenge;
+        private final Challenge challenge;
         private final int priorityLevel;
         private final NeedInfoHandler claimHandler;
 
@@ -123,7 +124,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
          * @param priority the priority of this authentication mechanism
          */
         protected UmaAuthenticator(final UmaClient umaClient, final NeedInfoHandler claimHandler,
-                final Authenticator.Challenge challenge, final int priority) {
+                final Challenge challenge, final int priority) {
             this.priorityLevel = priority;
             this.umaClient = umaClient;
             this.challenge = challenge;

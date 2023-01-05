@@ -20,10 +20,10 @@
  */
 package com.inrupt.client.openid;
 
-import com.inrupt.client.Authenticator;
-import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.DPoP;
+import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.time.Instant;
@@ -63,9 +63,9 @@ public final class OpenIdSession implements Session {
     private final Set<String> schemes;
     private final Supplier<CompletionStage<Credential>> authenticator;
     private final AtomicReference<Credential> credential = new AtomicReference<>();
-    private final Authenticator.DPoP dpop;
+    private final DPoP dpop;
 
-    private OpenIdSession(final String id, final Authenticator.DPoP dpop,
+    private OpenIdSession(final String id, final DPoP dpop,
             final Supplier<CompletionStage<Credential>> authenticator) {
         this.id = Objects.requireNonNull(id, "Session id may not be null!");
         this.authenticator = Objects.requireNonNull(authenticator, "OpenID authenticator may not be null!");
@@ -96,7 +96,7 @@ public final class OpenIdSession implements Session {
      * @return the session
      */
     public static Session ofIdToken(final String idToken, final OpenIdConfig config) {
-        final Authenticator.DPoP dpop = Authenticator.DPoP.of(config.getProofKeyPairs());
+        final DPoP dpop = DPoP.of(config.getProofKeyPairs());
         final JwtClaims claims = parseIdToken(idToken, config);
         final String id = getSessionIdentifier(claims);
         final String jkt = getProofThumbprint(claims);
@@ -118,7 +118,7 @@ public final class OpenIdSession implements Session {
             final String authMethod) {
 
         final String id = UUID.randomUUID().toString();
-        final Authenticator.DPoP dpop = Authenticator.DPoP.of();
+        final DPoP dpop = DPoP.of();
         final OpenIdProvider provider = new OpenIdProvider(issuer, dpop);
         final OpenIdConfig config = new OpenIdConfig();
         return new OpenIdSession(id, dpop, () -> provider.token(TokenRequest.newBuilder()
@@ -147,7 +147,7 @@ public final class OpenIdSession implements Session {
             final String clientId, final String clientSecret, final String authMethod,
             final OpenIdConfig config) {
         final String id = UUID.randomUUID().toString();
-        final Authenticator.DPoP dpop = Authenticator.DPoP.of(config.getProofKeyPairs());
+        final DPoP dpop = DPoP.of(config.getProofKeyPairs());
         return new OpenIdSession(id, dpop, () -> provider.token(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
