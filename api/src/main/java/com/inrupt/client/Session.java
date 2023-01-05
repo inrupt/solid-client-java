@@ -21,7 +21,7 @@
 package com.inrupt.client;
 
 import java.net.URI;
-import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -71,49 +71,30 @@ public interface Session {
     Optional<Credential> fromCache(Request request);
 
     /**
+     * Generate a proof for a request.
+     *
+     * @param jkt the JSON Key thumbprint for the proof key
+     * @param request the request
+     * @return a proof token
+     */
+    Optional<String> generateProof(String jkt, Request request);
+
+    /**
+     * Select the thumbprint from a set of candidate algorithms.
+     *
+     * @param algorithms
+     * @return the keypair thumbprint
+     */
+    Optional<String> selectThumbprint(Collection<String> algorithms);
+
+    /**
      * Fetch an authentication token from session values.
      *
      * @param request the HTTP request
+     * @param algorithms the supported DPoP algorithms
      * @return the next stage of completion, containing an access token, if present
      */
-    CompletionStage<Optional<Credential>> authenticate(Request request);
-
-    class Credential {
-        private final String scheme;
-        private final URI issuer;
-        private final String token;
-        private final Instant expiration;
-        private final URI principal;
-
-        public Credential(final String scheme, final URI issuer, final String token, final Instant expiration,
-                final URI principal) {
-            this.scheme = scheme;
-            this.issuer = issuer;
-            this.token = token;
-            this.expiration = expiration;
-            this.principal = principal;
-        }
-
-        public String getScheme() {
-            return scheme;
-        }
-
-        public Optional<URI> getPrincipal() {
-            return Optional.ofNullable(principal);
-        }
-
-        public URI getIssuer() {
-            return issuer;
-        }
-
-        public String getToken() {
-            return token;
-        }
-
-        public Instant getExpiration() {
-            return expiration;
-        }
-    }
+    CompletionStage<Optional<Credential>> authenticate(Request request, Set<String> algorithms);
 
     /**
      * Create a new anonymous session.
@@ -150,7 +131,18 @@ public interface Session {
             }
 
             @Override
-            public CompletionStage<Optional<Credential>> authenticate(final Request request) {
+            public Optional<String> generateProof(final String jkt, final Request request) {
+                return Optional.empty();
+            }
+
+            @Override
+            public Optional<String> selectThumbprint(final Collection<String> algorithms) {
+                return Optional.empty();
+            }
+
+            @Override
+            public CompletionStage<Optional<Credential>> authenticate(final Request request,
+                    final Set<String> algorithms) {
                 return CompletableFuture.completedFuture(Optional.empty());
             }
         };
