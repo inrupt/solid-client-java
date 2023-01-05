@@ -64,7 +64,7 @@ public class DomainModulesResourceTest {
     private static SolidClient client;
     private static final RDF rdf = RDFFactory.getInstance();
 
-    private static String testEnv = config.getValue("E2E_TEST_ENVIRONMENT", String.class);
+    private static String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static String podUrl = "";
     private static String testResource = "";
     private static URI webid;
@@ -72,10 +72,10 @@ public class DomainModulesResourceTest {
     @BeforeAll
     static void setup() {
 
-        final var username = config.getValue("E2E_TEST_USERNAME", String.class);
-        final var sub = config.getValue("E2E_TEST_USERNAME", String.class);
-        final var iss = config.getValue("E2E_TEST_IDP", String.class);
-        final var azp = config.getValue("E2E_TEST_AZP", String.class);
+        final var username = config.getValue("inrupt.test.username", String.class);
+        final var sub = config.getValue("inrupt.test.username", String.class);
+        final var iss = config.getValue("inrupt.test.idp", String.class);
+        final var azp = config.getValue("inrupt.test.azp", String.class);
 
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
