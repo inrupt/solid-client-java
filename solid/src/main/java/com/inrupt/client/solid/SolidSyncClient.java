@@ -25,7 +25,7 @@ import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.util.concurrent.CompletionException;

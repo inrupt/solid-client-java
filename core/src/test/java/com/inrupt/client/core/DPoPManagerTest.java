@@ -23,7 +23,7 @@ package com.inrupt.client.core;
 import static org.jose4j.jwa.AlgorithmConstraints.ConstraintType.PERMIT;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Authenticator.DPoP;
+import com.inrupt.client.auth.DPoP;
 
 import java.net.URI;
 import java.util.Optional;

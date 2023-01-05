@@ -22,8 +22,8 @@ package com.inrupt.client.core;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Authenticator.Challenge;
 import com.inrupt.client.Headers.WwwAuthenticate;
+import com.inrupt.client.auth.Challenge;
 
 import java.util.Arrays;
 import java.util.Collections;

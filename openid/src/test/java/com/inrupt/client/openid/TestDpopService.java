@@ -23,7 +23,7 @@ package com.inrupt.client.openid;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.jose4j.lang.HashUtil.SHA_256;
 
-import com.inrupt.client.Authenticator;
+import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.spi.DpopService;
 
 import java.net.URI;
@@ -52,11 +52,11 @@ import org.jose4j.lang.JoseException;
 public class TestDpopService implements DpopService {
 
     @Override
-    public Authenticator.DPoP ofKeyPairs(final Map<String, KeyPair> keypairs) {
+    public DPoP ofKeyPairs(final Map<String, KeyPair> keypairs) {
         return new DPoPManager(keypairs);
     }
 
-    public class DPoPManager implements Authenticator.DPoP {
+    public class DPoPManager implements DPoP {
         private final Map<String, KeyPair> keypairs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         private final Map<String, String> thumbprints = new HashMap<>();
 

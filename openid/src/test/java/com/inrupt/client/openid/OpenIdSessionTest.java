@@ -26,10 +26,11 @@ import static org.awaitility.Awaitility.await;
 import static org.jose4j.lang.HashUtil.SHA_256;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Authenticator;
-import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.DPoP;
+import com.inrupt.client.auth.Session;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,7 +166,7 @@ class OpenIdSessionTest {
     @Test
     void testClientCredentialsWithConfig() {
         final URI issuer = URI.create(baseUrl);
-        final Authenticator.DPoP dpop = Authenticator.DPoP.of();
+        final DPoP dpop = DPoP.of();
         final OpenIdProvider provider = new OpenIdProvider(issuer, dpop);
         final OpenIdConfig config = new OpenIdConfig();
         final String clientId = "app1";

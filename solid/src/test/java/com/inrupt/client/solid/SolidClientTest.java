@@ -22,7 +22,7 @@ package com.inrupt.client.solid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
 
 import java.io.IOException;

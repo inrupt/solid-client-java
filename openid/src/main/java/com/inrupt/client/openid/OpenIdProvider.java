@@ -23,6 +23,7 @@ package com.inrupt.client.openid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.*;
+import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -58,7 +59,7 @@ public class OpenIdProvider {
     private final URI issuer;
     private final HttpService httpClient;
     private final JsonService jsonService;
-    private final Authenticator.DPoP dpop;
+    private final DPoP dpop;
 
     /**
      * Create an OpenID Provider client.
@@ -66,7 +67,7 @@ public class OpenIdProvider {
      * @param issuer the OpenID provider issuer
      * @param dpop the DPoP manager
      */
-    public OpenIdProvider(final URI issuer, final Authenticator.DPoP dpop) {
+    public OpenIdProvider(final URI issuer, final DPoP dpop) {
         this(issuer, dpop, ServiceProvider.getHttpService());
     }
 
@@ -77,7 +78,7 @@ public class OpenIdProvider {
      * @param dpop the DPoP manager
      * @param httpClient an HTTP client
      */
-    public OpenIdProvider(final URI issuer, final Authenticator.DPoP dpop, final HttpService httpClient) {
+    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpService httpClient) {
         this.issuer = Objects.requireNonNull(issuer);
         this.httpClient = Objects.requireNonNull(httpClient);
         this.jsonService = ServiceProvider.getJsonService();

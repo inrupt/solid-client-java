@@ -20,10 +20,11 @@
  */
 package com.inrupt.client.openid;
 
-import com.inrupt.client.Authenticator;
-import com.inrupt.client.Credential;
 import com.inrupt.client.Request;
-import com.inrupt.client.Session;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.Optional;
@@ -59,12 +60,12 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authenticator getAuthenticator(final Authenticator.Challenge challenge) {
+    public Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
         return new OpenIdAuthenticator(challenge, priorityLevel);
     }
 
-    static void validate(final Authenticator.Challenge challenge) {
+    static void validate(final Challenge challenge) {
         if (challenge == null ||
                 !BEARER.equalsIgnoreCase(challenge.getScheme())) {
             throw new OpenIdException("Invalid challenge for OpenID authentication");
@@ -76,7 +77,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
      */
     public class OpenIdAuthenticator implements Authenticator {
 
-        private final Authenticator.Challenge challenge;
+        private final Challenge challenge;
         private final int priorityLevel;
 
         /**
@@ -85,7 +86,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
          * @param challenge the resource server challenge
          * @param priority the priority of this authentication mechanism
          */
-        protected OpenIdAuthenticator(final Authenticator.Challenge challenge, final int priority) {
+        protected OpenIdAuthenticator(final Challenge challenge, final int priority) {
             this.priorityLevel = priority;
             this.challenge = challenge;
         }

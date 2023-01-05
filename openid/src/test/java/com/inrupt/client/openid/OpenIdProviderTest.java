@@ -22,7 +22,7 @@ package com.inrupt.client.openid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Authenticator;
+import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.openid.TokenRequest.Builder;
 
 import java.net.URI;
@@ -45,7 +45,7 @@ class OpenIdProviderTest {
     private static OpenIdProvider openIdProvider;
     private static final OpenIdMockHttpService mockHttpService = new OpenIdMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
-    private static final Authenticator.DPoP dpop = Authenticator.DPoP.of();
+    private static final DPoP dpop = DPoP.of();
 
 
     @BeforeAll
