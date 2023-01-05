@@ -60,17 +60,17 @@ class SolidSyncClientTest {
         final URI song1 = URI.create("https://library.test/12345/song1.mp3");
         final URI song2 = URI.create("https://library.test/12345/song2.mp3");
 
-        final Playlist playlist = client.read(uri, Playlist.class);
+        try (final Playlist playlist = client.read(uri, Playlist.class)) {
+            assertEquals(uri, playlist.getIdentifier());
+            assertEquals("My playlist", playlist.getTitle());
+            assertEquals(2, playlist.getSongs().size());
+            assertTrue(playlist.getSongs().contains(song1));
+            assertTrue(playlist.getSongs().contains(song2));
 
-        assertEquals(uri, playlist.getIdentifier());
-        assertEquals("My playlist", playlist.getTitle());
-        assertEquals(2, playlist.getSongs().size());
-        assertTrue(playlist.getSongs().contains(song1));
-        assertTrue(playlist.getSongs().contains(song2));
-
-        assertDoesNotThrow(() -> client.create(playlist));
-        assertDoesNotThrow(() -> client.update(playlist));
-        assertDoesNotThrow(() -> client.delete(playlist));
+            assertDoesNotThrow(() -> client.create(playlist));
+            assertDoesNotThrow(() -> client.update(playlist));
+            assertDoesNotThrow(() -> client.delete(playlist));
+        }
     }
 
     @Test
@@ -87,33 +87,33 @@ class SolidSyncClientTest {
     void testGetResource() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
 
-        final SolidResource resource = client.read(uri, SolidResource.class);
+        try (final SolidResource resource = client.read(uri, SolidResource.class)) {
+            assertEquals(uri, resource.getIdentifier());
+            assertEquals(4, resource.getDataset().stream().count());
+            assertEquals(2, resource.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                        rdf.createIRI("https://example.com/song"), null).count());
 
-        assertEquals(uri, resource.getIdentifier());
-        assertEquals(4, resource.getDataset().stream().count());
-        assertEquals(2, resource.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
-                    rdf.createIRI("https://example.com/song"), null).count());
-
-        assertDoesNotThrow(() -> client.create(resource));
-        assertDoesNotThrow(() -> client.update(resource));
-        assertDoesNotThrow(() -> client.delete(resource));
+            assertDoesNotThrow(() -> client.create(resource));
+            assertDoesNotThrow(() -> client.update(resource));
+            assertDoesNotThrow(() -> client.delete(resource));
+        }
     }
 
     @Test
     void testGetContainer() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
 
-        final SolidContainer container = client.read(uri, SolidContainer.class);
+        try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
+            assertEquals(uri, container.getIdentifier());
+            assertEquals(0, container.getContainedResources().count());
+            assertEquals(4, container.getDataset().stream().count());
+            assertEquals(2, container.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                        rdf.createIRI("https://example.com/song"), null).count());
 
-        assertEquals(uri, container.getIdentifier());
-        assertEquals(0, container.getContainedResources().count());
-        assertEquals(4, container.getDataset().stream().count());
-        assertEquals(2, container.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
-                    rdf.createIRI("https://example.com/song"), null).count());
-
-        assertDoesNotThrow(() -> client.update(container));
-        assertDoesNotThrow(() -> client.create(container));
-        assertDoesNotThrow(() -> client.delete(container));
+            assertDoesNotThrow(() -> client.update(container));
+            assertDoesNotThrow(() -> client.create(container));
+            assertDoesNotThrow(() -> client.delete(container));
+        }
     }
 
     @Test
@@ -129,11 +129,11 @@ class SolidSyncClientTest {
     void testGetRecipeType() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/recipe");
 
-        final Recipe recipe = client.read(uri, Recipe.class);
-
-        assertEquals(uri, recipe.getIdentifier());
-        assertEquals("Molasses Cookies", recipe.getTitle());
-        assertEquals(11, recipe.getIngredients().size());
-        assertEquals(7, recipe.getSteps().size());
+        try (final Recipe recipe = client.read(uri, Recipe.class)) {
+            assertEquals(uri, recipe.getIdentifier());
+            assertEquals("Molasses Cookies", recipe.getTitle());
+            assertEquals(11, recipe.getIngredients().size());
+            assertEquals(7, recipe.getSteps().size());
+        }
     }
 }
