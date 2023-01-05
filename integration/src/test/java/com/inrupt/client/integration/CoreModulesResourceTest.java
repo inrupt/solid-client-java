@@ -24,7 +24,7 @@ import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.apache.jena.rdf.model.ResourceFactory.createResource;
 import static org.apache.jena.rdf.model.ResourceFactory.createStatement;
 import static org.apache.jena.rdf.model.ResourceFactory.createTypedLiteral;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.InruptClientException;
@@ -189,7 +189,7 @@ public class CoreModulesResourceTest {
 
         final var resPatch = session.send(reqPatch, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, resPatch.statusCode());
+        assertTrue(Utils.isSuccessful(resPatch.statusCode()));
 
         //read
         final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName)).GET().build();
@@ -206,12 +206,12 @@ public class CoreModulesResourceTest {
                 Request.newBuilder(URI.create(newResourceName)).DELETE().build();
         final var resDelete = session.send(reqDelete, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, resDelete.statusCode());
+        assertTrue(Utils.isSuccessful(resDelete.statusCode()));
     }
 
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
-    void vontainerCreateDeleteTest() {
+    void containerCreateDeleteTest() {
 
         final String containerName = testResource + "newContainer/";
         final String container2Name = testResource + "newContainer2/";
@@ -226,7 +226,7 @@ public class CoreModulesResourceTest {
 
         final var res = session.send(req, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, res.statusCode());
+        assertTrue(Utils.isSuccessful(res.statusCode()));
 
         //create a Container in a Container
         final Request reqPost = Request.newBuilder(URI.create(container2Name))
@@ -239,20 +239,20 @@ public class CoreModulesResourceTest {
 
         final var resPost = session.send(reqPost, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, resPost.statusCode());
+        assertTrue(Utils.isSuccessful(resPost.statusCode()));
 
         //delete a Containers
         final Request reqDelete = Request.newBuilder(URI.create(containerName)).DELETE().build();
         final Response<Void> responseDelete =
                 session.send(reqDelete, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responseDelete.statusCode());
+        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
 
         final Request reqDeleteAgain = Request.newBuilder(URI.create(container2Name)).DELETE().build();
         final Response<Void> responseDeleteAgain =
                 session.send(reqDeleteAgain, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responseDeleteAgain.statusCode());
+        assertTrue(Utils.isSuccessful(responseDeleteAgain.statusCode()));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class CoreModulesResourceTest {
         final Response<Void> responseCreate =
                 session.send(reqCreate, Response.BodyHandlers.discarding());
 
-        assertEquals(Utils.NO_CONTENT, responseCreate.statusCode());
+        assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
         //TODO - does not throw
         //test if file is a SolidResource or raw file and read and update
@@ -282,7 +282,7 @@ public class CoreModulesResourceTest {
         final Response<String> responseDelete =
                 session.send(reqDelete, Response.BodyHandlers.ofString());
 
-        assertEquals(Utils.NO_CONTENT, responseDelete.statusCode());
+        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
     }
 
     @Test
@@ -304,7 +304,7 @@ public class CoreModulesResourceTest {
                 .build();
         final Response<Void> resp =
                 session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
-        assertEquals(Utils.NO_CONTENT, resp.statusCode());
+        assertTrue(Utils.isSuccessful(resp.statusCode()));
 
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();

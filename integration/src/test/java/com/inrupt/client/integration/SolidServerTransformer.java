@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.UUID;
 
 public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
@@ -68,45 +69,62 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                             URI.create(PIM.getNamespace() + "Storage"),
                         "type").toString());
                 }
-
             } else {
                 res.withStatus(Utils.NOT_FOUND);
             }
             return res.build();
         }
 
-        if (request.getMethod().isOneOf(RequestMethod.POST, RequestMethod.PUT)) {
-            if (!this.storage.containsKey(request.getUrl())) {
+        if (request.getMethod().isOneOf(RequestMethod.POST)) {
+            if (request.getUrl().endsWith("/")) {
+                if (!this.storage.containsKey(request.getUrl())) {
+                    final String slug = request.getHeader("Slug");
+                    final String location = request.getUrl() + (slug != null ? slug : UUID.randomUUID());
+                    final boolean exists = this.storage.containsKey(request.getUrl());
+                    if (!Utils.WILDCARD.equals(request.getHeader(Utils.IF_NONE_MATCH)) || !exists) {
+                        this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
+                                request.contentTypeHeader().mimeTypePart()));
+                        addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
+                        res.withStatus(Utils.CREATED);
+                        res.withHeader("Location", location);
+                    } else {
+                        res.withStatus(Utils.PRECONDITION_FAILED);
+                    }
+                } else {
+                    res.withStatus(Utils.NOT_FOUND);
+                }
+            } else {
+                res.withStatus(Utils.NOT_ALLOWED);
+            }
+            return res.build();
+        }
+
+        if (request.getMethod().isOneOf(RequestMethod.PUT)) {
+            final boolean exists = this.storage.containsKey(request.getUrl());
+            if (!Utils.WILDCARD.equals(request.getHeader(Utils.IF_NONE_MATCH)) || !exists) {
                 this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
                         request.contentTypeHeader().mimeTypePart()));
                 addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
                 res.withStatus(Utils.NO_CONTENT);
             } else {
-                //should create the resource with new URI?
                 res.withStatus(Utils.PRECONDITION_FAILED);
             }
             return res.build();
         }
 
         if (request.getMethod().isOneOf(RequestMethod.PATCH)) {
-            if (this.storage.containsKey(request.getUrl())) {
-                if (request.contentTypeHeader().containsValue(Utils.SPARQL_UPDATE)) {
-                    final var serverBody = this.storage.get(request.getUrl());
-                    try {
-                        final byte[] newBody = Utils.modifyBody(serverBody.body, request.getBodyAsString());
-                        this.storage.remove(request.getUrl());
-                        this.storage.put(request.getUrl(), new ServerBody(newBody,
-                                serverBody.contentType));
-
-                        res.withStatus(Utils.NO_CONTENT);
-                    } catch (IOException e) {
-                        res.withStatus(Utils.ERROR);
-                    }
-                } else {
+            if (request.contentTypeHeader().containsValue(Utils.SPARQL_UPDATE)) {
+                final boolean exists = this.storage.containsKey(request.getUrl());
+                final var serverBody = this.storage.get(request.getUrl());
+                try {
+                    final byte[] newBody = Utils.modifyBody(serverBody.body, request.getBodyAsString());
+                    this.storage.put(request.getUrl(), new ServerBody(newBody, serverBody.contentType));
+                    res.withStatus(Utils.NO_CONTENT);
+                } catch (IOException e) {
                     res.withStatus(Utils.ERROR);
                 }
             } else {
-                res.withStatus(Utils.PRECONDITION_FAILED);
+                res.withStatus(Utils.ERROR);
             }
             return res.build();
         }

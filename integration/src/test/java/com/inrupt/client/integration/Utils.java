@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -60,6 +61,7 @@ public final class Utils {
     public static final int CREATED = 201;
     public static final int NO_CONTENT = 204;
     public static final int NOT_FOUND = 404;
+    public static final int NOT_ALLOWED = 405;
     public static final int CONFLICT = 409;
     public static final int PRECONDITION_FAILED = 412;
     public static final int ERROR = 500;
@@ -105,21 +107,8 @@ public final class Utils {
         return config.get("solid_server");
     }
 
-    static byte[] appendBytes(final byte[] body, final byte[] body2) throws IOException {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(body);
-        outputStream.write(body2);
-
-        return outputStream.toByteArray();
-
-    }
-
-    public static byte[] deleteBytes(final byte[] newBody, final String[] triplesToDelete) {
-        final var body = new String(newBody);
-        for (final var oneTriple : triplesToDelete) {
-            body.replaceAll(oneTriple, "");
-        }
-        return body.getBytes();
+    public static boolean isSuccessful(final int status) {
+        return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
     }
 
     public static byte[] modifyBody(final byte[] originalBody, final String requestBody) throws IOException {
