@@ -39,11 +39,6 @@
       <artifactId>wiremock-jre8</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.eclipse</groupId>
-      <artifactId>yasson</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
