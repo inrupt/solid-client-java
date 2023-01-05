@@ -50,20 +50,19 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidResource> ofSolidResource() {
         return responseInfo -> {
-            final SolidResource.Builder builder = SolidResource.newResourceBuilder()
-                .metadata(buildMetadata(responseInfo));
+            final Metadata metadata = buildMetadata(responseInfo);
 
-            responseInfo.headers().firstValue("Content-Type")
+            return responseInfo.headers().firstValue("Content-Type")
                 .flatMap(RDFSyntax::byMediaType)
-                .ifPresent(syntax -> {
+                .map(syntax -> {
                     try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
+                        return new SolidResource(responseInfo.uri(),
+                                service.toDataset(syntax, input, responseInfo.uri().toString()), metadata);
                     } catch (final IOException ex) {
                         throw new SolidResourceException("Error parsing Solid Resource as RDF", ex);
                     }
-                });
-
-            return builder.build(responseInfo.uri());
+                })
+                .orElseGet(() -> new SolidResource(responseInfo.uri(), null, metadata));
         };
     }
 
@@ -74,20 +73,19 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final SolidContainer.Builder builder = SolidContainer.newContainerBuilder()
-                .metadata(buildMetadata(responseInfo));
+            final Metadata metadata = buildMetadata(responseInfo);
 
-            responseInfo.headers().firstValue("Content-Type")
+            return responseInfo.headers().firstValue("Content-Type")
                 .flatMap(RDFSyntax::byMediaType)
-                .ifPresent(syntax -> {
+                .map(syntax -> {
                     try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        builder.dataset(service.toDataset(syntax, input, responseInfo.uri().toString()));
+                        return new SolidContainer(responseInfo.uri(),
+                                service.toDataset(syntax, input, responseInfo.uri().toString()), metadata);
                     } catch (final IOException ex) {
                         throw new SolidResourceException("Error parsing Solid Container as RDF", ex);
                     }
-                });
-
-            return builder.build(responseInfo.uri());
+                })
+                .orElseGet(() -> new SolidContainer(responseInfo.uri(), null, metadata));
         };
     }
 
