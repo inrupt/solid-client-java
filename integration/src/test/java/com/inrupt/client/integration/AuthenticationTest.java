@@ -23,11 +23,10 @@ package com.inrupt.client.integration;
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.inrupt.client.Client;
-import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
@@ -42,8 +41,8 @@ import org.junit.jupiter.api.Test;
 
 public class AuthenticationTest {
 
-    private static Config config = ConfigProvider.getConfig();
-    private static Client session = ClientProvider.getClient();
+    private static final Config config = ConfigProvider.getConfig();
+    private static SolidSyncClient session;
 
     private static String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static String podUrl = config.getValue("inrupt.test.id", String.class);
@@ -67,18 +66,16 @@ public class AuthenticationTest {
         claims.put("azp", azp);
 
         final String token = Utils.generateIdToken(claims);
-        session = session.session(OpenIdSession.ofIdToken(token));
+        session = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
 
         final Request requestRdf = Request.newBuilder(webid).GET().build();
-        final var responseRdf =
-                session.send(requestRdf, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
+        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
         final var storages = responseRdf.body()
                 .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
                 .toList();
 
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
-
         }
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
@@ -89,9 +86,9 @@ public class AuthenticationTest {
     @Test
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of private resource")
     void fetchPrivateResourceUnauthenticatedTest() {
-        final Client client = ClientProvider.getClient();
+        final SolidSyncClient client = SolidSyncClient.getClient();
         final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
-        final var response = client.send(request, JenaBodyHandlers.ofModel()).toCompletableFuture().join();
+        final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(404, response.statusCode());
     }

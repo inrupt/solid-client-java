@@ -25,12 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.inrupt.client.Client;
-import com.inrupt.client.ClientProvider;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
@@ -59,10 +57,9 @@ import org.junit.jupiter.api.Test;
 
 public class DomainModulesResourceTest {
 
-    private static Config config = ConfigProvider.getConfig();
-    private static Client http = ClientProvider.getClient();
-    private static SolidClient client;
+    private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
+    private static SolidSyncClient client;
 
     private static String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static String podUrl = "";
@@ -91,10 +88,9 @@ public class DomainModulesResourceTest {
         claims.put("azp", azp);
 
         final String token = Utils.generateIdToken(claims);
-        http = http.session(OpenIdSession.ofIdToken(token));
-        client = SolidClient.of(http);
+        client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
 
-        final var profile = client.read(webid, WebIdProfile.class).toCompletableFuture().join();
+        final var profile = client.read(webid, WebIdProfile.class);
         if (!profile.getStorage().isEmpty()) {
             podUrl = profile.getStorage().iterator().next().toString();
         }
@@ -125,25 +121,25 @@ public class DomainModulesResourceTest {
         final Dataset dataset = rdf.createDataset();
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
-        SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null);
+        final SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null);
 
-        assertDoesNotThrow(client.create(newResource).toCompletableFuture()::join);
+        assertDoesNotThrow(() -> client.create(newResource));
 
-        newResource = client.read(URI.create(newResourceName), SolidResource.class)
-                        .toCompletableFuture().join();
-        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
-        assertEquals(1, newResource.getDataset().stream().count());
+        try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
+            assertEquals(newResource.getIdentifier(), resource.getIdentifier());
+            assertEquals(1, resource.getDataset().stream().count());
 
-        final Literal newObject = rdf.createLiteral("false", rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
-        final Dataset newDataset = rdf.createDataset();
-        newResource.getDataset().stream(null, newResourceNode, null, null)
-                .map(quad ->
-                    rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
-                .collect(Collectors.toList()).forEach(newDataset::add);
-        final SolidResource updatedResource = new SolidResource(URI.create(newResourceName), dataset, null);
-        assertDoesNotThrow(client.update(updatedResource).toCompletableFuture()::join);
-
-        assertDoesNotThrow(client.delete(updatedResource).toCompletableFuture()::join);
+            final Literal newObject = rdf.createLiteral("false",
+                    rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
+            final Dataset newDataset = rdf.createDataset();
+            resource.getDataset().stream(null, newResourceNode, null, null)
+                    .map(quad ->
+                        rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
+                    .collect(Collectors.toList()).forEach(newDataset::add);
+            final SolidResource updatedResource = new SolidResource(URI.create(newResourceName), newDataset, null);
+            assertDoesNotThrow(() -> client.update(updatedResource));
+            assertDoesNotThrow(() -> client.delete(updatedResource));
+        }
     }
 
     @Test
@@ -153,9 +149,9 @@ public class DomainModulesResourceTest {
         final String containerURL = testResource + "newContainer/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
-        assertDoesNotThrow(client.create(newContainer).toCompletableFuture()::join);
+        assertDoesNotThrow(() -> client.create(newContainer));
 
-        assertDoesNotThrow(client.delete(newContainer).toCompletableFuture()::join);
+        assertDoesNotThrow(() -> client.delete(newContainer));
     }
 
     @Test
@@ -178,33 +174,33 @@ public class DomainModulesResourceTest {
         final BlankNode bn = rdf.createBlankNode("blank");
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newBNPredicateNode, bn));
 
-        SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null);
+        final SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null);
 
-        assertDoesNotThrow(client.create(newResource).toCompletableFuture()::join);
+        assertDoesNotThrow(() -> client.create(newResource));
 
-        newResource = client.read(URI.create(newResourceName), SolidResource.class)
-                        .toCompletableFuture().join();
-        assertEquals(URI.create(newResourceName), newResource.getIdentifier());
-        assertEquals(2, newResource.getDataset().stream().count());
+        try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
+            assertEquals(newResource.getIdentifier(), resource.getIdentifier());
+            assertEquals(2, resource.getDataset().stream().count());
 
-        final Literal newObject = rdf.createLiteral("false", rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
-        final Dataset newDataset = rdf.createDataset();
+            final Literal newObject = rdf.createLiteral("false",
+                    rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
+            final Dataset newDataset = rdf.createDataset();
 
-        final List<Quad> allQuads = newResource.getDataset().stream().collect(Collectors.toList());
-        final var toDeleteQuads =
-                newResource.getDataset()
-                        .stream(null, newResourceNode, newPredicateNode, null)
-                        .collect(Collectors.toList());
-        final Quad toAddQuad = rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, newObject);
+            final List<Quad> allQuads = resource.getDataset().stream().collect(Collectors.toList());
+            final var toDeleteQuads =
+                    resource.getDataset()
+                            .stream(null, newResourceNode, newPredicateNode, null)
+                            .collect(Collectors.toList());
+            final Quad toAddQuad = rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, newObject);
 
-        toDeleteQuads.forEach(allQuads::remove);
-        allQuads.add(toAddQuad);
-        allQuads.forEach(newDataset::add);
+            toDeleteQuads.forEach(allQuads::remove);
+            allQuads.add(toAddQuad);
+            allQuads.forEach(newDataset::add);
 
-        final SolidResource updatedResource = new SolidResource(URI.create(newResourceName), newDataset, null);
-        assertDoesNotThrow(client.update(updatedResource).toCompletableFuture()::join);
-
-        assertDoesNotThrow(client.delete(updatedResource).toCompletableFuture()::join);
+            final SolidResource updatedResource = new SolidResource(URI.create(newResourceName), newDataset, null);
+            assertDoesNotThrow(() -> client.update(updatedResource));
+            assertDoesNotThrow(() -> client.delete(updatedResource));
+        }
     }
 
     @Test
@@ -217,16 +213,15 @@ public class DomainModulesResourceTest {
                 rdf.createIRI(podUrl)));
 
         try (final WebIdProfile profile = new WebIdProfile(webid, dataset)) {
-            assertDoesNotThrow(client.create(profile).toCompletableFuture()::join);
-            try (final WebIdProfile sameProfile =
-                    client.read(webid, WebIdProfile.class).toCompletableFuture().join()) {
+            assertDoesNotThrow(() -> client.create(profile));
+            try (final WebIdProfile sameProfile = client.read(webid, WebIdProfile.class)) {
                 assertFalse(sameProfile.getStorage().isEmpty());
             }
         }
     }
 
     @Test
-    @DisplayName("./solid-client-java:ldpNavigation from a lefe container navigate until finding the root")
+    @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
 
         final var lefePath = getNestedContainer(podUrl, 3); //example: "UUID1/UUID2/UUID3"
@@ -235,14 +230,12 @@ public class DomainModulesResourceTest {
         var containers = lefePath.split("/");
         while (!root.isPresent() && containers.length > 0) {
             root = client.read(URI.create(podUrl + String.join("/", containers)), SolidResource.class)
-                            .toCompletableFuture().join()
                             .getMetadata()
                             .getStorage();
             containers = Arrays.copyOf(containers, containers.length - 1);
         }
         if (!root.isPresent() && containers.length == 0) {
             root = client.read(URI.create(podUrl), SolidResource.class)
-                    .toCompletableFuture().join()
                     .getMetadata()
                     .getStorage();
         }
@@ -257,7 +250,7 @@ public class DomainModulesResourceTest {
             tempUrl += "/" + UUID.randomUUID().toString();
         }
         final var resource = new SolidResource(URI.create(podUrl + tempUrl));
-        client.create(resource).toCompletableFuture().join();
+        client.create(resource);
         return tempUrl;
     }
 }

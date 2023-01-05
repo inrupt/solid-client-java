@@ -26,9 +26,9 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidResourceException;
 import com.inrupt.client.solid.SolidResourceHandlers;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class MockServerTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static final SolidClient client = SolidClient.getClient().session(Session.anonymous());
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static final String ACCEPT = "Accept";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -74,23 +74,21 @@ public class MockServerTest {
                         .header(IF_NONE_MATCH, WILDCARD).PUT(cast(playlist)).build();
 
         final var res =
-                client.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
+                client.send(req, Response.BodyHandlers.discarding());
 
         assertEquals(204, res.statusCode());
 
         final var reqGet =
                 Request.newBuilder().uri(resourceUri).header(ACCEPT, TEXT_TURTLE).GET().build();
 
-        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource())
-                .toCompletableFuture().join();
+        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
         assertEquals(200, resGet.statusCode());
 
         final var reqDelete =
                 Request.newBuilder().uri(resourceUri).header(ACCEPT, TEXT_TURTLE).DELETE().build();
 
-        final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding())
-                .toCompletableFuture().join();
+        final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
         assertEquals(204, resDelete.statusCode());
     }
@@ -107,7 +105,7 @@ public class MockServerTest {
             .PUT(cast(playlist))
             .build();
 
-        final var res = client.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
+        final var res = client.send(req, Response.BodyHandlers.discarding());
 
         assertEquals(204, res.statusCode());
 
@@ -117,7 +115,7 @@ public class MockServerTest {
             .PUT(cast(playlist))
             .build();
 
-        final var resPut = client.send(reqPut, Response.BodyHandlers.discarding()).toCompletableFuture().join();
+        final var resPut = client.send(reqPut, Response.BodyHandlers.discarding());
 
         assertEquals(412, resPut.statusCode());
     }
