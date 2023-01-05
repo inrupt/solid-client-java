@@ -30,8 +30,6 @@ import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.vocabulary.PIM;
 
-import io.smallrye.config.SmallRyeConfig;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,18 +43,17 @@ import org.junit.jupiter.api.Test;
 public class AuthenticationTest {
 
     private static Config config = ConfigProvider.getConfig();
-    private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
     private static Client session = ClientProvider.getClient();
 
-    private static String testEnv = smallRyeConfig.getValue("E2E_TEST_ENVIRONMENT", String.class);
-    private static String podUrl = smallRyeConfig.getValue("E2E_TEST_ID", String.class);
+    private static String testEnv = config.getValue("E2E_TEST_ENVIRONMENT", String.class);
+    private static String podUrl = config.getValue("E2E_TEST_ID", String.class);
     private static String testResource = "";
 
     @BeforeAll
     static void setup() {
-        final var username = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
-        final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
-        final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
+        final var username = config.getValue("E2E_TEST_USERNAME", String.class);
+        final var iss = config.getValue("E2E_TEST_IDP", String.class);
+        final var azp = config.getValue("E2E_TEST_AZP", String.class);
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();

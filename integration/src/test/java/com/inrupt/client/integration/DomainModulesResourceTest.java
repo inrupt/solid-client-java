@@ -35,8 +35,6 @@ import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
-import io.smallrye.config.SmallRyeConfig;
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,10 +62,9 @@ public class DomainModulesResourceTest {
     private static Config config = ConfigProvider.getConfig();
     private static Client http = ClientProvider.getClient();
     private static SolidClient client;
-    private static SmallRyeConfig smallRyeConfig = config.unwrap(SmallRyeConfig.class);
     private static final RDF rdf = RDFFactory.getInstance();
 
-    private static String testEnv = smallRyeConfig.getValue("E2E_TEST_ENVIRONMENT", String.class);
+    private static String testEnv = config.getValue("E2E_TEST_ENVIRONMENT", String.class);
     private static String podUrl = "";
     private static String testResource = "";
     private static URI webid;
@@ -75,10 +72,10 @@ public class DomainModulesResourceTest {
     @BeforeAll
     static void setup() {
 
-        final var username = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
-        final var sub = smallRyeConfig.getValue("E2E_TEST_USERNAME", String.class);
-        final var iss = smallRyeConfig.getValue("E2E_TEST_IDP", String.class);
-        final var azp = smallRyeConfig.getValue("E2E_TEST_AZP", String.class);
+        final var username = config.getValue("E2E_TEST_USERNAME", String.class);
+        final var sub = config.getValue("E2E_TEST_USERNAME", String.class);
+        final var iss = config.getValue("E2E_TEST_IDP", String.class);
+        final var azp = config.getValue("E2E_TEST_AZP", String.class);
 
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
