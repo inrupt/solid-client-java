@@ -1,1 +1,1 @@
-memberSearchIndex = [{"p":"com.inrupt.client.examples.quarkus","c":"SolidStorage","l":"getPrincipalType(Collection<URI>)","url":"getPrincipalType(java.util.Collection)"},{"p":"com.inrupt.client.examples.quarkus","c":"SolidStorage","l":"solid()"},{"p":"com.inrupt.client.examples.quarkus","c":"SolidStorage","l":"SolidStorage()","url":"%3Cinit%3E()"}]
+memberSearchIndex = [{"p":"com.inrupt.client.examples.quarkus","c":"SolidStorage","l":"solid()"},{"p":"com.inrupt.client.examples.quarkus","c":"SolidStorage","l":"SolidStorage()","url":"%3Cinit%3E()"}]
