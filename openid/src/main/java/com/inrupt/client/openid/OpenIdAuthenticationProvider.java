@@ -101,7 +101,8 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         @Override
         public CompletionStage<Credential> authenticate(final Session session, final Request request,
                 final Set<String> algorithms) {
-            final Optional<CompletionStage<Credential>> token = session.getCredential(OpenIdSession.ID_TOKEN)
+            final Optional<CompletionStage<Credential>> token = session
+                .getCredential(OpenIdSession.ID_TOKEN, request.uri())
                 .map(CompletableFuture::completedFuture);
             return token
                 .orElseGet(() -> session.authenticate(request, algorithms)

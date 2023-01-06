@@ -157,7 +157,8 @@ class MockHttpService {
                     .withRequestBody(containing("ticket=ticket-67890"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}")));
+                        .withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"," +
+                            "\"scope\":\"Read Write\"}")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
                     .atPriority(2)
@@ -172,7 +173,8 @@ class MockHttpService {
                     .withRequestBody(containing("ticket=ticket-12345"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody("{\"access_token\":\"token-12345\",\"token_type\":\"Bearer\"}")));
+                        .withBody("{\"access_token\":\"token-12345\",\"token_type\":\"Bearer\"," +
+                            "\"scope\":\"Read Write\"}")));
 
         wireMockServer.stubFor(get(urlEqualTo("/protected/resource"))
                     .withHeader("Accept", containing(TEXT_TURTLE))

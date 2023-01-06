@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.uma;
 
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -31,9 +32,9 @@ import java.util.Objects;
 public final class ClaimToken {
 
     private final String token;
-    private final String tokenType;
+    private final URI tokenType;
 
-    private ClaimToken(final String token, final String tokenType) {
+    private ClaimToken(final String token, final URI tokenType) {
         this.token = Objects.requireNonNull(token);
         this.tokenType = Objects.requireNonNull(tokenType);
     }
@@ -52,7 +53,7 @@ public final class ClaimToken {
      *
      * @return the claim token type
      */
-    public String getClaimTokenType() {
+    public URI getClaimTokenType() {
         return tokenType;
     }
 
@@ -63,7 +64,7 @@ public final class ClaimToken {
      * @param tokenType the claim token type
      * @return the new claim token
      */
-    public static ClaimToken of(final String token, final String tokenType) {
+    public static ClaimToken of(final String token, final URI tokenType) {
         return new ClaimToken(token, tokenType);
     }
 }

@@ -384,7 +384,7 @@ class DefaultClientTest {
         final Session s = OpenIdSession.ofIdToken(token, config);
 
         // Wait for the token to expire
-        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
+        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN, null).isPresent());
 
         final Request request = Request.newBuilder()
                 .uri(URI.create(baseUri.get() + "/postString"))

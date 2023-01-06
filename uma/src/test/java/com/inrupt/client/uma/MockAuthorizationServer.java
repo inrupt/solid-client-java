@@ -59,7 +59,8 @@ public class MockAuthorizationServer {
                 .withRequestBody(WireMock.containing("ticket=ticket-12345"))
                 .willReturn(WireMock.aResponse()
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody("{\"access_token\":\"token-12345\",\"token_type\":\"Bearer\"}")));
+                    .withBody("{\"access_token\":\"token-12345\",\"token_type\":\"Bearer\"," +
+                        "\"scope\":\"Read Write\"}")));
 
         wireMockServer.stubFor(WireMock.get(WireMock.urlEqualTo(JWKS_ENDPOINT))
                 .willReturn(WireMock.aResponse()
@@ -149,8 +150,8 @@ public class MockAuthorizationServer {
                 .willReturn(WireMock.aResponse()
                     .withStatus(200)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody("{\"access_token\":\"token-from-id-token\",\"token_type\":\"Bearer\"}")));
-
+                    .withBody("{\"access_token\":\"token-from-id-token\",\"token_type\":\"Bearer\"," +
+                        "\"scope\":\"Read Write\"}")));
 
         // Stubs for unexpected error responses (per spec)
         wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo(TOKEN_ENDPOINT))

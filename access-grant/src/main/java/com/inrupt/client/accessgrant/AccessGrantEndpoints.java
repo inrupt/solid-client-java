@@ -18,20 +18,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.uma;
+package com.inrupt.client.accessgrant;
 
-import java.net.URI;
-import java.util.Set;
+public class AccessGrantEndpoints {
 
-/**
- * A class representing an UMA discovery document.
- */
-public class Metadata {
 
-    public Set<String> dpopSigningAlgValuesSupported;
-    public Set<String> grantTypesSupported;
-    public URI issuer;
-    public URI jwksUri;
-    public URI tokenEndpoint;
-    public Set<URI> umaProfilesSupported;
+
 }

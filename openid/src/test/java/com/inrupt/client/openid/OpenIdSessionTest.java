@@ -321,9 +321,9 @@ class OpenIdSessionTest {
         final OpenIdConfig config = new OpenIdConfig();
         config.setExpGracePeriodSecs(0);
         final Session s = OpenIdSession.ofIdToken(token, config);
-        assertTrue(s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
-        assertFalse(s.getCredential("unknown").isPresent());
-        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN).isPresent());
+        assertTrue(s.getCredential(OpenIdSession.ID_TOKEN, null).isPresent());
+        assertFalse(s.getCredential(URI.create("unknown"), URI.create("https://example.com/")).isPresent());
+        await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN, null).isPresent());
     }
 
     @Test
