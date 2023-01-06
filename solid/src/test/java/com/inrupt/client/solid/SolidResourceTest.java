@@ -79,8 +79,7 @@ class SolidResourceTest {
                 resource.getMetadata().getStorage());
         assertTrue(resource.getMetadata().getWacAllow().get("user")
                 .containsAll(Arrays.asList("read", "write")));
-        assertEquals(resource.getMetadata().getWacAllow().get("public"),
-                Collections.singleton("read"));
+        assertEquals(Collections.singleton("read"), resource.getMetadata().getWacAllow().get("public"));
         assertEquals(13, resource.getDataset().stream().count());
         assertEquals(3, resource.getMetadata().getAllowedMethods().size());
         assertTrue(resource.getMetadata().getAllowedMethods()

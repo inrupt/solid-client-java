@@ -35,7 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HttpClientService implements HttpService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);
 
     private final HttpClient client;
 
@@ -44,7 +49,7 @@ public class HttpClientService implements HttpService {
     }
 
     private HttpClientService(final HttpClient client) {
-        // TODO log that this was initialized at DEBUG level
+        LOGGER.debug("Initializing HttpClient service for HTTP client support");
         this.client = client;
     }
 

@@ -25,6 +25,7 @@ import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -81,9 +82,7 @@ public class ReactiveAuthorization {
         final Set<String> algorithms = new HashSet<>();
         for (final Challenge challenge : challenges) {
             if (challenge.getParameter("algs") != null) {
-                for (final String alg : challenge.getParameter("algs").split(" ")) {
-                    algorithms.add(alg);
-                }
+                Collections.addAll(algorithms, challenge.getParameter("algs").split(" "));
             }
             final String scheme = challenge.getScheme();
             if (registry.containsKey(scheme) && sessionSupportsScheme(session, scheme)) {

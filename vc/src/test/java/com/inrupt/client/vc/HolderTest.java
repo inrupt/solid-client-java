@@ -89,7 +89,7 @@ class HolderTest {
 
     @Test
     void getDeleteCredentialAsyncTest() {
-        holder.deleteCredential(getId(expectedVC.id));
+        assertDoesNotThrow(() -> holder.deleteCredential(getId(expectedVC.id)));
     }
 
     @Test
