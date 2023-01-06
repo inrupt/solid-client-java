@@ -44,7 +44,7 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
 
-    <!-- tests -->
+    <!-- test dependencies -->
     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-test</artifactId>

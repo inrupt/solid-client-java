@@ -27,6 +27,7 @@
       <groupId>jakarta.json</groupId>
       <artifactId>jakarta.json-api</artifactId>
     </dependency>
+
     <!-- test dependencies -->
     <dependency>
       <groupId>com.inrupt</groupId>
