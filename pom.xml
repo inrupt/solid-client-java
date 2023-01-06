@@ -86,6 +86,7 @@
     <module>core</module>
     <module>examples</module>
     <module>httpclient</module>
+    <module>integration</module>
     <module>jackson</module>
     <module>jena</module>
     <module>jsonb</module>

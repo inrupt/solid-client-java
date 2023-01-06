@@ -59,7 +59,6 @@ public final class LDP {
      */
     public static final URI Resource = URI.create(namespace + "Resource");
 
-
     /**
      * Get the LDP namespace URI.
      *
