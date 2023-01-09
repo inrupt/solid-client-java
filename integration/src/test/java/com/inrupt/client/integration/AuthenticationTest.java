@@ -39,7 +39,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class AuthenticationTest {
+class AuthenticationTest {
 
     private static final Config config = ConfigProvider.getConfig();
     private static SolidSyncClient session;
