@@ -1,7 +1,0 @@
-{
-	"access_token":"token-from-id-token",
-	"id_token":"123456",
-	"token_type":"Bearer",
-	"refresh_token":"https://example.test/services",
-	"expires_in":1385062578
-}
