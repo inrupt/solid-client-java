@@ -38,15 +38,14 @@
  *     &lt;/dependency&gt;
  * </pre>
  *
- * <h3>Example of using the JSON service fromJson() method to read a {@code VerifiableCredential}:</h3>
+ * <h3>Example of using the JSON service fromJson() method to read a custom type:</h3>
  *
  * <pre>{@code
     JsonService service = ServiceProvider.getJsonService();
-    VerifiableCredential vc;
-    try (InputStream is = Test.class.getResourceAsStream("verifiableCredential.json")) {
-        vc = service.fromJson(is, VerifiableCredential.class);
+    try (InputStream is = Test.class.getResourceAsStream("customType.json")) {
+        CustomType obj = service.fromJson(is, CustomType.class);
+        System.out.println("The Custom Type Id is: " + obj.id);
     }
-    System.out.println("The Verifiable Credential Id is: " + vc.id);
  * }</pre>
  */
 package com.inrupt.client.jsonb;
