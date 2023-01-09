@@ -64,7 +64,7 @@ class CoreModulesResourceTest {
     private static final String iss = config.getValue("inrupt.test.idp", String.class);
     private static final String azp = config.getValue("inrupt.test.azp", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
-    private static String testResource = "";
+    private static String testContainer = "resource/";
 
     @BeforeAll
     static void setup() {
@@ -89,7 +89,7 @@ class CoreModulesResourceTest {
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
         }
-        testResource = podUrl + "resource/";
+        testContainer = podUrl + testContainer;
     }
 
     @AfterAll
@@ -102,7 +102,7 @@ class CoreModulesResourceTest {
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         //create
@@ -203,8 +203,8 @@ class CoreModulesResourceTest {
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerName = testResource + "newContainer/";
-        final String container2Name = testResource + "newContainer2/";
+        final String containerName = testContainer + "newContainer/";
+        final String container2Name = testContainer + "newContainer2/";
 
         //create a Container
         final Request req = Request.newBuilder(URI.create(containerName))
@@ -250,7 +250,7 @@ class CoreModulesResourceTest {
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
         final String fileName = "myFile.txt";
-        final String fileURL = testResource + fileName;
+        final String fileURL = testContainer + fileName;
 
         //create non RDF resource
         final Request reqCreate =
@@ -280,7 +280,7 @@ class CoreModulesResourceTest {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String predicate = "https://example.example/predicate";
         final String predicateForBlank = "https://example.example/predicateForBlank";
 

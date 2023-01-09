@@ -21,15 +21,18 @@
 package com.inrupt.client.integration;
 
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
+import java.util.concurrent.CompletionException;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -47,7 +50,7 @@ class OpenIdTokenAuthenticationTest {
     private static String iss = config.getValue("inrupt.test.idp", String.class);
     private static String azp = config.getValue("inrupt.test.azp", String.class);
     
-    private static String testResource = "";
+    private static String testResourceName = "resource.ttl";
 
     @BeforeAll
     static void setup() {
@@ -71,56 +74,124 @@ class OpenIdTokenAuthenticationTest {
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
         }
-        testResource = podUrl + "resource/";
+        testResourceName = podUrl + testResourceName;
     }
     
     @Test
-    @DisplayName(":unauthenticatedPublicNode An unauthenticated user requests a public resource and succeds")
+    @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
-        final SolidSyncClient client = SolidSyncClient.getClient();
-        final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
-        final var response = client.send(request, JenaBodyHandlers.ofModel());
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
 
-        assertEquals(404, response.statusCode());
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        assertDoesNotThrow(() -> client.create(testResource));
+        
+        assertDoesNotThrow(() -> client.read(resourceURL, SolidResource.class));
     }
 
     @Test
-    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource")
+    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest() {
+        //create private resource
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
+            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        assertDoesNotThrow(() -> authClient.create(testResource));
+        
         final SolidSyncClient client = SolidSyncClient.getClient();
-        final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
-        final var response = client.send(request, JenaBodyHandlers.ofModel());
-
-        assertEquals(404, response.statusCode());
+        final CompletionException err = assertThrows(CompletionException.class,
+                () -> client.read(resourceURL, SolidResource.class));
+        //assertTrue(err.getCause() instanceof ...);
     }
 
     @Test
-    @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource")
+    @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource fails")
     void fetchPrivateResourceAfterLogoutTest() {
-        final SolidSyncClient client = SolidSyncClient.getClient();
+        //create private resource
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
+            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        assertDoesNotThrow(() -> authClient.create(testResource));
+
+        //TODO end seesion
+                
+        final CompletionException err = assertThrows(CompletionException.class,
+                () -> authClient.read(resourceURL, SolidResource.class));
+        //assertTrue(err.getCause() instanceof ...);
     }
     
     @Test
-    @DisplayName(":authenticatedPublicNode Auth fetch of public resource")
+    @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest() {
-        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        assertDoesNotThrow(() -> client.create(testResource));
+
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
+            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
     }
     
     @Test
-    @DisplayName(":authenticatedPrivateNode Auth fetch of private resource")
+    @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest() {
-        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        //create private resource
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
+            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        assertDoesNotThrow(() -> authClient.create(testResource));
+
+        assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
     }
     
     @Test
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest() {
-        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        //create private resource
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
+            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        assertDoesNotThrow(() -> authClient.create(testResource));
+
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        final CompletionException err = assertThrows(CompletionException.class,
+                () -> client.read(resourceURL, SolidResource.class));
+        //assertTrue(err.getCause() instanceof ...);
+
+        client.session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
     }
     
     @Test
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest() {
-        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        //create private resource
+        final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final URI resourceURL = URI.create(testResourceName);
+        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+
+        assertDoesNotThrow(() -> authClient1.create(testResource));
+
+        //create private another resource
+        final SolidSyncClient authClient2 = SolidSyncClient.getClient()
+                .session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final URI resourceURL2 = URI.create(podUrl + "resource2.ttl");
+        final SolidResource testResource2 = new SolidResource(resourceURL2, null, null);
+
+        assertDoesNotThrow(() -> authClient2.create(testResource2));
+
+        final CompletionException err = assertThrows(CompletionException.class,
+                () -> authClient1.read(resourceURL2, SolidResource.class));
+        //assertTrue(err.getCause() instanceof ...);
+
+        final CompletionException err2 = assertThrows(CompletionException.class,
+                () -> authClient2.read(resourceURL, SolidResource.class));
+        //assertTrue(err.getCause() instanceof ...);
+
     }
 }

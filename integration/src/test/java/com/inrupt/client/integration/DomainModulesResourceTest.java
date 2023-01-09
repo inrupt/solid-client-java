@@ -64,7 +64,7 @@ class DomainModulesResourceTest {
     private static final String iss = config.getValue("inrupt.test.idp", String.class);
     private static final String azp = config.getValue("inrupt.test.azp", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
-    private static String testResource = "";
+    private static String testContainer = "resource/";
     private static URI webid;
 
     @BeforeAll
@@ -84,7 +84,7 @@ class DomainModulesResourceTest {
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
         }
-        testResource = podUrl + "resource/";
+        testContainer = podUrl + testContainer;
     }
 
     @AfterAll
@@ -97,7 +97,7 @@ class DomainModulesResourceTest {
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
@@ -132,7 +132,7 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerURL = testResource + "newContainer/";
+        final String containerURL = testContainer + "newContainer/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(() -> client.create(newContainer));
@@ -145,7 +145,7 @@ class DomainModulesResourceTest {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 
