@@ -16,6 +16,5 @@ com.inrupt.client.spi
 com.inrupt.client.test
 com.inrupt.client.uma
 com.inrupt.client.util
-com.inrupt.client.vc
 com.inrupt.client.vocabulary
 com.inrupt.client.webid
