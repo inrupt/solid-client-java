@@ -35,9 +35,7 @@ import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -61,34 +59,23 @@ class DomainModulesResourceTest {
     private static final RDF rdf = RDFFactory.getInstance();
     private static SolidSyncClient client;
 
-    private static String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static String podUrl = "";
+    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
+    private static final String username = config.getValue("inrupt.test.username", String.class);
+    private static final String iss = config.getValue("inrupt.test.idp", String.class);
+    private static final String azp = config.getValue("inrupt.test.azp", String.class);
+    private static String podUrl = config.getValue("inrupt.test.storage", String.class);
     private static String testResource = "";
     private static URI webid;
 
     @BeforeAll
     static void setup() {
-
-        final var username = config.getValue("inrupt.test.username", String.class);
-        final var sub = config.getValue("inrupt.test.username", String.class);
-        final var iss = config.getValue("inrupt.test.idp", String.class);
-        final var azp = config.getValue("inrupt.test.azp", String.class);
-
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();
         }
         webid = URI.create(podUrl + "/" + username);
 
-        //create a test claim
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", webid.toString());
-        claims.put("sub", sub);
-        claims.put("iss", iss);
-        claims.put("azp", azp);
-
-        final String token = Utils.generateIdToken(claims);
-        client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
+        client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
 
         final var profile = client.read(webid, WebIdProfile.class);
         if (!profile.getStorage().isEmpty()) {
@@ -97,7 +84,6 @@ class DomainModulesResourceTest {
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
         }
-        //client.create(new SolidResource(URI.create(podUrl))); //adds the storage to the mockServer
         testResource = podUrl + "resource/";
     }
 

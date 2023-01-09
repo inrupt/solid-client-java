@@ -39,9 +39,7 @@ import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.jena.rdf.model.Model;
@@ -61,30 +59,22 @@ class CoreModulesResourceTest {
     private static final Config config = ConfigProvider.getConfig();
     private static SolidSyncClient session = SolidSyncClient.getClient();
 
-    private static String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static String podUrl = config.getValue("inrupt.test.id", String.class);
+    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
+    private static final String username = config.getValue("inrupt.test.username", String.class);
+    private static final String iss = config.getValue("inrupt.test.idp", String.class);
+    private static final String azp = config.getValue("inrupt.test.azp", String.class);
+    private static String podUrl = config.getValue("inrupt.test.storage", String.class);
     private static String testResource = "";
 
     @BeforeAll
     static void setup() {
-        final var username = config.getValue("inrupt.test.username", String.class);
-        final var iss = config.getValue("inrupt.test.idp", String.class);
-        final var azp = config.getValue("inrupt.test.azp", String.class);
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();
         }
         final var webid = URI.create(podUrl + "/" + username);
 
-        //create a test claim
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", webid.toString());
-        claims.put("sub", username);
-        claims.put("iss", iss);
-        claims.put("azp", azp);
-
-        final String token = Utils.generateIdToken(claims);
-        session = session.session(OpenIdSession.ofIdToken(token));
+        session = session.session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
 
         final Request requestRdf = Request.newBuilder(webid).GET().build();
         final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());

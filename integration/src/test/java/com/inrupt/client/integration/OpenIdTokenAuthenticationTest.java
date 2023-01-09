@@ -30,8 +30,6 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -39,40 +37,33 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class AuthenticationTest {
+class OpenIdTokenAuthenticationTest {
 
     private static final Config config = ConfigProvider.getConfig();
-    private static SolidSyncClient session;
 
     private static String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static String podUrl = config.getValue("inrupt.test.id", String.class);
+    private static String username = config.getValue("inrupt.test.username", String.class);
+    private static String podUrl = config.getValue("inrupt.test.storage", String.class);
+    private static String iss = config.getValue("inrupt.test.idp", String.class);
+    private static String azp = config.getValue("inrupt.test.azp", String.class);
+    
     private static String testResource = "";
 
     @BeforeAll
     static void setup() {
-        final var username = config.getValue("inrupt.test.username", String.class);
-        final var iss = config.getValue("inrupt.test.idp", String.class);
-        final var azp = config.getValue("inrupt.test.azp", String.class);
+        
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();
         }
         final var webid = URI.create(podUrl + "/" + username);
-        //create a test claim
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", webid.toString());
-        claims.put("sub", username);
-        claims.put("iss", iss);
-        claims.put("azp", azp);
 
-        final String token = Utils.generateIdToken(claims);
-        session = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
-
+        final SolidSyncClient session = SolidSyncClient.getClient().session(
+                OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
         final Request requestRdf = Request.newBuilder(webid).GET().build();
         final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
         final var storages = responseRdf.body()
-                .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
-                .toList();
+                .listSubjectsWithProperty(createProperty(PIM.storage.toString())).toList();
 
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
@@ -82,14 +73,54 @@ class AuthenticationTest {
         }
         testResource = podUrl + "resource/";
     }
+    
+    @Test
+    @DisplayName(":unauthenticatedPublicNode An unauthenticated user requests a public resource and succeds")
+    void fetchPublicResourceUnauthenticatedTest() {
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
+        final var response = client.send(request, JenaBodyHandlers.ofModel());
+
+        assertEquals(404, response.statusCode());
+    }
 
     @Test
-    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of private resource")
+    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource")
     void fetchPrivateResourceUnauthenticatedTest() {
         final SolidSyncClient client = SolidSyncClient.getClient();
         final Request request = Request.newBuilder(URI.create(testResource)).GET().build();
         final var response = client.send(request, JenaBodyHandlers.ofModel());
 
         assertEquals(404, response.statusCode());
+    }
+
+    @Test
+    @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource")
+    void fetchPrivateResourceAfterLogoutTest() {
+        final SolidSyncClient client = SolidSyncClient.getClient();
+    }
+    
+    @Test
+    @DisplayName(":authenticatedPublicNode Auth fetch of public resource")
+    void fetchPublicResourceAuthenticatedTest() {
+        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+    }
+    
+    @Test
+    @DisplayName(":authenticatedPrivateNode Auth fetch of private resource")
+    void fetchPrivateResourceAuthenticatedTest() {
+        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+    }
+    
+    @Test
+    @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
+    void fetchPrivateResourceUnauthAuthTest() {
+        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+    }
+    
+    @Test
+    @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
+    void multiSessionTest() {
+        final SolidSyncClient client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
     }
 }

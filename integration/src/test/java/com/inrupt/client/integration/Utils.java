@@ -69,6 +69,17 @@ public final class Utils {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Map<String, String> config = new HashMap<>();
 
+    static String setupIdToken(final String podUrl, final String username, final String iss, final String azp) {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", podUrl + "/" + username);
+        claims.put("sub", username);
+        claims.put("iss", iss);
+        claims.put("azp", azp);
+
+        final String token = generateIdToken(claims);
+        return token;
+    }
+
     static String generateIdToken(final Map<String, Object> claims) {
         try (final InputStream resource = DomainModulesResourceTest.class.getResourceAsStream("/signing-key.json")) {
             final String jwks = IOUtils.toString(resource, UTF_8);
