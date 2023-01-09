@@ -88,13 +88,25 @@ public class SolidClient {
             .header(ACCEPT, TEXT_TURTLE)
             .GET().build();
 
-        return client.send(req, SolidResourceHandlers.ofSolidResource())
-            .thenApply(Response::body)
-            .thenApply(resource -> {
-                try {
-                    return construct(identifier, clazz, resource);
-                } catch (final ReflectiveOperationException ex) {
-                    throw new SolidResourceException("Unable to read resource into type " + clazz.getName(), ex);
+        return client.send(req, Response.BodyHandlers.ofByteArray())
+            .thenApply(response -> {
+                if (response.statusCode() >= 400) {
+                    throw new SolidClientException("Unable to read resource at " + identifier, identifier,
+                            response.statusCode(), response.headers(), new String(response.body()));
+                } else {
+                    final String contentType = response.headers().firstValue("Content-Type")
+                        .orElse("application/octet-stream");
+                    final Metadata metadata = SolidResourceHandlers.buildMetadata(response.uri(),
+                            response.headers());
+                    final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
+                            identifier.toString()).orElse(null);
+                    try {
+                        final T obj = construct(identifier, clazz, dataset, metadata);
+                        obj.validate();
+                        return obj;
+                    } catch (final ReflectiveOperationException ex) {
+                        throw new SolidResourceException("Unable to read resource into type " + clazz.getName(), ex);
+                    }
                 }
             });
     }
@@ -165,16 +177,16 @@ public class SolidClient {
         return SolidClient.of(ClientProvider.getClient());
     }
 
-    static <T extends Resource> T construct(final URI identifier, final Class<T> clazz, final SolidResource resource)
-            throws ReflectiveOperationException {
+    static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
+            final Dataset dataset, final Metadata metadata) throws ReflectiveOperationException {
         try {
             // First try an arity-3 ctor
             return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)
-                        .newInstance(identifier, resource.getDataset(), resource.getMetadata());
+                        .newInstance(identifier, dataset, metadata);
         } catch (final NoSuchMethodException ex) {
             // Fall back to an arity-2 ctor
             return clazz.getConstructor(URI.class, Dataset.class)
-                        .newInstance(identifier, resource.getDataset());
+                        .newInstance(identifier, dataset);
         }
     }
 

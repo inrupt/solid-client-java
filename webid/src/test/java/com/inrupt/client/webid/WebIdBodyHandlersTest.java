@@ -63,7 +63,7 @@ class WebIdBodyHandlersTest {
             .build();
 
         final Response<WebIdProfile> response = client.send(request,
-                WebIdBodyHandlers.ofWebIdProfile(webid))
+                WebIdBodyHandlers.ofWebIdProfile())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
