@@ -24,6 +24,7 @@
       <artifactId>antlr4-runtime</artifactId>
     </dependency>
 
+    <!-- test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
