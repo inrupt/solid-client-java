@@ -41,11 +41,13 @@ import org.apache.jena.sparql.core.DatasetGraphFactory;
  */
 public class JenaService implements RdfService {
 
+    private static final String UNSUPPORTED_SYNTAX = "Unsupported syntax: ";
+
     @Override
     public void fromDataset(final Dataset dataset, final RDFSyntax syntax, final OutputStream output)
             throws IOException {
         final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() ->
-                new IllegalArgumentException("Unsupported syntax: " + syntax.title()));
+                new IllegalArgumentException(UNSUPPORTED_SYNTAX + syntax.title()));
         try {
             if (syntax.supportsDataset()) {
                 RDFDataMgr.write(output, JenaCommonsRDF.toJena(dataset), lang);
@@ -64,7 +66,7 @@ public class JenaService implements RdfService {
     @Override
     public void fromGraph(final Graph graph, final RDFSyntax syntax, final OutputStream output) throws IOException {
         final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() ->
-                new IllegalArgumentException("Unsupported syntax: " + syntax.title()));
+                new IllegalArgumentException(UNSUPPORTED_SYNTAX + syntax.title()));
         try {
             RDFDataMgr.write(output, JenaCommonsRDF.toJena(graph), lang);
         } catch (final RiotException ex) {
@@ -75,7 +77,7 @@ public class JenaService implements RdfService {
     @Override
     public Dataset toDataset(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() ->
-                new IllegalArgumentException("Unsupported syntax: " + syntax.title()));
+                new IllegalArgumentException(UNSUPPORTED_SYNTAX + syntax.title()));
         final var dataset = DatasetGraphFactory.createTxnMem();
         try {
             RDFDataMgr.read(dataset, input, baseUri, lang);
@@ -89,7 +91,7 @@ public class JenaService implements RdfService {
     @Override
     public Graph toGraph(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() ->
-                new IllegalArgumentException("Unsupported syntax: " + syntax.title()));
+                new IllegalArgumentException(UNSUPPORTED_SYNTAX + syntax.title()));
         final var graph = Factory.createDefaultGraph();
         try {
             RDFDataMgr.read(graph, input, baseUri, lang);

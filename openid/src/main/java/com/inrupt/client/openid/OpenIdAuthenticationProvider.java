@@ -62,7 +62,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
-        return new OpenIdAuthenticator(challenge, priorityLevel);
+        return new OpenIdAuthenticator(priorityLevel);
     }
 
     static void validate(final Challenge challenge) {
@@ -77,18 +77,15 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
      */
     public class OpenIdAuthenticator implements Authenticator {
 
-        private final Challenge challenge;
         private final int priorityLevel;
 
         /**
-         * The OpenIdAuthenticator with a defined challenge and priority.
+         * The OpenIdAuthenticator with a defined priority.
          *
-         * @param challenge the resource server challenge
          * @param priority the priority of this authentication mechanism
          */
-        protected OpenIdAuthenticator(final Challenge challenge, final int priority) {
+        protected OpenIdAuthenticator(final int priority) {
             this.priorityLevel = priority;
-            this.challenge = challenge;
         }
 
         @Override
@@ -104,8 +101,6 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         @Override
         public CompletionStage<Credential> authenticate(final Session session, final Request request,
                 final Set<String> algorithms) {
-            final String thumbprint = session.selectThumbprint(algorithms).orElse(null);
-
             final Optional<CompletionStage<Credential>> token = session.getCredential(OpenIdSession.ID_TOKEN)
                 .map(CompletableFuture::completedFuture);
             return token

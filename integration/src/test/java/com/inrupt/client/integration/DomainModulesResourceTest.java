@@ -55,7 +55,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class DomainModulesResourceTest {
+class DomainModulesResourceTest {
 
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();

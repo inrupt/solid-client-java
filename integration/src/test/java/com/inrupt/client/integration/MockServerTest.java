@@ -41,7 +41,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class MockServerTest {
+class MockServerTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Map<String, String> config = new HashMap<>();

@@ -1,4 +1,4 @@
-# Solid Client libraries for Solid
+# Java Client Libraries for Solid
 
 ## Building
 
@@ -16,35 +16,41 @@ The [project documentation](https://inrupt.github.io/solid-client-java/apidocs/i
 
 To add the client libraries to an application, include the following in your project's POM:
 
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-core</artifactId>
-      <version>${inrupt.client.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-solid</artifactId>
-      <version>${inrupt.client.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-openid</artifactId>
-      <version>${inrupt.client.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-jena</artifactId>
-      <version>${inrupt.client.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-jackson</artifactId>
-      <version>${inrupt.client.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-httpclient</artifactId>
-      <version>${inrupt.client.version}</version>
-    </dependency>
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>com.inrupt</groupId>
+          <artifactId>inrupt-client-bom</artifactId>
+          <version>${inrupt.client.version}</version>
+        </dependency>
+      </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-solid</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-openid</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-jena</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-jackson</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-httpclient</artifactId>
+      </dependency>
+    </dependencies>
 
 

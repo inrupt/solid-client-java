@@ -36,6 +36,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -45,7 +48,9 @@ import okhttp3.RequestBody;
 
 public class OkHttpService implements HttpService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OkHttpService.class);
     private static final Set<String> NO_BODY_METHODS = new HashSet<>(Arrays.asList("GET", "HEAD", "DELETE"));
+
     private final OkHttpClient client;
 
     public OkHttpService() {
@@ -53,7 +58,7 @@ public class OkHttpService implements HttpService {
     }
 
     public OkHttpService(final OkHttpClient client) {
-        // TODO -- Log that this was initialized at DEBUG level
+        LOGGER.debug("Initializing OkHttpClient service for HTTP client support");
         this.client = client;
     }
 

@@ -1,6 +1,0 @@
-{
-    "id": "identifier",
-    "type": ["Foo", "Bar", "Baz"],
-    "issuer": "https://issuer.test",
-    "date": "2022-09-08T00:00:00Z"
-}
