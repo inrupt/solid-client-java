@@ -46,8 +46,6 @@ public class JsonbService implements JsonService {
      */
     public JsonbService() {
         final JsonbConfig config = new JsonbConfig();
-        config.withAdapters(new VCAdapter());
-        config.withAdapters(new VPAdapter());
         config.withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);
         this.jsonb = JsonbBuilder.create(config);
     }

@@ -58,16 +58,14 @@
        System.out.println("Content type: " + response.headers().get("Content-Type"));
  * }</pre>
  *
- * <h3>Example of using the JSON processor fromJson() method to read a {@code VerifiableCredential}:</h3>
+ * <h3>Example of using the JSON processor fromJson() method to read a custom type:</h3>
  *
  * <pre>{@code
        JsonService service = ServiceProvider.getJsonService();
-       VerifiableCredential vc;
-       try (InputStream is =
-              Test.class.getResourceAsStream("verifiableCredential.json")) {
-              vc = service.fromJson(is, VerifiableCredential.class);
+       try (InputStream is = Test.class.getResourceAsStream("customType.json")) {
+           CustomType obj = service.fromJson(is, CustomType.class);
+           System.out.println("The CustomType Id is: " + obj.id);
        }
-       System.out.println("The Verifiable Credential Id is: " + vc.id);
  * }</pre>
  *
  * <h3>Example of using the RDF service toDataset() method to read triples
