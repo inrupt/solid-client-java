@@ -36,6 +36,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.inrupt</groupId>
             <artifactId>inrupt-client-jena</artifactId>
             <version>${project.version}</version>
@@ -133,7 +138,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>
+                        true</skip>
                 </configuration>
             </plugin>
         </plugins>

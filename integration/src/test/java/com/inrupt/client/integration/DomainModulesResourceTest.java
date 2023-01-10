@@ -25,16 +25,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.inrupt.client.openid.OpenIdConfig;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
+import com.inrupt.client.uma.UmaSession;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.security.KeyPair;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,6 +52,7 @@ import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.jose4j.jwk.PublicJsonWebKey;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -75,7 +80,12 @@ class DomainModulesResourceTest {
         }
         webid = URI.create(podUrl + "/" + username);
 
-        client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final PublicJsonWebKey jwk = Utils.getDpopKey("/rsa-key.json");
+        final OpenIdConfig config = new OpenIdConfig();
+        config.setProofKeyPairs(Collections.singletonMap("RS256",
+                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
+
+        client = SolidSyncClient.getClient().session(UmaSession.of(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp), config)));
 
         final var profile = client.read(webid, WebIdProfile.class);
         if (!profile.getStorage().isEmpty()) {

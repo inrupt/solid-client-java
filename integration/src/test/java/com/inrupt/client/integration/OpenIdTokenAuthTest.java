@@ -79,7 +79,6 @@ public class OpenIdTokenAuthTest {
     }
     
     @Test
-    @Disabled
     @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
         final URI resourceURL = URI.create(testResourceName);
@@ -92,7 +91,6 @@ public class OpenIdTokenAuthTest {
     }
 
     @Test
-    @Disabled
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest() {
         //create private resource

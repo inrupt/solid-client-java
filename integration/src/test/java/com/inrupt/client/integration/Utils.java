@@ -22,7 +22,9 @@ package com.inrupt.client.integration;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
-
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdConfig;
+import com.inrupt.client.openid.OpenIdSession;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,27 +50,32 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 
-public final class Utils {
+final class Utils {
 
-    public static final String ACCEPT = "Accept";
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String IF_NONE_MATCH = "If-None-Match";
-    public static final String TEXT_TURTLE = "text/turtle";
-    public static final String SPARQL_UPDATE = "application/sparql-update";
-    public static final String PLAIN_TEXT = "text/plain";
-    public static final String WILDCARD = "*";
-    public static final String BEARER = "Bearer";
-    public static final String DPOP = "DPoP";
-    public static final String UMA = "UMA";
-    public static final int SUCCESS = 200;
-    public static final int CREATED = 201;
-    public static final int NO_CONTENT = 204;
-    public static final int UNAUTHORIZED = 401;
-    public static final int NOT_FOUND = 404;
-    public static final int NOT_ALLOWED = 405;
-    public static final int CONFLICT = 409;
-    public static final int PRECONDITION_FAILED = 412;
-    public static final int ERROR = 500;
+    static final String ACCEPT = "Accept";
+    static final String CONTENT_TYPE = "Content-Type";
+    static final String IF_NONE_MATCH = "If-None-Match";
+    static final String TEXT_TURTLE = "text/turtle";
+    static final String SPARQL_UPDATE = "application/sparql-update";
+    static final String APPLICATION_JSON = "application/json";
+    static final String PLAIN_TEXT = "text/plain";
+    static final String WILDCARD = "*";
+    static final String BEARER = "Bearer";
+    static final String DPOP = "DPoP";
+    static final String UMA = "UMA";
+    static final int SUCCESS = 200;
+    static final int CREATED = 201;
+    static final int NO_CONTENT = 204;
+    static final int UNAUTHORIZED = 401;
+    static final int NOT_FOUND = 404;
+    static final int NOT_ALLOWED = 405;
+    static final int CONFLICT = 409;
+    static final int PRECONDITION_FAILED = 412;
+    static final int ERROR = 500;
+
+    public static final String DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
+    public static final String TOKEN_ENDPOINT = "/token";
+    public static final String JWKS_ENDPOINT = "/jwks";
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Map<String, String> config = new HashMap<>();
@@ -85,7 +92,7 @@ public final class Utils {
     }
 
     static String generateIdToken(final Map<String, Object> claims) {
-        try (final InputStream resource = DomainModulesResourceTest.class.getResourceAsStream("/signing-key.json")) {
+        try (final InputStream resource = Utils.class.getResourceAsStream("/signing-key.json")) {
             final String jwks = IOUtils.toString(resource, UTF_8);
             final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
                 .newPublicJwk(jwks);
@@ -122,15 +129,16 @@ public final class Utils {
         return config.get("solid_server");
     }
 
-    public static boolean isSuccessful(final int status) {
+    static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
     }
 
-    public static boolean isAuthorized(final String scheme) {
+    static boolean isAuthorized(final String scheme) {
         return Arrays.asList(BEARER, UMA, DPOP).contains(scheme);
     }
 
-    public static byte[] modifyBody(final byte[] originalBody, final String requestBody) throws IOException {
+    static byte[] modifyBody(final byte[] originalBody, final String requestBody)
+            throws IOException {
         try (final InputStream input = new ByteArrayInputStream(originalBody)) {
             final Model model = ModelFactory.createDefaultModel();
             RDFDataMgr.read(model, input, Lang.TURTLE);
@@ -143,8 +151,33 @@ public final class Utils {
             }
         }
     }
+    
+    static PublicJsonWebKey getDpopKey(final String resource) {
+        try (final InputStream stream = Utils.class.getResourceAsStream(resource)) {
+            final String jwks = IOUtils.toString(stream, UTF_8);
+            return PublicJsonWebKey.Factory.newPublicJwk(jwks);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to read JWK", ex);
+        } catch (final JoseException ex) {
+            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
+        }
+    }
+
+    static String getDiscoveryDocument() {
+        return "{" +
+            "\"dpop_signing_alg_values_supported\": [\"ES256\",\"RS256\"]," +
+            "\"grant_types_supported\": [\"urn:ietf:params:oauth:grant-type:uma-ticket\"]," +
+            "\"issuer\": \"" + getMockServerUrl() + "\"," +
+            "\"jwks_uri\": \"" + getMockServerUrl() + JWKS_ENDPOINT + "\"," +
+            "\"token_endpoint\": \"" + getMockServerUrl() + TOKEN_ENDPOINT + "\"," +
+            "\"uma_profiles_supported\": [" +
+                "\"https://www.w3.org/TR/vc-data-model/#json-ld\"," +
+                "\"http://openid.net/specs/openid-connect-core-1_0.html#IDToken\"]" +
+            "}";
+    }
 
     private Utils() {
         // Prevent instantiation
     }
+
 }

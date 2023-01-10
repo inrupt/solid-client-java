@@ -123,7 +123,9 @@ class CoreModulesResourceTest {
         List<Statement> statementsToDelete = new ArrayList<>();
         if (resCreateIfNotExist.statusCode() == Utils.PRECONDITION_FAILED) {
             final var requestRdf =
-                    Request.newBuilder(URI.create(newResourceName)).GET().build();
+                    Request.newBuilder(URI.create(newResourceName))
+                    .header("Authorization", "Bearer")
+                    .GET().build();
             final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
             statementsToDelete = responseRdf.body()
                     .listStatements(createResource(newResourceName),
@@ -147,7 +149,9 @@ class CoreModulesResourceTest {
         assertTrue(Utils.isSuccessful(responsePatch.statusCode()));
 
         //read
-        final var reqRead = Request.newBuilder(URI.create(newResourceName)).GET().build();
+        final var reqRead = Request.newBuilder(URI.create(newResourceName))
+                .header("Authorization", "Bearer")
+                .GET().build();
         final var resRead = session.send(reqRead, JenaBodyHandlers.ofModel());
         assertTrue(Utils.isSuccessful(resRead.statusCode()));
         final var insertedStatement =
@@ -158,7 +162,9 @@ class CoreModulesResourceTest {
 
         //update
         final var reqReadAgain =
-                Request.newBuilder(URI.create(newResourceName)).GET().build();
+                Request.newBuilder(URI.create(newResourceName))
+                .header("Authorization", "Bearer")
+                .GET().build();
         final var resReadAgain = session.send(reqReadAgain, JenaBodyHandlers.ofModel());
 
         assertTrue(Utils.isSuccessful(resReadAgain.statusCode()));
@@ -182,7 +188,9 @@ class CoreModulesResourceTest {
         assertTrue(Utils.isSuccessful(resPatch.statusCode()));
 
         //read
-        final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName)).GET().build();
+        final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName))
+                .header("Authorization", "Bearer")
+                .GET().build();
         final var resReadAgain1 = session.send(reqReadAgain1, JenaBodyHandlers.ofModel());
         assertTrue(Utils.isSuccessful(resReadAgain1.statusCode()));
         final var insertedNewStatement =
@@ -299,7 +307,10 @@ class CoreModulesResourceTest {
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();
         if (resp.statusCode() == Utils.PRECONDITION_FAILED) {
-            final Request requestRdf = Request.newBuilder(URI.create(newResourceName)).GET().build();
+            final Request requestRdf =
+                    Request.newBuilder(URI.create(newResourceName))
+                    .header("Authorization", "Bearer")
+                    .GET().build();
             final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
             statementsToDelete = responseRdf
                     .body().listStatements(createResource(newResourceName),
@@ -327,7 +338,9 @@ class CoreModulesResourceTest {
 
         //change non blank node
         //get the newly created dataset and change the non blank node
-        final Request req = Request.newBuilder(URI.create(newResourceName)).GET().build();
+        final Request req = Request.newBuilder(URI.create(newResourceName))
+                .header("Authorization", "Bearer")
+                .GET().build();
         final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
 
         assertTrue(Utils.isSuccessful(res.statusCode()));

@@ -57,17 +57,37 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         final var res = new ResponseDefinitionBuilder();
 
         if (request.getMethod().isOneOf(RequestMethod.GET)) {
+            if (Utils.DISCOVERY_ENDPOINT.equals(request.getUrl())) {
+                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
+                res.withBody(Utils.getDiscoveryDocument());
+                res.withStatus(200);
+            }
+            if (Utils.TOKEN_ENDPOINT.equals(request.getUrl())) {
+                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
+                res.withBody("{\"access_token\":\"token-12345\",\"token_type\":\"Bearer\"}");
+                res.withStatus(200);
+            }
+            if (Utils.JWKS_ENDPOINT.equals(request.getUrl())) {
+                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
+                res.withBody("/jwks.json");
+                res.withStatus(200);
+            }
             if (this.storage.containsKey(request.getUrl())) {
-                final var serverBody = this.storage.get(request.getUrl());
-                res
-                    .withStatus(Utils.SUCCESS)
-                    .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
-                    .withBody(serverBody.body);
+                if (Utils.isAuthorized(request.getHeader("Authorization"))) {
+                    final var serverBody = this.storage.get(request.getUrl());
+                    res.withStatus(Utils.SUCCESS)
+                            .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
+                            .withBody(serverBody.body);
 
-                if (("/").equals(request.getUrl())) { //we found the storage and asume it is the root
-                    res.withHeader("Link", Headers.Link.of(
-                            URI.create(PIM.getNamespace() + "Storage"),
-                        "type").toString());
+                    if (("/").equals(request.getUrl())) { //we found the storage and asume it is the root
+                        res.withHeader("Link", Headers.Link
+                                .of(URI.create(PIM.getNamespace() + "Storage"), "type").toString());
+                    }
+                } else {
+                    res.withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
+                            "UMA ticket=\"ticket-67890\", as_uri=\"" + 
+                            Utils.getMockServerUrl() + "\"");
+                    res.withStatus(Utils.UNAUTHORIZED);
                 }
             } else {
                 res.withStatus(Utils.NOT_FOUND);
