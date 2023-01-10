@@ -88,11 +88,6 @@
         <artifactId>inrupt-client-vocabulary</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-vc</artifactId>
-        <version>${project.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
