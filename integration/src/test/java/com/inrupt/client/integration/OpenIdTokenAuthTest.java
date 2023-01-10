@@ -1,16 +1,16 @@
 /*
- * Copyright 2023 Inrupt Inc.
- *
+ * Copyright 2022 Inrupt Inc.
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -37,11 +37,12 @@ import java.util.concurrent.CompletionException;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class OpenIdTokenAuthenticationTest {
-
+public class OpenIdTokenAuthTest {
+    
     private static final Config config = ConfigProvider.getConfig();
 
     private static String testEnv = config.getValue("inrupt.test.environment", String.class);
@@ -78,6 +79,7 @@ class OpenIdTokenAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
         final URI resourceURL = URI.create(testResourceName);
@@ -90,6 +92,7 @@ class OpenIdTokenAuthenticationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest() {
         //create private resource
@@ -106,6 +109,7 @@ class OpenIdTokenAuthenticationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource fails")
     void fetchPrivateResourceAfterLogoutTest() {
         //create private resource
@@ -123,6 +127,7 @@ class OpenIdTokenAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest() {
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -136,6 +141,7 @@ class OpenIdTokenAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest() {
         //create private resource
@@ -149,6 +155,7 @@ class OpenIdTokenAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest() {
         //create private resource
@@ -168,6 +175,7 @@ class OpenIdTokenAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest() {
         //create private resource

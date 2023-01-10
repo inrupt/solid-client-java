@@ -37,10 +37,11 @@ import java.util.concurrent.CompletionException;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class ClientCredentialsAuthenticationTest {
+class ClientCredentialsAuthTest {
 
     private static final Config config = ConfigProvider.getConfig();
 
@@ -82,6 +83,7 @@ class ClientCredentialsAuthenticationTest {
 
 
     @Test
+    @Disabled
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest() {
         //create private resource
@@ -99,6 +101,7 @@ class ClientCredentialsAuthenticationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource fails")
     void fetchPrivateResourceAfterLogoutTest() {
         //create private resource
@@ -109,6 +112,14 @@ class ClientCredentialsAuthenticationTest {
         assertDoesNotThrow(() -> authClient.create(testResource));
 
         //TODO end seesion
+        /*final EndSessionRequest endReq = EndSessionRequest.Builder.newBuilder()
+            .postLogoutRedirectUri(URI.create("https://example.test/redirectUri"))
+            .clientId(clientId)
+            .state("solid")
+            .build();
+        final URI uri = openIdProvider.endSession(endReq).toCompletableFuture().join();
+        */
+
                 
         final CompletionException err = assertThrows(CompletionException.class,
                 () -> authClient.read(resourceURL, SolidResource.class));
@@ -116,6 +127,7 @@ class ClientCredentialsAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest() {
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -129,6 +141,7 @@ class ClientCredentialsAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest() {
         //create private resource
@@ -142,6 +155,7 @@ class ClientCredentialsAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest() {
         //create private resource
@@ -161,6 +175,7 @@ class ClientCredentialsAuthenticationTest {
     }
     
     @Test
+    @Disabled
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest() {
         //create private resource

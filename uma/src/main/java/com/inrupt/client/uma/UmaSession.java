@@ -44,7 +44,7 @@ import java.util.concurrent.CompletionStage;
  *
  * <pre>{@code
  *   Client client = ClientProvider.getClient();
- *   Session session = client.session(UmaSession.ofSession(OpenIdSession.ofIdToken(jwt)));
+ *   Session session = client.session(UmaSession.of(OpenIdSession.ofIdToken(jwt)));
  *   Response res = session.send(req, bodyHandler);
  * }</pre>
  */

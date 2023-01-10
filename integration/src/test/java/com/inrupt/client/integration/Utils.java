@@ -57,9 +57,13 @@ public final class Utils {
     public static final String SPARQL_UPDATE = "application/sparql-update";
     public static final String PLAIN_TEXT = "text/plain";
     public static final String WILDCARD = "*";
+    public static final String BEARER = "Bearer";
+    public static final String DPOP = "DPoP";
+    public static final String UMA = "UMA";
     public static final int SUCCESS = 200;
     public static final int CREATED = 201;
     public static final int NO_CONTENT = 204;
+    public static final int UNAUTHORIZED = 401;
     public static final int NOT_FOUND = 404;
     public static final int NOT_ALLOWED = 405;
     public static final int CONFLICT = 409;
@@ -120,6 +124,10 @@ public final class Utils {
 
     public static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
+    }
+
+    public static boolean isAuthorized(final String scheme) {
+        return Arrays.asList(BEARER, UMA, DPOP).contains(scheme);
     }
 
     public static byte[] modifyBody(final byte[] originalBody, final String requestBody) throws IOException {
