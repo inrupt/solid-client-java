@@ -139,4 +139,46 @@ class SolidClientTest {
         })
         .toCompletableFuture().join();
     }
+
+    @Test
+    void testUnauthorizedResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/unauthorized");
+
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                client.read(uri, Recipe.class).toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof SolidClientException);
+        final SolidClientException ex = (SolidClientException) err.getCause();
+        assertEquals(401, ex.getStatusCode());
+        assertEquals(uri, ex.getUri());
+        assertEquals(Optional.of("application/json"), ex.getHeaders().firstValue("Content-Type"));
+        assertNotNull(ex.getBody());
+    }
+
+    @Test
+    void testForbiddenResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/forbidden");
+
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                client.read(uri, Recipe.class).toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof SolidClientException);
+        final SolidClientException ex = (SolidClientException) err.getCause();
+        assertEquals(403, ex.getStatusCode());
+        assertEquals(uri, ex.getUri());
+        assertEquals(Optional.of("application/json"), ex.getHeaders().firstValue("Content-Type"));
+        assertNotNull(ex.getBody());
+    }
+
+    @Test
+    void testMissingResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/missing");
+
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                client.read(uri, Recipe.class).toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof SolidClientException);
+        final SolidClientException ex = (SolidClientException) err.getCause();
+        assertEquals(404, ex.getStatusCode());
+        assertEquals(uri, ex.getUri());
+        assertEquals(Optional.of("application/json"), ex.getHeaders().firstValue("Content-Type"));
+        assertNotNull(ex.getBody());
+    }
 }

@@ -136,4 +136,37 @@ class SolidSyncClientTest {
             assertEquals(7, recipe.getSteps().size());
         }
     }
+
+    @Test
+    void testUnauthorizedResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/unauthorized");
+
+        final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
+        assertEquals(401, err.getStatusCode());
+        assertEquals(uri, err.getUri());
+        assertEquals(Optional.of("application/json"), err.getHeaders().firstValue("Content-Type"));
+        assertNotNull(err.getBody());
+    }
+
+    @Test
+    void testForbiddenResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/forbidden");
+
+        final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
+        assertEquals(403, err.getStatusCode());
+        assertEquals(uri, err.getUri());
+        assertEquals(Optional.of("application/json"), err.getHeaders().firstValue("Content-Type"));
+        assertNotNull(err.getBody());
+    }
+
+    @Test
+    void testMissingResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/missing");
+
+        final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
+        assertEquals(404, err.getStatusCode());
+        assertEquals(uri, err.getUri());
+        assertEquals(Optional.of("application/json"), err.getHeaders().firstValue("Content-Type"));
+        assertNotNull(err.getBody());
+    }
 }

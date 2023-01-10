@@ -20,19 +20,20 @@
  */
 package com.inrupt.client.integration;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Request;
 import com.inrupt.client.openid.OpenIdConfig;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.uma.UmaSession;
+import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -69,6 +70,7 @@ class DomainModulesResourceTest {
     private static final String iss = config.getValue("inrupt.test.idp", String.class);
     private static final String azp = config.getValue("inrupt.test.azp", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
+    
     private static String testContainer = "resource/";
     private static URI webid;
 
@@ -87,9 +89,14 @@ class DomainModulesResourceTest {
 
         client = SolidSyncClient.getClient().session(UmaSession.of(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp), config)));
 
-        final var profile = client.read(webid, WebIdProfile.class);
-        if (!profile.getStorage().isEmpty()) {
-            podUrl = profile.getStorage().iterator().next().toString();
+        final var req = Request.newBuilder(webid).GET().header("Accept", "text/turtle").build();
+        final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());
+        if (res.statusCode() == 200) {
+            try (final var profile = res.body()) {
+                if (!profile.getStorage().isEmpty()) {
+                    podUrl = profile.getStorage().iterator().next().toString();
+                }
+            }
         }
         if (!podUrl.endsWith("/")) {
             podUrl += "/";
@@ -210,10 +217,16 @@ class DomainModulesResourceTest {
 
         try (final WebIdProfile profile = new WebIdProfile(webid, dataset)) {
             assertDoesNotThrow(() -> client.create(profile));
-            try (final WebIdProfile sameProfile = client.read(webid, WebIdProfile.class)) {
-                assertFalse(sameProfile.getStorage().isEmpty());
-            }
         }
+
+        try (final WebIdProfile sameProfile = client.read(webid, WebIdProfile.class)) {
+            assertFalse(sameProfile.getStorage().isEmpty());
+        }
+
+        final var missingWebId = URIBuilder.newBuilder(webid).path(UUID.randomUUID().toString()).build();
+        final var err = assertThrows(SolidClientException.class, () -> client.read(missingWebId, WebIdProfile.class));
+        assertEquals(404, err.getStatusCode());
+        assertEquals(missingWebId, err.getUri());
     }
 
     @Test
@@ -237,7 +250,6 @@ class DomainModulesResourceTest {
         }
         assertTrue(root.isPresent());
         assertEquals(podUrl, root.get().toString());
-
     }
 
     private String getNestedContainer(final String podUrl, final int depth) {
