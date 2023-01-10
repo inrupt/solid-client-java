@@ -125,6 +125,24 @@ public class SolidMockHttpService {
                     .withBody("This isn't valid turtle.")
             )
         );
+
+        wireMockServer.stubFor(get(urlEqualTo("/missing"))
+                .willReturn(aResponse()
+                    .withStatus(404)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"error\": \"missing resource\"}")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/unauthorized"))
+                .willReturn(aResponse()
+                    .withStatus(401)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"error\": \"unauthorized\"}")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/forbidden"))
+                .willReturn(aResponse()
+                    .withStatus(403)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"error\": \"forbidden\"}")));
     }
 
     public Map<String, String> start() {
