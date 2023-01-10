@@ -27,7 +27,6 @@ import com.inrupt.client.spi.ServiceProvider;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.RDFSyntax;
@@ -42,14 +41,13 @@ public final class WebIdBodyHandlers {
     /**
      * Transform an HTTP response into a WebID Profile object.
      *
-     * @param webid the WebID URI
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<WebIdProfile> ofWebIdProfile(final URI webid) {
+    public static Response.BodyHandler<WebIdProfile> ofWebIdProfile() {
         return responseInfo -> {
             try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
                 final Dataset dataset = service.toDataset(RDFSyntax.TURTLE, input, responseInfo.uri().toString());
-                return new WebIdProfile(webid, dataset);
+                return new WebIdProfile(responseInfo.uri(), dataset);
             } catch (final IOException ex) {
                 throw new WebIdException("Error processing WebId profile resource", ex);
             }

@@ -20,8 +20,7 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Headers.Link;
-import com.inrupt.client.Headers.WacAllow;
+import com.inrupt.client.Headers;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -32,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Optional;
 
+import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
@@ -50,18 +51,12 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidResource> ofSolidResource() {
         return responseInfo -> {
-            final Metadata metadata = buildMetadata(responseInfo);
+            final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
 
             return responseInfo.headers().firstValue("Content-Type")
-                .flatMap(RDFSyntax::byMediaType)
-                .map(syntax -> {
-                    try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        return new SolidResource(responseInfo.uri(),
-                                service.toDataset(syntax, input, responseInfo.uri().toString()), metadata);
-                    } catch (final IOException ex) {
-                        throw new SolidResourceException("Error parsing Solid Resource as RDF", ex);
-                    }
-                })
+                .flatMap(contentType ->
+                        buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
+                .map(dataset -> new SolidResource(responseInfo.uri(), dataset, metadata))
                 .orElseGet(() -> new SolidResource(responseInfo.uri(), null, metadata));
         };
     }
@@ -73,31 +68,36 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final Metadata metadata = buildMetadata(responseInfo);
+            final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
 
             return responseInfo.headers().firstValue("Content-Type")
-                .flatMap(RDFSyntax::byMediaType)
-                .map(syntax -> {
-                    try (final InputStream input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        return new SolidContainer(responseInfo.uri(),
-                                service.toDataset(syntax, input, responseInfo.uri().toString()), metadata);
-                    } catch (final IOException ex) {
-                        throw new SolidResourceException("Error parsing Solid Container as RDF", ex);
-                    }
-                })
+                .flatMap(contentType ->
+                        buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
+                .map(dataset -> new SolidContainer(responseInfo.uri(), dataset, metadata))
                 .orElseGet(() -> new SolidContainer(responseInfo.uri(), null, metadata));
         };
     }
 
-    static Metadata buildMetadata(final Response.ResponseInfo responseInfo) {
+    static Optional<Dataset> buildDataset(final String contentType, final byte[] data, final String baseUri) {
+        return RDFSyntax.byMediaType(contentType)
+            .map(syntax -> {
+                try (final InputStream input = new ByteArrayInputStream(data)) {
+                    return service.toDataset(syntax, input, baseUri);
+                } catch (final IOException ex) {
+                    throw new SolidResourceException("Error parsing Solid Container as RDF", ex);
+                }
+            });
+    }
+
+    static Metadata buildMetadata(final URI uri, final Headers headers) {
         // Gather metadata from HTTP headers
         final Metadata.Builder metadata = Metadata.newBuilder();
-        responseInfo.headers().allValues("Link").stream()
-            .flatMap(l -> Link.parse(l).stream())
+        headers.allValues("Link").stream()
+            .flatMap(l -> Headers.Link.parse(l).stream())
             .forEach(link -> {
                 if (link.getParameter("rel").contains("type")) {
                     if ((link.getUri().equals(STORAGE))) {
-                        metadata.storage(responseInfo.uri());
+                        metadata.storage(uri);
                     }
                     metadata.type(link.getUri());
                 } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
@@ -105,28 +105,28 @@ public final class SolidResourceHandlers {
                 }
             });
 
-        responseInfo.headers().allValues("WAC-Allow").stream()
-            .map(WacAllow::parse)
-            .map(WacAllow::getAccessParams)
+        headers.allValues("WAC-Allow").stream()
+            .map(Headers.WacAllow::parse)
+            .map(Headers.WacAllow::getAccessParams)
             .flatMap(p -> p.entrySet().stream())
             .forEach(metadata::wacAllow);
 
-        responseInfo.headers().allValues("Allow").stream()
+        headers.allValues("Allow").stream()
             .flatMap(s -> Arrays.stream(s.split(",")))
             .map(String::trim)
             .forEach(metadata::allowedMethod);
 
-        responseInfo.headers().allValues("Accept-Post").stream()
+        headers.allValues("Accept-Post").stream()
             .flatMap(s -> Arrays.stream(s.split(",")))
             .map(String::trim)
             .forEach(metadata::allowedPostSyntax);
 
-        responseInfo.headers().allValues("Accept-Patch").stream()
+        headers.allValues("Accept-Patch").stream()
             .flatMap(s -> Arrays.stream(s.split(",")))
             .map(String::trim)
             .forEach(metadata::allowedPatchSyntax);
 
-        responseInfo.headers().allValues("Accept-Put").stream()
+        headers.allValues("Accept-Put").stream()
             .flatMap(s -> Arrays.stream(s.split(",")))
             .map(String::trim)
             .forEach(metadata::allowedPutSyntax);
