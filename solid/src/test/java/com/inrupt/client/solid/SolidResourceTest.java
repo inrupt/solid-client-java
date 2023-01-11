@@ -146,23 +146,24 @@ class SolidResourceTest {
     @Test
     void testEmptyResourceBuilder() {
         final URI id = URI.create("https://resource.example/");
-        final SolidResource res = new SolidResource(id, null, null);
+        try (final SolidResource res = new SolidResource(id, null, null)) {
 
-        assertFalse(res.getMetadata().getStorage().isPresent());
-        assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
-        assertEquals(0, res.getDataset().stream().count());
-        assertEquals(id, res.getIdentifier());
+            assertFalse(res.getMetadata().getStorage().isPresent());
+            assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
+            assertEquals(0, res.getDataset().stream().count());
+            assertEquals(id, res.getIdentifier());
+        }
     }
 
     @Test
     void testEmptyContainerBuilder() {
         final URI id = URI.create("https://resource.example/");
-        final SolidContainer res = new SolidContainer(id, null, null);
-
-        assertFalse(res.getMetadata().getStorage().isPresent());
-        assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
-        assertEquals(0, res.getDataset().stream().count());
-        assertEquals(id, res.getIdentifier());
+        try (final SolidContainer res = new SolidContainer(id, null, null)) {
+            assertFalse(res.getMetadata().getStorage().isPresent());
+            assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
+            assertEquals(0, res.getDataset().stream().count());
+            assertEquals(id, res.getIdentifier());
+        }
     }
 
     @Test

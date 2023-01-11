@@ -48,21 +48,22 @@ class ResourceTest {
 
         dataset.add(rdf.createQuad(null, rdf.createIRI(id.toString()), exFoo, exBar));
 
-        final Resource resource = new Resource(id, dataset);
-        try (final Stream<Quad> stream = resource.path(exFoo)) {
-            assertEquals(1, stream.count());
-        }
+        try (final Resource resource = new Resource(id, dataset)) {
+            try (final Stream<Quad> stream = resource.path(exFoo)) {
+                assertEquals(1, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
-            assertEquals(0, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exBar)) {
-            assertEquals(0, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exBar)) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path()) {
-            assertEquals(0, stream.count());
+            try (final Stream<Quad> stream = resource.path()) {
+                assertEquals(0, stream.count());
+            }
         }
     }
 
@@ -91,25 +92,26 @@ class ResourceTest {
         dataset.add(rdf.createQuad(null, obj3, exBaz, obj7));
         dataset.add(rdf.createQuad(null, obj4, exBaz, obj8));
 
-        final Resource resource = new Resource(id, dataset);
-        try (final Stream<Quad> stream = resource.path()) {
-            assertEquals(0, stream.count());
-        }
+        try (final Resource resource = new Resource(id, dataset)) {
+            try (final Stream<Quad> stream = resource.path()) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo)) {
-            assertEquals(2, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo)) {
+                assertEquals(2, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
-            assertEquals(3, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
+                assertEquals(3, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBaz)) {
-            assertEquals(1, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBaz)) {
+                assertEquals(1, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar, exBaz)) {
-            assertEquals(2, stream.count());
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar, exBaz)) {
+                assertEquals(2, stream.count());
+            }
         }
     }
 
@@ -138,25 +140,26 @@ class ResourceTest {
         dataset.add(rdf.createQuad(null, obj3, exBaz, obj7));
         dataset.add(rdf.createQuad(null, obj4, exBaz, obj8));
 
-        final Resource resource = new Resource(id, dataset);
-        try (final Stream<Quad> stream = resource.path()) {
-            assertEquals(0, stream.count());
-        }
+        try (final Resource resource = new Resource(id, dataset)) {
+            try (final Stream<Quad> stream = resource.path()) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo)) {
-            assertEquals(2, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo)) {
+                assertEquals(2, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
-            assertEquals(3, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
+                assertEquals(3, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBaz)) {
-            assertEquals(1, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBaz)) {
+                assertEquals(1, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar, exBaz)) {
-            assertEquals(2, stream.count());
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar, exBaz)) {
+                assertEquals(2, stream.count());
+            }
         }
     }
 
@@ -176,32 +179,34 @@ class ResourceTest {
         dataset.add(rdf.createQuad(null, rdf.createIRI(id.toString()), exFoo, obj2));
         dataset.add(rdf.createQuad(null, obj3, exBar, obj4));
 
-        final Resource resource = new Resource(id, dataset);
-        try (final Stream<Quad> stream = resource.path()) {
-            assertEquals(0, stream.count());
-        }
+        try (final Resource resource = new Resource(id, dataset)) {
+            try (final Stream<Quad> stream = resource.path()) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo)) {
-            assertEquals(2, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo)) {
+                assertEquals(2, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
-            assertEquals(0, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar)) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBaz)) {
-            assertEquals(0, stream.count());
-        }
+            try (final Stream<Quad> stream = resource.path(exFoo, exBaz)) {
+                assertEquals(0, stream.count());
+            }
 
-        try (final Stream<Quad> stream = resource.path(exFoo, exBar, exBaz)) {
-            assertEquals(0, stream.count());
+            try (final Stream<Quad> stream = resource.path(exFoo, exBar, exBaz)) {
+                assertEquals(0, stream.count());
+            }
         }
     }
 
     @Test
     void testValidate() {
         final URI id = URI.create("https://resource.test/path");
-        final Resource resource = new Resource(id, null);
-        assertDoesNotThrow(() -> resource.validate());
+        try (final Resource resource = new Resource(id, null)) {
+            assertDoesNotThrow(() -> resource.validate());
+        }
     }
 }
