@@ -134,10 +134,11 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
         if (request.getMethod().isOneOf(RequestMethod.PATCH)) {
             if (request.contentTypeHeader().containsValue(Utils.SPARQL_UPDATE)) {
-                final boolean exists = this.storage.containsKey(request.getUrl());
                 final var serverBody = this.storage.get(request.getUrl());
+                final var body = serverBody != null ? serverBody.body : new byte[0];
                 try {
-                    final byte[] newBody = Utils.modifyBody(serverBody.body, request.getBodyAsString());
+                    final byte[] newBody =
+                            Utils.modifyBody(body, request.getBodyAsString());
                     this.storage.put(request.getUrl(),
                             new ServerBody(newBody, serverBody.contentType));
                     addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
