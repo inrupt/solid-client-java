@@ -56,6 +56,10 @@ class MockSolidServer {
         return Collections.singletonMap("solid_server", wireMockServer.baseUrl());
     }
 
+    public String getMockServerUrl() {
+        return wireMockServer.baseUrl();
+    }
+
     public void stop() {
         wireMockServer.stop();
     }

@@ -138,7 +138,9 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                 final var serverBody = this.storage.get(request.getUrl());
                 try {
                     final byte[] newBody = Utils.modifyBody(serverBody.body, request.getBodyAsString());
-                    this.storage.put(request.getUrl(), new ServerBody(newBody, serverBody.contentType));
+                    this.storage.put(request.getUrl(),
+                            new ServerBody(newBody, serverBody.contentType));
+                    addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
                     res.withStatus(Utils.NO_CONTENT);
                 } catch (IOException e) {
                     res.withStatus(Utils.ERROR);
@@ -159,7 +161,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
             return res.build();
         }
 
-        return null;
+        return res.withStatus(Utils.NOT_ALLOWED).build();
     }
 
     private void addSubContainersToStorage(final String path, final String mimeType) {

@@ -78,7 +78,6 @@ final class Utils {
     public static final String JWKS_ENDPOINT = "/jwks";
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final Map<String, String> config = new HashMap<>();
 
     static String setupIdToken(final String podUrl, final String username, final String iss, final String azp) {
         final Map<String, Object> claims = new HashMap<>();
@@ -118,7 +117,7 @@ final class Utils {
     }
 
     static void initMockServer() {
-        config.putAll(mockHttpServer.start());
+        mockHttpServer.start();
     }
 
     static void stopMockServer() {
@@ -126,7 +125,7 @@ final class Utils {
     }
 
     static String getMockServerUrl() {
-        return config.get("solid_server");
+        return mockHttpServer.getMockServerUrl();
     }
 
     static boolean isSuccessful(final int status) {

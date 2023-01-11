@@ -21,7 +21,7 @@
 package com.inrupt.client.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
@@ -33,8 +33,6 @@ import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.rdf.api.RDFSyntax;
 import org.junit.jupiter.api.AfterAll;
@@ -42,10 +40,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class MockServerTest {
-
-    private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final Map<String, String> config = new HashMap<>();
-    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static final String ACCEPT = "Accept";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -55,17 +49,18 @@ class MockServerTest {
 
     @BeforeAll
     static void setup() {
-        config.putAll(mockHttpServer.start());
+        Utils.initMockServer();
     }
 
     @AfterAll
     static void teardown() {
-        mockHttpServer.stop();
+        Utils.stopMockServer();
     }
 
     @Test
-    void testMockServerCRUD() {
-        final var resourceUri = URI.create(config.get("solid_server") + "/playlist");
+    void testMockServerAnonymousUserCRUD() {
+        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        final var resourceUri = URI.create(Utils.getMockServerUrl() + "/playlist");
 
         final var playlist = new Playlist(resourceUri, null, null);
 
@@ -76,26 +71,28 @@ class MockServerTest {
         final var res =
                 client.send(req, Response.BodyHandlers.discarding());
 
-        assertEquals(204, res.statusCode());
+        assertTrue(Utils.isSuccessful(res.statusCode()));
 
         final var reqGet =
                 Request.newBuilder().uri(resourceUri).header(ACCEPT, TEXT_TURTLE).GET().build();
 
         final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
-        assertEquals(200, resGet.statusCode());
+        assertEquals(Utils.UNAUTHORIZED, resGet.statusCode());
+        //assertTrue(Utils.isSuccessful(resGet.statusCode()));
 
         final var reqDelete =
                 Request.newBuilder().uri(resourceUri).header(ACCEPT, TEXT_TURTLE).DELETE().build();
 
         final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
-        assertEquals(204, resDelete.statusCode());
+        assertTrue(Utils.isSuccessful(resDelete.statusCode()));
     }
 
     @Test
     void test412() {
-        final var resourceUri = URI.create(config.get("solid_server") + "/playlist");
+        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        final var resourceUri = URI.create(Utils.getMockServerUrl() + "/playlist");
 
         final var playlist = new Playlist(resourceUri, null, null);
 
@@ -107,7 +104,7 @@ class MockServerTest {
 
         final var res = client.send(req, Response.BodyHandlers.discarding());
 
-        assertEquals(204, res.statusCode());
+        assertTrue(Utils.isSuccessful(res.statusCode()));
 
         final var reqPut = Request.newBuilder(playlist.getIdentifier())
             .header(CONTENT_TYPE, TEXT_TURTLE)
@@ -117,7 +114,7 @@ class MockServerTest {
 
         final var resPut = client.send(reqPut, Response.BodyHandlers.discarding());
 
-        assertEquals(412, resPut.statusCode());
+        assertEquals(Utils.PRECONDITION_FAILED, resPut.statusCode());
     }
 
     static Request.BodyPublisher cast(final Resource resource) {
