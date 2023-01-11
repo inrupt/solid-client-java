@@ -1,0 +1,41 @@
+{#include master}
+  {#body}
+        {#if profile is null}
+            <p>You are not logged in.</p>
+        {#else}
+        <br/><br/>
+            <p>You are logged in as <code>{profile.identifier}</code>.</p>
+
+            {#if profile.storage.size > 0}
+            <h3>Solid Storage</h3>
+            <ul>
+            {#for pod in profile.storage}
+              <li>&rsaquo; {pod}</li>
+            {/for}
+            </ul>
+
+            {#if containers.size > 0}
+            <h3>Containers</h3>
+            <ul>
+            {#for c in containers}
+              <li>&rsaquo; {c}</li>
+            {/for}
+            </ul>
+            {/if}
+
+            {#if resources.size > 0}
+            <h3>Resources</h3>
+            <ul>
+            {#for r in resources}
+              <li>&rsaquo; {r}</li>
+            {/for}
+            </ul>
+            {/if}
+
+            {#else}
+            <p>You do not have any Solid Pods.</p>
+            {/if}
+        {/if}
+  {/body}
+{/include}
+
