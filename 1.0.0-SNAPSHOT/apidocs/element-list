@@ -2,7 +2,7 @@ com.inrupt.client
 com.inrupt.client.auth
 com.inrupt.client.core
 com.inrupt.client.examples.cli
-com.inrupt.client.examples.quarkus
+com.inrupt.client.examples.webapp
 com.inrupt.client.httpclient
 com.inrupt.client.jackson
 com.inrupt.client.jena
