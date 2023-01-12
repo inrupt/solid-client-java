@@ -13,7 +13,7 @@
 
   <modules>
     <module>cli</module>
-    <module>quarkus</module>
+    <module>webapp</module>
   </modules>
 
   <build>
