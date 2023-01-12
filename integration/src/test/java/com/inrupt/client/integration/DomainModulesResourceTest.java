@@ -23,14 +23,13 @@ package com.inrupt.client.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdConfig;
-import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.uma.UmaSession;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdBodyHandlers;
@@ -67,8 +66,6 @@ class DomainModulesResourceTest {
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static final String username = config.getValue("inrupt.test.username", String.class);
-    private static final String iss = config.getValue("inrupt.test.idp", String.class);
-    private static final String azp = config.getValue("inrupt.test.azp", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
     
     private static String testContainer = "resource/";
@@ -87,7 +84,8 @@ class DomainModulesResourceTest {
         config.setProofKeyPairs(Collections.singletonMap("RS256",
                     new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
 
-        client = SolidSyncClient.getClient().session(UmaSession.of(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp), config)));
+        //client = SolidSyncClient.getClient().session(UmaSession.of(OpenIdSession.ofIdToken(Utils.setupIdToken(), config)));
+        client = SolidSyncClient.getClient().session(Session.anonymous());
 
         final var req = Request.newBuilder(webid).GET().header("Accept", "text/turtle").build();
         final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());

@@ -30,9 +30,9 @@ import com.inrupt.client.Headers;
 import com.inrupt.client.InruptClientException;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
-import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
@@ -61,8 +61,6 @@ class CoreModulesResourceTest {
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static final String username = config.getValue("inrupt.test.username", String.class);
-    private static final String iss = config.getValue("inrupt.test.idp", String.class);
-    private static final String azp = config.getValue("inrupt.test.azp", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
     private static String testContainer = "resource/";
 
@@ -74,7 +72,8 @@ class CoreModulesResourceTest {
         }
         final var webid = URI.create(podUrl + "/" + username);
 
-        session = session.session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        //session = session.session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        session = session.session(Session.anonymous());
 
         final Request requestRdf = Request.newBuilder(webid).GET().build();
         final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
@@ -124,7 +123,6 @@ class CoreModulesResourceTest {
         if (resCreateIfNotExist.statusCode() == Utils.PRECONDITION_FAILED) {
             final var requestRdf =
                     Request.newBuilder(URI.create(newResourceName))
-                    .header("Authorization", "Bearer")
                     .GET().build();
             final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
             statementsToDelete = responseRdf.body()
@@ -150,7 +148,6 @@ class CoreModulesResourceTest {
 
         //read
         final var reqRead = Request.newBuilder(URI.create(newResourceName))
-                .header("Authorization", "Bearer")
                 .GET().build();
         final var resRead = session.send(reqRead, JenaBodyHandlers.ofModel());
         assertTrue(Utils.isSuccessful(resRead.statusCode()));
@@ -163,7 +160,6 @@ class CoreModulesResourceTest {
         //update
         final var reqReadAgain =
                 Request.newBuilder(URI.create(newResourceName))
-                .header("Authorization", "Bearer")
                 .GET().build();
         final var resReadAgain = session.send(reqReadAgain, JenaBodyHandlers.ofModel());
 
@@ -189,7 +185,6 @@ class CoreModulesResourceTest {
 
         //read
         final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName))
-                .header("Authorization", "Bearer")
                 .GET().build();
         final var resReadAgain1 = session.send(reqReadAgain1, JenaBodyHandlers.ofModel());
         assertTrue(Utils.isSuccessful(resReadAgain1.statusCode()));
@@ -309,7 +304,6 @@ class CoreModulesResourceTest {
         if (resp.statusCode() == Utils.PRECONDITION_FAILED) {
             final Request requestRdf =
                     Request.newBuilder(URI.create(newResourceName))
-                    .header("Authorization", "Bearer")
                     .GET().build();
             final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
             statementsToDelete = responseRdf
@@ -339,7 +333,6 @@ class CoreModulesResourceTest {
         //change non blank node
         //get the newly created dataset and change the non blank node
         final Request req = Request.newBuilder(URI.create(newResourceName))
-                .header("Authorization", "Bearer")
                 .GET().build();
         final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
 

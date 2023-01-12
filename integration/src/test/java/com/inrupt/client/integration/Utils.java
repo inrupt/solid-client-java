@@ -22,14 +22,13 @@ package com.inrupt.client.integration;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
-import com.inrupt.client.auth.Session;
-import com.inrupt.client.openid.OpenIdConfig;
-import com.inrupt.client.openid.OpenIdSession;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +42,8 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -63,6 +64,7 @@ final class Utils {
     static final String BEARER = "Bearer";
     static final String DPOP = "DPoP";
     static final String UMA = "UMA";
+
     static final int SUCCESS = 200;
     static final int CREATED = 201;
     static final int NO_CONTENT = 204;
@@ -72,19 +74,42 @@ final class Utils {
     static final int CONFLICT = 409;
     static final int PRECONDITION_FAILED = 412;
     static final int ERROR = 500;
-
-    public static final String DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
-    public static final String TOKEN_ENDPOINT = "/token";
-    public static final String JWKS_ENDPOINT = "/jwks";
-
+    
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
+    private static final Config config = ConfigProvider.getConfig();
 
-    static String setupIdToken(final String podUrl, final String username, final String iss, final String azp) {
+    static final String PRIVATE_RESOURCE_PATH = config
+        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+        .orElse("/private");
+    static String AS_URI = config.getValue("inrupt.test.asUri", String.class);
+    static String POD_URL = config.getValue("inrupt.test.storage", String.class);
+    private static final String USERNAME = config.getValue("inrupt.test.username", String.class);
+    private static final String ISS = config.getValue("inrupt.test.idp", String.class);
+    private static final String AZP = config.getValue("inrupt.test.azp", String.class);
+    
+    static String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
+    static String TOKEN_ENDPOINT = "/token";
+    static String JWKS_ENDPOINT = "/jwks";
+    
+
+    static String setupIdToken(final String podUrl, final String username, final String iss,
+            final String azp) {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", podUrl + "/" + username);
         claims.put("sub", username);
         claims.put("iss", iss);
         claims.put("azp", azp);
+
+        final String token = generateIdToken(claims);
+        return token;
+    }
+    
+    static String setupIdToken() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", POD_URL + "/" + USERNAME);
+        claims.put("sub", USERNAME);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
 
         final String token = generateIdToken(claims);
         return token;
@@ -118,6 +143,8 @@ final class Utils {
 
     static void initMockServer() {
         mockHttpServer.start();
+        POD_URL = mockHttpServer.getMockServerUrl();
+        AS_URI = POD_URL + "/uma";
     }
 
     static void stopMockServer() {
@@ -133,7 +160,13 @@ final class Utils {
     }
 
     static boolean isAuthorized(final String scheme) {
-        return Arrays.asList(BEARER, UMA, DPOP).contains(scheme);
+        if (scheme == null) return false;
+        boolean isAuthorized = false;
+        for (var one : Arrays.asList(BEARER, UMA, DPOP)) {
+            scheme.contains(one);
+            isAuthorized = true;
+        };
+        return isAuthorized;
     }
 
     static byte[] modifyBody(final byte[] originalBody, final String requestBody)
@@ -163,20 +196,26 @@ final class Utils {
     }
 
     static String getDiscoveryDocument() {
-        return "{" +
-            "\"dpop_signing_alg_values_supported\": [\"ES256\",\"RS256\"]," +
-            "\"grant_types_supported\": [\"urn:ietf:params:oauth:grant-type:uma-ticket\"]," +
-            "\"issuer\": \"" + getMockServerUrl() + "\"," +
-            "\"jwks_uri\": \"" + getMockServerUrl() + JWKS_ENDPOINT + "\"," +
-            "\"token_endpoint\": \"" + getMockServerUrl() + TOKEN_ENDPOINT + "\"," +
-            "\"uma_profiles_supported\": [" +
-                "\"https://www.w3.org/TR/vc-data-model/#json-ld\"," +
-                "\"http://openid.net/specs/openid-connect-core-1_0.html#IDToken\"]" +
-            "}";
+        return "{" + "\"dpop_signing_alg_values_supported\": [\"ES256\",\"RS256\"],"
+                + "\"grant_types_supported\": [\"urn:ietf:params:oauth:grant-type:uma-ticket\"],"
+                + "\"issuer\": \"" + ISS + "\"," + "\"jwks_uri\": \""
+                + POD_URL + JWKS_ENDPOINT + "\"," + "\"token_endpoint\": \""
+                + POD_URL + TOKEN_ENDPOINT + "\"," + "\"uma_profiles_supported\": ["
+                + "\"https://www.w3.org/TR/vc-data-model/#json-ld\","
+                + "\"http://openid.net/specs/openid-connect-core-1_0.html#IDToken\"]" + "}";
+    }
+    
+    static boolean isPrivateResource(final String uri) {
+        return uri.contains(PRIVATE_RESOURCE_PATH);
+    }
+
+    static boolean isPodRoot(final String url) {
+        return "/".equals(url);
     }
 
     private Utils() {
         // Prevent instantiation
     }
+
 
 }

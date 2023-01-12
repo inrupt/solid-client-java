@@ -48,8 +48,6 @@ public class OpenIdTokenAuthTest {
     private static String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static String username = config.getValue("inrupt.test.username", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
-    private static String iss = config.getValue("inrupt.test.idp", String.class);
-    private static String azp = config.getValue("inrupt.test.azp", String.class);
     
     private static String testResourceName = "resource.ttl";
 
@@ -63,7 +61,7 @@ public class OpenIdTokenAuthTest {
         final var webid = URI.create(podUrl + "/" + username);
 
         final SolidSyncClient session = SolidSyncClient.getClient().session(
-                OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+                OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final Request requestRdf = Request.newBuilder(webid).GET().build();
         final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
         final var storages = responseRdf.body()
@@ -95,7 +93,7 @@ public class OpenIdTokenAuthTest {
     void fetchPrivateResourceUnauthenticatedTest() {
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+            OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final URI resourceURL = URI.create(testResourceName);
         final SolidResource testResource = new SolidResource(resourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
@@ -112,7 +110,7 @@ public class OpenIdTokenAuthTest {
     void fetchPrivateResourceAfterLogoutTest() {
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+            OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final URI resourceURL = URI.create(testResourceName);
         final SolidResource testResource = new SolidResource(resourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
@@ -134,7 +132,7 @@ public class OpenIdTokenAuthTest {
         assertDoesNotThrow(() -> client.create(testResource));
 
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+            OpenIdSession.ofIdToken(Utils.setupIdToken()));
         assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
     }
     
@@ -144,7 +142,7 @@ public class OpenIdTokenAuthTest {
     void fetchPrivateResourceAuthenticatedTest() {
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+            OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final URI resourceURL = URI.create(testResourceName);
         final SolidResource testResource = new SolidResource(resourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
@@ -158,7 +156,7 @@ public class OpenIdTokenAuthTest {
     void fetchPrivateResourceUnauthAuthTest() {
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+            OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final URI resourceURL = URI.create(testResourceName);
         final SolidResource testResource = new SolidResource(resourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
@@ -168,7 +166,7 @@ public class OpenIdTokenAuthTest {
                 () -> client.read(resourceURL, SolidResource.class));
         //assertTrue(err.getCause() instanceof ...);
 
-        client.session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        client.session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
         assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
     }
     
@@ -177,7 +175,7 @@ public class OpenIdTokenAuthTest {
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest() {
         //create private resource
-        final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+        final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final URI resourceURL = URI.create(testResourceName);
         final SolidResource testResource = new SolidResource(resourceURL, null, null);
 
@@ -185,7 +183,7 @@ public class OpenIdTokenAuthTest {
 
         //create private another resource
         final SolidSyncClient authClient2 = SolidSyncClient.getClient()
-                .session(OpenIdSession.ofIdToken(Utils.setupIdToken(podUrl, username, iss, azp)));
+                .session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final URI resourceURL2 = URI.create(podUrl + "resource2.ttl");
         final SolidResource testResource2 = new SolidResource(resourceURL2, null, null);
 

@@ -57,45 +57,45 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         final var res = new ResponseDefinitionBuilder();
 
         if (request.getMethod().isOneOf(RequestMethod.GET)) {
-            if (Utils.DISCOVERY_ENDPOINT.equals(request.getUrl())) {
+            if (request.getUrl().contains(Utils.UMA_DISCOVERY_ENDPOINT)) {
                 res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
                 res.withBody(Utils.getDiscoveryDocument());
-                res.withStatus(200);
+                res.withStatus(Utils.SUCCESS);
+                return res.build();
             }
-            if (Utils.TOKEN_ENDPOINT.equals(request.getUrl())) {
-                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
-                res.withBody("{\"access_token\":\"token-12345\",\"token_type\":\"Bearer\"}");
-                res.withStatus(200);
-            }
-            if (Utils.JWKS_ENDPOINT.equals(request.getUrl())) {
-                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
-                res.withBody("/jwks.json");
-                res.withStatus(200);
-            }
-            if (this.storage.containsKey(request.getUrl())) {
-                if (Utils.isAuthorized(request.getHeader("Authorization"))) {
-                    final var serverBody = this.storage.get(request.getUrl());
-                    res.withStatus(Utils.SUCCESS)
-                            .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
-                            .withBody(serverBody.body);
 
-                    if (("/").equals(request.getUrl())) { //we found the storage and asume it is the root
-                        res.withHeader("Link", Headers.Link
-                                .of(URI.create(PIM.getNamespace() + "Storage"), "type").toString());
+            if (this.storage.containsKey(request.getUrl())) {
+                if (Utils.isPrivateResource(request.getUrl())) {
+                    if (Utils.isAuthorized(request.getHeader("Authorization"))) {
+                        loadResponse(res, request.getUrl());
+                        return res.build();
                     }
-                } else {
-                    res.withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
-                            "UMA ticket=\"ticket-67890\", as_uri=\"" + 
-                            Utils.getMockServerUrl() + "\"");
+                    res.withHeader("WWW-Authenticate",
+                            "Bearer, DPoP algs=\"ES256\", "
+                                    + "UMA ticket=\"ticket-67890\", as_uri=\""
+                                    + Utils.AS_URI + "\"");
                     res.withStatus(Utils.UNAUTHORIZED);
+                    return res.build();
+                } 
+                loadResponse(res, request.getUrl());
+                if (Utils.isPodRoot(request.getUrl())) {
+                    //we assume the root is publicly accessible
+                    res.withHeader("Link", Headers.Link
+                            .of(URI.create(PIM.getNamespace() + "Storage"), "type").toString());
                 }
+                return res.build();
             } else {
-                res.withStatus(Utils.NOT_FOUND);
+                return res.withStatus(Utils.NOT_FOUND).build();
             }
-            return res.build();
         }
 
         if (request.getMethod().isOneOf(RequestMethod.POST)) {
+            if (request.getUrl().contains(Utils.TOKEN_ENDPOINT)) {
+                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
+                res.withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}");
+                res.withStatus(Utils.SUCCESS);
+                return res.build();
+            }
             if (request.getUrl().endsWith("/")) {
                 if (!this.storage.containsKey(request.getUrl())) {
                     final String slug = request.getHeader("Slug");
@@ -163,6 +163,13 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         }
 
         return res.withStatus(Utils.NOT_ALLOWED).build();
+    }
+
+    private void loadResponse(final ResponseDefinitionBuilder res, final String url) {
+        final var serverBody = this.storage.get(url);
+        res.withStatus(Utils.SUCCESS)
+            .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
+            .withBody(serverBody.body);
     }
 
     private void addSubContainersToStorage(final String path, final String mimeType) {
