@@ -39,7 +39,7 @@ public class Metadata {
     private final Set<String> allowedPatchSyntaxes = new HashSet<>();
     private final Set<String> allowedPostSyntaxes = new HashSet<>();
     private final Set<String> allowedPutSyntaxes = new HashSet<>();
-    private final Set<String>contentType = new HashSet<>();
+    private final Set<String> contentType = new HashSet<>();
 
     /**
      * The Solid Storage location.
@@ -236,11 +236,11 @@ public class Metadata {
             builderAllowedPutSyntaxes.add(syntax);
             return this;
         }
-        
+
         /**
-         * Add a allowedPutSyntax property.
+         * Add a content type property.
          *
-         * @param syntax the syntax
+         * @param type the content type
          * @return this builder
          */
         public Builder contentType(final String type) {
