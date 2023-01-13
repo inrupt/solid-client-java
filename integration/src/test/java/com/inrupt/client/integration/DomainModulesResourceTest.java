@@ -62,44 +62,35 @@ class DomainModulesResourceTest {
 
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
-    private static SolidSyncClient client;
+    private static SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static final String username = config.getValue("inrupt.test.username", String.class);
-    private static String podUrl = config.getValue("inrupt.test.storage", String.class);
-    
     private static String testContainer = "resource/";
-    private static URI webid;
 
     @BeforeAll
     static void setup() {
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
-            podUrl = Utils.getMockServerUrl();
         }
-        webid = URI.create(podUrl + "/" + username);
 
         final PublicJsonWebKey jwk = Utils.getDpopKey("/rsa-key.json");
         final OpenIdConfig config = new OpenIdConfig();
         config.setProofKeyPairs(Collections.singletonMap("RS256",
                     new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
 
-        //client = SolidSyncClient.getClient().session(UmaSession.of(OpenIdSession.ofIdToken(Utils.setupIdToken(), config)));
-        client = SolidSyncClient.getClient().session(Session.anonymous());
-
-        final var req = Request.newBuilder(webid).GET().header("Accept", "text/turtle").build();
+        final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
         final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());
         if (res.statusCode() == 200) {
             try (final var profile = res.body()) {
                 if (!profile.getStorage().isEmpty()) {
-                    podUrl = profile.getStorage().iterator().next().toString();
+                    Utils.POD_URL = profile.getStorage().iterator().next().toString();
                 }
             }
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
+        if (!Utils.POD_URL.endsWith("/")) {
+            Utils.POD_URL += "/";
         }
-        testContainer = podUrl + testContainer;
+        testContainer = Utils.POD_URL + testContainer;
     }
 
     @AfterAll
@@ -208,20 +199,20 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
         final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(rdf.createIRI(webid.toString()),
-                rdf.createIRI(webid.toString()),
+        dataset.add(rdf.createQuad(rdf.createIRI(Utils.WEBID.toString()),
+                rdf.createIRI(Utils.WEBID.toString()),
                 rdf.createIRI(PIM.storage.toString()),
-                rdf.createIRI(podUrl)));
+                rdf.createIRI(Utils.POD_URL)));
 
-        try (final WebIdProfile profile = new WebIdProfile(webid, dataset)) {
+        try (final WebIdProfile profile = new WebIdProfile(Utils.WEBID, dataset)) {
             assertDoesNotThrow(() -> client.create(profile));
         }
 
-        try (final WebIdProfile sameProfile = client.read(webid, WebIdProfile.class)) {
+        try (final WebIdProfile sameProfile = client.read(Utils.WEBID, WebIdProfile.class)) {
             assertFalse(sameProfile.getStorage().isEmpty());
         }
 
-        final var missingWebId = URIBuilder.newBuilder(webid).path(UUID.randomUUID().toString()).build();
+        final var missingWebId = URIBuilder.newBuilder(Utils.WEBID).path(UUID.randomUUID().toString()).build();
         final var err = assertThrows(SolidClientException.class, () -> client.read(missingWebId, WebIdProfile.class));
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
@@ -231,23 +222,23 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
 
-        final var lefePath = getNestedContainer(podUrl, 3); //example: "UUID1/UUID2/UUID3"
+        final var lefePath = getNestedContainer(Utils.POD_URL, 3); //example: "UUID1/UUID2/UUID3"
 
         Optional<URI> root = Optional.empty();
         var containers = lefePath.split("/");
         while (!root.isPresent() && containers.length > 0) {
-            root = client.read(URI.create(podUrl + String.join("/", containers)), SolidResource.class)
+            root = client.read(URI.create(Utils.POD_URL + String.join("/", containers)), SolidResource.class)
                             .getMetadata()
                             .getStorage();
             containers = Arrays.copyOf(containers, containers.length - 1);
         }
         if (!root.isPresent() && containers.length == 0) {
-            root = client.read(URI.create(podUrl), SolidResource.class)
+            root = client.read(URI.create(Utils.POD_URL), SolidResource.class)
                     .getMetadata()
                     .getStorage();
         }
         assertTrue(root.isPresent());
-        assertEquals(podUrl, root.get().toString());
+        assertEquals(Utils.POD_URL, root.get().toString());
     }
 
     private String getNestedContainer(final String podUrl, final int depth) {

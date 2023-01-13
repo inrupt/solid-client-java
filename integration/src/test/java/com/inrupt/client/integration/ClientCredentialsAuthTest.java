@@ -53,6 +53,8 @@ class ClientCredentialsAuthTest {
     private static String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
     private static String authMethod = config.getValue("inrupt.test.authMethod", String.class);
 
+    private static URI webid = URI.create(podUrl + "/" + username);
+
     private static String testResourceName = "resource.ttl";
 
     @BeforeAll
@@ -61,8 +63,8 @@ class ClientCredentialsAuthTest {
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();
+            webid = URI.create(podUrl + "/" + username);
         }
-        final var webid = URI.create(podUrl + "/" + username);
 
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);

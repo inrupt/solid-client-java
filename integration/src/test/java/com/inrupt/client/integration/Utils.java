@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Array;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,26 +83,14 @@ final class Utils {
         .orElse("/private");
     static String AS_URI = config.getValue("inrupt.test.asUri", String.class);
     static String POD_URL = config.getValue("inrupt.test.storage", String.class);
-    private static final String USERNAME = config.getValue("inrupt.test.username", String.class);
+    static final String USERNAME = config.getValue("inrupt.test.username", String.class);
     private static final String ISS = config.getValue("inrupt.test.idp", String.class);
     private static final String AZP = config.getValue("inrupt.test.azp", String.class);
+    static URI WEBID = URI.create(POD_URL + "/" + USERNAME);
     
     static String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static String TOKEN_ENDPOINT = "/token";
     static String JWKS_ENDPOINT = "/jwks";
-    
-
-    static String setupIdToken(final String podUrl, final String username, final String iss,
-            final String azp) {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", podUrl + "/" + username);
-        claims.put("sub", username);
-        claims.put("iss", iss);
-        claims.put("azp", azp);
-
-        final String token = generateIdToken(claims);
-        return token;
-    }
     
     static String setupIdToken() {
         final Map<String, Object> claims = new HashMap<>();
@@ -145,6 +133,7 @@ final class Utils {
         mockHttpServer.start();
         POD_URL = mockHttpServer.getMockServerUrl();
         AS_URI = POD_URL + "/uma";
+        WEBID = URI.create(POD_URL + "/" + USERNAME);
     }
 
     static void stopMockServer() {
@@ -215,6 +204,11 @@ final class Utils {
 
     private Utils() {
         // Prevent instantiation
+    }
+
+    public static URI setupClientCredential(URI create, String clientId, String clientSecrete,
+            String authMethod) {
+        return null;
     }
 
 

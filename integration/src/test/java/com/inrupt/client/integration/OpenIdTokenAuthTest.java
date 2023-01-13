@@ -49,6 +49,8 @@ public class OpenIdTokenAuthTest {
     private static String username = config.getValue("inrupt.test.username", String.class);
     private static String podUrl = config.getValue("inrupt.test.storage", String.class);
     
+    private static URI webid = URI.create(podUrl + "/" + username);
+
     private static String testResourceName = "resource.ttl";
 
     @BeforeAll
@@ -57,8 +59,8 @@ public class OpenIdTokenAuthTest {
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
             podUrl = Utils.getMockServerUrl();
+            webid = URI.create(podUrl + "/" + username);
         }
-        final var webid = URI.create(podUrl + "/" + username);
 
         final SolidSyncClient session = SolidSyncClient.getClient().session(
                 OpenIdSession.ofIdToken(Utils.setupIdToken()));
