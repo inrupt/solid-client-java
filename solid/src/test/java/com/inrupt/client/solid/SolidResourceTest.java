@@ -90,6 +90,7 @@ class SolidResourceTest {
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
         assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+        assertEquals(Collections.singleton("text/turtle"), resource.getMetadata().getContentType());
     }
 
     @Test

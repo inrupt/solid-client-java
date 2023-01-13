@@ -39,6 +39,7 @@ public class Metadata {
     private final Set<String> allowedPatchSyntaxes = new HashSet<>();
     private final Set<String> allowedPostSyntaxes = new HashSet<>();
     private final Set<String> allowedPutSyntaxes = new HashSet<>();
+    private final Set<String>contentType = new HashSet<>();
 
     /**
      * The Solid Storage location.
@@ -119,6 +120,15 @@ public class Metadata {
     }
 
     /**
+     * The content types associated with the Solid Resource.
+     *
+     * @return the content types
+     */
+    public Set<String> getContentType() {
+        return contentType;
+    }
+
+    /**
      * Create a new Metadata object.
      *
      * @param storage the Solid storage in which this resource is managed
@@ -148,6 +158,7 @@ public class Metadata {
         private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
+        private Set<String> builderContentType = new HashSet<>();
 
         /**
          * Add a storage property.
@@ -225,6 +236,17 @@ public class Metadata {
             builderAllowedPutSyntaxes.add(syntax);
             return this;
         }
+        
+        /**
+         * Add a allowedPutSyntax property.
+         *
+         * @param syntax the syntax
+         * @return this builder
+         */
+        public Builder contentType(final String type) {
+            builderContentType.add(type);
+            return this;
+        }
 
         /**
          * Build the Metadata object.
@@ -239,6 +261,7 @@ public class Metadata {
             metadata.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);
             metadata.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);
             metadata.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);
+            metadata.contentType.addAll(builderContentType);
             return metadata;
         }
 

@@ -131,6 +131,11 @@ public final class SolidResourceHandlers {
             .map(String::trim)
             .forEach(metadata::allowedPutSyntax);
 
+        headers.allValues("Content-Type").stream()
+            .flatMap(s -> Arrays.stream(s.split(";")))
+            .map(String::trim)
+            .forEach(metadata::contentType);
+
         return metadata.build();
     }
 
