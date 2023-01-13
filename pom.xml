@@ -284,6 +284,24 @@
               <link>https://rdf4j.org/javadoc/latest/</link>
               <link>https://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
             </links>
+            <header>
+              <![CDATA[
+                <h2>Inrupt Client Libraries</h2>
+                <script>
+                      var _paq = window._paq = window._paq || [];
+                      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+                      _paq.push(['trackPageView']);
+                      _paq.push(['enableLinkTracking']);
+                      (function() {
+                        var u="https://inrupt.matomo.cloud/";
+                        _paq.push(['setTrackerUrl', u+'matomo.php']);
+                        _paq.push(['setSiteId', '3']);
+                        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                        g.async=true; g.src='//cdn.matomo.cloud/inrupt.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+                      })();
+                </script>
+              ]]>
+            </header>
             <tags>
               <tag>
                 <name>implSpec</name>
@@ -301,6 +319,7 @@
                 <head>API Note:</head>
               </tag>
             </tags>
+            <additionalOptions>--allow-script-in-comments</additionalOptions>
           </configuration>
           <executions>
             <execution>

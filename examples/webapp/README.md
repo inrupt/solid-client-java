@@ -17,7 +17,7 @@ These configuration values are typically added to a `./config/application.proper
 To run the application, use this command:
 
 ```
-$ java -jar examples/quarkus/target/quarkus-app/quarkus-run.jar
+$ java -jar examples/webapp/target/quarkus-app/quarkus-run.jar
 ```
 
 The application will be available at `http://localhost:8080`
