@@ -39,7 +39,7 @@ public class Metadata {
     private final Set<String> allowedPatchSyntaxes = new HashSet<>();
     private final Set<String> allowedPostSyntaxes = new HashSet<>();
     private final Set<String> allowedPutSyntaxes = new HashSet<>();
-    private final Set<String> contentType = new HashSet<>();
+    private final String contentType;
 
     /**
      * The Solid Storage location.
@@ -124,7 +124,7 @@ public class Metadata {
      *
      * @return the content types
      */
-    public Set<String> getContentType() {
+    public String getContentType() {
         return contentType;
     }
 
@@ -132,9 +132,15 @@ public class Metadata {
      * Create a new Metadata object.
      *
      * @param storage the Solid storage in which this resource is managed
+     * @param contentType the content type of the respective Solid resource
      */
-    protected Metadata(final URI storage) {
+    protected Metadata(final URI storage, final String contentType) {
         this.storage = storage;
+        if (contentType != null) {
+            this.contentType = contentType;
+        } else {
+            this.contentType = "application/octet-stream";
+        }
     }
 
     /**
@@ -158,7 +164,7 @@ public class Metadata {
         private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
-        private Set<String> builderContentType = new HashSet<>();
+        private String builderContentType;
 
         /**
          * Add a storage property.
@@ -244,7 +250,7 @@ public class Metadata {
          * @return this builder
          */
         public Builder contentType(final String type) {
-            builderContentType.add(type);
+            builderContentType = type;
             return this;
         }
 
@@ -254,14 +260,13 @@ public class Metadata {
          * @return the resource Metadata object
          */
         public Metadata build() {
-            final Metadata metadata = new Metadata(builderStorage);
+            final Metadata metadata = new Metadata(builderStorage, builderContentType);
             metadata.wacAllow.putAll(builderWacAllow);
             metadata.type.addAll(builderType);
             metadata.allowedMethods.addAll(builderAllowedMethods);
             metadata.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);
             metadata.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);
             metadata.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);
-            metadata.contentType.addAll(builderContentType);
             return metadata;
         }
 

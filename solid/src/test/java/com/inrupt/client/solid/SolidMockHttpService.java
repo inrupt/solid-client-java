@@ -122,9 +122,7 @@ public class SolidMockHttpService {
                 .willReturn(aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "text/turtle")
-                    .withBody("This isn't valid turtle.")
-            )
-        );
+                    .withBody("This isn't valid turtle.")));
 
         wireMockServer.stubFor(get(urlEqualTo("/missing"))
                 .willReturn(aResponse()
@@ -143,6 +141,11 @@ public class SolidMockHttpService {
                     .withStatus(403)
                     .withHeader("Content-Type", "application/json")
                     .withBody("{\"error\": \"forbidden\"}")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/noContentType"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withBodyFile("solidResourceExample.ttl")));
     }
 
     public Map<String, String> start() {
