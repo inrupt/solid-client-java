@@ -66,6 +66,7 @@ class SolidSyncClientTest {
             assertEquals(2, playlist.getSongs().size());
             assertTrue(playlist.getSongs().contains(song1));
             assertTrue(playlist.getSongs().contains(song2));
+            assertTrue(playlist.validate().getValid());
 
             assertDoesNotThrow(() -> client.create(playlist));
             assertDoesNotThrow(() -> client.update(playlist));

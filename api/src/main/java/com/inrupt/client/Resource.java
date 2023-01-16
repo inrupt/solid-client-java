@@ -117,9 +117,10 @@ public class Resource implements AutoCloseable {
      * <p>Subclasses may override this method to perform validation on the provided dataset.
      * By default, this method is a no-op.
      */
-    public void validate() {
-        // no-op
+    public ValidResult validate() {
+        return new ValidResult(true);
     }
+
 
     @Override
     public void close() {

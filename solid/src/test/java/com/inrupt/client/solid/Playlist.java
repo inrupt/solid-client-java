@@ -30,6 +30,8 @@ import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.Quad;
 
+import com.inrupt.client.ValidResult;
+
 public class Playlist extends SolidResource {
 
     private final IRI dcTitle;
@@ -54,6 +56,15 @@ public class Playlist extends SolidResource {
         return getDataset().stream(Optional.empty(), subject, exSong, null)
             .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
             .map(IRI::getIRIString).map(URI::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public ValidResult validate(){
+        //EX: a playlist must contain at least one song
+        if(getSongs().isEmpty()){
+            return new ValidResult(false, "A playlist must contain at least one song.");
+        }
+        return new ValidResult(true);
     }
 }
 
