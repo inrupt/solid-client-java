@@ -38,7 +38,7 @@
 
     <!-- plugins -->
     <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
-    <checkstyle.plugin.version>3.2.0</checkstyle.plugin.version>
+    <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.10.1</compiler.plugin.version>
     <deploy.plugin.version>3.0.0</deploy.plugin.version>
@@ -50,7 +50,7 @@
     <javadoc.plugin.version>3.4.1</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
-    <owasp.plugin.version>7.4.4</owasp.plugin.version>
+    <owasp.plugin.version>8.0.0</owasp.plugin.version>
     <projectinfo.plugin.version>3.4.1</projectinfo.plugin.version>
     <pmd.plugin.version>3.19.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
@@ -58,7 +58,7 @@
     <resources.plugin.version>3.3.0</resources.plugin.version>
     <sonar.plugin.version>3.9.1.2184</sonar.plugin.version>
     <source.plugin.version>3.2.1</source.plugin.version>
-    <surefire.plugin.version>3.0.0-M7</surefire.plugin.version>
+    <surefire.plugin.version>3.0.0-M8</surefire.plugin.version>
 
     <!-- tooling -->
     <checkstyle.tool.version>10.6.0</checkstyle.tool.version>
@@ -66,7 +66,7 @@
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
     <equalsverifier.version>3.12.3</equalsverifier.version>
-    <junit.version>5.9.1</junit.version>
+    <junit.version>5.9.2</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
