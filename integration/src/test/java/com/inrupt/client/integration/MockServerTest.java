@@ -22,12 +22,12 @@ package com.inrupt.client.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
 import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.openid.OpenIdConfig;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidResourceException;
 import com.inrupt.client.solid.SolidResourceHandlers;
@@ -37,10 +37,7 @@ import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.security.KeyPair;
-import java.util.Collections;
 import org.apache.commons.rdf.api.RDFSyntax;
-import org.jose4j.jwk.PublicJsonWebKey;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -50,7 +47,6 @@ class MockServerTest {
     @BeforeAll
     static void setup() {
         Utils.initMockServer();
-        Utils.POD_URL = Utils.getMockServerUrl();
     }
 
     @AfterAll
@@ -60,15 +56,15 @@ class MockServerTest {
 
     @Test
     void testAnonymousUserCRUD() {
+        //create an authenticated client
         final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
         //create a public resource
-        final var resourceUri = URI.create(Utils.getMockServerUrl() + "/playlist");
+        final var resourceUri = URI.create(Utils.POD_URL + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
 
         final var req =
                 Request.newBuilder(playlist.getIdentifier()).header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                         .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
-
         final var res =
                 client.send(req, Response.BodyHandlers.discarding());
 
@@ -76,14 +72,12 @@ class MockServerTest {
 
         final var reqGet =
                 Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
-
         final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
         assertTrue(Utils.isSuccessful(resGet.statusCode()));
 
         final var reqDelete =
                 Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
-
         final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(resDelete.statusCode()));
@@ -91,9 +85,10 @@ class MockServerTest {
 
     @Test
     void test412() {
+        //create an authenticated client
         final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
-        //create a private resource
-        final var resourceUri = URI.create(Utils.getMockServerUrl() + "/playlist");
+        //create a public resource
+        final var resourceUri = URI.create(Utils.POD_URL + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
 
         final var req = Request.newBuilder(playlist.getIdentifier())
@@ -113,7 +108,6 @@ class MockServerTest {
 
         final var reqDelete =
                 Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
-
         final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(resDelete.statusCode()));
@@ -121,50 +115,42 @@ class MockServerTest {
     
     @Test
     void testUnuthenticatedCRUD() {
-        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        //create an authenticated client
+        final SolidSyncClient client = SolidSyncClient.getClient();
         //create a private resource
         final var resourceUri =
-                URI.create(Utils.getMockServerUrl() + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
+                URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
         final var req = Request.newBuilder(playlist.getIdentifier())
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
         final var res = client.send(req, Response.BodyHandlers.discarding());
 
-        assertTrue(Utils.isSuccessful(res.statusCode()));
+        assertEquals(Utils.UNAUTHORIZED, res.statusCode());
 
         final var reqGet = Request.newBuilder().uri(resourceUri)
                 .header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
-
         final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
         assertEquals(Utils.UNAUTHORIZED, resGet.statusCode());
         final var challenges = WwwAuthenticate.parse(resGet.headers().firstValue("WWW-Authenticate").get()).getChallenges();
-
         assertTrue(challenges.toString().contains(Utils.AS_URI));
-
 
         final var reqDelete = Request.newBuilder().uri(resourceUri)
                 .header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
-
         final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
-        assertTrue(Utils.isSuccessful(resDelete.statusCode()));
+        assertEquals(Utils.UNAUTHORIZED, resDelete.statusCode());
     }
     
     @Test
     void testAuthenticatedBearerCRUD() {
         //authenticate with Bearer token
-        final PublicJsonWebKey jwk = Utils.getDpopKey("/rsa-key.json");
-        final OpenIdConfig config = new OpenIdConfig();
-        config.setProofKeyPairs(Collections.singletonMap("RS256",
-                new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
-                    
-        final var session = OpenIdSession.ofIdToken(Utils.setupIdToken(), config);
+        var session = OpenIdSession.ofIdToken(Utils.setupIdToken());
         SolidSyncClient client = SolidSyncClient.getClient().session(UmaSession.of(session));
         //create a private resource
         final var resourceUri =
-                URI.create(Utils.getMockServerUrl() + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
+                URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
         final var req = Request.newBuilder(playlist.getIdentifier())
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
@@ -175,7 +161,6 @@ class MockServerTest {
 
         final var reqGet = Request.newBuilder().uri(resourceUri)
                 .header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
-
         final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
         assertTrue(Utils.isSuccessful(resGet.statusCode()));

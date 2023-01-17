@@ -57,7 +57,7 @@ import org.junit.jupiter.api.Test;
 class CoreModulesResourceTest {
 
     private static final Config config = ConfigProvider.getConfig();
-    private static SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
     
@@ -79,10 +79,7 @@ class CoreModulesResourceTest {
             Utils.POD_URL = storages.get(0).toString();
 
         }
-        if (!Utils.POD_URL.endsWith("/")) {
-            Utils.POD_URL += "/";
-        }
-        testContainer = Utils.POD_URL + testContainer;
+        testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
     @AfterAll

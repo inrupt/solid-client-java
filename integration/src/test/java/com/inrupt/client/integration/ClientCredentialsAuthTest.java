@@ -22,20 +22,22 @@ package com.inrupt.client.integration;
 
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
-import java.util.concurrent.CompletionException;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -45,61 +47,65 @@ class ClientCredentialsAuthTest {
 
     private static final Config config = ConfigProvider.getConfig();
 
-    private static String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static String podUrl = config.getValue("inrupt.test.storage", String.class);
-    private static String username = config.getValue("inrupt.test.username", String.class);
-    private static String iss = config.getValue("inrupt.test.idp", String.class);
-    private static String clientId = config.getValue("inrupt.test.clientId", String.class);
-    private static String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
-    private static String authMethod = config.getValue("inrupt.test.authMethod", String.class);
+    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
+    private static final String iss = config.getValue("inrupt.test.idp", String.class);
+    private static final String clientId = config.getValue("inrupt.test.clientId", String.class);
+    private static final String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
+    private static final String authMethod = config.getValue("inrupt.test.authMethod", String.class);
 
-    private static URI webid = URI.create(podUrl + "/" + username);
+    private static URI publicResourceURL;
+    private static URI privateResourceURL;
 
     private static String testResourceName = "resource.ttl";
 
     @BeforeAll
     static void setup() {
-        
+
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
-            podUrl = Utils.getMockServerUrl();
-            webid = URI.create(podUrl + "/" + username);
         }
 
-        final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
+        final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId,
+                clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
-        final Request requestRdf = Request.newBuilder(webid).GET().build();
+        final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
         final var responseRdf = authClient.send(requestRdf, JenaBodyHandlers.ofModel());
         final var storages = responseRdf.body()
                 .listSubjectsWithProperty(createProperty(PIM.storage.toString())).toList();
 
         if (!storages.isEmpty()) {
-            podUrl = storages.get(0).toString();
+            Utils.POD_URL = storages.get(0).toString();
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
+
+        publicResourceURL = URI.create(Utils.POD_URL + "/" + testResourceName);
+        privateResourceURL =
+                URI.create(Utils.POD_URL+ "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + testResourceName);
+    }
+    
+    @AfterAll
+    static void teardown() {
+        if (testEnv.equals("MockSolidServer")) {
+            Utils.stopMockServer();
         }
-        testResourceName = podUrl + testResourceName;
     }
 
-
     @Test
-    @Disabled
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest() {
         //create private resource
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
-        final URI resourceURL = URI.create(testResourceName);
-        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
         
         final SolidSyncClient client = SolidSyncClient.getClient();
-        final CompletionException err = assertThrows(CompletionException.class,
-                () -> client.read(resourceURL, SolidResource.class));
-        //assertTrue(err.getCause() instanceof ...);
+        final SolidClientException err = assertThrows(SolidClientException.class,
+                () -> client.read(privateResourceURL, SolidResource.class));
+        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+
+        assertDoesNotThrow(() -> authClient.delete(testResource));
     }
 
     @Test
@@ -109,51 +115,46 @@ class ClientCredentialsAuthTest {
         //create private resource
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final URI resourceURL = URI.create(testResourceName);
-        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
 
         //TODO end seesion
-        /*final EndSessionRequest endReq = EndSessionRequest.Builder.newBuilder()
-            .postLogoutRedirectUri(URI.create("https://example.test/redirectUri"))
-            .clientId(clientId)
-            .state("solid")
-            .build();
-        final URI uri = openIdProvider.endSession(endReq).toCompletableFuture().join();
-        */
-
                 
-        final CompletionException err = assertThrows(CompletionException.class,
-                () -> authClient.read(resourceURL, SolidResource.class));
-        //assertTrue(err.getCause() instanceof ...);
+        final SolidClientException err = assertThrows(SolidClientException.class,
+                () -> authClient.read(privateResourceURL, SolidResource.class));
+        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+
+        //TODO add session
+        authClient.session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        assertDoesNotThrow(() -> authClient.delete(testResource));
     }
     
     @Test
-    @Disabled
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest() {
         final SolidSyncClient client = SolidSyncClient.getClient();
-        final URI resourceURL = URI.create(testResourceName);
-        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         assertDoesNotThrow(() -> client.create(testResource));
 
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
+        assertDoesNotThrow(() -> authClient.read(publicResourceURL, SolidResource.class));
+
+        assertDoesNotThrow(() -> client.delete(testResource));
     }
     
     @Test
-    @Disabled
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest() {
         //create private resource
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final URI resourceURL = URI.create(testResourceName);
-        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
 
-        assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
+        assertDoesNotThrow(() -> authClient.read(privateResourceURL, SolidResource.class));
+
+        assertDoesNotThrow(() -> authClient.delete(testResource));
     }
     
     @Test
@@ -163,44 +164,47 @@ class ClientCredentialsAuthTest {
         //create private resource
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final URI resourceURL = URI.create(testResourceName);
-        final SolidResource testResource = new SolidResource(resourceURL, null, null);
+        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
 
         final SolidSyncClient client = SolidSyncClient.getClient();
-        final CompletionException err = assertThrows(CompletionException.class,
-                () -> client.read(resourceURL, SolidResource.class));
-        //assertTrue(err.getCause() instanceof ...);
+        final SolidClientException err = assertThrows(SolidClientException.class,
+                () -> client.read(privateResourceURL, SolidResource.class));
+        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
-        client.session(session);
-        assertDoesNotThrow(() -> authClient.read(resourceURL, SolidResource.class));
+        //TODO a more flexible way to add session
+        client.session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        assertDoesNotThrow(() -> client.read(privateResourceURL, SolidResource.class));
+
+        assertDoesNotThrow(() -> client.delete(testResource));
     }
     
     @Test
-    @Disabled
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest() {
         //create private resource
+        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         final var session = OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod);
         final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);
-        final URI resourceURL = URI.create(testResourceName);
-        final SolidResource testResource = new SolidResource(resourceURL, null, null);
-
         assertDoesNotThrow(() -> authClient1.create(testResource));
 
-        //create private another resource
+        //create another private resource with another client
+        final URI privateResourceURL2 = URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
+        final SolidResource testResource2 = new SolidResource(privateResourceURL2, null, null);
         final SolidSyncClient authClient2 = SolidSyncClient.getClient().session(session);
-        final URI resourceURL2 = URI.create(podUrl + "resource2.ttl");
-        final SolidResource testResource2 = new SolidResource(resourceURL2, null, null);
-
         assertDoesNotThrow(() -> authClient2.create(testResource2));
 
-        final CompletionException err = assertThrows(CompletionException.class,
-                () -> authClient1.read(resourceURL2, SolidResource.class));
-        //assertTrue(err.getCause() instanceof ...);
+        //read the other resource created with the other client
+        assertDoesNotThrow(() -> authClient1.read(privateResourceURL2, SolidResource.class));
+        assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidResource.class));
 
-        final CompletionException err2 = assertThrows(CompletionException.class,
-                () -> authClient2.read(resourceURL, SolidResource.class));
-        //assertTrue(err.getCause() instanceof ...);
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        final SolidClientException err = assertThrows(SolidClientException.class,
+                () -> client.read(privateResourceURL, SolidResource.class));
+        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+
+        //delete both resources with whichever client
+        assertDoesNotThrow(() -> authClient1.delete(testResource2));
+        assertDoesNotThrow(() -> authClient1.delete(testResource));
     }
 }

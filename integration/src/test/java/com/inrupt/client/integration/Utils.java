@@ -84,9 +84,9 @@ final class Utils {
     static String AS_URI = config.getValue("inrupt.test.asUri", String.class);
     static String POD_URL = config.getValue("inrupt.test.storage", String.class);
     static final String USERNAME = config.getValue("inrupt.test.username", String.class);
-    private static final String ISS = config.getValue("inrupt.test.idp", String.class);
-    private static final String AZP = config.getValue("inrupt.test.azp", String.class);
     static URI WEBID = URI.create(POD_URL + "/" + USERNAME);
+    static final String ISS = config.getValue("inrupt.test.idp", String.class);
+    private static final String AZP = config.getValue("inrupt.test.azp", String.class);
     
     static String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static String TOKEN_ENDPOINT = "/token";
@@ -148,16 +148,6 @@ final class Utils {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
     }
 
-    static boolean isAuthorized(final String scheme) {
-        if (scheme == null) return false;
-        boolean isAuthorized = false;
-        for (var one : Arrays.asList(BEARER, UMA, DPOP)) {
-            scheme.contains(one);
-            isAuthorized = true;
-        };
-        return isAuthorized;
-    }
-
     static byte[] modifyBody(final byte[] originalBody, final String requestBody)
             throws IOException {
         try (final InputStream input = new ByteArrayInputStream(originalBody)) {
@@ -183,15 +173,17 @@ final class Utils {
             throw new UncheckedJoseException("Unable to generate DPoP token", ex);
         }
     }
+    
+    static String getResource(final String path, final String baseUrl, final String issuer) {
+        return getResource(path).replace("{{baseUrl}}", baseUrl).replace("{{issuerUrl}}", issuer);
+    }
 
-    static String getDiscoveryDocument() {
-        return "{" + "\"dpop_signing_alg_values_supported\": [\"ES256\",\"RS256\"],"
-                + "\"grant_types_supported\": [\"urn:ietf:params:oauth:grant-type:uma-ticket\"],"
-                + "\"issuer\": \"" + ISS + "\"," + "\"jwks_uri\": \""
-                + POD_URL + JWKS_ENDPOINT + "\"," + "\"token_endpoint\": \""
-                + POD_URL + TOKEN_ENDPOINT + "\"," + "\"uma_profiles_supported\": ["
-                + "\"https://www.w3.org/TR/vc-data-model/#json-ld\","
-                + "\"http://openid.net/specs/openid-connect-core-1_0.html#IDToken\"]" + "}";
+    static String getResource(final String path) {
+        try (final InputStream res = Utils.class.getResourceAsStream(path)) {
+            return new String(IOUtils.toByteArray(res), UTF_8);
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Could not read class resource", ex);
+        }
     }
     
     static boolean isPrivateResource(final String uri) {
@@ -205,11 +197,5 @@ final class Utils {
     private Utils() {
         // Prevent instantiation
     }
-
-    public static URI setupClientCredential(URI create, String clientId, String clientSecrete,
-            String authMethod) {
-        return null;
-    }
-
 
 }

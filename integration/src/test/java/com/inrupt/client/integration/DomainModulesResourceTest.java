@@ -36,9 +36,7 @@ import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
-import java.security.KeyPair;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,7 +50,6 @@ import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.jose4j.jwk.PublicJsonWebKey;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -62,7 +59,7 @@ class DomainModulesResourceTest {
 
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
-    private static SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static String testContainer = "resource/";
@@ -73,11 +70,6 @@ class DomainModulesResourceTest {
             Utils.initMockServer();
         }
 
-        final PublicJsonWebKey jwk = Utils.getDpopKey("/rsa-key.json");
-        final OpenIdConfig config = new OpenIdConfig();
-        config.setProofKeyPairs(Collections.singletonMap("RS256",
-                    new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
-
         final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
         final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());
         if (res.statusCode() == 200) {
@@ -87,10 +79,7 @@ class DomainModulesResourceTest {
                 }
             }
         }
-        if (!Utils.POD_URL.endsWith("/")) {
-            Utils.POD_URL += "/";
-        }
-        testContainer = Utils.POD_URL + testContainer;
+        testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
     @AfterAll
@@ -227,7 +216,7 @@ class DomainModulesResourceTest {
         Optional<URI> root = Optional.empty();
         var containers = lefePath.split("/");
         while (!root.isPresent() && containers.length > 0) {
-            root = client.read(URI.create(Utils.POD_URL + String.join("/", containers)), SolidResource.class)
+            root = client.read(URI.create(Utils.POD_URL + "/" + String.join("/", containers)), SolidResource.class)
                             .getMetadata()
                             .getStorage();
             containers = Arrays.copyOf(containers, containers.length - 1);
@@ -246,7 +235,7 @@ class DomainModulesResourceTest {
         for (int i = 1; i < depth; i++) {
             tempUrl += "/" + UUID.randomUUID().toString();
         }
-        final var resource = new SolidResource(URI.create(podUrl + tempUrl));
+        final var resource = new SolidResource(URI.create(podUrl + "/" + tempUrl));
         client.create(resource);
         return tempUrl;
     }
