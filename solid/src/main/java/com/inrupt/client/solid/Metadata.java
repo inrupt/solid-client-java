@@ -39,7 +39,7 @@ public class Metadata {
     private final Set<String> allowedPatchSyntaxes = new HashSet<>();
     private final Set<String> allowedPostSyntaxes = new HashSet<>();
     private final Set<String> allowedPutSyntaxes = new HashSet<>();
-    private final String contentType;
+    private String contentType;
 
     /**
      * The Solid Storage location.
@@ -134,13 +134,8 @@ public class Metadata {
      * @param storage the Solid storage in which this resource is managed
      * @param contentType the content type of the respective Solid resource
      */
-    protected Metadata(final URI storage, final String contentType) {
+    protected Metadata(final URI storage) {
         this.storage = storage;
-        if (contentType != null) {
-            this.contentType = contentType;
-        } else {
-            this.contentType = "application/octet-stream";
-        }
     }
 
     /**
@@ -260,13 +255,14 @@ public class Metadata {
          * @return the resource Metadata object
          */
         public Metadata build() {
-            final Metadata metadata = new Metadata(builderStorage, builderContentType);
+            final Metadata metadata = new Metadata(builderStorage);
             metadata.wacAllow.putAll(builderWacAllow);
             metadata.type.addAll(builderType);
             metadata.allowedMethods.addAll(builderAllowedMethods);
             metadata.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);
             metadata.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);
             metadata.allowedPutSyntaxes.addAll(builderAllowedPutSyntaxes);
+            metadata.contentType = builderContentType;
             return metadata;
         }
 
