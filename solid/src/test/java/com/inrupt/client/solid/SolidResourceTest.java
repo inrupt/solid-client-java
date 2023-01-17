@@ -90,6 +90,7 @@ class SolidResourceTest {
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
         assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
                 .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+        assertEquals("text/turtle", resource.getMetadata().getContentType());
     }
 
     @Test
@@ -164,6 +165,24 @@ class SolidResourceTest {
             assertEquals(0, res.getDataset().stream().count());
             assertEquals(id, res.getIdentifier());
         }
+    }
+
+    @Test
+    void testEmptyContentType() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/noContentType");
+        final Request request =
+                Request.newBuilder().uri(uri).header("Accept", "text/turtle").GET().build();
+
+        final Response<SolidResource> response =
+                client.send(request, SolidResourceHandlers.ofSolidResource()).toCompletableFuture()
+                        .join();
+
+        assertEquals(200, response.statusCode());
+
+        final SolidResource resource = response.body();
+        assertEquals(uri, resource.getIdentifier());
+        assertEquals("application/octet-stream", resource.getMetadata().getContentType());
+
     }
 
     @Test

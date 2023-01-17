@@ -39,6 +39,7 @@ public class Metadata {
     private final Set<String> allowedPatchSyntaxes = new HashSet<>();
     private final Set<String> allowedPostSyntaxes = new HashSet<>();
     private final Set<String> allowedPutSyntaxes = new HashSet<>();
+    private final String contentType;
 
     /**
      * The Solid Storage location.
@@ -119,12 +120,23 @@ public class Metadata {
     }
 
     /**
+     * The content types associated with the Solid Resource.
+     *
+     * @return the content types
+     */
+    public String getContentType() {
+        return contentType;
+    }
+
+    /**
      * Create a new Metadata object.
      *
      * @param storage the Solid storage in which this resource is managed
+     * @param contentType the content type of the respective Solid resource
      */
-    protected Metadata(final URI storage) {
+    protected Metadata(final URI storage, final String contentType) {
         this.storage = storage;
+        this.contentType = contentType;
     }
 
     /**
@@ -148,6 +160,7 @@ public class Metadata {
         private Set<String> builderAllowedPatchSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPostSyntaxes = new HashSet<>();
         private Set<String> builderAllowedPutSyntaxes = new HashSet<>();
+        private String builderContentType;
 
         /**
          * Add a storage property.
@@ -227,12 +240,23 @@ public class Metadata {
         }
 
         /**
+         * Add a content type property.
+         *
+         * @param type the content type
+         * @return this builder
+         */
+        public Builder contentType(final String type) {
+            builderContentType = type;
+            return this;
+        }
+
+        /**
          * Build the Metadata object.
          *
          * @return the resource Metadata object
          */
         public Metadata build() {
-            final Metadata metadata = new Metadata(builderStorage);
+            final Metadata metadata = new Metadata(builderStorage, builderContentType);
             metadata.wacAllow.putAll(builderWacAllow);
             metadata.type.addAll(builderType);
             metadata.allowedMethods.addAll(builderAllowedMethods);
