@@ -131,6 +131,8 @@ public final class SolidResourceHandlers {
             .map(String::trim)
             .forEach(metadata::allowedPutSyntax);
 
+        metadata.contentType(headers.firstValue("Content-Type").orElse("application/octet-stream"));
+
         return metadata.build();
     }
 
