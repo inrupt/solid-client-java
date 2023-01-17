@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.ValidationResult;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +31,6 @@ import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.Quad;
-
-import com.inrupt.client.ValidResult;
 
 public class Playlist extends SolidResource {
 
@@ -59,12 +59,12 @@ public class Playlist extends SolidResource {
     }
 
     @Override
-    public ValidResult validate(){
+    public ValidationResult validate() {
         //EX: a playlist must contain at least one song
-        if(getSongs().isEmpty()){
-            return new ValidResult(false, "A playlist must contain at least one song.");
+        if (getSongs().isEmpty()) {
+            return new ValidationResult(false, "A playlist must contain at least one song.");
         }
-        return new ValidResult(true);
+        return new ValidationResult(true);
     }
 }
 

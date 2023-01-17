@@ -67,7 +67,7 @@ class SolidClientTest {
                 assertEquals(2, p.getSongs().size());
                 assertTrue(p.getSongs().contains(song1));
                 assertTrue(p.getSongs().contains(song2));
-                assertTrue(p.validate().getValid());
+                assertTrue(p.validate().isValid());
 
                 assertDoesNotThrow(client.create(p).toCompletableFuture()::join);
                 assertDoesNotThrow(client.update(p).toCompletableFuture()::join);
@@ -125,7 +125,7 @@ class SolidClientTest {
         final InvalidType type = new InvalidType(uri);
         assertThrows(SolidResourceException.class, () -> client.update(type));
     }
-    
+
     @Test
     void testGetRecipeType() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/recipe");

@@ -25,6 +25,7 @@ import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
+import com.inrupt.client.ValidationResult;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.util.IOUtils;
 
@@ -102,9 +103,13 @@ public class SolidClient {
                             identifier.toString()).orElse(null);
                     try {
                         final T obj = construct(identifier, clazz, dataset, metadata);
-                        obj.validate();
+                        final ValidationResult res = obj.validate();
+                        if (!res.isValid()) {
+                            throw new DataMappingException(
+                                "Unable to map resource into type: [" + clazz.getSimpleName() + "]", res.getResults());
+                        }
                         return obj;
-                    } catch (final ReflectiveOperationException ex) {
+                    } catch (final ReflectiveOperationException | DataMappingException ex) {
                         throw new SolidResourceException("Unable to read resource into type " + clazz.getName(), ex);
                     }
                 }
