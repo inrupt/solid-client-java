@@ -33,6 +33,8 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
+import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
@@ -256,10 +258,10 @@ class CoreModulesResourceTest {
 
         assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
-        //TODO - does not throw
-        //test if file is a SolidResource or raw file and read and update
-        //final Request req = Request.newBuilder(URI.create(fileURL)).GET().build();
-        //assertThrows(IOException.class, () -> session.send(req, JenaBodyHandlers.ofModel()));
+        final Request req = Request.newBuilder(URI.create(fileURL)).HEAD().build();
+        final Response<SolidResource> headerResponse =
+                client.send(req, SolidResourceHandlers.ofSolidResource());
+        assertEquals(Utils.PLAIN_TEXT, headerResponse.body().getMetadata().getContentType());
 
         //delete non RDF resource
         final Request reqDelete = Request.newBuilder(URI.create(fileURL)).DELETE().build();
