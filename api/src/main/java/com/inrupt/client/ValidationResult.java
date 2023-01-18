@@ -31,8 +31,8 @@ public class ValidationResult {
     /**
      * Create a ValidationResult object.
      * 
-     * @param valid the 
-     * @param messages the 
+     * @param valid the result from validation
+     * @param messages the messages from validation method
      */
     public ValidationResult(final boolean valid, final String... messages) {
         this.valid = valid;
@@ -40,7 +40,7 @@ public class ValidationResult {
     }
 
     /**
-     * The result of the validation
+     * The result of the validation.
      * 
      * @return the valid boolean value
      */
@@ -49,7 +49,7 @@ public class ValidationResult {
     }
 
     /**
-     * The messages from validation
+     * The messages from validation.
      * 
      * @return the result messages
      */
