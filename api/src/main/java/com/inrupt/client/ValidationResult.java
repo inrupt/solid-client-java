@@ -20,25 +20,24 @@
  */
 package com.inrupt.client;
 
-public class ValidationResult{
+import java.util.Arrays;
+import java.util.List;
+
+public class ValidationResult {
 
     private boolean valid;
-    private Throwable result;
+    private List<String> result;
 
-    public ValidationResult(final boolean valid) {
-        this(valid, null);
-    }
-
-    public ValidationResult(final boolean valid, final String message) {
+    public ValidationResult(final boolean valid, final String... messages) {
         this.valid = valid;
-        this.result = new Throwable(message);
+        this.result = Arrays.asList(messages);
     }
 
     public boolean isValid() {
         return this.valid;
     }
 
-    public Throwable getResults() {
+    public List<String> getResults() {
         return this.result;
     }
 }

@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.solid;
 
-public class DataMappingException extends Exception{
+public class DataMappingException extends SolidResourceException{
 
     private static final long serialVersionUID = 3752688648792259425L;
     /**
