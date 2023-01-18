@@ -72,7 +72,7 @@
 
     System.out.println("Access token is:" + token.accessToken);
     System.out.println("Token type is:" + token.tokenType);
- * }</pre> 
+ * }</pre>
  * 
  * <h3>Interpreting different token negotiation problems</h3>
  * 
@@ -97,6 +97,6 @@
     if (err.getCause() instanceof InvalidScopeException) {
         System.out.println("An invalid scope was provided");
     }
- * }</pre> 
+ * }</pre>
  */
 package com.inrupt.client.uma;
