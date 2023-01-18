@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.inrupt.client.Request;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
@@ -34,21 +35,27 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
-
+import java.util.stream.Stream;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class OpenIdTokenAuthTest {
+public class OpenIdTokenAndClientCredentialAuthTest {
     
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
-
+    private static final String iss = config.getValue("inrupt.test.idp", String.class);
+    private static final String clientId = config.getValue("inrupt.test.clientId", String.class);
+    private static final String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
+    private static final String authMethod = config.getValue("inrupt.test.authMethod", String.class);
+    
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
     private static URI privateResourceURL;
@@ -94,12 +101,12 @@ public class OpenIdTokenAuthTest {
         assertDoesNotThrow(() -> client.delete(testResource));
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
-    void fetchPrivateResourceUnauthenticatedTest() {
+    void fetchPrivateResourceUnauthenticatedTest(final Session session) {
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-                OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
@@ -112,47 +119,44 @@ public class OpenIdTokenAuthTest {
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
 
-    @Test
-    @Disabled
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource fails")
-    void fetchPrivateResourceAfterLogoutTest() {
+    void fetchPrivateResourceAfterLogoutTest(final Session session) {
         //create private resource
-        SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
 
-        //TODO end seesion
+        final SolidSyncClient unauthClient = SolidSyncClient.getClient();
                 
         final SolidClientException err = assertThrows(SolidClientException.class,
-                () -> authClient.read(privateResourceURL, SolidResource.class));
+                () -> unauthClient.read(privateResourceURL, SolidResource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
-        //TODO add session
-        authClient.session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
     
-    @Test
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
-    void fetchPublicResourceAuthenticatedTest() {
+    void fetchPublicResourceAuthenticatedTest(final Session session) {
         final SolidSyncClient client = SolidSyncClient.getClient();
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         assertDoesNotThrow(() -> client.create(testResource));
 
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         assertDoesNotThrow(() -> authClient.read(publicResourceURL, SolidResource.class));
 
         assertDoesNotThrow(() -> client.delete(testResource));
     }
     
-    @Test
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
-    void fetchPrivateResourceAuthenticatedTest() {
+    void fetchPrivateResourceAuthenticatedTest(final Session session) {
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
 
@@ -161,13 +165,12 @@ public class OpenIdTokenAuthTest {
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
     
-    @Test
-    @Disabled
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
-    void fetchPrivateResourceUnauthAuthTest() {
+    void fetchPrivateResourceUnauthAuthTest(final Session session) {
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(
-            OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         assertDoesNotThrow(() -> authClient.create(testResource));
 
@@ -176,25 +179,27 @@ public class OpenIdTokenAuthTest {
                 () -> client.read(privateResourceURL, SolidResource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
-        //TODO a more flexible way to add session
-        client.session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
-        assertDoesNotThrow(() -> client.read(privateResourceURL, SolidResource.class));
+        final SolidSyncClient authClient2 = client.session(session);
+        assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidResource.class));
 
-        assertDoesNotThrow(() -> client.delete(testResource));
+        assertDoesNotThrow(() -> authClient2.delete(testResource));
     }
     
-    @Test
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
-    void multiSessionTest() {
+    void multiSessionTest(final Session session) {
         //create private resource
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
-        final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);
         assertDoesNotThrow(() -> authClient1.create(testResource));
 
         //create another private resource with another client
-        final URI privateResourceURL2 = URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
+        final URI privateResourceURL2 = URI
+                .create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
         final SolidResource testResource2 = new SolidResource(privateResourceURL2, null, null);
-        final SolidSyncClient authClient2 = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        final SolidSyncClient authClient2 =
+                SolidSyncClient.getClient().session(session);
         assertDoesNotThrow(() -> authClient2.create(testResource2));
 
         //read the other resource created with the other client
@@ -209,5 +214,12 @@ public class OpenIdTokenAuthTest {
         //delete both resources with whichever client
         assertDoesNotThrow(() -> authClient1.delete(testResource2));
         assertDoesNotThrow(() -> authClient1.delete(testResource));
+    }
+    
+    private static Stream<Arguments> provideSessions() {
+        return Stream.of(
+            Arguments.of(OpenIdSession.ofIdToken(Utils.setupIdToken())), //OpenId token
+            Arguments.of(OpenIdSession.ofClientCredentials(URI.create(iss), clientId, clientSecrete, authMethod)) //Client credentials
+        );
     }
 }
