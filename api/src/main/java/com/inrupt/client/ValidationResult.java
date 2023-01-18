@@ -28,15 +28,31 @@ public class ValidationResult {
     private boolean valid;
     private List<String> result;
 
+    /**
+     * Create a ValidationResult object.
+     * 
+     * @param valid the 
+     * @param messages the 
+     */
     public ValidationResult(final boolean valid, final String... messages) {
         this.valid = valid;
         this.result = Arrays.asList(messages);
     }
 
+    /**
+     * The result of the validation
+     * 
+     * @return the valid boolean value
+     */
     public boolean isValid() {
         return this.valid;
     }
 
+    /**
+     * The messages from validation
+     * 
+     * @return the result messages
+     */
     public List<String> getResults() {
         return this.result;
     }

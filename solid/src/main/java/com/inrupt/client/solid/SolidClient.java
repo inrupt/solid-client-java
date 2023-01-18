@@ -106,8 +106,8 @@ public class SolidClient {
                         final ValidationResult res = obj.validate();
                         if (!res.isValid()) {
                             throw new DataMappingException(
-                                "Unable to map resource into type: [" +
-                                clazz.getSimpleName() + "] " + res.getResults().toString());
+                                "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
+                                 res.getResults());
                         }
                         return obj;
                     } catch (final ReflectiveOperationException ex) {

@@ -20,26 +20,31 @@
  */
 package com.inrupt.client.solid;
 
+import java.util.Collection;
+
 public class DataMappingException extends SolidResourceException{
 
     private static final long serialVersionUID = 3752688648792259425L;
-    /**
-     * Create a Data Mapping exception.
-     *
-     * @param message the message
-     */
-    public DataMappingException(final String message) {
-        super(message);
-    }
+    private final Collection<String> validationResults;
 
     /**
      * Create a Data Mapping exception.
      *
      * @param message the message
-     * @param cause the cause
+     * @param validationResults the collection of messages from validation method
      */
-    public DataMappingException(final String message, final Throwable cause) {
-        super(message, cause);
+    public DataMappingException(final String message, final Collection<String> validationResults) {
+        super(message);
+        this.validationResults = validationResults;
+    }
+
+    /**
+     * The validation results.
+     * 
+     * @return the validation results
+     */
+    public Collection<String> getValidationResults() {
+        return this.validationResults;
     }
 
 }
