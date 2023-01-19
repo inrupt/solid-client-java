@@ -26,7 +26,7 @@
  * <h2>A default HTTP client</h2>
  * 
  * <p>The {@code DefaultClient} builds on top of the HTTP client laoded on the classpath. It adds
- * the reactive authorization functionality as a default on HTTP send requests. To make use of it
+ * the reactive authorization functionality as a default on HTTP requests. To make use of it
  * check out the following code.
  * 
  * <pre>{@code
