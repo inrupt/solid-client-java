@@ -32,7 +32,7 @@
     SolidClient client = SolidClient.getClient().session(Session.anonymous());
  * }</pre>
  * 
- * <p>The session is also used in the authentication/authorizations modules and help create dedicated session
+ * <p>The session is also used in the authentication/authorization modules and help create a dedicated session
  * for each implementation. Some examples:
  * 
  * <pre>{@code
