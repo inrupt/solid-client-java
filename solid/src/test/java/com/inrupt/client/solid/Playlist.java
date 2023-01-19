@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.ValidationResult;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +56,15 @@ public class Playlist extends SolidResource {
         return getDataset().stream(Optional.empty(), subject, exSong, null)
             .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
             .map(IRI::getIRIString).map(URI::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public ValidationResult validate() {
+        //EX: a playlist must contain at least one song
+        if (getSongs().isEmpty()) {
+            return new ValidationResult(false, "A playlist must contain at least one song.");
+        }
+        return new ValidationResult(true);
     }
 }
 
