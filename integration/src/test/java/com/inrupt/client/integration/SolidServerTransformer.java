@@ -59,11 +59,11 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         //determine if authenticated on private resouces
         if (Utils.isPrivateResource(request.getUrl()) &&
             request.getHeader("Authorization") == null) {
-                res.withHeader("WWW-Authenticate",
+            res.withHeader("WWW-Authenticate",
                         "Bearer, DPoP algs=\"ES256\", UMA ticket=token-67890, as_uri=\""
                         + Utils.AS_URI + "\"");
-                res.withStatus(Utils.UNAUTHORIZED);
-                return res.build();
+            res.withStatus(Utils.UNAUTHORIZED);
+            return res.build();
         }
 
         if (request.getMethod().isOneOf(RequestMethod.GET)) {

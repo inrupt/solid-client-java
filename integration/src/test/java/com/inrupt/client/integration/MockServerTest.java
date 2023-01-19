@@ -38,10 +38,10 @@ import com.inrupt.client.util.IOUtils;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.commons.rdf.api.RDFSyntax;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.apache.commons.rdf.api.RDFSyntax;
 
 class MockServerTest {
 
