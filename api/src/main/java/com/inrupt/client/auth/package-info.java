@@ -38,7 +38,7 @@
  * <pre>{@code
     Session session = OpenIdSession.ofIdToken(token);
     Session sessionWithConfig = OpenIdSession.ofIdToken(token, config);
-    Session umaSession = UmaSessin.of(session);
+    Session umaSession = UmaSession.of(session);
  * }</pre>
  * 
  * <h3>HTTP challenges</h3>
@@ -58,8 +58,7 @@
  * 
  * <h3>Client credentials</h3>
  * 
- * <p>Client credentials are a requirements in OpenId Connect but they can have different formats.
- * We make use of the {@code Credential} class when working with tokens. Example code is presented next.
+ * <p>We make use of the {@code Credential} class when working with OIDC ID Tokens. Example code is presented next.
  * 
  * <pre>{@code
     Credential token = new Credential("Bearer", URI.create(ISS), this.token,
