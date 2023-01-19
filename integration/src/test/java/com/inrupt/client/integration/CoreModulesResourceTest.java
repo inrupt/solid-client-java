@@ -60,7 +60,7 @@ class CoreModulesResourceTest {
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
-    
+
     private static String testContainer = "resource/";
 
     @BeforeAll

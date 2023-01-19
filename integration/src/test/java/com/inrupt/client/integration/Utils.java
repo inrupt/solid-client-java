@@ -74,7 +74,7 @@ final class Utils {
     static final int CONFLICT = 409;
     static final int PRECONDITION_FAILED = 412;
     static final int ERROR = 500;
-    
+
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Config config = ConfigProvider.getConfig();
 
@@ -87,11 +87,11 @@ final class Utils {
     static URI WEBID = URI.create(POD_URL + "/" + USERNAME);
     static final String ISS = config.getValue("inrupt.test.idp", String.class);
     private static final String AZP = config.getValue("inrupt.test.azp", String.class);
-    
+
     static String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static String TOKEN_ENDPOINT = "/token";
     static String JWKS_ENDPOINT = "/jwks";
-    
+
     static String setupIdToken() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", POD_URL + "/" + USERNAME);
@@ -162,7 +162,7 @@ final class Utils {
             }
         }
     }
-    
+
     static PublicJsonWebKey getDpopKey(final String resource) {
         try (final InputStream stream = Utils.class.getResourceAsStream(resource)) {
             final String jwks = IOUtils.toString(stream, UTF_8);
@@ -173,7 +173,7 @@ final class Utils {
             throw new UncheckedJoseException("Unable to generate DPoP token", ex);
         }
     }
-    
+
     static String getResource(final String path, final String baseUrl, final String issuer) {
         return getResource(path).replace("{{baseUrl}}", baseUrl).replace("{{issuerUrl}}", issuer);
     }
@@ -185,7 +185,7 @@ final class Utils {
             throw new UncheckedIOException("Could not read class resource", ex);
         }
     }
-    
+
     static boolean isPrivateResource(final String uri) {
         return uri.contains(PRIVATE_RESOURCE_PATH);
     }
