@@ -38,15 +38,6 @@ import java.util.concurrent.CompletionStage;
 
 /**
  * A session implementation for use with UMA Authorization Servers.
- *
- * <p>This session implementation can be used to wrap other session objects, such as
- * ones that use OpenID Connect tokens.
- *
- * <pre>{@code
- *   Client client = ClientProvider.getClient();
- *   Session session = client.session(UmaSession.ofSession(OpenIdSession.ofIdToken(jwt)));
- *   Response res = session.send(req, bodyHandler);
- * }</pre>
  */
 public final class UmaSession implements Session {
 
