@@ -49,7 +49,7 @@
  * <pre>{@code
     List<Challenge> challenges = WwwAuthenticate.parse(response.headers()
                                 .firstValue("WWW-Authenticate").get()).getChallenges();
-    System.out.println("The Resource Server uses following authentication options: " + challenges.toString);
+    System.out.println("The Resource Server uses following authentication options: " + challenges);
     System.out.println("The scheme of the first challenge is: " + challenges.get(0).getScheme());
     System.out.println("The realm (or ID provider) of the first challenge is: "
         + challenges.get(0).getParameter("realm"));
