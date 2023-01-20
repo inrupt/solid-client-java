@@ -67,6 +67,7 @@ class SolidClientTest {
                 assertEquals(2, p.getSongs().size());
                 assertTrue(p.getSongs().contains(song1));
                 assertTrue(p.getSongs().contains(song2));
+                assertTrue(p.validate().isValid());
 
                 assertDoesNotThrow(client.create(p).toCompletableFuture()::join);
                 assertDoesNotThrow(client.update(p).toCompletableFuture()::join);
