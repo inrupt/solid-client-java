@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Service interfaces for the Inrupt client libraries.</h2>
+ * <h2>Service interfaces for the Inrupt Client Libraries.</h2>
  *
  * <p>This module provides a pluggable service provider interface, which allows
  * the HTTP, JSON, and RDF services to be used with any concrete implementation.
@@ -69,7 +69,7 @@
  * }</pre>
  *
  * <h3>Example of using the RDF service toDataset() method to read triples
- * from a trig file into a {@code Dataset}:</h3>
+ * from a trig file into a {@code org.apache.commons.rdf.api.Dataset}:</h3>
  *
  * <pre>{@code
        RdfService processor = ServiceProvider.getRdfService();

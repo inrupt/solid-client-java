@@ -11,6 +11,9 @@
   <artifactId>inrupt-client-examples-webapp</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>Inrupt Client Libraries - Quarkus Example</name>
+  <description>
+    Sample web application.
+  </description>
 
   <properties>
     <quarkus.version>2.15.3.Final</quarkus.version>
@@ -124,4 +127,3 @@
     </plugins>
   </build>
 </project>
-
