@@ -43,15 +43,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class MockServerTest {
+    private static final MockSolidServer mockHttpServer = new MockSolidServer();
 
     @BeforeAll
     static void setup() {
-        Utils.initMockServer();
+        mockHttpServer.start();
+        Utils.POD_URL = mockHttpServer.getMockServerUrl();
+        Utils.AS_URI = Utils.POD_URL + "/uma";
+        Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
     }
 
     @AfterAll
     static void teardown() {
-        Utils.stopMockServer();
+        mockHttpServer.stop();
     }
 
     @Test

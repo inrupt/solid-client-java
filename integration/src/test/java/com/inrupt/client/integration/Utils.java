@@ -75,7 +75,6 @@ final class Utils {
     static final int PRECONDITION_FAILED = 412;
     static final int ERROR = 500;
 
-    private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Config config = ConfigProvider.getConfig();
 
     static final String PRIVATE_RESOURCE_PATH = config
@@ -88,9 +87,9 @@ final class Utils {
     static final String ISS = config.getValue("inrupt.test.idp", String.class);
     private static final String AZP = config.getValue("inrupt.test.azp", String.class);
 
-    static String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
-    static String TOKEN_ENDPOINT = "/token";
-    static String JWKS_ENDPOINT = "/jwks";
+    static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
+    static final String TOKEN_ENDPOINT = "token";
+    static final String JWKS_ENDPOINT = "jwks";
 
     static String setupIdToken() {
         final Map<String, Object> claims = new HashMap<>();
@@ -129,21 +128,6 @@ final class Utils {
         }
     }
 
-    static void initMockServer() {
-        mockHttpServer.start();
-        POD_URL = mockHttpServer.getMockServerUrl();
-        AS_URI = POD_URL + "/uma";
-        WEBID = URI.create(POD_URL + "/" + USERNAME);
-    }
-
-    static void stopMockServer() {
-        mockHttpServer.stop();
-    }
-
-    static String getMockServerUrl() {
-        return mockHttpServer.getMockServerUrl();
-    }
-
     static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
     }
@@ -175,7 +159,11 @@ final class Utils {
     }
 
     static String getResource(final String path, final String baseUrl, final String issuer) {
-        return getResource(path).replace("{{baseUrl}}", baseUrl).replace("{{issuerUrl}}", issuer);
+        return getResource(path)
+                .replace("{{baseUrl}}", baseUrl)
+                .replace("{{issuerUrl}}", issuer)
+                .replace("{{tokenEndpoint}}", TOKEN_ENDPOINT)
+                .replace("{{jwksEndpoint}}", JWKS_ENDPOINT);
     }
 
     static String getResource(final String path) {
