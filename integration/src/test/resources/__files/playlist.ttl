@@ -1,9 +1,0 @@
-PREFIX ex: <https://example.com/>
-PREFIX dc: <http://purl.org/dc/terms/>
-PREFIX library: <https://library.test/12345/>
-
-<> a ex:Playlist ;
-  dc:title "My playlist" ;
-  ex:song library:song1.mp3 , library:song2.mp3 .
-
-

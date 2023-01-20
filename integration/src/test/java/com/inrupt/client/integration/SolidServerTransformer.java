@@ -56,26 +56,49 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
         final var res = new ResponseDefinitionBuilder();
 
-        if (request.getMethod().isOneOf(RequestMethod.GET)) {
-            if (this.storage.containsKey(request.getUrl())) {
-                final var serverBody = this.storage.get(request.getUrl());
-                res
-                    .withStatus(Utils.SUCCESS)
-                    .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
-                    .withBody(serverBody.body);
-
-                if (("/").equals(request.getUrl())) { //we found the storage and asume it is the root
-                    res.withHeader("Link", Headers.Link.of(
-                            URI.create(PIM.getNamespace() + "Storage"),
-                        "type").toString());
-                }
-            } else {
-                res.withStatus(Utils.NOT_FOUND);
-            }
+        //determine if authenticated on private resouces
+        if (Utils.isPrivateResource(request.getUrl()) &&
+            request.getHeader("Authorization") == null) {
+            res.withHeader("WWW-Authenticate",
+                        "Bearer, DPoP algs=\"ES256\", UMA ticket=token-67890, as_uri=\""
+                        + Utils.AS_URI + "\"");
+            res.withStatus(Utils.UNAUTHORIZED);
             return res.build();
         }
 
+        if (request.getMethod().isOneOf(RequestMethod.GET)) {
+            if (request.getUrl().contains(Utils.UMA_DISCOVERY_ENDPOINT)) {
+                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
+                res.withBody(Utils.getResource("/uma2-configuration.json", Utils.POD_URL, Utils.ISS));
+                res.withStatus(Utils.SUCCESS);
+                return res.build();
+            }
+
+            if (this.storage.containsKey(request.getUrl())) {
+                final var serverBody = this.storage.get(request.getUrl());
+                res.withStatus(Utils.SUCCESS)
+                    .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
+                    .withBody(serverBody.body);
+
+                if (Utils.isPodRoot(request.getUrl())) {
+                    //we assume the root is publicly accessible
+                    res.withHeader("Link", Headers.Link
+                            .of(URI.create(PIM.getNamespace() + "Storage"), "type").toString());
+                }
+                return res.build();
+            } else {
+                return res.withStatus(Utils.NOT_FOUND).build();
+            }
+        }
+
         if (request.getMethod().isOneOf(RequestMethod.POST)) {
+            //checking for claim_token if the artifice we use to distinguish between aut and unauth requests
+            if (request.getUrl().contains(Utils.TOKEN_ENDPOINT) && request.getBodyAsString().contains("claim_token")) {
+                res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
+                res.withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}");
+                res.withStatus(Utils.SUCCESS);
+                return res.build();
+            }
             if (request.getUrl().endsWith("/")) {
                 if (!this.storage.containsKey(request.getUrl())) {
                     final String slug = request.getHeader("Slug");
@@ -121,6 +144,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                             Utils.modifyBody(body, request.getBodyAsString());
                     this.storage.put(request.getUrl(),
                             new ServerBody(newBody, serverBody.contentType));
+                    addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
                     res.withStatus(Utils.NO_CONTENT);
                 } catch (IOException e) {
                     res.withStatus(Utils.ERROR);
@@ -141,7 +165,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
             return res.build();
         }
 
-        return null;
+        return res.withStatus(Utils.NOT_ALLOWED).build();
     }
 
     private void addSubContainersToStorage(final String path, final String mimeType) {

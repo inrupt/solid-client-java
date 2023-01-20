@@ -23,7 +23,7 @@ package com.inrupt.client.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
@@ -36,9 +36,7 @@ import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,50 +58,27 @@ class DomainModulesResourceTest {
 
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
-    private static SolidSyncClient client;
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
-    private static String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static String podUrl = "";
-    private static String testResource = "";
-    private static URI webid;
+    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
+    private static String testContainer = "resource/";
 
     @BeforeAll
     static void setup() {
-
-        final var username = config.getValue("inrupt.test.username", String.class);
-        final var sub = config.getValue("inrupt.test.username", String.class);
-        final var iss = config.getValue("inrupt.test.idp", String.class);
-        final var azp = config.getValue("inrupt.test.azp", String.class);
-
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
-            podUrl = Utils.getMockServerUrl();
         }
-        webid = URI.create(podUrl + "/" + username);
 
-        //create a test claim
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", webid.toString());
-        claims.put("sub", sub);
-        claims.put("iss", iss);
-        claims.put("azp", azp);
-
-        final String token = Utils.generateIdToken(claims);
-        client = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
-
-        final var req = Request.newBuilder(webid).GET().header("Accept", "text/turtle").build();
+        final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
         final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());
         if (res.statusCode() == 200) {
             try (final var profile = res.body()) {
                 if (!profile.getStorage().isEmpty()) {
-                    podUrl = profile.getStorage().iterator().next().toString();
+                    Utils.POD_URL = profile.getStorage().iterator().next().toString();
                 }
             }
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
-        }
-        testResource = podUrl + "resource/";
+        testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
     @AfterAll
@@ -116,7 +91,7 @@ class DomainModulesResourceTest {
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
@@ -151,7 +126,7 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerURL = testResource + "newContainer/";
+        final String containerURL = testContainer + "newContainer/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(() -> client.create(newContainer));
@@ -164,7 +139,7 @@ class DomainModulesResourceTest {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 
@@ -212,20 +187,20 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
         final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(rdf.createIRI(webid.toString()),
-                rdf.createIRI(webid.toString()),
+        dataset.add(rdf.createQuad(rdf.createIRI(Utils.WEBID.toString()),
+                rdf.createIRI(Utils.WEBID.toString()),
                 rdf.createIRI(PIM.storage.toString()),
-                rdf.createIRI(podUrl)));
+                rdf.createIRI(Utils.POD_URL)));
 
-        try (final WebIdProfile profile = new WebIdProfile(webid, dataset)) {
+        try (final WebIdProfile profile = new WebIdProfile(Utils.WEBID, dataset)) {
             assertDoesNotThrow(() -> client.create(profile));
         }
 
-        try (final WebIdProfile sameProfile = client.read(webid, WebIdProfile.class)) {
+        try (final WebIdProfile sameProfile = client.read(Utils.WEBID, WebIdProfile.class)) {
             assertFalse(sameProfile.getStorage().isEmpty());
         }
 
-        final var missingWebId = URIBuilder.newBuilder(webid).path(UUID.randomUUID().toString()).build();
+        final var missingWebId = URIBuilder.newBuilder(Utils.WEBID).path(UUID.randomUUID().toString()).build();
         final var err = assertThrows(SolidClientException.class, () -> client.read(missingWebId, WebIdProfile.class));
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
@@ -235,23 +210,23 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
 
-        final var lefePath = getNestedContainer(podUrl, 3); //example: "UUID1/UUID2/UUID3"
+        final var lefePath = getNestedContainer(Utils.POD_URL, 3); //example: "UUID1/UUID2/UUID3"
 
         Optional<URI> root = Optional.empty();
         var containers = lefePath.split("/");
         while (!root.isPresent() && containers.length > 0) {
-            root = client.read(URI.create(podUrl + String.join("/", containers)), SolidResource.class)
+            root = client.read(URI.create(Utils.POD_URL + "/" + String.join("/", containers)), SolidResource.class)
                             .getMetadata()
                             .getStorage();
             containers = Arrays.copyOf(containers, containers.length - 1);
         }
         if (!root.isPresent() && containers.length == 0) {
-            root = client.read(URI.create(podUrl), SolidResource.class)
+            root = client.read(URI.create(Utils.POD_URL), SolidResource.class)
                     .getMetadata()
                     .getStorage();
         }
         assertTrue(root.isPresent());
-        assertEquals(podUrl, root.get().toString());
+        assertEquals(Utils.POD_URL, root.get().toString());
     }
 
     private String getNestedContainer(final String podUrl, final int depth) {
@@ -259,7 +234,7 @@ class DomainModulesResourceTest {
         for (int i = 1; i < depth; i++) {
             tempUrl += "/" + UUID.randomUUID().toString();
         }
-        final var resource = new SolidResource(URI.create(podUrl + tempUrl));
+        final var resource = new SolidResource(URI.create(podUrl + "/" + tempUrl));
         client.create(resource);
         return tempUrl;
     }

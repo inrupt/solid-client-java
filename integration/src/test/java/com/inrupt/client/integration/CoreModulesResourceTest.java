@@ -30,18 +30,16 @@ import com.inrupt.client.Headers;
 import com.inrupt.client.InruptClientException;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
-import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.jena.rdf.model.Model;
@@ -59,47 +57,29 @@ import org.junit.jupiter.api.Test;
 class CoreModulesResourceTest {
 
     private static final Config config = ConfigProvider.getConfig();
-    private static SolidSyncClient session = SolidSyncClient.getClient();
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
-    private static String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static String podUrl = config.getValue("inrupt.test.id", String.class);
-    private static String testResource = "";
+    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
+
+    private static String testContainer = "resource/";
 
     @BeforeAll
     static void setup() {
-        final var username = config.getValue("inrupt.test.username", String.class);
-        final var iss = config.getValue("inrupt.test.idp", String.class);
-        final var azp = config.getValue("inrupt.test.azp", String.class);
         if (testEnv.contains("MockSolidServer")) {
             Utils.initMockServer();
-            podUrl = Utils.getMockServerUrl();
         }
-        final var webid = URI.create(podUrl + "/" + username);
 
-        //create a test claim
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", webid.toString());
-        claims.put("sub", username);
-        claims.put("iss", iss);
-        claims.put("azp", azp);
-
-        final String token = Utils.generateIdToken(claims);
-        session = session.session(OpenIdSession.ofIdToken(token));
-
-        final Request requestRdf = Request.newBuilder(webid).GET().build();
-        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+        final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
+        final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
         final var storages = responseRdf.body()
                 .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
                 .toList();
 
         if (!storages.isEmpty()) {
-            podUrl = storages.get(0).toString();
+            Utils.POD_URL = storages.get(0).toString();
 
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
-        }
-        testResource = podUrl + "resource/";
+        testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
     @AfterAll
@@ -112,7 +92,7 @@ class CoreModulesResourceTest {
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         //create
@@ -123,7 +103,7 @@ class CoreModulesResourceTest {
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
         final var resCreateIfNotExist =
-                session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
+                client.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
         if (!Utils.isSuccessful(resCreateIfNotExist.statusCode())) {
             throw new InruptClientException(
                     "Failed to create solid resource at " + newResourceName);
@@ -133,8 +113,9 @@ class CoreModulesResourceTest {
         List<Statement> statementsToDelete = new ArrayList<>();
         if (resCreateIfNotExist.statusCode() == Utils.PRECONDITION_FAILED) {
             final var requestRdf =
-                    Request.newBuilder(URI.create(newResourceName)).GET().build();
-            final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+                    Request.newBuilder(URI.create(newResourceName))
+                    .GET().build();
+            final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
             statementsToDelete = responseRdf.body()
                     .listStatements(createResource(newResourceName),
                             createProperty(newPredicateName),
@@ -152,13 +133,14 @@ class CoreModulesResourceTest {
         final var requestPatch = Request.newBuilder(URI.create(newResourceName))
                 .header(Utils.CONTENT_TYPE, Utils.SPARQL_UPDATE)
                 .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
-        final var responsePatch = session.send(requestPatch, Response.BodyHandlers.discarding());
+        final var responsePatch = client.send(requestPatch, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responsePatch.statusCode()));
 
         //read
-        final var reqRead = Request.newBuilder(URI.create(newResourceName)).GET().build();
-        final var resRead = session.send(reqRead, JenaBodyHandlers.ofModel());
+        final var reqRead = Request.newBuilder(URI.create(newResourceName))
+                .GET().build();
+        final var resRead = client.send(reqRead, JenaBodyHandlers.ofModel());
         assertTrue(Utils.isSuccessful(resRead.statusCode()));
         final var insertedStatement =
                 resRead.body()
@@ -168,8 +150,9 @@ class CoreModulesResourceTest {
 
         //update
         final var reqReadAgain =
-                Request.newBuilder(URI.create(newResourceName)).GET().build();
-        final var resReadAgain = session.send(reqReadAgain, JenaBodyHandlers.ofModel());
+                Request.newBuilder(URI.create(newResourceName))
+                .GET().build();
+        final var resReadAgain = client.send(reqReadAgain, JenaBodyHandlers.ofModel());
 
         assertTrue(Utils.isSuccessful(resReadAgain.statusCode()));
         final List<Statement> statementsToDeleteAgain =
@@ -187,13 +170,14 @@ class CoreModulesResourceTest {
                 .header(Utils.CONTENT_TYPE, Utils.SPARQL_UPDATE)
                 .method("PATCH", JenaBodyPublishers.ofUpdateRequest(urAgain)).build();
 
-        final var resPatch = session.send(reqPatch, Response.BodyHandlers.discarding());
+        final var resPatch = client.send(reqPatch, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(resPatch.statusCode()));
 
         //read
-        final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName)).GET().build();
-        final var resReadAgain1 = session.send(reqReadAgain1, JenaBodyHandlers.ofModel());
+        final var reqReadAgain1 = Request.newBuilder(URI.create(newResourceName))
+                .GET().build();
+        final var resReadAgain1 = client.send(reqReadAgain1, JenaBodyHandlers.ofModel());
         assertTrue(Utils.isSuccessful(resReadAgain1.statusCode()));
         final var insertedNewStatement =
                 resReadAgain1.body()
@@ -204,7 +188,7 @@ class CoreModulesResourceTest {
         //delete
         final var reqDelete =
                 Request.newBuilder(URI.create(newResourceName)).DELETE().build();
-        final var resDelete = session.send(reqDelete, Response.BodyHandlers.discarding());
+        final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(resDelete.statusCode()));
     }
@@ -213,8 +197,8 @@ class CoreModulesResourceTest {
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerName = testResource + "newContainer/";
-        final String container2Name = testResource + "newContainer2/";
+        final String containerName = testContainer + "newContainer/";
+        final String container2Name = testContainer + "newContainer2/";
 
         //create a Container
         final Request req = Request.newBuilder(URI.create(containerName))
@@ -224,7 +208,7 @@ class CoreModulesResourceTest {
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
 
-        final var res = session.send(req, Response.BodyHandlers.discarding());
+        final var res = client.send(req, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(res.statusCode()));
 
@@ -237,20 +221,20 @@ class CoreModulesResourceTest {
                 .POST(Request.BodyPublishers.noBody())
                 .build();
 
-        final var resPost = session.send(reqPost, Response.BodyHandlers.discarding());
+        final var resPost = client.send(reqPost, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(resPost.statusCode()));
 
         //delete a Containers
         final Request reqDelete = Request.newBuilder(URI.create(containerName)).DELETE().build();
         final Response<Void> responseDelete =
-                session.send(reqDelete, Response.BodyHandlers.discarding());
+                client.send(reqDelete, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
 
         final Request reqDeleteAgain = Request.newBuilder(URI.create(container2Name)).DELETE().build();
         final Response<Void> responseDeleteAgain =
-                session.send(reqDeleteAgain, Response.BodyHandlers.discarding());
+                client.send(reqDeleteAgain, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseDeleteAgain.statusCode()));
     }
@@ -260,7 +244,7 @@ class CoreModulesResourceTest {
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
         final String fileName = "myFile.txt";
-        final String fileURL = testResource + fileName;
+        final String fileURL = testContainer + fileName;
 
         //create non RDF resource
         final Request reqCreate =
@@ -268,7 +252,7 @@ class CoreModulesResourceTest {
                         .PUT(Request.BodyPublishers.noBody()).build();
 
         final Response<Void> responseCreate =
-                session.send(reqCreate, Response.BodyHandlers.discarding());
+                client.send(reqCreate, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
@@ -280,7 +264,7 @@ class CoreModulesResourceTest {
         //delete non RDF resource
         final Request reqDelete = Request.newBuilder(URI.create(fileURL)).DELETE().build();
         final Response<String> responseDelete =
-                session.send(reqDelete, Response.BodyHandlers.ofString());
+                client.send(reqDelete, Response.BodyHandlers.ofString());
 
         assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
     }
@@ -290,7 +274,7 @@ class CoreModulesResourceTest {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testResource + "e2e-test-subject";
+        final String newResourceName = testContainer + "e2e-test-subject";
         final String predicate = "https://example.example/predicate";
         final String predicateForBlank = "https://example.example/predicateForBlank";
 
@@ -303,14 +287,16 @@ class CoreModulesResourceTest {
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
         final Response<Void> resp =
-                session.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
+                client.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
         assertTrue(Utils.isSuccessful(resp.statusCode()));
 
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();
         if (resp.statusCode() == Utils.PRECONDITION_FAILED) {
-            final Request requestRdf = Request.newBuilder(URI.create(newResourceName)).GET().build();
-            final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
+            final Request requestRdf =
+                    Request.newBuilder(URI.create(newResourceName))
+                    .GET().build();
+            final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
             statementsToDelete = responseRdf
                     .body().listStatements(createResource(newResourceName),
                             createProperty(predicate), (org.apache.jena.rdf.model.RDFNode) null)
@@ -331,14 +317,15 @@ class CoreModulesResourceTest {
                 .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur)).build();
 
         final var responseCreate =
-                session.send(requestCreate, Response.BodyHandlers.discarding());
+                client.send(requestCreate, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
         //change non blank node
         //get the newly created dataset and change the non blank node
-        final Request req = Request.newBuilder(URI.create(newResourceName)).GET().build();
-        final Response<Model> res = session.send(req, JenaBodyHandlers.ofModel());
+        final Request req = Request.newBuilder(URI.create(newResourceName))
+                .GET().build();
+        final Response<Model> res = client.send(req, JenaBodyHandlers.ofModel());
 
         assertTrue(Utils.isSuccessful(res.statusCode()));
         final List<Statement> statementsToDeleteAgain = res.body()
@@ -358,14 +345,14 @@ class CoreModulesResourceTest {
                 .method("PATCH", JenaBodyPublishers.ofUpdateRequest(ur2)).build();
 
         final var responseCreate2 =
-                session.send(requestCreate2, Response.BodyHandlers.discarding());
+                client.send(requestCreate2, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseCreate2.statusCode()));
 
         //cleanup resources
         final Request reqDelete = Request.newBuilder(URI.create(newResourceName)).DELETE().build();
         final Response<Void> responseDelete =
-                session.send(reqDelete, Response.BodyHandlers.discarding());
+                client.send(reqDelete, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
     }

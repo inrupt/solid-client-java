@@ -21,20 +21,22 @@
 package com.inrupt.client.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidResourceException;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.uma.UmaSession;
 import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.rdf.api.RDFSyntax;
 import org.junit.jupiter.api.AfterAll;
@@ -43,84 +45,138 @@ import org.junit.jupiter.api.Test;
 
 class MockServerTest {
 
-    private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final Map<String, String> config = new HashMap<>();
-    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
-
-    private static final String ACCEPT = "Accept";
-    private static final String CONTENT_TYPE = "Content-Type";
-    private static final String IF_NONE_MATCH = "If-None-Match";
-    private static final String TEXT_TURTLE = "text/turtle";
-    private static final String WILDCARD = "*";
-
     @BeforeAll
     static void setup() {
-        config.putAll(mockHttpServer.start());
+        Utils.initMockServer();
     }
 
     @AfterAll
     static void teardown() {
-        mockHttpServer.stop();
+        Utils.stopMockServer();
     }
 
     @Test
-    void testMockServerCRUD() {
-        final var resourceUri = URI.create(config.get("solid_server") + "/playlist");
-
+    void testAnonymousUserCRUD() {
+        //create an authenticated client
+        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        //create a public resource
+        final var resourceUri = URI.create(Utils.POD_URL + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
 
         final var req =
-                Request.newBuilder(playlist.getIdentifier()).header(CONTENT_TYPE, TEXT_TURTLE)
-                        .header(IF_NONE_MATCH, WILDCARD).PUT(cast(playlist)).build();
-
+                Request.newBuilder(playlist.getIdentifier()).header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                        .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
         final var res =
                 client.send(req, Response.BodyHandlers.discarding());
 
-        assertEquals(204, res.statusCode());
+        assertTrue(Utils.isSuccessful(res.statusCode()));
 
         final var reqGet =
-                Request.newBuilder().uri(resourceUri).header(ACCEPT, TEXT_TURTLE).GET().build();
-
+                Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
         final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
-        assertEquals(200, resGet.statusCode());
+        assertTrue(Utils.isSuccessful(resGet.statusCode()));
 
         final var reqDelete =
-                Request.newBuilder().uri(resourceUri).header(ACCEPT, TEXT_TURTLE).DELETE().build();
-
+                Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
         final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
 
-        assertEquals(204, resDelete.statusCode());
+        assertTrue(Utils.isSuccessful(resDelete.statusCode()));
     }
 
     @Test
     void test412() {
-        final var resourceUri = URI.create(config.get("solid_server") + "/playlist");
-
+        //create an authenticated client
+        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        //create a public resource
+        final var resourceUri = URI.create(Utils.POD_URL + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
 
         final var req = Request.newBuilder(playlist.getIdentifier())
-            .header(CONTENT_TYPE, TEXT_TURTLE)
-            .header(IF_NONE_MATCH, WILDCARD)
-            .PUT(cast(playlist))
-            .build();
-
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
         final var res = client.send(req, Response.BodyHandlers.discarding());
 
-        assertEquals(204, res.statusCode());
+        assertTrue(Utils.isSuccessful(res.statusCode()));
 
+        //we try to create the exact same resource again
         final var reqPut = Request.newBuilder(playlist.getIdentifier())
-            .header(CONTENT_TYPE, TEXT_TURTLE)
-            .header(IF_NONE_MATCH, WILDCARD)
-            .PUT(cast(playlist))
-            .build();
-
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
         final var resPut = client.send(reqPut, Response.BodyHandlers.discarding());
 
-        assertEquals(412, resPut.statusCode());
+        assertEquals(Utils.PRECONDITION_FAILED, resPut.statusCode());
+
+        final var reqDelete =
+                Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
+        final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
+
+        assertTrue(Utils.isSuccessful(resDelete.statusCode()));
     }
 
-    static Request.BodyPublisher cast(final Resource resource) {
+    @Test
+    void testUnuthenticatedCRUD() {
+        //create an authenticated client
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        //create a private resource
+        final var resourceUri =
+                URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
+        final var playlist = new Playlist(resourceUri, null, null);
+        final var req = Request.newBuilder(playlist.getIdentifier())
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
+        final var res = client.send(req, Response.BodyHandlers.discarding());
+
+        assertEquals(Utils.UNAUTHORIZED, res.statusCode());
+
+        final var reqGet = Request.newBuilder().uri(resourceUri)
+                .header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
+        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
+
+        assertEquals(Utils.UNAUTHORIZED, resGet.statusCode());
+        final var challenges = WwwAuthenticate.parse(
+                    resGet.headers().firstValue("WWW-Authenticate").get())
+                .getChallenges();
+        assertTrue(challenges.toString().contains(Utils.AS_URI));
+
+        final var reqDelete = Request.newBuilder().uri(resourceUri)
+                .header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
+        final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
+
+        assertEquals(Utils.UNAUTHORIZED, resDelete.statusCode());
+    }
+
+    @Test
+    void testAuthenticatedBearerCRUD() {
+        //authenticate with Bearer token
+        final var session = OpenIdSession.ofIdToken(Utils.setupIdToken());
+        final SolidSyncClient client = SolidSyncClient.getClient().session(UmaSession.of(session));
+        //create a private resource
+        final var resourceUri =
+                URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
+        final var playlist = new Playlist(resourceUri, null, null);
+        final var req = Request.newBuilder(playlist.getIdentifier())
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header(Utils.IF_NONE_MATCH, Utils.WILDCARD).PUT(cast(playlist)).build();
+        final var res = client.send(req, Response.BodyHandlers.discarding());
+
+        assertTrue(Utils.isSuccessful(res.statusCode()));
+
+        final var reqGet = Request.newBuilder().uri(resourceUri)
+                .header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
+        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
+
+        assertTrue(Utils.isSuccessful(resGet.statusCode()));
+
+        final var reqDelete = Request.newBuilder().uri(resourceUri)
+                .header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
+
+        final var resDelete = client.send(reqDelete, Response.BodyHandlers.discarding());
+
+        assertTrue(Utils.isSuccessful(resDelete.statusCode()));
+    }
+
+    private Request.BodyPublisher cast(final Resource resource) {
         return IOUtils.buffer(out -> {
             try {
                 resource.serialize(RDFSyntax.TURTLE, out);

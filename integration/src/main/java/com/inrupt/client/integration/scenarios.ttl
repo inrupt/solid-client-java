@@ -103,9 +103,6 @@ solidClient: a earl:Software;
   td:reviewStatus td:approved.
 
 :authenticationTestSuite dcterms:hasPart
-  #new tests specific to Java SDK
-  :openidAuth,
-  :umaAuthz,
   #same tests (and name) like in JS SDK
   :unauthenticatedPublicNode,
   :unauthenticatedPrivateNode,
@@ -116,18 +113,6 @@ solidClient: a earl:Software;
   :authenticatedPrivateNodeAfterLogin,
   :authenticatedMultisessionNode;
   inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
-
-:openidAuth a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "User authentication"@en;
-  dcterms:description "A user authenticates to a Pod."@en;
-  td:reviewStatus td:approved.
-
-:umaAuthz a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "User authentication and authorization"@en;
-  dcterms:description "A user authenticates to a Pod and is authorized to read resources."@en;
-  td:reviewStatus td:approved.
 
 :unauthenticatedPublicNode a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;

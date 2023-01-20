@@ -1,0 +1,11 @@
+{
+    "grant_types_supported": [
+        "urn:ietf:params:oauth:grant-type:uma-ticket"
+    ],
+    "issuer": "{{issuerUrl}}",
+    "jwks_uri": "{{baseUrl}}/uma/jwks",
+    "token_endpoint": "{{baseUrl}}/uma/token",
+    "uma_profiles_supported": [
+        "http://openid.net/specs/openid-connect-core-1_0.html#IDToken"
+    ]
+}
