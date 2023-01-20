@@ -84,7 +84,7 @@ public interface Session {
     /**
      * Select the thumbprint from a set of candidate algorithms.
      *
-     * @param algorithms
+     * @param algorithms the supported algorithms
      * @return the keypair thumbprint
      */
     Optional<String> selectThumbprint(Collection<String> algorithms);
