@@ -25,7 +25,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,11 +48,9 @@ class MockSolidServer {
         wireMockServer.stubFor(delete(anyUrl()));
     }
 
-    public Map<String, String> start() {
+    public void start() {
         wireMockServer.start();
-
         setupMocks();
-        return Collections.singletonMap("solid_server", wireMockServer.baseUrl());
     }
 
     public String getMockServerUrl() {

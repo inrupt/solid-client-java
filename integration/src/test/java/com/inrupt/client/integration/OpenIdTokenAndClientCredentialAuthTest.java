@@ -49,6 +49,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public class OpenIdTokenAndClientCredentialAuthTest {
 
+    private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
@@ -65,7 +66,10 @@ public class OpenIdTokenAndClientCredentialAuthTest {
     static void setup() {
 
         if (testEnv.contains("MockSolidServer")) {
-            Utils.initMockServer();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
+            Utils.AS_URI = Utils.POD_URL + "/uma";
+            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
         }
 
         final SolidSyncClient session =
@@ -86,7 +90,7 @@ public class OpenIdTokenAndClientCredentialAuthTest {
     @AfterAll
     static void teardown() {
         if (testEnv.equals("MockSolidServer")) {
-            Utils.stopMockServer();
+            mockHttpServer.stop();
         }
     }
 

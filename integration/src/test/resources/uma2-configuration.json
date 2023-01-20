@@ -3,8 +3,8 @@
         "urn:ietf:params:oauth:grant-type:uma-ticket"
     ],
     "issuer": "{{issuerUrl}}",
-    "jwks_uri": "{{baseUrl}}/uma/jwks",
-    "token_endpoint": "{{baseUrl}}/uma/token",
+    "jwks_uri": "{{baseUrl}}/uma/{{jwksEndpoint}}",
+    "token_endpoint": "{{baseUrl}}/uma/{{tokenEndpoint}}",
     "uma_profiles_supported": [
         "http://openid.net/specs/openid-connect-core-1_0.html#IDToken"
     ]

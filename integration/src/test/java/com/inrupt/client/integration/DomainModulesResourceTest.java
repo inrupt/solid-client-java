@@ -56,6 +56,7 @@ import org.junit.jupiter.api.Test;
 
 class DomainModulesResourceTest {
 
+    private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
@@ -66,7 +67,10 @@ class DomainModulesResourceTest {
     @BeforeAll
     static void setup() {
         if (testEnv.contains("MockSolidServer")) {
-            Utils.initMockServer();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
+            Utils.AS_URI = Utils.POD_URL + "/uma";
+            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
         }
 
         final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
@@ -84,7 +88,7 @@ class DomainModulesResourceTest {
     @AfterAll
     static void teardown() {
         if (testEnv.equals("MockSolidServer")) {
-            Utils.stopMockServer();
+            mockHttpServer.stop();
         }
     }
 
