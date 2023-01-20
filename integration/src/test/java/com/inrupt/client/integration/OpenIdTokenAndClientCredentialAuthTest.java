@@ -36,6 +36,7 @@ import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.stream.Stream;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
