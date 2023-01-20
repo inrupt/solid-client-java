@@ -23,10 +23,10 @@ package com.inrupt.client.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
-import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidResourceException;
@@ -112,7 +112,7 @@ class MockServerTest {
 
         assertTrue(Utils.isSuccessful(resDelete.statusCode()));
     }
-    
+
     @Test
     void testUnuthenticatedCRUD() {
         //create an authenticated client
@@ -133,7 +133,9 @@ class MockServerTest {
         final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
 
         assertEquals(Utils.UNAUTHORIZED, resGet.statusCode());
-        final var challenges = WwwAuthenticate.parse(resGet.headers().firstValue("WWW-Authenticate").get()).getChallenges();
+        final var challenges = WwwAuthenticate.parse(
+                    resGet.headers().firstValue("WWW-Authenticate").get())
+                .getChallenges();
         assertTrue(challenges.toString().contains(Utils.AS_URI));
 
         final var reqDelete = Request.newBuilder().uri(resourceUri)
@@ -142,12 +144,12 @@ class MockServerTest {
 
         assertEquals(Utils.UNAUTHORIZED, resDelete.statusCode());
     }
-    
+
     @Test
     void testAuthenticatedBearerCRUD() {
         //authenticate with Bearer token
-        var session = OpenIdSession.ofIdToken(Utils.setupIdToken());
-        SolidSyncClient client = SolidSyncClient.getClient().session(UmaSession.of(session));
+        final var session = OpenIdSession.ofIdToken(Utils.setupIdToken());
+        final SolidSyncClient client = SolidSyncClient.getClient().session(UmaSession.of(session));
         //create a private resource
         final var resourceUri =
                 URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");

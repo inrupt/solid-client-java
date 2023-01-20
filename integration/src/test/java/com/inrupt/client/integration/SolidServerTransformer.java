@@ -58,13 +58,15 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
         //determine if authenticated on private resouces
         if (Utils.isPrivateResource(request.getUrl()) &&
-        request.getHeader("Authorization") == null) {
-                res.withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", UMA ticket=token-67890, as_uri=\"" + Utils.AS_URI + "\"");
-                res.withStatus(Utils.UNAUTHORIZED);
-                return res.build();
+            request.getHeader("Authorization") == null) {
+            res.withHeader("WWW-Authenticate",
+                        "Bearer, DPoP algs=\"ES256\", UMA ticket=token-67890, as_uri=\""
+                        + Utils.AS_URI + "\"");
+            res.withStatus(Utils.UNAUTHORIZED);
+            return res.build();
         }
 
-        if (request.getMethod().isOneOf(RequestMethod.GET, RequestMethod.HEAD) ) {
+        if (request.getMethod().isOneOf(RequestMethod.GET, RequestMethod.HEAD)) {
             if (request.getUrl().contains(Utils.UMA_DISCOVERY_ENDPOINT)) {
                 res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
                 res.withBody(Utils.getResource("/uma2-configuration.json", Utils.POD_URL, Utils.ISS));
@@ -77,7 +79,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                 res.withStatus(Utils.SUCCESS)
                     .withHeader(Utils.CONTENT_TYPE, serverBody.contentType)
                     .withBody(serverBody.body);
-                
+
                 if (Utils.isPodRoot(request.getUrl())) {
                     //we assume the root is publicly accessible
                     res.withHeader("Link", Headers.Link
