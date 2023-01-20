@@ -66,7 +66,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
             return res.build();
         }
 
-        if (request.getMethod().isOneOf(RequestMethod.GET)) {
+        if (request.getMethod().isOneOf(RequestMethod.GET, RequestMethod.HEAD)) {
             if (request.getUrl().contains(Utils.UMA_DISCOVERY_ENDPOINT)) {
                 res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
                 res.withBody(Utils.getResource("/uma2-configuration.json", Utils.POD_URL, Utils.ISS));
