@@ -25,15 +25,17 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.vocabulary.RDFS;
 import com.inrupt.client.vocabulary.Solid;
+import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
 import java.net.URI;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Quad;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * A WebID Profile for use with Solid.
@@ -66,11 +68,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code rdf:type} values
      */
     public Set<URI> getType() {
-        try (final Stream<Quad> stream = path(rdfType)) {
-            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
-                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
-                .collect(Collectors.toSet());
-        }
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getType();
     }
 
     /**
@@ -79,11 +77,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code solid:oidcIssuer} values
      */
     public Set<URI> getOidcIssuer() {
-        try (final Stream<Quad> stream = path(oidcIssuer)) {
-            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
-                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
-                .collect(Collectors.toSet());
-        }
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getOidcIssuer();
     }
 
     /**
@@ -92,11 +86,7 @@ public class WebIdProfile extends Resource {
      * @return the {@code rdfs:seeAlso} values
      */
     public Set<URI> getSeeAlso() {
-        try (final Stream<Quad> stream = path(seeAlso)) {
-            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
-                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
-                .collect(Collectors.toSet());
-        }
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getSeeAlso();
     }
 
     /**
@@ -105,10 +95,29 @@ public class WebIdProfile extends Resource {
      * @return the {@code pim:storage} values
      */
     public Set<URI> getStorage() {
-        try (final Stream<Quad> stream = path(storage)) {
-            return stream.map(Quad::getObject).filter(IRI.class::isInstance)
-                .map(IRI.class::cast).map(IRI::getIRIString).map(URI::create)
-                .collect(Collectors.toSet());
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getStorage();
+    }
+
+    class Node extends WrapperIRI {
+
+        Node(final RDFTerm original, final Graph graph) {
+            super(original, graph);
+        }
+
+        Set<URI> getType() {
+            return objects(rdfType, TermMappings::asIri, ValueMappings::iriAsUri);
+        }
+
+        Set<URI> getOidcIssuer() {
+            return objects(oidcIssuer, TermMappings::asIri, ValueMappings::iriAsUri);
+        }
+
+        Set<URI> getSeeAlso() {
+            return objects(seeAlso, TermMappings::asIri, ValueMappings::iriAsUri);
+        }
+
+        Set<URI> getStorage() {
+            return objects(storage, TermMappings::asIri, ValueMappings::iriAsUri);
         }
     }
 }

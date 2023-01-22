@@ -22,22 +22,21 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Quad;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * A Solid Container Object.
  */
 public final class SolidContainer extends SolidResource {
-
-    private final IRI rdfType;
-    private final IRI ldpContains;
 
     /**
      * Create a new SolidContainer.
@@ -48,9 +47,6 @@ public final class SolidContainer extends SolidResource {
      */
     public SolidContainer(final URI identifier, final Dataset dataset, final Metadata metadata) {
         super(identifier, dataset, metadata);
-
-        this.rdfType = rdf.createIRI(RDF.type.toString());
-        this.ldpContains = rdf.createIRI(LDP.contains.toString());
     }
 
     /**
@@ -59,17 +55,38 @@ public final class SolidContainer extends SolidResource {
      * @return the contained resources
      */
     public Stream<SolidResource> getContainedResources() {
-        return path(ldpContains)
-            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph())
+            .getContainedResources()
             .map(child -> {
                 final Metadata.Builder builder = Metadata.newBuilder();
                 getMetadata().getStorage().ifPresent(builder::storage);
-                try (final Stream<Quad> stream = stream(Optional.empty(), child, rdfType, null)
-                        .map(Quad.class::cast)) {
-                    stream.map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                        .map(IRI::getIRIString).map(URI::create).forEach(builder::type);
-                }
+                child.getTypes().forEach(builder::type);
                 return new SolidResource(URI.create(child.getIRIString()), null, builder.build());
             });
+    }
+
+    @SuppressWarnings("java:S2160") // Wrapper equality is correctly delegated to underlying node
+    static final class Node extends WrapperIRI {
+        private final IRI ldpContains = rdf.createIRI(LDP.contains.toString());
+
+        Node(final RDFTerm original, final Graph graph) {
+            super(original, graph);
+        }
+
+        Stream<TypedNode> getContainedResources() {
+            return objectStream(ldpContains, ValueMappings.as(TypedNode.class));
+        }
+
+        public static final class TypedNode extends WrapperIRI {
+            final IRI rdfType = rdf.createIRI(RDF.type.toString());
+
+            public TypedNode(final RDFTerm original, final Graph graph) {
+                super(original, graph);
+            }
+
+            Stream<URI> getTypes() {
+                return objectStream(rdfType, ValueMappings::iriAsUri);
+            }
+        }
     }
 }
