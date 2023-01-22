@@ -111,12 +111,12 @@ class DomainModulesResourceTest {
 
         try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
             assertEquals(newResource.getIdentifier(), resource.getIdentifier());
-            assertEquals(1, resource.getDataset().stream().count());
+            assertEquals(1, resource.stream().count());
 
             final Literal newObject = rdf.createLiteral("false",
                     rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
             final Dataset newDataset = rdf.createDataset();
-            resource.getDataset().stream(null, newResourceNode, null, null)
+            resource.stream(null, newResourceNode, null, null)
                     .map(quad ->
                         rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
                     .collect(Collectors.toList()).forEach(newDataset::add);
@@ -164,15 +164,15 @@ class DomainModulesResourceTest {
 
         try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
             assertEquals(newResource.getIdentifier(), resource.getIdentifier());
-            assertEquals(2, resource.getDataset().stream().count());
+            assertEquals(2, resource.stream().count());
 
             final Literal newObject = rdf.createLiteral("false",
                     rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean"));
             final Dataset newDataset = rdf.createDataset();
 
-            final List<Quad> allQuads = resource.getDataset().stream().collect(Collectors.toList());
+            final List<Quad> allQuads = resource.stream().collect(Collectors.toList());
             final var toDeleteQuads =
-                    resource.getDataset()
+                    resource
                             .stream(null, newResourceNode, newPredicateNode, null)
                             .collect(Collectors.toList());
             final Quad toAddQuad = rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, newObject);

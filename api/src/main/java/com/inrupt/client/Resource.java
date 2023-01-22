@@ -22,6 +22,7 @@ package com.inrupt.client;
 
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.commons.wrapping.WrapperDataset;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,7 +47,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  *
  * <p>This class can be used as a basis for object mapping with higher-level client applications.
  */
-public class Resource implements AutoCloseable {
+public class Resource extends WrapperDataset {
 
     private static final int SINGLETON = 1;
 
@@ -55,7 +56,6 @@ public class Resource implements AutoCloseable {
      */
     protected static final RDF rdf = RDFFactory.getInstance();
 
-    private final Dataset dataset;
     private final URI identifier;
 
     /**
@@ -67,8 +67,8 @@ public class Resource implements AutoCloseable {
      * @param dataset the dataset corresponding to this resource, may be {@code null}
      */
     protected Resource(final URI identifier, final Dataset dataset) {
+        super(dataset == null ? rdf.createDataset() : dataset);
         this.identifier = identifier;
-        this.dataset = dataset != null ? dataset : rdf.createDataset();
     }
 
     /**
@@ -81,15 +81,6 @@ public class Resource implements AutoCloseable {
     }
 
     /**
-     * Get the dataset for this resource.
-     *
-     * @return the resource dataset
-     */
-    public Dataset getDataset() {
-        return dataset;
-    }
-
-    /**
      * Serialize this object with a defined RDF syntax.
      *
      * @param syntax the RDF syntax
@@ -97,7 +88,7 @@ public class Resource implements AutoCloseable {
      * @throws IOException in the case of an I/O error
      */
     public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
-        ServiceProvider.getRdfService().fromDataset(getDataset(), syntax, out);
+        ServiceProvider.getRdfService().fromDataset(this, syntax, out);
     }
 
     /**
@@ -124,15 +115,6 @@ public class Resource implements AutoCloseable {
     }
 
 
-    @Override
-    public void close() {
-        try {
-            dataset.close();
-        } catch (final Exception ex) {
-            throw new InruptClientException("Error closing dataset", ex);
-        }
-    }
-
     private Stream<Quad> pathRecursive(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
         // Trivial case: no predicates
         if (predicates.length == 0) {
@@ -150,10 +132,10 @@ public class Resource implements AutoCloseable {
 
     private Stream<Quad> pathWithSubject(final BlankNodeOrIRI subject, final IRI... predicates) {
         if (predicates.length == SINGLETON) {
-            return dataset.stream(null, subject, predicates[0], null).map(Quad.class::cast);
+            return stream(null, subject, predicates[0], null).map(Quad.class::cast);
         }
 
-        try (final Stream<? extends Quad> stream = dataset.stream(null, subject, predicates[0], null)) {
+        try (final Stream<? extends Quad> stream = stream(null, subject, predicates[0], null)) {
             final Set<BlankNodeOrIRI> objects = stream.map(Quad::getObject)
                 .flatMap(Resource::asCandidateSubject)
                 .collect(Collectors.toSet());
@@ -168,12 +150,12 @@ public class Resource implements AutoCloseable {
         }
 
         if (predicates.length == SINGLETON) {
-            return dataset.stream(null, null, predicates[0], null)
+            return stream(null, null, predicates[0], null)
                 .filter(quad -> subjects.contains(quad.getSubject()))
                 .map(Quad.class::cast);
         }
 
-        try (final Stream<? extends Quad> stream = dataset.stream(null, null, predicates[0], null)) {
+        try (final Stream<? extends Quad> stream = stream(null, null, predicates[0], null)) {
             final Set<BlankNodeOrIRI> objects = stream.filter(quad -> subjects.contains(quad.getSubject()))
                 .map(Quad::getObject).flatMap(Resource::asCandidateSubject)
                 .collect(Collectors.toSet());

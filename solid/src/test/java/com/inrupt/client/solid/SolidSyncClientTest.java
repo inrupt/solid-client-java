@@ -94,8 +94,8 @@ class SolidSyncClientTest {
 
         try (final SolidResource resource = client.read(uri, SolidResource.class)) {
             assertEquals(uri, resource.getIdentifier());
-            assertEquals(4, resource.getDataset().stream().count());
-            assertEquals(2, resource.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+            assertEquals(4, resource.stream().count());
+            assertEquals(2, resource.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                         rdf.createIRI("https://example.com/song"), null).count());
 
             assertDoesNotThrow(() -> client.create(resource));
@@ -111,8 +111,8 @@ class SolidSyncClientTest {
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             assertEquals(uri, container.getIdentifier());
             assertEquals(0, container.getContainedResources().count());
-            assertEquals(4, container.getDataset().stream().count());
-            assertEquals(2, container.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+            assertEquals(4, container.stream().count());
+            assertEquals(2, container.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                         rdf.createIRI("https://example.com/song"), null).count());
 
             assertDoesNotThrow(() -> client.update(container));

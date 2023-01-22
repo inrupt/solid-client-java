@@ -81,7 +81,7 @@ class SolidResourceTest {
         assertTrue(resource.getMetadata().getWacAllow().get("user")
                 .containsAll(Arrays.asList("read", "write")));
         assertEquals(Collections.singleton("read"), resource.getMetadata().getWacAllow().get("public"));
-        assertEquals(13, resource.getDataset().stream().count());
+        assertEquals(13, resource.stream().count());
         assertEquals(3, resource.getMetadata().getAllowedMethods().size());
         assertTrue(resource.getMetadata().getAllowedMethods()
                 .containsAll(Arrays.asList("PUT", "POST", "PATCH")));
@@ -152,7 +152,7 @@ class SolidResourceTest {
 
             assertFalse(res.getMetadata().getStorage().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
-            assertEquals(0, res.getDataset().stream().count());
+            assertEquals(0, res.stream().count());
             assertEquals(id, res.getIdentifier());
         }
     }
@@ -163,7 +163,7 @@ class SolidResourceTest {
         try (final SolidContainer res = new SolidContainer(id, null, null)) {
             assertFalse(res.getMetadata().getStorage().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
-            assertEquals(0, res.getDataset().stream().count());
+            assertEquals(0, res.stream().count());
             assertEquals(id, res.getIdentifier());
         }
     }

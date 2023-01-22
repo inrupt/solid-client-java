@@ -48,13 +48,13 @@ public class Playlist extends SolidResource {
     }
 
     public String getTitle() {
-        return getDataset().stream(Optional.empty(), subject, dcTitle, null)
+        return stream(Optional.empty(), subject, dcTitle, null)
             .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
             .findFirst().map(Literal::getLexicalForm).orElse("Untitled");
     }
 
     public List<URI> getSongs() {
-        return getDataset().stream(Optional.empty(), subject, exSong, null)
+        return stream(Optional.empty(), subject, exSong, null)
             .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
             .map(IRI::getIRIString).map(URI::create).collect(Collectors.toList());
     }
