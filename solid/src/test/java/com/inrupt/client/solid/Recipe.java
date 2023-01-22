@@ -21,49 +21,70 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Resource;
+import com.inrupt.commons.wrapping.TermMappings;
+import com.inrupt.commons.wrapping.ValueMappings;
+import com.inrupt.commons.wrapping.WrapperIRI;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.Quad;
+import org.apache.commons.rdf.api.RDFTerm;
 
 public class Recipe extends Resource {
 
     private final IRI dcTitle;
     private final IRI exIngredient;
     private final IRI exStep;
-    private final IRI subject;
+    private final Node subject;
 
     public Recipe(final URI identifier, final Dataset dataset) {
         super(identifier, dataset);
 
-        this.subject = rdf.createIRI(identifier.toString());
+        this.subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
         this.dcTitle = rdf.createIRI("http://purl.org/dc/terms/title");
         this.exStep = rdf.createIRI("https://example.com/step");
         this.exIngredient = rdf.createIRI("https://example.com/ingredient");
     }
 
     public String getTitle() {
-        return stream(Optional.empty(), subject, dcTitle, null)
-            .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
-            .findFirst().map(Literal::getLexicalForm).orElse("Untitled");
+        return subject.getTitle();
     }
 
-    public List<String> getIngredients() {
-        return stream(Optional.empty(), subject, exIngredient, null)
-            .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
-            .map(Literal::getLexicalForm).collect(Collectors.toList());
+    public void setTitle(final String value) {
+        subject.setTitle(value);
     }
 
-    public List<String> getSteps() {
-        return stream(Optional.empty(), subject, exStep, null)
-            .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
-            .map(Literal::getLexicalForm).collect(Collectors.toList());
+    public Set<String> getIngredients() {
+        return subject.getIngredients();
+    }
+
+    public Set<String> getSteps() {
+        return subject.getSteps();
+    }
+
+    class Node extends WrapperIRI {
+
+        Node(final RDFTerm original, final Graph graph) {
+            super(original, graph);
+        }
+
+        String getTitle() {
+            return anyOrNull(dcTitle, ValueMappings::literalAsString);
+        }
+
+        void setTitle(final String value) {
+            overwriteNullable(dcTitle, value, TermMappings::asStringLiteral);
+        }
+
+        Set<String> getIngredients() {
+            return live(exIngredient, TermMappings::asStringLiteral, ValueMappings::literalAsString);
+        }
+
+        Set<String> getSteps() {
+            return live(exStep, TermMappings::asStringLiteral, ValueMappings::literalAsString);
+        }
     }
 }
-
