@@ -27,7 +27,7 @@
  * which previously was loaded on the classpath, one can call the {@link ClientProvider}.
  * 
  * <p>{@link Request} and {@link Response} classes help with interacting with a HTTP client. And {@link Headers}
- * helps parsing header values among which also Solid specific concepts such as {@link Headers.Link}
+ * helps parsing header values, including those often used with Solid, such as {@link Headers.Link}
  * or {@link Headers.WacAllow}.
  * 
  * <p>Further, to work with HTTP resources as Solid resources, one can make use of the {@link Resource}
