@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Parsing support for the Inrupt client libraries</h2>
+ * <h2>Parsing support for the Inrupt Client Libraries</h2>
  *
  * <p>The Solid ecosystem relies on conformance with many different formal specifications.
  * Consequently, many of these specifications define formal grammars as part of a protocol

@@ -38,6 +38,9 @@ import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A default HTTP client implementation.
+ */
 public final class DefaultClient implements Client {
 
     private static final int UNAUTHORIZED = 401;
@@ -124,6 +127,9 @@ public final class DefaultClient implements Client {
         return new Builder();
     }
 
+    /**
+     * The bulilder of the default client implementation.
+     */
     public static class Builder implements Client.Builder {
 
         private HttpService instance;

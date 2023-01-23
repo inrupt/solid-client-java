@@ -26,6 +26,9 @@ import io.smallrye.config.WithName;
 
 import java.net.URI;
 
+/**
+ * An interface for aceesing the application configuration.
+ */
 @ConfigMapping(prefix = "inrupt.examples.cli")
 public interface AppConfig {
 

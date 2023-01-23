@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>User Managed Access support for the Inrupt client libraries</h2>
+ * <h2>User Managed Access support for the Inrupt Client Libraries</h2>
  *
  * <p>UMA builds on the OAuth 2.0 authorization framework, defining a mechanism by which
  * a client can iteratively negotiate for an access token.

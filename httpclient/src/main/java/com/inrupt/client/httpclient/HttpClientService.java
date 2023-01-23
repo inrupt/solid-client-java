@@ -38,6 +38,9 @@ import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A {@link HttpService} using the {@code java.net.http.HttpClient}.
+ */
 public class HttpClientService implements HttpService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientService.class);

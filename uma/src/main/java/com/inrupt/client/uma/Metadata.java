@@ -23,6 +23,9 @@ package com.inrupt.client.uma;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * A class representing an UMA discovery document.
+ */
 public class Metadata {
 
     public List<String> dpopSigningAlgValuesSupported;

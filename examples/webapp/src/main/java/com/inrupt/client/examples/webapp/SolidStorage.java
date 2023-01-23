@@ -45,6 +45,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+/**
+ * A class that loads the first found Solid storage and lists its content.
+ */
 @ApplicationScoped
 @Path("/solid")
 public class SolidStorage {

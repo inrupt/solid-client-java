@@ -22,6 +22,9 @@ package com.inrupt.client;
 
 import com.inrupt.client.spi.ClientProviderResolver;
 
+/**
+ * An API loading the HTTP client.
+ */
 public final class ClientProvider {
 
     /**

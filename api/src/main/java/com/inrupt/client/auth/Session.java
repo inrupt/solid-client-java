@@ -31,6 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * An interface for working with session objects.
+ */
 public interface Session {
 
     /**

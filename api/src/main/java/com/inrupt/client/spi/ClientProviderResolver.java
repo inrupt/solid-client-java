@@ -25,6 +25,9 @@ import com.inrupt.client.Client;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+/**
+ * An abstraction that loads the available {@link Client} from, the classpath.
+ */
 public abstract class ClientProviderResolver {
 
     private static ClientProviderResolver instance = null;

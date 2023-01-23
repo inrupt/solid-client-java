@@ -28,6 +28,9 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * A {@link WireMockServer} based HTTP service used for testing RDF services.
+ */
 public class RdfMockService {
 
     private final WireMockServer wireMockServer;

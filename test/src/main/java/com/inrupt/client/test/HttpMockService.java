@@ -30,7 +30,9 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.util.Collections;
 import java.util.Map;
 
-
+/**
+ * A {@link WireMockServer} based HTTP service used for testing HTTP services.
+ */
 class HttpMockService {
 
     private static final String CONTENT_TYPE = "Content-Type";

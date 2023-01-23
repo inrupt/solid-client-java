@@ -42,6 +42,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * An UMA client implmentation.
+ */
 public class UmaClient {
 
     /* HTTP */
