@@ -10,7 +10,7 @@
   <artifactId>inrupt-client-test</artifactId>
   <name>Inrupt Client Libraries - Test</name>
   <description>
-    Test cases shared accross some modules.
+    Test cases shared across modules.
   </description>
 
   <dependencies>
