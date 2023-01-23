@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * An UMA token request class.
+ */
 public class TokenRequest {
 
     private final String ticket;

@@ -20,6 +20,9 @@
  */
 package com.inrupt.client.uma;
 
+/**
+ * A request denied error from the UMA server.
+ */
 public class RequestDeniedException extends UmaException {
 
     private static final long serialVersionUID = 2634097455648315683L;

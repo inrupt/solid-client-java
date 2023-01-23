@@ -20,7 +20,7 @@
  */
 /**
  *
- * <h2>Support for Solid specific concepts for the Inrupt client libraries.</h2>
+ * <h2>Support for Solid specific concepts for the Inrupt Client Libraries.</h2>
  *
  * <h3>Solid Client</h3>
  *

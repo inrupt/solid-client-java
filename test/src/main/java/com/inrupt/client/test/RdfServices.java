@@ -46,6 +46,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+
+/**
+ * A {@code RdfService} class tester.
+ */
 public class RdfServices {
 
     private static final RdfService rdfService = ServiceProvider.getRdfService();

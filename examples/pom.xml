@@ -9,6 +9,9 @@
 
   <artifactId>inrupt-client-examples-parent</artifactId>
   <name>Inrupt Client Libraries - Examples Parent</name>
+  <description>
+    Example code to work with the Inrupt Client Libraries.
+  </description>
   <packaging>pom</packaging>
 
   <modules>

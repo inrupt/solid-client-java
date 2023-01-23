@@ -34,6 +34,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+
+/**
+ * A {@code JsonService} class tester.
+ */
 public class JsonServices {
 
     private static final JsonService processor = ServiceProvider.getJsonService();

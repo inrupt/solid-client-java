@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Core classes and utilities for the Inrupt client libraries.</h2>
+ * <h2>Core classes and utilities for the Inrupt Client Libraries.</h2>
  * 
  * <p>This module provides default implementation for some of the APIs of the library.
  * 

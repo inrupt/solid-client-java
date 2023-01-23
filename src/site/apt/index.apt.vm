@@ -7,6 +7,12 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 || Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstrctions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
+|  | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html}auth}} | Authentication related abstrctions used by the Java Client Libraries. |
+*-------*-----------------*--------*--------------*
+| | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html}spi}} | Service interfaces used by the Java Client Libraries. |
+*-------*-----------------*--------*--------------*
+| | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/util/package-summary.html}util}} | Utility classes for the Java Client Libraries. |
+*-------*-----------------*--------*--------------*
 || Core Modules Layer | HTTP interaction    |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient}}    | Http client based on the java.net implementation. |
 *-------*-----------------*--------*--------------*
 |  | HTTP interaction      |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}okhttp}}    | Http client based on the OK HTTP implementation. |
@@ -23,17 +29,18 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 |  | Authentication & authorization     |    {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma}}    | Authorization logic based on UMA specification. |
 *-------*-----------------*--------*--------------*
-|| Domain-Specific Modules Layer | Implementation of all API interfaces | {{{corehttps://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core}} | Provides a default Client implementation. |
+|| Domain-Specific Modules Layer | Implementations of API interfaces | {{{corehttps://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core}} | Provides default implementations for different services. |
 *-------*-----------------*--------*--------------*
-|  | Solid resource data models | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid}} | Solid resource & container handlers. |
+|  | Solid related data models | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/solid/package-summary.html}solid}} | Solid resource & container handlers. |
 *-------*-----------------*--------*--------------*
-|  | WebID Profile data models | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/webid/package-summary.html}webid}} | Solid WebID handler. |
+|  | WebID Profile data model | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/webid/package-summary.html}webid}} | Solid WebID handler. |
 *-------*-----------------*--------*--------------*
 || Utility Modules | RDF Vocabulary terms | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vocabulary/package-summary.html}vocabulary}} | Provides convenience objects for Solid-related identifiers. |
 *-------*-----------------*--------*--------------*
 |  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/test/package-summary.html}test}} | Common tests shared across library modules. |
 *-------*-----------------*--------*--------------*
-|| Example Applications |  | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/webapp/package-summary.html}examples}} | A sample web application. |
+|| Example Applications | Sample application | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/webapp/package-summary.html}webapp}} | A sample web application. |
+|  | Sample application | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/cli/package-summary.html}cli}} | A sample CLI application. |
 *-------*-----------------*--------*--------------*
 
 * Getting started

@@ -20,6 +20,9 @@
  */
 package com.inrupt.client.uma;
 
+/**
+ * An UMA token response class.
+ */
 public class TokenResponse {
     public String accessToken;
     public String tokenType;

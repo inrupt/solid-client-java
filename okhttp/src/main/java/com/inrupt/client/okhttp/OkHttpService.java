@@ -18,9 +18,6 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-/**
- * OkHttp bindings for the Inrupt client libraries.
- */
 package com.inrupt.client.okhttp;
 
 import com.inrupt.client.Request;
@@ -46,6 +43,9 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 
+/**
+ * A {@link HttpService} using the {@code okhttp3.OkHttpClient}.
+ */
 public class OkHttpService implements HttpService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OkHttpService.class);

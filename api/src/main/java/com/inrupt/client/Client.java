@@ -25,6 +25,9 @@ import com.inrupt.client.spi.HttpService;
 
 import java.util.concurrent.CompletionStage;
 
+/**
+ * An API for a HTTP client.
+ */
 public interface Client {
 
     /**
@@ -45,6 +48,9 @@ public interface Client {
      */
     Client session(Session session);
 
+    /**
+     * An API for a HTTP client builder.
+     */
     interface Builder {
 
         /**
