@@ -75,12 +75,22 @@ public class HttpClientService implements HttpService {
         final HttpRequest req = builder.build();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.uri());
+            if (LOGGER.isTraceEnabled()) {
+                for (String header : req.headers().map().keySet()) {
+                    LOGGER.trace("Request Headers: \n {}: {}", header, req.headers().allValues(header));
+                }
+            }
         }
 
         return client.sendAsync(req, HttpResponse.BodyHandlers.ofByteArray())
             .thenApply(res -> {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Response Status Code: {}", res.statusCode());
+                    if (LOGGER.isTraceEnabled()) {
+                        for (String header : res.headers().map().keySet()) {
+                            LOGGER.trace("Response Headers: \n {}: {}", header, res.headers().allValues(header));
+                        }
+                    }
                 }
                 final var info = new HttpClientResponseInfo(res, ByteBuffer.wrap(res.body()));
                 return new HttpClientResponse<>(res.uri(), info, handler.apply(info));

@@ -67,13 +67,23 @@ public class OkHttpService implements HttpService {
         final CompletableFuture<Response<T>> future = new CompletableFuture<>();
         final okhttp3.Request req = prepareRequest(request);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.url().uri());
+            LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.url());
+            if (LOGGER.isTraceEnabled()) {
+                for (String header : req.headers().toMultimap().keySet()) {
+                    LOGGER.trace("Request Headers: \n {}: {}", header, req.headers().toMultimap().get(header));
+                }
+            }
         }
         client.newCall(req).enqueue(new Callback() {
             @Override
             public void onResponse(final Call call, final okhttp3.Response res) throws IOException {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Response Status Code: {}", res.code());
+                    if (LOGGER.isTraceEnabled()) {
+                        for (String header : res.headers().toMultimap().keySet()) {
+                            LOGGER.trace("Response Headers: \n {}: {}", header, res.headers().toMultimap().get(header));
+                        }
+                    }
                 }
                 try (final okhttp3.Response r = res) {
                     final Response.ResponseInfo info = new OkHttpResponseInfo(r);
