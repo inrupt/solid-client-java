@@ -30,7 +30,7 @@
  * helps parsing header values, including those often used with Solid, such as {@link Headers.Link}
  * or {@link Headers.WacAllow}.
  * 
- * <p>Further, to work with HTTP resources as Solid resources, one can make use of the {@link Resource}
+ * <p>Further, to work with HTTP resources as RDF-based resources, one can make use of the {@link Resource}
  * class.
  * {@link ValidationResult} can be of use when validation of the Solid resource is needed.
  * 
