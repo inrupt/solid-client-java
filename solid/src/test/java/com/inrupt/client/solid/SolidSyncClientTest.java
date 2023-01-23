@@ -31,11 +31,15 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.RDF;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class SolidSyncClientTest {
 
@@ -138,36 +142,24 @@ class SolidSyncClientTest {
         }
     }
 
-    @Test
-    void testUnauthorizedResource() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/unauthorized");
-
+    @ParameterizedTest
+    @MethodSource
+    void testExceptionalResources(final URI uri, final int expectedStatusCode) {
         final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
-        assertEquals(401, err.getStatusCode());
+
+        assertEquals(expectedStatusCode, err.getStatusCode());
         assertEquals(uri, err.getUri());
         assertEquals(Optional.of("application/json"), err.getHeaders().firstValue("Content-Type"));
         assertNotNull(err.getBody());
     }
 
-    @Test
-    void testForbiddenResource() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/forbidden");
-
-        final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
-        assertEquals(403, err.getStatusCode());
-        assertEquals(uri, err.getUri());
-        assertEquals(Optional.of("application/json"), err.getHeaders().firstValue("Content-Type"));
-        assertNotNull(err.getBody());
-    }
-
-    @Test
-    void testMissingResource() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/missing");
-
-        final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
-        assertEquals(404, err.getStatusCode());
-        assertEquals(uri, err.getUri());
-        assertEquals(Optional.of("application/json"), err.getHeaders().firstValue("Content-Type"));
-        assertNotNull(err.getBody());
+    private static Stream<Arguments> testExceptionalResources() {
+        return Stream.of(
+                Arguments.of(
+                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401),
+                Arguments.of(
+                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403),
+                Arguments.of(
+                    URI.create(config.get("solid_resource_uri") + "/missing"), 404));
     }
 }

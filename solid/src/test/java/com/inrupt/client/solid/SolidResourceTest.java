@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import org.junit.jupiter.api.AfterAll;
@@ -194,16 +195,20 @@ class SolidResourceTest {
             .GET()
             .build();
 
-        final CompletionException err1 = assertThrows(CompletionException.class, () -> client.send(
-            request,
-            SolidResourceHandlers.ofSolidContainer()
-        ).toCompletableFuture().join());
+        final CompletableFuture<Response<SolidContainer>> containerFuture =
+                client.send(request, SolidResourceHandlers.ofSolidContainer())
+                .toCompletableFuture();
+        final CompletionException err1 =
+                assertThrows(CompletionException.class, () -> containerFuture.join());
+
         assertTrue(err1.getCause() instanceof SolidResourceException);
 
-        final CompletionException err2 = assertThrows(CompletionException.class, () -> client.send(
-            request,
-            SolidResourceHandlers.ofSolidResource()
-        ).toCompletableFuture().join());
+        final CompletableFuture<Response<SolidContainer>> resourceFuture =
+                client.send(request, SolidResourceHandlers.ofSolidContainer())
+                .toCompletableFuture();
+        final CompletionException err2 =
+                assertThrows(CompletionException.class, () -> resourceFuture.join());
+
         assertTrue(err2.getCause() instanceof SolidResourceException);
     }
 }
