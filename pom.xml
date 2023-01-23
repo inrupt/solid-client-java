@@ -52,7 +52,7 @@
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
     <owasp.plugin.version>8.0.0</owasp.plugin.version>
     <projectinfo.plugin.version>3.4.1</projectinfo.plugin.version>
-    <pmd.plugin.version>3.19.0</pmd.plugin.version>
+    <pmd.plugin.version>3.20.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
     <release.plugin.version>2.5.3</release.plugin.version>
     <resources.plugin.version>3.3.0</resources.plugin.version>
