@@ -77,17 +77,17 @@
  * 
  * <pre>{@code
     class TestAuthenticator implements Authenticator {
-        @Override
+        {@literal @}Override
         public String getName() {
             return "TEST";
         }
 
-        @Override
+        {@literal @}Override
         public int getPriority() {
             return 1;
         }
 
-        @Override
+        {@literal @}Override
         public CompletionStage<Credential> authenticate(Session session,
             Request request, Set<String> algorithms) {
                 ...

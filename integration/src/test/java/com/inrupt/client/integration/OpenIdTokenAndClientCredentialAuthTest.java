@@ -49,6 +49,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public class OpenIdTokenAndClientCredentialAuthTest {
 
+    private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
@@ -56,7 +57,6 @@ public class OpenIdTokenAndClientCredentialAuthTest {
     private static final String clientId = config.getValue("inrupt.test.clientId", String.class);
     private static final String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
     private static final String authMethod = config.getValue("inrupt.test.authMethod", String.class);
-
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
     private static URI privateResourceURL;
@@ -65,7 +65,10 @@ public class OpenIdTokenAndClientCredentialAuthTest {
     static void setup() {
 
         if (testEnv.contains("MockSolidServer")) {
-            Utils.initMockServer();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
+            Utils.AS_URI = Utils.POD_URL + "/uma";
+            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
         }
 
         final SolidSyncClient session =
@@ -82,14 +85,12 @@ public class OpenIdTokenAndClientCredentialAuthTest {
         privateResourceURL =
                 URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + testResourceName);
     }
-
     @AfterAll
     static void teardown() {
         if (testEnv.equals("MockSolidServer")) {
-            Utils.stopMockServer();
+            mockHttpServer.stop();
         }
     }
-
     @Test
     @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
@@ -97,7 +98,6 @@ public class OpenIdTokenAndClientCredentialAuthTest {
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         final SolidSyncClient client = SolidSyncClient.getClient();
         assertDoesNotThrow(() -> client.create(testResource));
-
         assertDoesNotThrow(() -> client.read(publicResourceURL, SolidResource.class));
         assertDoesNotThrow(() -> client.delete(testResource));
     }
@@ -130,14 +130,12 @@ public class OpenIdTokenAndClientCredentialAuthTest {
         assertDoesNotThrow(() -> authClient.create(testResource));
 
         final SolidSyncClient unauthClient = SolidSyncClient.getClient();
-
         final SolidClientException err = assertThrows(SolidClientException.class,
                 () -> unauthClient.read(privateResourceURL, SolidResource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
-
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
@@ -151,7 +149,6 @@ public class OpenIdTokenAndClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> client.delete(testResource));
     }
-
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
@@ -165,7 +162,6 @@ public class OpenIdTokenAndClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
-
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
@@ -185,7 +181,6 @@ public class OpenIdTokenAndClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> authClient2.delete(testResource));
     }
-
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
