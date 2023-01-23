@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A {@link WireMockServer} based HTTP service used for testing HTTP services.
+ * A {@link WireMockServer}-based HTTP service used for testing HTTP services.
  */
 class HttpMockService {
 
