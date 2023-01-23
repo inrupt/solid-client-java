@@ -1,0 +1,147 @@
+Installation
+
+    The Inrupt Java Client Libraries are available on {{{https://search.maven.org/}Maven Central}}. 
+    To get started, one needs to always install the Inrupt Java Client Libraries BOM in the project's POM by adding the following:
+
+----------------------
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-bom</artifactId>
+        <version>${inrupt.client.version}</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+----------------------
+
+    After installing the BOM, one needs to decide which exact modules to add to the own project's POM for dedicated functionalities. For details on what each module helps with, please check the table in the {{{https://inrupt.github.io/solid-client-java/}Home}} page.
+
+* All available modules
+
+    We do not advise adding all the available modules in your project but we, nevertheless list them here. 
+
+----------------------
+<dependencies>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-examples</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-httpclient</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-integration</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-jackson</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-jena</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-jsonb</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-okhttp</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-openid</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-parser</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-rdf4j</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-solid</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-test</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-uma</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-vocabulary</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-webid</artifactId>
+    </dependency>
+</dependencies>
+----------------------
+
+* Selectively installing modules
+
+    The code layer modules offer duplicate functionalities because they make use of different underlying libraries. You will have to choose which exact libraries you want to make use of and add its according module. If one adds both modules, for the HTTP client for example, it is not guaranteed which exact one is going to be loaded first from the classpath.
+    Choices can be made for the HTTP service, JSON and RDF processing and authentication and authorization. The following choices are available:
+
+*-------------------------*---------------------*---------------------*
+|| HTTP client option     | java.net HttpClient | com.squareup OkHttp |
+*-------------------------*---------------------*---------------------*
+| <<Maven dependency>>    | \<dependency\> \                                        | \<dependency\> \ |
+|                         | \<groupId\>com.inrupt\</groupId\> \                     | \<groupId\>com.inrupt\</groupId\> \ |
+|                         | \<artifactId\>inrupt-client-httpclient\</artifactId\> \ | \<artifactId\>inrupt-client-okhttp\</artifactId\> \ |
+|                         | \</dependency\>                                         | \</dependency\> |
+*-------------------------*---------------------------------------------------------*------------------------------------------------*                    
+
+*---------------------*---------------------*---------------------*
+|| RDF processing option | RDF4J | JENA |
+*---------------------*---------------------*---------------------*
+| <<Maven dependency>>    | \<dependency\> \                                   | \<dependency\> \ |
+|                         | \<groupId\>com.inrupt\</groupId\> \                | \<groupId\>com.inrupt\</groupId\> \ |
+|                         | \<artifactId\>inrupt-client-rdf4j\</artifactId\> \ | \<artifactId\>inrupt-client-jena\</artifactId\> \ |
+|                         | \</dependency\>                                    | \</dependency\> |
+*-------------------------*----------------------------------------------------*------------------------------------------------*                   
+
+*---------------------*---------------------*---------------------*
+|| JSON processing option | JSON-B | Jackson |
+*---------------------*---------------------*---------------------*
+| <<Maven dependency>>    | \<dependency\> \                                   | \<dependency\> \ |
+|                         | \<groupId\>com.inrupt\</groupId\> \                | \<groupId\>com.inrupt\</groupId\> \ |
+|                         | \<artifactId\>inrupt-client-jsonb\</artifactId\> \ | \<artifactId\>inrupt-client-jackson\</artifactId\> \ |
+|                         | \</dependency\>                                    | \</dependency\> |
+*-------------------------*----------------------------------------------------*------------------------------------------------*                   
+
+*---------------------*---------------------*---------------------*
+|| Authentication and authorization | OpenID | UMA |
+*---------------------*---------------------*---------------------*
+| <<Maven dependency>>    | \<dependency\> \                                    | \<dependency\> \ |
+|                         | \<groupId\>com.inrupt\</groupId\> \                 | \<groupId\>com.inrupt\</groupId\> \ |
+|                         | \<artifactId\>inrupt-client-openid\</artifactId\> \ | \<artifactId\>inrupt-client-uma\</artifactId\> \ |
+|                         | \</dependency\>                                     | \</dependency\> |
+*-------------------------*-----------------------------------------------------*------------------------------------------------*                   
+
+    Once the core layer modules have been selected, it is optional if one wants to add further domain-specific layer modules such as solid or webid. 
+    The domain-specific layer modules expose further abstractions on how to directly work with solid concepts. These functionalities can be implemented also through the core modules by working directly with the available libraries (RDF4J or JENA and so on), or one can create their own domain-specific abstractions.
+
+* Developing own domain-specific abstractions
+
+    The Inrupt {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api module}} of the Java Client Libraries uses the Service Provider Interface to make use of dedicated implementations loaded on the classpath. While the core layer offers options for HTTP client, RDF and JSON processing, one can also add own such implementations. 
+
+    For example, to make use of another HTTP client, the new class needs to implement the Client interface available in the api module. If no other Client implementation is found on the classpath, the own Client implementation will be loaded by the Service Provider. The same applies for JSON and RDF processing as well.
+
+    Authentication and authorization also make use of the Service Provider Interface. There is a dedicated OpenIdAuthenticationProvider and a UmaAuthenticationProvider which extend the AuthenticationProvider api. And the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html}auth api module}} interfaces can further assist with authentication and authorization concepts.
