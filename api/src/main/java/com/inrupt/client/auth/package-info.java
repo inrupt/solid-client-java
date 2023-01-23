@@ -26,7 +26,7 @@
  * <p>In the libraries we make use of the {@link Session} interface to share authentication and
  * authorization information when working with HTTP clients.
  * 
- * <p>The annonymous session, in comparison, does not keep a cache of access tokens.
+ * <p>The anonymous session, in comparison, does not keep a cache of access tokens.
  * 
 * <pre>{@code
     SolidClient client = SolidClient.getClient().session(Session.anonymous());
@@ -73,7 +73,7 @@
  * 
  * <h3>Authentication</h3>
  * 
- * <p>The {@link Authenticator} is the interface to call if one wants to develope an own authenticate logic.
+ * <p>The {@link Authenticator} is the interface to call if one wants to develop an own authentication logic.
  * 
  * <pre>{@code
     class TestAuthenticator implements Authenticator {
