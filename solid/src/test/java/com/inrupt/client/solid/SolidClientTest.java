@@ -30,12 +30,17 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.RDF;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class SolidClientTest {
 
@@ -141,45 +146,30 @@ class SolidClientTest {
         .toCompletableFuture().join();
     }
 
-    @Test
-    void testUnauthorizedResource() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/unauthorized");
+    @ParameterizedTest
+    @MethodSource
+    void testExceptionalResources(final URI uri, final int expectedStatusCode) {
 
+        final CompletableFuture<Recipe> future =
+            client.read(uri, Recipe.class)
+            .toCompletableFuture();
         final CompletionException err = assertThrows(CompletionException.class, () ->
-                client.read(uri, Recipe.class).toCompletableFuture().join());
+            future.join());
         assertTrue(err.getCause() instanceof SolidClientException);
         final SolidClientException ex = (SolidClientException) err.getCause();
-        assertEquals(401, ex.getStatusCode());
+        assertEquals(expectedStatusCode, ex.getStatusCode());
         assertEquals(uri, ex.getUri());
         assertEquals(Optional.of("application/json"), ex.getHeaders().firstValue("Content-Type"));
         assertNotNull(ex.getBody());
     }
 
-    @Test
-    void testForbiddenResource() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/forbidden");
-
-        final CompletionException err = assertThrows(CompletionException.class, () ->
-                client.read(uri, Recipe.class).toCompletableFuture().join());
-        assertTrue(err.getCause() instanceof SolidClientException);
-        final SolidClientException ex = (SolidClientException) err.getCause();
-        assertEquals(403, ex.getStatusCode());
-        assertEquals(uri, ex.getUri());
-        assertEquals(Optional.of("application/json"), ex.getHeaders().firstValue("Content-Type"));
-        assertNotNull(ex.getBody());
-    }
-
-    @Test
-    void testMissingResource() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/missing");
-
-        final CompletionException err = assertThrows(CompletionException.class, () ->
-                client.read(uri, Recipe.class).toCompletableFuture().join());
-        assertTrue(err.getCause() instanceof SolidClientException);
-        final SolidClientException ex = (SolidClientException) err.getCause();
-        assertEquals(404, ex.getStatusCode());
-        assertEquals(uri, ex.getUri());
-        assertEquals(Optional.of("application/json"), ex.getHeaders().firstValue("Content-Type"));
-        assertNotNull(ex.getBody());
+    private static Stream<Arguments> testExceptionalResources() {
+        return Stream.of(
+                Arguments.of(
+                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401),
+                Arguments.of(
+                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403),
+                Arguments.of(
+                    URI.create(config.get("solid_resource_uri") + "/missing"), 404));
     }
 }
