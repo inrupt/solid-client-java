@@ -24,6 +24,7 @@
  * <p>This module contains a few utility classes used throughout the Inrupt CLient Libraries.
  * 
  * <p>{@link IOUtils} helps with working with I/O streams.
+ * 
  * <p>{@link URIBuilder} helps with building {@code java.net.URI} objects.
  */
 package com.inrupt.client.util;
