@@ -23,7 +23,7 @@ package com.inrupt.client.uma;
 import java.util.Objects;
 
 /**
- * This class represents an UMA claim token and the associated type value.
+ * A class representing an UMA claim token and the associated type value.
  *
  * @see <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html#uma-grant-type">
  * User-Managed Access 2.0: Client Request to Authorization Server for RPT</a>

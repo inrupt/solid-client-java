@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>OkHttp bindings for the Inrupt client libraries.</h2>
+ * <h2>OkHttp bindings for the Inrupt Client Libraries.</h2>
  * 
  * <p>A user of the {@code OkHttpService} should ensure that this implementation is
  * available on the classpath by adding the following dependency:

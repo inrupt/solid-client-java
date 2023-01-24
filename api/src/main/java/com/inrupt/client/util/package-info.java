@@ -18,34 +18,13 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
-
-import com.inrupt.client.spi.ClientProviderResolver;
-
 /**
- * An API for loading the HTTP client.
+ * <h2>Utility classes for the Inrupt Client Libraries.</h2>
+ * 
+ * <p>This module contains a few utility classes used throughout the Inrupt CLient Libraries.
+ * 
+ * <p>{@link IOUtils} helps with working with I/O streams.
+ * 
+ * <p>{@link URIBuilder} helps with building {@code java.net.URI} objects.
  */
-public final class ClientProvider {
-
-    /**
-     * Get the {@link Client} for the current application.
-     *
-     * @return the client instance
-     */
-    public static Client getClient() {
-        return ClientProviderResolver.getInstance().getClient();
-    }
-
-    /**
-     * Get a {@link Client.Builder} for the current application.
-     *
-     * @return the client builder
-     */
-    public static Client.Builder getClientBuilder() {
-        return ClientProviderResolver.getInstance().getClientBuilder();
-    }
-
-    private ClientProvider() {
-        // Prevent instantiation
-    }
-}
+package com.inrupt.client.util;

@@ -55,6 +55,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * A default header parser.
+ */
 public class DefaultHeaderParser implements HeaderParser {
 
     @Override

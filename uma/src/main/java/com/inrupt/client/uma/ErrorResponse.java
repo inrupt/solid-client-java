@@ -24,6 +24,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A concrete error response class from the UMA server.
+ */
 public class ErrorResponse {
 
     public String error;

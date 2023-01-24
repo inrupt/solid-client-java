@@ -26,6 +26,9 @@ import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
 
+/**
+ * Generic RDF resources used for testing purposes.
+ */
 public final class RdfTestModel {
 
     private static final RDF rdf = RDFFactory.getInstance();

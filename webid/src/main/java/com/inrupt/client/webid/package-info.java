@@ -20,7 +20,7 @@
  */
 /**
  * 
- * <h2>WebID Profile support for the Inrupt client libraries.</h2>
+ * <h2>WebID Profile support for the Inrupt Client Libraries.</h2>
  *
  * <p>This module contains a BodyHandler which consumes the actual response body bytes
  *  and converts them into a {@link WebIdProfile} Java object.

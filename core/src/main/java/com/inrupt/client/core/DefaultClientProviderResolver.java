@@ -23,6 +23,9 @@ package com.inrupt.client.core;
 import com.inrupt.client.Client;
 import com.inrupt.client.spi.ClientProviderResolver;
 
+/**
+ * A default {@link ClientProviderResolver} that loads the {@link DefaultClient}.
+ */
 public class DefaultClientProviderResolver extends ClientProviderResolver {
 
     @Override
