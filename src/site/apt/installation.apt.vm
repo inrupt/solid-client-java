@@ -1,7 +1,7 @@
 Installation
 
     The Inrupt Java Client Libraries are available on {{{https://search.maven.org/}Maven Central}}. 
-    To get started, one needs to always install the Inrupt Java Client Libraries BOM in the project's POM by adding the following:
+    The easiest way to get started involves adding the Inrupt Java Client Libraries BOM to your project's POM by adding the following:
 
 ----------------------
 <dependencyManagement>
