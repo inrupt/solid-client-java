@@ -69,8 +69,8 @@ public class OkHttpService implements HttpService {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.url());
             if (LOGGER.isTraceEnabled()) {
-                for (String header : req.headers().toMultimap().keySet()) {
-                    LOGGER.trace("Request Headers: \n {}: {}", header, req.headers().toMultimap().get(header));
+                for (final Map.Entry<String, List<String>> entry : req.headers().toMultimap().entrySet()) {
+                    LOGGER.trace("Request Headers: {}: {}", entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -80,8 +80,8 @@ public class OkHttpService implements HttpService {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Response Status Code: {}", res.code());
                     if (LOGGER.isTraceEnabled()) {
-                        for (String header : res.headers().toMultimap().keySet()) {
-                            LOGGER.trace("Response Headers: \n {}: {}", header, res.headers().toMultimap().get(header));
+                        for (final Map.Entry<String, List<String>> entry : res.headers().toMultimap().entrySet()) {
+                            LOGGER.trace("Response Headers: {}: {}", entry.getKey(), entry.getValue());
                         }
                     }
                 }

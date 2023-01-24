@@ -76,8 +76,8 @@ public class HttpClientService implements HttpService {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.uri());
             if (LOGGER.isTraceEnabled()) {
-                for (String header : req.headers().map().keySet()) {
-                    LOGGER.trace("Request Headers: \n {}: {}", header, req.headers().allValues(header));
+                for (final Map.Entry<String, List<String>> entry : req.headers().map().entrySet()) {
+                    LOGGER.trace("Request Headers: {}: {}", entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -87,8 +87,8 @@ public class HttpClientService implements HttpService {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Response Status Code: {}", res.statusCode());
                     if (LOGGER.isTraceEnabled()) {
-                        for (String header : res.headers().map().keySet()) {
-                            LOGGER.trace("Response Headers: \n {}: {}", header, res.headers().allValues(header));
+                        for (final Map.Entry<String, List<String>> entry : res.headers().map().entrySet()) {
+                            LOGGER.trace("Response Headers: {}: {}", entry.getKey(), entry.getValue());
                         }
                     }
                 }
