@@ -9,8 +9,8 @@
   <body>
     <menu name="Inrupt Client" inherit="top">
       <item name="Home" href="index.html"/>
+      <item name="Set Up" href="setUp.html"/>
       <item name="Getting Started" href="gettingStarted.html"/>
-      <item name="Installation" href="installation.html"/>
       <item name="Documentation" href="apidocs/"/>
       <item name="License" href="licenses.html"/>
       <item name="Modules" href="modules.html"/>

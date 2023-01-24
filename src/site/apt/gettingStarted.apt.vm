@@ -1,4 +1,4 @@
-Getting started
+Getting Started
 
     An app developer will first need to consider how a user creates an authenticated session. Depending on the application framework in use, there may already be
     a valid OpenID Id Token. Alternatively, a developer may possess a set of client credentials. Both approaches are described below. In both cases, a client object
