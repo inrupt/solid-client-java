@@ -69,9 +69,7 @@ public class OkHttpService implements HttpService {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.url());
             if (LOGGER.isTraceEnabled()) {
-                for (final Map.Entry<String, List<String>> entry : req.headers().toMultimap().entrySet()) {
-                    LOGGER.trace("Request Headers: {}: {}", entry.getKey(), entry.getValue());
-                }
+                LOGGER.trace("Request Headers: {}", req.headers());
             }
         }
         client.newCall(req).enqueue(new Callback() {
@@ -80,9 +78,7 @@ public class OkHttpService implements HttpService {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Response Status Code: {}", res.code());
                     if (LOGGER.isTraceEnabled()) {
-                        for (final Map.Entry<String, List<String>> entry : res.headers().toMultimap().entrySet()) {
-                            LOGGER.trace("Response Headers: {}: {}", entry.getKey(), entry.getValue());
-                        }
+                        LOGGER.trace("Response Headers: {}", res.headers());
                     }
                 }
                 try (final okhttp3.Response r = res) {

@@ -76,9 +76,7 @@ public class HttpClientService implements HttpService {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.uri());
             if (LOGGER.isTraceEnabled()) {
-                for (final Map.Entry<String, List<String>> entry : req.headers().map().entrySet()) {
-                    LOGGER.trace("Request Headers: {}: {}", entry.getKey(), entry.getValue());
-                }
+                LOGGER.trace("Request Headers: {}", req.headers());
             }
         }
 
@@ -87,9 +85,7 @@ public class HttpClientService implements HttpService {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Response Status Code: {}", res.statusCode());
                     if (LOGGER.isTraceEnabled()) {
-                        for (final Map.Entry<String, List<String>> entry : res.headers().map().entrySet()) {
-                            LOGGER.trace("Response Headers: {}: {}", entry.getKey(), entry.getValue());
-                        }
+                        LOGGER.trace("Response Headers: {}", res.headers());
                     }
                 }
                 final var info = new HttpClientResponseInfo(res, ByteBuffer.wrap(res.body()));
