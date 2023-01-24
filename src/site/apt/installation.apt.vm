@@ -15,7 +15,7 @@ Installation
 </dependencyManagement>
 ----------------------
 
-    After installing the BOM, one needs to decide which exact modules to add to the own project's POM for dedicated functionalities. For details on what each module helps with, please check the table in the {{{https://inrupt.github.io/solid-client-java/}Home}} page.
+    Next, decide which modules are added to your own project's POM for dedicated functionalities. For details on each module, please check the table in the {{{https://inrupt.github.io/solid-client-java/}Home}} page.
 
 * All available modules
 
