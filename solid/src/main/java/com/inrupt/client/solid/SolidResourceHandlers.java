@@ -43,6 +43,7 @@ public final class SolidResourceHandlers {
 
     private static final URI STORAGE = URI.create(PIM.getNamespace() + "Storage");
     private static final RdfService service = ServiceProvider.getRdfService();
+    private static final String CONTENT_TYPE = "Content-Type";
 
     /**
      * Transform an HTTP response into a Solid Resource.
@@ -53,7 +54,7 @@ public final class SolidResourceHandlers {
         return responseInfo -> {
             final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
 
-            return responseInfo.headers().firstValue("Content-Type")
+            return responseInfo.headers().firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
                         buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
                 .map(dataset -> new SolidResource(responseInfo.uri(), dataset, metadata))
@@ -70,7 +71,7 @@ public final class SolidResourceHandlers {
         return responseInfo -> {
             final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
 
-            return responseInfo.headers().firstValue("Content-Type")
+            return responseInfo.headers().firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
                         buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
                 .map(dataset -> new SolidContainer(responseInfo.uri(), dataset, metadata))
@@ -131,7 +132,7 @@ public final class SolidResourceHandlers {
             .map(String::trim)
             .forEach(metadata::allowedPutSyntax);
 
-        metadata.contentType(headers.firstValue("Content-Type").orElse("application/octet-stream"));
+        metadata.contentType(headers.firstValue(CONTENT_TYPE).orElse("application/octet-stream"));
 
         return metadata.build();
     }

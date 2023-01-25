@@ -34,8 +34,8 @@ public class SolidClientException extends InruptClientException {
 
     private final URI uri;
     private final int statusCode;
-    private final Headers headers;
     private final String body;
+    private final transient Headers headers;
 
     /**
      * Create a SolidClient exception.
