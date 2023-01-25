@@ -65,9 +65,22 @@ public class OkHttpService implements HttpService {
     @Override
     public <T> CompletionStage<Response<T>> send(final Request request, final Response.BodyHandler<T> handler) {
         final CompletableFuture<Response<T>> future = new CompletableFuture<>();
-        client.newCall(prepareRequest(request)).enqueue(new Callback() {
+        final okhttp3.Request req = prepareRequest(request);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sending Request. Method: {}, URI: {}", req.method(), req.url());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Request Headers: {}", req.headers());
+            }
+        }
+        client.newCall(req).enqueue(new Callback() {
             @Override
             public void onResponse(final Call call, final okhttp3.Response res) throws IOException {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Response Status Code: {}", res.code());
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("Response Headers: {}", res.headers());
+                    }
+                }
                 try (final okhttp3.Response r = res) {
                     final Response.ResponseInfo info = new OkHttpResponseInfo(r);
                     future.complete(new OkHttpResponse<>(res.request().url().uri(), info, handler.apply(info)));
