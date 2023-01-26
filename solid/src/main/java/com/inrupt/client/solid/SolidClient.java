@@ -95,7 +95,7 @@ public class SolidClient {
                     throw new SolidClientException("Unable to read resource at " + identifier, identifier,
                             response.statusCode(), response.headers(), new String(response.body()));
                 } else {
-                    final String contentType = response.headers().firstValue("Content-Type")
+                    final String contentType = response.headers().firstValue(CONTENT_TYPE)
                         .orElse("application/octet-stream");
                     final Metadata metadata = SolidResourceHandlers.buildMetadata(response.uri(),
                             response.headers());
