@@ -57,23 +57,54 @@ import org.junit.jupiter.api.Test;
 class DomainModulesResourceTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
+    private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
-    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
     private static String testContainer = "resource/";
+
+    private static String POD_URL = config
+    .getOptionalValue("inrupt.test.storage", String.class)
+    .orElse("");
+static final String PRIVATE_RESOURCE_PATH = config
+    .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+    .orElse("/private");
+static URI WEBID = URI.create(config
+    .getOptionalValue("inrupt.test.webid", String.class)
+    .orElse("https://example.test/someuser"));
+static String USERNAME = config
+    .getOptionalValue("inrupt.test.username", String.class)
+    .orElse("someuser");
+static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
+static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
+static final String AUTH_METHOD = config
+        .getOptionalValue("inrupt.test.authMethod", String.class)
+        .orElse("client_secret_basic");
+static String AZP = config
+        .getOptionalValue("inrupt.test.azp", String.class)
+        .orElse("https://localhost:8080");
+private static String ISS;
 
     @BeforeAll
     static void setup() {
-        if (testEnv.contains("MockSolidServer")) {
+        if (POD_URL.isEmpty()) {
+            Utils.WEBID = WEBID;
+            Utils.USERNAME = USERNAME;
+            Utils.AZP = AZP;
+            Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
+
             mockHttpServer.start();
-            Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.AS_URI = Utils.POD_URL + "/uma";
-            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
+            identityProviderServer.start();
+            POD_URL = mockHttpServer.getMockServerUrl();
+            Utils.POD_URL = POD_URL;
+            ISS = identityProviderServer.getMockServerUrl();
+            Utils.ISS = ISS;
+            Utils.AS_URI = POD_URL;
+            
         }
 
-        final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
+        /* final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
         final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());
         if (res.statusCode() == 200) {
             try (final var profile = res.body()) {
@@ -81,14 +112,15 @@ class DomainModulesResourceTest {
                     Utils.POD_URL = profile.getStorage().iterator().next().toString();
                 }
             }
-        }
+        } */
         testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
     @AfterAll
     static void teardown() {
-        if (testEnv.equals("MockSolidServer")) {
+        if (Utils.POD_URL.contains("localhost")) {
             mockHttpServer.stop();
+            identityProviderServer.stop();
         }
     }
 

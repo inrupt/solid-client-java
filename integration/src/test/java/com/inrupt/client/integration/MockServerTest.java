@@ -45,13 +45,22 @@ import org.junit.jupiter.api.Test;
 
 class MockServerTest {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
+    private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
+    static final String mock_username = "someuser";
+    private static final String mock_azp = "https://localhost:8080";
+    private static final String mock_webid = "https://localhost:8080/someuser";
 
     @BeforeAll
     static void setup() {
+        Utils.WEBID = URI.create(mock_webid);
+        Utils.USERNAME = mock_username;
+        Utils.AZP = mock_azp;
+        Utils.PRIVATE_RESOURCE_PATH = "private";
         mockHttpServer.start();
+        identityProviderServer.start();
         Utils.POD_URL = mockHttpServer.getMockServerUrl();
-        Utils.AS_URI = Utils.POD_URL + "/uma";
-        Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
+        Utils.ISS = identityProviderServer.getMockServerUrl();
+        Utils.AS_URI = Utils.POD_URL;
     }
 
     @AfterAll

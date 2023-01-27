@@ -42,8 +42,6 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -59,6 +57,7 @@ final class Utils {
     static final String TEXT_TURTLE = "text/turtle";
     static final String SPARQL_UPDATE = "application/sparql-update";
     static final String APPLICATION_JSON = "application/json";
+    static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
     static final String PLAIN_TEXT = "text/plain";
     static final String WILDCARD = "*";
     static final String BEARER = "Bearer";
@@ -75,25 +74,23 @@ final class Utils {
     static final int PRECONDITION_FAILED = 412;
     static final int ERROR = 500;
 
-    private static final Config config = ConfigProvider.getConfig();
-
-    static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
-        .orElse("/private");
-    static String AS_URI = config.getValue("inrupt.test.asUri", String.class);
-    static String POD_URL = config.getValue("inrupt.test.storage", String.class);
-    static final String USERNAME = config.getValue("inrupt.test.username", String.class);
-    static URI WEBID = URI.create(POD_URL + "/" + USERNAME);
-    static final String ISS = config.getValue("inrupt.test.idp", String.class);
-    private static final String AZP = config.getValue("inrupt.test.azp", String.class);
+    static String PRIVATE_RESOURCE_PATH;
+    static String POD_URL;
+    static String USERNAME;
+    static URI WEBID;
+    static String ISS;
+    static String AS_URI;
+    static String AZP;
 
     static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
+    static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
     static final String TOKEN_ENDPOINT = "token";
+    static final String OAUTH_TOKEN_ENDPOINT = "/oauth/oauth20/token";
     static final String JWKS_ENDPOINT = "jwks";
 
     static String setupIdToken() {
         final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", POD_URL + "/" + USERNAME);
+        claims.put("webid", WEBID);
         claims.put("sub", USERNAME);
         claims.put("iss", ISS);
         claims.put("azp", AZP);

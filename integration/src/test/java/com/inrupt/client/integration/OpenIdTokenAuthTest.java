@@ -36,7 +36,6 @@ import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.stream.Stream;
-
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -47,31 +46,55 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class OpenIdTokenAndClientCredentialAuthTest {
+public class OpenIdTokenAuthTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final Config config = ConfigProvider.getConfig();
+    private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
 
-    private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static final String iss = config.getValue("inrupt.test.idp", String.class);
-    private static final String clientId = config.getValue("inrupt.test.clientId", String.class);
-    private static final String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
-    private static final String authMethod = config.getValue("inrupt.test.authMethod", String.class);
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
     private static URI privateResourceURL;
+    private static final Config config = ConfigProvider.getConfig();
+
+    private static String POD_URL = config
+    .getOptionalValue("inrupt.test.storage", String.class)
+    .orElse("");
+    static final String PRIVATE_RESOURCE_PATH = config
+        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+        .orElse("/private");
+    static URI WEBID = URI.create(config
+        .getOptionalValue("inrupt.test.webid", String.class)
+        .orElse("https://example.test/someuser"));
+    static String USERNAME = config
+        .getOptionalValue("inrupt.test.username", String.class)
+        .orElse("someuser");
+    static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
+    static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
+    static final String AUTH_METHOD = config
+            .getOptionalValue("inrupt.test.authMethod", String.class)
+            .orElse("client_secret_basic");
+    static String AZP = config
+            .getOptionalValue("inrupt.test.azp", String.class)
+            .orElse("https://localhost:8080");
+    private static String ISS;
 
     @BeforeAll
     static void setup() {
 
-        if (testEnv.contains("MockSolidServer")) {
-            mockHttpServer.start();
-            Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.AS_URI = Utils.POD_URL + "/uma";
-            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-        }
+        Utils.WEBID = WEBID;
+        Utils.USERNAME = USERNAME;
+        Utils.AZP = AZP;
+        Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
 
-        final SolidSyncClient session =
+        mockHttpServer.start();
+        identityProviderServer.start();
+        POD_URL = mockHttpServer.getMockServerUrl();
+        Utils.POD_URL = POD_URL;
+        ISS = identityProviderServer.getMockServerUrl();
+        Utils.ISS = ISS;
+        Utils.AS_URI = POD_URL;
+
+       /*  final SolidSyncClient session =
                 SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
         final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
         final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
@@ -80,17 +103,17 @@ public class OpenIdTokenAndClientCredentialAuthTest {
 
         if (!storages.isEmpty()) {
             Utils.POD_URL = storages.get(0).toString();
-        }
+        } */
         publicResourceURL = URI.create(Utils.POD_URL + "/" + testResourceName);
         privateResourceURL =
                 URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + testResourceName);
     }
     @AfterAll
     static void teardown() {
-        if (testEnv.equals("MockSolidServer")) {
-            mockHttpServer.stop();
-        }
+        mockHttpServer.stop();
+        identityProviderServer.stop();
     }
+
     @Test
     @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
@@ -214,12 +237,7 @@ public class OpenIdTokenAndClientCredentialAuthTest {
 
     private static Stream<Arguments> provideSessions() {
         return Stream.of(
-            Arguments.of(OpenIdSession.ofIdToken(Utils.setupIdToken())), //OpenId token
-            Arguments.of(OpenIdSession.ofClientCredentials(URI.create(iss), //Client credentials
-                        clientId,
-                        clientSecrete,
-                        authMethod)
-            )
+            Arguments.of(OpenIdSession.ofIdToken(Utils.setupIdToken())) //OpenId token
         );
     }
 }

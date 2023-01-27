@@ -73,7 +73,6 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                 res.withStatus(Utils.SUCCESS);
                 return res.build();
             }
-
             if (this.storage.containsKey(request.getUrl())) {
                 final var serverBody = this.storage.get(request.getUrl());
                 res.withStatus(Utils.SUCCESS)
@@ -92,7 +91,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         }
 
         if (request.getMethod().isOneOf(RequestMethod.POST)) {
-            //checking for claim_token if the artifice we use to distinguish between aut and unauth requests
+            //checking for claim_token if the artifice we use to distinguish between auth and unauth requests
             if (request.getUrl().contains(Utils.TOKEN_ENDPOINT) && request.getBodyAsString().contains("claim_token")) {
                 res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
                 res.withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}");
