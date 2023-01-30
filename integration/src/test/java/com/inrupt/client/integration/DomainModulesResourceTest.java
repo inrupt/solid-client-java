@@ -22,6 +22,7 @@ package com.inrupt.client.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Request;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
@@ -30,6 +31,7 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -63,51 +65,42 @@ class DomainModulesResourceTest {
 
     private static String testContainer = "resource/";
 
-    private static String POD_URL = config
-    .getOptionalValue("inrupt.test.storage", String.class)
-    .orElse("");
-static final String PRIVATE_RESOURCE_PATH = config
-    .getOptionalValue("inrupt.test.privateResourcePath", String.class)
-    .orElse("private");
-static URI WEBID = URI.create(config
-    .getOptionalValue("inrupt.test.webid", String.class)
-    .orElse(""));
-static String USERNAME = config
-    .getOptionalValue("inrupt.test.username", String.class)
-    .orElse("someuser");
-static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
-static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
-static final String AUTH_METHOD = config
-        .getOptionalValue("inrupt.test.authMethod", String.class)
-        .orElse("client_secret_basic");
-static String AZP = config
-        .getOptionalValue("inrupt.test.azp", String.class)
-        .orElse("https://localhost:8080");
+    private static final String PRIVATE_RESOURCE_PATH = config
+        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+        .orElse("private");
+    private static final String WEBID = config
+        .getOptionalValue("inrupt.test.webid", String.class)
+        .orElse("");
+    private static final String mock_username = "someuser";
 
     @BeforeAll
     static void setup() {
-        if (POD_URL.isEmpty()) {
-            Utils.USERNAME = USERNAME;
+        if (WEBID.isEmpty()) {
+            Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
             Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-            Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
-        }
-
-        /* final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
-        final var res = client.send(req, WebIdBodyHandlers.ofWebIdProfile());
-        if (res.statusCode() == 200) {
-            try (final var profile = res.body()) {
-                if (!profile.getStorage().isEmpty()) {
-                    Utils.POD_URL = profile.getStorage().iterator().next().toString();
+        }  else {
+            Utils.WEBID = URI.create(WEBID);
+            //find issuer & storage from WebID using domain-specific webID solid concept
+            final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
+            final var responseRdf = client.send(requestRdf, WebIdBodyHandlers.ofWebIdProfile());
+            if (responseRdf.statusCode() == 200) {
+                try (final var body = responseRdf.body()) {
+                    if (!body.getOidcIssuer().isEmpty()) {
+                        Utils.ISS = body.getOidcIssuer().iterator().next().toString();
+                    }
+                    if (!body.getStorage().isEmpty()) {
+                        Utils.POD_URL = body.getStorage().iterator().next().toString();
+                    }
                 }
             }
-        } */
+        }
         testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
@@ -218,14 +211,16 @@ static String AZP = config
     @Test
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
-        final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(rdf.createIRI(Utils.WEBID.toString()),
-                rdf.createIRI(Utils.WEBID.toString()),
-                rdf.createIRI(PIM.storage.toString()),
-                rdf.createIRI(Utils.POD_URL)));
+        if (Utils.POD_URL.contains("localhost")) { //special case for mock server setup
+            final Dataset dataset = rdf.createDataset();
+            dataset.add(rdf.createQuad(rdf.createIRI(Utils.WEBID.toString()),
+                    rdf.createIRI(Utils.WEBID.toString()),
+                    rdf.createIRI(PIM.storage.toString()),
+                    rdf.createIRI(Utils.POD_URL)));
 
-        try (final WebIdProfile profile = new WebIdProfile(Utils.WEBID, dataset)) {
-            assertDoesNotThrow(() -> client.create(profile));
+            try (final WebIdProfile profile = new WebIdProfile(Utils.WEBID, dataset)) {
+                assertDoesNotThrow(() -> client.create(profile));
+            }
         }
 
         try (final WebIdProfile sameProfile = client.read(Utils.WEBID, WebIdProfile.class)) {

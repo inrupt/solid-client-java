@@ -37,6 +37,8 @@ import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
+import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.vocabulary.Solid;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -63,54 +65,48 @@ class CoreModulesResourceTest {
     private static final Config config = ConfigProvider.getConfig();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
-    private static String POD_URL = config
-        .getOptionalValue("inrupt.test.storage", String.class)
-        .orElse("");
-    static final String PRIVATE_RESOURCE_PATH = config
+    private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
         .orElse("private");
-    static URI WEBID = URI.create(config
+    private static final String WEBID = config
         .getOptionalValue("inrupt.test.webid", String.class)
-        .orElse(""));
-    static String USERNAME = config
-        .getOptionalValue("inrupt.test.username", String.class)
-        .orElse("someuser");
-    static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
-    static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
-    static final String AUTH_METHOD = config
-            .getOptionalValue("inrupt.test.authMethod", String.class)
-            .orElse("client_secret_basic");
-    static String AZP = config
-            .getOptionalValue("inrupt.test.azp", String.class)
-            .orElse("https://localhost:8080");
+        .orElse("");
 
+    private static final String mock_username = "someuser";
     private static String testContainer = "resource/";
 
     @BeforeAll
     static void setup() {
-        if (POD_URL.isEmpty()) {
-            Utils.USERNAME = USERNAME;
+        if (WEBID.isEmpty()) {
+            Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
             Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-            Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
+        } else {
+            Utils.WEBID = URI.create(WEBID);
+            //find issuer from WebID using only core module
+            final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
+            final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
+            final var issuers = responseRdf.body()
+                    .listSubjectsWithProperty(createProperty(Solid.oidcIssuer.toString()))
+                    .toList();
+            if (!issuers.isEmpty()) {
+                Utils.ISS = issuers.get(0).toString();
+            }
+            //find storage from WebID using only core module
+            final var storages = responseRdf.body()
+                    .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
+                    .toList();
+            if (!storages.isEmpty()) {
+                Utils.POD_URL = storages.get(0).toString();
+            }
         }
 
-        /* final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
-        final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
-        final var storages = responseRdf.body()
-                .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
-                .toList();
-
-        if (!storages.isEmpty()) {
-            Utils.POD_URL = storages.get(0).toString();
-
-        } */
         testContainer = Utils.POD_URL + "/" + testContainer;
     }
 
@@ -394,7 +390,6 @@ class CoreModulesResourceTest {
     //utility method
     private String deleteInsertSparqlQuery(final List<Statement> quadsToDelete,
             final List<Statement> quadsToAdd) {
-        //TODO use a SparqlBuilder
         var sparql = "";
         if (!quadsToDelete.isEmpty()) {
             sparql += "DELETE DATA { ";

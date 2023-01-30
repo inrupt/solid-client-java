@@ -48,7 +48,6 @@ class ServerTest {
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
     private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
     private static final String mock_username = "someuser";
-    private static final String mock_azp = "https://localhost:8080";
     private static final String private_resource_path = "private";
 
     @BeforeAll
@@ -57,7 +56,6 @@ class ServerTest {
         mockHttpServer.start();
         Utils.POD_URL = mockHttpServer.getMockServerUrl();
         Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-        Utils.AZP = mock_azp;
         Utils.PRIVATE_RESOURCE_PATH = private_resource_path;
         identityProviderServer.start();
         Utils.ISS = identityProviderServer.getMockServerUrl();

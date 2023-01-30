@@ -80,7 +80,7 @@ final class Utils {
     static URI WEBID;
     static String ISS;
     static String AS_URI;
-    static String AZP;
+    static final String AZP = "https://localhost:8080";
 
     static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";

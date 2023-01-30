@@ -29,9 +29,11 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.stream.Stream;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -53,52 +55,36 @@ public class OpenIdTokenAuthTest {
     private static URI privateResourceURL;
     private static final Config config = ConfigProvider.getConfig();
 
-    private static String POD_URL = config
-    .getOptionalValue("inrupt.test.storage", String.class)
-    .orElse("");
-    static final String PRIVATE_RESOURCE_PATH = config
+    private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
         .orElse("private");
-    static URI WEBID = URI.create(config
+    private static final String WEBID = config
         .getOptionalValue("inrupt.test.webid", String.class)
-        .orElse(""));
-    static String USERNAME = config
-        .getOptionalValue("inrupt.test.username", String.class)
-        .orElse("someuser");
-    static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
-    static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
-    static final String AUTH_METHOD = config
-            .getOptionalValue("inrupt.test.authMethod", String.class)
-            .orElse("client_secret_basic");
-    static String AZP = config
-            .getOptionalValue("inrupt.test.azp", String.class)
-            .orElse("https://localhost:8080");
+        .orElse("");
+    private static final String mock_username = "someuser";
 
     @BeforeAll
     static void setup() {
-        if (POD_URL.isEmpty()) {
-            Utils.USERNAME = USERNAME;
+        if (WEBID.isEmpty()) {
+            Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
             Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-            Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
+        } else {
+            Utils.WEBID = URI.create(WEBID);
+            //find issuer & storage from WebID using SolidSyncClient
+            final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+            try (final WebIdProfile profile = client.read(Utils.WEBID, WebIdProfile.class)) {
+                Utils.ISS = profile.getOidcIssuer().iterator().next().toString();
+                Utils.POD_URL = profile.getStorage().iterator().next().toString();
+            }
         }
 
-       /*  final SolidSyncClient session =
-                SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
-        final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
-        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
-        final var storages = responseRdf.body()
-                .listSubjectsWithProperty(createProperty(PIM.storage.toString())).toList();
-
-        if (!storages.isEmpty()) {
-            Utils.POD_URL = storages.get(0).toString();
-        } */
         publicResourceURL = URI.create(Utils.POD_URL + "/" + testResourceName);
         privateResourceURL =
                 URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + testResourceName);

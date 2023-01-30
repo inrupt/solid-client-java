@@ -29,9 +29,11 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.stream.Stream;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -49,60 +51,51 @@ public class ClientCredentialAuthTest {
     private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
 
     private static final Config config = ConfigProvider.getConfig();
-    private static String POD_URL = config
-        .getOptionalValue("inrupt.test.storage", String.class)
-        .orElse("");
-    static final String PRIVATE_RESOURCE_PATH = config
+
+    private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
         .orElse("private");
-    static URI WEBID = URI.create(config
+    private static final String WEBID = config
         .getOptionalValue("inrupt.test.webid", String.class)
-        .orElse(""));
-    static String USERNAME = config
-        .getOptionalValue("inrupt.test.username", String.class)
-        .orElse("someuser");
-    static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
-    static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
-    static final String AUTH_METHOD = config
-            .getOptionalValue("inrupt.test.authMethod", String.class)
-            .orElse("client_secret_basic");
-    static String AZP = config
-            .getOptionalValue("inrupt.test.azp", String.class)
-            .orElse("https://localhost:8080");
+        .orElse("");
+    private static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
+    private static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
+    private static final String AUTH_METHOD = config
+        .getOptionalValue("inrupt.test.authMethod", String.class)
+        .orElse("client_secret_basic");
 
+    private static final String mock_username = "someuser";
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
     private static URI privateResourceURL;
 
     @BeforeAll
     static void setup() {
-
-        if (POD_URL.isEmpty()) {
-            Utils.USERNAME = USERNAME;
+        if (WEBID.isEmpty()) {
+            Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
             Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-            Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
+        } else {
+            Utils.WEBID = URI.create(WEBID);
+            //find issuer & storage from WebID using SolidSyncClient
+            final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+            try (final WebIdProfile profile = client.read(Utils.WEBID, WebIdProfile.class)) {
+                Utils.ISS = profile.getOidcIssuer().iterator().next().toString();
+                Utils.POD_URL = profile.getStorage().iterator().next().toString();
+            }
         }
 
-        /* final SolidSyncClient session = SolidSyncClient.getClient();
-        final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
-        final var responseRdf = session.send(requestRdf, JenaBodyHandlers.ofModel());
-        final var storages = responseRdf.body()
-                .listSubjectsWithProperty(createProperty(PIM.storage.toString())).toList();
-
-        if (!storages.isEmpty()) {
-            POD_URL = storages.get(0).toString();
-        } */
         publicResourceURL = URI.create(Utils.POD_URL + "/" + testResourceName);
         privateResourceURL =
                 URI.create(Utils.POD_URL + "/" + PRIVATE_RESOURCE_PATH + "/" + testResourceName);
     }
+
     @AfterAll
     static void teardown() {
         if (Utils.POD_URL.contains("localhost")) {
@@ -110,6 +103,7 @@ public class ClientCredentialAuthTest {
             identityProviderServer.stop();
         }
     }
+
     @Test
     @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
@@ -155,6 +149,7 @@ public class ClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
@@ -168,6 +163,7 @@ public class ClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> client.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
@@ -181,6 +177,7 @@ public class ClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
@@ -200,6 +197,7 @@ public class ClientCredentialAuthTest {
 
         assertDoesNotThrow(() -> authClient2.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
