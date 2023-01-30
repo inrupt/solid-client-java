@@ -99,15 +99,20 @@ public class ValueMappingTestBase {
     @Test
     void asTest() {
         final IRI iri = FACTORY.createIRI(URN_UUID + randomUUID());
-        final ValueMapping<MockNode> asMockNode = as(MockNode.class);
-        final ValueMapping<MockNoCtorNode> asMockNodeNoCtor = as(MockNoCtorNode.class);
+        final ValueMapping<Mock2CtorNode> asMockNode2Ctor = as(Mock2CtorNode.class);
+        final ValueMapping<Mock1CtorNode> asMockNode1Ctor = as(Mock1CtorNode.class);
+        final ValueMapping<Mock0CtorNode> asMockNodeNoCtor = as(Mock0CtorNode.class);
+        final ValueMapping<MockBadCtorNode> asMockNodeBadCtor = as(MockBadCtorNode.class);
 
         assertThrows(NullPointerException.class, () -> as(null));
 
-        assertThrows(NullPointerException.class, () -> asMockNode.apply(null, GRAPH));
+        assertThrows(NullPointerException.class, () -> asMockNode2Ctor.apply(null, GRAPH));
+        assertThrows(NullPointerException.class, () -> asMockNode1Ctor.apply(null, GRAPH));
+        assertThrows(IllegalStateException.class, () -> asMockNodeBadCtor.apply(iri, GRAPH));
         assertThrows(IllegalStateException.class, () -> asMockNodeNoCtor.apply(iri, GRAPH));
 
-        assertThat(asMockNode.apply(iri, GRAPH), is(instanceOf(MockNode.class)));
+        assertThat(asMockNode2Ctor.apply(iri, GRAPH), is(instanceOf(Mock2CtorNode.class)));
+        assertThat(asMockNode1Ctor.apply(iri, GRAPH), is(instanceOf(Mock1CtorNode.class)));
     }
 
     @Test
@@ -138,14 +143,31 @@ public class ValueMappingTestBase {
         assertThat(literalAsIntegerOrNull(literal, GRAPH), is(integer));
     }
 
-    public static final class MockNode extends WrapperIRI {
-        public MockNode(final RDFTerm node, final Graph graph) {
+    public static final class Mock2CtorNode extends WrapperIRI {
+        public Mock2CtorNode(final RDFTerm node, final Graph graph) {
             super(node, graph);
         }
     }
 
-    static final class MockNoCtorNode extends WrapperIRI {
-        private MockNoCtorNode() {
+    public static final class Mock1CtorNode extends WrapperIRI {
+        private static final RDF FACTORY = RDFFactory.getInstance();
+
+        public Mock1CtorNode(final RDFTerm node) {
+            super(node, FACTORY.createGraph());
+        }
+    }
+
+    public static final class MockBadCtorNode extends WrapperIRI {
+        private static final RDF FACTORY = RDFFactory.getInstance();
+
+        public MockBadCtorNode(final RDFTerm node) {
+            super(node, FACTORY.createGraph());
+            throw new RuntimeException();
+        }
+    }
+
+    static final class Mock0CtorNode extends WrapperIRI {
+        private Mock0CtorNode() {
             super(null, null);
         }
     }
