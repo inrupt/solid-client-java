@@ -57,7 +57,7 @@ public class ClientCredentialAuthTest {
         .orElse("private");
     static URI WEBID = URI.create(config
         .getOptionalValue("inrupt.test.webid", String.class)
-        .orElse("https://example.test/someuser"));
+        .orElse(""));
     static String USERNAME = config
         .getOptionalValue("inrupt.test.username", String.class)
         .orElse("someuser");
@@ -78,16 +78,16 @@ public class ClientCredentialAuthTest {
     static void setup() {
 
         if (POD_URL.isEmpty()) {
-            Utils.WEBID = WEBID;
             Utils.USERNAME = USERNAME;
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
+            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
             Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
-            mockHttpServer.start();
-            Utils.POD_URL = mockHttpServer.getMockServerUrl();
         }
 
         /* final SolidSyncClient session = SolidSyncClient.getClient();

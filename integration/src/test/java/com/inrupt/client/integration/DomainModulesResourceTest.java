@@ -49,7 +49,6 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -72,7 +71,7 @@ static final String PRIVATE_RESOURCE_PATH = config
     .orElse("private");
 static URI WEBID = URI.create(config
     .getOptionalValue("inrupt.test.webid", String.class)
-    .orElse("https://example.test/someuser"));
+    .orElse(""));
 static String USERNAME = config
     .getOptionalValue("inrupt.test.username", String.class)
     .orElse("someuser");
@@ -88,16 +87,16 @@ static String AZP = config
     @BeforeAll
     static void setup() {
         if (POD_URL.isEmpty()) {
-            Utils.WEBID = WEBID;
             Utils.USERNAME = USERNAME;
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
+            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
             Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
-            mockHttpServer.start();
-            Utils.POD_URL = mockHttpServer.getMockServerUrl();
         }
 
         /* final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
@@ -217,7 +216,6 @@ static String AZP = config
     }
 
     @Test
-    @Disabled
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
         final Dataset dataset = rdf.createDataset();
