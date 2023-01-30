@@ -78,7 +78,7 @@ public class PredicateObjectSet<T> extends AbstractSet<T> {
     protected final ValueMapping<T> valueMapping;
 
     /**
-     * Constructs a new dynamic set view over the objects of statements that share a predicate and an object.
+     * Constructs a new dynamic set view over the objects of statements that share a predicate and a subject.
      *
      * @param subject the subject node shared by all statements
      * @param predicate the predicate node shared by all statements
