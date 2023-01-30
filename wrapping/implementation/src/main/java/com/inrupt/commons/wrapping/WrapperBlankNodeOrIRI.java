@@ -257,7 +257,7 @@ public abstract class WrapperBlankNodeOrIRI implements BlankNodeOrIRI {
      * A destructive converting plural setter helper for expected cardinality {@code 1..*}.
      *
      * @param p the predicate to query
-     * @param v the value to assert as object in the graph
+     * @param v the values to assert as objects in the graph
      * @param m the mapping applied to the value
      * @param <T> the type of values returned
      *
