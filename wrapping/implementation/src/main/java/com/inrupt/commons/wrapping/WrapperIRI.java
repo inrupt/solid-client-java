@@ -39,7 +39,7 @@ public class WrapperIRI extends WrapperBlankNodeOrIRI implements IRI {
 
         if (!(original instanceof IRI)) {
             // TODO: Throw specific exception
-            throw new IllegalStateException("");
+            throw new IllegalStateException("Original is not an IRI");
         }
 
         this.original = (IRI) original;
