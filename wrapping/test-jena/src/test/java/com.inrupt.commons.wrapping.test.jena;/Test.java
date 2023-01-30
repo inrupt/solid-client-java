@@ -20,7 +20,7 @@
  */
 package com.inrupt.commons.wrapping.test.jena;
 
-import com.inrupt.commons.wrapping.test.PredicateObjectSetBase;
+import com.inrupt.commons.wrapping.test.ObjectSetBase;
 import com.inrupt.commons.wrapping.test.TermMappingTestBase;
 import com.inrupt.commons.wrapping.test.ValueMappingTestBase;
 import com.inrupt.commons.wrapping.test.WrapperBlankNodeOrIRIBase;
@@ -32,7 +32,7 @@ class TermMappingTest extends TermMappingTestBase {
 }
 
 @DisplayName("Predicate-Object Set (Jena)")
-class PredicateObjectSetTest extends PredicateObjectSetBase {
+class ObjectSetTest extends ObjectSetBase {
 }
 
 @DisplayName("Value Mapping (Jena)")

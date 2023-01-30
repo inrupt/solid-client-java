@@ -215,7 +215,7 @@ public abstract class WrapperBlankNodeOrIRI implements BlankNodeOrIRI {
      * @return a dynamic set view over converted objects of statements with this subject and the given predicate
      */
     protected <T> Set<T> live(final IRI p, final TermMapping<T> tm, final ValueMapping<T> vm) {
-        return new PredicateObjectSet<>(this, p, graph, tm, vm);
+        return new ObjectSet<>(this, p, graph, tm, vm);
     }
 
     /**

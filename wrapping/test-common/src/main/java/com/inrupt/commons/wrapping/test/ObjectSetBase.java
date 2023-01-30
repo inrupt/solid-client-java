@@ -40,7 +40,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class PredicateObjectSetBase {
+public class ObjectSetBase {
     // region constants
     private static final RDF FACTORY = RDFFactory.getInstance();
     private static final BlankNode S = FACTORY.createBlankNode();
@@ -60,7 +60,7 @@ public class PredicateObjectSetBase {
     @BeforeEach
     void setUp() {
         g = FACTORY.createGraph();
-        set = new com.inrupt.commons.wrapping.PredicateObjectSet<>(S, P, g, T2V, V2T);
+        set = new ObjectSet<>(S, P, g, T2V, V2T);
     }
 
     // region constructor
@@ -77,7 +77,7 @@ public class PredicateObjectSetBase {
             final ValueMapping<T> valueMapping) {
 
         assertThrows(NullPointerException.class, () ->
-                new PredicateObjectSet<>(subject, predicate, graph, termMapping, valueMapping));
+                new ObjectSet<>(subject, predicate, graph, termMapping, valueMapping));
     }
 
     static Stream<Arguments> constructorRequiresArguments() {
@@ -636,7 +636,7 @@ public class PredicateObjectSetBase {
     @DisplayName("equals is false for different subjects")
     @Test
     void equalsFalseForDifferentSubjects() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(SX, P, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(SX, P, g, T2V, V2T);
 
         g.add(S, P, O);
 
@@ -646,7 +646,7 @@ public class PredicateObjectSetBase {
     @DisplayName("equals is false for different predicates")
     @Test
     void equalsFalseForDifferentPredicates() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(S, PX, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(S, PX, g, T2V, V2T);
 
         g.add(S, P, O);
 
@@ -656,7 +656,7 @@ public class PredicateObjectSetBase {
     @DisplayName("equals is false for different objects")
     @Test
     void equalsFalseForDifferentObjects() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(SX, PX, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(SX, PX, g, T2V, V2T);
 
         g.add(S, P, O);
         g.add(SX, PX, OX);
@@ -667,7 +667,7 @@ public class PredicateObjectSetBase {
     @DisplayName("equals is true for empty sets")
     @Test
     void equalsTrueForEmpty() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(SX, PX, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(SX, PX, g, T2V, V2T);
 
         assertThat(set, is(equalTo(other)));
     }
@@ -675,7 +675,7 @@ public class PredicateObjectSetBase {
     @DisplayName("equals is true for sets with equal predicate and object")
     @Test
     void equalsTrueForEqualPredicateAndObject() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(S, P, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(S, P, g, T2V, V2T);
 
         g.add(S, P, O);
 
@@ -688,7 +688,7 @@ public class PredicateObjectSetBase {
     @DisplayName("hashCode differs for different subjects")
     @Test
     void hashCodeDiffersForDifferentSubjects() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(SX, P, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(SX, P, g, T2V, V2T);
 
         g.add(S, P, O);
 
@@ -698,7 +698,7 @@ public class PredicateObjectSetBase {
     @DisplayName("hashCode differs for different predicates")
     @Test
     void hashCodeDiffersForDifferentPredicates() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(S, PX, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(S, PX, g, T2V, V2T);
 
         g.add(S, P, O);
 
@@ -708,7 +708,7 @@ public class PredicateObjectSetBase {
     @DisplayName("hashCode differs for different objects")
     @Test
     void hashCodeDiffersForDifferentObjects() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(SX, PX, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(SX, PX, g, T2V, V2T);
 
         g.add(S, P, O);
         g.add(SX, PX, OX);
@@ -719,7 +719,7 @@ public class PredicateObjectSetBase {
     @DisplayName("hashCode matches for empty sets")
     @Test
     void hashCodeSameForEmpty() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(SX, PX, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(SX, PX, g, T2V, V2T);
 
         assertThat(set.hashCode(), is(equalTo(other.hashCode())));
     }
@@ -727,7 +727,7 @@ public class PredicateObjectSetBase {
     @DisplayName("hashCode matches for sets with equal predicate and object")
     @Test
     void hashCodeSameForEqualPredicateAndObject() {
-        final Set<String> other = new com.inrupt.commons.wrapping.PredicateObjectSet<>(S, P, g, T2V, V2T);
+        final Set<String> other = new ObjectSet<>(S, P, g, T2V, V2T);
 
         g.add(S, P, O);
 

@@ -20,7 +20,7 @@
  */
 package com.inrupt.commons.wrapping.test.rdf4j;
 
-import com.inrupt.commons.wrapping.test.PredicateObjectSetBase;
+import com.inrupt.commons.wrapping.test.ObjectSetBase;
 import com.inrupt.commons.wrapping.test.TermMappingTestBase;
 import com.inrupt.commons.wrapping.test.ValueMappingTestBase;
 import com.inrupt.commons.wrapping.test.WrapperBlankNodeOrIRIBase;
@@ -32,7 +32,7 @@ class TermMappingTest extends TermMappingTestBase {
 }
 
 @DisplayName("Predicate-Object Set (RDF4J)")
-class PredicateObjectSetTest extends PredicateObjectSetBase {
+class ObjectSetTest extends ObjectSetBase {
 }
 
 @DisplayName("Value Mapping (RDF4J)")

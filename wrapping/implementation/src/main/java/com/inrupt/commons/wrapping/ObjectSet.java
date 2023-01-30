@@ -67,7 +67,7 @@ import org.apache.commons.rdf.api.*;
  *
  * @author Samu Lang
  */
-public class PredicateObjectSet<T> extends AbstractSet<T> {
+public class ObjectSet<T> extends AbstractSet<T> {
     private static final BinaryOperator<Boolean> EITHER = (Boolean a, Boolean b) -> a || b;
     private static final BinaryOperator<Boolean> BOTH = (Boolean a, Boolean b) -> a && b;
 
@@ -90,7 +90,7 @@ public class PredicateObjectSet<T> extends AbstractSet<T> {
      *
      * @throws NullPointerException if any of the arguments are null
      */
-    public PredicateObjectSet(
+    public ObjectSet(
             final BlankNodeOrIRI subject,
             final IRI predicate,
             final Graph graph,
