@@ -43,10 +43,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class MockServerTest {
+class ServerTest {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
-    static final String mock_username = "someuser";
+    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
+    private static final String mock_username = "someuser";
     private static final String mock_azp = "https://localhost:8080";
     private static final String mock_webid = "https://localhost:8080/someuser";
 
@@ -56,16 +57,19 @@ class MockServerTest {
         Utils.USERNAME = mock_username;
         Utils.AZP = mock_azp;
         Utils.PRIVATE_RESOURCE_PATH = "private";
-        mockHttpServer.start();
         identityProviderServer.start();
-        Utils.POD_URL = mockHttpServer.getMockServerUrl();
         Utils.ISS = identityProviderServer.getMockServerUrl();
-        Utils.AS_URI = Utils.POD_URL;
+        authServer.start();
+        Utils.AS_URI = authServer.getMockServerUrl();
+        mockHttpServer.start();
+        Utils.POD_URL = mockHttpServer.getMockServerUrl();
     }
 
     @AfterAll
     static void teardown() {
         mockHttpServer.stop();
+        identityProviderServer.stop();
+        authServer.stop();
     }
 
     @Test

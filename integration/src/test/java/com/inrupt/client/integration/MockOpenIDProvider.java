@@ -25,7 +25,6 @@ import org.jose4j.lang.UncheckedJoseException;
 public class MockOpenIDProvider {
     private final WireMockServer wireMockServer;
 
-
     public MockOpenIDProvider() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
@@ -37,7 +36,7 @@ public class MockOpenIDProvider {
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/metadata.json", wireMockServer.baseUrl()))));
 
-        wireMockServer.stubFor(post(urlPathMatching(Utils.OAUTH_TOKEN_ENDPOINT))
+        wireMockServer.stubFor(post(urlPathMatching("/"+Utils.OAUTH_TOKEN_ENDPOINT))
                     .withHeader(Utils.CONTENT_TYPE, containing(Utils.APPLICATION_FORM))
                     .withRequestBody(containing("client_credentials"))
                     .willReturn(aResponse()
@@ -108,7 +107,7 @@ public class MockOpenIDProvider {
     private String getResource(final String path, final String issuer) {
         return getResource(path)
                 .replace("{{issuerUrl}}", issuer)
-                .replace("{{tokenEndpoint}}", Utils.TOKEN_ENDPOINT)
+                .replace("{{tokenEndpoint}}", Utils.OAUTH_TOKEN_ENDPOINT)
                 .replace("{{jwksEndpoint}}", Utils.JWKS_ENDPOINT);
     }
 

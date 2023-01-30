@@ -20,19 +20,15 @@
  */
 package com.inrupt.client.integration;
 
-import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.inrupt.client.Request;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
-import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.stream.Stream;
@@ -50,6 +46,7 @@ public class OpenIdTokenAuthTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
+    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
 
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
@@ -61,7 +58,7 @@ public class OpenIdTokenAuthTest {
     .orElse("");
     static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
-        .orElse("/private");
+        .orElse("private");
     static URI WEBID = URI.create(config
         .getOptionalValue("inrupt.test.webid", String.class)
         .orElse("https://example.test/someuser"));
@@ -76,23 +73,21 @@ public class OpenIdTokenAuthTest {
     static String AZP = config
             .getOptionalValue("inrupt.test.azp", String.class)
             .orElse("https://localhost:8080");
-    private static String ISS;
 
     @BeforeAll
     static void setup() {
-
-        Utils.WEBID = WEBID;
-        Utils.USERNAME = USERNAME;
-        Utils.AZP = AZP;
-        Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-
-        mockHttpServer.start();
-        identityProviderServer.start();
-        POD_URL = mockHttpServer.getMockServerUrl();
-        Utils.POD_URL = POD_URL;
-        ISS = identityProviderServer.getMockServerUrl();
-        Utils.ISS = ISS;
-        Utils.AS_URI = POD_URL;
+        if (POD_URL.isEmpty()) {
+            Utils.WEBID = WEBID;
+            Utils.USERNAME = USERNAME;
+            Utils.AZP = AZP;
+            Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
+            identityProviderServer.start();
+            Utils.ISS = identityProviderServer.getMockServerUrl();
+            authServer.start();
+            Utils.AS_URI = authServer.getMockServerUrl();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
+        }
 
        /*  final SolidSyncClient session =
                 SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(Utils.setupIdToken()));
@@ -110,8 +105,11 @@ public class OpenIdTokenAuthTest {
     }
     @AfterAll
     static void teardown() {
-        mockHttpServer.stop();
-        identityProviderServer.stop();
+        if (Utils.POD_URL.contains("localhost")) {
+            mockHttpServer.stop();
+            identityProviderServer.stop();
+            authServer.stop();
+        }
     }
 
     @Test

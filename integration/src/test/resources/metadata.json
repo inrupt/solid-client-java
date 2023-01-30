@@ -1,6 +1,6 @@
 {
     "issuer":"{{issuerUrl}}",
-    "token_endpoint":"{{issuerUrl}}/oauth/oauth20/{{tokenEndpoint}}",
+    "token_endpoint":"{{issuerUrl}}/{{tokenEndpoint}}",
     "end_session_endpoint":"{{issuerUrl}}/endSession",
     "userinfo_endpoint":"{{issuerUrl}}/oauth/userinfo",
     "jwks_uri":"{{issuerUrl}}/oauth/{{jwksEndpoint}}",

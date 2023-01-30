@@ -37,7 +37,6 @@ import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -60,6 +59,7 @@ class CoreModulesResourceTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
+    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
     private static final Config config = ConfigProvider.getConfig();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
@@ -68,7 +68,7 @@ class CoreModulesResourceTest {
         .orElse("");
     static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
-        .orElse("/private");
+        .orElse("private");
     static URI WEBID = URI.create(config
         .getOptionalValue("inrupt.test.webid", String.class)
         .orElse("https://example.test/someuser"));
@@ -83,7 +83,6 @@ class CoreModulesResourceTest {
     static String AZP = config
             .getOptionalValue("inrupt.test.azp", String.class)
             .orElse("https://localhost:8080");
-    private static String ISS;
 
     private static String testContainer = "resource/";
 
@@ -94,14 +93,12 @@ class CoreModulesResourceTest {
             Utils.USERNAME = USERNAME;
             Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-
-            mockHttpServer.start();
             identityProviderServer.start();
-            POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.POD_URL = POD_URL;
-            ISS = identityProviderServer.getMockServerUrl();
-            Utils.ISS = ISS;
-            Utils.AS_URI = POD_URL;
+            Utils.ISS = identityProviderServer.getMockServerUrl();
+            authServer.start();
+            Utils.AS_URI = authServer.getMockServerUrl();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
         }
 
         /* final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
@@ -119,10 +116,11 @@ class CoreModulesResourceTest {
 
     @AfterAll
     static void teardown() {
-        //if (testEnv.equals("MockSolidServer")) {
+        if (Utils.POD_URL.contains("localhost")) {
             mockHttpServer.stop();
             identityProviderServer.stop();
-        //}
+            authServer.stop();
+        }
     }
 
     @Test

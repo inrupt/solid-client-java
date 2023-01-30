@@ -46,6 +46,7 @@ public class ClientCredentialAuthTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
+    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
 
     private static final Config config = ConfigProvider.getConfig();
     private static String POD_URL = config
@@ -53,7 +54,7 @@ public class ClientCredentialAuthTest {
         .orElse("");
     static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
-        .orElse("/private");
+        .orElse("private");
     static URI WEBID = URI.create(config
         .getOptionalValue("inrupt.test.webid", String.class)
         .orElse("https://example.test/someuser"));
@@ -68,7 +69,6 @@ public class ClientCredentialAuthTest {
     static String AZP = config
             .getOptionalValue("inrupt.test.azp", String.class)
             .orElse("https://localhost:8080");
-    private static String ISS;
 
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
@@ -82,15 +82,12 @@ public class ClientCredentialAuthTest {
             Utils.USERNAME = USERNAME;
             Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-
-            mockHttpServer.start();
             identityProviderServer.start();
-            POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.POD_URL = POD_URL;
-            ISS = identityProviderServer.getMockServerUrl();
-            Utils.ISS = ISS;
-            Utils.AS_URI = POD_URL;
-            
+            Utils.ISS = identityProviderServer.getMockServerUrl();
+            authServer.start();
+            Utils.AS_URI = authServer.getMockServerUrl();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
         }
 
         /* final SolidSyncClient session = SolidSyncClient.getClient();
@@ -102,9 +99,9 @@ public class ClientCredentialAuthTest {
         if (!storages.isEmpty()) {
             POD_URL = storages.get(0).toString();
         } */
-        publicResourceURL = URI.create(POD_URL + "/" + testResourceName);
+        publicResourceURL = URI.create(Utils.POD_URL + "/" + testResourceName);
         privateResourceURL =
-                URI.create(POD_URL + "/" + PRIVATE_RESOURCE_PATH + "/" + testResourceName);
+                URI.create(Utils.POD_URL + "/" + PRIVATE_RESOURCE_PATH + "/" + testResourceName);
     }
     @AfterAll
     static void teardown() {
@@ -214,7 +211,7 @@ public class ClientCredentialAuthTest {
 
         //create another private resource with another client
         final URI privateResourceURL2 = URI
-                .create(POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
+                .create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
         final SolidResource testResource2 = new SolidResource(privateResourceURL2, null, null);
         final SolidSyncClient authClient2 =
                 SolidSyncClient.getClient().session(session);
@@ -237,7 +234,7 @@ public class ClientCredentialAuthTest {
     private static Stream<Arguments> provideSessions() {
         return Stream.of(
             Arguments.of(OpenIdSession.ofClientCredentials
-                (URI.create(ISS), //Client credentials
+                (URI.create(Utils.ISS), //Client credentials
                 CLIENT_ID,
                 CLIENT_SECRET,
                 AUTH_METHOD)

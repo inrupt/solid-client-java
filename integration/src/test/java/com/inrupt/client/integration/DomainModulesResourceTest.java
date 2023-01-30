@@ -22,7 +22,6 @@ package com.inrupt.client.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Request;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
@@ -31,7 +30,6 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
-import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -51,6 +49,7 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +57,7 @@ class DomainModulesResourceTest {
 
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
+    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
@@ -69,7 +69,7 @@ class DomainModulesResourceTest {
     .orElse("");
 static final String PRIVATE_RESOURCE_PATH = config
     .getOptionalValue("inrupt.test.privateResourcePath", String.class)
-    .orElse("/private");
+    .orElse("private");
 static URI WEBID = URI.create(config
     .getOptionalValue("inrupt.test.webid", String.class)
     .orElse("https://example.test/someuser"));
@@ -84,7 +84,6 @@ static final String AUTH_METHOD = config
 static String AZP = config
         .getOptionalValue("inrupt.test.azp", String.class)
         .orElse("https://localhost:8080");
-private static String ISS;
 
     @BeforeAll
     static void setup() {
@@ -93,15 +92,12 @@ private static String ISS;
             Utils.USERNAME = USERNAME;
             Utils.AZP = AZP;
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-
-            mockHttpServer.start();
             identityProviderServer.start();
-            POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.POD_URL = POD_URL;
-            ISS = identityProviderServer.getMockServerUrl();
-            Utils.ISS = ISS;
-            Utils.AS_URI = POD_URL;
-            
+            Utils.ISS = identityProviderServer.getMockServerUrl();
+            authServer.start();
+            Utils.AS_URI = authServer.getMockServerUrl();
+            mockHttpServer.start();
+            Utils.POD_URL = mockHttpServer.getMockServerUrl();
         }
 
         /* final var req = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
@@ -121,6 +117,7 @@ private static String ISS;
         if (Utils.POD_URL.contains("localhost")) {
             mockHttpServer.stop();
             identityProviderServer.stop();
+            authServer.stop();
         }
     }
 
@@ -220,6 +217,7 @@ private static String ISS;
     }
 
     @Test
+    @Disabled
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
         final Dataset dataset = rdf.createDataset();

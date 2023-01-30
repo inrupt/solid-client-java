@@ -84,8 +84,8 @@ final class Utils {
 
     static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
-    static final String TOKEN_ENDPOINT = "token";
-    static final String OAUTH_TOKEN_ENDPOINT = "/oauth/oauth20/token";
+    static final String UMA_TOKEN_ENDPOINT = "uma/token";
+    static final String OAUTH_TOKEN_ENDPOINT = "oauth/oauth20/token";
     static final String JWKS_ENDPOINT = "jwks";
 
     static String setupIdToken() {
@@ -152,22 +152,6 @@ final class Utils {
             throw new UncheckedIOException("Unable to read JWK", ex);
         } catch (final JoseException ex) {
             throw new UncheckedJoseException("Unable to generate DPoP token", ex);
-        }
-    }
-
-    static String getResource(final String path, final String baseUrl, final String issuer) {
-        return getResource(path)
-                .replace("{{baseUrl}}", baseUrl)
-                .replace("{{issuerUrl}}", issuer)
-                .replace("{{tokenEndpoint}}", TOKEN_ENDPOINT)
-                .replace("{{jwksEndpoint}}", JWKS_ENDPOINT);
-    }
-
-    static String getResource(final String path) {
-        try (final InputStream res = Utils.class.getResourceAsStream(path)) {
-            return new String(IOUtils.toByteArray(res), UTF_8);
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Could not read class resource", ex);
         }
     }
 

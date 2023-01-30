@@ -4,7 +4,7 @@
     ],
     "issuer": "{{issuerUrl}}",
     "jwks_uri": "{{baseUrl}}/uma/{{jwksEndpoint}}",
-    "token_endpoint": "{{baseUrl}}/uma/{{tokenEndpoint}}",
+    "token_endpoint": "{{baseUrl}}/{{tokenEndpoint}}",
     "uma_profiles_supported": [
         "http://openid.net/specs/openid-connect-core-1_0.html#IDToken"
     ]

@@ -67,12 +67,12 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         }
 
         if (request.getMethod().isOneOf(RequestMethod.GET, RequestMethod.HEAD)) {
-            if (request.getUrl().contains(Utils.UMA_DISCOVERY_ENDPOINT)) {
+            /* if (request.getUrl().contains(Utils.UMA_DISCOVERY_ENDPOINT)) {
                 res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
                 res.withBody(Utils.getResource("/uma2-configuration.json", Utils.POD_URL, Utils.ISS));
                 res.withStatus(Utils.SUCCESS);
                 return res.build();
-            }
+            } */
             if (this.storage.containsKey(request.getUrl())) {
                 final var serverBody = this.storage.get(request.getUrl());
                 res.withStatus(Utils.SUCCESS)
@@ -91,13 +91,13 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
         }
 
         if (request.getMethod().isOneOf(RequestMethod.POST)) {
-            //checking for claim_token if the artifice we use to distinguish between auth and unauth requests
+            /* //checking for claim_token if the artifice we use to distinguish between auth and unauth requests
             if (request.getUrl().contains(Utils.TOKEN_ENDPOINT) && request.getBodyAsString().contains("claim_token")) {
                 res.withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON);
                 res.withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}");
                 res.withStatus(Utils.SUCCESS);
                 return res.build();
-            }
+            } */
             if (request.getUrl().endsWith("/")) {
                 if (!this.storage.containsKey(request.getUrl())) {
                     final String slug = request.getHeader("Slug");
