@@ -20,6 +20,8 @@
  */
 package com.inrupt.commons.wrapping;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -216,20 +218,37 @@ public final class ValueMappings {
      *
      * @throws NullPointerException if the term is null
      * @throws IllegalStateException if the view type does not contain an appropriate public constructor
+     * @throws IllegalStateException if the view type cannot be instantiated
      */
     private static <T extends RDFTerm> T as(final RDFTerm term, final Graph graph, final Class<T> view) {
         Objects.requireNonNull(term, TERM_REQUIRED);
 
+        final Constructor<T> constructor = find(view, RDFTerm.class, Graph.class);
+        if (constructor != null) {
+            return instantiate(constructor, term, graph);
+        }
+
+        final Constructor<T> constructor2 = find(view, RDFTerm.class);
+        if (constructor2 != null) {
+            return instantiate(constructor2, term);
+        }
+
+        throw new IllegalStateException("No constructor found with parameter types (RDFTerm, Graph) or (RDFTerm)");
+    }
+
+    private static <T> Constructor<T> find(final Class<T> view, final Class<?>... parameterTypes) {
         try {
-            return view.getConstructor(RDFTerm.class, Graph.class).newInstance(term, graph);
-        } catch (ReflectiveOperationException e1) {
-            try {
-                return view.getConstructor(RDFTerm.class).newInstance(term);
-            } catch (ReflectiveOperationException e2) {
-                // TODO: Throw specific exception
-                throw new IllegalStateException(
-                        "No constructor found with parameter types (RDFTerm, Graph) or (RDFTerm)");
-            }
+            return view.getConstructor(parameterTypes);
+        } catch (NoSuchMethodException | SecurityException e) {
+            return null;
+        }
+    }
+
+    private static <T> T instantiate(final Constructor<T> constructor, final Object... initargs) {
+        try {
+            return constructor.newInstance(initargs);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("Could not instantiate wrapping class", e);
         }
     }
 
