@@ -40,9 +40,11 @@ import java.util.UUID;
 public class SolidServerTransformer extends ResponseDefinitionTransformer {
 
     private final Map<String, ServerBody> storage;
+    private String as_uri;
 
-    public SolidServerTransformer(final Map<String, ServerBody> storage) {
+    public SolidServerTransformer(final Map<String, ServerBody> storage, final String asUri) {
         this.storage = storage;
+        this.as_uri = asUri;
     }
 
     @Override
@@ -61,7 +63,7 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
             request.getHeader("Authorization") == null) {
             res.withHeader("WWW-Authenticate",
                         "Bearer, DPoP algs=\"ES256\", UMA ticket=token-67890, as_uri=\""
-                        + Utils.AS_URI + "\"");
+                        + this.as_uri + "\"");
             res.withStatus(Utils.UNAUTHORIZED);
             return res.build();
         }

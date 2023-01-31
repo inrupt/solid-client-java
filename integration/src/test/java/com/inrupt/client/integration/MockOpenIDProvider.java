@@ -44,8 +44,10 @@ import org.jose4j.lang.UncheckedJoseException;
 
 public class MockOpenIDProvider {
     private final WireMockServer wireMockServer;
+    private String username;
 
-    public MockOpenIDProvider() {
+    public MockOpenIDProvider(final String username) {
+        this.username = username;
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
 
@@ -89,14 +91,14 @@ public class MockOpenIDProvider {
 
     private String setupIdToken() {
         final Map<String, Object> claims = new HashMap<>();
-        if (Utils.WEBID != null) {
-            claims.put("webid", Utils.WEBID.toString());
+        if (State.WEBID != null) {
+            claims.put("webid", State.WEBID.toString());
         } else {
             claims.put("webid", "");
         }
-        claims.put("sub", Utils.USERNAME);
+        claims.put("sub", this.username);
         claims.put("iss", wireMockServer.baseUrl());
-        claims.put("azp", Utils.AZP);
+        claims.put("azp", State.AZP);
 
         final String token = generateIdToken(claims);
         return token;

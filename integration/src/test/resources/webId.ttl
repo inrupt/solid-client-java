@@ -1,5 +1,5 @@
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
 @prefix space: <http://www.w3.org/ns/pim/space#>.
 
-<{{webidUrl}}> space:storage <{{podUrl}}> .
+<{{webidUrl}}> space:storage <{{storageUrl}}> .
 <{{webidUrl}}> solid:oidcIssuer <{{issuer}}> .

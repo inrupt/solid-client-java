@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.integration;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -33,36 +35,66 @@ import com.inrupt.client.solid.SolidResourceException;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.uma.UmaSession;
-import com.inrupt.client.util.IOUtils;
+import com.inrupt.client.webid.WebIdProfile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.rdf.api.RDFSyntax;
+import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class ServerTest {
-    private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
-    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
-    private static final String mock_username = "someuser";
-    private static final String private_resource_path = "private";
+    private static MockSolidServer mockHttpServer;
+    private static MockOpenIDProvider identityProviderServer;
+    private static MockUMAAuthorizationServer authServer;
+    private static MockWebIdSevice webIdService;
+    private static String podUrl;
+    private static String issuer;
+    private static String webidUrl;
+    private static final String MOCK_USERNAME = "someuser";
+    private static final String PRIVATE_RESOURCE_PATH = "private";
 
     @BeforeAll
     static void setup() {
-        Utils.USERNAME = mock_username;
-        mockHttpServer.start();
-        Utils.POD_URL = mockHttpServer.getMockServerUrl();
-        Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-        Utils.PRIVATE_RESOURCE_PATH = private_resource_path;
-        identityProviderServer.start();
-        Utils.ISS = identityProviderServer.getMockServerUrl();
+        authServer = new MockUMAAuthorizationServer();
         authServer.start();
-        Utils.AS_URI = authServer.getMockServerUrl();
+
+        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
         mockHttpServer.start();
-        Utils.POD_URL = mockHttpServer.getMockServerUrl();
+
+        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+        identityProviderServer.start();
+
+        webIdService = new MockWebIdSevice(
+            mockHttpServer.getMockServerUrl(),
+            identityProviderServer.getMockServerUrl(),
+            MOCK_USERNAME);
+        webIdService.start();
+
+        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
+
+        webidUrl = webIdService.getMockServerUrl() + "/" + MOCK_USERNAME;
+
+        State.WEBID = URI.create(webidUrl);
+        final SolidSyncClient client = SolidSyncClient.getClient();
+        try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
+            issuer = profile.getOidcIssuer().iterator().next().toString();
+            podUrl = profile.getStorage().iterator().next().toString();
+        }
     }
 
     @AfterAll
@@ -70,6 +102,7 @@ class ServerTest {
         mockHttpServer.stop();
         identityProviderServer.stop();
         authServer.stop();
+        webIdService.stop();
     }
 
     @Test
@@ -77,7 +110,7 @@ class ServerTest {
         //create an authenticated client
         final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
         //create a public resource
-        final var resourceUri = URI.create(Utils.POD_URL + "/playlist");
+        final var resourceUri = URI.create(podUrl + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
 
         final var req =
@@ -106,7 +139,7 @@ class ServerTest {
         //create an authenticated client
         final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
         //create a public resource
-        final var resourceUri = URI.create(Utils.POD_URL + "/playlist");
+        final var resourceUri = URI.create(podUrl + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
 
         final var req = Request.newBuilder(playlist.getIdentifier())
@@ -137,7 +170,7 @@ class ServerTest {
         final SolidSyncClient client = SolidSyncClient.getClient();
         //create a private resource
         final var resourceUri =
-                URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
+                URI.create(podUrl + "/" + State.PRIVATE_RESOURCE_PATH + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
         final var req = Request.newBuilder(playlist.getIdentifier())
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
@@ -154,7 +187,7 @@ class ServerTest {
         final var challenges = WwwAuthenticate.parse(
                     resGet.headers().firstValue("WWW-Authenticate").get())
                 .getChallenges();
-        assertTrue(challenges.toString().contains(Utils.AS_URI));
+        assertTrue(challenges.toString().contains("Bearer"));
 
         final var reqDelete = Request.newBuilder().uri(resourceUri)
                 .header(Utils.ACCEPT, Utils.TEXT_TURTLE).DELETE().build();
@@ -166,11 +199,11 @@ class ServerTest {
     @Test
     void testAuthenticatedBearerCRUD() {
         //authenticate with Bearer token
-        final var session = OpenIdSession.ofIdToken(Utils.setupIdToken());
+        final var session = OpenIdSession.ofIdToken(setupIdToken(webidUrl, MOCK_USERNAME, issuer));
         final SolidSyncClient client = SolidSyncClient.getClient().session(UmaSession.of(session));
         //create a private resource
         final var resourceUri =
-                URI.create(Utils.POD_URL + "/" + Utils.PRIVATE_RESOURCE_PATH + "/playlist");
+                URI.create(podUrl + "/" + State.PRIVATE_RESOURCE_PATH + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
         final var req = Request.newBuilder(playlist.getIdentifier())
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
@@ -194,7 +227,7 @@ class ServerTest {
     }
 
     private Request.BodyPublisher cast(final Resource resource) {
-        return IOUtils.buffer(out -> {
+        return com.inrupt.client.util.IOUtils.buffer(out -> {
             try {
                 resource.serialize(RDFSyntax.TURTLE, out);
             } catch (final IOException ex) {
@@ -202,5 +235,42 @@ class ServerTest {
                         " into Solid Resource", ex);
             }
         });
+    }
+
+    static String setupIdToken(final String webid, final String username, final String issuer) {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", webid);
+        claims.put("sub", username);
+        claims.put("iss", issuer);
+        claims.put("azp", State.AZP);
+
+        final String token = generateIdToken(claims);
+        return token;
+    }
+
+    static String generateIdToken(final Map<String, Object> claims) {
+        try (final InputStream resource = Utils.class.getResourceAsStream("/signing-key.json")) {
+            final String jwks = IOUtils.toString(resource, UTF_8);
+            final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
+                .newPublicJwk(jwks);
+
+            final JsonWebSignature jws = new JsonWebSignature();
+            jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
+            jws.setHeader(TYPE, "JWT");
+            jws.setKey(jwk.getPrivateKey());
+            final JwtClaims jwtClaims = new JwtClaims();
+            jwtClaims.setJwtId(UUID.randomUUID().toString());
+            jwtClaims.setExpirationTimeMinutesInTheFuture(5);
+            jwtClaims.setIssuedAtToNow();
+            // override/set claims
+            claims.entrySet().forEach(entry -> jwtClaims.setClaim(entry.getKey(), entry.getValue()));
+            jws.setPayload(jwtClaims.toJson());
+
+            return jws.getCompactSerialization();
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to read JWK", ex);
+        } catch (final JoseException ex) {
+            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
+        }
     }
 }

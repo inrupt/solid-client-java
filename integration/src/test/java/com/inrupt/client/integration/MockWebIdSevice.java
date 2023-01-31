@@ -35,20 +35,26 @@ import org.apache.commons.io.IOUtils;
 public class MockWebIdSevice {
 
     private final WireMockServer wireMockServer;
+    private String storageUrl;
+    private String issuerUrl;
+    private String username;
 
-    public MockWebIdSevice() {
+    public MockWebIdSevice(final String storage, final String issuer, final String username) {
+        this.storageUrl = storage;
+        this.issuerUrl = issuer;
+        this.username = username;
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
 
     private void setupMocks() {
-        wireMockServer.stubFor(get(urlEqualTo("/" + Utils.USERNAME))
+        wireMockServer.stubFor(get(urlEqualTo("/" + this.username))
             .willReturn(aResponse()
                 .withStatus(Utils.SUCCESS)
                 .withHeader(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .withBody(getResource("/webId.ttl",
-                    wireMockServer.baseUrl() + "/" + Utils.USERNAME,
-                    Utils.POD_URL,
-                    Utils.ISS))));
+                    wireMockServer.baseUrl() + "/" + this.username,
+                    storageUrl,
+                    issuerUrl))));
     }
 
     public void start() {
@@ -64,11 +70,12 @@ public class MockWebIdSevice {
         wireMockServer.stop();
     }
 
-    private String getResource(final String path, final String webidUrl, final String podUrl, final String issuer) {
+    private String getResource(final String path, final String webidUrl,
+        final String storageUrl, final String issuerUrl) {
         return getResource(path)
                 .replace("{{webidUrl}}", webidUrl)
-                .replace("{{podUrl}}", podUrl)
-                .replace("{{issuer}}", issuer);
+                .replace("{{storageUrl}}", storageUrl)
+                .replace("{{issuer}}", issuerUrl);
     }
 
     private String getResource(final String path) {

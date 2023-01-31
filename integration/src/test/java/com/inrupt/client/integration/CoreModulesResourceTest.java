@@ -38,7 +38,6 @@ import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
-import com.inrupt.client.vocabulary.Solid;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -59,68 +58,66 @@ import org.junit.jupiter.api.Test;
 
 class CoreModulesResourceTest {
 
-    private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
-    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
-    private static final MockWebIdSevice webIdService = new MockWebIdSevice();
+    private static MockSolidServer mockHttpServer;
+    private static MockOpenIDProvider identityProviderServer;
+    private static MockUMAAuthorizationServer authServer;
+    private static MockWebIdSevice webIdService;
 
     private static final Config config = ConfigProvider.getConfig();
+
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+    private static String podUrl;
+    private static final String MOCK_USERNAME = "someuser";
 
     private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
         .orElse("private");
-    private static final String WEBID = config
-        .getOptionalValue("inrupt.test.webid", String.class)
-        .orElse("");
 
-    private static final String mock_username = "someuser";
     private static String testContainer = "resource/";
 
     @BeforeAll
     static void setup() {
-        if (WEBID.isEmpty()) {
-            Utils.USERNAME = mock_username;
-            mockHttpServer.start();
-            Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-            identityProviderServer.start();
-            Utils.ISS = identityProviderServer.getMockServerUrl();
-            authServer.start();
-            Utils.AS_URI = authServer.getMockServerUrl();
-            webIdService.start();
-            Utils.WEBID = URI.create(webIdService.getMockServerUrl() + "/" + mock_username);
-        } else {
-            Utils.WEBID = URI.create(WEBID);
-            //find issuer from WebID using only core module
-            final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().build();
-            final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
-            final var issuers = responseRdf.body()
-                    .listSubjectsWithProperty(createProperty(Solid.oidcIssuer.toString()))
-                    .toList();
-            if (!issuers.isEmpty()) {
-                Utils.ISS = issuers.get(0).toString();
-            }
-            //find storage from WebID using only core module
-            final var storages = responseRdf.body()
-                    .listSubjectsWithProperty(createProperty(PIM.storage.toString()))
-                    .toList();
-            if (!storages.isEmpty()) {
-                Utils.POD_URL = storages.get(0).toString();
-            }
+        authServer = new MockUMAAuthorizationServer();
+        authServer.start();
+
+        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+        mockHttpServer.start();
+
+        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+        identityProviderServer.start();
+
+        webIdService = new MockWebIdSevice(
+            mockHttpServer.getMockServerUrl(),
+            identityProviderServer.getMockServerUrl(),
+            MOCK_USERNAME);
+        webIdService.start();
+
+        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
+
+        final String webidUrl = config
+            .getOptionalValue("inrupt.test.webid", String.class)
+            .orElse(webIdService.getMockServerUrl() + "/" + MOCK_USERNAME);
+
+        State.WEBID = URI.create(webidUrl);
+        //find storage from WebID using only core module
+        final Request requestRdf = Request.newBuilder(URI.create(webidUrl)).GET().build();
+        final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
+        final var storages = responseRdf.body()
+                .listObjectsOfProperty(createProperty(PIM.storage.toString()))
+                .toList();
+        if (!storages.isEmpty()) {
+            podUrl = storages.get(0).toString();
         }
 
-        testContainer = Utils.POD_URL + "/" + testContainer;
+        testContainer = podUrl + "/" + testContainer;
     }
 
     @AfterAll
     static void teardown() {
-        if (Utils.POD_URL.contains("localhost")) {
-            mockHttpServer.stop();
-            identityProviderServer.stop();
-            authServer.stop();
-            webIdService.stop();
-        }
+        mockHttpServer.stop();
+        identityProviderServer.stop();
+        authServer.stop();
+        webIdService.stop();
     }
 
     @Test

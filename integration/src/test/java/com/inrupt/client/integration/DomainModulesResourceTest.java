@@ -55,10 +55,14 @@ import org.junit.jupiter.api.Test;
 
 class DomainModulesResourceTest {
 
-    private static final MockSolidServer mockHttpServer = new MockSolidServer();
-    private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
-    private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
-    private static final MockWebIdSevice webIdService = new MockWebIdSevice();
+    private static MockSolidServer mockHttpServer;
+    private static MockOpenIDProvider identityProviderServer;
+    private static MockUMAAuthorizationServer authServer;
+    private static MockWebIdSevice webIdService;
+    private static String podUrl;
+    private static String webidUrl;
+    private static final String MOCK_USERNAME = "someuser";
+
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
@@ -68,50 +72,52 @@ class DomainModulesResourceTest {
     private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.privateResourcePath", String.class)
         .orElse("private");
-    private static final String WEBID = config
-        .getOptionalValue("inrupt.test.webid", String.class)
-        .orElse("");
-    private static final String mock_username = "someuser";
 
     @BeforeAll
     static void setup() {
-        if (WEBID.isEmpty()) {
-            Utils.USERNAME = mock_username;
-            mockHttpServer.start();
-            Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-            identityProviderServer.start();
-            Utils.ISS = identityProviderServer.getMockServerUrl();
-            authServer.start();
-            Utils.AS_URI = authServer.getMockServerUrl();
-            webIdService.start();
-            Utils.WEBID = URI.create(webIdService.getMockServerUrl() + "/" + mock_username);
-        }  else {
-            Utils.WEBID = URI.create(WEBID);
-            //find issuer & storage from WebID using domain-specific webID solid concept
-            final Request requestRdf = Request.newBuilder(Utils.WEBID).GET().header("Accept", "text/turtle").build();
-            final var responseRdf = client.send(requestRdf, WebIdBodyHandlers.ofWebIdProfile());
-            if (responseRdf.statusCode() == 200) {
-                try (final var body = responseRdf.body()) {
-                    if (!body.getOidcIssuer().isEmpty()) {
-                        Utils.ISS = body.getOidcIssuer().iterator().next().toString();
-                    }
-                    if (!body.getStorage().isEmpty()) {
-                        Utils.POD_URL = body.getStorage().iterator().next().toString();
-                    }
+        authServer = new MockUMAAuthorizationServer();
+        authServer.start();
+
+        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+        mockHttpServer.start();
+
+        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+        identityProviderServer.start();
+
+        webIdService = new MockWebIdSevice(
+            mockHttpServer.getMockServerUrl(),
+            identityProviderServer.getMockServerUrl(),
+            MOCK_USERNAME);
+        webIdService.start();
+
+        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
+
+        webidUrl = config
+            .getOptionalValue("inrupt.test.webid", String.class)
+            .orElse(webIdService.getMockServerUrl() + "/" + MOCK_USERNAME);
+
+        State.WEBID = URI.create(webidUrl);
+        //find issuer & storage from WebID using domain-specific webID solid concept
+        final Request requestRdf = Request.newBuilder(URI.create(webidUrl))
+            .header("Accept", "text/turtle")
+            .GET().build();
+        final var responseRdf = client.send(requestRdf, WebIdBodyHandlers.ofWebIdProfile());
+        if (responseRdf.statusCode() == 200) {
+            try (final var body = responseRdf.body()) {
+                if (!body.getStorage().isEmpty()) {
+                    podUrl = body.getStorage().iterator().next().toString();
                 }
             }
         }
-        testContainer = Utils.POD_URL + "/" + testContainer;
+        testContainer = podUrl + "/" + testContainer;
     }
 
     @AfterAll
     static void teardown() {
-        if (Utils.POD_URL.contains("localhost")) {
-            mockHttpServer.stop();
-            identityProviderServer.stop();
-            authServer.stop();
-        }
+        mockHttpServer.stop();
+        identityProviderServer.stop();
+        authServer.stop();
+        webIdService.stop();
     }
 
     @Test
@@ -213,11 +219,11 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
 
-        try (final WebIdProfile sameProfile = client.read(Utils.WEBID, WebIdProfile.class)) {
+        try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             assertFalse(sameProfile.getStorage().isEmpty());
         }
 
-        final var missingWebId = URIBuilder.newBuilder(Utils.WEBID).path(UUID.randomUUID().toString()).build();
+        final var missingWebId = URIBuilder.newBuilder(URI.create(webidUrl)).path(UUID.randomUUID().toString()).build();
         final var err = assertThrows(SolidClientException.class, () -> client.read(missingWebId, WebIdProfile.class));
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
@@ -227,23 +233,23 @@ class DomainModulesResourceTest {
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
 
-        final var lefePath = getNestedContainer(Utils.POD_URL, 3); //example: "UUID1/UUID2/UUID3"
+        final var lefePath = getNestedContainer(podUrl, 3); //example: "UUID1/UUID2/UUID3"
 
         Optional<URI> root = Optional.empty();
         var containers = lefePath.split("/");
         while (!root.isPresent() && containers.length > 0) {
-            root = client.read(URI.create(Utils.POD_URL + "/" + String.join("/", containers)), SolidResource.class)
+            root = client.read(URI.create(podUrl + "/" + String.join("/", containers)), SolidResource.class)
                             .getMetadata()
                             .getStorage();
             containers = Arrays.copyOf(containers, containers.length - 1);
         }
         if (!root.isPresent() && containers.length == 0) {
-            root = client.read(URI.create(Utils.POD_URL), SolidResource.class)
+            root = client.read(URI.create(podUrl), SolidResource.class)
                     .getMetadata()
                     .getStorage();
         }
         assertTrue(root.isPresent());
-        assertEquals(Utils.POD_URL, root.get().toString());
+        assertEquals(podUrl, root.get().toString());
     }
 
     private String getNestedContainer(final String podUrl, final int depth) {

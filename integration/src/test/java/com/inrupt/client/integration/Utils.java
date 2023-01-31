@@ -21,18 +21,13 @@
 package com.inrupt.client.integration;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
@@ -43,9 +38,6 @@ import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.jose4j.jwk.PublicJsonWebKey;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 
@@ -74,56 +66,11 @@ final class Utils {
     static final int PRECONDITION_FAILED = 412;
     static final int ERROR = 500;
 
-    static String PRIVATE_RESOURCE_PATH;
-    static String POD_URL;
-    static String USERNAME;
-    static URI WEBID;
-    static String ISS;
-    static String AS_URI;
-    static final String AZP = "https://localhost:8080";
-
     static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
     static final String UMA_TOKEN_ENDPOINT = "uma/token";
     static final String OAUTH_TOKEN_ENDPOINT = "oauth/oauth20/token";
     static final String JWKS_ENDPOINT = "jwks";
-
-    static String setupIdToken() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", USERNAME);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-
-        final String token = generateIdToken(claims);
-        return token;
-    }
-
-    static String generateIdToken(final Map<String, Object> claims) {
-        try (final InputStream resource = Utils.class.getResourceAsStream("/signing-key.json")) {
-            final String jwks = IOUtils.toString(resource, UTF_8);
-            final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
-                .newPublicJwk(jwks);
-
-            final JsonWebSignature jws = new JsonWebSignature();
-            jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
-            jws.setHeader(TYPE, "JWT");
-            jws.setKey(jwk.getPrivateKey());
-            final JwtClaims jwtClaims = new JwtClaims();
-            jwtClaims.setJwtId(UUID.randomUUID().toString());
-            jwtClaims.setExpirationTimeMinutesInTheFuture(5);
-            jwtClaims.setIssuedAtToNow();
-            // override/set claims
-            claims.entrySet().forEach(entry -> jwtClaims.setClaim(entry.getKey(), entry.getValue()));
-            jws.setPayload(jwtClaims.toJson());
-
-            return jws.getCompactSerialization();
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Unable to read JWK", ex);
-        } catch (final JoseException ex) {
-            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
-        }
-    }
 
     static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
@@ -156,7 +103,7 @@ final class Utils {
     }
 
     static boolean isPrivateResource(final String uri) {
-        return uri.contains(PRIVATE_RESOURCE_PATH);
+        return uri.contains(State.PRIVATE_RESOURCE_PATH);
     }
 
     static boolean isPodRoot(final String url) {

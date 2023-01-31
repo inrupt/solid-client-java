@@ -32,12 +32,14 @@ class MockSolidServer {
 
     private final WireMockServer wireMockServer;
     private Map<String, ServerBody> storage = new ConcurrentHashMap<>();
+    private String asUri;
 
-    public MockSolidServer() {
+    public MockSolidServer(final String asUri) {
+        this.asUri = asUri;
         storage.put("/", new ServerBody(new byte[0], Utils.TEXT_TURTLE)); //add root to storage
 
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort()
-                .extensions(new SolidServerTransformer(storage)));
+                .extensions(new SolidServerTransformer(storage, this.asUri)));
     }
 
     private void setupMocks() {
