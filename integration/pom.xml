@@ -11,7 +11,7 @@
     <artifactId>inrupt-client-integration-tests</artifactId>
     <name>Inrupt Client Libraries - Integration Tests</name>
     <description>
-        Integration tests for the Inrutp Client Libraries.
+        Integration tests for the Inrupt Client Libraries.
     </description>
 
     <dependencies>

@@ -89,7 +89,11 @@ public class MockOpenIDProvider {
 
     private String setupIdToken() {
         final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", Utils.WEBID.toString());
+        if (Utils.WEBID != null) {
+            claims.put("webid", Utils.WEBID.toString());
+        } else {
+            claims.put("webid", "");
+        }
         claims.put("sub", Utils.USERNAME);
         claims.put("iss", wireMockServer.baseUrl());
         claims.put("azp", Utils.AZP);
@@ -124,9 +128,9 @@ public class MockOpenIDProvider {
         }
     }
 
-    private String getResource(final String path, final String issuer) {
+    private String getResource(final String path, final String baseUrl) {
         return getResource(path)
-                .replace("{{issuerUrl}}", issuer)
+                .replace("{{baseUrl}}", baseUrl)
                 .replace("{{tokenEndpoint}}", Utils.OAUTH_TOKEN_ENDPOINT)
                 .replace("{{jwksEndpoint}}", Utils.JWKS_ENDPOINT);
     }

@@ -2,7 +2,7 @@
     "grant_types_supported": [
         "urn:ietf:params:oauth:grant-type:uma-ticket"
     ],
-    "issuer": "{{issuerUrl}}",
+    "issuer": "{{baseUrl}}",
     "jwks_uri": "{{baseUrl}}/uma/{{jwksEndpoint}}",
     "token_endpoint": "{{baseUrl}}/{{tokenEndpoint}}",
     "uma_profiles_supported": [

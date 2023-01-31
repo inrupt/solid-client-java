@@ -49,19 +49,20 @@ public class ClientCredentialAuthTest {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
     private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
+    private static final MockWebIdSevice webIdService = new MockWebIdSevice();
 
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+        .getOptionalValue("inrupt.test.private-resource-path", String.class)
         .orElse("private");
     private static final String WEBID = config
         .getOptionalValue("inrupt.test.webid", String.class)
         .orElse("");
-    private static final String CLIENT_ID = config.getValue("inrupt.test.clientId", String.class);
-    private static final String CLIENT_SECRET = config.getValue("inrupt.test.clientSecret", String.class);
+    private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
+    private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
     private static final String AUTH_METHOD = config
-        .getOptionalValue("inrupt.test.authMethod", String.class)
+        .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
 
     private static final String mock_username = "someuser";
@@ -71,20 +72,24 @@ public class ClientCredentialAuthTest {
 
     @BeforeAll
     static void setup() {
+        Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
         if (WEBID.isEmpty()) {
+            authServer.start();
+            Utils.AS_URI = authServer.getMockServerUrl();
+
             Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
-            Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
-            authServer.start();
-            Utils.AS_URI = authServer.getMockServerUrl();
+
+            webIdService.start();
+            Utils.WEBID = URI.create(webIdService.getMockServerUrl() + "/" + mock_username);
+
         } else {
             Utils.WEBID = URI.create(WEBID);
             //find issuer & storage from WebID using SolidSyncClient
-            final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+            final SolidSyncClient client = SolidSyncClient.getClient();
             try (final WebIdProfile profile = client.read(Utils.WEBID, WebIdProfile.class)) {
                 Utils.ISS = profile.getOidcIssuer().iterator().next().toString();
                 Utils.POD_URL = profile.getStorage().iterator().next().toString();
@@ -98,9 +103,11 @@ public class ClientCredentialAuthTest {
 
     @AfterAll
     static void teardown() {
-        if (Utils.POD_URL.contains("localhost")) {
+        if (Utils.POD_URL == null || Utils.POD_URL.contains("localhost")) {
             mockHttpServer.stop();
             identityProviderServer.stop();
+            authServer.stop();
+            webIdService.stop();
         }
     }
 

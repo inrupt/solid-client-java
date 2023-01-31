@@ -30,7 +30,6 @@ import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdBodyHandlers;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -59,6 +58,7 @@ class DomainModulesResourceTest {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
     private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
+    private static final MockWebIdSevice webIdService = new MockWebIdSevice();
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
@@ -79,12 +79,13 @@ class DomainModulesResourceTest {
             Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
+            webIdService.start();
+            Utils.WEBID = URI.create(webIdService.getMockServerUrl() + "/" + mock_username);
         }  else {
             Utils.WEBID = URI.create(WEBID);
             //find issuer & storage from WebID using domain-specific webID solid concept
@@ -211,17 +212,6 @@ class DomainModulesResourceTest {
     @Test
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
-        if (Utils.POD_URL.contains("localhost")) { //special case for mock server setup
-            final Dataset dataset = rdf.createDataset();
-            dataset.add(rdf.createQuad(rdf.createIRI(Utils.WEBID.toString()),
-                    rdf.createIRI(Utils.WEBID.toString()),
-                    rdf.createIRI(PIM.storage.toString()),
-                    rdf.createIRI(Utils.POD_URL)));
-
-            try (final WebIdProfile profile = new WebIdProfile(Utils.WEBID, dataset)) {
-                assertDoesNotThrow(() -> client.create(profile));
-            }
-        }
 
         try (final WebIdProfile sameProfile = client.read(Utils.WEBID, WebIdProfile.class)) {
             assertFalse(sameProfile.getStorage().isEmpty());

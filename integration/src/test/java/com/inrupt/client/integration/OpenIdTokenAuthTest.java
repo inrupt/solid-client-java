@@ -49,6 +49,7 @@ public class OpenIdTokenAuthTest {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
     private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
+    private static final MockWebIdSevice webIdService = new MockWebIdSevice();
 
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
@@ -69,12 +70,13 @@ public class OpenIdTokenAuthTest {
             Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
+            webIdService.start();
+            Utils.WEBID = URI.create(webIdService.getMockServerUrl() + "/" + mock_username);
         } else {
             Utils.WEBID = URI.create(WEBID);
             //find issuer & storage from WebID using SolidSyncClient

@@ -62,6 +62,8 @@ class CoreModulesResourceTest {
     private static final MockSolidServer mockHttpServer = new MockSolidServer();
     private static final MockOpenIDProvider identityProviderServer = new MockOpenIDProvider();
     private static final MockUMAAuthorizationServer authServer = new MockUMAAuthorizationServer();
+    private static final MockWebIdSevice webIdService = new MockWebIdSevice();
+
     private static final Config config = ConfigProvider.getConfig();
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
@@ -81,12 +83,13 @@ class CoreModulesResourceTest {
             Utils.USERNAME = mock_username;
             mockHttpServer.start();
             Utils.POD_URL = mockHttpServer.getMockServerUrl();
-            Utils.WEBID = URI.create(Utils.POD_URL + "/" + Utils.USERNAME);
             Utils.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
             identityProviderServer.start();
             Utils.ISS = identityProviderServer.getMockServerUrl();
             authServer.start();
             Utils.AS_URI = authServer.getMockServerUrl();
+            webIdService.start();
+            Utils.WEBID = URI.create(webIdService.getMockServerUrl() + "/" + mock_username);
         } else {
             Utils.WEBID = URI.create(WEBID);
             //find issuer from WebID using only core module
@@ -116,6 +119,7 @@ class CoreModulesResourceTest {
             mockHttpServer.stop();
             identityProviderServer.stop();
             authServer.stop();
+            webIdService.stop();
         }
     }
 

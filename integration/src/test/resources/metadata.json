@@ -1,10 +1,10 @@
 {
-    "issuer":"{{issuerUrl}}",
-    "token_endpoint":"{{issuerUrl}}/{{tokenEndpoint}}",
-    "end_session_endpoint":"{{issuerUrl}}/endSession",
-    "userinfo_endpoint":"{{issuerUrl}}/oauth/userinfo",
-    "jwks_uri":"{{issuerUrl}}/oauth/{{jwksEndpoint}}",
-    "authorization_endpoint":"{{issuerUrl}}/auth",
+    "issuer":"{{baseUrl}}",
+    "token_endpoint":"{{baseUrl}}/{{tokenEndpoint}}",
+    "end_session_endpoint":"{{baseUrl}}/endSession",
+    "userinfo_endpoint":"{{baseUrl}}/oauth/userinfo",
+    "jwks_uri":"{{baseUrl}}/oauth/{{jwksEndpoint}}",
+    "authorization_endpoint":"{{baseUrl}}/auth",
     "scopes_supported":[
         "READ",
         "WRITE",
