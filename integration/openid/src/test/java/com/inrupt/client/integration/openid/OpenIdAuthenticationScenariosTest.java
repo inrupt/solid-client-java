@@ -18,10 +18,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.integration.uma;
+package com.inrupt.client.integration.openid;
 
-import com.inrupt.client.integration.parent.OpenIdTokenAuth;
+import com.inrupt.client.integration.parent.AuthenticationSenarios;
 
-class UmaOpenIdTokenAuthTest extends OpenIdTokenAuth {
+class OpenIdAuthenticationScenariosTest extends AuthenticationSenarios {
 
 }

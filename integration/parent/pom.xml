@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>inrupt-client-integration-parent-tests</artifactId>
-    <name>Inrupt Client Libraries - Integration Tests</name>
+    <name>Inrupt Client Libraries - Integration Parent Tests</name>
     <description>
         Integration tests for the Inrupt Client Libraries.
     </description>

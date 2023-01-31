@@ -8,10 +8,11 @@
   </parent>
 
   <artifactId>inrupt-client-integration-uma-tests</artifactId>
-  <name>Inrupt Client Libraries - UMA Integration Tests</name>
+  <name>Inrupt Client Libraries - Integration UMA Tests</name>
   <description>
       UMA integration tests for the Inrupt Client Libraries.
   </description>
+
   <properties>
     <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
     <smallrye.config.version>3.1.1</smallrye.config.version>
@@ -35,7 +36,6 @@
         <version>${project.version}</version>
       </dependency>
     <!-- test dependencies -->
-   
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>

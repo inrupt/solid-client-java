@@ -130,8 +130,9 @@ public class SolidServerTransformer extends ResponseDefinitionTransformer {
                 try {
                     final byte[] newBody =
                             Utils.modifyBody(body, request.getBodyAsString());
+                    final var contentType = serverBody != null ? serverBody.contentType : Utils.TEXT_TURTLE;
                     this.storage.put(request.getUrl(),
-                            new ServerBody(newBody, serverBody.contentType));
+                            new ServerBody(newBody, contentType));
                     addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
                     res.withStatus(Utils.NO_CONTENT);
                 } catch (IOException e) {

@@ -96,7 +96,7 @@ public class CoreModulesResource {
 
         final String webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(webIdService.getMockServerUrl() + "/" + MOCK_USERNAME);
+            .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
         //find storage from WebID using only core module

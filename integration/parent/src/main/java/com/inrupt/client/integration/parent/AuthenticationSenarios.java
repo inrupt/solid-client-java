@@ -59,7 +59,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class OpenIdTokenAuth {
+public class AuthenticationSenarios {
 
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
@@ -103,7 +103,9 @@ public class OpenIdTokenAuth {
 
         State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
 
-        webidUrl = webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME;
+        webidUrl = config
+            .getOptionalValue("inrupt.test.webid", String.class)
+            .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClient();
