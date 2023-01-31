@@ -26,7 +26,7 @@
     <commons.cli.version>1.5.0</commons.cli.version>
     <commons.io.version>2.11.0</commons.io.version>
     <commons.rdf.version>0.5.0</commons.rdf.version>
-    <jackson.version>2.14.1</jackson.version>
+    <jackson.version>2.14.2</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.7.0</jena.version>
     <jose4j.version>0.9.2</jose4j.version>
@@ -50,7 +50,7 @@
     <javadoc.plugin.version>3.4.1</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
-    <owasp.plugin.version>8.0.1</owasp.plugin.version>
+    <owasp.plugin.version>8.0.2</owasp.plugin.version>
     <projectinfo.plugin.version>3.4.2</projectinfo.plugin.version>
     <pmd.plugin.version>3.20.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
@@ -65,7 +65,7 @@
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.12.3</equalsverifier.version>
+    <equalsverifier.version>3.12.4</equalsverifier.version>
     <junit.version>5.9.2</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
@@ -287,7 +287,7 @@
               <link>https://jena.apache.org/documentation/javadoc/arq/</link>
               <link>https://www.antlr.org/api/Java/</link>
               <link>https://rdf4j.org/javadoc/latest/</link>
-              <link>https://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
+              <link>http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/</link>
             </links>
             <header>
               <![CDATA[
