@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-integration-parent-tests</artifactId>
+      <artifactId>inrupt-client-integration-base-tests</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- test dependencies -->

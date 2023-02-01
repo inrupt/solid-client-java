@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>parent</module>
+    <module>base</module>
     <module>openid</module>
     <module>uma</module>
   </modules>
