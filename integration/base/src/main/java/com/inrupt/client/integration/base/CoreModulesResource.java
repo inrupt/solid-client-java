@@ -56,6 +56,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Core modules based test class for resource integration scenarios.
+ */
 public class CoreModulesResource {
 
     private static MockSolidServer mockHttpServer;

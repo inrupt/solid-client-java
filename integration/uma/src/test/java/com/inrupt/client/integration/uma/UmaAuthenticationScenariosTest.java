@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.integration.uma;
 
-import com.inrupt.client.integration.base.AuthenticationSenarios;
+import com.inrupt.client.integration.base.AuthenticationScenarios;
 
-class UmaAuthenticationScenariosTest extends AuthenticationSenarios {
+class UmaAuthenticationScenariosTest extends AuthenticationScenarios {
 
 }

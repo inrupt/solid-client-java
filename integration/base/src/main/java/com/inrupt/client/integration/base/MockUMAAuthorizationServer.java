@@ -33,7 +33,7 @@ import java.io.UncheckedIOException;
 
 import org.apache.commons.io.IOUtils;
 
-public class MockUMAAuthorizationServer {
+class MockUMAAuthorizationServer {
 
     private final WireMockServer wireMockServer;
 

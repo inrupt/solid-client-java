@@ -53,6 +53,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Domain-specific modules based test class for resource integration scenarios.
+ */
 public class DomainModulesResource {
 
     private static MockSolidServer mockHttpServer;

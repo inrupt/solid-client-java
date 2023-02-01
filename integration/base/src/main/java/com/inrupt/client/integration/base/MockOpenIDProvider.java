@@ -42,7 +42,7 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 
-public class MockOpenIDProvider {
+class MockOpenIDProvider {
     private final WireMockServer wireMockServer;
     private String username;
 

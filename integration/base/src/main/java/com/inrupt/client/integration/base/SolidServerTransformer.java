@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-public class SolidServerTransformer extends ResponseDefinitionTransformer {
+class SolidServerTransformer extends ResponseDefinitionTransformer {
 
     private final Map<String, ServerBody> storage;
     private String asUri;

@@ -59,7 +59,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class AuthenticationSenarios {
+/**
+ * Test class for authentication integration scenarios.
+ */
+public class AuthenticationScenarios {
 
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;

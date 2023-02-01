@@ -32,7 +32,7 @@ import java.io.UncheckedIOException;
 
 import org.apache.commons.io.IOUtils;
 
-public class MockWebIdSevice {
+class MockWebIdSevice {
 
     private final WireMockServer wireMockServer;
     private String storageUrl;
