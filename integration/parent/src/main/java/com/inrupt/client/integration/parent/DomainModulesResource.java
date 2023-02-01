@@ -70,7 +70,7 @@ public class DomainModulesResource {
     private static String testContainer = "resource/";
 
     private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+        .getOptionalValue("inrupt.test.private-resource-path", String.class)
         .orElse("private");
 
     @BeforeAll
