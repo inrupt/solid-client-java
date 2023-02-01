@@ -13,37 +13,26 @@
       UMA integration tests for the Inrupt Client Libraries.
   </description>
 
-  <properties>
-    <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
-    <smallrye.config.version>3.1.1</smallrye.config.version>
-    <jackson.annotations.version>2.14.1</jackson.annotations.version>
-  </properties>
-
   <dependencies>
     <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-integration-base-tests</artifactId>
-      <version>${project.version}</version>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
         <groupId>com.inrupt</groupId>
         <artifactId>inrupt-client-uma</artifactId>
         <version>${project.version}</version>
-      </dependency>
+    </dependency>
     <!-- test dependencies -->
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-integration-base-tests</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -55,12 +44,6 @@
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8-standalone</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>jakarta.annotation</groupId>
-        <artifactId>jakarta.annotation-api</artifactId>
-        <scope>provided</scope>
-        <version>${jakarta.annotation.version}</version>
     </dependency>
   </dependencies>
 

@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.integration.openid;
 
-import com.inrupt.client.integration.parent.CoreModulesResource;
+import com.inrupt.client.integration.base.CoreModulesResource;
 
 class OpenIdCoreModulesResourceTest extends CoreModulesResource {
 

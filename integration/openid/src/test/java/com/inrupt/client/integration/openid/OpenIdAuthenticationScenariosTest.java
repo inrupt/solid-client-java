@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.integration.openid;
 
-import com.inrupt.client.integration.parent.AuthenticationSenarios;
+import com.inrupt.client.integration.base.AuthenticationSenarios;
 
 class OpenIdAuthenticationScenariosTest extends AuthenticationSenarios {
 

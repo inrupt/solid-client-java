@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.integration.uma;
 
-import com.inrupt.client.integration.parent.DomainModulesResource;
+import com.inrupt.client.integration.base.DomainModulesResource;
 
 class UmaDomainModulesResourceTest extends DomainModulesResource {
 

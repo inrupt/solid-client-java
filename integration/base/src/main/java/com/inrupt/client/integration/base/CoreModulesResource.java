@@ -18,7 +18,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.integration.parent;
+package com.inrupt.client.integration.base;
 
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.apache.jena.rdf.model.ResourceFactory.createResource;
