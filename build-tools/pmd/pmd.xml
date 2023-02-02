@@ -15,10 +15,7 @@
     </rule>
     <rule ref="category/java/performance.xml"/>
     <rule ref="category/java/bestpractices.xml"/>
-    <rule ref="category/java/errorprone.xml">
-        <!-- This is useful for EJB, but not for modern JavaEE CDI applications -->
-        <exclude name="BeanMembersShouldSerialize"/>
-    </rule>
+    <rule ref="category/java/errorprone.xml"/>
 
     <!-- 1 (the default) assert per unit test seems extremely restrictive. Just raising to 5. -->
     <rule ref="category/java/bestpractices.xml/JUnitTestContainsTooManyAsserts">
