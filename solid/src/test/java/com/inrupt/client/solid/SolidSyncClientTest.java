@@ -95,8 +95,8 @@ class SolidSyncClientTest {
 
         try (final SolidResource resource = client.read(uri, SolidResource.class)) {
             assertEquals(uri, resource.getIdentifier());
-            assertEquals(4, resource.getDataset().size());
-            try (final Stream<? extends Quad> stream = resource.getDataset().stream(Optional.empty(),
+            assertEquals(4, resource.size());
+            try (final Stream<? extends Quad> stream = resource.stream(Optional.empty(),
                         rdf.createIRI(uri.toString()), rdf.createIRI("https://example.com/song"), null)) {
                 assertEquals(2, stream.count());
             }
@@ -114,8 +114,8 @@ class SolidSyncClientTest {
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             assertEquals(uri, container.getIdentifier());
             assertEquals(0, container.getContainedResources().count());
-            assertEquals(4, container.getDataset().size());
-            try (final Stream<? extends Quad> stream = container.getDataset().stream(Optional.empty(),
+            assertEquals(4, container.size());
+            try (final Stream<? extends Quad> stream = container.stream(Optional.empty(),
                         rdf.createIRI(uri.toString()), rdf.createIRI("https://example.com/song"), null)) {
                 assertEquals(2, stream.count());
             }

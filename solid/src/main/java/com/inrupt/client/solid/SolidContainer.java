@@ -64,7 +64,7 @@ public final class SolidContainer extends SolidResource {
             .map(child -> {
                 final Metadata.Builder builder = Metadata.newBuilder();
                 getMetadata().getStorage().ifPresent(builder::storage);
-                try (final Stream<Quad> stream = getDataset().stream(Optional.empty(), child, rdfType, null)
+                try (final Stream<Quad> stream = stream(Optional.empty(), child, rdfType, null)
                         .map(Quad.class::cast)) {
                     stream.map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
                         .map(IRI::getIRIString).map(URI::create).forEach(builder::type);

@@ -49,19 +49,19 @@ public class Recipe extends Resource {
     }
 
     public String getTitle() {
-        return getDataset().stream(Optional.empty(), subject, dcTitle, null)
+        return stream(Optional.empty(), subject, dcTitle, null)
             .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
             .findFirst().map(Literal::getLexicalForm).orElse("Untitled");
     }
 
     public List<String> getIngredients() {
-        return getDataset().stream(Optional.empty(), subject, exIngredient, null)
+        return stream(Optional.empty(), subject, exIngredient, null)
             .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
             .map(Literal::getLexicalForm).collect(Collectors.toList());
     }
 
     public List<String> getSteps() {
-        return getDataset().stream(Optional.empty(), subject, exStep, null)
+        return stream(Optional.empty(), subject, exStep, null)
             .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
             .map(Literal::getLexicalForm).collect(Collectors.toList());
     }
