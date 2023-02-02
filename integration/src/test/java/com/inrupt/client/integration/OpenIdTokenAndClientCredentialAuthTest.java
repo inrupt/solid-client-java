@@ -35,6 +35,7 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.microprofile.config.Config;
@@ -53,10 +54,11 @@ public class OpenIdTokenAndClientCredentialAuthTest {
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String testEnv = config.getValue("inrupt.test.environment", String.class);
-    private static final String iss = config.getValue("inrupt.test.idp", String.class);
-    private static final String clientId = config.getValue("inrupt.test.clientId", String.class);
-    private static final String clientSecrete = config.getValue("inrupt.test.clientSecret", String.class);
-    private static final String authMethod = config.getValue("inrupt.test.authMethod", String.class);
+    private static final Optional<String> iss = config.getOptionalValue("inrupt.test.idp", String.class);
+    private static final Optional<String> clientId = config.getOptionalValue("inrupt.test.clientId", String.class);
+    private static final Optional<String> clientSecret = config.getOptionalValue("inrupt.test.clientSecret",
+            String.class);
+    private static final Optional<String> authMethod = config.getOptionalValue("inrupt.test.authMethod", String.class);
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
     private static URI privateResourceURL;
@@ -213,13 +215,15 @@ public class OpenIdTokenAndClientCredentialAuthTest {
     }
 
     private static Stream<Arguments> provideSessions() {
-        return Stream.of(
-            Arguments.of(OpenIdSession.ofIdToken(Utils.setupIdToken())), //OpenId token
-            Arguments.of(OpenIdSession.ofClientCredentials(URI.create(iss), //Client credentials
-                        clientId,
-                        clientSecrete,
-                        authMethod)
-            )
-        );
+        final Stream.Builder builder = Stream.builder();
+
+        builder.accept(OpenIdSession.ofIdToken(Utils.setupIdToken()));
+        iss.ifPresent(issuer ->
+            clientId.ifPresent(id ->
+                clientSecret.ifPresent(secret ->
+                    authMethod.ifPresent(method ->
+                        builder.accept(OpenIdSession.ofClientCredentials(URI.create(issuer),
+                                id, secret, method))))));
+        return builder.build();
     }
 }
