@@ -51,6 +51,8 @@ final class Utils {
     static final String APPLICATION_JSON = "application/json";
     static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
     static final String PLAIN_TEXT = "text/plain";
+    static final String APPLICATION_OCTET = "application/octet-stream";
+    static final String PATCH = "PATCH";
     static final String WILDCARD = "*";
     static final String BEARER = "Bearer";
     static final String DPOP = "DPoP";
@@ -71,7 +73,8 @@ final class Utils {
     static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
     static final String UMA_TOKEN_ENDPOINT = "uma/token";
     static final String OAUTH_TOKEN_ENDPOINT = "oauth/oauth20/token";
-    static final String JWKS_ENDPOINT = "jwks";
+    static final String UMA_JWKS_ENDPOINT = "uma/jwks";
+    static final String OAUTH_JWKS_ENDPOINT = "oauth/jwks";
 
     static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);

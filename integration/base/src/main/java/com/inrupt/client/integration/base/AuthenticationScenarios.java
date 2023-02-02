@@ -20,12 +20,13 @@
  */
 package com.inrupt.client.integration.base;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
@@ -33,24 +34,12 @@ import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.webid.WebIdProfile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.jose4j.jwk.PublicJsonWebKey;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
-import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +56,7 @@ public class AuthenticationScenarios {
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
     private static MockUMAAuthorizationServer authServer;
-    private static MockWebIdSevice webIdService;
+    private static MockWebIdService webIdService;
     private static String podUrl;
     private static String issuer;
     private static String webidUrl;
@@ -84,8 +73,12 @@ public class AuthenticationScenarios {
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
     private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.privateResourcePath", String.class)
+        .getOptionalValue("inrupt.test.private-resource-path", String.class)
         .orElse("private");
+    private static final String PUBLIC_RESOURCE_PATH = config
+        .getOptionalValue("inrupt.test.public-resource-path", String.class)
+        .orElse("");
+    private static Session session;
 
     @BeforeAll
     static void setup() {
@@ -98,7 +91,7 @@ public class AuthenticationScenarios {
         identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
         identityProviderServer.start();
 
-        webIdService = new MockWebIdSevice(
+        webIdService = new MockWebIdService(
             mockHttpServer.getMockServerUrl(),
             identityProviderServer.getMockServerUrl(),
             MOCK_USERNAME);
@@ -116,14 +109,33 @@ public class AuthenticationScenarios {
             issuer = profile.getOidcIssuer().iterator().next().toString();
             podUrl = profile.getStorage().iterator().next().toString();
         }
-
-        publicResourceURL = URI.create(podUrl + Utils.FOLDER_SEPARATOR + testResourceName);
-        privateResourceURL =
-                URI.create(podUrl + Utils.FOLDER_SEPARATOR +
+        if (!podUrl.endsWith("/")) {
+            podUrl += "/";
+        }
+        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
+            publicResourceURL = URI.create(podUrl + testResourceName);
+        } else {
+            publicResourceURL = URI.create(podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
+        }
+        privateResourceURL = URI.create(podUrl +
                 State.PRIVATE_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
     }
     @AfterAll
     static void teardown() {
+        //cleanup pod
+        final SolidSyncClient client = SolidSyncClient.getClient().session(session);
+        final var reqDeletePrivateResource = Request.newBuilder(privateResourceURL)
+            .DELETE().build();
+        client.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
+
+        final var reqDeletePrivate = Request.newBuilder(URI.create(podUrl + State.PRIVATE_RESOURCE_PATH))
+            .DELETE().build();
+        client.send(reqDeletePrivate, Response.BodyHandlers.discarding());
+
+        final var reqDeletePublic = Request.newBuilder(publicResourceURL)
+            .DELETE().build();
+        client.send(reqDeletePublic, Response.BodyHandlers.discarding());
+
         mockHttpServer.stop();
         identityProviderServer.stop();
         authServer.stop();
@@ -231,7 +243,7 @@ public class AuthenticationScenarios {
 
         //create another private resource with another client
         final URI privateResourceURL2 = URI
-                .create(podUrl + "/" + State.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
+                .create(podUrl + State.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
         final SolidResource testResource2 = new SolidResource(privateResourceURL2, null, null);
         final SolidSyncClient authClient2 =
                 SolidSyncClient.getClient().session(session);
@@ -252,49 +264,15 @@ public class AuthenticationScenarios {
     }
 
     private static Stream<Arguments> provideSessions() {
+        session = OpenIdSession.ofClientCredentials(
+            URI.create(issuer), //Client credentials
+            CLIENT_ID,
+            CLIENT_SECRET,
+            AUTH_METHOD);
+        final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN);
+        final String token = credential.isPresent() ? credential.get().getToken() : "";
         return Stream.of(
-            Arguments.of(OpenIdSession.ofIdToken(setupIdToken(webidUrl, MOCK_USERNAME, issuer)), //OpenId token
-            Arguments.of(OpenIdSession.ofClientCredentials
-                (URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD)
-            )));
-    }
-
-    private static String setupIdToken(final String webid, final String username, final String issuer) {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", webid);
-        claims.put("sub", username);
-        claims.put("iss", issuer);
-        claims.put("azp", State.AZP);
-
-        return generateIdToken(claims);
-    }
-
-    private static String generateIdToken(final Map<String, Object> claims) {
-        try (final InputStream resource = Utils.class.getResourceAsStream("/signing-key.json")) {
-            final String jwks = IOUtils.toString(resource, UTF_8);
-            final PublicJsonWebKey jwk = PublicJsonWebKey.Factory
-                .newPublicJwk(jwks);
-
-            final JsonWebSignature jws = new JsonWebSignature();
-            jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.ECDSA_USING_P256_CURVE_AND_SHA256);
-            jws.setHeader(TYPE, "JWT");
-            jws.setKey(jwk.getPrivateKey());
-            final JwtClaims jwtClaims = new JwtClaims();
-            jwtClaims.setJwtId(UUID.randomUUID().toString());
-            jwtClaims.setExpirationTimeMinutesInTheFuture(5);
-            jwtClaims.setIssuedAtToNow();
-            // override/set claims
-            claims.entrySet().forEach(entry -> jwtClaims.setClaim(entry.getKey(), entry.getValue()));
-            jws.setPayload(jwtClaims.toJson());
-
-            return jws.getCompactSerialization();
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Unable to read JWK", ex);
-        } catch (final JoseException ex) {
-            throw new UncheckedJoseException("Unable to generate DPoP token", ex);
-        }
+            Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
+            Arguments.of(session)));
     }
 }

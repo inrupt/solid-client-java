@@ -60,7 +60,7 @@ class ServerTest {
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
     private static MockUMAAuthorizationServer authServer;
-    private static MockWebIdSevice webIdService;
+    private static MockWebIdService webIdService;
     private static String podUrl;
     private static String issuer;
     private static String webidUrl;
@@ -78,7 +78,7 @@ class ServerTest {
         identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
         identityProviderServer.start();
 
-        webIdService = new MockWebIdSevice(
+        webIdService = new MockWebIdService(
             mockHttpServer.getMockServerUrl(),
             identityProviderServer.getMockServerUrl(),
             MOCK_USERNAME);
@@ -164,7 +164,7 @@ class ServerTest {
     }
 
     @Test
-    void testUnuthenticatedCRUD() {
+    void testUnauthenticatedCRUD() {
         //create an authenticated client
         final SolidSyncClient client = SolidSyncClient.getClient();
         //create a private resource

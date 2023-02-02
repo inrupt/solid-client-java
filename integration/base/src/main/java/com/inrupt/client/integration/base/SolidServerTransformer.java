@@ -58,7 +58,7 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
 
         final var res = new ResponseDefinitionBuilder();
 
-        //determine if authenticated on private resouces
+        //determine if authenticated on private resources
         if (Utils.isPrivateResource(request.getUrl()) &&
             request.getHeader("Authorization") == null) {
             res.withHeader("WWW-Authenticate",
@@ -93,6 +93,9 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
                     final String location = request.getUrl() + (slug != null ? slug : UUID.randomUUID());
                     final boolean exists = this.storage.containsKey(request.getUrl());
                     if (!Utils.WILDCARD.equals(request.getHeader(Utils.IF_NONE_MATCH)) || !exists) {
+                        if (slug != null) {
+                            this.storage.put(request.getUrl() + slug, new ServerBody(new byte[0], Utils.TEXT_TURTLE));
+                        }
                         this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
                                 request.contentTypeHeader().mimeTypePart()));
                         addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());

@@ -58,6 +58,12 @@ class MockOpenIDProvider {
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/metadata.json", wireMockServer.baseUrl()))));
 
+        wireMockServer.stubFor(get(urlPathMatching("/" + Utils.OAUTH_JWKS_ENDPOINT))
+                        .willReturn(aResponse()
+                            .withStatus(Utils.SUCCESS)
+                            .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                            .withBody(getResource("/jwks.json"))));
+
         wireMockServer.stubFor(post(urlPathMatching("/" + Utils.OAUTH_TOKEN_ENDPOINT))
                     .withHeader(Utils.CONTENT_TYPE, containing(Utils.APPLICATION_FORM))
                     .withRequestBody(containing("client_credentials"))
@@ -100,8 +106,7 @@ class MockOpenIDProvider {
         claims.put("iss", wireMockServer.baseUrl());
         claims.put("azp", State.AZP);
 
-        final String token = generateIdToken(claims);
-        return token;
+        return generateIdToken(claims);
     }
 
     private String generateIdToken(final Map<String, Object> claims) {
@@ -134,7 +139,7 @@ class MockOpenIDProvider {
         return getResource(path)
                 .replace("{{baseUrl}}", baseUrl)
                 .replace("{{tokenEndpoint}}", Utils.OAUTH_TOKEN_ENDPOINT)
-                .replace("{{jwksEndpoint}}", Utils.JWKS_ENDPOINT);
+                .replace("{{jwksEndpoint}}", Utils.OAUTH_JWKS_ENDPOINT);
     }
 
     private String getResource(final String path) {

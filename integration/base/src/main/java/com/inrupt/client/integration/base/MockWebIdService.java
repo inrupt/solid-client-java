@@ -32,14 +32,14 @@ import java.io.UncheckedIOException;
 
 import org.apache.commons.io.IOUtils;
 
-class MockWebIdSevice {
+class MockWebIdService {
 
     private final WireMockServer wireMockServer;
     private String storageUrl;
     private String issuerUrl;
     private String username;
 
-    public MockWebIdSevice(final String storage, final String issuer, final String username) {
+    public MockWebIdService(final String storage, final String issuer, final String username) {
         this.storageUrl = storage;
         this.issuerUrl = issuer;
         this.username = username;
@@ -79,7 +79,7 @@ class MockWebIdSevice {
     }
 
     private String getResource(final String path) {
-        try (final InputStream res = MockWebIdSevice.class.getResourceAsStream(path)) {
+        try (final InputStream res = MockWebIdService.class.getResourceAsStream(path)) {
             return new String(IOUtils.toByteArray(res), UTF_8);
         } catch (final IOException ex) {
             throw new UncheckedIOException("Could not read class resource", ex);

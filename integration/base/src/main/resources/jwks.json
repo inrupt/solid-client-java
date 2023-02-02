@@ -1,12 +1,11 @@
 {
     "keys": [{
-        "kty":"EC",
-        "kid":"y396d_kY6lJO-WhO2lcajg",
-        "use":"sig",
-        "alg":"ES256",
-        "x":"tQCTyFENxDr3VuxkgjMMf6lUnskvyQb7hhQ4XnavU5k",
-        "y":"YgwHewrm2f6Ry96NHSARI8BxsPprr2oU5ERUWmU-6wc",
-        "crv":"P-256"
+        "kty": "EC",
+        "kid": "Me0NGlTvJT23mlw9hHTkrg",
+        "use": "sig",
+        "alg": "ES256",
+        "x": "Wd24acHgJSa8_kBAAE0CAexDeq_P_lYGssntpN24FHA",
+        "y": "h6ZgtLmxct3qIj5tasyf6k7LByIuv5h0R7h2Nulf_wI",
+        "crv": "P-256"
     }]
 }
-

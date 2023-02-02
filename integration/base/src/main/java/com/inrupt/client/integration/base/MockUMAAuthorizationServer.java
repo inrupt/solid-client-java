@@ -47,6 +47,11 @@ class MockUMAAuthorizationServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/uma2-configuration.json", wireMockServer.baseUrl()))));
+        wireMockServer.stubFor(get(urlPathMatching("/" + Utils.UMA_JWKS_ENDPOINT))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/jwks.json"))));
         wireMockServer.stubFor(post(urlPathMatching("/" + Utils.UMA_TOKEN_ENDPOINT))
                     .withRequestBody(WireMock.containing("claim_token"))
                     .willReturn(aResponse()
@@ -72,7 +77,7 @@ class MockUMAAuthorizationServer {
         return getResource(path)
                 .replace("{{baseUrl}}", baseUrl)
                 .replace("{{tokenEndpoint}}", Utils.UMA_TOKEN_ENDPOINT)
-                .replace("{{jwksEndpoint}}", Utils.JWKS_ENDPOINT);
+                .replace("{{jwksEndpoint}}", Utils.UMA_JWKS_ENDPOINT);
     }
 
     private String getResource(final String path) {
