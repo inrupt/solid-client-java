@@ -258,6 +258,13 @@ public class CoreModulesResource {
 
         assertTrue(Utils.isSuccessful(res.statusCode()));
 
+        //delete a Container
+        final Request reqDelete = Request.newBuilder(URI.create(containerName)).DELETE().build();
+        final Response<Void> responseDelete =
+                client.send(reqDelete, Response.BodyHandlers.discarding());
+
+        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
+
         //create a Container in a Container
         final Request reqPost = Request.newBuilder(URI.create(container2Name))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
@@ -270,13 +277,6 @@ public class CoreModulesResource {
         final var resPost = client.send(reqPost, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(resPost.statusCode()));
-
-        //delete a Container
-        final Request reqDelete = Request.newBuilder(URI.create(containerName)).DELETE().build();
-        final Response<Void> responseDelete =
-                client.send(reqDelete, Response.BodyHandlers.discarding());
-
-        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
 
         final Request reqDeleteInnerContainer = Request.newBuilder(URI.create(container2Name + container3Name))
             .DELETE().build();
