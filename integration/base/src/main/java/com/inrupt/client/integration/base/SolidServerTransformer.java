@@ -68,7 +68,7 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
             return res.build();
         }
 
-        if (request.getMethod().isOneOf(RequestMethod.GET, RequestMethod.HEAD)) {
+        if (request.getMethod().isOneOf(RequestMethod.GET)) {
             if (this.storage.containsKey(request.getUrl())) {
                 final var serverBody = this.storage.get(request.getUrl());
                 res.withStatus(Utils.SUCCESS)
@@ -88,22 +88,13 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
 
         if (request.getMethod().isOneOf(RequestMethod.POST)) {
             if (request.getUrl().endsWith(Utils.FOLDER_SEPARATOR)) {
-                if (!this.storage.containsKey(request.getUrl())) {
+                if (this.storage.containsKey(request.getUrl())) {
                     final String slug = request.getHeader("Slug");
                     final String location = request.getUrl() + (slug != null ? slug : UUID.randomUUID());
-                    final boolean exists = this.storage.containsKey(request.getUrl());
-                    if (!Utils.WILDCARD.equals(request.getHeader(Utils.IF_NONE_MATCH)) || !exists) {
-                        if (slug != null) {
-                            this.storage.put(request.getUrl() + slug, new ServerBody(new byte[0], Utils.TEXT_TURTLE));
-                        }
-                        this.storage.put(request.getUrl(), new ServerBody(request.getBody(),
-                                request.contentTypeHeader().mimeTypePart()));
-                        addSubContainersToStorage(request.getUrl(), request.contentTypeHeader().mimeTypePart());
-                        res.withStatus(Utils.CREATED);
-                        res.withHeader("Location", location);
-                    } else {
-                        res.withStatus(Utils.PRECONDITION_FAILED);
-                    }
+                    this.storage.put(location, new ServerBody(request.getBody(),
+                        request.contentTypeHeader().mimeTypePart()));
+                    res.withStatus(Utils.CREATED);
+                    res.withHeader("Location", location);
                 } else {
                     res.withStatus(Utils.NOT_FOUND);
                 }

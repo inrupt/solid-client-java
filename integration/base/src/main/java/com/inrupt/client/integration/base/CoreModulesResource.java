@@ -52,7 +52,6 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -128,7 +127,7 @@ public class CoreModulesResource {
     static void teardown() {
         //cleanup pod
         final var reqDelete =
-                Request.newBuilder(URI.create(testContainer)).DELETE().build();
+            Request.newBuilder(URI.create(testContainer)).DELETE().build();
         client.send(reqDelete, Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
@@ -239,13 +238,11 @@ public class CoreModulesResource {
     }
 
     @Test
-    @Disabled("Differences between ESS versions in POST with slug")
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
         final String containerName = testContainer + "newContainer/";
-        final String container2Name = testContainer + "newContainer2/";
-        final String container3Name = "newContainer3";
+        final String container2Name = "newContainer2";
 
         //create a Container
         final Request req = Request.newBuilder(URI.create(containerName))
@@ -259,19 +256,12 @@ public class CoreModulesResource {
 
         assertTrue(Utils.isSuccessful(res.statusCode()));
 
-        //delete a Container
-        final Request reqDelete = Request.newBuilder(URI.create(containerName)).DELETE().build();
-        final Response<Void> responseDelete =
-                client.send(reqDelete, Response.BodyHandlers.discarding());
-
-        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
-
         //create a Container in a Container
-        final Request reqPost = Request.newBuilder(URI.create(container2Name))
+        final Request reqPost = Request.newBuilder(URI.create(containerName))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .header(Utils.IF_NONE_MATCH, Utils.WILDCARD)
                 .header("Link", Headers.Link.of(LDP.BasicContainer, "type").toString())
-                .header("Slug", container3Name)
+                .header("Slug", container2Name)
                 .POST(Request.BodyPublishers.noBody())
                 .build();
 
@@ -279,22 +269,23 @@ public class CoreModulesResource {
 
         assertTrue(Utils.isSuccessful(resPost.statusCode()));
 
-        final Request reqDeleteInnerContainer = Request.newBuilder(URI.create(container2Name + container3Name))
+        //delete a Container
+        final Request reqDeleteAgain = Request.newBuilder(URI.create(containerName + container2Name))
             .DELETE().build();
-        final Response<Void> responseDeleteInnerContainer =
-                client.send(reqDeleteInnerContainer, Response.BodyHandlers.discarding());
-
-        assertTrue(Utils.isSuccessful(responseDeleteInnerContainer.statusCode()));
-
-        final Request reqDeleteAgain = Request.newBuilder(URI.create(container2Name)).DELETE().build();
         final Response<Void> responseDeleteAgain =
                 client.send(reqDeleteAgain, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(responseDeleteAgain.statusCode()));
+
+        final Request reqDelete = Request.newBuilder(URI.create(containerName)).DELETE().build();
+        final Response<Void> responseDelete =
+                client.send(reqDelete, Response.BodyHandlers.discarding());
+
+        assertTrue(Utils.isSuccessful(responseDelete.statusCode()));
+
     }
 
     @Test
-    @Disabled
     @DisplayName("./solid-client-java:coreModulesLayerNonRdfSourceCrud " +
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
@@ -311,13 +302,11 @@ public class CoreModulesResource {
 
         assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
-        final Request req = Request.newBuilder(URI.create(fileURL)).HEAD().build();
+        final Request req = Request.newBuilder(URI.create(fileURL)).GET().build();
         final Response<SolidResource> headerResponse =
                 client.send(req, SolidResourceHandlers.ofSolidResource());
 
-        //TODO why not plain text?
-        //assertEquals(Utils.PLAIN_TEXT, headerResponse.body().getMetadata().getContentType());
-        assertEquals(Utils.APPLICATION_OCTET, headerResponse.body().getMetadata().getContentType());
+        assertTrue(headerResponse.body().getMetadata().getContentType().contains(Utils.PLAIN_TEXT));
 
         //delete non RDF resource
         final Request reqDelete = Request.newBuilder(URI.create(fileURL)).DELETE().build();

@@ -20,13 +20,11 @@
  */
 package com.inrupt.client.integration.base;
 
-import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
@@ -108,27 +106,12 @@ public class DomainModulesResource {
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
-        //find issuer & storage from WebID using domain-specific webID solid concept
-
-        //TODO bug or misconfiguration?
-        /* final Request requestRdf = Request.newBuilder(URI.create(webidUrl))
-            .header(Utils.ACCEPT, Utils.TEXT_TURTLE)
-            .GET().build();
-        final var responseRdf = client.send(requestRdf, WebIdBodyHandlers.ofWebIdProfile());
-        if (responseRdf.statusCode() == 200) {
-            try (final WebIdProfile body = responseRdf.body()) {
-                if (!body.getStorage().isEmpty()) {
-                    podUrl = body.getStorage().iterator().next().toString();
-                }
+        //find storage from WebID using domain-specific webID solid concept
+        try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
+            final var storages = sameProfile.getStorage();
+            if (!storages.isEmpty()) {
+                podUrl = storages.iterator().next().toString();
             }
-        } */
-        final Request requestRdf = Request.newBuilder(URI.create(webidUrl)).GET().build();
-        final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
-        final var storages = responseRdf.body()
-                .listObjectsOfProperty(createProperty(PIM.storage.toString()))
-                .toList();
-        if (!storages.isEmpty()) {
-            podUrl = storages.get(0).toString();
         }
         if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
             podUrl += Utils.FOLDER_SEPARATOR;
@@ -265,7 +248,7 @@ public class DomainModulesResource {
     }
 
     @Test
-    @Disabled("Client needs to be authenticated to get a successful 200 on HEAD of root")
+    @Disabled("Client needs to be authenticated to get a successful 200 on GET of root")
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
 
@@ -275,7 +258,7 @@ public class DomainModulesResource {
 
         String root = "";
         while (tempURI.contains("/")) {
-            final Request req = Request.newBuilder(URI.create(tempURI)).HEAD().build();
+            final Request req = Request.newBuilder(URI.create(tempURI)).GET().build();
             final Response<SolidResource> headerResponse =
                     client.send(req, SolidResourceHandlers.ofSolidResource());
             if ((headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage") != null) &&
@@ -293,7 +276,7 @@ public class DomainModulesResource {
         SolidResource url;
         String tempUrl = leafPath;
         while (tempUrl.contains("/")) {
-            final Request req = Request.newBuilder(URI.create(tempUrl)).HEAD().build();
+            final Request req = Request.newBuilder(URI.create(tempUrl)).GET().build();
             final Response<SolidResource> headerResponse =
                 client.send(req, SolidResourceHandlers.ofSolidResource());
             if (headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().hasNext()) {
