@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -94,9 +95,11 @@ class SolidSyncClientTest {
 
         try (final SolidResource resource = client.read(uri, SolidResource.class)) {
             assertEquals(uri, resource.getIdentifier());
-            assertEquals(4, resource.getDataset().stream().count());
-            assertEquals(2, resource.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
-                        rdf.createIRI("https://example.com/song"), null).count());
+            assertEquals(4, resource.getDataset().size());
+            try (final Stream<? extends Quad> stream = resource.getDataset().stream(Optional.empty(),
+                        rdf.createIRI(uri.toString()), rdf.createIRI("https://example.com/song"), null)) {
+                assertEquals(2, stream.count());
+            }
 
             assertDoesNotThrow(() -> client.create(resource));
             assertDoesNotThrow(() -> client.update(resource));
@@ -111,9 +114,11 @@ class SolidSyncClientTest {
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             assertEquals(uri, container.getIdentifier());
             assertEquals(0, container.getContainedResources().count());
-            assertEquals(4, container.getDataset().stream().count());
-            assertEquals(2, container.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
-                        rdf.createIRI("https://example.com/song"), null).count());
+            assertEquals(4, container.getDataset().size());
+            try (final Stream<? extends Quad> stream = container.getDataset().stream(Optional.empty(),
+                        rdf.createIRI(uri.toString()), rdf.createIRI("https://example.com/song"), null)) {
+                assertEquals(2, stream.count());
+            }
 
             assertDoesNotThrow(() -> client.update(container));
             assertDoesNotThrow(() -> client.create(container));
