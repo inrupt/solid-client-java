@@ -114,8 +114,8 @@ public class CoreModulesResource {
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
+        if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
+            podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             testContainer = podUrl + testContainer;
@@ -239,6 +239,7 @@ public class CoreModulesResource {
     }
 
     @Test
+    @Disabled("Differences between ESS versions in POST with slug")
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 

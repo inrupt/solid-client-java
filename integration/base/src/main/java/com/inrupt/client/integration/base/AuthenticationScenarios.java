@@ -109,8 +109,8 @@ public class AuthenticationScenarios {
             issuer = profile.getOidcIssuer().iterator().next().toString();
             podUrl = profile.getStorage().iterator().next().toString();
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
+        if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
+            podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             publicResourceURL = URI.create(podUrl + testResourceName);

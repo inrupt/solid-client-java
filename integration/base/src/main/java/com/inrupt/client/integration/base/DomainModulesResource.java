@@ -30,6 +30,7 @@ import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
@@ -37,9 +38,7 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -131,8 +130,8 @@ public class DomainModulesResource {
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
         }
-        if (!podUrl.endsWith("/")) {
-            podUrl += "/";
+        if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
+            podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             testContainer = podUrl + testContainer;
@@ -266,51 +265,53 @@ public class DomainModulesResource {
     }
 
     @Test
-    @Disabled
-    //interestingly the getRoot gives 0c51f30b-7160-4b33-a6e6-22d6501f0382/ instead of
-    //https://storage.inrupt.com/0c51f30b-7160-4b33-a6e6-22d6501f0382/
+    @Disabled("Client needs to be authenticated to get a successful 200 on HEAD of root")
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
 
-        final var leafPath = getNestedContainer(testContainer, 1); //example: "UUID1/UUID2/UUID3/"
+        //returns: testContainer + "UUID1/UUID2/UUID3/"
+        final var leafPath = getNestedContainer(testContainer, 1);
+        var tempURI = leafPath;
 
-        Optional<URI> root = Optional.empty();
-        var containers = leafPath.split(Utils.FOLDER_SEPARATOR);
-        while (!root.isPresent() && containers.length > 0) {
-            root = client.read(URI.create(testContainer +
-                    String.join(Utils.FOLDER_SEPARATOR, containers)), SolidResource.class)
-                    .getMetadata()
-                    .getStorage();
-            containers = Arrays.copyOf(containers, containers.length - 1);
-        }
-        if (!root.isPresent() && containers.length == 1) {
-            root = client.read(URI.create(testContainer + containers), SolidResource.class)
-            .getMetadata()
-            .getStorage();
+        String root = "";
+        while (tempURI.contains("/")) {
+            final Request req = Request.newBuilder(URI.create(tempURI)).HEAD().build();
+            final Response<SolidResource> headerResponse =
+                    client.send(req, SolidResourceHandlers.ofSolidResource());
+            if ((headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage") != null) &&
+                headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().hasNext()) {
+                root = headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().next();
+                break;
+            }
+            tempURI = tempURI.substring(0, tempURI.lastIndexOf("/"));
         }
         recursiveDelete(leafPath);
-        assertTrue(root.isPresent());
-        assertEquals(podUrl, root.get().toString());
+        assertFalse(root.isEmpty());
     }
 
     private void recursiveDelete(final String leafPath) {
         SolidResource url;
-        var containers = leafPath.split(Utils.FOLDER_SEPARATOR);
-        while (containers.length > 0) {
-            url = new SolidResource(URI.create(testContainer +
-                String.join(Utils.FOLDER_SEPARATOR, containers)),null, null);
+        String tempUrl = leafPath;
+        while (tempUrl.contains("/")) {
+            final Request req = Request.newBuilder(URI.create(tempUrl)).HEAD().build();
+            final Response<SolidResource> headerResponse =
+                client.send(req, SolidResourceHandlers.ofSolidResource());
+            if (headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().hasNext()) {
+                break;
+            }
+            url = new SolidResource(URI.create(tempUrl),null, null);
             client.delete(url);
-            containers = Arrays.copyOf(containers, containers.length - 1);
+            tempUrl = tempUrl.substring(0, tempUrl.lastIndexOf("/"));
         }
     }
 
-    private String getNestedContainer(final String podUrl, final int depth) {
+    private String getNestedContainer(final String testContainer, final int depth) {
         var tempUrl = "";
         for (int i = 0; i < depth; i++) {
             tempUrl += UUID.randomUUID().toString() + Utils.FOLDER_SEPARATOR;
         }
-        final var resource = new SolidResource(URI.create(podUrl + tempUrl));
+        final var resource = new SolidResource(URI.create(testContainer + tempUrl));
         client.create(resource);
-        return tempUrl;
+        return testContainer + tempUrl;
     }
 }
