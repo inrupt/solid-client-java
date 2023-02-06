@@ -65,7 +65,7 @@
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.12.4</equalsverifier.version>
+    <equalsverifier.version>3.13</equalsverifier.version>
     <junit.version>5.9.2</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
