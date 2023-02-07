@@ -1,4 +1,4 @@
-<project name="Inrupt Client Libraries: Test">
+<project name="Inrupt Client Libraries: Demos">
 
   <bannerRight>
     <name>Inrupt</name>
@@ -7,7 +7,7 @@
   </bannerRight>
 
   <body>
-    <menu name="Module: Unit Tests" inherit="top">
+    <menu name="Module: Integration OpenID" inherit="top">
         <item name="Summary" href="summary.html"/>
         <item name="Dependencies" href="dependencies.html"/>
         <item name="Plugins" href="plugins.html"/>

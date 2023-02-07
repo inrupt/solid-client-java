@@ -19,6 +19,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Unit test cases shared across modules.</h2>
+ * <h2>Integration test cases for the Inrupt Client Libraries.</h2>
  */
-package com.inrupt.client.test;
+package com.inrupt.client.integration.base;

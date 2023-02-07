@@ -97,6 +97,9 @@ public class JsonServices {
         }
     }
 
+    /**
+     * An example test class.
+     */
     public static class MyObject {
         public String name;
         public List<String> pets;
