@@ -22,40 +22,28 @@ package com.inrupt.client;
 
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.rdf.wrapping.commons.WrapperDataset;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.commons.rdf.api.BlankNode;
-import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Dataset;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFSyntax;
-import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * A base class for resource mapping.
  *
  * <p>This class can be used as a basis for object mapping with higher-level client applications.
  */
-public class Resource implements AutoCloseable {
-
-    private static final int SINGLETON = 1;
+public class Resource extends WrapperDataset {
 
     /**
      * The RDF Factory instance.
      */
     protected static final RDF rdf = RDFFactory.getInstance();
 
-    private final Dataset dataset;
     private final URI identifier;
 
     /**
@@ -67,8 +55,8 @@ public class Resource implements AutoCloseable {
      * @param dataset the dataset corresponding to this resource, may be {@code null}
      */
     protected Resource(final URI identifier, final Dataset dataset) {
+        super(dataset == null ? rdf.createDataset() : dataset);
         this.identifier = identifier;
-        this.dataset = dataset != null ? dataset : rdf.createDataset();
     }
 
     /**
@@ -81,15 +69,6 @@ public class Resource implements AutoCloseable {
     }
 
     /**
-     * Get the dataset for this resource.
-     *
-     * @return the resource dataset
-     */
-    public Dataset getDataset() {
-        return dataset;
-    }
-
-    /**
      * Serialize this object with a defined RDF syntax.
      *
      * @param syntax the RDF syntax
@@ -97,18 +76,7 @@ public class Resource implements AutoCloseable {
      * @throws IOException in the case of an I/O error
      */
     public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
-        ServiceProvider.getRdfService().fromDataset(getDataset(), syntax, out);
-    }
-
-    /**
-     * Retrieve a path-based stream of quads, starting from the resource identifier.
-     *
-     * @param predicates the predicate path to follow
-     * @return all matching quads
-     */
-    public Stream<Quad> path(final IRI... predicates) {
-        final IRI root = rdf.createIRI(getIdentifier().toString());
-        return pathRecursive(Collections.singleton(root), predicates);
+        ServiceProvider.getRdfService().fromDataset(this, syntax, out);
     }
 
     /**
@@ -127,66 +95,9 @@ public class Resource implements AutoCloseable {
     @Override
     public void close() {
         try {
-            dataset.close();
+            super.close();
         } catch (final Exception ex) {
             throw new InruptClientException("Error closing dataset", ex);
         }
-    }
-
-    private Stream<Quad> pathRecursive(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
-        // Trivial case: no predicates
-        if (predicates.length == 0) {
-            return Stream.empty();
-        }
-
-        // Cases with a single, defined subject
-        if (subjects.size() == SINGLETON) {
-            return pathWithSubject(subjects.iterator().next(), predicates);
-        }
-
-        // Everything else
-        return pathWithSubject(subjects, predicates);
-    }
-
-    private Stream<Quad> pathWithSubject(final BlankNodeOrIRI subject, final IRI... predicates) {
-        if (predicates.length == SINGLETON) {
-            return dataset.stream(null, subject, predicates[0], null).map(Quad.class::cast);
-        }
-
-        try (final Stream<? extends Quad> stream = dataset.stream(null, subject, predicates[0], null)) {
-            final Set<BlankNodeOrIRI> objects = stream.map(Quad::getObject)
-                .flatMap(Resource::asCandidateSubject)
-                .collect(Collectors.toSet());
-            return pathRecursive(objects, Arrays.copyOfRange(predicates, 1, predicates.length));
-        }
-    }
-
-    private Stream<Quad> pathWithSubject(final Set<BlankNodeOrIRI> subjects, final IRI... predicates) {
-        // Short circuit
-        if (subjects.isEmpty()) {
-            return Stream.empty();
-        }
-
-        if (predicates.length == SINGLETON) {
-            return dataset.stream(null, null, predicates[0], null)
-                .filter(quad -> subjects.contains(quad.getSubject()))
-                .map(Quad.class::cast);
-        }
-
-        try (final Stream<? extends Quad> stream = dataset.stream(null, null, predicates[0], null)) {
-            final Set<BlankNodeOrIRI> objects = stream.filter(quad -> subjects.contains(quad.getSubject()))
-                .map(Quad::getObject).flatMap(Resource::asCandidateSubject)
-                .collect(Collectors.toSet());
-            return pathRecursive(objects, Arrays.copyOfRange(predicates, 1, predicates.length));
-        }
-    }
-
-    static Stream<BlankNodeOrIRI> asCandidateSubject(final RDFTerm term) {
-        if (term instanceof IRI) {
-            return Stream.of((IRI) term);
-        } else if (term instanceof BlankNode) {
-            return Stream.of((BlankNode) term);
-        }
-        return Stream.empty();
     }
 }

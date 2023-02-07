@@ -22,41 +22,60 @@ package com.inrupt.client.integration.base;
 
 import com.inrupt.client.solid.Metadata;
 import com.inrupt.client.solid.SolidResource;
+import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.Quad;
+import org.apache.commons.rdf.api.RDFTerm;
 
 class Playlist extends SolidResource {
 
     private final IRI dcTitle;
     private final IRI exSong;
-    private final IRI subject;
+    private final Node subject;
 
     Playlist(final URI identifier, final Dataset dataset, final Metadata metadata) {
         super(identifier, dataset, metadata);
 
-        this.subject = rdf.createIRI(identifier.toString());
+        this.subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
         this.dcTitle = rdf.createIRI("http://purl.org/dc/terms/title");
         this.exSong = rdf.createIRI("https://example.com/song");
     }
 
     String getTitle() {
-        return getDataset().stream(Optional.empty(), subject, dcTitle, null)
-            .map(Quad::getObject).filter(Literal.class::isInstance).map(Literal.class::cast)
-            .findFirst().map(Literal::getLexicalForm).orElse("Untitled");
+        return subject.getTitle();
     }
 
-    List<URI> getSongs() {
-        return getDataset().stream(Optional.empty(), subject, exSong, null)
-            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-            .map(IRI::getIRIString).map(URI::create).collect(Collectors.toList());
+    void setTitle(final String value) {
+        subject.setTitle(value);
+    }
+
+    Set<URI> getSongs() {
+        return subject.getSongs();
+    }
+
+    class Node extends WrapperIRI {
+
+        Node(final RDFTerm original, final Graph graph) {
+            super(original, graph);
+        }
+
+        String getTitle() {
+            return anyOrNull(dcTitle, ValueMappings::literalAsString);
+        }
+
+        void setTitle(final String value) {
+            overwriteNullable(dcTitle, value, TermMappings::asStringLiteral);
+        }
+
+        Set<URI> getSongs() {
+            return objects(exSong, TermMappings::asIri, ValueMappings::iriAsUri);
+        }
     }
 }
-

@@ -88,8 +88,8 @@ class SolidClientTest {
         client.read(uri, SolidResource.class).thenAccept(resource -> {
             try (final SolidResource r = resource) {
                 assertEquals(uri, r.getIdentifier());
-                assertEquals(4, r.getDataset().stream().count());
-                assertEquals(2, r.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                assertEquals(4, r.stream().count());
+                assertEquals(2, r.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
 
                 assertDoesNotThrow(client.create(r).toCompletableFuture()::join);
@@ -108,8 +108,8 @@ class SolidClientTest {
             try (final SolidContainer c = container) {
                 assertEquals(uri, c.getIdentifier());
                 assertEquals(0, c.getContainedResources().count());
-                assertEquals(4, c.getDataset().stream().count());
-                assertEquals(2, c.getDataset().stream(Optional.empty(), rdf.createIRI(uri.toString()),
+                assertEquals(4, c.stream().count());
+                assertEquals(2, c.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
 
                 assertDoesNotThrow(client.update(c).toCompletableFuture()::join);

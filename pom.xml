@@ -35,6 +35,7 @@
     <rdf4j.version>4.2.2</rdf4j.version>
     <slf4j.version>1.7.36</slf4j.version>
     <inrupt.commons.rdf4j.version>0.4.0</inrupt.commons.rdf4j.version>
+    <inrupt.rdf.wrapping.version>0.1.4</inrupt.rdf.wrapping.version>
 
     <!-- plugins -->
     <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
@@ -185,6 +186,11 @@
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
         <version>${okhttp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-rdf-wrapping-commons</artifactId>
+        <version>${inrupt.rdf.wrapping.version}</version>
       </dependency>
 
       <!-- testing -->
