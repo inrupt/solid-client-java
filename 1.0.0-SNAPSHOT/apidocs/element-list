@@ -4,6 +4,7 @@ com.inrupt.client.core
 com.inrupt.client.examples.cli
 com.inrupt.client.examples.webapp
 com.inrupt.client.httpclient
+com.inrupt.client.integration.base
 com.inrupt.client.jackson
 com.inrupt.client.jena
 com.inrupt.client.jsonb
