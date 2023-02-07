@@ -12,6 +12,7 @@
   <description>
       UMA integration tests for the Inrupt Client Libraries.
   </description>
+  <packaging>pom</packaging>
 
   <dependencies>
     <dependency>

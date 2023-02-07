@@ -12,6 +12,7 @@
   <description>
       OpenID Connect integration tests for the Inrupt Client Libraries.
   </description>
+  <packaging>pom</packaging>
 
   <dependencies>
     <!-- test dependencies -->

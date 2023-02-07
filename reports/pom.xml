@@ -9,6 +9,7 @@
 
   <artifactId>inrupt-client-report</artifactId>
   <name>Inrupt Client Libraries - Report</name>
+  <packaging>pom</packaging>
 
   <dependencies>
     <dependency>
