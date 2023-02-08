@@ -36,9 +36,9 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.Dataset;
@@ -154,14 +154,15 @@ public class DomainModulesResource {
 
             try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
                 assertEquals(newResource.getIdentifier(), resource.getIdentifier());
-                assertEquals(1, resource.stream().count());
+                assertEquals(1, resource.size());
 
                 final Literal newObject = rdf.createLiteral("false", booleanType);
                 final Dataset newDataset = rdf.createDataset();
-                resource.stream(null, newResourceNode, null, null)
-                        .map(quad ->
+                try (final var stream = resource.stream(null, newResourceNode, null, null)) {
+                    stream.map(quad ->
                             rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
-                        .collect(Collectors.toList()).forEach(newDataset::add);
+                        .forEach(newDataset::add);
+                }
                 try (final SolidResource updatedResource = new SolidResource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
@@ -208,19 +209,21 @@ public class DomainModulesResource {
 
             try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
                 assertEquals(URI.create(newResourceName), resource.getIdentifier());
-                assertEquals(2, resource.stream().count());
+                assertEquals(2, resource.size());
 
                 final Literal newObject = rdf.createLiteral("false", booleanType);
                 final Dataset newDataset = rdf.createDataset();
 
-                final List<Quad> allQuads = resource.stream().collect(Collectors.toList());
-                final var toDeleteQuads =
-                        resource
-                                .stream(null, newResourceNode, newPredicateNode, null)
-                                .collect(Collectors.toList());
+                final List<Quad> allQuads = new ArrayList<>();
+                try (final var stream = resource.stream()) {
+                    stream.forEach(allQuads::add);
+                }
+                try (final var stream = resource.stream(null, newResourceNode, newPredicateNode, null)) {
+                    stream.forEach(allQuads::remove);
+                }
+
                 final Quad toAddQuad = rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, newObject);
 
-                toDeleteQuads.forEach(allQuads::remove);
                 allQuads.add(toAddQuad);
                 allQuads.forEach(newDataset::add);
 

@@ -33,7 +33,7 @@
     try (InputStream input = Test.class.getResourceAsStream("/tripleExamples.trig")) {
         dataset = service.toDataset(Syntax.TRIG, input);
     }
-    System.out.println("Number of triples in file: " + dataset.stream().count());
+    System.out.println("Number of triples in file: " + dataset.size());
  * }</pre>
  *
  * <p>A user of {@code RDF4JService} should ensure that this implementation is

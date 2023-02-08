@@ -73,25 +73,26 @@ class SolidResourceTest {
 
         assertEquals(200, response.statusCode());
 
-        final SolidResource resource = response.body();
-        assertEquals(uri, resource.getIdentifier());
-        assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
-        assertEquals(Optional.of(URI.create("http://storage.example/")),
-                resource.getMetadata().getStorage());
-        assertTrue(resource.getMetadata().getWacAllow().get("user")
-                .containsAll(Arrays.asList("read", "write")));
-        assertEquals(Collections.singleton("read"), resource.getMetadata().getWacAllow().get("public"));
-        assertEquals(13, resource.size());
-        assertEquals(3, resource.getMetadata().getAllowedMethods().size());
-        assertTrue(resource.getMetadata().getAllowedMethods()
-                .containsAll(Arrays.asList("PUT", "POST", "PATCH")));
-        assertTrue(resource.getMetadata().getAllowedPatchSyntaxes()
-                .containsAll(Arrays.asList("application/sparql-update", "text/n3")));
-        assertTrue(resource.getMetadata().getAllowedPostSyntaxes()
-                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
-        assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
-                .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
-        assertEquals("text/turtle", resource.getMetadata().getContentType());
+        try (final SolidResource resource = response.body()) {
+            assertEquals(uri, resource.getIdentifier());
+            assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+            assertEquals(Optional.of(URI.create("http://storage.example/")),
+                    resource.getMetadata().getStorage());
+            assertTrue(resource.getMetadata().getWacAllow().get("user")
+                    .containsAll(Arrays.asList("read", "write")));
+            assertEquals(Collections.singleton("read"), resource.getMetadata().getWacAllow().get("public"));
+            assertEquals(13, resource.size());
+            assertEquals(3, resource.getMetadata().getAllowedMethods().size());
+            assertTrue(resource.getMetadata().getAllowedMethods()
+                    .containsAll(Arrays.asList("PUT", "POST", "PATCH")));
+            assertTrue(resource.getMetadata().getAllowedPatchSyntaxes()
+                    .containsAll(Arrays.asList("application/sparql-update", "text/n3")));
+            assertTrue(resource.getMetadata().getAllowedPostSyntaxes()
+                    .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+            assertTrue(resource.getMetadata().getAllowedPutSyntaxes()
+                    .containsAll(Arrays.asList("application/ld+json", "text/turtle")));
+            assertEquals("text/turtle", resource.getMetadata().getContentType());
+        }
     }
 
     @Test
@@ -110,10 +111,11 @@ class SolidResourceTest {
 
         assertEquals(200, response.statusCode());
 
-        final SolidResource resource = response.body();
-        assertEquals(uri, resource.getIdentifier());
-        assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
-        assertEquals(Optional.of(uri), resource.getMetadata().getStorage());
+        try (final SolidResource resource = response.body()) {
+            assertEquals(uri, resource.getIdentifier());
+            assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+            assertEquals(Optional.of(uri), resource.getMetadata().getStorage());
+        }
     }
 
     @Test
@@ -132,24 +134,24 @@ class SolidResourceTest {
 
         assertEquals(200, response.statusCode());
 
-        final SolidContainer container = response.body();
-        assertEquals(resource, container.getIdentifier());
-        assertEquals(3, container.getContainedResources().count());
+        try (final SolidContainer container = response.body()) {
+            assertEquals(resource, container.getIdentifier());
+            assertEquals(3, container.getContainedResources().count());
 
-        final Set<URI> uris = new HashSet<>();
-        uris.add(URIBuilder.newBuilder(resource).path("test.txt").build());
-        uris.add(URIBuilder.newBuilder(resource).path("test2.txt").build());
-        uris.add(URIBuilder.newBuilder(resource).path("newContainer/").build());
+            final Set<URI> uris = new HashSet<>();
+            uris.add(URIBuilder.newBuilder(resource).path("test.txt").build());
+            uris.add(URIBuilder.newBuilder(resource).path("test2.txt").build());
+            uris.add(URIBuilder.newBuilder(resource).path("newContainer/").build());
 
-        container.getContainedResources().forEach(child ->
-            assertTrue(uris.contains(child.getIdentifier())));
+            container.getContainedResources().forEach(child ->
+                assertTrue(uris.contains(child.getIdentifier())));
+        }
     }
 
     @Test
     void testEmptyResourceBuilder() {
         final URI id = URI.create("https://resource.example/");
         try (final SolidResource res = new SolidResource(id, null, null)) {
-
             assertFalse(res.getMetadata().getStorage().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
             assertEquals(0, res.size());
@@ -180,10 +182,10 @@ class SolidResourceTest {
 
         assertEquals(200, response.statusCode());
 
-        final SolidResource resource = response.body();
-        assertEquals(uri, resource.getIdentifier());
-        assertEquals("application/octet-stream", resource.getMetadata().getContentType());
-
+        try (final SolidResource resource = response.body()) {
+            assertEquals(uri, resource.getIdentifier());
+            assertEquals("application/octet-stream", resource.getMetadata().getContentType());
+        }
     }
 
     @Test

@@ -77,7 +77,7 @@
        try (InputStream input = Test.class.getResourceAsStream("/oneTriple.trig")) {
               dataset = processor.toDataset(RDFSyntax.TRIG, input);
        }
-       System.out.println("Number of triples in file: " + dataset.stream().count());
+       System.out.println("Number of triples in file: " + dataset.size());
  * }</pre>
  */
 package com.inrupt.client.spi;
