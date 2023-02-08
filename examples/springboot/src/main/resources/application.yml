@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  security:
+    oauth2:
+      client:
+        registration: 
+          podspaces:
+            #client-id: bc931a96-6caa-45c4-a348-d040266b7f4e
+            #client-secret: 891da102-d671-46cb-918f-28adfad2920b
+            client-id: https://bnjmncummings.solidcommunity.net/public/demo-v1.jsonld
+            provider: podspaces
+        provider:
+          podspaces:
+            issuer-uri: https://login.inrupt.com
+
+environment:
+    pod:
+        uri: https://storage.inrupt.com/c6db7997-5cd8-4237-a986-05d9f01e4e21/Test/
