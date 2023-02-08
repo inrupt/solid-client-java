@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 17 ]
         environment-name: ["ESS PodSpaces"]
+        java: [ 11, 17 ]
         experimental: [false]
         include:
           - environment-name: "ESS DevNext"
-            experimental: true
             java: 11
+            experimental: true
 
     steps:
       - uses: actions/checkout@v3
