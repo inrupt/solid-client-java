@@ -31,6 +31,11 @@ jobs:
     strategy:
       matrix:
         java: [ 11 ]
+        environment-name: ["ESS PodSpaces"]
+        experimental: [false]
+        include:
+          - environment-name: "ESS DevNext"
+            experimental: true
 
     steps:
       - uses: actions/checkout@v3
@@ -44,4 +49,10 @@ jobs:
 
       - name: Build the code with Maven
         run: mvn -B -ntp verify -Pdependencies
+        # for integration tests
+        env:
+          INRUPT_TEST_WEBID: ${{ secrets.INRUPT_TEST_WEBID }}
+          INRUPT_TEST_PUBLIC_RESOURCE_PATH: ${{ secrets.INRUPT_TEST_PUBLIC_RESOURCE_PATH }}
+          INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_TEST_CLIENT_ID }}
+          INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_TEST_CLIENT_SECRET }}
 
