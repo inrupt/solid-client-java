@@ -39,8 +39,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+/**
+ * A session implementation that makes use of Access Grants.
+ */
 public final class AccessGrantSession implements Session {
 
+    /**
+     * The VerifiableCredential format URI, for use with UMA.
+     */
     public static final URI VERIFIABLE_CREDENTIAL = URI.create("https://www.w3.org/TR/vc-data-model/#json-ld");
 
     private final String id;
@@ -58,6 +64,13 @@ public final class AccessGrantSession implements Session {
         }
     }
 
+    /**
+     * Create a session with a collection of known access grants.
+     *
+     * @param session the OpenID Session
+     * @param accessGrants the access grants
+     * @return the Access Grant-based session
+     */
     public static AccessGrantSession ofAccessGrant(final OpenIdSession session, final String... accessGrants) {
         final List<AccessGrant> grants = new ArrayList<>();
         for (final String accessGrant : accessGrants) {
@@ -66,6 +79,13 @@ public final class AccessGrantSession implements Session {
         return new AccessGrantSession(session, grants);
     }
 
+    /**
+     * Create a session with a collection of known access grants.
+     *
+     * @param session the OpenID Session
+     * @param accessGrants the access grants
+     * @return the Access Grant-based session
+     */
     public static AccessGrantSession ofAccessGrant(final OpenIdSession session, final AccessGrant... accessGrants) {
         return new AccessGrantSession(session, Arrays.asList(accessGrants));
     }

@@ -41,6 +41,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 
+/**
+ * An Access Grant abstraction, for use with interacting with Solid resources.
+ */
 public class AccessGrant {
 
     private static final JsonService jsonService = ServiceProvider.getJsonService();
@@ -56,51 +59,167 @@ public class AccessGrant {
     private final URI grantor;
     private final Instant expiration;
 
+    /**
+     * Read a verifiable presentation as an AccessGrant.
+     *
+     * @param grant the Access Grant serialized as a verifiable presentation
+     */
     protected AccessGrant(final String grant) {
-        this.rawGrant = grant;
         try (final InputStream in = new ByteArrayInputStream(grant.getBytes())) {
+            // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
-            this.issuer = asUri(data.get("issuer")).orElseThrow(() ->
-                    new IllegalArgumentException("Missing or invalid issuer field"));
-            this.identifier = asUri(data.get("id")).orElseThrow(() ->
-                    new IllegalArgumentException("Missing or invalid id field"));
 
-            this.types = asSet(data.get("type")).orElseGet(Collections::emptySet);
-            this.expiration = asInstant(data.get("expirationDate")).orElse(Instant.MAX);
+            final Map vc = getCredentialFromPresentation(data).orElseThrow(() ->
+                    new IllegalArgumentException("Invalid Access Grant: missing verifiable credential"));
 
-            final Map subject = asMap(data.get("credentialSubject")).orElseThrow(() ->
-                    new IllegalArgumentException("Missing or invalid credentialSubject field"));
+            if (asSet(data.get("type")).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
+                this.rawGrant = grant;
+                this.issuer = asUri(vc.get("issuer")).orElseThrow(() ->
+                        new IllegalArgumentException("Missing or invalid issuer field"));
+                this.identifier = asUri(vc.get("id")).orElseThrow(() ->
+                        new IllegalArgumentException("Missing or invalid id field"));
 
-            this.grantor = asUri(subject.get("id")).orElseThrow(() ->
-                    new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
+                this.types = asSet(vc.get("type")).orElseGet(Collections::emptySet);
+                this.expiration = asInstant(vc.get("expirationDate")).orElse(Instant.MAX);
 
-            // V1 Access Grant
-            final Map<String, Object> consent = asMap(subject.get("providedConsent"))
-                .orElseThrow(() -> new AccessGrantException("Invalid Access Grant: missing providedConsent clause"));
-            final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
-            final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
-            final Optional<URI> other = asUri(consent.get("isProvidedTo"));
-            this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
-            this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
-            this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
-                .stream().map(URI::create).collect(Collectors.toSet());
-            this.purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
+                final Map subject = asMap(vc.get("credentialSubject")).orElseThrow(() ->
+                        new IllegalArgumentException("Missing or invalid credentialSubject field"));
+
+                this.grantor = asUri(subject.get("id")).orElseThrow(() ->
+                        new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
+
+                // V1 Access Grant, using gConsent
+                final Map<String, Object> consent = asMap(subject.get("providedConsent")).orElseThrow(() ->
+                            new IllegalArgumentException("Invalid Access Grant: missing providedConsent clause"));
+                final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
+                final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
+                final Optional<URI> other = asUri(consent.get("isProvidedTo"));
+                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
+                this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
+                    .stream().map(URI::create).collect(Collectors.toSet());
+                this.purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
+            } else {
+                throw new IllegalArgumentException("Invalid Access Grant: missing VerifiablePresentation type");
+            }
         } catch (final IOException ex) {
             throw new IllegalArgumentException("Invalid access grant", ex);
         }
     }
 
+    /**
+     * Create an AccessGrant object from a VerifiablePresentation.
+     *
+     * @param accessGrant the access grant
+     * @return a parsed access grant
+     */
     public static AccessGrant ofAccessGrant(final String accessGrant) {
         return new AccessGrant(accessGrant);
     }
 
+    /**
+     * Create an AccessGrant object from a VerifiablePresentation.
+     *
+     * @param accessGrant the access grant
+     * @return a parsed access grant
+     */
     public static AccessGrant ofAccessGrant(final InputStream accessGrant) {
         try {
             return new AccessGrant(IOUtils.toString(accessGrant, UTF_8));
         } catch (final IOException ex) {
             throw new AccessGrantException("Unable to read access grant", ex);
         }
+    }
+
+    /**
+     * Get the types of the access grant.
+     *
+     * @return the access grant types
+     */
+    public Set<String> getTypes() {
+        return types;
+    }
+
+    /**
+     * Get the modes of the access grant.
+     *
+     * @return the access grant modes
+     */
+    public Set<String> getModes() {
+        return modes;
+    }
+
+    /**
+     * Get the expiration date of the access grant.
+     *
+     * @return the access grant expiration
+     */
+    public Instant getExpiration() {
+        return expiration;
+    }
+
+    /**
+     * Get the issuer of the access grant.
+     *
+     * @return the access grant issuer
+     */
+    public URI getIssuer() {
+        return issuer;
+    }
+
+    /**
+     * Get the identifier of the access grant.
+     *
+     * @return the access grant identifier
+     */
+    public URI getIdentifier() {
+        return identifier;
+    }
+
+    /**
+     * Get the purposes of the access grant.
+     *
+     * @return the access grant purposes
+     */
+    public Set<String> getPurpose() {
+        return purposes;
+    }
+
+    /**
+     * Get the resources associated with the access grant.
+     *
+     * @return the access grant resources
+     */
+    public Set<URI> getResources() {
+        return resources;
+    }
+
+    /**
+     * Get the agent to whom access is granted.
+     *
+     * @return the agent that was granted access
+     */
+    public URI getGrantee() {
+        return grantee;
+    }
+
+    /**
+     * Get the agent who granted access.
+     *
+     * @return the agent granting access
+     */
+    public URI getGrantor() {
+        return grantor;
+    }
+
+    /**
+     * Get the raw access grant.
+     *
+     * @return the access grant
+     */
+    public String getRawGrant() {
+        return rawGrant;
     }
 
     static Optional<Instant> asInstant(final Object value) {
@@ -141,43 +260,19 @@ public class AccessGrant {
         return Optional.empty();
     }
 
-    public Set<String> getTypes() {
-        return types;
+    static Optional<Map> getCredentialFromPresentation(final Map<String, Object> data) {
+        if (data.get("verifiableCredential") instanceof Collection) {
+            for (final Object item : (Collection) data.get("verifiableCredential")) {
+                if (item instanceof Map) {
+                    final Map vc = (Map) item;
+                    if (asSet(vc.get("type")).filter(types -> types.contains("SolidAccessGrant") ||
+                                types.contains("http://www.w3.org/ns/solid/vc#SolidAccessGrant")).isPresent()) {
+                        return Optional.of(vc);
+                    }
+                }
+            }
+        }
+        return Optional.empty();
     }
 
-    public Set<String> getModes() {
-        return modes;
-    }
-
-    public Instant getExpiration() {
-        return expiration;
-    }
-
-    public URI getIssuer() {
-        return issuer;
-    }
-
-    public URI getIdentifier() {
-        return identifier;
-    }
-
-    public Set<String> getPurpose() {
-        return purposes;
-    }
-
-    public Set<URI> getResources() {
-        return resources;
-    }
-
-    public URI getGrantee() {
-        return grantee;
-    }
-
-    public URI getGrantor() {
-        return grantor;
-    }
-
-    public String getRawGrant() {
-        return rawGrant;
-    }
 }

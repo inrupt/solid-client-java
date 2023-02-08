@@ -24,6 +24,9 @@ import com.inrupt.client.InruptClientException;
 
 import java.util.OptionalInt;
 
+/**
+ * A runtime exception for use with Access Grants.
+ */
 public class AccessGrantException extends InruptClientException {
 
     private static final long serialVersionUID = 1683211587796884322L;

@@ -22,7 +22,7 @@ package com.inrupt.client.accessgrant;
 
 import java.net.URI;
 
-public class Metadata {
+class Metadata {
 
     public URI queryEndpoint;
     public URI issueEndpoint;

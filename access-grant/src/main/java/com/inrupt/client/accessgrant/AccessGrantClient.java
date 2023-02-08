@@ -39,6 +39,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * A client for interacting with Access Grant Resources.
+ */
 public class AccessGrantClient {
 
     public static final URI GCONSENT = URI.create("https://w3id.org/GConsent");
