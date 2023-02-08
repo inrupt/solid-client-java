@@ -1,4 +1,4 @@
-name: Solid Java Client CI
+name: Solid Java Client Site
 
 on:
   # Build pull requests for any branch
