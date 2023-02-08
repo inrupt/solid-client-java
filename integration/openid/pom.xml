@@ -12,12 +12,9 @@
   <description>
       OpenID Connect integration tests for the Inrupt Client Libraries.
   </description>
+  <packaging>pom</packaging>
 
   <dependencies>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-    </dependency>
     <!-- test dependencies -->
     <dependency>
         <groupId>com.inrupt</groupId>

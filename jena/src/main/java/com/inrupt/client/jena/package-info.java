@@ -33,7 +33,7 @@
     try (InputStream input = Test.class.getResourceAsStream("/tripleExamples.trig")) {
         dataset = service.toDataset(RDFSyntax.TRIG, input);
     }
-    System.out.println("Number of triples in file: " + dataset.stream().count());
+    System.out.println("Number of triples in file: " + dataset.size());
  * }</pre>
  *
  * <h3>Example of using the Jena BodyHandler ofModel() method to read the triples

@@ -88,7 +88,7 @@ class SolidClientTest {
         client.read(uri, SolidResource.class).thenAccept(resource -> {
             try (final SolidResource r = resource) {
                 assertEquals(uri, r.getIdentifier());
-                assertEquals(4, r.stream().count());
+                assertEquals(4, r.size());
                 assertEquals(2, r.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
 
@@ -108,7 +108,7 @@ class SolidClientTest {
             try (final SolidContainer c = container) {
                 assertEquals(uri, c.getIdentifier());
                 assertEquals(0, c.getContainedResources().count());
-                assertEquals(4, c.stream().count());
+                assertEquals(4, c.size());
                 assertEquals(2, c.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
 
