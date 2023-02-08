@@ -16,7 +16,7 @@ jobs:
         include:
           - environment-name: "ESS DevNext"
             experimental: true
-            java: [ 11, 17 ]
+            java: 11
 
     steps:
       - uses: actions/checkout@v3
