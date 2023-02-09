@@ -6,10 +6,11 @@ spring:
       client:
         registration: 
           podspaces:
-            #client-id: bc931a96-6caa-45c4-a348-d040266b7f4e
-            #client-secret: 891da102-d671-46cb-918f-28adfad2920b
-            client-id: https://bnjmncummings.solidcommunity.net/public/demo-v1.jsonld
+            client-id: https://bnjmncummings.solidcommunity.net/public/demo-v2.jsonld
             provider: podspaces
+            scope: 
+              - openid
+              - webid
         provider:
           podspaces:
             issuer-uri: https://login.inrupt.com

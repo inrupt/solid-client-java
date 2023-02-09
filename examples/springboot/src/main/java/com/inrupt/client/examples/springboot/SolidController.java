@@ -22,7 +22,6 @@ package com.inrupt.client.examples.springboot;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
@@ -32,9 +31,6 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,35 +47,6 @@ public class SolidController {
     public String index() {
         return "index";
     }
-   /*  @GetMapping("/")
-    public String index(Model model, @AuthenticationPrincipal OidcUser principal) {
-        if (principal != null) {
-            model.addAttribute("profile", principal.getClaims());
-
-            return principal.getClaim("webid").map(String.class::cast).map(URI::create).map(webid -> {
-                final SolidClient session = client.session(OpenIdSession.ofIdToken(principal.getIdToken().toString()));
-                return session.read(webid, WebIdProfile.class)
-                    .thenCompose(profile -> profile.getStorage().stream().findFirst().map(storage ->
-                                session.read(storage, SolidContainer.class).thenApply(container -> {
-                                    try (container; final SolidContainer stream = container.getContainedResources()) {
-                                        final List<SolidResource> resources = stream.collect(Collectors.groupingBy(c ->
-                                                    getPrincipalType(c.getMetadata().getType()), Collectors.mapping(c ->
-                                                        c.getIdentifier().toString(), Collectors.toList())));
-                                        return Templates.profile(profile, resources.get(LDP.BasicContainer),
-                                                resources.get(LDP.RDFSource));
-                                    }
-                                })).orElseGet(SolidStorage::emptyProfile)
-                            );
-            });
-        }
-        return "index";
-    } */
-
-    @GetMapping("/callback")
-    public String callback() {
-        return "callback";
-    }
-
     @GetMapping("/solid")
     public List<URI> solid() {
 
