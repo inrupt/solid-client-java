@@ -25,16 +25,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-openid</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt</groupId>
-      <artifactId>inrupt-client-uma</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
@@ -54,6 +44,18 @@
     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-httpclient</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-openid</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-uma</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

@@ -23,10 +23,8 @@ package com.inrupt.client.accessgrant;
 import com.inrupt.client.Request;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.openid.OpenIdSession;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +51,7 @@ public final class AccessGrantSession implements Session {
     private final Session session;
     private final NavigableMap<URI, AccessGrant> grants = new ConcurrentSkipListMap<>();
 
-    private AccessGrantSession(final OpenIdSession session, final List<AccessGrant> grants) {
+    private AccessGrantSession(final Session session, final List<AccessGrant> grants) {
         this.id = UUID.randomUUID().toString();
         this.session = session;
 
@@ -71,22 +69,7 @@ public final class AccessGrantSession implements Session {
      * @param accessGrants the access grants
      * @return the Access Grant-based session
      */
-    public static AccessGrantSession ofAccessGrant(final OpenIdSession session, final String... accessGrants) {
-        final List<AccessGrant> grants = new ArrayList<>();
-        for (final String accessGrant : accessGrants) {
-            grants.add(AccessGrant.ofAccessGrant(accessGrant));
-        }
-        return new AccessGrantSession(session, grants);
-    }
-
-    /**
-     * Create a session with a collection of known access grants.
-     *
-     * @param session the OpenID Session
-     * @param accessGrants the access grants
-     * @return the Access Grant-based session
-     */
-    public static AccessGrantSession ofAccessGrant(final OpenIdSession session, final AccessGrant... accessGrants) {
+    public static AccessGrantSession ofAccessGrant(final Session session, final AccessGrant... accessGrants) {
         return new AccessGrantSession(session, Arrays.asList(accessGrants));
     }
 

@@ -64,7 +64,7 @@ public class AccessGrant {
      *
      * @param grant the Access Grant serialized as a verifiable presentation
      */
-    protected AccessGrant(final String grant) {
+    protected AccessGrant(final String grant) throws IOException {
         try (final InputStream in = new ByteArrayInputStream(grant.getBytes())) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
@@ -95,7 +95,8 @@ public class AccessGrant {
                 final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
                 final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
                 final Optional<URI> other = asUri(consent.get("isProvidedTo"));
-                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElseThrow(() ->
+                                new IllegalArgumentException("Missing or invalid grantee value"))));
                 this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
@@ -103,8 +104,6 @@ public class AccessGrant {
             } else {
                 throw new IllegalArgumentException("Invalid Access Grant: missing VerifiablePresentation type");
             }
-        } catch (final IOException ex) {
-            throw new IllegalArgumentException("Invalid access grant", ex);
         }
     }
 
@@ -115,7 +114,11 @@ public class AccessGrant {
      * @return a parsed access grant
      */
     public static AccessGrant ofAccessGrant(final String accessGrant) {
-        return new AccessGrant(accessGrant);
+        try {
+            return new AccessGrant(accessGrant);
+        } catch (final IOException ex) {
+            throw new IllegalArgumentException("Unable to read access grant", ex);
+        }
     }
 
     /**
@@ -126,9 +129,9 @@ public class AccessGrant {
      */
     public static AccessGrant ofAccessGrant(final InputStream accessGrant) {
         try {
-            return new AccessGrant(IOUtils.toString(accessGrant, UTF_8));
+            return ofAccessGrant(IOUtils.toString(accessGrant, UTF_8));
         } catch (final IOException ex) {
-            throw new AccessGrantException("Unable to read access grant", ex);
+            throw new IllegalArgumentException("Unable to read access grant", ex);
         }
     }
 
@@ -223,21 +226,21 @@ public class AccessGrant {
     }
 
     static Optional<Instant> asInstant(final Object value) {
-        if (value != null && value instanceof String) {
+        if (value instanceof String) {
             return Optional.of(Instant.parse((String) value));
         }
         return Optional.empty();
     }
 
     static Optional<URI> asUri(final Object value) {
-        if (value != null && value instanceof String) {
+        if (value instanceof String) {
             return Optional.of(URI.create((String) value));
         }
         return Optional.empty();
     }
 
     static Optional<Map> asMap(final Object value) {
-        if (value != null && value instanceof Map) {
+        if (value instanceof Map) {
             return Optional.of((Map) value);
         }
         return Optional.empty();
