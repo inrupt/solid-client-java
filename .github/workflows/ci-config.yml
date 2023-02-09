@@ -32,17 +32,17 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp verify -Pci -pl -integration/uma,-integration/openid
+        run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid
 
       - name: Integration tests (${{ matrix.environment-name }})
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
         if: ${{ github.actor != 'dependabot[bot]' }}
         # for integration tests
         env:
-          INRUPT_TEST_WEBID: ${{ secrets.INRUPT_TEST_WEBID }}
-          INRUPT_TEST_PUBLIC_RESOURCE_PATH: ${{ secrets.INRUPT_TEST_PUBLIC_RESOURCE_PATH }}
-          INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_TEST_CLIENT_ID }}
-          INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_TEST_CLIENT_SECRET }}
+          inrupt.test.webid: ${{ secrets.INRUPT_TEST_WEBID }}
+          inrupt.test.public-resource-path: ${{ secrets.INRUPT_TEST_PUBLIC_RESOURCE_PATH }}
+          inrupt.test.client-id: ${{ secrets.INRUPT_TEST_CLIENT_ID }}
+          inrupt.test.client-secret: ${{ secrets.INRUPT_TEST_CLIENT_SECRET }}
 
   dependencies:
     name: Dependency Check
