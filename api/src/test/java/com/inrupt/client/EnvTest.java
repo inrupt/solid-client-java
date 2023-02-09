@@ -23,6 +23,7 @@ package com.inrupt.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
+import java.util.Base64;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -39,7 +40,7 @@ class EnvTest {
         final Config conf = ConfigProvider.getConfig();
         final URI webid = conf.getOptionalValue("inrupt.test.webid", URI.class).orElse(null);
 
-        LOGGER.info("WebID: [{}]", webid);
+        LOGGER.info("WebID: [{}]", Base64.getEncoder().encodeToString(webid.getBytes()));
         assertNotNull(webid);
     }
 }
