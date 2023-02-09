@@ -2,6 +2,7 @@ version: 2
 updates:
   - package-ecosystem: "maven"
     directory: "/"
+    target-branch: "JCL-67-ci"
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
