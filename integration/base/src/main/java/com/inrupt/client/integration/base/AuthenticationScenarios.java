@@ -47,11 +47,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test class for authentication integration scenarios.
  */
 public class AuthenticationScenarios {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationScenarios.class);
 
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
@@ -119,6 +123,9 @@ public class AuthenticationScenarios {
         }
         privateResourceURL = URI.create(podUrl +
                 State.PRIVATE_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
+
+        LOGGER.info("Integration Test Issuer: [{}]", issuer);
+        LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
     @AfterAll
     static void teardown() {
