@@ -15,11 +15,11 @@ jobs:
       matrix:
         environment-name: ["ESS PodSpaces"]
         java: [ 11, 17 ]
-        experimental: [false]
+        experimental: [gating]
         include:
           - environment-name: "ESS DevNext"
             java: 11
-            experimental: true
+            experimental: non-gating
 
     steps:
       - uses: actions/checkout@v3
