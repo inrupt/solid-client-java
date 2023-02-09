@@ -8,6 +8,9 @@ jobs:
   build:
     name: Java environment
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ matrix.environment-name }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
         environment-name: ["ESS PodSpaces"]
