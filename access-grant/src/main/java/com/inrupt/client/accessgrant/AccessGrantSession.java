@@ -96,7 +96,7 @@ public final class AccessGrantSession implements Session {
                 if (isAncestor(entry.getKey(), uri)) {
                     final AccessGrant grant = entry.getValue();
                     return Optional.of(new Credential("", grant.getIssuer(), grant.getRawGrant(),
-                                grant.getExpiration(), grant.getGrantee(), null));
+                                grant.getExpiration(), session.getPrincipal().orElse(null), null));
                 }
             }
         }

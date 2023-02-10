@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-access-grant</artifactId>
-  <name>Inrupt Client Libraries - Access Grants</name>
+  <name>Inrupt Java Client Libraries - Access Grants</name>
   <description>
       Access Grant support for the Inrupt Client Libraries.
   </description>
@@ -42,6 +42,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-core</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+     <dependency>
       <groupId>com.inrupt</groupId>
       <artifactId>inrupt-client-httpclient</artifactId>
       <version>${project.version}</version>

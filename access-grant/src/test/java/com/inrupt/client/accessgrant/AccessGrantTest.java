@@ -20,20 +20,29 @@
  */
 package com.inrupt.client.accessgrant;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 class AccessGrantTest {
+
+    private static final JsonService jsonService = ServiceProvider.getJsonService();
 
     @Test
     void testReadAccessGrant() throws IOException {
@@ -53,7 +62,15 @@ class AccessGrantTest {
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
             assertEquals(URI.create("https://id.example/grantor"), grant.getGrantor());
-            assertEquals(URI.create("https://id.example/grantee"), grant.getGrantee());
+            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getGrantee());
+            final Optional<Status> status = grant.getStatus();
+            assertTrue(status.isPresent());
+            status.ifPresent(s -> {
+                assertEquals(URI.create("https://accessgrant.example/status/CVAM#2832"), s.getIdentifier());
+                assertEquals(URI.create("https://accessgrant.example/status/CVAM"), s.getCredential());
+                assertEquals(2832, s.getIndex());
+                assertEquals("RevocationList2020Status", s.getType());
+            });
         }
     }
 
@@ -75,19 +92,73 @@ class AccessGrantTest {
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
             assertEquals(URI.create("https://id.example/grantor"), grant.getGrantor());
-            assertEquals(URI.create("https://id.example/grantee"), grant.getGrantee());
+            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getGrantee());
+            final Optional<Status> status = grant.getStatus();
+            assertFalse(status.isPresent());
         }
     }
 
     @Test
     void testRawAccessGrant() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
-            final String raw = IOUtils.toString(resource);
+            final String raw = IOUtils.toString(resource, UTF_8);
             final AccessGrant grant = AccessGrant.ofAccessGrant(raw);
 
             assertEquals(raw, grant.getRawGrant());
         }
     }
+
+    @Test
+    void testRevocationList2020() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list1.json")) {
+            final Map<String, Object> data = jsonService.fromJson(resource,
+                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+            final Status status = AccessGrant.asRevocationList2020(data);
+            assertEquals(URI.create("https://accessgrant.example/status/CVAM#2832"), status.getIdentifier());
+            assertEquals(URI.create("https://accessgrant.example/status/CVAM"), status.getCredential());
+            assertEquals(2832, status.getIndex());
+        }
+    }
+
+    @Test
+    void testRevocationList2020Integer() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list2.json")) {
+            final Map<String, Object> data = jsonService.fromJson(resource,
+                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+            final Status status = AccessGrant.asRevocationList2020(data);
+            assertEquals(URI.create("https://accessgrant.example/status/CVAM#2832"), status.getIdentifier());
+            assertEquals(URI.create("https://accessgrant.example/status/CVAM"), status.getCredential());
+            assertEquals(2832, status.getIndex());
+        }
+    }
+
+    @Test
+    void testRevocationList2020List() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list3.json")) {
+            final Map<String, Object> data = jsonService.fromJson(resource,
+                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.asRevocationList2020(data));
+        }
+    }
+
+    @Test
+    void testRevocationList2020IdNotString() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list4.json")) {
+            final Map<String, Object> data = jsonService.fromJson(resource,
+                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.asRevocationList2020(data));
+        }
+    }
+
+    @Test
+    void testRevocationList2020CredentialNotString() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list5.json")) {
+            final Map<String, Object> data = jsonService.fromJson(resource,
+                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.asRevocationList2020(data));
+        }
+    }
+
 
     @Test
     void testBareAccessGrant() throws IOException {
@@ -160,8 +231,15 @@ class AccessGrantTest {
     }
 
     @Test
-    void testAccessGrantMissingGrantee() throws IOException {
-        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant11.json")) {
+    void testAccessGrantInvalidStatusNoId() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant12.json")) {
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+        }
+    }
+
+    @Test
+    void testAccessGrantInvalidStatusBadCredential() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant13.json")) {
             assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
         }
     }

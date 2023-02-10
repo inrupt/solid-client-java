@@ -13,18 +13,18 @@
         "expirationDate":"2022-08-27T12:00:00Z",
         "issuanceDate":"2022-08-25T20:34:05.153Z",
         "credentialStatus":{
-            "id":"https://accessgrant.example/status/CVAM#2833",
-            "revocationListCredential":"https://accessgrant.example/status/CVAM",
-            "revocationListIndex":"2833",
-            "type":"InventedRevocationListStatus"},
+            "id":"https://accessgrant.example/status/CVAM#2832",
+            "revocationListCredential":"not a URI",
+            "revocationListIndex":"2832",
+            "type":"RevocationList2020Status"},
         "credentialSubject":{
             "id":"https://id.example/grantor",
             "providedConsent":{
                 "mode":["Read"],
                 "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
-                "isProvidedTo":"https://id.example/grantee",
-                "forPurpose":"https://purpose.example/Purpose1",
-                "forPersonalData":"https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/"}},
+                "isProvidedToPerson":"https://id.example/grantee",
+                "forPurpose":["https://purpose.example/Purpose1"],
+                "forPersonalData":["https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/"]}},
         "proof":{
             "created":"2022-08-25T20:34:05.236Z",
             "proofPurpose":"assertionMethod",

@@ -21,14 +21,35 @@
 package com.inrupt.client.accessgrant;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Objects;
 
-class V1Metadata {
+public class Status {
 
-    public URI derivationService;
-    public URI issuerService;
-    public URI statusService;
-    public URI verifierService;
-    public List<String> supportedSignatureTypes;
+    private final URI identifier;
+    private final String type;
+    private final int index;
+    private final URI credential;
 
+    public Status(final URI identifier, final String type, final URI credential, final int index) {
+        this.identifier = Objects.requireNonNull(identifier, "Status identifier may not be null!");
+        this.type = Objects.requireNonNull(type, "Status type may not be null!");
+        this.credential = Objects.requireNonNull(credential, "Status credential may not be null!");
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public URI getCredential() {
+        return credential;
+    }
+
+    public URI getIdentifier() {
+        return identifier;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

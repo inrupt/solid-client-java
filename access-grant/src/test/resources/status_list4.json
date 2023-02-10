@@ -1,0 +1,6 @@
+{
+    "id":["https://accessgrant.example/status/CVAM#2832"],
+    "revocationListCredential":"https://accessgrant.example/status/CVAM",
+    "revocationListIndex":"2832",
+    "type":"RevocationList2020Status"
+}

@@ -46,6 +46,9 @@ import org.apache.commons.io.IOUtils;
  */
 public class AccessGrant {
 
+    private static final String TYPE = "type";
+    private static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
+    private static final Set<String> SUPPORTED_TYPES = supportedTypes();
     private static final JsonService jsonService = ServiceProvider.getJsonService();
 
     private final String rawGrant;
@@ -58,6 +61,7 @@ public class AccessGrant {
     private final URI grantee;
     private final URI grantor;
     private final Instant expiration;
+    private final Status status;
 
     /**
      * Read a verifiable presentation as an AccessGrant.
@@ -73,14 +77,14 @@ public class AccessGrant {
             final Map vc = getCredentialFromPresentation(data).orElseThrow(() ->
                     new IllegalArgumentException("Invalid Access Grant: missing verifiable credential"));
 
-            if (asSet(data.get("type")).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
+            if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
                 this.rawGrant = grant;
                 this.issuer = asUri(vc.get("issuer")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid issuer field"));
                 this.identifier = asUri(vc.get("id")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid id field"));
 
-                this.types = asSet(vc.get("type")).orElseGet(Collections::emptySet);
+                this.types = asSet(vc.get(TYPE)).orElseGet(Collections::emptySet);
                 this.expiration = asInstant(vc.get("expirationDate")).orElse(Instant.MAX);
 
                 final Map subject = asMap(vc.get("credentialSubject")).orElseThrow(() ->
@@ -90,20 +94,50 @@ public class AccessGrant {
                         new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
 
                 // V1 Access Grant, using gConsent
-                final Map<String, Object> consent = asMap(subject.get("providedConsent")).orElseThrow(() ->
-                            new IllegalArgumentException("Invalid Access Grant: missing providedConsent clause"));
+                final Map consent = asMap(subject.get("providedConsent")).orElseGet(() ->
+                        // V1 Access Request, using gConsent
+                        asMap(subject.get("hasConsent")).orElseThrow(() ->
+                            // Unsupported structure
+                            new IllegalArgumentException("Invalid Access Grant: missing consent clause")));
+
                 final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
                 final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
                 final Optional<URI> other = asUri(consent.get("isProvidedTo"));
-                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElseThrow(() ->
-                                new IllegalArgumentException("Missing or invalid grantee value"))));
+                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
                 this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
                 this.purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
+                this.status = asMap(vc.get("credentialStatus")).flatMap(credentialStatus ->
+                        asSet(credentialStatus.get(TYPE)).filter(types ->
+                            types.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
+                                asRevocationList2020(credentialStatus))).orElse(null);
             } else {
                 throw new IllegalArgumentException("Invalid Access Grant: missing VerifiablePresentation type");
             }
+        }
+    }
+
+    static Status asRevocationList2020(final Map credentialStatus) {
+        try {
+            int idx = -1;
+            final Object index = credentialStatus.get("revocationListIndex");
+            if (index instanceof String) {
+                idx = Integer.parseInt((String) index);
+            } else if (index instanceof Integer) {
+                idx = (Integer) index;
+            }
+
+            final Object id = credentialStatus.get("id");
+            final Object credential = credentialStatus.get("revocationListCredential");
+            if (id instanceof String && credential instanceof String && idx >= 0) {
+                final URI uri = URI.create((String) credential);
+                final Status status = new Status(URI.create((String) id), REVOCATION_LIST_2020_STATUS, uri, idx);
+                return status;
+            }
+            throw new IllegalArgumentException("Unable to process credential status as Revocation List 2020");
+        } catch (final Exception ex) {
+            throw new IllegalArgumentException("Unable to process credential status data", ex);
         }
     }
 
@@ -151,6 +185,15 @@ public class AccessGrant {
      */
     public Set<String> getModes() {
         return modes;
+    }
+
+    /**
+     * Get the access grant status information.
+     *
+     * @return the status information
+     */
+    public Optional<Status> getStatus() {
+        return Optional.ofNullable(status);
     }
 
     /**
@@ -203,8 +246,8 @@ public class AccessGrant {
      *
      * @return the agent that was granted access
      */
-    public URI getGrantee() {
-        return grantee;
+    public Optional<URI> getGrantee() {
+        return Optional.ofNullable(grantee);
     }
 
     /**
@@ -268,14 +311,23 @@ public class AccessGrant {
             for (final Object item : (Collection) data.get("verifiableCredential")) {
                 if (item instanceof Map) {
                     final Map vc = (Map) item;
-                    if (asSet(vc.get("type")).filter(types -> types.contains("SolidAccessGrant") ||
-                                types.contains("http://www.w3.org/ns/solid/vc#SolidAccessGrant")).isPresent()) {
+                    if (asSet(vc.get(TYPE)).filter(types ->
+                                types.stream().anyMatch(SUPPORTED_TYPES::contains)).isPresent()) {
                         return Optional.of(vc);
                     }
                 }
             }
         }
         return Optional.empty();
+    }
+
+    static Set<String> supportedTypes() {
+        final Set<String> types = new HashSet<>();
+        types.add("SolidAccessRequest");
+        types.add("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
+        types.add("SolidAccessGrant");
+        types.add("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+        return Collections.unmodifiableSet(types);
     }
 
 }
