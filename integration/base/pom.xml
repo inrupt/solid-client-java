@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>com.inrupt</groupId>
-            <artifactId>inrupt-client-httpclient</artifactId>
+            <artifactId>inrupt-client-okhttp</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
