@@ -28,10 +28,12 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -117,9 +119,12 @@ public class AuthenticationScenarios {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            publicResourceURL = URI.create(podUrl + testResourceName);
+            publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl + testResourceName))
+                .build();
         } else {
-            publicResourceURL = URI.create(podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
+            publicResourceURL = URIBuilder.newBuilder(
+                URI.create(podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName))
+                .build();
         }
         privateResourceURL = URI.create(podUrl +
                 State.PRIVATE_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
@@ -270,14 +275,19 @@ public class AuthenticationScenarios {
         assertDoesNotThrow(() -> authClient1.delete(testResource));
     }
 
-    private static Stream<Arguments> provideSessions() {
+    private static Stream<Arguments> provideSessions() throws SolidClientException {
         session = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
             CLIENT_ID,
             CLIENT_SECRET,
             AUTH_METHOD);
+        var token = "";
         final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN);
-        final String token = credential.isPresent() ? credential.get().getToken() : "";
+        if (credential.isPresent()) {
+            token = credential.get().getToken();
+        } else {
+            throw new OpenIdException("We could not get a token");
+        }
         return Stream.of(
             Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
             Arguments.of(session)));
