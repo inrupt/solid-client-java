@@ -168,6 +168,7 @@ public class AuthenticationScenarios {
     @Test
     @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
+        LOGGER.info("Integration Test - Unauth fetch of public resource");
         //create a public resource
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -180,6 +181,7 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - Unauth fetch of a private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
@@ -196,24 +198,10 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource fails")
-    void fetchPrivateResourceAfterLogoutTest(final Session session) {
-        //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
-        assertDoesNotThrow(() -> authClient.create(testResource));
-
-        final SolidSyncClient unauthClient = SolidSyncClient.getClient();
-        final SolidClientException err = assertThrows(SolidClientException.class,
-                () -> unauthClient.read(privateResourceURL, SolidResource.class));
-        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
-
-        assertDoesNotThrow(() -> authClient.delete(testResource));
-    }
-    @ParameterizedTest
-    @MethodSource("provideSessions")
     @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - Auth fetch of public resource");
+        //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         assertDoesNotThrow(() -> client.create(testResource));
@@ -223,10 +211,12 @@ public class AuthenticationScenarios {
 
         assertDoesNotThrow(() -> client.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - Auth fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
@@ -236,10 +226,12 @@ public class AuthenticationScenarios {
 
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest(final Session session) {
+        LOGGER.info("Integration Test - Unauth, then auth fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
@@ -255,10 +247,12 @@ public class AuthenticationScenarios {
 
         assertDoesNotThrow(() -> authClient2.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest(final Session session) {
+        LOGGER.info("Integration Test - Multiple sessions authenticated in parallel");
         //create private resource
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);

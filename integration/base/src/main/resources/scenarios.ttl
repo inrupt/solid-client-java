@@ -106,8 +106,6 @@ solidClient: a earl:Software;
   #same tests (and name) like in JS SDK
   :unauthenticatedPublicNode,
   :unauthenticatedPrivateNode,
-  :unauthenticatedPublicNodeAfterLogout,
-  :unauthenticatedPrivateNodeAfterLogout,
   :authenticatedPublicNode,
   :authenticatedPrivateNode,
   :authenticatedPrivateNodeAfterLogin,
@@ -126,21 +124,6 @@ solidClient: a earl:Software;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
   dcterms:title "Unauth fetch of private resource"@en;
   dcterms:description "An unauthenticated user requests a private resource."@en;
-  td:expectedResults "The request fails."@en;
-  td:reviewStatus td:approved.
-
-:unauthenticatedPublicNodeAfterLogout a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Logout then public resource fetch"@en;
-  dcterms:description "An authenticated user logs out of their session, and then requests a public resource."@en;
-  td:expectedResults "The request succeeds."@en;
-  rdfs:comment "The default ESS configuration results in this test failing."@en;
-  td:reviewStatus td:approved.
-
-:unauthenticatedPrivateNodeAfterLogout a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Logout then private resource fetch"@en;
-  dcterms:description "An authenticated user logs out of their session, and then requests a private resource."@en;
   td:expectedResults "The request fails."@en;
   td:reviewStatus td:approved.
 
