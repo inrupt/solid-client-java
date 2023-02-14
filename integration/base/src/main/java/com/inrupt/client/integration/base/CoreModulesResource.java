@@ -337,7 +337,8 @@ public class CoreModulesResource {
     @DisplayName("./solid-client-java:coreModulesLayerBlankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
-        LOGGER.info("Integration Test - update statements containing Blank Nodes in different instances of the same model");
+        LOGGER.info("Integration Test - update statements containing Blank Nodes " +
+            "in different instances of the same model");
 
         final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicate = "https://example.example/predicate";

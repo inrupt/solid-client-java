@@ -201,7 +201,8 @@ public class DomainModulesResource {
     @DisplayName("./solid-client-java:blankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
-        LOGGER.info("Integration Test - update statements containing Blank Nodes in different instances of the same model");
+        LOGGER.info("Integration Test - update statements containing Blank Nodes in " +
+            "different instances of the same model");
 
         final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicateName = "https://example.example/predicate";
