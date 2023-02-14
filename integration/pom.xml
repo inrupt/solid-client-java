@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-integration-tests</artifactId>
-  <name>Inrupt Client Libraries - Integration Parent</name>
+  <name>Inrupt Java Client Libraries - Integration Parent</name>
   <description>
-   Integration Tests for the Inrupt Client Libraries.
+   Integration Tests for the Inrupt Java Client Libraries.
   </description>
   <packaging>pom</packaging>
 

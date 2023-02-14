@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-integration-uma-tests</artifactId>
-  <name>Inrupt Client Libraries - Integration UMA Tests</name>
+  <name>Inrupt Java Client Libraries - Integration UMA Tests</name>
   <description>
-      UMA integration tests for the Inrupt Client Libraries.
+      UMA integration tests for the Inrupt Java Client Libraries.
   </description>
 
   <dependencies>

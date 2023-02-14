@@ -19,10 +19,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Application interfaces for the Inrupt Client Libraries.</h2>
+ * <h2>Application interfaces for the Inrupt Java Client Libraries.</h2>
  * 
- * <p>The Inrupt Client Libraries use a set of generic interfaces which help integrate with some of the higher-level
- * modules.
+ * <p>The Inrupt Java Client Libraries use a set of generic interfaces which help integrate with
+ * some of the higher-level modules.
  * 
  * <p>Working with a HTTP client is easier by implementing the {@link Client}. Then, to make use of the HTTP client,
  * which previously was loaded on the classpath, one can call the {@link ClientProvider}.
@@ -36,7 +36,7 @@
  * {@link ValidationResult} can be of use when validation of the Solid resource is needed.
  * 
  * <p>The {@link InruptClientException} provides a runtime exception used as a generic exception throughout the
- * Inrupt Client Libraries.
+ * Inrupt Java Client Libraries.
  * 
  */
 package com.inrupt.client;

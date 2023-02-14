@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-httpclient</artifactId>
-  <name>Inrupt Client Libraries - HttpClient</name>
+  <name>Inrupt Java Client Libraries - HttpClient</name>
   <description>
-      The HttpClient bindings for the Inrupt Client Libraries.
+      The HttpClient bindings for the Inrupt Java Client Libraries.
   </description>
 
   <dependencies>

@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-integration-openid-tests</artifactId>
-  <name>Inrupt Client Libraries - Integration OpenID Tests</name>
+  <name>Inrupt Java Client Libraries - Integration OpenID Tests</name>
   <description>
-      OpenID Connect integration tests for the Inrupt Client Libraries.
+      OpenID Connect integration tests for the Inrupt Java Client Libraries.
   </description>
 
   <dependencies>

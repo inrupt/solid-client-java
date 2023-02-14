@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-webid</artifactId>
-  <name>Inrupt Client Libraries - WebID</name>
+  <name>Inrupt Java Client Libraries - WebID</name>
   <description>
-      WebID Profile integration for the Inrupt Client Libraries.
+      WebID Profile integration for the Inrupt Java Client Libraries.
   </description>
 
   <dependencies>
