@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Service interfaces for the Inrupt Client Libraries.</h2>
+ * <h2>Service interfaces for the Inrupt Java Client Libraries.</h2>
  *
  * <p>This module provides a pluggable service provider interface, which allows
  * the HTTP, JSON, and RDF services to be used with any concrete implementation.

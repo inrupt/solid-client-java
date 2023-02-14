@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-core</artifactId>
-  <name>Inrupt Client Libraries - Core</name>
+  <name>Inrupt Java Client Libraries - Core</name>
   <description>
-      Core Classes and Utilities for the Inrupt Client Libraries.
+      Core Classes and Utilities for the Inrupt Java Client Libraries.
   </description>
 
   <properties>

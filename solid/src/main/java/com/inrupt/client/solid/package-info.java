@@ -20,11 +20,11 @@
  */
 /**
  *
- * <h2>Support for Solid specific concepts for the Inrupt Client Libraries.</h2>
+ * <h2>Support for Solid specific concepts for the Inrupt Java Client Libraries.</h2>
  *
  * <h3>Solid Client</h3>
  *
- * <p>This Solid domain-specific module containes two dedicated Solid clients one can make use of:
+ * <p>This Solid domain-specific module contains two dedicated Solid clients one can make use of:
  * {@link SolidClient} which works asynchronously and {@link SolidSyncClient} which works synchronously.
  * 
  * <p>One can instantiate a Solid client in different ways, depending on the use case:

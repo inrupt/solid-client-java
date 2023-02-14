@@ -19,13 +19,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Core classes and utilities for the Inrupt Client Libraries.</h2>
+ * <h2>Core classes and utilities for the Inrupt Java Client Libraries.</h2>
  * 
  * <p>This module provides default implementation for some of the APIs of the library.
  * 
  * <h2>A default HTTP client</h2>
  * 
- * <p>The {@code DefaultClient} builds on top of the HTTP client laoded on the classpath. It adds
+ * <p>The {@code DefaultClient} builds on top of the HTTP client loaded on the classpath. It adds
  * the reactive authorization functionality as a default on HTTP requests. To make use of it
  * check out the following code.
  * 
@@ -56,7 +56,7 @@
  * 
  * <p>{@code DefaultDpopService} provides, as the name implies, an already implemented
  * DPoP service for you to make use of. The DPoP service creates a DPoP Manager which keeps
- * track of the keypars involved in the authentication.
+ * track of the keypairs involved in the authentication.
  * By default, the manager creates a keypair based on the ES256 algorithm for which it generates a
  * SHA-256 public JWK. One can change the defaults and make use of the out of the box service to generate proofs.
  * 

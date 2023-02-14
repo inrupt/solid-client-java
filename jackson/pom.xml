@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-jackson</artifactId>
-  <name>Inrupt Client Libraries - Jackson</name>
+  <name>Inrupt Java Client Libraries - Jackson</name>
   <description>
-      A Jackson-based JSON processor for the Inrupt Client Libraries.
+      A Jackson-based JSON processor for the Inrupt Java Client Libraries.
   </description>
 
   <dependencyManagement>

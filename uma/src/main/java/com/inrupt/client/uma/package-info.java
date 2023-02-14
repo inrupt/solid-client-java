@@ -19,13 +19,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>User Managed Access support for the Inrupt Client Libraries.</h2>
+ * <h2>User Managed Access support for the Inrupt Java Client Libraries.</h2>
  *
  * <p>UMA builds on the OAuth 2.0 authorization framework, defining a mechanism by which
  * a client can iteratively negotiate for an access token.
  * 
  * <p>{@code UmaClient} helps in the interaction with different endpoints, to construct helper
- * requests for authentication and to negociate for a token.
+ * requests for authentication and to negotiate for a token.
  * 
  * <h3>Using a UMA session</h3>
  *
