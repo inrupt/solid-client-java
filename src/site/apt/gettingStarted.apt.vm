@@ -71,13 +71,13 @@ client.delete(uri);
 
 -----------------------
 session.getPrincipal().ifPresent(webid -> {
-    printWriter.format("WebID: %s", webid);
+    LOGGER.info("WebID: ", webid);
     try (final var profile = client.read(webid, WebIdProfile.class)) {
         profile.getStorage().stream().findFirst().ifPresent(storage -> {
             try (final var container = client.read(storage, SolidContainer.class);
                     final var stream = container.getContainedResources()) {
                         stream.filter(r -> filterResource(r, cmd)).forEach(r -> {
-                            printWriter.format("Resource: %s, %s", r.getIdentifier(),
+                            LOGGER.info("Resource: {}, {}", r.getIdentifier(),
                                 principalType(r.getMetadata().getType()));
                         });
             }
