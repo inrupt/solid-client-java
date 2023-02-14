@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 /**
- * This is the class used to access data processors for the Inrupt Client libraries.
+ * This is the class used to access data processors for the Inrupt Java Client Libraries libraries.
  */
 public final class ServiceProvider {
 

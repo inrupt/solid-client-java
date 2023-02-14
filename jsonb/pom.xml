@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-jsonb</artifactId>
-  <name>Inrupt Client Libraries - JSON-B</name>
+  <name>Inrupt Java Client Libraries - JSON-B</name>
   <description>
-      A JSON processor for the Inrupt Client Libraries using the Java API for JSON Binding.
+      A JSON processor for the Inrupt Java Client Libraries using the Java API for JSON Binding.
   </description>
 
   <dependencies>

@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-vocabulary</artifactId>
-  <name>Inrupt Client Libraries - Vocabulary</name>
+  <name>Inrupt Java Client Libraries - Vocabulary</name>
   <description>
-      RDF Vocabulary constants for the Inrupt Client Libraries.
+      RDF Vocabulary constants for the Inrupt Java Client Libraries.
   </description>
 
   <dependencies>

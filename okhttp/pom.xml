@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-okhttp</artifactId>
-  <name>Inrupt Client Libraries - OkHttp</name>
+  <name>Inrupt Java Client Libraries - OkHttp</name>
   <description>
-      The OkHttp bindings for the Inrupt Client Libraries.
+      The OkHttp bindings for the Inrupt Java Client Libraries.
   </description>
 
   <properties>
