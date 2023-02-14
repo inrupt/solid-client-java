@@ -10,7 +10,7 @@
 
   <artifactId>inrupt-client-examples-cli</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>Inrupt Client Libraries - CLI Example</name>
+  <name>Inrupt Java Client Libraries - CLI Example</name>
   <description>
     Sample CLI application.
   </description>

@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-rdf4j</artifactId>
-  <name>Inrupt Client Libraries - RDF4J</name>
+  <name>Inrupt Java Client Libraries - RDF4J</name>
   <description>
-      RDF4J integration for the Inrupt Client Libraries.
+      RDF4J integration for the Inrupt Java Client Libraries.
   </description>
 
   <properties>

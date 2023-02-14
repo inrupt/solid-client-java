@@ -9,9 +9,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>inrupt-client-integration-base-tests</artifactId>
-    <name>Inrupt Client Libraries - Integration Base Tests</name>
+    <name>Inrupt Java Client Libraries - Integration Base Tests</name>
     <description>
-        Integration tests for the Inrupt Client Libraries.
+        Integration tests for the Inrupt Java Client Libraries.
     </description>
 
     <properties>

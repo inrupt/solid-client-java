@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>inrupt-client-test</artifactId>
-  <name>Inrupt Client Libraries - Test</name>
+  <name>Inrupt Java Client Libraries - Test</name>
   <description>
     Test cases shared across modules.
   </description>

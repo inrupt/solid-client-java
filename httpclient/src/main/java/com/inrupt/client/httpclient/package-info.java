@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>{@link java.net.http.HttpClient} bindings for the Inrupt Client Libraries.</h2>
+ * <h2>{@link java.net.http.HttpClient} bindings for the Inrupt Java Client Libraries.</h2>
  * 
  * <p>A user of the {@code HttpClientService} should ensure that this implementation is
  * available on the classpath by adding the following dependency:

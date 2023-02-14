@@ -19,6 +19,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * RDF Vocabulary definitions for the Inrupt Client Libraries.
+ * RDF Vocabulary definitions for the Inrupt Java Client Libraries.
  */
 package com.inrupt.client.vocabulary;

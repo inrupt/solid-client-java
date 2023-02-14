@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-openid</artifactId>
-  <name>Inrupt Client Libraries - OpenID</name>
+  <name>Inrupt Java Client Libraries - OpenID</name>
   <description>
-      An OpenID library for the Inrupt Client Libraries.
+      An OpenID library for the Inrupt Java Client Libraries.
   </description>
 
   <properties>

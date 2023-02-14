@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>RDF4J RDF support for the Inrupt Client Libraries.</h2>
+ * <h2>RDF4J RDF support for the Inrupt Java Client Libraries.</h2>
  *
  * <p>The RDF4J module gives two possibilities to read RDF data: through the Service {@link RDF4JService}
  * and through the BodyHandler {@link RDF4JBodyHandlers}.

@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-uma</artifactId>
-  <name>Inrupt Client Libraries - UMA</name>
+  <name>Inrupt Java Client Libraries - UMA</name>
   <description>
-      UMA abstractions for the Inrupt Client Libraries.
+      UMA abstractions for the Inrupt Java Client Libraries.
   </description>
 
   <properties>

@@ -297,7 +297,7 @@
             </links>
             <header>
               <![CDATA[
-                <h2>Inrupt Client Libraries</h2>
+                <h2>Inrupt Java Client Libraries</h2>
                 <script>
                       var _paq = window._paq = window._paq || [];
                       /* tracker methods like "setCustomDimension" should be called before "trackPageView" */

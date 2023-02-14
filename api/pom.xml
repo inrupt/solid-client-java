@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-api</artifactId>
-  <name>Inrupt Client Libraries - API</name>
+  <name>Inrupt Java Client Libraries - API</name>
   <description>
-      The Application Programming Interfaces for the Inrupt Client Libraries.
+      The Application Programming Interfaces for the Inrupt Java Client Libraries.
   </description>
 
   <properties>
