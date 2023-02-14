@@ -71,7 +71,7 @@ client.delete(uri);
 
 -----------------------
 session.getPrincipal().ifPresent(webid -> {
-    LOGGER.info("WebID: ", webid);
+    LOGGER.info("WebID: {}", webid);
     try (final var profile = client.read(webid, WebIdProfile.class)) {
         profile.getStorage().stream().findFirst().ifPresent(storage -> {
             try (final var container = client.read(storage, SolidContainer.class);
