@@ -5,7 +5,7 @@ Getting Started
     will be needed:
 
 ----------------------
-var CLIENT = SolidClient.getClient();
+var CLIENT = SolidSyncClient.getClient();
 ----------------------
 
 * Using an existing ID Token
@@ -28,15 +28,13 @@ var client = CLIENT.session(session);
 ----------------------
 
     With this <<<session>>> object, one can perform normal CRUD operations on Solid resources.
-    Please note that, with <<<SolidClient>>>, all operations are asynchronous. For synchronous operations, use <<<SolidSyncClient>>>.
+    Please note that, with <<<SolidSyncClient>>>, all operations are synchronous. For asynchronous operations, use <<<SolidClient>>>.
 
 ----------------------
-var playlist = client.read(uri, Playlist.class);
-
-playlist.thenAccept(p -> {
-    displayTitle(p.getTitle());
-    displaySongs(p.getSongs());
-}).toCompletableFuture().join();
+try (var playlist = client.read(uri, Playlist.class)) {
+    displayTitle(playlist.getTitle());
+    displaySongs(playlist.getSongs());
+}
 ----------------------
 
     One may also create new resources.
@@ -47,42 +45,45 @@ playlist.setTitle("Jazz Collection");
 playlist.addSong(song1);
 playlist.addSong(song2);
 
-client.create(playlist).toCompletableFuture().join();
+client.create(playlist);
 -----------------------
 
     Or update existing resources.
 
 -----------------------
-var playlist = client.read(uri, Playlist.class);
+try (var playlist = client.read(uri, Playlist.class)) {
 
-playlist.thenCompose(p -> {
-    p.setTitle("Bossa Nova");
-    p.removeSong(song1);
-    p.addSong(song3);
-    return client.update(p);
-}).toCompletableFuture().join();
+    playlist.setTitle("Bossa Nova");
+    playlist.removeSong(song1);
+    playlist.addSong(song3);
+
+    client.update(playlist);
+}
 -----------------------
 
     Or delete resources.
 
 -----------------------
-client.delete(uri).toCompletableFuture().join();
+client.delete(uri);
 -----------------------
 
     One can use the provided Solid classes to list resources across a user's storage locations.
 
 -----------------------
-session.getPrincipal().ifPresent(webid ->
-    client.send(Request.newBuilder(webid).header("Accept", "text/turtle").build(),
-            WebIdBodyHandlers.ofWebIdProfile(webid))
-        .thenApply(Response::body)
-        .thenAccept(profile ->
-            profile.getStorage().stream().forEach(storage -> {
-                LOGGER.info("Storage: {}", storage);
-                client.read(storage, SolidContainer.class).thenAccept(s ->
-                        s.getContainedResources().forEach(r ->
-                            LOGGER.info("Resource: {}", r.getIdentifier())))))
-        .toCompletableFuture().join());
+session.getPrincipal().ifPresent(webid -> {
+    printWriter.format("WebID: %s", webid);
+    try (final var profile = client.read(webid, WebIdProfile.class)) {
+        profile.getStorage().stream().findFirst().ifPresent(storage -> {
+            try (final var container = client.read(storage, SolidContainer.class);
+                    final var stream = container.getContainedResources()) {
+                        stream.filter(r -> filterResource(r, cmd)).forEach(r -> {
+                            printWriter.format("Resource: %s, %s", r.getIdentifier(),
+                                principalType(r.getMetadata().getType()));
+                        });
+            }
+        });
+    }
+});
 -----------------------
 
 * Example applications
