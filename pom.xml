@@ -29,20 +29,20 @@
     <jackson.version>2.14.2</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.7.0</jena.version>
-    <jose4j.version>0.9.2</jose4j.version>
+    <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>1.0.2</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
     <rdf4j.version>4.2.2</rdf4j.version>
     <slf4j.version>1.7.36</slf4j.version>
     <inrupt.commons.rdf4j.version>0.4.0</inrupt.commons.rdf4j.version>
-    <inrupt.rdf.wrapping.version>0.1.4</inrupt.rdf.wrapping.version>
+    <inrupt.rdf.wrapping.version>0.2.0</inrupt.rdf.wrapping.version>
 
     <!-- plugins -->
     <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
     <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.10.1</compiler.plugin.version>
-    <deploy.plugin.version>3.0.0</deploy.plugin.version>
+    <deploy.plugin.version>3.1.0</deploy.plugin.version>
     <install.plugin.version>3.1.0</install.plugin.version>
     <git.plugin.version>4.9.10</git.plugin.version>
     <gpg.plugin.version>3.0.1</gpg.plugin.version>
@@ -66,7 +66,7 @@
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.13</equalsverifier.version>
+    <equalsverifier.version>3.13.1</equalsverifier.version>
     <junit.version>5.9.2</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
