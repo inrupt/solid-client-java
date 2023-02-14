@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>OpenID support for the Inrupt Client Libraries.</h2>
+ * <h2>OpenID support for the Inrupt Java Client Libraries.</h2>
  *
  * <p>This module uses the {@code OpenIdProvider} to interact with a OpenId Provider
  * as described in the <a href="https://solidproject.org/TR/oidc-primer"> Solid-OIDC Primer v 0.1.0</a>

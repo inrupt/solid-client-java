@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * <h2>Authentication and Authorization classes for the Inrupt Client Libraries.</h2>
+ * <h2>Authentication and Authorization classes for the Inrupt Java Client Libraries.</h2>
  * 
  * <h3>The Session interface</h3>
  * 

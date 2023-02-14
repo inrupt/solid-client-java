@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-solid</artifactId>
-  <name>Inrupt Client Libraries - Solid</name>
+  <name>Inrupt Java Client Libraries - Solid</name>
   <description>
-      Solid resource body handlers for the Inrupt Client Libraries.
+      Solid resource body handlers for the Inrupt Java Client Libraries.
   </description>
 
   <properties>

@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>inrupt-client-jena</artifactId>
-  <name>Inrupt Client Libraries - Jena</name>
+  <name>Inrupt Java Client Libraries - Jena</name>
   <description>
-      Jena integration for the Inrupt Client Libraries.
+      Jena integration for the Inrupt Java Client Libraries.
   </description>
 
   <dependencies>

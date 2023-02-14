@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
- * IOUtility methods for use with the Inrupt Client Libraries.
+ * IOUtility methods for use with the Inrupt Java Client Libraries.
  */
 public final class IOUtils {
 
