@@ -166,9 +166,9 @@ public class AuthenticationScenarios {
     }
 
     @Test
-    @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
+    @DisplayName(":unauthenticatedPublicNode Unauthenticated fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
-        LOGGER.info("Integration Test - Unauth fetch of public resource");
+        LOGGER.info("Integration Test - Unauthenticated fetch of public resource");
         //create a public resource
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -179,9 +179,9 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
+    @DisplayName(":unauthenticatedPrivateNode Unauthenticated fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest(final Session session) {
-        LOGGER.info("Integration Test - Unauth fetch of a private resource");
+        LOGGER.info("Integration Test - Unauthenticated fetch of a private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
@@ -198,9 +198,9 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
+    @DisplayName(":authenticatedPublicNode Authenticated fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest(final Session session) {
-        LOGGER.info("Integration Test - Auth fetch of public resource");
+        LOGGER.info("Integration Test - AuAuthenticatedth fetch of public resource");
         //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
@@ -214,9 +214,9 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
+    @DisplayName(":authenticatedPrivateNode Authenticated fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest(final Session session) {
-        LOGGER.info("Integration Test - Auth fetch of private resource");
+        LOGGER.info("Integration Test - Authenticated fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
@@ -229,9 +229,9 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
+    @DisplayName(":authenticatedPrivateNodeAfterLogin Unauthenticated, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest(final Session session) {
-        LOGGER.info("Integration Test - Unauth, then auth fetch of private resource");
+        LOGGER.info("Integration Test - Unauthenticated, then auth fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);

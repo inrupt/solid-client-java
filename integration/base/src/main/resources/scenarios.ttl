@@ -114,7 +114,7 @@ solidClient: a earl:Software;
 
 :unauthenticatedPublicNode a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Unauth fetch of public resource"@en;
+  dcterms:title "Unauthenticated fetch of public resource"@en;
   dcterms:description "An unauthenticated user requests a public resource."@en;
   td:expectedResults "The request succeeds."@en;
   rdfs:comment "The default ESS configuration results in this test failing."@en;
@@ -122,28 +122,28 @@ solidClient: a earl:Software;
 
 :unauthenticatedPrivateNode a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Unauth fetch of private resource"@en;
+  dcterms:title "Unauthenticated fetch of private resource"@en;
   dcterms:description "An unauthenticated user requests a private resource."@en;
   td:expectedResults "The request fails."@en;
   td:reviewStatus td:approved.
 
 :authenticatedPublicNode a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Auth fetch of public resource"@en;
+  dcterms:title "Authenticated fetch of public resource"@en;
   dcterms:description "An authenticated user requests a public resource."@en;
   td:expectedResults "The request succeeds."@en;
   td:reviewStatus td:approved.
 
 :authenticatedPrivateNode a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Auth fetch of private resource"@en;
+  dcterms:title "Authenticated fetch of private resource"@en;
   dcterms:description "An authenticated user request a private resource."@en;
   td:expectedResults "The request succeeds."@en;
   td:reviewStatus td:approved.
 
 :authenticatedPrivateNodeAfterLogin a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
-  dcterms:title "Unauth, then auth fetch of private resource"@en;
+  dcterms:title "Unauthenticated, then auth fetch of private resource"@en;
   dcterms:description "An unauthenticated user request a private resource, then logs in, and requests the same resource again."@en;
   td:expectedResults "The second request succeeds."@en;
   td:reviewStatus td:approved.
