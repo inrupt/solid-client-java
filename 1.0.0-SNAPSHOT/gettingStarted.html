@@ -62,7 +62,7 @@
 <h2><a name="Getting_Started"></a>Getting Started</h2>
 <p>An app developer will first need to consider how a user creates an authenticated session. Depending on the application framework in use, there may already be a valid OpenID Id Token. Alternatively, a developer may possess a set of client credentials. Both approaches are described below. In both cases, a client object will be needed:</p>
 <div>
-<pre>var CLIENT = SolidClient.getClient();</pre></div><section>
+<pre>var CLIENT = SolidSyncClient.getClient();</pre></div><section>
 <h3><a name="Using_an_existing_ID_Token"></a>Using an existing ID Token</h3>
 <p>All interactions with Solid resources happen in the context of a <code>Session</code>. If an existing Id Token is available, the <code>Session</code> can use that value. In this case, it will be the responsibility of the application framework to refresh the Id Token upon expiration.</p>
 <div>
@@ -73,14 +73,12 @@ var client = CLIENT.session(session);</pre></div></section><section>
 <div>
 <pre>var session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, authMethod);
 var client = CLIENT.session(session);</pre></div>
-<p>With this <code>session</code> object, one can perform normal CRUD operations on Solid resources. Please note that, with <code>SolidClient</code>, all operations are asynchronous. For synchronous operations, use <code>SolidSyncClient</code>.</p>
+<p>With this <code>session</code> object, one can perform normal CRUD operations on Solid resources. Please note that, with <code>SolidSyncClient</code>, all operations are synchronous. For asynchronous operations, use <code>SolidClient</code>.</p>
 <div>
-<pre>var playlist = client.read(uri, Playlist.class);
-
-playlist.thenAccept(p -&gt; {
-    displayTitle(p.getTitle());
-    displaySongs(p.getSongs());
-}).toCompletableFuture().join();</pre></div>
+<pre>try (var playlist = client.read(uri, Playlist.class)) {
+    displayTitle(playlist.getTitle());
+    displaySongs(playlist.getSongs());
+}</pre></div>
 <p>One may also create new resources.</p>
 <div>
 <pre>var playlist = new Playlist(uri);
@@ -88,33 +86,36 @@ playlist.setTitle(&quot;Jazz Collection&quot;);
 playlist.addSong(song1);
 playlist.addSong(song2);
 
-client.create(playlist).toCompletableFuture().join();</pre></div>
+client.create(playlist);</pre></div>
 <p>Or update existing resources.</p>
 <div>
-<pre>var playlist = client.read(uri, Playlist.class);
+<pre>try (var playlist = client.read(uri, Playlist.class)) {
 
-playlist.thenCompose(p -&gt; {
-    p.setTitle(&quot;Bossa Nova&quot;);
-    p.removeSong(song1);
-    p.addSong(song3);
-    return client.update(p);
-}).toCompletableFuture().join();</pre></div>
+    playlist.setTitle(&quot;Bossa Nova&quot;);
+    playlist.removeSong(song1);
+    playlist.addSong(song3);
+
+    client.update(playlist);
+}</pre></div>
 <p>Or delete resources.</p>
 <div>
-<pre>client.delete(uri).toCompletableFuture().join();</pre></div>
+<pre>client.delete(uri);</pre></div>
 <p>One can use the provided Solid classes to list resources across a user's storage locations.</p>
 <div>
-<pre>session.getPrincipal().ifPresent(webid -&gt;
-    client.send(Request.newBuilder(webid).header(&quot;Accept&quot;, &quot;text/turtle&quot;).build(),
-            WebIdBodyHandlers.ofWebIdProfile(webid))
-        .thenApply(Response::body)
-        .thenAccept(profile -&gt;
-            profile.getStorage().stream().forEach(storage -&gt; {
-                LOGGER.info(&quot;Storage: {}&quot;, storage);
-                client.read(storage, SolidContainer.class).thenAccept(s -&gt;
-                        s.getContainedResources().forEach(r -&gt;
-                            LOGGER.info(&quot;Resource: {}&quot;, r.getIdentifier())))))
-        .toCompletableFuture().join());</pre></div></section><section>
+<pre>session.getPrincipal().ifPresent(webid -&gt; {
+    LOGGER.info(&quot;WebID: {}&quot;, webid);
+    try (final var profile = client.read(webid, WebIdProfile.class)) {
+        profile.getStorage().stream().findFirst().ifPresent(storage -&gt; {
+            try (final var container = client.read(storage, SolidContainer.class);
+                    final var stream = container.getContainedResources()) {
+                        stream.filter(r -&gt; filterResource(r, cmd)).forEach(r -&gt; {
+                            LOGGER.info(&quot;Resource: {}, {}&quot;, r.getIdentifier(),
+                                principalType(r.getMetadata().getType()));
+                        });
+            }
+        });
+    }
+});</pre></div></section><section>
 <h3><a name="Example_applications"></a>Example applications</h3><section>
 <h4><a name="A_sample_Web_Application"></a>A sample Web Application</h4>
 <p>The <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/webapp/package-summary.html">web app example</a> is a Quarkus application implementing a similar pattern to look up a user's WebID profile and then display the contents of a user's storage.</p>
