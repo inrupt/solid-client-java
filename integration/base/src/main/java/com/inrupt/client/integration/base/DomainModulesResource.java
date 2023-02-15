@@ -118,10 +118,12 @@ public class DomainModulesResource {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl + testContainer)).build();
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
         } else {
-            testContainerURI = URIBuilder.newBuilder(
-                URI.create(podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testContainer)).build();
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH)
+                .path(testContainer)
+                .build();
         }
     }
 
@@ -141,7 +143,7 @@ public class DomainModulesResource {
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testContainerURI.toString() + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
@@ -178,7 +180,7 @@ public class DomainModulesResource {
     @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerURL = testContainerURI.toString() + "newContainer/";
+        final String containerURL = testContainerURI + "newContainer/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(() -> client.create(newContainer));
@@ -191,7 +193,7 @@ public class DomainModulesResource {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testContainerURI.toString() + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 

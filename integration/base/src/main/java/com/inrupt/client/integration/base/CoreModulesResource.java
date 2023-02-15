@@ -119,10 +119,11 @@ public class CoreModulesResource {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl + testContainer)).build();
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
         } else {
-            testContainerURI = URIBuilder.newBuilder(
-                URI.create(podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testContainer))
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH)
+                .path(testContainer)
                 .build();
         }
     }
@@ -143,7 +144,7 @@ public class CoreModulesResource {
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testContainerURI.toString() + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         //create
@@ -245,7 +246,7 @@ public class CoreModulesResource {
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerName = testContainerURI.toString() + "newContainer/";
+        final String containerName = testContainerURI + "newContainer/";
         final String container2Name = "newContainer2";
 
         //create a Container
