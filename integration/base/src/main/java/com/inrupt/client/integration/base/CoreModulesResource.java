@@ -35,6 +35,7 @@ import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 
@@ -79,6 +80,7 @@ public class CoreModulesResource {
         .orElse("");
 
     private static String testContainer = "resource/";
+    private static URI testContainerURI;
 
     @BeforeAll
     static void setup() {
@@ -117,9 +119,12 @@ public class CoreModulesResource {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainer = podUrl + testContainer;
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
         } else {
-            testContainer = podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testContainer;
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH)
+                .path(testContainer)
+                .build();
         }
     }
 
@@ -127,7 +132,7 @@ public class CoreModulesResource {
     static void teardown() {
         //cleanup pod
         final var reqDelete =
-            Request.newBuilder(URI.create(testContainer)).DELETE().build();
+            Request.newBuilder(testContainerURI).DELETE().build();
         client.send(reqDelete, Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
@@ -139,7 +144,7 @@ public class CoreModulesResource {
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testContainer + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         //create
@@ -241,7 +246,7 @@ public class CoreModulesResource {
     @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerName = testContainer + "newContainer/";
+        final String containerName = testContainerURI + "newContainer/";
         final String container2Name = "newContainer2";
 
         //create a Container
@@ -290,7 +295,7 @@ public class CoreModulesResource {
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
         final String fileName = "myFile.txt";
-        final String fileURL = testContainer + fileName;
+        final String fileURL = testContainerURI + fileName;
 
         //create non RDF resource
         final Request reqCreate =
@@ -321,7 +326,7 @@ public class CoreModulesResource {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testContainer + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicate = "https://example.example/predicate";
         final String predicateForBlank = "https://example.example/predicateForBlank";
 

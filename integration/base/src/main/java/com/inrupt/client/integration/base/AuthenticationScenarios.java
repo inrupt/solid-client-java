@@ -28,10 +28,12 @@ import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -105,7 +107,10 @@ public class AuthenticationScenarios {
 
         webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
+            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                .path(MOCK_USERNAME)
+                .build()
+                .toString());
 
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -117,12 +122,19 @@ public class AuthenticationScenarios {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            publicResourceURL = URI.create(podUrl + testResourceName);
+            publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(testResourceName)
+                .build();
         } else {
-            publicResourceURL = URI.create(podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
+            publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH)
+                .path(testResourceName)
+                .build();
         }
-        privateResourceURL = URI.create(podUrl +
-                State.PRIVATE_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testResourceName);
+        privateResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+            .path(State.PRIVATE_RESOURCE_PATH)
+            .path(testResourceName)
+            .build();
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -135,7 +147,8 @@ public class AuthenticationScenarios {
             .DELETE().build();
         client.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
 
-        final var reqDeletePrivate = Request.newBuilder(URI.create(podUrl + State.PRIVATE_RESOURCE_PATH))
+        final var reqDeletePrivate = Request.newBuilder(URIBuilder.newBuilder(
+            URI.create(podUrl)).path(State.PRIVATE_RESOURCE_PATH).build())
             .DELETE().build();
         client.send(reqDeletePrivate, Response.BodyHandlers.discarding());
 
@@ -270,14 +283,15 @@ public class AuthenticationScenarios {
         assertDoesNotThrow(() -> authClient1.delete(testResource));
     }
 
-    private static Stream<Arguments> provideSessions() {
+    private static Stream<Arguments> provideSessions() throws SolidClientException {
         session = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
             CLIENT_ID,
             CLIENT_SECRET,
             AUTH_METHOD);
         final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN);
-        final String token = credential.isPresent() ? credential.get().getToken() : "";
+        final var token = credential.map(Credential::getToken)
+            .orElseThrow(() -> new OpenIdException("We could not get a token"));
         return Stream.of(
             Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
             Arguments.of(session)));

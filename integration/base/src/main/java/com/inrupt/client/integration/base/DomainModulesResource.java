@@ -81,6 +81,7 @@ public class DomainModulesResource {
         .orElse("");
 
     private static String testContainer = "resource/";
+    private static URI testContainerURI;
 
     @BeforeAll
     static void setup() {
@@ -117,9 +118,12 @@ public class DomainModulesResource {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainer = podUrl + testContainer;
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
         } else {
-            testContainer = podUrl + PUBLIC_RESOURCE_PATH + Utils.FOLDER_SEPARATOR + testContainer;
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH)
+                .path(testContainer)
+                .build();
         }
     }
 
@@ -127,7 +131,7 @@ public class DomainModulesResource {
     static void teardown() {
         //cleanup pod
         final var reqDelete =
-                Request.newBuilder(URI.create(testContainer)).DELETE().build();
+                Request.newBuilder(testContainerURI).DELETE().build();
         client.send(reqDelete, Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
@@ -139,7 +143,7 @@ public class DomainModulesResource {
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
-        final String newResourceName = testContainer + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
@@ -176,7 +180,7 @@ public class DomainModulesResource {
     @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
     void containerCreateDeleteTest() {
 
-        final String containerURL = testContainer + "newContainer/";
+        final String containerURL = testContainerURI + "newContainer/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(() -> client.create(newContainer));
@@ -189,7 +193,7 @@ public class DomainModulesResource {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testContainer + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 
@@ -256,7 +260,7 @@ public class DomainModulesResource {
     void ldpNavigationTest() {
 
         //returns: testContainer + "UUID1/UUID2/UUID3/"
-        final var leafPath = getNestedContainer(testContainer, 1);
+        final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
         var tempURI = leafPath;
 
         String root = "";
@@ -271,11 +275,11 @@ public class DomainModulesResource {
             }
             tempURI = tempURI.substring(0, tempURI.lastIndexOf("/"));
         }
-        recursiveDelete(leafPath);
+        recursiveDeleteLDPcontainers(leafPath);
         assertFalse(root.isEmpty());
     }
 
-    private void recursiveDelete(final String leafPath) {
+    private void recursiveDeleteLDPcontainers(final String leafPath) {
         SolidResource url;
         String tempUrl = leafPath;
         while (tempUrl.contains("/")) {
@@ -291,13 +295,13 @@ public class DomainModulesResource {
         }
     }
 
-    private String getNestedContainer(final String testContainer, final int depth) {
+    private String getNestedContainer(final String path, final int depth) {
         var tempUrl = "";
         for (int i = 0; i < depth; i++) {
             tempUrl += UUID.randomUUID().toString() + Utils.FOLDER_SEPARATOR;
         }
-        final var resource = new SolidResource(URI.create(testContainer + tempUrl));
+        final var resource = new SolidResource(URI.create(path + tempUrl));
         client.create(resource);
-        return testContainer + tempUrl;
+        return path + tempUrl;
     }
 }

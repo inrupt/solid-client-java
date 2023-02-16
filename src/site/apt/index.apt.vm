@@ -5,9 +5,9 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 || Layer || Module function || Module || Description |
 *-------*-----------------*--------*--------------*
-|| Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstrctions used by the Java Client Libraries. |
+|| Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstractions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
-|  | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html}auth}} | Authentication related abstrctions used by the Java Client Libraries. |
+|  | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html}auth}} | Authentication related abstractions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
 | | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html}spi}} | Service interfaces used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
@@ -38,6 +38,8 @@ Inrupt's Java Client Libraries
 || Utility Modules | RDF Vocabulary terms | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/vocabulary/package-summary.html}vocabulary}} | Provides convenience objects for Solid-related identifiers. |
 *-------*-----------------*--------*--------------*
 |  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/test/package-summary.html}test}} | Common tests shared across library modules. |
+*-------*-----------------*--------*--------------*
+|  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/integration/package-summary.html}integration}} | Integration tests. |
 *-------*-----------------*--------*--------------*
 || <<Example Applications>> | Sample application | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/webapp/package-summary.html}webapp}} | A sample web application. |
 *-------*-----------------*--------*--------------*
@@ -79,7 +81,7 @@ Inrupt's Java Client Libraries
 
       The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma module}} builds on top of the {{{https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html}UMA}} specification.
 
-      Remark: Higher level abstractions that help with authentication and authorization are part of the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}}. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {{{https://inrupt.github.io/solid-client-java/gettingStarted.html}Getting Started}} for how to use the <<<DefaultClient>>>.
+    Remark: Higher level abstractions that help with authentication and authorization are part of the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}}. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {{{https://inrupt.github.io/solid-client-java/gettingStarted.html}Getting Started}} for how to use the <<<DefaultClient>>>.
 
   * <<HTTP interaction>>
 
