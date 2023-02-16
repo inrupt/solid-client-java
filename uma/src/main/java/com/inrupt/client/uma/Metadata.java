@@ -21,17 +21,17 @@
 package com.inrupt.client.uma;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 /**
  * A class representing an UMA discovery document.
  */
 public class Metadata {
 
-    public List<String> dpopSigningAlgValuesSupported;
-    public List<String> grantTypesSupported;
+    public Set<String> dpopSigningAlgValuesSupported;
+    public Set<String> grantTypesSupported;
     public URI issuer;
     public URI jwksUri;
     public URI tokenEndpoint;
-    public List<URI> umaProfilesSupported;
+    public Set<URI> umaProfilesSupported;
 }

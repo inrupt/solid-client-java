@@ -88,9 +88,9 @@ public final class UmaSession implements Session {
     }
 
     @Override
-    public Optional<Credential> getCredential(final String name) {
+    public Optional<Credential> getCredential(final URI name, final URI uri) {
         for (final Session session : internalSessions) {
-            final Optional<Credential> credential = session.getCredential(name);
+            final Optional<Credential> credential = session.getCredential(name, uri);
             if (credential.isPresent()) {
                 return credential;
             }

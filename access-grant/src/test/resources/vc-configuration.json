@@ -1,0 +1,13 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://schema.inrupt.com/credentials/v1.jsonld"
+  ],
+  "derivationService": "{{baseUrl}}/derive",
+  "issuerService": "{{baseUrl}}/issue",
+  "statusService": "{{baseUrl}}/status",
+  "supportedSignatureTypes": [
+    "Ed25519Signature2020"
+  ],
+  "verifierService": "{{baseUrl}}/verify"
+}

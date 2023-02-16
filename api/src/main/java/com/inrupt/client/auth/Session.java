@@ -63,9 +63,10 @@ public interface Session {
      * Retrieve a credential from this session.
      *
      * @param name the credential name
+     * @param uri the request URI
      * @return the credential, if present
      */
-    Optional<Credential> getCredential(String name);
+    Optional<Credential> getCredential(URI name, URI uri);
 
     /**
      * Retrieve an access token for a request from a cache.
@@ -126,7 +127,7 @@ public interface Session {
             }
 
             @Override
-            public Optional<Credential> getCredential(final String name) {
+            public Optional<Credential> getCredential(final URI name, final URI uri) {
                 return Optional.empty();
             }
 

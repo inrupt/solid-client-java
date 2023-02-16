@@ -39,6 +39,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * An authentication mechanism that makes use of User Managed Access (UMA) authorization servers.
  *
@@ -50,7 +53,9 @@ import java.util.concurrent.CompletionStage;
  */
 public class UmaAuthenticationProvider implements AuthenticationProvider {
 
-    public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+    public static final URI ID_TOKEN = URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken");
+    public static final URI VERIFIABLE_CREDENTIAL = URI.create("https://www.w3.org/TR/vc-data-model/#json-ld");
+    private static final Logger LOGGER = LoggerFactory.getLogger(UmaAuthenticationProvider.class);
 
     private static final String UMA = "UMA";
     private static final String AS_URI = "as_uri";
@@ -82,7 +87,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
     public UmaAuthenticationProvider(final int priority, final UmaClient umaClient) {
         this.priorityLevel = priority;
         this.umaClient = Objects.requireNonNull(umaClient);
-        // TODO add specific handlers for VC and OpenId once those modules are ready to be integrated
+        // TODO when the UMA service supports need_info, use this handler for token negotiation
         this.claimHandler = new NeedInfoHandler();
     }
 
@@ -156,22 +161,56 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
             final URI as = URI.create(challenge.getParameter(AS_URI));
             final String ticket = challenge.getParameter(TICKET);
 
-            final Optional<Credential> credential = session.getCredential(ID_TOKEN);
-
-            final ClaimToken claimToken = credential.map(cred -> ClaimToken.of(cred.getToken(), ID_TOKEN))
-                .orElse(null);
-            final URI principal = credential.flatMap(Credential::getPrincipal).orElse(null);
-            final String jkt = credential.flatMap(Credential::getProofThumbprint).orElse(null);
-
-            // TODO add Access Grant support
-
-            final TokenRequest req = new TokenRequest(ticket, null, null, claimToken, Collections.emptyList());
             return umaClient.metadata(as)
-                .thenCompose(metadata ->
-                    umaClient.token(metadata.tokenEndpoint, req, claimHandler::getToken)
-                        .thenApply(token -> new Credential(token.tokenType, as, token.accessToken,
-                            Instant.now().plusSeconds(token.expiresIn), principal, jkt)));
+                .thenCompose(metadata -> {
+                    if (supportsProfile(metadata, ID_TOKEN)) {
+                        // Pre-emptively push ID Token claims if supported
+                        final Optional<Credential> credential = session.getCredential(ID_TOKEN, request.uri());
+
+                        final ClaimToken claimToken = credential.map(cred ->
+                                ClaimToken.of(cred.getToken(), ID_TOKEN)).orElse(null);
+
+                        final TokenRequest req = new TokenRequest(ticket, null, null, claimToken,
+                                Collections.emptyList());
+                        LOGGER.debug("Pushing ID Token claims to token endpoint: {}", metadata.tokenEndpoint);
+                        return umaClient.token(metadata.tokenEndpoint, req, claimHandler::getToken)
+                            .thenCompose(token -> {
+                                // TODO this logic should be replaced with proper token negotiation
+                                final URI principal = credential.flatMap(Credential::getPrincipal).orElse(null);
+                                final String jkt = credential.flatMap(Credential::getProofThumbprint).orElse(null);
+                                if (insufficientScope(token) && supportsProfile(metadata, VERIFIABLE_CREDENTIAL)) {
+                                    // Push an Access Grant as a verifiable credential
+                                    final Optional<Credential> cred2 = session.getCredential(VERIFIABLE_CREDENTIAL,
+                                            request.uri());
+                                    if (cred2.isPresent()) {
+                                        final ClaimToken claimToken2 = ClaimToken.of(cred2.get().getToken(),
+                                                VERIFIABLE_CREDENTIAL);
+                                        final TokenRequest req2 = new TokenRequest(ticket, null, token.accessToken,
+                                                claimToken2, Collections.emptyList());
+                                        LOGGER.debug("Pushing Access Grant claims to token endpoint: {}",
+                                                metadata.tokenEndpoint);
+                                        return umaClient.token(metadata.tokenEndpoint, req2, claimHandler::getToken)
+                                            .thenApply(token2 -> new Credential(token2.tokenType, as,
+                                                        token2.accessToken, Instant.now().plusSeconds(token2.expiresIn),
+                                                        principal, jkt));
+                                    }
+                                }
+                                return CompletableFuture.completedFuture(new Credential(token.tokenType, as,
+                                            token.accessToken, Instant.now().plusSeconds(token.expiresIn),
+                                            principal, jkt));
+                            });
+                    }
+                    return CompletableFuture.completedFuture(null);
+                });
         }
+    }
+
+    static boolean supportsProfile(final Metadata metadata, final URI profile) {
+        return metadata.umaProfilesSupported != null && metadata.umaProfilesSupported.contains(profile);
+    }
+
+    static boolean insufficientScope(final TokenResponse token) {
+        return token.scope == null || token.scope.isEmpty();
     }
 
     static String getAlgorithm(final List<String> serverSupported, final Set<String> clientSupported) {
