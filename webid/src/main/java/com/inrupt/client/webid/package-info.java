@@ -33,7 +33,7 @@
             for (final URI type : profile.getType()) {
                 System.out.println("WebID Types: " + type);
             }
-        }
+        }}
  * </pre>
  */
 package com.inrupt.client.webid;
