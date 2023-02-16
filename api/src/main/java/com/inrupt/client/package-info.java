@@ -20,23 +20,23 @@
  */
 /**
  * <h2>Application interfaces for the Inrupt Java Client Libraries.</h2>
- * 
+ *
  * <p>The Inrupt Java Client Libraries use a set of generic interfaces which help integrate with
  * some of the higher-level modules.
- * 
- * <p>Working with a HTTP client is easier by implementing the {@link Client}. Then, to make use of the HTTP client,
+ *
+ * <p>Working with an HTTP client is easier by implementing the {@link Client}. Then, to make use of the HTTP client,
  * which previously was loaded on the classpath, one can call the {@link ClientProvider}.
- * 
- * <p>{@link Request} and {@link Response} classes help with interacting with a HTTP client. And {@link Headers}
+ *
+ * <p>{@link Request} and {@link Response} classes help with interacting with an HTTP client. And {@link Headers}
  * helps parsing header values, including those often used with Solid, such as {@link Headers.Link}
  * or {@link Headers.WacAllow}.
- * 
+ *
  * <p>Further, to work with HTTP resources as RDF-based resources, one can make use of the {@link Resource}
  * class.
  * {@link ValidationResult} can be of use when validation of the Solid resource is needed.
- * 
+ *
  * <p>The {@link InruptClientException} provides a runtime exception used as a generic exception throughout the
  * Inrupt Java Client Libraries.
- * 
+ *
  */
 package com.inrupt.client;
