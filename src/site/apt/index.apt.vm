@@ -5,9 +5,9 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 || Layer || Module function || Module || Description |
 *-------*-----------------*--------*--------------*
-|| Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstrctions used by the Java Client Libraries. |
+|| Interface Layer | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html}api}} | A layer that defines all the central abstractions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
-|  | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html}auth}} | Authentication related abstrctions used by the Java Client Libraries. |
+|  | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html}auth}} | Authentication related abstractions used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
 | | Central abstractions | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html}spi}} | Service interfaces used by the Java Client Libraries. |
 *-------*-----------------*--------*--------------*
@@ -39,6 +39,8 @@ Inrupt's Java Client Libraries
 *-------*-----------------*--------*--------------*
 |  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/test/package-summary.html}test}} | Common tests shared across library modules. |
 *-------*-----------------*--------*--------------*
+|  | Test utilities | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/integration/package-summary.html}integration}} | Integration tests. |
+*-------*-----------------*--------*--------------*
 || <<Example Applications>> | Sample application | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/webapp/package-summary.html}webapp}} | A sample web application. |
 *-------*-----------------*--------*--------------*
 |  | Sample application | {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/cli/package-summary.html}cli}} | A sample CLI application. |
@@ -47,7 +49,7 @@ Inrupt's Java Client Libraries
 * Inrupt's Java Client modules and layers
 
   Inrupt's Java Client Libraries are composed of different modules that follow a layered architectural approach. Next we will provide an overview of these layers and how to make use of them.
-  Make sure to visit the {{{./apidocs/}Documentation}} part for a javadoc style documentation with code examples for each module. 
+  Make sure to visit the {{{./apidocs/}Documentation}} part for a javadoc style documentation with code examples for each module.
 
 ** Interface Layer
 
@@ -63,7 +65,7 @@ Inrupt's Java Client Libraries
 
 ** Core Modules Layer
 
-    The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed. 
+    The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed.
 
   * <<Authentication & Authorization>>
 
@@ -79,14 +81,14 @@ Inrupt's Java Client Libraries
 
       The {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html}uma module}} builds on top of the {{{https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html}UMA}} specification.
 
-      Remark: Higher level abstractions that help with authentication and authorization are part of the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}}. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {{{https://inrupt.github.io/solid-client-java/gettingStarted.html}Getting Started}} for how to use the <<<DefaultClient>>>.
+    Remark: Higher level abstractions that help with authentication and authorization are part of the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html}core module}}. This module includes classes such as <<<DefaultClient>>> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See {{{https://inrupt.github.io/solid-client-java/gettingStarted.html}Getting Started}} for how to use the <<<DefaultClient>>>.
 
   * <<HTTP interaction>>
 
-    For interacting with a Solid server through a HTTP client there are two low level modules available: the java.net {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}HttpClient}} or the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}OkHttp}}.
+    For interacting with a Solid server through an HTTP client there are two low level modules available: the java.net {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}HttpClient}} or the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}OkHttp}}.
 
     * HttpClient
-        
+
       This module build on top of the {{{https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/package-summary.html}java.net.http.HttpClient}}.
       For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient module}}.
 
@@ -103,7 +105,7 @@ Inrupt's Java Client Libraries
       For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf4j/package-summary.html}rdf4j module}}.
 
     * Jena
-        
+
       {{{https://jena.apache.org/documentation/javadoc.html}Jena}} is one of the widely known RDF processing libraries for Java.
       For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jena/package-summary.html}jena module}}.
 
@@ -117,7 +119,7 @@ Inrupt's Java Client Libraries
     * Jackson
 
       {{{https://github.com/FasterXML/jackson}Jackson}} is the Java JSON library that helps you parse and work with JSON.
-      Visit the {{{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html}jackson module}} javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.
+      Visit the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html}jackson module}} javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.
 
 ** Domain-specific Modules Layer
 
