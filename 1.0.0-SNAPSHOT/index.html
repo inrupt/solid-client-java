@@ -168,7 +168,7 @@
 <td align="center"><a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/examples/cli/package-summary.html">cli</a></td>
 <td align="center">A sample CLI application.</td></tr></table><section>
 <h3><a name="Inrupt.27s_Java_Client_modules_and_layers"></a>Inrupt's Java Client modules and layers</h3>
-<p>Inrupt's Java Client Libraries are composed of different modules that follow a layered architectural approach. Next we will provide an overview of these layers and how to make use of them. Make sure to visit the <a href="./apidocs/">Documentation</a> part for a javadoc style documentation with code examples for each module. </p><section>
+<p>Inrupt's Java Client Libraries are composed of different modules that follow a layered architectural approach. Next we will provide an overview of these layers and how to make use of them. Make sure to visit the <a href="./apidocs/">Documentation</a> part for a javadoc style documentation with code examples for each module.</p><section>
 <h4><a name="Interface_Layer"></a>Interface Layer</h4>
 <p>The <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/package-summary.html">api module</a> is an interface module used in mostly all following modules. The provided abstractions are implemented in higher level modules and can be used to plug in your own application specific implementations.</p>
 <p>There are several specific parts to the API module:</p>
@@ -177,7 +177,7 @@
 <li>Classes and interfaces used by developers extending HTTP, JSON or RDF functionalities. These interfaces comprise the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/spi/package-summary.html">spi</a> package and will be used for implementing support for a new RDF processor, JSON processor or HTTP client library.</li>
 <li>Classes and interfaces used by developers extending authentication functionalities. These interfaces comprise the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/auth/package-summary.html">auth</a> package and are helpful for authentication and authorization.</li></ul></section><section>
 <h4><a name="Core_Modules_Layer"></a>Core Modules Layer</h4>
-<p>The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed. </p>
+<p>The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed.</p>
 <ul>
 <li><b>Authentication &amp; Authorization</b>
 <p>Authentication &amp; authorization are processes part of verifying the identity of an agent. To access private data on Solid Pods, you must authenticate as a user/agent who has been granted appropriate access to that data.</p>
@@ -189,7 +189,7 @@
 <p>The <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/uma/package-summary.html">uma module</a> builds on top of the <a class="externalLink" href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html">UMA</a> specification.</p>
 <p>Remark: Higher level abstractions that help with authentication and authorization are part of the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/core/package-summary.html">core module</a>. This module includes classes such as <code>DefaultClient</code> which encapsulates a reactive authentication approach. This class makes use of the basic authentication and authorization modules to automatically determine the preferred authentication and authorization the server needs and then negotiate the according tokens and access. See <a class="externalLink" href="https://inrupt.github.io/solid-client-java/gettingStarted.html">Getting Started</a> for how to use the <code>DefaultClient</code>.</p></li></ul></li>
 <li><b>HTTP interaction</b>
-<p>For interacting with a Solid server through a HTTP client there are two low level modules available: the java.net <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html">HttpClient</a> or the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html">OkHttp</a>.</p>
+<p>For interacting with a Solid server through an HTTP client there are two low level modules available: the java.net <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html">HttpClient</a> or the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html">OkHttp</a>.</p>
 <ul>
 <li>HttpClient
 <p>This module build on top of the <a class="externalLink" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/package-summary.html">java.net.http.HttpClient</a>. For example code and usage visit the javadoc at the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html">httpclient module</a>.</p></li>
@@ -206,7 +206,7 @@
 <li>JSON-B
 <p><a class="externalLink" href="https://javaee.github.io/jsonb-spec/getting-started.html">JSON-B</a> is providing a Java API for JSON Bindings. Visit the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jsonb/package-summary.html">jsonb module</a> javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.</p></li>
 <li>Jackson
-<p><a class="externalLink" href="https://github.com/FasterXML/jackson">Jackson</a> is the Java JSON library that helps you parse and work with JSON. Visit the <a class="externalLink" href="{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html">jackson module</a> javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.</p></li></ul></li></ul></section><section>
+<p><a class="externalLink" href="https://github.com/FasterXML/jackson">Jackson</a> is the Java JSON library that helps you parse and work with JSON. Visit the <a class="externalLink" href="https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html">jackson module</a> javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.</p></li></ul></li></ul></section><section>
 <h4><a name="Domain-specific_Modules_Layer"></a>Domain-specific Modules Layer</h4>
 <ul>
 <li><b>Implementation of all API interfaces</b>
