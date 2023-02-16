@@ -170,7 +170,8 @@ public class AccessGrantClient {
             final String mode) {
         Objects.requireNonNull(type, "The type parameter must not be null!");
         return v1Metadata().thenCompose(metadata -> {
-            final List<CompletableFuture<List<AccessGrant>>> futures = buildQuery(type, agent, resource, mode).stream()
+            final List<CompletableFuture<List<AccessGrant>>> futures = buildQuery(config.getIssuer(), type,
+                    agent, resource, mode).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -291,52 +292,6 @@ public class AccessGrantClient {
         }
     }
 
-    List<Map<String, Object>> buildQuery(final URI type, final URI agent, final URI resource, final String mode) {
-        final List<Map<String, Object>> queries = new ArrayList<>();
-        buildQuery(queries, type, agent, resource, mode);
-        return queries;
-    }
-
-    void buildQuery(final List<Map<String, Object>> queries, final URI type, final URI agent,
-            final URI resource, final String mode) {
-        final Map<String, Object> credential = new HashMap<>();
-        credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("issuer", config.getIssuer());
-        credential.put(TYPE, Arrays.asList(type));
-
-        final Map<String, Object> consent = new HashMap<>();
-        if (agent != null) {
-            consent.put("isProvidedToPerson", agent);
-        }
-        if (resource != null) {
-            consent.put("forPersonalData", resource);
-        }
-        if (mode != null) {
-            consent.put("mode", mode);
-        }
-
-        final Map<String, Object> subject = new HashMap<>();
-        if (!consent.isEmpty()) {
-            if (isAccessGrant(type)) {
-                subject.put("providedConsent", consent);
-            } else if (isAccessRequest(type)) {
-                subject.put("hasConsent", consent);
-            }
-            credential.put("credentialSubject", subject);
-        }
-
-        final Map<String, Object> data = new HashMap<>();
-        data.put(VERIFIABLE_CREDENTIAL, credential);
-
-        queries.add(data);
-
-        // Recurse
-        final URI parent = getParent(resource);
-        if (parent != null) {
-            buildQuery(queries, type, agent, parent, mode);
-        }
-    }
-
     List<AccessGrant> processQueryResponse(final InputStream input, final Set<String> validTypes) throws IOException {
         final Map<String, Object> data = jsonService.fromJson(input,
                 new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
@@ -395,6 +350,53 @@ public class AccessGrantClient {
             return output.toByteArray();
         } catch (final IOException ex) {
             throw new UncheckedIOException("Unable to serialize data as JSON", ex);
+        }
+    }
+
+    static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI agent, final URI resource,
+            final String mode) {
+        final List<Map<String, Object>> queries = new ArrayList<>();
+        buildQuery(queries, issuer, type, agent, resource, mode);
+        return queries;
+    }
+
+    static void buildQuery(final List<Map<String, Object>> queries, final URI issuer, final URI type, final URI agent,
+            final URI resource, final String mode) {
+        final Map<String, Object> credential = new HashMap<>();
+        credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
+        credential.put("issuer", issuer);
+        credential.put(TYPE, Arrays.asList(type));
+
+        final Map<String, Object> consent = new HashMap<>();
+        if (agent != null) {
+            consent.put("isProvidedToPerson", agent);
+        }
+        if (resource != null) {
+            consent.put("forPersonalData", resource);
+        }
+        if (mode != null) {
+            consent.put("mode", mode);
+        }
+
+        final Map<String, Object> subject = new HashMap<>();
+        if (!consent.isEmpty()) {
+            if (isAccessGrant(type)) {
+                subject.put("providedConsent", consent);
+            } else if (isAccessRequest(type)) {
+                subject.put("hasConsent", consent);
+            }
+            credential.put("credentialSubject", subject);
+        }
+
+        final Map<String, Object> data = new HashMap<>();
+        data.put(VERIFIABLE_CREDENTIAL, credential);
+
+        queries.add(data);
+
+        // Recurse
+        final URI parent = getParent(resource);
+        if (parent != null) {
+            buildQuery(queries, issuer, type, agent, parent, mode);
         }
     }
 
