@@ -295,7 +295,7 @@ public class CoreModulesResource {
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
         final String fileName = "myFile.txt";
-        final String fileURL = testContainerURI.toString() + fileName;
+        final String fileURL = testContainerURI + fileName;
 
         //create non RDF resource
         final Request reqCreate =
