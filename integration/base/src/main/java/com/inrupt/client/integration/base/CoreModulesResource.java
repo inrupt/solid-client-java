@@ -326,7 +326,7 @@ public class CoreModulesResource {
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
 
-        final String newResourceName = testContainerURI.toString() + "e2e-test-subject";
+        final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicate = "https://example.example/predicate";
         final String predicateForBlank = "https://example.example/predicateForBlank";
 
