@@ -47,6 +47,9 @@ public class HttpClientService implements HttpService {
 
     private final HttpClient client;
 
+    /**
+     * Create an HTTP client service with a default {@link HttpClient}.
+     */
     public HttpClientService() {
         this(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build());
     }
@@ -93,6 +96,12 @@ public class HttpClientService implements HttpService {
             });
     }
 
+    /**
+     * Create an HTTP client service with a pre-configured {@link HttpClient}.
+     *
+     * @param client the HttpClient
+     * @return an HTTP client service
+     */
     public static HttpClientService ofHttpClient(final HttpClient client) {
         return new HttpClientService(client);
     }
