@@ -116,8 +116,11 @@ public final class AccessGrantSession implements Session {
     @Override
     public CompletionStage<Optional<Credential>> authenticate(final Request request,
             final Set<String> algorithms) {
-        // TODO implement
-        return CompletableFuture.completedFuture(Optional.empty());
+        final Optional<Credential> grant = getCredential(VERIFIABLE_CREDENTIAL, request.uri());
+        if (grant.isPresent()) {
+            return CompletableFuture.completedFuture(grant);
+        }
+        return session.authenticate(request, algorithms);
     }
 
     @Override
