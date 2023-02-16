@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.accessgrant;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
@@ -31,6 +32,7 @@ import com.inrupt.client.util.URIBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,10 +92,12 @@ class AccessGrantSessionTest {
             assertEquals(Optional.of(URI.create(WEBID)), session.getPrincipal());
             assertFalse(grant.getResources().isEmpty());
             for (final URI uri : grant.getResources()) {
-                assertEquals(Optional.of(grant.getRawGrant()),
+                final String encoded = Base64.getUrlEncoder().withoutPadding()
+                    .encodeToString(grant.getRawGrant().getBytes(UTF_8));
+                assertEquals(Optional.of(encoded),
                         session.getCredential(AccessGrantSession.VERIFIABLE_CREDENTIAL, uri).map(Credential::getToken));
                 final URI child = URIBuilder.newBuilder(uri).path("a").path("b").build();
-                assertEquals(Optional.of(grant.getRawGrant()),
+                assertEquals(Optional.of(encoded),
                         session.getCredential(AccessGrantSession.VERIFIABLE_CREDENTIAL,
                             child).map(Credential::getToken));
                 assertFalse(session.getCredential(AccessGrantSession.VERIFIABLE_CREDENTIAL,

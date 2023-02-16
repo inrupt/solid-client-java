@@ -20,12 +20,15 @@
  */
 package com.inrupt.client.accessgrant;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.inrupt.client.Request;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +98,8 @@ public final class AccessGrantSession implements Session {
             for (final Map.Entry<URI, AccessGrant> entry : descending.entrySet()) {
                 if (isAncestor(entry.getKey(), uri)) {
                     final AccessGrant grant = entry.getValue();
-                    return Optional.of(new Credential("", grant.getIssuer(), grant.getRawGrant(),
+                    return Optional.of(new Credential("", grant.getIssuer(), Base64.getUrlEncoder().withoutPadding()
+                                    .encodeToString(grant.getRawGrant().getBytes(UTF_8)),
                                 grant.getExpiration(), session.getPrincipal().orElse(null), null));
                 }
             }

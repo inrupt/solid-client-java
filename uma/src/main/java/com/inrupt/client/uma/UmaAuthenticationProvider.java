@@ -186,7 +186,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
                                         final ClaimToken claimToken2 = ClaimToken.of(cred2.get().getToken(),
                                                 VERIFIABLE_CREDENTIAL);
                                         final TokenRequest req2 = new TokenRequest(ticket, null, token.accessToken,
-                                                claimToken, Collections.emptyList());
+                                                claimToken2, Collections.emptyList());
                                         LOGGER.debug("Pushing Access Grant claims to token endpoint: {}",
                                                 metadata.tokenEndpoint);
                                         return umaClient.token(metadata.tokenEndpoint, req2, claimHandler::getToken)

@@ -7,7 +7,7 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-access-grant</artifactId>
+  <artifactId>inrupt-client-accessgrant</artifactId>
   <name>Inrupt Java Client Libraries - Access Grants</name>
   <description>
       Access Grant support for the Inrupt Client Libraries.
