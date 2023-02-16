@@ -49,7 +49,7 @@ Inrupt's Java Client Libraries
 * Inrupt's Java Client modules and layers
 
   Inrupt's Java Client Libraries are composed of different modules that follow a layered architectural approach. Next we will provide an overview of these layers and how to make use of them.
-  Make sure to visit the {{{./apidocs/}Documentation}} part for a javadoc style documentation with code examples for each module. 
+  Make sure to visit the {{{./apidocs/}Documentation}} part for a javadoc style documentation with code examples for each module.
 
 ** Interface Layer
 
@@ -65,7 +65,7 @@ Inrupt's Java Client Libraries
 
 ** Core Modules Layer
 
-    The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed. 
+    The next listed modules make up what we call the core modules layer of the Java Client Libraries. See these modules as basic building blocks on top of which further Solid and then application specific implementations can be developed.
 
   * <<Authentication & Authorization>>
 
@@ -85,10 +85,10 @@ Inrupt's Java Client Libraries
 
   * <<HTTP interaction>>
 
-    For interacting with a Solid server through a HTTP client there are two low level modules available: the java.net {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}HttpClient}} or the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}OkHttp}}.
+    For interacting with a Solid server through an HTTP client there are two low level modules available: the java.net {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}HttpClient}} or the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/okhttp/package-summary.html}OkHttp}}.
 
     * HttpClient
-        
+
       This module build on top of the {{{https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/package-summary.html}java.net.http.HttpClient}}.
       For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/httpclient/package-summary.html}httpclient module}}.
 
@@ -105,7 +105,7 @@ Inrupt's Java Client Libraries
       For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/rdf4j/package-summary.html}rdf4j module}}.
 
     * Jena
-        
+
       {{{https://jena.apache.org/documentation/javadoc.html}Jena}} is one of the widely known RDF processing libraries for Java.
       For example code and usage visit the javadoc at the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jena/package-summary.html}jena module}}.
 
@@ -119,7 +119,7 @@ Inrupt's Java Client Libraries
     * Jackson
 
       {{{https://github.com/FasterXML/jackson}Jackson}} is the Java JSON library that helps you parse and work with JSON.
-      Visit the {{{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html}jackson module}} javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.
+      Visit the {{{https://inrupt.github.io/solid-client-java/apidocs/com/inrupt/client/jackson/package-summary.html}jackson module}} javadocs for examples of how to make use of it in Inrupt's Java Client Libraries.
 
 ** Domain-specific Modules Layer
 

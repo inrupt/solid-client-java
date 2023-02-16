@@ -128,7 +128,7 @@ public final class DefaultClient implements Client {
     }
 
     /**
-     * The bulilder of the default client implementation.
+     * The builder of the default client implementation.
      */
     public static class Builder implements Client.Builder {
 
