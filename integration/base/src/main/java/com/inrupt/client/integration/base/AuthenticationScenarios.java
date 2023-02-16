@@ -289,7 +289,7 @@ public class AuthenticationScenarios {
             CLIENT_ID,
             CLIENT_SECRET,
             AUTH_METHOD);
-        final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN);
+        final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN, null);
         final var token = credential.map(Credential::getToken)
             .orElseThrow(() -> new OpenIdException("We could not get a token"));
         return Stream.of(
