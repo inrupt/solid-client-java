@@ -22,6 +22,7 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
@@ -37,6 +38,10 @@ import java.util.concurrent.CompletionStage;
 public class SolidSyncClient {
 
     private final SolidClient client;
+
+    SolidSyncClient(final Client client, final Headers headers) {
+        this(new SolidClient(client, headers));
+    }
 
     SolidSyncClient(final SolidClient client) {
         this.client = client;
@@ -110,22 +115,60 @@ public class SolidSyncClient {
     }
 
     /**
-     * Create a new SolidClient from an underlying {@link Client} instance.
-     *
-     * @param client the client
-     * @return the new solid client
-     */
-    public static SolidSyncClient of(final Client client) {
-        return new SolidSyncClient(new SolidClient(client));
-    }
-
-    /**
      * Get the {@link SolidSyncClient} for the current application.
      *
      * @return the client instance
      */
     public static SolidSyncClient getClient() {
-        return SolidSyncClient.of(ClientProvider.getClient());
+        return getClientBuilder().build();
+    }
+
+    public static Builder getClientBuilder() {
+        return new Builder();
+    }
+
+    /**
+     * A builder class for a {@link SolidSyncClient}.
+     */
+    public static class Builder {
+        private Client builderClient;
+        private Headers builderHeaders;
+
+        Builder() {
+        }
+
+        /**
+         * Set a pre-configured {@link Client}.
+         *
+         * @param client the client
+         * @return this builder
+         */
+        public Builder client(final Client client) {
+            this.builderClient = client;
+            return this;
+        }
+
+        /**
+         * Set a collection of headers to be used with each request.
+         *
+         * @param headers the headers
+         * @return this builder
+         */
+        public Builder headers(final Headers headers) {
+            this.builderHeaders = headers;
+            return this;
+        }
+
+        /**
+         * Build the {@link SolidSyncClient}.
+         *
+         * @return the Solid client
+         */
+        public SolidSyncClient build() {
+            final Client c = builderClient == null ? ClientProvider.getClient() : builderClient;
+            final Headers h = builderHeaders == null ? SolidClient.EMPTY_HEADERS : builderHeaders;
+            return new SolidSyncClient(c, h);
+        }
     }
 
     @SuppressWarnings("unchecked")
