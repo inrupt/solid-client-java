@@ -41,7 +41,7 @@
  * <p>The above line is equivalent to:
  * <pre>{@code
     Client classPathClient = ClientProvider.getClient();
-    SolidClient client = SolidClient.of(classPathClient);
+    SolidClient client = SolidClient.getClientBuilder().client(classPathClient).build();
     }
  * </pre>
  * 

@@ -38,6 +38,7 @@ import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.eclipse.microprofile.config.Config;
@@ -123,16 +124,19 @@ public class AuthenticationScenarios {
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("test-" + UUID.randomUUID())
                 .path(testResourceName)
                 .build();
         } else {
             publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
+                .path("test-" + UUID.randomUUID())
                 .path(testResourceName)
                 .build();
         }
         privateResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
             .path(State.PRIVATE_RESOURCE_PATH)
+            .path("test-" + UUID.randomUUID())
             .path(testResourceName)
             .build();
 
@@ -143,18 +147,17 @@ public class AuthenticationScenarios {
     static void teardown() {
         //cleanup pod
         final SolidSyncClient client = SolidSyncClient.getClient().session(session);
-        final var reqDeletePrivateResource = Request.newBuilder(privateResourceURL)
-            .DELETE().build();
+        final var reqDeletePrivateResource = Request.newBuilder(privateResourceURL).DELETE().build();
         client.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
 
-        final var reqDeletePrivate = Request.newBuilder(URIBuilder.newBuilder(
-            URI.create(podUrl)).path(State.PRIVATE_RESOURCE_PATH).build())
-            .DELETE().build();
-        client.send(reqDeletePrivate, Response.BodyHandlers.discarding());
+        final var reqDeletePrivateParent = Request.newBuilder(privateResourceURL.resolve(".")).DELETE().build();
+        client.send(reqDeletePrivateParent, Response.BodyHandlers.discarding());
 
-        final var reqDeletePublic = Request.newBuilder(publicResourceURL)
-            .DELETE().build();
+        final var reqDeletePublic = Request.newBuilder(publicResourceURL).DELETE().build();
         client.send(reqDeletePublic, Response.BodyHandlers.discarding());
+
+        final var reqDeletePublicParent = Request.newBuilder(publicResourceURL.resolve(".")).DELETE().build();
+        client.send(reqDeletePublicParent, Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -163,8 +166,9 @@ public class AuthenticationScenarios {
     }
 
     @Test
-    @DisplayName(":unauthenticatedPublicNode Unauth fetch of public resource succeeds")
+    @DisplayName(":unauthenticatedPublicNode Unauthenticated fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
+        LOGGER.info("Integration Test - Unauthenticated fetch of public resource");
         //create a public resource
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -175,8 +179,9 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":unauthenticatedPrivateNode Unauth fetch of a private resource fails")
+    @DisplayName(":unauthenticatedPrivateNode Unauthenticated fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - Unauthenticated fetch of a private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
@@ -193,24 +198,10 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":unauthenticatedPrivateNodeAfterLogout Unauth fetch of a private resource fails")
-    void fetchPrivateResourceAfterLogoutTest(final Session session) {
-        //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
-        assertDoesNotThrow(() -> authClient.create(testResource));
-
-        final SolidSyncClient unauthClient = SolidSyncClient.getClient();
-        final SolidClientException err = assertThrows(SolidClientException.class,
-                () -> unauthClient.read(privateResourceURL, SolidResource.class));
-        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
-
-        assertDoesNotThrow(() -> authClient.delete(testResource));
-    }
-    @ParameterizedTest
-    @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPublicNode Auth fetch of public resource succeeds")
+    @DisplayName(":authenticatedPublicNode Authenticated fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - AuAuthenticatedth fetch of public resource");
+        //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
         final SolidResource testResource = new SolidResource(publicResourceURL, null, null);
         assertDoesNotThrow(() -> client.create(testResource));
@@ -220,10 +211,12 @@ public class AuthenticationScenarios {
 
         assertDoesNotThrow(() -> client.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPrivateNode Auth fetch of private resource succeeds")
+    @DisplayName(":authenticatedPrivateNode Authenticated fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - Authenticated fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
@@ -233,10 +226,12 @@ public class AuthenticationScenarios {
 
         assertDoesNotThrow(() -> authClient.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPrivateNodeAfterLogin Unauth, then auth fetch of private resource")
+    @DisplayName(":authenticatedPrivateNodeAfterLogin Unauthenticated, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest(final Session session) {
+        LOGGER.info("Integration Test - Unauthenticated, then auth fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
@@ -252,10 +247,12 @@ public class AuthenticationScenarios {
 
         assertDoesNotThrow(() -> authClient2.delete(testResource));
     }
+
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
     void multiSessionTest(final Session session) {
+        LOGGER.info("Integration Test - Multiple sessions authenticated in parallel");
         //create private resource
         final SolidResource testResource = new SolidResource(privateResourceURL, null, null);
         final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);

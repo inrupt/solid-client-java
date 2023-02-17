@@ -22,6 +22,7 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
@@ -31,6 +32,10 @@ import com.inrupt.client.util.IOUtils;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.rdf.api.Dataset;
@@ -41,6 +46,9 @@ import org.apache.commons.rdf.api.RDFSyntax;
  */
 public class SolidClient {
 
+    static final Headers EMPTY_HEADERS = Headers.of(Collections.emptyMap());
+
+    private static final String USER_AGENT = "User-Agent";
     private static final String ACCEPT = "Accept";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String IF_NONE_MATCH = "If-None-Match";
@@ -48,9 +56,11 @@ public class SolidClient {
     private static final String WILDCARD = "*";
 
     private final Client client;
+    private final Headers defaultHeaders;
 
-    SolidClient(final Client client) {
-        this.client = client;
+    SolidClient(final Client client, final Headers headers) {
+        this.client = Objects.requireNonNull(client, "Client may not be null!");
+        this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
     }
 
     /**
@@ -60,7 +70,7 @@ public class SolidClient {
      * @return a session-scoped client
      */
     public SolidClient session(final Session session) {
-        return new SolidClient(client.session(session));
+        return new SolidClient(client.session(session), defaultHeaders);
     }
 
     /**
@@ -85,11 +95,31 @@ public class SolidClient {
      * @return the next stage of completion, including the new resource
      */
     public <T extends Resource> CompletionStage<T> read(final URI identifier, final Class<T> clazz) {
-        final Request req = Request.newBuilder(identifier)
-            .header(ACCEPT, TEXT_TURTLE)
-            .GET().build();
+        return read(identifier, EMPTY_HEADERS, clazz);
+    }
 
-        return client.send(req, Response.BodyHandlers.ofByteArray())
+    /**
+     * Read a Solid Resource into a particular defined type.
+     *
+     * @param identifier the identifier
+     * @param headers headers to add to this request
+     * @param clazz the desired resource type
+     * @param <T> the resource type
+     * @return the next stage of completion, including the new resource
+     */
+    public <T extends Resource> CompletionStage<T> read(final URI identifier, final Headers headers,
+            final Class<T> clazz) {
+        final Request.Builder builder = Request.newBuilder(identifier).GET();
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        builder.setHeader(ACCEPT, TEXT_TURTLE);
+
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= 400) {
                     throw new SolidClientException("Unable to read resource at " + identifier, identifier,
@@ -125,13 +155,28 @@ public class SolidClient {
      * @return the next stage of completion
      */
     public <T extends Resource> CompletionStage<Response<Void>> create(final T resource) {
-        final Request req = Request.newBuilder(resource.getIdentifier())
-            .header(CONTENT_TYPE, TEXT_TURTLE)
-            .header(IF_NONE_MATCH, WILDCARD)
-            .PUT(cast(resource))
-            .build();
+        return create(resource, EMPTY_HEADERS);
+    }
 
-        return client.send(req, Response.BodyHandlers.discarding());
+    /**
+     * Create a new Solid Resource.
+     *
+     * @param resource the resource
+     * @param headers headers to add to this request
+     * @param <T> the resource type
+     * @return the next stage of completion
+     */
+    public <T extends Resource> CompletionStage<Response<Void>> create(final T resource, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).PUT(cast(resource));
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        builder.setHeader(CONTENT_TYPE, TEXT_TURTLE).setHeader(IF_NONE_MATCH, WILDCARD);
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
 
     /**
@@ -142,12 +187,28 @@ public class SolidClient {
      * @return the next stage of completion
      */
     public <T extends Resource> CompletionStage<Response<Void>> update(final T resource) {
-        final Request req = Request.newBuilder(resource.getIdentifier())
-            .header(CONTENT_TYPE, TEXT_TURTLE)
-            .PUT(cast(resource))
-            .build();
+        return update(resource, EMPTY_HEADERS);
+    }
 
-        return client.send(req, Response.BodyHandlers.discarding());
+    /**
+     * Update an existing Solid Resource.
+     *
+     * @param resource the resource
+     * @param headers headers to add to this request
+     * @param <T> the resource type
+     * @return the next stage of completion
+     */
+    public <T extends Resource> CompletionStage<Response<Void>> update(final T resource, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).PUT(cast(resource));
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        builder.setHeader(CONTENT_TYPE, TEXT_TURTLE);
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
 
     /**
@@ -158,20 +219,27 @@ public class SolidClient {
      * @return the next stage of completion
      */
     public <T extends Resource> CompletionStage<Response<Void>> delete(final T resource) {
-        final Request req = Request.newBuilder(resource.getIdentifier())
-            .DELETE()
-            .build();
-        return client.send(req, Response.BodyHandlers.discarding());
+        return delete(resource, EMPTY_HEADERS);
     }
 
     /**
-     * Create a new SolidClient from an underlying {@link Client} instance.
+     * Delete an existing Solid Resource.
      *
-     * @param client the client
-     * @return the new solid client
+     * @param resource the resource
+     * @param headers headers to add to this request
+     * @param <T> the resource type
+     * @return the next stage of completion
      */
-    public static SolidClient of(final Client client) {
-        return new SolidClient(client);
+    public <T extends Resource> CompletionStage<Response<Void>> delete(final T resource, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).DELETE();
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
 
     /**
@@ -180,7 +248,60 @@ public class SolidClient {
      * @return the client instance
      */
     public static SolidClient getClient() {
-        return SolidClient.of(ClientProvider.getClient());
+        return getClientBuilder().build();
+    }
+
+    /**
+     * Get a {@link SolidClient.Builder} for the current application.
+     *
+     * @return a client builder
+     */
+    public static SolidClient.Builder getClientBuilder() {
+        return new Builder();
+    }
+
+    /**
+     * A builder class for a {@link SolidClient}.
+     */
+    public static class Builder {
+        private Client builderClient;
+        private Headers builderHeaders;
+
+        Builder() {
+        }
+
+        /**
+         * Set a pre-configured {@link Client}.
+         *
+         * @param client the client
+         * @return this builder
+         */
+        public Builder client(final Client client) {
+            this.builderClient = client;
+            return this;
+        }
+
+        /**
+         * Set a collection of headers to be used with each request.
+         *
+         * @param headers the headers
+         * @return this builder
+         */
+        public Builder headers(final Headers headers) {
+            this.builderHeaders = headers;
+            return this;
+        }
+
+        /**
+         * Build the {@link SolidClient}.
+         *
+         * @return the Solid client
+         */
+        public SolidClient build() {
+            final Client c = builderClient == null ? ClientProvider.getClient() : builderClient;
+            final Headers h = builderHeaders == null ? EMPTY_HEADERS : builderHeaders;
+            return new SolidClient(c, h);
+        }
     }
 
     static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
@@ -193,6 +314,14 @@ public class SolidClient {
             // Fall back to an arity-2 ctor
             return clazz.getConstructor(URI.class, Dataset.class)
                         .newInstance(identifier, dataset);
+        }
+    }
+
+    static void decorateHeaders(final Request.Builder builder, final Headers headers) {
+        for (final Map.Entry<String, List<String>> entry : headers.asMap().entrySet()) {
+            for (final String item : entry.getValue()) {
+                builder.header(entry.getKey(), item);
+            }
         }
     }
 

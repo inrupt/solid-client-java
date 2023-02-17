@@ -22,11 +22,14 @@ package com.inrupt.client.solid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +61,57 @@ class SolidClientTest {
     static void teardown() {
         mockHttpServer.stop();
     }
+
+    @Test
+    void testCustomClient() throws Exception {
+
+        final SolidClient customClient = SolidClient.getClientBuilder()
+            .headers(Headers.of(Collections.singletonMap("User-Agent", Arrays.asList("TestClient/1.0")))).build();
+
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/custom-agent");
+        final URI song1 = URI.create("https://library.test/12345/song1.mp3");
+        final URI song2 = URI.create("https://library.test/12345/song2.mp3");
+
+        customClient.read(uri, Playlist.class).thenAccept(playlist -> {
+            try (final Playlist p = playlist) {
+                assertEquals(uri, p.getIdentifier());
+                assertEquals("My playlist", p.getTitle());
+                assertEquals(2, p.getSongs().size());
+                assertTrue(p.getSongs().contains(song1));
+                assertTrue(p.getSongs().contains(song2));
+                assertTrue(p.validate().isValid());
+
+                assertDoesNotThrow(customClient.create(p).toCompletableFuture()::join);
+                assertDoesNotThrow(customClient.update(p).toCompletableFuture()::join);
+                assertDoesNotThrow(customClient.delete(p).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
+    void testCustomHeaders() throws Exception {
+
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/custom-agent");
+        final URI song1 = URI.create("https://library.test/12345/song1.mp3");
+        final URI song2 = URI.create("https://library.test/12345/song2.mp3");
+        final Headers headers = Headers.of(Collections.singletonMap("User-Agent", Arrays.asList("TestClient/1.0")));
+
+        client.read(uri, headers, Playlist.class).thenAccept(playlist -> {
+            try (final Playlist p = playlist) {
+                assertEquals(uri, p.getIdentifier());
+                assertEquals("My playlist", p.getTitle());
+                assertEquals(2, p.getSongs().size());
+                assertTrue(p.getSongs().contains(song1));
+                assertTrue(p.getSongs().contains(song2));
+                assertTrue(p.validate().isValid());
+
+                assertDoesNotThrow(client.create(p, headers).toCompletableFuture()::join);
+                assertDoesNotThrow(client.update(p, headers).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(p, headers).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
+    }
+
 
     @Test
     void testGetPlaylist() throws IOException, InterruptedException {

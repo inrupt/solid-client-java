@@ -53,11 +53,14 @@ public class OkHttpService implements HttpService {
 
     private final OkHttpClient client;
 
+    /**
+     * Create an HTTP client service with a default {@link OkHttpClient}.
+     */
     public OkHttpService() {
         this(new OkHttpClient());
     }
 
-    public OkHttpService(final OkHttpClient client) {
+    private OkHttpService(final OkHttpClient client) {
         LOGGER.debug("Initializing OkHttpClient service for HTTP client support");
         this.client = client;
     }
@@ -94,6 +97,16 @@ public class OkHttpService implements HttpService {
         });
 
         return future;
+    }
+
+    /**
+     * Create an HTTP client service with a pre-configured {@link OkHttpClient}.
+     *
+     * @param client the OkHttpClient
+     * @return an HTTP client service
+     */
+    public static OkHttpService ofOkHttpClient(final OkHttpClient client) {
+        return new OkHttpService(client);
     }
 
     static RequestBody prepareBody(final Request request, final MediaType mediaType) {

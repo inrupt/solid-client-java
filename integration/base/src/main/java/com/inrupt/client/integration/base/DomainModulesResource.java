@@ -53,11 +53,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Domain-specific modules based test class for resource integration scenarios.
  */
 public class DomainModulesResource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainModulesResource.class);
 
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
@@ -114,25 +118,27 @@ public class DomainModulesResource {
                 podUrl = storages.iterator().next().toString();
             }
         }
-        if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
-            podUrl += Utils.FOLDER_SEPARATOR;
-        }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("test-" + UUID.randomUUID())
+                .path(testContainer).build();
         } else {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
+                .path("test-" + UUID.randomUUID())
                 .path(testContainer)
                 .build();
         }
+
+        LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
 
     @AfterAll
     static void teardown() {
         //cleanup pod
-        final var reqDelete =
-                Request.newBuilder(testContainerURI).DELETE().build();
-        client.send(reqDelete, Response.BodyHandlers.discarding());
+        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
+        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
+                Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -143,6 +149,8 @@ public class DomainModulesResource {
     @Test
     @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
+        LOGGER.info("Integration Test - CRUD on RDF resource");
+
         final String newResourceName = testContainerURI + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
@@ -177,8 +185,9 @@ public class DomainModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:baseContainerCrud can create and remove Containers")
+    @DisplayName("./solid-client-java:baseContainerCrud create and remove Containers")
     void containerCreateDeleteTest() {
+        LOGGER.info("Integration Test - create and remove Containers");
 
         final String containerURL = testContainerURI + "newContainer/";
 
@@ -192,6 +201,8 @@ public class DomainModulesResource {
     @DisplayName("./solid-client-java:blankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
+        LOGGER.info("Integration Test - update statements containing Blank Nodes in " +
+            "different instances of the same model");
 
         final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicateName = "https://example.example/predicate";
@@ -243,6 +254,7 @@ public class DomainModulesResource {
     @Test
     @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
     void findStorageTest() {
+        LOGGER.info("Integration Test - find pod storage from webID");
 
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             assertFalse(sameProfile.getStorage().isEmpty());
@@ -258,6 +270,7 @@ public class DomainModulesResource {
     @Disabled("Client needs to be authenticated to get a successful 200 on GET of root")
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
+        LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
         //returns: testContainer + "UUID1/UUID2/UUID3/"
         final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
