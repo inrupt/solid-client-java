@@ -48,7 +48,8 @@ import okhttp3.RequestBody;
  */
 public class OkHttpService implements HttpService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OkHttpService.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(OkHttpService.class);
+
     private static final Set<String> NO_BODY_METHODS = new HashSet<>(Arrays.asList("GET", "HEAD", "DELETE"));
 
     private final OkHttpClient client;

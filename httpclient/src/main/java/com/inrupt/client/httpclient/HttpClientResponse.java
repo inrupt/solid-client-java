@@ -28,23 +28,23 @@ import java.net.URI;
 class HttpClientResponse<T> implements Response<T> {
 
     private final Response.ResponseInfo info;
-    private final URI uri;
-    private final T body;
+    private final URI responseUri;
+    private final T responseBody;
 
     public HttpClientResponse(final URI uri, final Response.ResponseInfo info, final T body) {
-        this.uri = uri;
+        this.responseUri = uri;
+        this.responseBody = body;
         this.info = info;
-        this.body = body;
     }
 
     @Override
     public T body() {
-        return body;
+        return responseBody;
     }
 
     @Override
     public URI uri() {
-        return uri;
+        return responseUri;
     }
 
     @Override

@@ -45,11 +45,11 @@ import org.apache.commons.io.IOUtils;
  */
 public final class Request {
 
-    private final String method;
-    private final URI uri;
-    private final Headers headers;
+    private final String requestMethod;
+    private final URI requestUri;
+    private final Headers requestHeaders;
     private final BodyPublisher publisher;
-    private final Duration timeout;
+    private final Duration requestTimeout;
 
     /**
      * The HTTP method.
@@ -57,7 +57,7 @@ public final class Request {
      * @return the HTTP method
      */
     public String method() {
-        return this.method;
+        return this.requestMethod;
     }
 
     /**
@@ -66,7 +66,7 @@ public final class Request {
      * @return the HTTP URI
      */
     public URI uri() {
-        return this.uri;
+        return this.requestUri;
     }
 
     /**
@@ -84,7 +84,7 @@ public final class Request {
      * @return the HTTP headers
      */
     public Headers headers() {
-        return headers;
+        return requestHeaders;
     }
 
     /**
@@ -93,7 +93,7 @@ public final class Request {
      * @return the timeout for this request, if present
      */
     public Optional<Duration> timeout() {
-        return Optional.ofNullable(timeout);
+        return Optional.ofNullable(requestTimeout);
     }
 
     /**
@@ -117,11 +117,11 @@ public final class Request {
 
     Request(final URI uri, final String method, final Map<String, List<String>> headers,
             final BodyPublisher publisher, final Duration timeout) {
-        this.uri = Objects.requireNonNull(uri, "Request URI may not be null!");
-        this.method = Objects.requireNonNull(method, "Request method may not be null!");
-        this.headers = Headers.of(Objects.requireNonNull(headers, "Request headers may not be null!"));
+        this.requestUri = Objects.requireNonNull(uri, "Request URI may not be null!");
+        this.requestMethod = Objects.requireNonNull(method, "Request method may not be null!");
+        this.requestHeaders = Headers.of(Objects.requireNonNull(headers, "Request headers may not be null!"));
+        this.requestTimeout = timeout;
         this.publisher = publisher;
-        this.timeout = timeout;
     }
 
     /**
@@ -201,11 +201,11 @@ public final class Request {
      * A {@link Request} builder.
      */
     public static final class Builder {
-        private URI uri;
-        private String method = "GET";
-        private Duration timeout;
+        private URI requestUri;
+        private String requestMethod = "GET";
+        private Duration requestTimeout;
         private BodyPublisher publisher = BodyPublishers.noBody();
-        private final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        private final Map<String, List<String>> requestHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         /**
          * Set the URI for this request.
@@ -214,7 +214,7 @@ public final class Request {
          * @return this builder
          */
         public Builder uri(final URI uri) {
-            this.uri = uri;
+            this.requestUri = uri;
             return this;
         }
 
@@ -226,7 +226,7 @@ public final class Request {
          * @return this builder
          */
         public Builder header(final String name, final String value) {
-            this.headers.computeIfAbsent(name, k -> new ArrayList<String>()).add(value);
+            this.requestHeaders.computeIfAbsent(name, k -> new ArrayList<String>()).add(value);
             return this;
         }
 
@@ -242,7 +242,7 @@ public final class Request {
         public Builder setHeader(final String name, final String value) {
             final List<String> values = new ArrayList<>();
             values.add(value);
-            this.headers.put(name, values);
+            this.requestHeaders.put(name, values);
             return this;
         }
 
@@ -254,7 +254,7 @@ public final class Request {
          * @return this builder
          */
         public Builder method(final String method, final BodyPublisher publisher) {
-            this.method = method;
+            this.requestMethod = method;
             this.publisher = publisher;
             return this;
         }
@@ -266,7 +266,7 @@ public final class Request {
          * @return this builder
          */
         public Builder timeout(final Duration timeout) {
-            this.timeout = timeout;
+            this.requestTimeout = timeout;
             return this;
         }
 
@@ -344,9 +344,9 @@ public final class Request {
          */
         public Request build() {
             // Set a default user agent
-            headers.putIfAbsent("User-Agent",
+            requestHeaders.putIfAbsent("User-Agent",
                     Arrays.asList("InruptJavaClient/" + Request.class.getPackage().getImplementationVersion()));
-            return new Request(uri, method, headers, publisher, timeout);
+            return new Request(requestUri, requestMethod, requestHeaders, publisher, requestTimeout);
         }
 
         Builder() {
