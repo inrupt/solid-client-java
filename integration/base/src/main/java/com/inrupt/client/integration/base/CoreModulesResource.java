@@ -56,11 +56,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Core modules based test class for resource integration scenarios.
  */
 public class CoreModulesResource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreModulesResource.class);
 
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
@@ -127,6 +131,8 @@ public class CoreModulesResource {
                 .path(testContainer)
                 .build();
         }
+
+        LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
 
     @AfterAll
@@ -145,6 +151,8 @@ public class CoreModulesResource {
     @Test
     @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
     void crudRdfTest() {
+        LOGGER.info("Integration Test - CRUD on RDF resource");
+
         final String newResourceName = testContainerURI + "e2e-test-subject";
         final String newPredicateName = "https://example.example/predicate";
 
@@ -244,8 +252,9 @@ public class CoreModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:coreModulesLayerContainerCrud can create and remove Containers")
+    @DisplayName("./solid-client-java:coreModulesLayerContainerCrud create and remove Containers")
     void containerCreateDeleteTest() {
+        LOGGER.info("Integration Test - create and remove Containers");
 
         final String containerName = testContainerURI + "newContainer/";
         final String container2Name = "newContainer2";
@@ -295,6 +304,8 @@ public class CoreModulesResource {
     @DisplayName("./solid-client-java:coreModulesLayerNonRdfSourceCrud " +
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
+        LOGGER.info("Integration Test - create, delete, and differentiate between RDF and non-RDF Resources");
+
         final String fileName = "myFile.txt";
         final String fileURL = testContainerURI + fileName;
 
@@ -326,6 +337,8 @@ public class CoreModulesResource {
     @DisplayName("./solid-client-java:coreModulesLayerBlankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
+        LOGGER.info("Integration Test - update statements containing Blank Nodes " +
+            "in different instances of the same model");
 
         final String newResourceName = testContainerURI + "e2e-test-subject";
         final String predicate = "https://example.example/predicate";
