@@ -84,8 +84,14 @@ public class SolidApp implements QuarkusApplication {
                 printWriter.println();
                 try (final var profile = client.read(webid, WebIdProfile.class)) {
                     profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                        printWriter.format("Storage %s ", storage);
+                        printWriter.println();
                         try (final var container = client.read(storage, SolidContainer.class);
-                                final var stream = container.getContainedResources()) {
+                            final var stream = container.getContainedResources()) {
+                            printWriter.format("Total number of contained resources are: %s ",
+                                container.getContainedResources().count());
+                            printWriter.println();
+
                             stream.filter(r -> filterResource(r, cmd)).forEach(r -> {
                                 printWriter.format("Resource: %s, %s", r.getIdentifier(),
                                     principalType(r.getMetadata().getType()));
@@ -110,7 +116,10 @@ public class SolidApp implements QuarkusApplication {
         if (cl.hasOption("r") && resource.getMetadata().getType().contains(LDP.RDFSource)) {
             return true;
         }
-        return cl.hasOption("n") && resource.getMetadata().getType().contains(LDP.NonRDFSource);
+        if (cl.hasOption("n") && resource.getMetadata().getType().contains(LDP.NonRDFSource)) {
+            return true;
+        }
+        return true;
     }
 
     public URI principalType(final Collection<URI> types) {
