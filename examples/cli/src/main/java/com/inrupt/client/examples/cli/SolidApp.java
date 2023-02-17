@@ -119,7 +119,7 @@ public class SolidApp implements QuarkusApplication {
         if (cl.hasOption("n") && resource.getMetadata().getType().contains(LDP.NonRDFSource)) {
             return true;
         }
-        return true;
+        return false;
     }
 
     public URI principalType(final Collection<URI> types) {
