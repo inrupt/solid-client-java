@@ -1,4 +1,4 @@
-# ONe way to run the cli example
+# One way to run the cli example
 
 The `AppConfig` class depends on some properties. Make sure to first add the `src/main/resources/application.properties` the following properties:
 
