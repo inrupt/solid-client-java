@@ -109,8 +109,8 @@ public class AccessGrant {
                     .stream().map(URI::create).collect(Collectors.toSet());
                 this.purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
                 this.status = asMap(vc.get("credentialStatus")).flatMap(credentialStatus ->
-                        asSet(credentialStatus.get(TYPE)).filter(types ->
-                            types.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
+                        asSet(credentialStatus.get(TYPE)).filter(statusTypes ->
+                            statusTypes.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
                                 asRevocationList2020(credentialStatus))).orElse(null);
             } else {
                 throw new IllegalArgumentException("Invalid Access Grant: missing VerifiablePresentation type");
@@ -132,8 +132,7 @@ public class AccessGrant {
             final Object credential = credentialStatus.get("revocationListCredential");
             if (id instanceof String && credential instanceof String && idx >= 0) {
                 final URI uri = URI.create((String) credential);
-                final Status status = new Status(URI.create((String) id), REVOCATION_LIST_2020_STATUS, uri, idx);
-                return status;
+                return new Status(URI.create((String) id), REVOCATION_LIST_2020_STATUS, uri, idx);
             }
             throw new IllegalArgumentException("Unable to process credential status as Revocation List 2020");
         } catch (final Exception ex) {
