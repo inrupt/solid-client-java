@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.jackson","l":"JacksonService"},{"p":"com.inrupt.client.jackson","l":"VCDeserializer"},{"p":"com.inrupt.client.jackson","l":"VCSerializer"},{"p":"com.inrupt.client.jackson","l":"VPDeserializer"},{"p":"com.inrupt.client.jackson","l":"VPSerializer"}]
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.jackson","l":"JacksonService"}]

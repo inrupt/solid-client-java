@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.rdf4j","l":"RDF4JBodyHandlers"},{"p":"com.inrupt.client.rdf4j","l":"RDF4JBodyPublishers"},{"p":"com.inrupt.client.rdf4j","l":"RDF4JService"}]
