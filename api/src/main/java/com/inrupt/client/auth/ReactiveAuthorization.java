@@ -95,7 +95,7 @@ public class ReactiveAuthorization {
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);
             LOGGER.debug("Using {} authenticator", auth.getName());
-            return auth.authenticate(session, request, algorithms).thenApply(Optional::of);
+            return auth.authenticate(session, request, algorithms).thenApply(Optional::ofNullable);
         }
         return CompletableFuture.completedFuture(Optional.empty());
     }

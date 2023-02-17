@@ -209,7 +209,7 @@ public class UmaClient {
         request.getRequestingPartyToken().ifPresent(rpt -> data.put(RPT, rpt));
         request.getClaimToken().ifPresent(claimToken -> {
             data.put(CLAIM_TOKEN, claimToken.getClaimToken());
-            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType());
+            data.put(CLAIM_TOKEN_FORMAT, claimToken.getClaimTokenType().toString());
         });
         if (!request.getScopes().isEmpty()) {
             data.put(SCOPE, String.join(" ", request.getScopes()));

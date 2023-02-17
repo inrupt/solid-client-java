@@ -82,6 +82,7 @@
   </properties>
 
   <modules>
+    <module>access-grant</module>
     <module>api</module>
     <module>bom</module>
     <module>core</module>

@@ -57,7 +57,7 @@ import org.jose4j.keys.resolvers.VerificationKeyResolver;
  */
 public final class OpenIdSession implements Session {
 
-    public static final String ID_TOKEN = "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+    public static final URI ID_TOKEN = URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken");
 
     private final String id;
     private final Set<String> schemes;
@@ -167,7 +167,7 @@ public final class OpenIdSession implements Session {
 
     @Override
     public Optional<URI> getPrincipal() {
-        return getCredential(ID_TOKEN).flatMap(Credential::getPrincipal);
+        return getCredential(ID_TOKEN, null).flatMap(Credential::getPrincipal);
     }
 
     @Override
@@ -176,7 +176,7 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
-    public Optional<Credential> getCredential(final String name) {
+    public Optional<Credential> getCredential(final URI name, final URI uri) {
         if (ID_TOKEN.equals(name)) {
             final Credential c = credential.get();
             if (!hasExpired(c)) {

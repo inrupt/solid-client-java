@@ -1,0 +1,36 @@
+{
+    "@context": ["https://www.w3.org/2018/credentials/v1"],
+    "type": ["VerifiablePresentation"],
+    "verifiableCredential": [{
+        "@context":[
+            "https://www.w3.org/2018/credentials/v1",
+            "https://w3id.org/security/suites/ed25519-2020/v1",
+            "https://w3id.org/vc-revocation-list-2020/v1",
+            "https://schema.inrupt.com/credentials/v1.jsonld"],
+        "id":"https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626",
+        "type":{"name":"VerifiableCredential"},
+        "issuer":"https://accessgrant.example",
+        "expirationDate":"2022-08-27T12:00:00Z",
+        "issuanceDate":"2022-08-25T20:34:05.153Z",
+        "credentialStatus":{
+            "id":"https://accessgrant.example/status/CVAM#2832",
+            "revocationListCredential":"https://accessgrant.example/status/CVAM",
+            "revocationListIndex":"2832",
+            "type":"RevocationList2020Status"},
+        "credentialSubject":{
+            "id":"https://id.example/grantor",
+            "providedConsent":{
+                "mode":["Read"],
+                "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
+                "isProvidedToPerson":"https://id.example/grantee",
+                "forPurpose":"https://purpose.example/Purpose1",
+                "forPersonalData":"https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/"}},
+        "proof":{
+            "created":"2022-08-25T20:34:05.236Z",
+            "proofPurpose":"assertionMethod",
+            "proofValue":"nIeQF44XVik7onnAbdkbp8xxJ2C8JoTw6-VtCkAzxuWYRFsSfYpft5MuAJaivyeKDmaK82Lj_YsME2xgL2WIBQ",
+            "type":"Ed25519Signature2020",
+            "verificationMethod":"https://accessgrant.example/key/1e332728-4af5-46e4-a5db-4f7b89e3f378"}
+    }]
+}
+

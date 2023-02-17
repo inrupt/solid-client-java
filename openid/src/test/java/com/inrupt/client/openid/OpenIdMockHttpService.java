@@ -123,6 +123,7 @@ class OpenIdMockHttpService {
             "\"access_token\": \"123456\"," +
             "\"id_token\": \"" + OpenIdTestUtils.generateIdToken(claims) + "\"," +
             "\"token_type\": \"Bearer\"," +
+            "\"scope\": \"openid webid\"," +
             "\"expires_in\": 300" +
             "}";
     }

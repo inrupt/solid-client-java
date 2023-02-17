@@ -27,6 +27,7 @@ import com.inrupt.client.util.URIBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -43,8 +44,8 @@ class UmaClientTest {
 
     private static final MockAuthorizationServer as = new MockAuthorizationServer();
     private static final Map<String, String> config = new HashMap<>();
-    private static final String ID_TOKEN_CLAIM_TOKEN_FORMAT =
-        "http://openid.net/specs/openid-connect-core-1_0.html#IDToken";
+    private static final URI ID_TOKEN_CLAIM_TOKEN_FORMAT =
+        URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken");
 
     @BeforeAll
     static void setup() throws Exception {
@@ -251,15 +252,15 @@ class UmaClientTest {
         final URI jwksEndpoint = URIBuilder.newBuilder(asUri).path("jwks").build();
         final URI tokenEndpoint = URIBuilder.newBuilder(asUri).path("token").build();
 
-        assertEquals(Arrays.asList("ES256", "RS256"), metadata.dpopSigningAlgValuesSupported);
-        assertEquals(Arrays.asList("urn:ietf:params:oauth:grant-type:uma-ticket"),
+        assertEquals(new HashSet<>(Arrays.asList("ES256", "RS256")), metadata.dpopSigningAlgValuesSupported);
+        assertEquals(new HashSet<>(Arrays.asList("urn:ietf:params:oauth:grant-type:uma-ticket")),
                 metadata.grantTypesSupported);
         assertEquals(asUri, metadata.issuer);
         assertEquals(jwksEndpoint, metadata.jwksUri);
         assertEquals(tokenEndpoint, metadata.tokenEndpoint);
-        assertEquals(Arrays.asList(
+        assertEquals(new HashSet<>(Arrays.asList(
                     URI.create("https://www.w3.org/TR/vc-data-model/#json-ld"),
-                    URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken")),
+                    URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken"))),
                 metadata.umaProfilesSupported);
     }
 }
