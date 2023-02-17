@@ -29,6 +29,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -342,6 +343,9 @@ public final class Request {
          * @return the request
          */
         public Request build() {
+            // Set a default user agent
+            headers.putIfAbsent("User-Agent",
+                    Arrays.asList("InruptJavaClient/" + Request.class.getPackage().getImplementationVersion()));
             return new Request(uri, method, headers, publisher, timeout);
         }
 
