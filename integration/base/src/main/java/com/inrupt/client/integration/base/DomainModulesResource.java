@@ -114,14 +114,14 @@ public class DomainModulesResource {
                 podUrl = storages.iterator().next().toString();
             }
         }
-        if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
-            podUrl += Utils.FOLDER_SEPARATOR;
-        }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("test-" + UUID.randomUUID())
+                .path(testContainer).build();
         } else {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
+                .path("test-" + UUID.randomUUID())
                 .path(testContainer)
                 .build();
         }
@@ -130,9 +130,9 @@ public class DomainModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        final var reqDelete =
-                Request.newBuilder(testContainerURI).DELETE().build();
-        client.send(reqDelete, Response.BodyHandlers.discarding());
+        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
+        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
+                Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
         identityProviderServer.stop();
