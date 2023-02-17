@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.inrupt.client.Headers.Link;
+import com.inrupt.client.Request;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 
@@ -34,6 +35,8 @@ import java.util.Map;
 
 public class SolidMockHttpService {
 
+    private static final String USER_AGENT = "InruptJavaClient/" + Request.class
+        .getPackage().getImplementationVersion();
     private final WireMockServer wireMockServer;
 
     public SolidMockHttpService() {
@@ -46,6 +49,7 @@ public class SolidMockHttpService {
 
     private void setupMocks() {
         wireMockServer.stubFor(get(urlEqualTo("/"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
@@ -57,6 +61,7 @@ public class SolidMockHttpService {
         );
 
         wireMockServer.stubFor(get(urlEqualTo("/solid/"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
@@ -74,6 +79,7 @@ public class SolidMockHttpService {
         );
 
         wireMockServer.stubFor(get(urlEqualTo("/recipe"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
@@ -90,7 +96,39 @@ public class SolidMockHttpService {
             )
         );
 
+        wireMockServer.stubFor(get(urlEqualTo("/custom-agent"))
+            .withHeader("User-Agent", equalTo("TestClient/1.0"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withHeader("Link", Link.of(LDP.RDFSource, "type").toString())
+                .withHeader("Link", Link.of(URI.create("http://storage.example/"), PIM.storage).toString())
+                .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
+                .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
+                .withHeader("Allow", "POST, PUT, PATCH")
+                .withHeader("Accept-Post", "application/ld+json, text/turtle")
+                .withHeader("Accept-Put", "application/ld+json, text/turtle")
+                .withHeader("Accept-Patch", "application/sparql-update, text/n3")
+                .withBodyFile("playlist.ttl")
+            )
+        );
+
+        wireMockServer.stubFor(put(urlEqualTo("/custom-agent"))
+            .withHeader("User-Agent", equalTo("TestClient/1.0"))
+            .withHeader("Content-Type", containing("text/turtle"))
+            .withRequestBody(containing(
+                    "<https://library.test/12345/song1.mp3>"))
+            .willReturn(aResponse()
+                .withStatus(204)));
+
+        wireMockServer.stubFor(delete(urlEqualTo("/custom-agent"))
+            .withHeader("User-Agent", equalTo("TestClient/1.0"))
+            .willReturn(aResponse()
+                .withStatus(204)));
+
+
         wireMockServer.stubFor(get(urlEqualTo("/playlist"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
@@ -108,6 +146,7 @@ public class SolidMockHttpService {
         );
 
         wireMockServer.stubFor(put(urlEqualTo("/playlist"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
             .withHeader("Content-Type", containing("text/turtle"))
             .withRequestBody(containing(
                     "<https://library.test/12345/song1.mp3>"))
@@ -115,34 +154,40 @@ public class SolidMockHttpService {
                 .withStatus(204)));
 
         wireMockServer.stubFor(delete(urlEqualTo("/playlist"))
-                .willReturn(aResponse()
-                    .withStatus(204)));
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(204)));
 
         wireMockServer.stubFor(get(urlEqualTo("/nonRDF"))
-                .willReturn(aResponse()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "text/turtle")
-                    .withBody("This isn't valid turtle.")));
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withBody("This isn't valid turtle.")));
 
         wireMockServer.stubFor(get(urlEqualTo("/missing"))
-                .willReturn(aResponse()
-                    .withStatus(404)
-                    .withHeader("Content-Type", "application/json")
-                    .withBody("{\"error\": \"missing resource\"}")));
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(404)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"error\": \"missing resource\"}")));
 
         wireMockServer.stubFor(get(urlEqualTo("/unauthorized"))
-                .willReturn(aResponse()
-                    .withStatus(401)
-                    .withHeader("Content-Type", "application/json")
-                    .withBody("{\"error\": \"unauthorized\"}")));
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(401)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"error\": \"unauthorized\"}")));
 
         wireMockServer.stubFor(get(urlEqualTo("/forbidden"))
-                .willReturn(aResponse()
-                    .withStatus(403)
-                    .withHeader("Content-Type", "application/json")
-                    .withBody("{\"error\": \"forbidden\"}")));
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(403)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"error\": \"forbidden\"}")));
 
         wireMockServer.stubFor(get(urlEqualTo("/noContentType"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withBodyFile("solidResourceExample.ttl")));

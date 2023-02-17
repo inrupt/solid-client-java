@@ -25,6 +25,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.Request;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,8 @@ import org.apache.commons.io.IOUtils;
 
 class MockHttpService {
 
+    private static final String USER_AGENT = "InruptJavaClient/" + Request.class
+        .getPackage().getImplementationVersion();
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String TEXT_TURTLE = "text/turtle";
@@ -59,12 +62,14 @@ class MockHttpService {
 
     private void setupMocks() {
         wireMockServer.stubFor(get(urlEqualTo("/file"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
                         .withBodyFile("clarissa-sample.txt")));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
@@ -75,6 +80,7 @@ class MockHttpService {
                     .withRequestBody(matching(
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withHeader(CONTENT_TYPE, containing(TEXT_TURTLE))
                     .withHeader("Authorization", containing("DPoP "))
                     .withHeader("DPoP", containing("eyJhbGciOiJFUzI1NiIsInR5cCI6ImRwb3Arand0Iiw" +
@@ -86,12 +92,14 @@ class MockHttpService {
 
         wireMockServer.stubFor(put(urlEqualTo("/putRDF"))
                     .atPriority(2)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256 PS256\"")));
 
 
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Unknown, Bearer, " +
@@ -100,6 +108,7 @@ class MockHttpService {
 
         wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
                     .atPriority(1)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(matching(
                             ".*<http://example.test/s>\\s+" +
                             "<http://example.test/p>\\s+\"object\"\\s+\\..*"))
@@ -114,12 +123,14 @@ class MockHttpService {
 
         wireMockServer.stubFor(post(urlEqualTo("/postBearerToken"))
                     .atPriority(2)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postString"))
                     .atPriority(1)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(matching("Test String 1"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
                     .withHeader("Authorization", containing("Bearer token-67890"))
@@ -129,29 +140,34 @@ class MockHttpService {
 
         wireMockServer.stubFor(post(urlEqualTo("/postString"))
                     .atPriority(2)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
                             "UMA ticket=\"ticket-67890\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(get(urlEqualTo("/solid.png"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, "image/png")
                         .withBodyFile("SolidOS.png")
                         .withStatus(200)));
 
         wireMockServer.stubFor(get(urlEqualTo("/.well-known/uma2-configuration"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(getResource("/uma2-configuration.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(get(urlEqualTo("/uma/jwks"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBodyFile("uma-jwks.json")));
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
                     .atPriority(1)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(containing("claim_token_format=" +
                             "http%3A%2F%2Fopenid.net%2Fspecs%2Fopenid-connect-core-1_0.html%23IDToken"))
                     .withRequestBody(containing("ticket=ticket-67890"))
@@ -162,6 +178,7 @@ class MockHttpService {
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
                     .atPriority(2)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(containing("ticket=ticket-67890"))
                     .willReturn(aResponse()
                         .withStatus(403)
@@ -170,6 +187,7 @@ class MockHttpService {
 
         wireMockServer.stubFor(post(urlEqualTo("/uma/token"))
                     .atPriority(2)
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(containing("ticket=ticket-12345"))
                     .willReturn(aResponse()
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -178,12 +196,14 @@ class MockHttpService {
 
         wireMockServer.stubFor(get(urlEqualTo("/protected/resource"))
                     .withHeader("Accept", containing(TEXT_TURTLE))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate",
                             "UMA ticket=\"ticket-12345\", as_uri=\"" + wireMockServer.baseUrl() + "\"")));
 
         wireMockServer.stubFor(get(urlEqualTo("/protected/resource"))
+                    .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withHeader("Authorization", equalTo("Bearer token-12345"))
                     .withHeader("Accept", containing(TEXT_TURTLE))
                     .willReturn(aResponse()

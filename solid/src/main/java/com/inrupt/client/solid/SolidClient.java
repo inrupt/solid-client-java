@@ -54,8 +54,6 @@ public class SolidClient {
     private static final String IF_NONE_MATCH = "If-None-Match";
     private static final String TEXT_TURTLE = "text/turtle";
     private static final String WILDCARD = "*";
-    private static final String DEFAULT_USER_AGENT = "InruptJavaClient/" + SolidClient.class
-        .getPackage().getImplementationVersion();
 
     private final Client client;
     private final Headers defaultHeaders;
@@ -117,8 +115,9 @@ public class SolidClient {
         decorateHeaders(builder, headers);
 
         builder.setHeader(ACCEPT, TEXT_TURTLE);
-        builder.setHeader(USER_AGENT, defaultHeaders.firstValue(USER_AGENT).orElseGet(() ->
-                    headers.firstValue(USER_AGENT).orElse(DEFAULT_USER_AGENT)));
+
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
@@ -174,8 +173,8 @@ public class SolidClient {
         decorateHeaders(builder, headers);
 
         builder.setHeader(CONTENT_TYPE, TEXT_TURTLE).setHeader(IF_NONE_MATCH, WILDCARD);
-        builder.setHeader(USER_AGENT, defaultHeaders.firstValue(USER_AGENT).orElseGet(() ->
-                    headers.firstValue(USER_AGENT).orElse(DEFAULT_USER_AGENT)));
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
@@ -206,8 +205,8 @@ public class SolidClient {
         decorateHeaders(builder, headers);
 
         builder.setHeader(CONTENT_TYPE, TEXT_TURTLE);
-        builder.setHeader(USER_AGENT, defaultHeaders.firstValue(USER_AGENT).orElseGet(() ->
-                    headers.firstValue(USER_AGENT).orElse(DEFAULT_USER_AGENT)));
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
@@ -237,8 +236,8 @@ public class SolidClient {
         decorateHeaders(builder, defaultHeaders);
         decorateHeaders(builder, headers);
 
-        builder.setHeader(USER_AGENT, defaultHeaders.firstValue(USER_AGENT).orElseGet(() ->
-                    headers.firstValue(USER_AGENT).orElse(DEFAULT_USER_AGENT)));
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
