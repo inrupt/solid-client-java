@@ -38,6 +38,7 @@ import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.eclipse.microprofile.config.Config;
@@ -123,16 +124,19 @@ public class AuthenticationScenarios {
         }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("test-" + UUID.randomUUID())
                 .path(testResourceName)
                 .build();
         } else {
             publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
+                .path("test-" + UUID.randomUUID())
                 .path(testResourceName)
                 .build();
         }
         privateResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
             .path(State.PRIVATE_RESOURCE_PATH)
+            .path("test-" + UUID.randomUUID())
             .path(testResourceName)
             .build();
 
@@ -143,18 +147,17 @@ public class AuthenticationScenarios {
     static void teardown() {
         //cleanup pod
         final SolidSyncClient client = SolidSyncClient.getClient().session(session);
-        final var reqDeletePrivateResource = Request.newBuilder(privateResourceURL)
-            .DELETE().build();
+        final var reqDeletePrivateResource = Request.newBuilder(privateResourceURL).DELETE().build();
         client.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
 
-        final var reqDeletePrivate = Request.newBuilder(URIBuilder.newBuilder(
-            URI.create(podUrl)).path(State.PRIVATE_RESOURCE_PATH).build())
-            .DELETE().build();
-        client.send(reqDeletePrivate, Response.BodyHandlers.discarding());
+        final var reqDeletePrivateParent = Request.newBuilder(privateResourceURL.resolve(".")).DELETE().build();
+        client.send(reqDeletePrivateParent, Response.BodyHandlers.discarding());
 
-        final var reqDeletePublic = Request.newBuilder(publicResourceURL)
-            .DELETE().build();
+        final var reqDeletePublic = Request.newBuilder(publicResourceURL).DELETE().build();
         client.send(reqDeletePublic, Response.BodyHandlers.discarding());
+
+        final var reqDeletePublicParent = Request.newBuilder(publicResourceURL.resolve(".")).DELETE().build();
+        client.send(reqDeletePublicParent, Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
         identityProviderServer.stop();

@@ -42,6 +42,7 @@ import com.inrupt.client.vocabulary.PIM;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.jena.rdf.model.Model;
@@ -115,14 +116,14 @@ public class CoreModulesResource {
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
         }
-        if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
-            podUrl += Utils.FOLDER_SEPARATOR;
-        }
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl)).path(testContainer).build();
+            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("test-" + UUID.randomUUID())
+                .path(testContainer).build();
         } else {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
+                .path("test-" + UUID.randomUUID())
                 .path(testContainer)
                 .build();
         }
@@ -131,9 +132,9 @@ public class CoreModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        final var reqDelete =
-            Request.newBuilder(testContainerURI).DELETE().build();
-        client.send(reqDelete, Response.BodyHandlers.discarding());
+        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
+        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
+                Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
         identityProviderServer.stop();

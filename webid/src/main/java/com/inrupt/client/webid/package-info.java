@@ -19,7 +19,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /**
- * 
+ *
  * <h2>WebID Profile support for the Inrupt Java Client Libraries.</h2>
  *
  * <p>This module contains a BodyHandler which consumes the actual response body bytes
@@ -28,18 +28,12 @@
  * <p>The following example reads a Solid WebID profile and presents it as a {@link WebIdProfile} Java object:
  *
  * <pre>{@code
-        Request request = Request.newBuilder()
-            .uri(URI.create("https://webidserver.example/"))
-            .header("Accept", "text/turtle")
-            .GET()
-            .build();
-
-        Response<WebIdProfile> response = client.send(
-            request,
-            WebIdBodyHandlers.ofWebIdProfile(URI.create("https://example.example/username"))
-        ).toCompletableFuture().join();
-        System.out.println("HTTP status: " + response.statusCode());
-        System.out.println("WebID URI: " + response.body().getId());}
+        try (final WebIdProfile profile = client.read(URI.create("https://id.example/username"), WebIdProfile.class)) {
+            System.out.println("WebID URI: " + profile.getIdentifier());
+            for (final URI type : profile.getType()) {
+                System.out.println("WebID Types: " + type);
+            }
+        }}
  * </pre>
  */
 package com.inrupt.client.webid;
