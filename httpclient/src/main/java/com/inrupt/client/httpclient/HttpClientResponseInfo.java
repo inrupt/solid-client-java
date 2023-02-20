@@ -30,11 +30,11 @@ import java.nio.ByteBuffer;
 class HttpClientResponseInfo implements ResponseInfo {
 
     private final HttpResponse<byte[]> response;
-    private final ByteBuffer body;
+    private final ByteBuffer responseBody;
 
     public HttpClientResponseInfo(final HttpResponse<byte[]> response, final ByteBuffer body) {
         this.response = response;
-        this.body = body;
+        this.responseBody = body;
     }
 
     @Override
@@ -54,6 +54,6 @@ class HttpClientResponseInfo implements ResponseInfo {
 
     @Override
     public ByteBuffer body() {
-        return body;
+        return responseBody;
     }
 }

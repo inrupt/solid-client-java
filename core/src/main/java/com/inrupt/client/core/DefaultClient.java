@@ -50,15 +50,15 @@ public final class DefaultClient implements Client {
 
     private final ReactiveAuthorization authHandler = new ReactiveAuthorization();
     private final HttpService httpClient;
-    private final Session session;
+    private final Session clientSession;
 
-    private DefaultClient(final HttpService httpClient) {
+    DefaultClient(final HttpService httpClient) {
         this(httpClient, Session.anonymous());
     }
 
-    private DefaultClient(final HttpService httpClient, final Session session) {
+    DefaultClient(final HttpService httpClient, final Session session) {
         this.httpClient = httpClient;
-        this.session = session;
+        this.clientSession = session;
     }
 
     @Override
@@ -76,7 +76,7 @@ public final class DefaultClient implements Client {
         }
 
         // Check session cache for a relevant access token
-        return session.fromCache(request)
+        return clientSession.fromCache(request)
             // Use that token, if present
             .map(token -> httpClient.send(upgradeRequest(request, token), responseBodyHandler))
             // Otherwise perform the regular HTTP authorization dance
@@ -87,7 +87,7 @@ public final class DefaultClient implements Client {
                             .parse(res.headers().allValues("WWW-Authenticate").toArray(new String[0]))
                             .getChallenges();
 
-                        return authHandler.negotiate(session, request, challenges)
+                        return authHandler.negotiate(clientSession, request, challenges)
                             .thenCompose(token -> token.map(t ->
                                         httpClient.send(upgradeRequest(request, t), responseBodyHandler))
                                     .orElseGet(() -> CompletableFuture.completedFuture(res)))
@@ -116,7 +116,7 @@ public final class DefaultClient implements Client {
         // Use setHeader to overwrite any possible existing authorization header
         builder.setHeader(AUTHORIZATION, String.join(" ", token.getScheme(), token.getToken()));
         if (DPOP.equalsIgnoreCase(token.getScheme())) {
-            token.getProofThumbprint().flatMap(jkt -> session.generateProof(jkt, request))
+            token.getProofThumbprint().flatMap(jkt -> clientSession.generateProof(jkt, request))
                 .ifPresent(proof -> builder.setHeader(DPOP, proof));
         }
 

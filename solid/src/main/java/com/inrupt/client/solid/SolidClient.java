@@ -54,6 +54,7 @@ public class SolidClient {
     private static final String IF_NONE_MATCH = "If-None-Match";
     private static final String TEXT_TURTLE = "text/turtle";
     private static final String WILDCARD = "*";
+    private static final int ERROR_STATUS = 400;
 
     private final Client client;
     private final Headers defaultHeaders;
@@ -121,7 +122,7 @@ public class SolidClient {
 
         return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
-                if (response.statusCode() >= 400) {
+                if (response.statusCode() >= ERROR_STATUS) {
                     throw new SolidClientException("Unable to read resource at " + identifier, identifier,
                             response.statusCode(), response.headers(), new String(response.body()));
                 } else {
