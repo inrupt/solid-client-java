@@ -63,6 +63,10 @@ public class AccessGrantClient {
     private static final String TYPE = "type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String IS_PROVIDED_TO_PERSON = "isProvidedToPerson";
+    private static final String FOR_PERSONAL_DATA = "forPersonalData";
+    private static final String HAS_STATUS = "hasStatus";
+    private static final String MODE = "mode";
     private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
     private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
@@ -369,13 +373,13 @@ public class AccessGrantClient {
 
         final Map<String, Object> consent = new HashMap<>();
         if (agent != null) {
-            consent.put("isProvidedToPerson", agent);
+            consent.put(IS_PROVIDED_TO_PERSON, agent);
         }
         if (resource != null) {
-            consent.put("forPersonalData", resource);
+            consent.put(FOR_PERSONAL_DATA, resource);
         }
         if (mode != null) {
-            consent.put("mode", mode);
+            consent.put(MODE, mode);
         }
 
         final Map<String, Object> subject = new HashMap<>();
@@ -427,10 +431,10 @@ public class AccessGrantClient {
     static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         final Map<String, Object> consent = new HashMap<>();
-        consent.put("mode", modes);
-        consent.put("hasStatus", "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
-        consent.put("forPersonalData", resources);
-        consent.put("isProvidedToPerson", agent);
+        consent.put(MODE, modes);
+        consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
+        consent.put(FOR_PERSONAL_DATA, resources);
+        consent.put(IS_PROVIDED_TO_PERSON, agent);
         if (!purposes.isEmpty()) {
             consent.put("forPurpose", purposes);
         }
@@ -451,10 +455,10 @@ public class AccessGrantClient {
     static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         final Map<String, Object> consent = new HashMap<>();
-        consent.put("mode", modes);
-        consent.put("hasStatus", "https://w3id.org/GConsent#ConsentStatusRequested");
-        consent.put("forPersonalData", resources);
-        consent.put("isProvidedToPerson", agent);
+        consent.put(MODE, modes);
+        consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
+        consent.put(FOR_PERSONAL_DATA, resources);
+        consent.put(IS_PROVIDED_TO_PERSON, agent);
         if (!purposes.isEmpty()) {
             consent.put("forPurpose", purposes);
         }
@@ -479,20 +483,18 @@ public class AccessGrantClient {
     static Set<String> getAccessGrantTypes() {
         final Set<String> types = new HashSet<>();
         types.add("SolidAccessGrant");
-        types.add("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+        types.add(ACCESS_GRANT.toString());
         types.add("SolidAccessRequest");
-        types.add("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
+        types.add(ACCESS_REQUEST.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static boolean isAccessGrant(final URI type) {
-        return "SolidAccessGrant".equals(type.toString()) ||
-            "http://www.w3.org/ns/solid/vc#SolidAccessGrant".equals(type.toString());
+        return "SolidAccessGrant".equals(type.toString()) || ACCESS_GRANT.equals(type);
     }
 
     static boolean isAccessRequest(final URI type) {
-        return "SolidAccessRequest".equals(type.toString()) ||
-            "http://www.w3.org/ns/solid/vc#SolidAccessRequest".equals(type.toString());
+        return "SolidAccessRequest".equals(type.toString()) || ACCESS_REQUEST.equals(type);
 
     }
 }
