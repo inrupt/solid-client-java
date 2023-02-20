@@ -55,7 +55,8 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
 
     public static final URI ID_TOKEN = URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken");
     public static final URI VERIFIABLE_CREDENTIAL = URI.create("https://www.w3.org/TR/vc-data-model/#json-ld");
-    private static final Logger LOGGER = LoggerFactory.getLogger(UmaAuthenticationProvider.class);
+
+    static final Logger LOGGER = LoggerFactory.getLogger(UmaAuthenticationProvider.class);
 
     private static final String UMA = "UMA";
     private static final String AS_URI = "as_uri";

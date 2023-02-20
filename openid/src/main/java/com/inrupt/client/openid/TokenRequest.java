@@ -139,6 +139,8 @@ public final class TokenRequest {
      */
     public static class Builder {
 
+        private static final String CLIENT_CREDENTIALS = "client_credentials";
+
         private String builderClientSecret;
         private String builderAuthMethod;
         private String builderCode;
@@ -232,7 +234,7 @@ public final class TokenRequest {
                     throw new IllegalArgumentException(
                         "Missing redirectUri parameter for authorization_code grant type");
                 }
-            } else if ("client_credentials".equals(grantType) && builderClientSecret == null) {
+            } else if (CLIENT_CREDENTIALS.equals(grantType) && builderClientSecret == null) {
                 throw new IllegalArgumentException(
                     "Missing client_secret parameter for client_credentials grant type");
             }
