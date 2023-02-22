@@ -22,6 +22,7 @@ package com.inrupt.client.auth;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 /**

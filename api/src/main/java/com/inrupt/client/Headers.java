@@ -83,6 +83,7 @@ public final class Headers {
     /**
      * Create a headers object from an existing Java Map.
      *
+     * @param headers the headers represented as a Map
      * @return the new Headers object
      */
     public static Headers of(final Map<String, List<String>> headers) {
