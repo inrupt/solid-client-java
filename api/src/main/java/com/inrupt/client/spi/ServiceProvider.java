@@ -88,6 +88,11 @@ public final class ServiceProvider {
         return httpService;
     }
 
+    /**
+     * Get the {@link DpopService} for this application.
+     *
+     * @return an object for validating DPoP proofs.
+     */
     public static DpopService getDpopService() {
         if (dpopService == null) {
             synchronized (ServiceProvider.class) {
@@ -100,6 +105,11 @@ public final class ServiceProvider {
         return dpopService;
     }
 
+    /**
+     * Get the {@link HeaderParser} for this application.
+     *
+     * @return an object capable of parsing HTTP headers.
+     */
     public static HeaderParser getHeaderParser() {
         if (headerParser == null) {
             synchronized (ServiceProvider.class) {

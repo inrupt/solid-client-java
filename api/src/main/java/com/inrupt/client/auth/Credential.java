@@ -35,36 +35,76 @@ public class Credential {
     private final URI principal;
     private final String jkt;
 
+    /**
+     * Create a credential.
+     *
+     * @param scheme the scheme
+     * @param issuer the issuer
+     * @param token the token
+     * @param expiration the time after which the credential is no longer valid
+     * @param principal the identifier for the principal, may be {@code null}
+     * @param jkt the json key thumbprint, may be {@code null}
+     */
     public Credential(final String scheme, final URI issuer, final String token, final Instant expiration,
             final URI principal, final String jkt) {
-        this.scheme = scheme;
-        this.issuer = issuer;
-        this.token = token;
-        this.expiration = expiration;
+        this.scheme = Objects.requireNonNull(scheme, "scheme may not be null!");
+        this.issuer = Objects.requireNonNull(issuer, "issuer may not be null!");
+        this.token = Objects.requireNonNull(token, "token may not be null!");
+        this.expiration = Objects.requireNonNull(expiration, "expiration may not be null!");
         this.principal = principal;
         this.jkt = jkt;
     }
 
+    /**
+     * Get the scheme for this credential.
+     *
+     * @return the scheme
+     */
     public String getScheme() {
         return scheme;
     }
 
+    /**
+     * Get the principal, if available.
+     *
+     * @return the principal
+     */
     public Optional<URI> getPrincipal() {
         return Optional.ofNullable(principal);
     }
 
+    /**
+     * Get the issuer for this credential.
+     *
+     * @return the issuer
+     */
     public URI getIssuer() {
         return issuer;
     }
 
+    /**
+     * Get the token for this credential.
+     *
+     * @return the raw token
+     */
     public String getToken() {
         return token;
     }
 
+    /**
+     * Get the expiration time for this credential.
+     *
+     * @return the expiration time
+     */
     public Instant getExpiration() {
         return expiration;
     }
 
+    /**
+     * Get the thumbprint for an associated proof, if present.
+     *
+     * @return the proof thumbprint
+     */
     public Optional<String> getProofThumbprint() {
         return Optional.ofNullable(jkt);
     }

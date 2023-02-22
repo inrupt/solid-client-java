@@ -23,6 +23,9 @@ package com.inrupt.client;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The result of performing validation on a {@link Resource}.
+ */
 public class ValidationResult {
 
     private boolean valid;
@@ -30,7 +33,7 @@ public class ValidationResult {
 
     /**
      * Create a ValidationResult object.
-     * 
+     *
      * @param valid the result from validation
      * @param messages the messages from validation method
      */
@@ -41,7 +44,7 @@ public class ValidationResult {
 
     /**
      * The result of the validation.
-     * 
+     *
      * @return the valid boolean value
      */
     public boolean isValid() {
@@ -50,12 +53,11 @@ public class ValidationResult {
 
     /**
      * The messages from validation.
-     * 
+     *
      * @return the result messages
      */
     public List<String> getResults() {
         return this.result;
     }
 }
-
 

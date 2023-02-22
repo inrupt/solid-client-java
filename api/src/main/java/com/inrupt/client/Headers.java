@@ -71,10 +71,20 @@ public final class Headers {
         return Collections.emptyList();
     }
 
+    /**
+     * Get the header values as a Java Map.
+     *
+     * @return the header values
+     */
     public Map<String, List<String>> asMap() {
         return Collections.unmodifiableNavigableMap(data);
     }
 
+    /**
+     * Create a headers object from an existing Java Map.
+     *
+     * @return the new Headers object
+     */
     public static Headers of(final Map<String, List<String>> headers) {
         return new Headers(Objects.requireNonNull(headers));
     }
@@ -98,6 +108,11 @@ public final class Headers {
             this.parameters = Objects.requireNonNull(parameters, "Link parameters may not be null!");
         }
 
+        /**
+         * Get the URI of the link header.
+         *
+         * @return the URI value
+         */
         public URI getUri() {
             return uri;
         }
