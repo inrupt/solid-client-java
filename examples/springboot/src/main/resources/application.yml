@@ -1,0 +1,20 @@
+server:
+  port: 8080
+spring:
+  main:
+    lazy-initialization: true
+  security:
+    oauth2:
+      client:
+        registration:
+          podspaces:
+            client-id: https://home.apache.org/~acoburn/context/demo-v4.jsonld
+            provider: podspaces
+            scope:
+              - openid
+              - webid
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+        provider:
+          podspaces:
+            issuer-uri: https://login.inrupt.com
