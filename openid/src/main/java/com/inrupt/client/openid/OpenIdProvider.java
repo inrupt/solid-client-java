@@ -30,6 +30,7 @@ import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -151,13 +152,15 @@ public class OpenIdProvider {
             .thenApply(metadata -> tokenRequest(metadata, request))
             .thenCompose(req -> httpClient.send(req, Response.BodyHandlers.ofInputStream()))
             .thenApply(res -> {
-                try {
+                try (final InputStream input = res.body()) {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
-                        return jsonService.fromJson(res.body(), TokenResponse.class);
+                        return jsonService.fromJson(input, TokenResponse.class);
                     }
+                    final ErrorResponse error = tryParseError(input);
                     throw new OpenIdException(
-                        "Unexpected error while interacting with the OpenID Provider's token endpoint.",
+                        error.error + " error while interacting with the OpenID Provider's token endpoint" +
+                        (error.errorDescription != null ? ": '" + error.errorDescription + "'." : "."),
                         httpStatus);
                 } catch (final IOException ex) {
                     throw new OpenIdException(
@@ -165,6 +168,22 @@ public class OpenIdProvider {
                         ex);
                 }
             });
+    }
+
+    ErrorResponse tryParseError(final InputStream input) {
+        // try to parse the input as JSON. This may be empty or not even JSON
+        try {
+            final ErrorResponse error = jsonService.fromJson(input, ErrorResponse.class);
+            if (error.error == null) {
+                error.error = "undefined";
+            }
+            return error;
+        } catch (final IOException ex) {
+            final ErrorResponse error = new ErrorResponse();
+            error.error = "Unexpected";
+            error.errorDescription = ex.getMessage();
+            return error;
+        }
     }
 
     private Request tokenRequest(final Metadata metadata, final TokenRequest request) {

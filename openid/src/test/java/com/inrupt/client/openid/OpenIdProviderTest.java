@@ -20,11 +20,15 @@
  */
 package com.inrupt.client.openid;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.openid.TokenRequest.Builder;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -32,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -185,7 +190,7 @@ class OpenIdProviderTest {
             .redirectUri(URI.create("none"))
             .build("authorization_code", "none");
 
-        assertAll("Not found",
+        assertAll("Bad Request",
             () -> {
                 final CompletionStage<TokenResponse> completionStage = openIdProvider.token(tokenReq);
                 final CompletableFuture<TokenResponse> completableFuture = completionStage.toCompletableFuture();
@@ -196,9 +201,10 @@ class OpenIdProviderTest {
                 final OpenIdException cause = (OpenIdException) exception.getCause();
 
                 assertEquals(
-                    "Unexpected error while interacting with the OpenID Provider's token endpoint.",
+                    "invalid_grant error while interacting with the OpenID Provider's token endpoint: " +
+                    "'Invalid authorization code value'.",
                     cause.getMessage());
-                assertEquals(OptionalInt.of(404), cause.getStatus());
+                assertEquals(OptionalInt.of(400), cause.getStatus());
             });
     }
 
@@ -215,6 +221,37 @@ class OpenIdProviderTest {
             "client_id=myClientId&post_logout_redirect_uri=https://example.test/redirectUri&id_token_hint=&state=solid",
             uri.toString()
         );
+    }
+
+    @Test
+    void tryParseErrorResponseUnexpectedJson() throws IOException {
+        final String json = "{\"unexpected\":\"json\"}";
+        try (final InputStream input = new ByteArrayInputStream(json.getBytes(UTF_8))) {
+            final ErrorResponse response = openIdProvider.tryParseError(input);
+            assertEquals("undefined", response.error);
+            assertNull(response.errorDescription);
+        }
+    }
+
+    @Test
+    void tryParseErrorResponseNotJson() throws IOException {
+        try (final InputStream input = new ByteArrayInputStream(UUID.randomUUID().toString().getBytes(UTF_8))) {
+            final ErrorResponse response = openIdProvider.tryParseError(input);
+            assertEquals("Unexpected", response.error);
+            assertNotNull(response.errorDescription);
+        }
+    }
+
+    @Test
+    void tryParseErrorResponseJsonWithExtraProperties() throws IOException {
+        final String json = "{\"error\":\"invalid_client\"," +
+            "\"error_description\": \"Description value\", " +
+            "\"other_field\":\"Field value\"}";
+        try (final InputStream input = new ByteArrayInputStream(json.getBytes(UTF_8))) {
+            final ErrorResponse response = openIdProvider.tryParseError(input);
+            assertEquals("invalid_client", response.error);
+            assertEquals("Description value", response.errorDescription);
+        }
     }
 
     @Test

@@ -92,7 +92,9 @@ class OpenIdMockHttpService {
                     .atPriority(1)
                     .withRequestBody(containing("code=none"))
                     .willReturn(aResponse()
-                        .withStatus(404)));
+                        .withStatus(400)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("token-error.json")));
 
         wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
                 .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
