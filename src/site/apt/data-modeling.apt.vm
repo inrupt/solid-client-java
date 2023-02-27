@@ -1,0 +1,147 @@
+Data Modeling
+
+    The high-level <<<SolidClient>>> and <<<SolidSyncClient>>> make it easy to bind your Java objects to RDF-based Solid resources. This guide will help you structure your class definitions to make this possible.
+
+* What you will need
+
+    * About 15 minutes
+
+    * Your favorite text editor or IDE
+
+    * Java 11 or later
+
+    * Maven 3.5 or later
+
+* Solution
+
+    The solution involves creating a wrapper class so that your class can act not only as an RDF Graph
+    but also as a domain-specific type.
+
+* 1. Subclass the Resource type
+
+    The first step involves ensuring that your class extends the <<<com.inrupt.client.Resource>>> class
+    and consider the methods you expect in your class.
+
++---
+public class Playlist extends Resource {
+
+    public Playlist(URI identifier, Dataset dataset) {
+        super(identifier, dataset);
+    }
+
+    public String getTitle() {
+        ...
+    }
+
+    public void setTitle(String title) {
+        ...
+    }
+
+    public Set<URI> getSongs() {
+        ...
+    }
+
+    public void addSong(URI song) {
+        ...
+    }
+}
++---
+
+
+* 2. Create the wrapper node
+
+    Next, you will create an inner class that binds the data between RDF and your class.
+
++---
+public class Playlist extends Resource {
+
+    ...
+
+    static IRI DC_TITLE = rdf.createIRI("http://purl.org/dc/terms/title");
+    static IRI EX_SONG = rdf.createIRI("http://music.example/song");
+
+    static class Node extends WrapperIRI {
+        Node(RDFTerm original, Graph graph) {
+            super(original, graph);
+        }
+
+        String getTitle() {
+            return anyOrNull(DC_TITLE, ValueMappings::literalAsString);
+        }
+
+        void setTitle(String value) {
+            overwriteNullable(DC_TITLE, value, TermMappings::asStringLiteral);
+        }
+
+        Set<URI> getSongs() {
+            return objects(EX_SONG, TermMappings::asIri, ValueMappings::iriAsUri);
+        }
+
+        void addSong(URI song) {
+            add(EX_SONG, song, TermMappings::asIri);
+        }
+    }
+}
++---
+
+* 3. Connect your public methods to the wrapper node
+
+    Now you are ready to link your public methods to the methods from your inner class.
+
++---
+public class Playlist extends Resource {
+
+    private Node subject;
+
+    public Playlist(URI identifier, Dataset dataset) {
+        super(identifier, dataset);
+
+        subject = new Node(rdf.createIRI(identifier.toString()), dataset.getGraph());
+    }
+
+    public String getTitle() {
+        return subject.getTitle();
+    }
+
+    public void setTitle(String title) {
+        subject.setTitle(title);
+    }
+
+    public Set<URI> getSongs() {
+        return subject.getSongs();
+    }
+
+    public void addSong(URI song) {
+        subject.addSong(song);
+    }
+
+    ...
+}
++---
+
+* 4. Use your class in the high-level client
+
+    Now, you can use your class with the high-level Solid client, mapping data seamlessly between your
+    Java application and an RDF resource.
+
++---
+public class MyApplication {
+
+    public void run() {
+        Session session = OpenIdConnect.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
+        SolidSyncClient client = SolidSyncClient.getClient().session(session);
+
+        URI uri = URI.create("https://storage.example/playlists/910b509c-1ca5-4d6a-a093-377e8e1b390e");
+        try (Playlist playlist = client.read(uri, Playlist.class)) {
+            System.out.println(playlist.getTitle());
+
+            // Add a new song to the playlist
+            playlist.addSong(song);
+
+            // Update the playlist in your storage
+            client.update(playlist);
+        }
+    }
+}
++---
+
