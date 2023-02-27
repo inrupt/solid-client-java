@@ -75,6 +75,12 @@ public final class IOUtils {
         }
     }
 
+    /**
+     * Stream a request body directly from a consuming function.
+     *
+     * @param function the consuming function
+     * @return the request publisher
+     */
     public static Request.BodyPublisher stream(final Consumer<OutputStream> function) {
         try {
             final PipedInputStream sink = new PipedInputStream();
@@ -90,6 +96,12 @@ public final class IOUtils {
         }
     }
 
+    /**
+     * Buffer a request body from a consuming function.
+     *
+     * @param function the consuming function
+     * @return the request publisher
+     */
     public static Request.BodyPublisher buffer(final Consumer<OutputStream> function) {
         try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             function.accept(out);
