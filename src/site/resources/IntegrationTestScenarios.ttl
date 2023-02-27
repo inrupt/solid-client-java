@@ -8,17 +8,15 @@
 @prefix inrupt:  <http://www.inrupt.com/ns/terms#> .
 @prefix doap:    <http://usefulinc.com/ns/doap#> .
 
-
-#@base <https://schema.inrupt.com/devtools/> .
-@base <https://storage.inrupt.com/8cb88326-8002-4803-b5a1-819480aadab4/devtools/> . 
-@prefix solidClient: <./solid-client-java> . #create this
-@prefix : <solidClient:/> . 
+@prefix solidClient: <https://inrupt.github.io/solid-client-java> .
+@prefix : <https://inrupt.github.io/solid-client-java#> . 
 
 solidClient: a earl:Software;
-  doap:name "solid-client-java";
+  doap:name "Inrupt Java Client Libraries";
   inrupt:jiraComponent "JCL";
   doap:programming-language "Java";
-  doap:developer <https://inrupt.com>;
+  doap:developer <https://github.com/inrupt/solid-client-java/graphs/contributors>;
+  doap:homepage <https://inrupt.github.io/solid-client-java/> ;
   doap:homepage <https://github.com/inrupt/solid-client-java> ;
   inrupt:testSuite :resourceTestSuite, :authenticationTestSuite. 
 
