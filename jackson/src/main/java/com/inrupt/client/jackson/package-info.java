@@ -25,7 +25,7 @@
  * JSON parser. In the Java ecosystem, there are several widely used JSON
  * parsing libraries. This package adds support for the Jackson JSON libraries.
  *
- * <p>A user of this module should ensure that the Jackson implementation is
+ * <p>A user of the {@code JacksonService} should ensure that the Jackson implementation is
  * available on the classpath by adding the following dependency:
  *
  * <pre>
