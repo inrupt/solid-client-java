@@ -25,7 +25,7 @@
  * JSON parser. In the Java ecosystem, there are several widely used JSON
  * parsing libraries. This package adds support for the JakartaEE 8 JSON APIs.
  *
- * <p>This module depends on the JakartaEE APIs. A user of this module should
+ * <p>This module depends on the JakartaEE APIs. A user of the {@code JsonbService} should
  * ensure that the relevant JakartaEE JSON implementations are available on the
  * classpath in addition to Jsonb.
  * Example:
@@ -38,13 +38,13 @@
  *     &lt;/dependency&gt;
  * </pre>
  *
- * <h3>Example of using the JSON service fromJson() method to read a custom type:</h3>
+ * <h3>Example of using the JSON service fromJson() method to deserialize data into a custom type:</h3>
  *
  * <pre>{@code
     JsonService service = ServiceProvider.getJsonService();
     try (InputStream is = Test.class.getResourceAsStream("customType.json")) {
         CustomType obj = service.fromJson(is, CustomType.class);
-        System.out.println("The Custom Type Id is: " + obj.id);
+        System.out.println("Custom Type Id is: " + obj.id);
     }
  * }</pre>
  */
