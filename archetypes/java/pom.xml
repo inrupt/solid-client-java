@@ -10,26 +10,7 @@
   <packaging>maven-archetype</packaging>
   <name>Inrupt Java Client Libraries - Java Archetype</name>
 
-  <properties>
-    <archetype.plugin.version>3.2.1</archetype.plugin.version>
-  </properties>
-
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-archetype-plugin</artifactId>
-          <version>${archetype.plugin.version}</version>
-          <configuration>
-            <ignoreEOLStyle>true</ignoreEOLStyle>
-            <filterProperties>
-              <!--<inrupt-broker-version>${project.version}</inrupt-broker-version>-->
-            </filterProperties>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <resources>
       <resource>
         <directory>src/main/resources</directory>
