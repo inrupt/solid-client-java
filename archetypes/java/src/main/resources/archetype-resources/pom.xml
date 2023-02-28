@@ -11,13 +11,9 @@
 
   <properties>
     <!-- Java version -->
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <java.version>17</java.version>
-
-    <!-- dependencies -->
-
-    <!-- test dependencies -->
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <java.version>11</java.version>
   </properties>
 
   <dependencyManagement>
@@ -89,14 +85,4 @@
         <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-    </plugins>
-  </build>
 </project>
