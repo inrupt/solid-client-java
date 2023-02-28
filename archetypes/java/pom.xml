@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.inrupt</groupId>
-    <artifactId>inrupt-client</artifactId>
+    <artifactId>inrupt-client-archetype-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-archetype</artifactId>
+  <artifactId>inrupt-client-archetype-java</artifactId>
   <packaging>maven-archetype</packaging>
-  <name>Inrupt Java Client Libraries - Archetype</name>
+  <name>Inrupt Java Client Libraries - Java Archetype</name>
 
   <properties>
     <archetype.plugin.version>3.2.1</archetype.plugin.version>
