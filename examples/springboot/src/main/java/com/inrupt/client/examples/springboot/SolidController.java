@@ -1,6 +1,6 @@
 /*
  * Copyright 2023 Inrupt Inc.
- *  
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
@@ -18,27 +18,23 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 package com.inrupt.client.examples.springboot;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
-import com.inrupt.client.solid.SolidResourceHandlers;
-import com.inrupt.client.vocabulary.LDP;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,44 +42,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SolidController {
 
+    final SolidSyncClient client = SolidSyncClient.getClient();
+
     @GetMapping("/")
     public String index() {
         return "index";
     }
 
     @GetMapping("/oidc-principal")
-    public String getOidcUserPrincipal(@AuthenticationPrincipal OidcUser principal) {
+    public String getOidcUserPrincipal(final @AuthenticationPrincipal OidcUser principal) {
         return principal.getIdToken().getTokenValue();
     }
 
     @GetMapping("/solid")
-    public List<URI> solid(@AuthenticationPrincipal OidcUser principal) {
-
+    public List<URI> readFromPod(final @AuthenticationPrincipal OidcUser principal) {
+        final var list = new ArrayList<URI>();
         final URI webid = URI.create(principal.getClaimAsString("webid"));
-        final SolidClient client = SolidClient.getClient().session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
-        final Optional<URI> storage = client.read((webid), WebIdProfile.class)
-                .toCompletableFuture()
-                .join()
-                .getStorage()
-                .stream()
-                .findFirst();
+        final SolidSyncClient session =
+                client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
+        try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
 
-        if (storage.isPresent()) {
-            final Request request =
-                Request.newBuilder()
-                .uri(storage.get())
-                .header("Accept", "text/turtle")
-                .GET()
-                .build();
+            profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                try (final SolidContainer container = session.read(storage, SolidContainer.class)) {
+                    container.getContainedResources().map(SolidResource::getIdentifier)
+                            .forEach(list::add);
+                }
+            });
+        }
+        return list;
+    }
 
-            final Response<SolidContainer> response =
-                    client.send(request, SolidResourceHandlers.ofSolidContainer()).toCompletableFuture().join();
-            final SolidContainer container = response.body();
+    @GetMapping("/solid2")
+    public void writeToPod(final @AuthenticationPrincipal OidcUser principal) {
+        final URI webid = URI.create(principal.getClaimAsString("webid"));
+        final SolidSyncClient session =
+                client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
+        try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
+            profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                final Request request = Request.newBuilder().uri(storage)
+                        .header("Accept", "text/turtle").header("Slug", "test_resource")
+                        .POST(Request.BodyPublishers.ofString("message")).build();
 
-            return container.getContainedResources()
-                    .map(SolidResource::getIdentifier).toList();
-        } else {
-            return null;
+                session.send(request, Response.BodyHandlers.discarding());
+            });
         }
     }
 }
