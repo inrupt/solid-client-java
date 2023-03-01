@@ -41,7 +41,7 @@ By running the following command all tests (including integration tests) are run
     ./mvnw test
 ```
 
-The integration tests come with a dedicated Mocked Solid Server. Their configuration can be setup in such a way that the integration tests can be run also on love Solid Servers. More about their setup and configuration on the [integration test README](https://github.com/inrupt/solid-client-java/blob/main/integration/README.md).
+The integration tests come with a dedicated Mocked Solid Server. Their configuration can be setup in such a way that the integration tests can be run also on live Solid Servers. More about their setup and configuration can be found on the [integration test README](https://github.com/inrupt/solid-client-java/blob/main/integration/README.md).
 
 #### Code coverage
 
