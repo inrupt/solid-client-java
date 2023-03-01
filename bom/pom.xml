@@ -25,7 +25,7 @@
       </dependency>
       <dependency>
         <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-access-grant</artifactId>
+        <artifactId>inrupt-client-accessgrant</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
