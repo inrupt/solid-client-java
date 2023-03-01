@@ -52,7 +52,7 @@ This project uses JaCoCo for generating the code coverage metric that measures h
     ./mvnw verify
 ```
 
-The reports are then place in the `report/target/site` folder on the project root.
+The reports are then placed in the `report/target/site` folder on the project root.
 
 ## Issues & Help
 
