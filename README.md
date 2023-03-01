@@ -71,7 +71,7 @@ forum is a good place to meet the rest of the community.
 
 ## Documentation
 
-- [Inrupt Java Client Libraries getting started](https://inrupt.github.io/solid-client-java/index.html/)
+- [Inrupt Java Client Libraries getting started](https://inrupt.github.io/solid-client-java/)
 - [Inrupt Java Client Libraries javadocs](https://inrupt.github.io/solid-client-java/apidocs/)
 
 ## Changelog
