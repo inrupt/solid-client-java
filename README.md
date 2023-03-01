@@ -24,14 +24,6 @@ The project can be built with Maven and a Java 11+ build environment.
     ./mvnw install
 ```
 
-### Documentation build
-
-The [project documentation](https://inrupt.github.io/solid-client-java/apidocs/index.html) can be built with the command:
-
-```bash
-    ./mvnw site
-```
-
 ### Running tests
 
 The repository contains multiple tests. Each module has dedicated unit tests. And there is a module dedicated to integration testing in the [integration module](https://github.com/inrupt/solid-client-java/tree/main/integration).
