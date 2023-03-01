@@ -71,8 +71,9 @@
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
-    <!-- disable by default -->
+    <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
+    <archetype.test.skip>true</archetype.test.skip>
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -102,6 +103,7 @@
     <module>uma</module>
     <module>webid</module>
     <module>vocabulary</module>
+    <module>archetypes</module>
   </modules>
 
   <distributionManagement>
@@ -779,6 +781,7 @@
         <cpd.skip>true</cpd.skip>
         <jacoco.skip>false</jacoco.skip>
         <checkstyle.skip>false</checkstyle.skip>
+        <archetype.test.skip>false</archetype.test.skip>
       </properties>
     </profile>
     <profile>
@@ -789,6 +792,7 @@
         <cpd.skip>true</cpd.skip>
         <jacoco.skip>true</jacoco.skip>
         <checkstyle.skip>true</checkstyle.skip>
+        <archetype.test.skip>true</archetype.test.skip>
       </properties>
     </profile>
     <profile>
@@ -800,6 +804,7 @@
         <dependency-check.skip>false</dependency-check.skip>
         <jacoco.skip>true</jacoco.skip>
         <checkstyle.skip>true</checkstyle.skip>
+        <archetype.test.skip>true</archetype.test.skip>
       </properties>
     </profile>
   </profiles>
