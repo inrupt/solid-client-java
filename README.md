@@ -4,7 +4,7 @@
 
 This project adheres to the Contributor Covenant [code of conduct](CODE-OF-CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [engineering@inrupt.com](mailto:engineering@inrupt.com).
 
-The Java Client Libraries provide highly flexible, simple components that can be used in any Java application for [Solid](https://solidproject.org/). The libraries are composed of different modules that follow a layered architectural approach.
+The Inrupt Java Client Libraries provide highly flexible, simple components that can be used in any Java application for [Solid](https://solidproject.org/). The libraries are composed of different modules that follow a layered architectural approach.
 
 ## Using the libraries as a dependency in your own projects
 
