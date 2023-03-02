@@ -259,8 +259,10 @@ public class AuthenticationScenarios {
         assertDoesNotThrow(() -> authClient1.create(testResource));
 
         //create another private resource with another client
-        final URI privateResourceURL2 = URI
-                .create(podUrl + State.PRIVATE_RESOURCE_PATH + "/" + "resource2.ttl");
+        final URI privateResourceURL2 = URIBuilder.newBuilder(URI.create(podUrl))
+            .path(State.PRIVATE_RESOURCE_PATH)
+            .path("resource2.ttl")
+            .build();
         final SolidResource testResource2 = new SolidResource(privateResourceURL2, null, null);
         final SolidSyncClient authClient2 =
                 SolidSyncClient.getClient().session(session);
