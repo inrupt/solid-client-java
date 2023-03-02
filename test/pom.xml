@@ -42,6 +42,12 @@
       <artifactId>wiremock-jre8</artifactId>
       <version>${wiremock.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
