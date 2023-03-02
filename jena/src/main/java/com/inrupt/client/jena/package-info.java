@@ -67,7 +67,10 @@
  * <pre>{@code
     Model model = ModelFactory.createDefaultModel();
 
-    model.add("https://example.example/subject", "https://example.example/predicate", "object");
+    model.add(
+        ResourceFactory.createResource("https://example.example/subject"),
+        ResourceFactory.createProperty("https://example.example/predicate"),
+        "object");
 
     Request request = Request.newBuilder()
             .uri("https://example.example/postEndpoint"))
