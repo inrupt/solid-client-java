@@ -24,7 +24,7 @@ body:
         Describe the actual behavior clearly and concisely.
   - type: textarea
     attributes:
-      label: How to Reproduce?
+      label: How to reproduce?
       description: >-
         Link to a small reproducer (preferably a Maven project) or attach an archive containing the reproducer to the issue.
       placeholder: |
