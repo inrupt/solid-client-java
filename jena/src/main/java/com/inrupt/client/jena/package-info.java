@@ -65,11 +65,9 @@
  * POST method to write a {@code Model}:</h3>
  *
  * <pre>{@code
-    ModelBuilder builder = new ModelBuilder();
-    builder.namedGraph("https://example.example/graph")
-            .subject("https://example.example/subject")
-                .add("https://example.example/predicate", "object");
-    Model model = builder.build();
+    Model model = ModelFactory.createDefaultModel();
+
+    model.add("https://example.example/subject", "https://example.example/predicate", "object");
 
     Request request = Request.newBuilder()
             .uri("https://example.example/postEndpoint"))
