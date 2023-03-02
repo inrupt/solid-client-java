@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability Reporting
+    url: https://inrupt.com/security/
+    about: Please report vulnerabilities following the instructions provided at the link.
