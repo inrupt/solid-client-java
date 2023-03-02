@@ -28,18 +28,16 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
-import com.inrupt.client.webid.WebIdProfile;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.RDF;
+import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -49,12 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SolidController {
-    final Model model = ModelFactory.createDefaultModel();
-
-    private final Property P_TYPE = model.createProperty(RDF.type.toString());
-    private final Literal O_RESOURCE = model.createLiteral(LDP.Resource.toString());
-    private final Literal O_BASIC_CONTAINER = model.createLiteral(LDP.BasicContainer.toString());
-    
 
     final SolidSyncClient client = SolidSyncClient.getClient();
 
@@ -101,7 +93,7 @@ public class SolidController {
             });
         }
     } */
-    
+
     @GetMapping("/writePod")
     public void writeToPod(final @AuthenticationPrincipal OidcUser principal) {
         final URI webid = URI.create(principal.getClaimAsString("webid"));
@@ -109,13 +101,16 @@ public class SolidController {
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
         try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
             profile.getStorage().stream().findFirst().ifPresent(storage -> {
-                final String RESOURCE_NAME = "test_container";
-                final Resource resource = model.createResource(storage+ RESOURCE_NAME);
+                final Model model = ModelFactory.createDefaultModel();
+                final Resource resource = model.createResource(storage + "test_container/");
                 //model.add(resource, P_TYPE, O_RESOURCE);
-                model.add(resource, P_TYPE, O_BASIC_CONTAINER);
-                
+                model.add(resource,
+                        model.createProperty(RDF.type.toString()),
+                        model.createLiteral(LDP.BasicContainer.toString()));
+
                 final Request request = Request.newBuilder().uri(storage)
-                        .header("Accept", "text/turtle").header("Slug", RESOURCE_NAME)
+                        .header("Accept", "text/turtle")
+                        .header("Slug", "test_container")
                         .POST(JenaBodyPublishers.ofModel(model)).build();
 
                 session.send(request, Response.BodyHandlers.discarding());
