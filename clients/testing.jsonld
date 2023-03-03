@@ -7,7 +7,7 @@
     "http://localhost:8080/callback"
   ],
   "post_logout_redirect_uris": [
-    "http://localhost:8080"
+    "http://localhost:8080",
     "http://localhost:8080/"
   ],
   "client_name": "Test Application (Not for production use)",
