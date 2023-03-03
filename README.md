@@ -8,7 +8,7 @@ The Inrupt Java Client Libraries provide highly flexible, simple components that
 
 ## Using the libraries as a dependency in your own projects
 
-To use the Inrupt Java Client Libraries in your projects make sure to visit the [Set Up page](https://inrupt.github.io/solid-client-java/setUp.html) of the documentation.
+To use the Inrupt Java Client Libraries in your projects make sure to visit the [Getting Started page](https://inrupt.github.io/solid-client-java/getting-started.html) of the documentation.
 
 Next we will document how to use this repository locally.
 
