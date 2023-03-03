@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.jena","l":"JenaBodyHandlers"},{"p":"com.inrupt.client.jena","l":"JenaBodyPublishers"},{"p":"com.inrupt.client.jena","l":"JenaService"}]
