@@ -22,6 +22,7 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
@@ -50,7 +51,6 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -267,54 +267,58 @@ public class DomainModulesResource {
     }
 
     @Test
-    @Disabled("Client needs to be authenticated to get a successful 200 on GET of root")
     @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
         LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
         //returns: testContainer + "UUID1/UUID2/UUID3/"
         final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
-        var tempURI = leafPath;
 
-        String root = "";
-        while (tempURI.contains("/")) {
-            final Request req = Request.newBuilder(URI.create(tempURI)).GET().build();
+        final String podRoot = podRoot(leafPath);
+
+        //cleanup
+        recursiveDeleteLDPcontainers(leafPath);
+        assertFalse(podRoot.isEmpty());
+    }
+
+    private String podRoot(final String leafPath) {
+        String tempURL = leafPath;
+        final URI storage = URI.create(PIM.getNamespace() + "Storage");
+        while (tempURL.chars().filter(ch -> ch == '/').count() >= 3) {
+            final Request req = Request.newBuilder(URI.create(tempURL)).GET().build();
             final Response<SolidResource> headerResponse =
                     client.send(req, SolidResourceHandlers.ofSolidResource());
-            if ((headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage") != null) &&
-                headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().hasNext()) {
-                root = headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().next();
-                break;
+            final var headers = headerResponse.headers();
+            final var isRoot = headers.allValues("Link").stream()
+                .flatMap(l -> Headers.Link.parse(l).stream())
+                .anyMatch(link -> link.getUri().equals(storage));
+            if (isRoot) {
+                return tempURL;
             }
-            tempURI = tempURI.substring(0, tempURI.lastIndexOf("/"));
+            tempURL = tempURL.substring(0, tempURL.length() - 1 ); //eliminate the last /
+            tempURL = tempURL.substring(0, tempURL.lastIndexOf("/") + 1);
         }
-        recursiveDeleteLDPcontainers(leafPath);
-        assertFalse(root.isEmpty());
+        return "";
     }
 
     private void recursiveDeleteLDPcontainers(final String leafPath) {
-        SolidResource url;
-        String tempUrl = leafPath;
-        while (tempUrl.contains("/")) {
-            final Request req = Request.newBuilder(URI.create(tempUrl)).GET().build();
-            final Response<SolidResource> headerResponse =
-                client.send(req, SolidResourceHandlers.ofSolidResource());
-            if (headerResponse.headers().asMap().get(PIM.getNamespace() + "Storage").iterator().hasNext()) {
-                break;
-            }
-            url = new SolidResource(URI.create(tempUrl),null, null);
+        String tempURL = leafPath;
+        while (!tempURL.equals(podUrl) && !tempURL.equals(podUrl + "/")) {
+            final var url = new SolidResource(URI.create(tempURL),null, null);
             client.delete(url);
-            tempUrl = tempUrl.substring(0, tempUrl.lastIndexOf("/"));
+            tempURL = tempURL.substring(0, tempURL.lastIndexOf("/"));
+            tempURL = tempURL.substring(0, tempURL.lastIndexOf("/") + 1);
         }
     }
 
     private String getNestedContainer(final String path, final int depth) {
-        var tempUrl = "";
+        final URIBuilder tempURL = URIBuilder.newBuilder(URI.create(path));
         for (int i = 0; i < depth; i++) {
-            tempUrl += UUID.randomUUID().toString() + Utils.FOLDER_SEPARATOR;
+            tempURL.path(UUID.randomUUID().toString());
         }
-        final var resource = new SolidResource(URI.create(path + tempUrl));
+        final String newURL = tempURL.build().toString() + Utils.FOLDER_SEPARATOR;
+        final var resource = new SolidResource(URI.create(newURL));
         client.create(resource);
-        return path + tempUrl;
+        return newURL;
     }
 }
