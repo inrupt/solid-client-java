@@ -41,8 +41,8 @@ Session Management
     If you are using Inrupt's Open ID Provider, the authorization server URL will be <<<https://login.inrupt.com>>>.
 
     For the <<<client_id>>>, you will use a "public client", which does not need authentication. For this, you can either create your own
-    "Client Identifier document", and make this available in a public location on the Web. Ensure that the URL of this resource is exactly
-    the same as the <<<client_id>>> property of document. Below is an example of a Client Identifier document.
+    "{{{https://solidproject.org/TR/oidc#clientids-document}Client Identifier document}}", and make this available in a public location on the Web. Ensure that the URL of this resource is exactly
+    the same as the <<<client_id>>> property of the document. Below is an example of a Client Identifier document.
 
 +---
 {
@@ -66,10 +66,10 @@ Session Management
 
     For this example, assume that your application will run at the URL <<<https://application.example/>>> (and for development at <<<http://localhost:8080/>>>)
 
-    Using the OpenID Connect extension for the relevant framework, it will be possible to get a raw ID Token. This is all that is needed by
+    Using the {{{https://openid.net/connect/}OpenID Connect}} extension for the relevant framework, it will be possible to get a raw ID Token. This is all that is needed by
     the Inrupt Java Client. In particular, the <<<com.inrupt.client.openid.OpenIdSession.ofIdToken(String)>>> method will be used in this scenario.
 
-    For Example, with Quarkus, your code might look like this:
+    For example, with Quarkus, your code might look like this:
 
 +---
 @ApplicationScoped
@@ -112,10 +112,8 @@ public class Endpoint {
     Command-line applications will typically operate on behalf of a single user. For this type of interaction,
     you will need to establish a "client credential" using a few pieces of information that are retrieved from
     an identity provider such as the Application Registration page on
-    {{{https://login.inrupt.com/registration.html}Inrupt's OpenID Provider}}. After logging in, you can register
-    a new app or use an existing one.
+    {{{https://login.inrupt.com/registration.html}Inrupt's OpenID Provider}}. After logging in to the identity provider, you can register a new application and in turn, get:
 
-    In this case, there are two pieces of information to note:
 
       * <<<client_id>>>
 

@@ -12,15 +12,15 @@ Data Modeling
 
     * Maven 3.5 or later
 
-* Solution
+* How to complete
 
     The solution involves creating a wrapper class so that your class can act not only as an RDF Graph
     but also as a domain-specific type.
 
 * 1. Subclass the Resource type
 
-    The first step involves ensuring that your class extends the <<<com.inrupt.client.Resource>>> class
-    and consider the methods you expect in your class.
+    The first step involves ensuring that your class extends the <<<com.inrupt.client.Resource>>> class.
+    Afterwards, consider the methods you expect in your class.
 
 +---
 public class Playlist extends Resource {
