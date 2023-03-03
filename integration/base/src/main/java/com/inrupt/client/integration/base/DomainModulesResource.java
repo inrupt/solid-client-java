@@ -316,7 +316,7 @@ public class DomainModulesResource {
         for (int i = 0; i < depth; i++) {
             tempURL.path(UUID.randomUUID().toString());
         }
-        final String newURL = tempURL.build().toString() + Utils.FOLDER_SEPARATOR;
+        final String newURL = tempURL.build() + Utils.FOLDER_SEPARATOR;
         final var resource = new SolidResource(URI.create(newURL));
         client.create(resource);
         return newURL;
