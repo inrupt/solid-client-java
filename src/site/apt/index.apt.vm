@@ -2,7 +2,7 @@ Inrupt's Java Client Libraries
 
   {{{https://inrupt.com}Inrupt}} provides the following Java client libraries to help developers create {{{https://solidproject.org}Solid}} applications. These libraries provide highly flexible, simple components that can be used in any Java application for {{{https://solidproject.org/TR/protocol}Solid}}.
 
-  These libraries aim to make two parts of Solid easier to work with: {{{./session-management.html}Authorization}} and {{{./data-modeling.html}Data Mapping}}.
+  These libraries aim to make two parts of Solid easier to work with: {{{./session-management.html}Authorization}} and {{{./data-modeling.html}Data Modeling}}.
 
   Authorization is complicated, especially in a distributed ecosystem, such as Solid. These libraries provide flexibility while at the same time hiding much of the complexity of authorization.
 

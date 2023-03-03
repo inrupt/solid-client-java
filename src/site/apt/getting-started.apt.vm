@@ -1,6 +1,6 @@
 Getting Started With Inrupt's Java Client Libraries
 
-    This guide will help you set up Java project using Maven. This project will contain all the necessary components to begin building a Solid application in Java.
+    This guide will help you set up a Java project using Maven. The project contains all the necessary components to begin building a Solid application.
 
 * What you will need
 
