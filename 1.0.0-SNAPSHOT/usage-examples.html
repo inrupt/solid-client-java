@@ -76,8 +76,8 @@
 <p>There are three types of clients available for use, each with the following characteristics:</p>
 <ul>
 <li><a href="#High-Level_Synchronous_Client"><b>High-Level Synchronous Client</b></a>. This client simplifies the basic Create-Read-Update-Delete operations you would expect in a RESTful client, while supporting a data binding mechanism between Java objects and Solid resources.</li>
-<li><a href="#High-level_Asynchronous_Client"><b>High-level Asynchronous Client</b></a>. This client is exactly like the synchronous client except that all responses are wrapped in a <code>CompletionStage&lt;T&gt;</code>.</li>
-<li><a href="#Low-level_Asynchronous_Client"><b>Low-level Asynchronous Client</b></a>. This client is considerably more verbose and gives developers full control over the HTTP requests and responses.</li></ul>
+<li><a href="#High-Level_Asynchronous_Client"><b>High-Level Asynchronous Client</b></a>. This client is exactly like the synchronous client except that all responses are wrapped in a <code>CompletionStage&lt;T&gt;</code>.</li>
+<li><a href="#Low-Level_Asynchronous_Client"><b>Low-Level Asynchronous Client</b></a>. This client is considerably more verbose and gives developers full control over the HTTP requests and responses.</li></ul>
 <p>For the low-level client, there is a single method to perform an HTTP operation: <code>Client::send</code>.</p>
 <p>For the high-level clients, in addition to the low-level <code>::send</code> API, you will have several other methods available:</p>
 <ul>
@@ -109,7 +109,7 @@
         return client.read(uri, SolidResource.class);
     }
 }</pre></div></section></section><section>
-<h3><a name="Low-Level_Client"></a>Low-Level Client</h3>
+<h3><a name="Low-Level_Asynchronous_Client"></a>Low-Level Asynchronous Client</h3>
 <p>The low-level client API gives developers full control over HTTP requests and responses. This API is also considerably more verbose, while only including a single method: <code>::send</code>.</p><section>
 <h4><a name="Simple_example"></a>Simple example</h4>
 <div class="source"><pre class="prettyprint">public class ClientSample {
