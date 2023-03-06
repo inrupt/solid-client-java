@@ -76,6 +76,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: github.actor != 'dependabot[bot]'
         with:
+          keep_files: true
           publish_dir: ./target/staging/
           destination_dir: ${{ env.VERSION_DIR }}
           personal_token: ${{ secrets.GITHUB_TOKEN }}
