@@ -21,7 +21,7 @@ Session Management
       * Will this application run from the Command Line with a single user? If so, follow the steps for {{Command Line Applications}}.
 
 
-    There are other, more advanced options possible, but these will be the two most common patterns. Furthermore, both patterns also support the use of Access Grants, which is described in the {{Using Access Grants}} section.
+    There are other, more advanced options possible, but these will be the two most common patterns. Furthermore, both patterns also support the use of Access Grants, which is described in the {{Access Grants}} section.
 
     After deciding how to establish a <<<Session>>>, you will pass that value to your client to create a Session-constrained client, as described in {{Using Session objects with a Client}}.
 
