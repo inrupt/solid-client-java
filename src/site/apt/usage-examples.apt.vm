@@ -24,9 +24,9 @@ Usage Examples
 
         * {{<<High-Level Synchronous Client>>}}. This client simplifies the basic Create-Read-Update-Delete operations you would expect in a RESTful client, while supporting a data binding mechanism between Java objects and Solid resources.
 
-        * {{<<High-level Asynchronous Client>>}}. This client is exactly like the synchronous client except that all responses are wrapped in a <<<CompletionStage<T\>>>>.
+        * {{<<High-Level Asynchronous Client>>}}. This client is exactly like the synchronous client except that all responses are wrapped in a <<<CompletionStage<T\>>>>.
 
-        * {{<<Low-level Asynchronous Client>>}}. This client is considerably more verbose and gives developers full control over the HTTP requests and responses.
+        * {{<<Low-Level Asynchronous Client>>}}. This client is considerably more verbose and gives developers full control over the HTTP requests and responses.
 
 
     For the low-level client, there is a single method to perform an HTTP operation: <<<Client::send>>>.
@@ -78,7 +78,7 @@ public class ClientSample {
 }
 +----------------
 
-* Low-Level Client
+* Low-Level Asynchronous Client
 
     The low-level client API gives developers full control over HTTP requests and responses. This API is also considerably more verbose, while only including a single method: <<<::send>>>.
 
