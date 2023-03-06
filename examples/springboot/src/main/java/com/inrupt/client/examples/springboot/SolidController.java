@@ -18,7 +18,6 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 package com.inrupt.client.examples.springboot;
 
 import com.inrupt.client.Headers;
@@ -40,7 +39,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 public class SolidController {
 
@@ -53,7 +51,6 @@ public class SolidController {
     static final String TEXT_TURTLE = "text/turtle";
     static final String WEB_ID = "webid";
     static final String WILDCARD = "*";
-
 
     @GetMapping("/")
     public String index() {

@@ -28,7 +28,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 
-
 @SpringBootApplication
 public class Application {
 
@@ -43,5 +42,4 @@ public class Application {
                 .setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
         return idTokenDecoderFactory;
     }
-
 }
