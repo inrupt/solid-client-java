@@ -21,24 +21,20 @@
 
 package com.inrupt.client.examples.springboot;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.LDP;
-import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +45,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class SolidController {
 
     final SolidSyncClient client = SolidSyncClient.getClient();
+    static final String CONTENT_TYPE = "Content-Type";
+    static final String IF_NONE_MATCH = "If-None-Match";
+    static final String LINK = "Link";
+    static final String REL_TYPE = "type";
+    static final String SLUG = "Slug";
+    static final String TEXT_TURTLE = "text/turtle";
+    static final String WEB_ID = "webid";
+    static final String WILDCARD = "*";
+
 
     @GetMapping("/")
     public String index() {
@@ -63,7 +68,7 @@ public class SolidController {
     @GetMapping("/readPod")
     public List<URI> readFromPod(final @AuthenticationPrincipal OidcUser principal) {
         final var list = new ArrayList<URI>();
-        final URI webid = URI.create(principal.getClaimAsString("webid"));
+        final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
         try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
@@ -78,40 +83,71 @@ public class SolidController {
         return list;
     }
 
-    /* @GetMapping("/writePod")//TODO make POST mapping
-    public void writeToPod(final @AuthenticationPrincipal OidcUser principal) {
-        final URI webid = URI.create(principal.getClaimAsString("webid"));
+    @GetMapping("/writeNonRDF")
+    public void writeNonRDF(final @AuthenticationPrincipal OidcUser principal) {
+        final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
         try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
             profile.getStorage().stream().findFirst().ifPresent(storage -> {
-                final Request request = Request.newBuilder().uri(storage)
-                        .header("Accept", "text/turtle").header("Slug", "test_resource")
-                        .POST(Request.BodyPublishers.ofString("message")).build();
+                final Request request =
+                        Request.newBuilder().uri(storage)
+                            .header(SLUG, "test_nonRDF")
+                            .header(CONTENT_TYPE, TEXT_TURTLE)
+                            .header(IF_NONE_MATCH, WILDCARD)
+                            .POST(Request.BodyPublishers.ofString("message"))
+                            .build();
 
                 session.send(request, Response.BodyHandlers.discarding());
             });
         }
-    } */
+    }
 
-    @GetMapping("/writePod")
-    public void writeToPod(final @AuthenticationPrincipal OidcUser principal) {
-        final URI webid = URI.create(principal.getClaimAsString("webid"));
+    @GetMapping("/writeContainer")
+    public void writeContainer(final @AuthenticationPrincipal OidcUser principal) {
+        final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
         try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
             profile.getStorage().stream().findFirst().ifPresent(storage -> {
-                final Model model = ModelFactory.createDefaultModel();
-                final Resource resource = model.createResource(storage + "test_container/");
-                //model.add(resource, P_TYPE, O_RESOURCE);
-                model.add(resource,
-                        model.createProperty(RDF.type.toString()),
-                        model.createLiteral(LDP.BasicContainer.toString()));
+
+                final String containerName = "test_container/";
+                final Request request = Request.newBuilder().uri(storage)
+                        .header(SLUG, containerName)
+                        .header(CONTENT_TYPE, TEXT_TURTLE)
+                        .header(IF_NONE_MATCH, WILDCARD)
+                        .header(LINK, Headers.Link.of(LDP.BasicContainer, REL_TYPE).toString())
+                        .POST(Request.BodyPublishers.noBody())
+                        .build();
+                session.send(request, Response.BodyHandlers.discarding());
+
+                final Request request2 = Request.newBuilder().uri(URI.create(storage + containerName))
+                        .header(SLUG, "test_contained_resource")
+                        .header(CONTENT_TYPE, TEXT_TURTLE)
+                        .header(IF_NONE_MATCH, WILDCARD)
+                        .header(LINK, Headers.Link.of(LDP.RDFSource, REL_TYPE).toString())
+                        .POST(Request.BodyPublishers.noBody())
+                        .build();
+                session.send(request2, Response.BodyHandlers.discarding());
+            });
+        }
+    }
+
+    @GetMapping("/writeResource")
+    public void writeResource(final @AuthenticationPrincipal OidcUser principal) {
+        final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
+        final SolidSyncClient session =
+                client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
+        try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
+            profile.getStorage().stream().findFirst().ifPresent(storage -> {
 
                 final Request request = Request.newBuilder().uri(storage)
-                        .header("Accept", "text/turtle")
-                        .header("Slug", "test_container")
-                        .POST(JenaBodyPublishers.ofModel(model)).build();
+                        .header(SLUG, "test_resource")
+                        .header(CONTENT_TYPE, TEXT_TURTLE)
+                        .header(IF_NONE_MATCH, WILDCARD)
+                        .header(LINK, Headers.Link.of(LDP.RDFSource, REL_TYPE).toString())
+                        .POST(Request.BodyPublishers.noBody())
+                        .build();
 
                 session.send(request, Response.BodyHandlers.discarding());
             });
