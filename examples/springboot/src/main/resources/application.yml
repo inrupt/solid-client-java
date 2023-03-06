@@ -8,7 +8,7 @@ spring:
       client:
         registration:
           podspaces:
-            client-id: https://home.apache.org/~acoburn/context/demo-v4.jsonld
+            client-id: #client-id document URI
             provider: podspaces
             scope:
               - openid
