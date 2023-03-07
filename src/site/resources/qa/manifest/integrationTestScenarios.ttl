@@ -8,8 +8,8 @@
 @prefix inrupt:  <http://www.inrupt.com/ns/terms#> .
 @prefix doap:    <http://usefulinc.com/ns/doap#> .
 
-@prefix solidClient: <https://inrupt.github.io/solid-client-java> .
-@prefix : <https://inrupt.github.io/solid-client-java#> . 
+@prefix solidClient: <https://w3id.org/inrupt/qa/manifest/solid-client-java> .
+@prefix : <https://w3id.org/inrupt/qa/manifest/solid-client-java/> . 
 
 solidClient: a earl:Software;
   doap:name "Inrupt Java Client Libraries";
