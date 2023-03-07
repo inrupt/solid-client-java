@@ -24,6 +24,17 @@
  * <p>The RDF4J module gives two possibilities to read RDF data: through the Service {@link RDF4JService}
  * and through the BodyHandler {@link RDF4JBodyHandlers}.
  *
+ * <p>A user of the {@code RDF4JService} should ensure that this implementation is
+ * available on the classpath by adding the following dependency:
+ *
+ * <pre>
+ *     &lt;dependency&gt;
+ *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
+ *            &lt;artifactId&gt;inrupt-client-rdf4j&lt;/artifactId&gt;
+ *            &lt;version&gt;${project.version}&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ * </pre>
+ *
  * <h3>Example of using the RDF4J Service toDataset() method to read triples
  * from a trig file into a {@code Dataset}:</h3>
  *
@@ -35,17 +46,6 @@
     }
     System.out.println("Number of triples in file: " + dataset.size());
  * }</pre>
- *
- * <p>A user of {@code RDF4JService} should ensure that this implementation is
- * available on the classpath by adding the following dependency:
- *
- * <pre>
- *     &lt;dependency&gt;
- *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
- *            &lt;artifactId&gt;inrupt-client-rdf4j&lt;/artifactId&gt;
- *            &lt;version&gt;${project.version}&lt;/version&gt;
- *     &lt;/dependency&gt;
- * </pre>
  *
  * <h3>Example of using the RDF4J BodyHandler ofModel() method to read the triples
  * from the same trig file into a {@code Model}:</h3>

@@ -32,7 +32,7 @@
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>1.0.2</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <rdf4j.version>4.2.2</rdf4j.version>
+    <rdf4j.version>4.2.3</rdf4j.version>
     <slf4j.version>1.7.36</slf4j.version>
     <inrupt.commons.rdf4j.version>0.4.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>0.2.0</inrupt.rdf.wrapping.version>
@@ -41,7 +41,7 @@
     <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
     <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
-    <compiler.plugin.version>3.10.1</compiler.plugin.version>
+    <compiler.plugin.version>3.11.0</compiler.plugin.version>
     <deploy.plugin.version>3.1.0</deploy.plugin.version>
     <install.plugin.version>3.1.0</install.plugin.version>
     <git.plugin.version>4.9.10</git.plugin.version>
@@ -51,7 +51,7 @@
     <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
-    <owasp.plugin.version>8.0.2</owasp.plugin.version>
+    <owasp.plugin.version>8.1.2</owasp.plugin.version>
     <projectinfo.plugin.version>3.4.2</projectinfo.plugin.version>
     <pmd.plugin.version>3.20.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
@@ -62,17 +62,18 @@
     <surefire.plugin.version>3.0.0-M9</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.7.0</checkstyle.tool.version>
+    <checkstyle.tool.version>10.8.0</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.13.1</equalsverifier.version>
+    <equalsverifier.version>3.14</equalsverifier.version>
     <junit.version>5.9.2</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
-    <!-- disable by default -->
+    <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
+    <archetype.test.skip>true</archetype.test.skip>
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -102,6 +103,7 @@
     <module>uma</module>
     <module>webid</module>
     <module>vocabulary</module>
+    <module>archetypes</module>
   </modules>
 
   <distributionManagement>
@@ -779,6 +781,7 @@
         <cpd.skip>true</cpd.skip>
         <jacoco.skip>false</jacoco.skip>
         <checkstyle.skip>false</checkstyle.skip>
+        <archetype.test.skip>false</archetype.test.skip>
       </properties>
     </profile>
     <profile>
@@ -789,6 +792,7 @@
         <cpd.skip>true</cpd.skip>
         <jacoco.skip>true</jacoco.skip>
         <checkstyle.skip>true</checkstyle.skip>
+        <archetype.test.skip>true</archetype.test.skip>
       </properties>
     </profile>
     <profile>
@@ -800,6 +804,7 @@
         <dependency-check.skip>false</dependency-check.skip>
         <jacoco.skip>true</jacoco.skip>
         <checkstyle.skip>true</checkstyle.skip>
+        <archetype.test.skip>true</archetype.test.skip>
       </properties>
     </profile>
   </profiles>

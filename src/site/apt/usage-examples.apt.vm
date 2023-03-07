@@ -1,0 +1,138 @@
+Usage Examples
+
+    An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.
+
+* What you will need
+
+    * About 15 minutes
+
+    * Your favorite text editor or IDE
+
+    * Java 11 or later
+
+    * Maven 3.5 or later
+
+* How to complete
+
+    The first step is to decide which client is appropriate for your application.
+
+    After deciding which client to use, the next step is to consider how you plan to {{{./session-management.html}manage authenticated sessions}}.
+
+* Client Options
+
+    There are three types of clients available for use, each with the following characteristics:
+
+        * {{<<High-Level Synchronous Client>>}}. This client simplifies the basic Create-Read-Update-Delete operations you would expect in a RESTful client, while supporting a data binding mechanism between Java objects and Solid resources.
+
+        * {{<<High-Level Asynchronous Client>>}}. This client is exactly like the synchronous client except that all responses are wrapped in a <<<CompletionStage<T\>>>>.
+
+        * {{<<Low-Level Asynchronous Client>>}}. This client is considerably more verbose and gives developers full control over the HTTP requests and responses.
+
+
+    For the low-level client, there is a single method to perform an HTTP operation: <<<Client::send>>>.
+
+    For the high-level clients, in addition to the low-level <<<::send>>> API, you will have several other methods available:
+
+        * <<<\<T extends Resource> ::create(T)>>> -- given an object that is a subclass of <<<Resource>>>, create a new Solid resource.
+
+        * <<<\<T extends Resource> ::read(URI, Class<T>)>>> -- fetch a Solid resource from a known URI and marshall it into the given type.
+
+        * <<<\<T extends Resource> ::update(T)>>> -- given an object that is a subclass of <<<Resource>>>, update an existing Solid resource.
+
+        * <<<\<T extends Resource> ::delete(T)>>> -- given an object that is a subclass of <<<Resource>>>, delete the corresponding Solid resource.
+
+
+* High-Level Synchronous Client
+
+    The high-level synchronous client, offers a RESTful API, allowing for synchronous interaction with Solid resources. In addition this client manages a data binding between the Java types you define and the underlying Solid resources.
+
+** Simple example
+
++----------------
+public class ClientSample {
+
+    public void useTheHighLevelSyncClient() {
+        SolidSyncClient client = SolidSyncClient.getClient();
+
+        URI uri = URI.create("https://storage.example/resource.ttl");
+        SolidResource resource = client.read(uri, SolidResource.class);
+    }
+}
++----------------
+
+* High-Level Asynchronous Client
+
+    The high-level asynchronous client API is exactly like the synchronous API, except that the return types are wrapped in a <<<CompletionStage<T\>>>>.
+
+** Simple example
+
++----------------
+public class ClientSample {
+
+    public CompletionStage<SolidResource> useTheHighLevelAsyncClient() {
+        SolidClient client = SolidClient.getClient();
+
+        URI uri = URI.create("https://storage.example/resource.ttl");
+        return client.read(uri, SolidResource.class);
+    }
+}
++----------------
+
+* Low-Level Asynchronous Client
+
+    The low-level client API gives developers full control over HTTP requests and responses. This API is also considerably more verbose, while only including a single method: <<<::send>>>.
+
+** Simple example
+
++---------------
+public class ClientSample {
+
+    public CompletionStage<String> useTheLowLevelClient() {
+        Client client = ClientProvider.getClient();
+
+        URI uri = URI.create("https://storage.example/resource.ttl");
+        Request req = Request.newBuilder(uri)
+            .header("Accept", "text/turtle")
+            .GET()
+            .build();
+
+        return client.send(req, Response.BodyHandlers.ofInputStream()).thenAccept(res -> {
+                if (res.statusCode() == 200) {
+                    return res.body();
+                }
+                return "Error accessing resource: " + res.statusCode();
+            });
+    }
+}
++---------------
+
+** Request Body Publishers
+
+    Write operations such as <<<POST>>> and <<<PUT>>> will typically contain a request body. The low-level client provides a number of request body publishers for use by developers. These publishers make it easier to translate existing Java objects into HTTP requests. Some existing body publishers include:
+
+      * <<<Request.BodyPublisher.ofString(String)>>> This publisher accepts a <<<String>>> and will convert that into an HTTP request body.
+
+      * <<<Request.BodyPublisher.ofInputStream(InputStream)>>> This publisher accepts an <<<InputStream>>>.
+
+      * <<<Request.BodyPublisher.noBody()>>> This publisher uses an empty body in the HTTP request.
+
+    In addition, when working directly with RDF resources, there are Jena and RDF4J publishers that will serialize an RDF Model as an HTTP request. These handlers are useful in cases where applications are already using an RDF framework. In these cases, <<<JenaBodyPublishers.ofModel(Model, Lang)>>> or <<<RDF4JBodyPublishers.ofModel(Model, RDFFormat)>>> would be used.
+
+
+** Response Body Handlers
+
+    The low-level client also provides a number of response body handlers for use by developers. The following body handlers are always available:
+
+      * <<<Response.BodyHandlers.discarding()>>> This handler discards any response content. It is especially useful for write operations such as <<<PUT>>>, <<<POST>>> and <<<DELETE>>>.
+
+      * <<<Response.BodyHandlers.ofInputStream()>>> This handler maps the HTTP response to an <<<InputStream>>>. This may be useful for custom processing of the response body.
+
+      * <<<Response.BodyHandlers.ofString()>>> This handler maps the HTTP response to a <<<String>>>. This may be useful for small text-oriented responses, though one should generally prefer the <<<InputStream>>>-based API.
+
+
+    When working with RDF resources, there are Jena and RDF4J handlers that will map HTTP responses directly to a Jena or RDF4J Model. These handlers are useful in cases where applications are already using an RDF framework. <<<JenaBodyHandlers.ofModel()>>> or <<<RDF4JBodyHandlers.ofModel()>>> would be used in these cases.
+
+* Next Steps
+
+    Now that you have decided which client to use, the next step is to consider how to {{{./session-management.html}manage authenticated sessions}}.
+

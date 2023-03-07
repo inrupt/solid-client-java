@@ -23,7 +23,18 @@
  *
  * <p>The Jena module gives two possibilities to read RDF data: through the Service {@link JenaService}
  * and through the BodyHandler {@link JenaBodyHandlers}.
+ * 
+ * <p>A user of the {@code JenaService} should ensure that this implementation is
+ * available on the classpath by adding the following dependency:
  *
+ * <pre>
+ *     &lt;dependency&gt;
+ *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
+ *            &lt;artifactId&gt;inrupt-client-jena&lt;/artifactId&gt;
+ *            &lt;version&gt;${project.version}&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ * </pre>
+ * 
  * <h3>Example of using the Jena Service toDataset() method to read triples
  * from a trig file into a {@code Dataset}:</h3>
  *
@@ -54,11 +65,12 @@
  * POST method to write a {@code Model}:</h3>
  *
  * <pre>{@code
-    ModelBuilder builder = new ModelBuilder();
-    builder.namedGraph("https://example.example/graph")
-            .subject("https://example.example/subject")
-                .add("https://example.example/predicate", "object");
-    Model model = builder.build();
+    Model model = ModelFactory.createDefaultModel();
+
+    model.add(
+        ResourceFactory.createResource("https://example.example/subject"),
+        ResourceFactory.createProperty("https://example.example/predicate"),
+        "object");
 
     Request request = Request.newBuilder()
             .uri("https://example.example/postEndpoint"))
@@ -70,16 +82,5 @@
 
     System.out.println("HTTP status code: " + response.statusCode());
  * }</pre>
- * 
- * <p>A user of the {@code JenaService} should ensure that this implementation is
- * available on the classpath by adding the following dependency:
- *
- * <pre>
- *     &lt;dependency&gt;
- *            &lt;groupId&gt;com.inrupt&lt;/groupId&gt;
- *            &lt;artifactId&gt;inrupt-client-jena&lt;/artifactId&gt;
- *            &lt;version&gt;${project.version}&lt;/version&gt;
- *     &lt;/dependency&gt;
- * </pre>
  */
 package com.inrupt.client.jena;
