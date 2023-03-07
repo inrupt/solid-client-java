@@ -52,7 +52,26 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 /**
- * A client for interacting with Access Grant Resources.
+ * A client for interacting with and managing Access Grant Resources.
+ *
+ * <p>This client will require a suitable
+ * {@link Session} object, typically an OpenID-based session:
+ *
+ * <pre>{@code
+   URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+   URI issuer = URI.create("https://issuer.example");
+   Session openid = OpenIdSession.ofIdToken(idToken);
+
+   AccessGrantClient client = new AccessGrantClient(issuer).session(session);
+
+   URI resource = URI.create("https://storage.example/data/resource");
+   client.query(SOLID_ACCESS_GRANT, null, resource, null)
+       .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
+       .thenApply(session -> SolidClient.getClient().session(session))
+       .thenAccept(cl -> {
+            // Do something with the Access Grant-scoped client
+       });
+ * }</pre>
  */
 public class AccessGrantClient {
 
@@ -164,11 +183,15 @@ public class AccessGrantClient {
     /**
      * Perform an Access Grant query.
      *
+     * <p>The {@code type} parameter must be an absolute URI. For Access Requests,
+     * the URI is {@code http://www.w3.org/ns/solid/vc#SolidAccessRequest}. For Access Grants, the URI
+     * is {@code http://www.w3.org/ns/solid/vc#SolidAccessGrant}. Other URIs may be defined in the future.
+     *
      * @param type the Access Grant type
      * @param agent the agent identifier, may be {@code null}
      * @param resource the resource identifier, may be {@code null}
      * @param mode the access mode, may be {@code null}
-     * @return the next stage of completion, including the found Access Grants
+     * @return the next stage of completion, including the matched Access Grants
      */
     public CompletionStage<List<AccessGrant>> query(final URI type, final URI agent, final URI resource,
             final String mode) {

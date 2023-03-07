@@ -53,13 +53,13 @@
  * {@link com.inrupt.client.auth.Session} object, typically an OpenID-based session:
  *
  * <pre>{@code
+   URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
    URI issuer = URI.create("https://issuer.example");
    Session openid = OpenIdSession.ofIdToken(idToken);
 
    AccessGrantClient client = new AccessGrantClient(issuer).session(session);
 
    URI resource = URI.create("https://storage.example/data/resource");
-   URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
    client.query(SOLID_ACCESS_GRANT, null, resource, null)
        .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
