@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFSyntax;
-import org.eclipse.rdf4j.RDF4JException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.repository.Repository;
@@ -65,7 +64,7 @@ public class RDFLegacyService implements RdfService {
                 statements.sequential().forEach(writer::handleStatement);
             }
             writer.endRDF();
-        } catch (final RDF4JException ex) {
+        } catch (final org.eclipse.rdf4j.RDF4JException ex) {
             throw new IOException("Error serializing dataset", ex);
         }
     }
@@ -80,7 +79,7 @@ public class RDFLegacyService implements RdfService {
                 statements.sequential().forEach(writer::handleStatement);
             }
             writer.endRDF();
-        } catch (final RDF4JException ex) {
+        } catch (final org.eclipse.rdf4j.RDF4JException ex) {
             throw new IOException("Error serializing graph", ex);
         }
     }
@@ -94,7 +93,7 @@ public class RDFLegacyService implements RdfService {
                 conn.add(input, baseUri, format);
             }
             return rdf.asDataset(repository);
-        } catch (final RDF4JException ex) {
+        } catch (final org.eclipse.rdf4j.RDF4JException ex) {
             throw new IOException("Error parsing dataset", ex);
         }
     }
@@ -106,7 +105,7 @@ public class RDFLegacyService implements RdfService {
         try {
             final Model model = Rio.parse(input, baseUri, format);
             return rdf.asGraph(model);
-        } catch (final RDF4JException ex) {
+        } catch (final org.eclipse.rdf4j.RDF4JException ex) {
             throw new IOException("Error parsing graph", ex);
         }
     }
