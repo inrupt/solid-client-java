@@ -97,6 +97,7 @@
     <module>openid</module>
     <module>parser</module>
     <module>rdf4j</module>
+    <module>rdf-legacy</module>
     <module>reports</module>
     <module>solid</module>
     <module>test</module>
