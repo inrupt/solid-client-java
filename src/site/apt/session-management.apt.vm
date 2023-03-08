@@ -2,16 +2,6 @@ Session Management
 
     All authentication and authorization in the Inrupt Java Client Libraries occur in the context of a <<<Session>>> object. By default, all client interactions use an anonymous session. For any interaction with non-public resources, you will need a mechanism for authenticating users. This guide will help you determine how best to create and manage these sessions in your Solid application.
 
-* What you will need
-
-    * About 15 minutes
-
-    * Your favorite text editor or IDE
-
-    * Java 11 or later
-
-    * Maven 3.5 or later
-
 * How to complete
 
     The first step is to consider how users will interact with your application.

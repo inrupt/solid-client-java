@@ -2,16 +2,6 @@ Usage Examples
 
     An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.
 
-* What you will need
-
-    * About 15 minutes
-
-    * Your favorite text editor or IDE
-
-    * Java 11 or later
-
-    * Maven 3.5 or later
-
 * How to complete
 
     The first step is to decide which client is appropriate for your application.

@@ -2,16 +2,6 @@ Data Modeling
 
     The high-level <<<SolidClient>>> and <<<SolidSyncClient>>> make it easy to bind your Java objects to RDF-based Solid resources. This guide will help you structure your class definitions to make this possible.
 
-* What you will need
-
-    * About 15 minutes
-
-    * Your favorite text editor or IDE
-
-    * Java 11 or later
-
-    * Maven 3.5 or later
-
 * How to complete
 
     The solution involves creating a wrapper class so that your class can act not only as an RDF Graph
