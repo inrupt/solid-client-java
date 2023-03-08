@@ -11,6 +11,7 @@
       <item name="Home" href="index.html"/>
       <item name="Getting Started" href="getting-started.html"/>
       <item name="Usage Examples" href="usage-examples.html"/>
+      <item name="Client Options" href="client-options.html"/>
       <item name="Session Management" href="session-management.html" collapse="true">
         <item name="Web Applications" href="/sessions/session-web-applications.html"/>
         <item name="Command Line Apps" href="/sessions/session-clis.html"/>
