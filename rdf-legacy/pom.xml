@@ -16,6 +16,11 @@
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
+
+    <!-- version management -->
+    <commons.text.version>1.10.0</commons.text.version>
+    <!-- do not advance to v4.x -->
+    <legacy.rdf4j.version>3.7.7</legacy.rdf4j.version>
   </properties>
 
   <dependencyManagement>
@@ -31,7 +36,7 @@
       <dependency>
         <groupId>org.eclipse.rdf4j</groupId>
         <artifactId>rdf4j-bom</artifactId>
-        <version>3.7.7</version>
+        <version>${legacy.rdf4j.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -93,6 +98,13 @@
     <dependency>
       <groupId>org.eclipse.rdf4j</groupId>
       <artifactId>rdf4j-sail-memory</artifactId>
+    </dependency>
+
+    <!-- transitive dependencies -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons.text.version}</version>
     </dependency>
 
     <!-- test dependencies -->
