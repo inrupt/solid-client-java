@@ -150,20 +150,20 @@ public class Playlist extends Resource {
 
 +---
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.openid.OpenIdConfig;
+import com.inrupt.client.openid.OpenIdSession;
 import java.net.URI;
 
 public class MyApplication {
 
     public void run() {
-        Session session = OpenIdConfig.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
+        Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
         SolidSyncClient client = SolidSyncClient.getClient().session(session);
 
         URI uri = URI.create("https://storage.example/playlists/910b509c-1ca5-4d6a-a093-377e8e1b390e");
         try (Playlist playlist = client.read(uri, Playlist.class)) {
             System.out.println(playlist.getTitle());
 
-            // Add a new song to the playlist
+            // Set the playlist title
             playlist.setTitle(title);
 
             // Update the playlist in your storage
