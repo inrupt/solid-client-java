@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.inrupt</groupId>
     <artifactId>inrupt-client-examples-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.Alpha6</version>
   </parent>
 
   <artifactId>inrupt-client-examples-cli</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0.Alpha6</version>
   <name>Inrupt Java Client Libraries - CLI Example</name>
   <description>
     Sample CLI application.
