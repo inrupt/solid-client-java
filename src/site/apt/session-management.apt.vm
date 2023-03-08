@@ -16,124 +16,14 @@ Session Management
 
     The first step is to consider how users will interact with your application.
 
-      * Will this application run as a Web Application with many different users logging in? If so, follow the steps for {{Web Applications}}.
+      * Will this application run as a Web Application with many different users logging in? If so, follow the steps for {{{./sessions/session-web-applications.html}Web Applications}}.
 
-      * Will this application run from the Command Line with a single user? If so, follow the steps for {{Command Line Applications}}.
+      * Will this application run from the Command Line with a single user? If so, follow the steps for {{{./sessions/session-clis.html}Command Line Applications}}.
 
 
-    There are other, more advanced options possible, but these will be the two most common patterns. Furthermore, both patterns also support the use of Access Grants, which is described in the {{Access Grants}} section.
+    There are other, more advanced options possible, but these will be the two most common patterns. Furthermore, both patterns also support the use of Access Grants, which is described in the {{{./sessions/session-access-grants.html}Access Grants}} section.
 
     After deciding how to establish a <<<Session>>>, you will pass that value to your client to create a Session-constrained client, as described in {{Using Session objects with a Client}}.
-
-    If you are using Solid {{Access Grants}}, please refer to that section for more information.
-
-    Finally, you can move on to the {{{./data-modeling.html}data modeling}} section, which describes how to bind Java objects to RDF resources.
-
-* Web Applications
-
-    A very common pattern for building Solid apps involves operating them as Web Applications in which different users are able to login with a Web Browser.
-
-    Most Java-based Web Applications will use a framework, such as {{{https://spring.io/}Spring Boot}}, {{{https://quarkus.io/}Quarkus}}
-    or {{{https://micronaut.io/}Micronaut}}. Each of these frameworks already provides an OpenID Connect Authentication integration. These frameworks
-    will expect a <<<client_id>>> value and the URL of an authorization server. There will typically be other configuration properties, but this guide focuses
-    on these two values.
-
-    If you are using Inrupt's Open ID Provider, the authorization server URL will be <<<https://login.inrupt.com>>>.
-
-    For the <<<client_id>>>, you will use a "public client", which does not need authentication. For this, you can either create your own
-    "{{{https://solidproject.org/TR/oidc#clientids-document}Client Identifier document}}", and make this available in a public location on the Web. Ensure that the URL of this resource is exactly
-    the same as the <<<client_id>>> property of the document. Below is an example of a Client Identifier document.
-
-+---
-{
-  "@context": [
-    "https://www.w3.org/ns/solid/oidc-context.jsonld"
-  ],
-  "client_id": "https://application.example/identifier.jsonld",
-  "client_name": "My First Solid Application",
-  "client_uri": "https://application.example/",
-  "redirect_uris": [
-    "https://application.example/callback"
-  ],
-  "post_logout_redirect_uris": [
-    "https://application.example/"
-  ]
-}
-+---
-
-    Alternatively, if you plan to run your application at <<<http://localhost:8080/>>> you can use a special Client Id
-    for testing at <<<https://inrupt.github.io/solid-client-java/clients/testing.jsonld>>>.
-
-    For this example, assume that your application will run at the URL <<<https://application.example/>>> (and for development at <<<http://localhost:8080/>>>)
-
-    Using the {{{https://openid.net/connect/}OpenID Connect}} extension for the relevant framework, it will be possible to get a raw ID Token. This is all that is needed by
-    the Inrupt Java Client. In particular, the <<<com.inrupt.client.openid.OpenIdSession.ofIdToken(String)>>> method will be used in this scenario.
-
-    For example, with Quarkus, your code might look like this:
-
-+---
-@ApplicationScoped
-public class MyEndpoint {
-
-    @Inject
-    @IdToken
-    JsonWebToken idToken;
-
-    @GET
-    @Path("/")
-    public MyDataResource fetch() {
-        Session session = OpenIdSession.ofIdToken(idToken.getRawToken());
-        ...
-    }
-}
-+---
-
-    With Spring Boot, your code might look like this:
-
-+---
-@RestController
-public class Endpoint {
-
-    @GetMapping("/")
-    public MyDataResource fetch(@AuthenticationPrincipal OidcUser principal) {
-        Session session = OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue());
-        ...
-    }
-
-}
-+---
-
-    In both cases, a <<<Session>>> object is created by passing the value of the OpenID Connect ID Token to
-    the <<<OpenIdSession::ofIdToken>>> method.
-
-
-* Command Line Applications
-
-    Command-line applications will typically operate on behalf of a single user. For this type of interaction,
-    you will need to establish a "client credential" using a few pieces of information that are retrieved from
-    an identity provider such as the Application Registration page on
-    {{{https://login.inrupt.com/registration.html}Inrupt's OpenID Provider}}. After logging in to the identity provider, you can register a new application and in turn, get:
-
-
-      * <<<client_id>>>
-
-      * <<<client_secret>>>
-
-    In addition, you will need an <<<issuer>>> value, which in this case is <<<https://login.inrupt.com>>>
-    and an <<<authentication_method>>>, which will be <<<client_secret_basic>>>.
-
-    Building a session with this information will make use of the <<<OpenIdSession.ofClientCredentials()>>> method as in the following example.
-
-+---
-public class MyApplication {
-
-    public void run() {
-        URI issuer = URI.create("https://login.inrupt.com");
-        Session session = OpenIdSession.ofClientCredentials(issuer, "<your-client-id>", "<your-client-secret>", "client_secret_basic");
-        ...
-    }
-}
-+---
 
 * Using Session objects with a Client
 
@@ -153,39 +43,6 @@ public class MyApplication {
     }
 }
 +---
-
-
-* Access Grants
-
-    {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}} provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries
-    provide tooling for working with Access Grants.
-
-    Access Grant-based sessions are more complicated than OpenId-based sessions in that an Access Grant session <also> requires an OpenId session. This is best illustrated with an example:
-
-+---
-public class MyApplication {
-
-    SolidSyncClient client;
-
-    void init() throws IOException {
-        try (InputStream grant = MyApplication.class.getResourceAsStream("/access-grant.json")) {
-            // Parse Access Grant
-            AccessGrant accessGrant = AccessGrant.ofAccessGrant(grant);
-
-            // Set up OpenId Session
-            Session openid = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, authMethod);
-
-            // Set up Access Grant Session
-            Session session = AccessGrantSession.ofAccessGrant(openid, accessGrant);
-
-            client = SolidSyncClient.getClient().session(session);
-        }
-    }
-}
-+---
-
-    In this case, if you have an existing Access Grant, you can create a <<<Session>>> that uses an OpenID-based session with these Access Grants.
-
 
 * Next Steps
 
