@@ -1,6 +1,6 @@
 Data Modeling
 
-    The high-level <<<SolidClient>>> and <<<SolidSyncClient>>> make it easy to bind your Java objects to RDF-based Solid resources. This guide will help you structure your class definitions to make this possible.
+    Data modeling makes it easy to work with client domain specific objects that go beyond simple Solid resources. The high-level <<<SolidClient>>> and <<<SolidSyncClient>>> make it easy to bind your Java objects to RDF-based Solid resources. This guide will help you structure your class definitions to make this possible.
 
 * What you will need
 
@@ -23,6 +23,11 @@ Data Modeling
     Afterwards, consider the methods you expect in your class.
 
 +---
+import com.inrupt.client.Resource;
+import java.net.URI;
+import java.util.Set;
+import org.apache.commons.rdf.api.Dataset;
+
 public class Playlist extends Resource {
 
     public Playlist(URI identifier, Dataset dataset) {
@@ -41,9 +46,6 @@ public class Playlist extends Resource {
         ...
     }
 
-    public void addSong(URI song) {
-        ...
-    }
 }
 +---
 
@@ -53,6 +55,17 @@ public class Playlist extends Resource {
     Next, you will create an inner class that binds the data between RDF and your class.
 
 +---
+import com.inrupt.client.Resource;
+import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
+import java.net.URI;
+import java.util.Set;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+
 public class Playlist extends Resource {
 
     ...
@@ -77,9 +90,6 @@ public class Playlist extends Resource {
             return objects(EX_SONG, TermMappings::asIri, ValueMappings::iriAsUri);
         }
 
-        void addSong(URI song) {
-            add(EX_SONG, song, TermMappings::asIri);
-        }
     }
 }
 +---
@@ -96,6 +106,17 @@ public class Playlist extends Resource {
     Now you are ready to link your public methods to the methods from your inner class.
 
 +---
+import com.inrupt.client.Resource;
+import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
+import java.net.URI;
+import java.util.Set;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+
 public class Playlist extends Resource {
 
     private Node subject;
@@ -118,12 +139,8 @@ public class Playlist extends Resource {
         return subject.getSongs();
     }
 
-    public void addSong(URI song) {
-        subject.addSong(song);
-    }
-
     ...
-}
+
 +---
 
 * 4. Use your class in the high-level client
@@ -132,10 +149,14 @@ public class Playlist extends Resource {
     Java application and an RDF resource.
 
 +---
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdConfig;
+import java.net.URI;
+
 public class MyApplication {
 
     public void run() {
-        Session session = OpenIdConnect.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
+        Session session = OpenIdConfig.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
         SolidSyncClient client = SolidSyncClient.getClient().session(session);
 
         URI uri = URI.create("https://storage.example/playlists/910b509c-1ca5-4d6a-a093-377e8e1b390e");
@@ -143,7 +164,7 @@ public class MyApplication {
             System.out.println(playlist.getTitle());
 
             // Add a new song to the playlist
-            playlist.addSong(song);
+            playlist.setTitle(title);
 
             // Update the playlist in your storage
             client.update(playlist);
