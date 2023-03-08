@@ -59,7 +59,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class RDF4JLegacyServiceTest extends RdfServices {
+class RDFLegacyServiceTest extends RdfServices {
 
     private final RdfService service = ServiceProvider.getRdfService();
     private static RDF4JDataset rdf4jDataset;
