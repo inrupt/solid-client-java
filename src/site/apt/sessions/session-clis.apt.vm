@@ -1,0 +1,31 @@
+Command Line Applications
+
+    Command-line applications will typically operate on behalf of a single user. For this type of interaction,
+    you will need to establish a "client credential" using a few pieces of information that are retrieved from
+    an identity provider such as the Application Registration page on
+    {{{https://login.inrupt.com/registration.html}Inrupt's OpenID Provider}}. After logging in to the identity provider, you can register a new application and in turn, get:
+
+
+      * <<<client_id>>>
+
+      * <<<client_secret>>>
+
+    In addition, you will need an <<<issuer>>> value, which in this case is <<<https://login.inrupt.com>>>
+    and an <<<authentication_method>>>, which will be <<<client_secret_basic>>>.
+
+    Building a session with this information will make use of the <<<OpenIdSession.ofClientCredentials()>>> method as in the following example.
+
++---
+public class MyApplication {
+
+    public void run() {
+        URI issuer = URI.create("https://login.inrupt.com");
+        Session session = OpenIdSession.ofClientCredentials(issuer, "<your-client-id>", "<your-client-secret>", "client_secret_basic");
+        ...
+    }
+}
++---
+
+* Next Steps
+
+    If you are using one of the high-level clients and you have a working <<<Session>>> object, you can move on to the {{{./data-modeling.html}data modeling}} section, which describes how to bind Java objects to RDF resources.

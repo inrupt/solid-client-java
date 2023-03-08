@@ -11,7 +11,11 @@
       <item name="Home" href="index.html"/>
       <item name="Getting Started" href="getting-started.html"/>
       <item name="Usage Examples" href="usage-examples.html"/>
-      <item name="Session Management" href="session-management.html"/>
+      <item name="Session Management" href="session-management.html" collapse="true">
+        <item name="Web Applications" href="/sessions/session-web-applications.html"/>
+        <item name="Command Line Interfaces" href="/sessions/session-clis.html"/>
+        <item name="Access Grants" href="/sessions/session-access-grants.html"/>
+      </item>
       <item name="Data Modeling" href="data-modeling.html"/>
       <item name="Documentation" href="apidocs/"/>
       <item name="License" href="licenses.html"/>
