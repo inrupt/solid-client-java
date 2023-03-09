@@ -1,6 +1,6 @@
 Usage Examples
 
-    The Inrupt Java Client Libraries come with high level concepts such as <<<SolidResource>>> that make it very easy to interact with data stored in a {{{https://solidproject.org/about}Solid Pod}}. 
+    The Inrupt Java Client Libraries come with abstractions such as <<<SolidResource>>> that make it very easy to interact with data stored in a {{{https://solidproject.org/about}Solid Pod}}. 
 
 * What you will need
 
