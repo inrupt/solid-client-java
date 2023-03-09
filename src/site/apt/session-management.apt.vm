@@ -33,6 +33,9 @@ Session Management
     calling the <<<session(Session)>>> method will not change the original client.
 
 +---
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.solid.SolidSyncClient;
+
 public class MyApplication {
 
     SolidSyncClient client;
