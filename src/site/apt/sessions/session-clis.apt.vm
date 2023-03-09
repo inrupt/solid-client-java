@@ -16,6 +16,10 @@ Command Line Applications
     Building a session with this information will make use of the <<<OpenIdSession.ofClientCredentials()>>> method as in the following example.
 
 +---
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import java.net.URI;
+
 public class MyApplication {
 
     public void run() {

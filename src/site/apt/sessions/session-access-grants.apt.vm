@@ -6,6 +6,14 @@ Access Grants
     Access Grant-based sessions are more complicated than OpenId-based sessions in that an Access Grant session <also> requires an OpenId session. This is best illustrated with an example:
 
 +---
+import com.inrupt.client.accessgrant.AccessGrant;
+import com.inrupt.client.accessgrant.AccessGrantSession;
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidSyncClient;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class MyApplication {
 
     SolidSyncClient client;

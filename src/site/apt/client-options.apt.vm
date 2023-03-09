@@ -1,6 +1,22 @@
 Client Options
+    
+    An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.
 
-    There are three types of clients available for use, each with the following characteristics:
+* What you will need
+
+    * {{{https://start.inrupt.com/profile}A Solid Pod}}
+
+    * About 15 minutes
+
+    * Your favorite text editor or IDE
+
+    * Java 11 or later
+
+    * Maven 3.5 or later
+
+* How to complete
+
+    Choose the type of client that best fits for your application. There are three types of clients available for use, each with the following characteristics:
 
         * {{<<High-Level Synchronous Client>>}}. This client simplifies the basic Create-Read-Update-Delete operations you would expect in a RESTful client, while supporting a data binding mechanism between Java objects and Solid resources.
 
@@ -26,9 +42,11 @@ Client Options
 
     The high-level synchronous client, offers a RESTful API, allowing for synchronous interaction with Solid resources. In addition this client manages a data binding between the Java types you define and the underlying Solid resources.
 
-** Simple example
-
 +----------------
+import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidSyncClient;
+import java.net.URI;
+
 public class ClientSample {
 
     public void useTheHighLevelSyncClient() {
@@ -44,9 +62,12 @@ public class ClientSample {
 
     The high-level asynchronous client API is exactly like the synchronous API, except that the return types are wrapped in a <<<CompletionStage<T\>>>>.
 
-** Simple example
-
 +----------------
+import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidClient;
+import java.net.URI;
+import java.util.concurrent.CompletionStage;
+
 public class ClientSample {
 
     public CompletionStage<SolidResource> useTheHighLevelAsyncClient() {
@@ -62,9 +83,14 @@ public class ClientSample {
 
     The low-level client API gives developers full control over HTTP requests and responses. This API is also considerably more verbose, while only including a single method: <<<::send>>>.
 
-** Simple example
-
 +---------------
+import com.inrupt.client.Client;
+import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import java.net.URI;
+import java.util.concurrent.CompletionStage;
+
 public class ClientSample {
 
     public CompletionStage<String> useTheLowLevelClient() {
@@ -76,9 +102,9 @@ public class ClientSample {
             .GET()
             .build();
 
-        return client.send(req, Response.BodyHandlers.ofInputStream()).thenAccept(res -> {
+        return client.send(req, Response.BodyHandlers.ofInputStream()).thenApplyAsync(res -> {
                 if (res.statusCode() == 200) {
-                    return res.body();
+                    return res.body().toString();
                 }
                 return "Error accessing resource: " + res.statusCode();
             });

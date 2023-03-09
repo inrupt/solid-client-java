@@ -1,10 +1,10 @@
 Usage Examples
 
-    An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.
+    The Inrupt Java Client Libraries come with high level concepts such as <<<SolidResource>>> that make it very easy to interact with data stored in a {{{https://solidproject.org/about}Solid Pod}}. 
 
 * What you will need
 
-    * {{{https://start.inrupt.com/profile}A Solid Pod}}.
+    * {{{https://start.inrupt.com/profile}A Solid Pod}}
 
     * About 15 minutes
 
@@ -30,7 +30,7 @@ Usage Examples
 import java.net.URI;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.solid.SolidSyncClient;
-...
+
 public void createEmptyResource() {
     SolidSyncClient client = SolidSyncClient.getClient();
 
@@ -49,7 +49,6 @@ public void createEmptyResource() {
 import java.net.URI;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.solid.SolidSyncClient;
-...
 
 public void readResource() {
     SolidSyncClient client = SolidSyncClient.getClient();
@@ -72,7 +71,6 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.RDF;
-...
 
 public void updateResource() {
     SolidSyncClient client = SolidSyncClient.getClient();
@@ -97,7 +95,6 @@ public void updateResource() {
 
 +----------------
 import com.inrupt.client.solid.SolidSyncClient;
-...
 
 public void deleteResource(SolidResource resource) {
     SolidSyncClient client = SolidSyncClient.getClient();
