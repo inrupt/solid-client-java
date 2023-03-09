@@ -70,7 +70,15 @@
 <h2><a name="Access_Grants"></a>Access Grants</h2>
 <p><a class="externalLink" href="https://docs.inrupt.com/ess/latest/security/access-requests-grants/">Access Grants</a> provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries provide tooling for working with Access Grants.</p>
 <p>Access Grant-based sessions are more complicated than OpenId-based sessions in that an Access Grant session <i>also</i> requires an OpenId session. This is best illustrated with an example:</p>
-<div class="source"><pre class="prettyprint">public class MyApplication {
+<div class="source"><pre class="prettyprint">import com.inrupt.client.accessgrant.AccessGrant;
+import com.inrupt.client.accessgrant.AccessGrantSession;
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidSyncClient;
+import java.io.IOException;
+import java.io.InputStream;
+
+public class MyApplication {
 
     SolidSyncClient client;
 

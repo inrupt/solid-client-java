@@ -74,7 +74,11 @@
 <li><code>client_secret</code></li></ul>
 <p>In addition, you will need an <code>issuer</code> value, which in this case is <code>https://login.inrupt.com</code> and an <code>authentication_method</code>, which will be <code>client_secret_basic</code>.</p>
 <p>Building a session with this information will make use of the <code>OpenIdSession.ofClientCredentials()</code> method as in the following example.</p>
-<div class="source"><pre class="prettyprint">public class MyApplication {
+<div class="source"><pre class="prettyprint">import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import java.net.URI;
+
+public class MyApplication {
 
     public void run() {
         URI issuer = URI.create(&quot;https://login.inrupt.com&quot;);

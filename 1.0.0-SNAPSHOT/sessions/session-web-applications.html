@@ -90,7 +90,16 @@
 <p>For this example, assume that your application will run at the URL <code>https://application.example/</code> (and for development at <code>http://localhost:8080/</code>)</p>
 <p>Using the <a class="externalLink" href="https://openid.net/connect/">OpenID Connect</a> extension for the relevant framework, it will be possible to get a raw ID Token. This is all that is needed by the Inrupt Java Client. In particular, the <code>com.inrupt.client.openid.OpenIdSession.ofIdToken(String)</code> method will be used in this scenario.</p>
 <p>For example, with Quarkus, your code might look like this:</p>
-<div class="source"><pre class="prettyprint">@ApplicationScoped
+<div class="source"><pre class="prettyprint">import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import io.quarkus.oidc.IdToken;
+
+@ApplicationScoped
 public class MyEndpoint {
 
     @Inject
@@ -105,7 +114,14 @@ public class MyEndpoint {
     }
 }</pre></div>
 <p>With Spring Boot, your code might look like this:</p>
-<div class="source"><pre class="prettyprint">@RestController
+<div class="source"><pre class="prettyprint">import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
 public class Endpoint {
 
     @GetMapping(&quot;/&quot;)

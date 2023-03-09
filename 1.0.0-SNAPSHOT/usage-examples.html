@@ -63,10 +63,10 @@
         <main id="bodyColumn"  class="span10" >
 <section>
 <h2><a name="Usage_Examples"></a>Usage Examples</h2>
-<p>An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.</p><section>
+<p>The Inrupt Java Client Libraries come with abstractions such as <code>SolidResource</code> that make it very easy to interact with data stored in a <a class="externalLink" href="https://solidproject.org/about">Solid Pod</a>. </p><section>
 <h3><a name="What_you_will_need"></a>What you will need</h3>
 <ul>
-<li><a class="externalLink" href="https://start.inrupt.com/profile">A Solid Pod</a>.</li>
+<li><a class="externalLink" href="https://start.inrupt.com/profile">A Solid Pod</a></li>
 <li>About 15 minutes</li>
 <li>Your favorite text editor or IDE</li>
 <li>Java 11 or later</li>
@@ -80,7 +80,7 @@
 <div class="source"><pre class="prettyprint">import java.net.URI;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.solid.SolidSyncClient;
-...
+
 public void createEmptyResource() {
     SolidSyncClient client = SolidSyncClient.getClient();
 
@@ -95,7 +95,6 @@ public void createEmptyResource() {
 <div class="source"><pre class="prettyprint">import java.net.URI;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.solid.SolidSyncClient;
-...
 
 public void readResource() {
     SolidSyncClient client = SolidSyncClient.getClient();
@@ -113,7 +112,6 @@ import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.RDF;
-...
 
 public void updateResource() {
     SolidSyncClient client = SolidSyncClient.getClient();
@@ -134,7 +132,6 @@ public void updateResource() {
 </pre></div></section><section>
 <h3><a name="Delete_a_resource"></a>Delete a resource</h3>
 <div class="source"><pre class="prettyprint">import com.inrupt.client.solid.SolidSyncClient;
-...
 
 public void deleteResource(SolidResource resource) {
     SolidSyncClient client = SolidSyncClient.getClient();

@@ -85,7 +85,10 @@
 <h3><a name="Using_Session_objects_with_a_Client"></a>Using Session objects with a Client</h3>
 <p>In order to create a Session-scoped client, use the <code>::session(Session)</code> method with the client of your choice.</p>
 <p><b>Note</b>: all subsequent interactions should use the <i>returned</i> client value. Each client object is stateless: calling the <code>session(Session)</code> method will not change the original client.</p>
-<div class="source"><pre class="prettyprint">public class MyApplication {
+<div class="source"><pre class="prettyprint">import com.inrupt.client.auth.Session;
+import com.inrupt.client.solid.SolidSyncClient;
+
+public class MyApplication {
 
     SolidSyncClient client;
 

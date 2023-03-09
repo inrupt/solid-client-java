@@ -63,7 +63,16 @@
         <main id="bodyColumn"  class="span10" >
 <section>
 <h2><a name="Client_Options"></a>Client Options</h2>
-<p>There are three types of clients available for use, each with the following characteristics:</p>
+<p>An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.</p><section>
+<h3><a name="What_you_will_need"></a>What you will need</h3>
+<ul>
+<li><a class="externalLink" href="https://start.inrupt.com/profile">A Solid Pod</a></li>
+<li>About 15 minutes</li>
+<li>Your favorite text editor or IDE</li>
+<li>Java 11 or later</li>
+<li>Maven 3.5 or later</li></ul></section><section>
+<h3><a name="How_to_complete"></a>How to complete</h3>
+<p>Choose the type of client that best fits for your application. There are three types of clients available for use, each with the following characteristics:</p>
 <ul>
 <li><a href="#High-Level_Synchronous_Client"><b>High-Level Synchronous Client</b></a>. This client simplifies the basic Create-Read-Update-Delete operations you would expect in a RESTful client, while supporting a data binding mechanism between Java objects and Solid resources.</li>
 <li><a href="#High-Level_Asynchronous_Client"><b>High-Level Asynchronous Client</b></a>. This client is exactly like the synchronous client except that all responses are wrapped in a <code>CompletionStage&lt;T&gt;</code>.</li>
@@ -74,11 +83,14 @@
 <li><code>&lt;T extends Resource&gt; ::create(T)</code> -- given an object that is a subclass of <code>Resource</code>, create a new Solid resource.</li>
 <li><code>&lt;T extends Resource&gt; ::read(URI, Class&lt;T&gt;)</code> -- fetch a Solid resource from a known URI and marshall it into the given type.</li>
 <li><code>&lt;T extends Resource&gt; ::update(T)</code> -- given an object that is a subclass of <code>Resource</code>, update an existing Solid resource.</li>
-<li><code>&lt;T extends Resource&gt; ::delete(T)</code> -- given an object that is a subclass of <code>Resource</code>, delete the corresponding Solid resource.</li></ul><section>
+<li><code>&lt;T extends Resource&gt; ::delete(T)</code> -- given an object that is a subclass of <code>Resource</code>, delete the corresponding Solid resource.</li></ul></section><section>
 <h3><a name="High-Level_Synchronous_Client"></a>High-Level Synchronous Client</h3>
-<p>The high-level synchronous client, offers a RESTful API, allowing for synchronous interaction with Solid resources. In addition this client manages a data binding between the Java types you define and the underlying Solid resources.</p><section>
-<h4><a name="Simple_example"></a>Simple example</h4>
-<div class="source"><pre class="prettyprint">public class ClientSample {
+<p>The high-level synchronous client, offers a RESTful API, allowing for synchronous interaction with Solid resources. In addition this client manages a data binding between the Java types you define and the underlying Solid resources.</p>
+<div class="source"><pre class="prettyprint">import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidSyncClient;
+import java.net.URI;
+
+public class ClientSample {
 
     public void useTheHighLevelSyncClient() {
         SolidSyncClient client = SolidSyncClient.getClient();
@@ -86,11 +98,15 @@
         URI uri = URI.create(&quot;https://storage.example/resource.ttl&quot;);
         SolidResource resource = client.read(uri, SolidResource.class);
     }
-}</pre></div></section></section><section>
+}</pre></div></section><section>
 <h3><a name="High-Level_Asynchronous_Client"></a>High-Level Asynchronous Client</h3>
-<p>The high-level asynchronous client API is exactly like the synchronous API, except that the return types are wrapped in a <code>CompletionStage&lt;T&gt;</code>.</p><section>
-<h4><a name="Simple_example"></a>Simple example</h4>
-<div class="source"><pre class="prettyprint">public class ClientSample {
+<p>The high-level asynchronous client API is exactly like the synchronous API, except that the return types are wrapped in a <code>CompletionStage&lt;T&gt;</code>.</p>
+<div class="source"><pre class="prettyprint">import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidClient;
+import java.net.URI;
+import java.util.concurrent.CompletionStage;
+
+public class ClientSample {
 
     public CompletionStage&lt;SolidResource&gt; useTheHighLevelAsyncClient() {
         SolidClient client = SolidClient.getClient();
@@ -98,11 +114,17 @@
         URI uri = URI.create(&quot;https://storage.example/resource.ttl&quot;);
         return client.read(uri, SolidResource.class);
     }
-}</pre></div></section></section><section>
+}</pre></div></section><section>
 <h3><a name="Low-Level_Asynchronous_Client"></a>Low-Level Asynchronous Client</h3>
-<p>The low-level client API gives developers full control over HTTP requests and responses. This API is also considerably more verbose, while only including a single method: <code>::send</code>.</p><section>
-<h4><a name="Simple_example"></a>Simple example</h4>
-<div class="source"><pre class="prettyprint">public class ClientSample {
+<p>The low-level client API gives developers full control over HTTP requests and responses. This API is also considerably more verbose, while only including a single method: <code>::send</code>.</p>
+<div class="source"><pre class="prettyprint">import com.inrupt.client.Client;
+import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import java.net.URI;
+import java.util.concurrent.CompletionStage;
+
+public class ClientSample {
 
     public CompletionStage&lt;String&gt; useTheLowLevelClient() {
         Client client = ClientProvider.getClient();
@@ -113,14 +135,14 @@
             .GET()
             .build();
 
-        return client.send(req, Response.BodyHandlers.ofInputStream()).thenAccept(res -&gt; {
+        return client.send(req, Response.BodyHandlers.ofInputStream()).thenApply(res -&gt; {
                 if (res.statusCode() == 200) {
-                    return res.body();
+                    return res.body().toString();
                 }
                 return &quot;Error accessing resource: &quot; + res.statusCode();
             });
     }
-}</pre></div></section><section>
+}</pre></div><section>
 <h4><a name="Request_Body_Publishers"></a>Request Body Publishers</h4>
 <p>Write operations such as <code>POST</code> and <code>PUT</code> will typically contain a request body. The low-level client provides a number of request body publishers for use by developers. These publishers make it easier to translate existing Java objects into HTTP requests. Some existing body publishers include:</p>
 <ul>
