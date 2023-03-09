@@ -102,7 +102,7 @@ public class ClientSample {
             .GET()
             .build();
 
-        return client.send(req, Response.BodyHandlers.ofInputStream()).thenApplyAsync(res -> {
+        return client.send(req, Response.BodyHandlers.ofInputStream()).thenApply(res -> {
                 if (res.statusCode() == 200) {
                     return res.body().toString();
                 }
