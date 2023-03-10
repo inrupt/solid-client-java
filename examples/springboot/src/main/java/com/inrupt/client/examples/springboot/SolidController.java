@@ -27,6 +27,7 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -37,6 +38,7 @@ import java.util.List;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -52,15 +54,26 @@ public class SolidController {
     static final String WEB_ID = "webid";
     static final String WILDCARD = "*";
 
-    @GetMapping("/")
-    public String index() {
-        return "index";
-    }
-
-    @GetMapping("/oidc-principal")
-    public String getOidcUserPrincipal(final @AuthenticationPrincipal OidcUser principal) {
-        return principal.getIdToken().getTokenValue();
-    }
+   /*  @GetMapping("/readPod")
+    public List<URI> readFromPod() {
+        final var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final var list = new ArrayList<URI>();
+        if (principal instanceof OidcUser) {
+            final OidcUser idToken = (OidcUser) principal;
+            final URI webid = URI.create(idToken.getClaimAsString(WEB_ID));
+            final SolidSyncClient session =
+                client.session(OpenIdSession.ofIdToken(idToken.getIdToken().getTokenValue()));
+            try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
+                profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                try (final SolidContainer container = session.read(storage, SolidContainer.class)) {
+                    container.getContainedResources().map(SolidResource::getIdentifier)
+                            .forEach(list::add);
+                }
+            });
+            }
+        }
+        return list;
+    } */
 
     @GetMapping("/readPod")
     public List<URI> readFromPod(final @AuthenticationPrincipal OidcUser principal) {
@@ -68,8 +81,8 @@ public class SolidController {
         final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
-        try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
 
+        try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
             profile.getStorage().stream().findFirst().ifPresent(storage -> {
                 try (final SolidContainer container = session.read(storage, SolidContainer.class)) {
                     container.getContainedResources().map(SolidResource::getIdentifier)
@@ -80,7 +93,7 @@ public class SolidController {
         return list;
     }
 
-    @GetMapping("/writeNonRDF")
+    @PostMapping("/writeNonRDF")
     public void writeNonRDF(final @AuthenticationPrincipal OidcUser principal) {
         final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
@@ -100,16 +113,17 @@ public class SolidController {
         }
     }
 
-    @GetMapping("/writeContainer")
+    @PostMapping("/writeContainer")
     public void writeContainer(final @AuthenticationPrincipal OidcUser principal) {
         final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
         try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
             profile.getStorage().stream().findFirst().ifPresent(storage -> {
-
                 final String containerName = "test_container/";
-                final Request request = Request.newBuilder().uri(storage)
+
+                final Request request = Request.newBuilder()
+                        .uri(storage)
                         .header(SLUG, containerName)
                         .header(CONTENT_TYPE, TEXT_TURTLE)
                         .header(IF_NONE_MATCH, WILDCARD)
@@ -118,7 +132,8 @@ public class SolidController {
                         .build();
                 session.send(request, Response.BodyHandlers.discarding());
 
-                final Request request2 = Request.newBuilder().uri(URI.create(storage + containerName))
+                final Request request2 = Request.newBuilder()
+                        .uri(URIBuilder.newBuilder(storage).path(containerName).build())
                         .header(SLUG, "test_contained_resource")
                         .header(CONTENT_TYPE, TEXT_TURTLE)
                         .header(IF_NONE_MATCH, WILDCARD)
@@ -130,22 +145,18 @@ public class SolidController {
         }
     }
 
-    @GetMapping("/writeResource")
+    @PostMapping("/writeResource")
     public void writeResource(final @AuthenticationPrincipal OidcUser principal) {
         final URI webid = URI.create(principal.getClaimAsString(WEB_ID));
         final SolidSyncClient session =
                 client.session(OpenIdSession.ofIdToken(principal.getIdToken().getTokenValue()));
         try (final WebIdProfile profile = session.read(webid, WebIdProfile.class)) {
             profile.getStorage().stream().findFirst().ifPresent(storage -> {
-
-                final Request request = Request.newBuilder().uri(storage)
-                        .header(SLUG, "test_resource")
+                final Request request =
+                        Request.newBuilder().uri(URIBuilder.newBuilder(storage).path("test_resource").build())
                         .header(CONTENT_TYPE, TEXT_TURTLE)
-                        .header(IF_NONE_MATCH, WILDCARD)
                         .header(LINK, Headers.Link.of(LDP.RDFSource, REL_TYPE).toString())
-                        .POST(Request.BodyPublishers.noBody())
-                        .build();
-
+                        .PUT(Request.BodyPublishers.noBody()).build();
                 session.send(request, Response.BodyHandlers.discarding());
             });
         }
