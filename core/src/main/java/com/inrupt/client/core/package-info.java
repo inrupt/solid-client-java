@@ -39,7 +39,7 @@
 
     //Send POST UMA authenticated request
     Request request = Request.newBuilder()
-        .uri("https://example.example/postString"))
+        .uri("https://storage.example/container/"))
         .header("Content-Type", "text/plain")
         .POST(Request.BodyPublishers.ofString("Test String 1"))
         .build();

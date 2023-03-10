@@ -75,6 +75,11 @@
       </dependency>
       <dependency>
         <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-rdf-legacy</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt</groupId>
         <artifactId>inrupt-client-solid</artifactId>
         <version>${project.version}</version>
       </dependency>

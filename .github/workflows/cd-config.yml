@@ -57,8 +57,11 @@ jobs:
           java-version: 11
           cache: 'maven'
 
+      - name: Build the code with Maven
+        run: mvn -B -ntp install -Pwebsite
+
       - name: Build the site with Maven
-        run: mvn -B -ntp install site site:stage -Pwebsite
+        run: mvn -B -ntp site site:stage -Pwebsite
 
       - name: Set site version
         run: |
@@ -69,6 +72,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: github.actor != 'dependabot[bot]' && startsWith(github.event.ref, 'refs/tags/inrupt-client')
         with:
+          keep_files: true
           publish_dir: ./target/staging/
           personal_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -76,6 +80,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: github.actor != 'dependabot[bot]'
         with:
+          keep_files: true
           publish_dir: ./target/staging/
           destination_dir: ${{ env.VERSION_DIR }}
           personal_token: ${{ secrets.GITHUB_TOKEN }}

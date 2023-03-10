@@ -1,0 +1,42 @@
+Access Grants
+
+    {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}} provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries
+    provide tooling for working with Access Grants.
+
+    Access Grant-based sessions are more complicated than OpenId-based sessions in that an Access Grant session <also> requires an OpenId session. This is best illustrated with an example:
+
++---
+import com.inrupt.client.accessgrant.AccessGrant;
+import com.inrupt.client.accessgrant.AccessGrantSession;
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidSyncClient;
+import java.io.IOException;
+import java.io.InputStream;
+
+public class MyApplication {
+
+    SolidSyncClient client;
+
+    void init() throws IOException {
+        try (InputStream grant = MyApplication.class.getResourceAsStream("/access-grant.json")) {
+            // Parse Access Grant
+            AccessGrant accessGrant = AccessGrant.ofAccessGrant(grant);
+
+            // Set up OpenId Session
+            Session openid = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, authMethod);
+
+            // Set up Access Grant Session
+            Session session = AccessGrantSession.ofAccessGrant(openid, accessGrant);
+
+            client = SolidSyncClient.getClient().session(session);
+        }
+    }
+}
++---
+
+    In this case, if you have an existing Access Grant, you can create a <<<Session>>> that uses an OpenID-based session with these Access Grants.
+
+* Next Steps
+
+    If you are using one of the high-level clients and you have a working <<<Session>>> object, you can move on to the {{{./data-modeling.html}data modeling}} section, which describes how to bind Java objects to RDF resources.
