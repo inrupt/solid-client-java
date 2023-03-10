@@ -1,11 +1,8 @@
 server:
   port: 8080
-<<<<<<< HEAD
-=======
 logging:
   level:
     root: info
->>>>>>> c9e3ebede4b0e1766a6f6e03dc26fac8df39993d
 spring:
   main:
     lazy-initialization: true
@@ -14,7 +11,7 @@ spring:
       client:
         registration:
           podspaces:
-            client-id: https://inrupt.github.io/solid-client-java/clients/tester.jsonld
+            client-id: https://inrupt.github.io/solid-client-java/clients/testing.jsonld
             provider: podspaces
             scope:
               - openid
