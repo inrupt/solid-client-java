@@ -11,7 +11,7 @@ spring:
       client:
         registration:
           podspaces:
-            client-id: https://inrupt.github.io/solid-client-java/clients/testing.jsonld
+            client-id: https://timea.solidcommunity.net/client_id.jsonld
             provider: podspaces
             scope:
               - openid
