@@ -20,12 +20,15 @@
  */
 package com.inrupt.client.openid;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.inrupt.client.Request;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.auth.Session;
 
 import java.net.URI;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +43,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jose4j.jwk.HttpsJwks;
 import org.jose4j.jwt.JwtClaims;
@@ -231,14 +235,19 @@ public final class OpenIdSession implements Session {
     static String getSessionIdentifier(final JwtClaims claims) {
         final String webid = claims.getClaimValueAsString("webid");
         if (webid != null) {
-            return DigestUtils.sha256Hex(webid);
+            return sha256(webid);
         }
         try {
-            return DigestUtils.sha256Hex(String.join("|", claims.getIssuer(), claims.getSubject()));
+            return sha256(String.join("|", claims.getIssuer(), claims.getSubject()));
         } catch (final MalformedClaimException ex) {
             // This exception will never occur because of the validation rules in parseIdToken
             throw new OpenIdException("Malformed ID Token: unable to extract issuer and subject", ex);
         }
+    }
+
+    static String sha256(final String value) {
+        final MessageDigest md = DigestUtils.getDigest("SHA-256");
+        return new String(Hex.encodeHex(md.digest(value.getBytes(UTF_8))));
     }
 
     static Instant getExpiration(final JwtClaims claims) {
