@@ -19,7 +19,8 @@ Getting Started With Inrupt's Java Client Libraries
 -----------------
 $ mvn archetype:generate \
     -DarchetypeGroupId=com.inrupt \
-    -DarchetypeArtifactId=inrupt-client-archetype-java
+    -DarchetypeArtifactId=inrupt-client-archetype-java \
+    -DarchetypeVersion=<VERSION>
 -----------------
 
     You will be prompted for a <<<groupId>>> value (e.g. <<<com.example>>>) and an <<<artifactId>>> value (e.g. <<<sample-project>>>).
