@@ -5,7 +5,7 @@ The integration tests contain two scenarios of tests:
 * resource CRUD related scenarios;
 * authentication & authorization scenarios.
 
-All scenarios are detailed in the Turtle file `[Integration test scenarios](https://inrupt.github.io/solid-client-java/IntegrationTestScenarios.ttl)`.
+All scenarios are detailed in the [Integration test scenarios Turtle file](https://w3id.org/inrupt/qa/manifest/solid-client-java/).
 
 These scenarios can be run against different Solid servers.
 
