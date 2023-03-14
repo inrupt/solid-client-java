@@ -39,4 +39,17 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>java-17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <modules>
+        <module>cli</module>
+        <module>webapp</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
