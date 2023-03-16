@@ -20,21 +20,24 @@
  */
 package com.inrupt.client.examples.springboot;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class ApplicationTest {
+@Controller
+public class ApplicationStartController {
 
-    @Autowired
-    private MockMvc mvc;
-
-    @Test
-    public void test() throws Exception {
-
+    @GetMapping("/")
+    public String index() {
+        return "index";
     }
+
+    @GetMapping("/login")
+    public String login(@RequestParam(name = "message", required = false, defaultValue = "Under construction")
+        final String message, final Model model) {
+        model.addAttribute("message", message);
+        return "index";
+    }
+
 }

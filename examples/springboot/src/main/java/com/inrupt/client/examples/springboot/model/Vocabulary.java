@@ -1,17 +1,70 @@
+/*
+ * Copyright 2023 Inrupt Inc.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.inrupt.client.examples.springboot.model;
 
-public class Vocabulary {
+import com.inrupt.client.util.URIBuilder;
 
-    private static final String base = "https://inrupt.github.io/solid-client-java/vocab/BookLibraryVocabulary#";
+import java.net.URI;
 
-    public static final String BOOK_LIBRARY = base.concat("BookLibrary");
-    public static final String BOOK = base.concat("Book");
-    public static final String BOOK_AUTHOR = base.concat("author");
-    public static final String BOOK_DESCRIPTION = base.concat("description");
-    public static final String CONTAINS_BOOK = base.concat("containsBook");
-    public static final String BOOK_IN = base.concat("bookInLibrary");
+import org.springframework.stereotype.Component;
 
-    private static final String dc_base = "http://purl.org/dc/terms/";
+@Component
+public final class Vocabulary {
 
-    public static final String DC_TITLE = dc_base.concat("title");
+    //-----REPLACE------
+    private static final URI BASE = URI.create("podStorage");
+
+    private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
+    private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary";
+    private static final String VOCABULARY_RESOURCE_SEPARATOR = "#";
+
+    private static final String BOOK_LIBRARY_VOCABULARY = URIBuilder.newBuilder(BASE)
+        .path(BOOK_LIBRARY_CONTAINER)
+        .path(BOOK_LIBRARY_VOCABULARY_RESOURCE)
+        .build()
+        .toString()
+        .concat(VOCABULARY_RESOURCE_SEPARATOR);
+
+    public static final String BOOK_LIBRARY_RESOURCE = URIBuilder.newBuilder(BASE)
+        .path(BOOK_LIBRARY_CONTAINER)
+        .path("bookLibResource.ttl")
+        .build()
+        .toString();
+
+    //Classes
+    public static final String BOOK_LIBRARY = BOOK_LIBRARY_VOCABULARY.concat("BookLibrary");
+    public static final String BOOK = BOOK_LIBRARY_VOCABULARY.concat("Book");
+    //Relations
+    public static final String BOOK_AUTHOR = BOOK_LIBRARY_VOCABULARY.concat("author");
+    public static final String BOOK_DESCRIPTION = BOOK_LIBRARY_VOCABULARY.concat("description");
+    public static final String CONTAINS_BOOK = BOOK_LIBRARY_VOCABULARY.concat("containsBook");
+
+    //DC Vocabulary
+    private static final String DC_BASE = "http://purl.org/dc/elements/1.1/";
+    public static final String DC_TITLE = DC_BASE.concat("title");
+
+     //RDF Vocabulary
+    private static final String RDF_BASE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    public static final String RDF_TYPE = RDF_BASE.concat("type");
+
+    private Vocabulary() {
+    }
 }

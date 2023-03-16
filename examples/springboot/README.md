@@ -2,36 +2,30 @@
 
 You are building the next-generation digital book library based on Solid. You can think about some similar services such as Goodreads and Audible personalized to your experience. To start you must implement a prototype first, a command-line interface application that only works for your user.
 
-  ## The following user stories (US) will help:
+## How to get the example to run
 
-    * US1: As a digital book library owner I want to be able to authenticate to my digital book library available on my Pod (see available resources to access your Pod).
-    
-    *  US2: As a digital book library owner I want to be able to add a book to my digital book library (on my Pod).
+The example web application expects as of now a `{podStorage}` link. Make sure you replace it in the `Vocabulary.java`.
+Make sure you have a book library resource in the location `{podStorage}/MyBookLibrary/bookLibResource.ttl`. See example below at The book model section.
 
-    * US3: As a digital book library owner I want to be able to edit the description of a book from my digital library (on my Pod).
+## The following user stories (US) will help:
 
-    * US4: As a digital book library owner I want to be able to delete a book from my digital library (on my Pod).
-    
-    * US5: As a digital book library owner I want to be able to read the details of a digital book.
-
-    A friend of yours has a list of really cool books. It is a collection of books compiled by all her closest friends. Your friend's list is also in a digital library on her Pod. She gives you access to that list in the form of an access grant (see available resources).
-
-    * US6: As a digital book library owner I want to read the book list my friend shared with me and gave me access to.
-
-    * US7: As a digital book library owner I want to write to my friend’s book list she gave me write access to, an additional book title.
+    * US1: As a digital book library owner I want to see all the publicly available books I have in my Digital Book Library.
+    * US2: As a digital book library owner I want to see all the books which have a specified title. 
 
 
 ## Vocabulary
+
 ```
-@prefix vocabulary : <https://inrupt.github.io/solid-client-java/vocab/BookLibraryVocabulary#>
+@prefix vocabulary: <{podStorage}/MyBookLibrary/bookLibraryVocabulary#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ###
 # Ontology metadata
 ###
 
-<https://inrupt.github.io/solid-client-java/vocab/BookLibraryVocabulary> a owl:Ontology;
-  swc:BaseUrl "https://inrupt.github.io/solid-client-java/vocab/BookLibraryVocabulary";
-  swc:ResourceSeparator "#".
+<{podStorage}/MyBookLibrary/bookLibraryVocabulary.ttl> a owl:Ontology .
 
 ###
 # Ontology classes
@@ -44,20 +38,13 @@ vocabulary:Book a owl:Class;
   rdfs:label "Book" .
 
 ###
-# Ontology relationships.
+# Ontology relations
 ###
 
-vocabulary:containsBook a owl:ObjectProperty;
-  rdfs:domain vocabulary:BookLibrary
+vocabulary:containsBook a owl:DatatypeProperty;
   rdfs:label "contains book"@en;
-  rdfs:range vocabulary:Book ;
-  owl:inverseOf vocabulary:bookInLibrary .
-
-vocabulary:bookInLibrary a owl:ObjectProperty;
-  rdfs:domain vocabulary:Book
-  rdfs:label "book in library"@en;
-  rdfs:range vocabulary:BookLibrary ;
-  owl:inverseOf vocabulary:containsBook .
+  rdfs:domain vocabulary:BookLibrary;
+  rdfs:range vocabulary:Book .
 
 ###
 # Ontology attributes which are also relationships but range is rdfs:Resource or others.
@@ -78,15 +65,22 @@ vocabulary:description a owl:DatatypeProperty;
 
 ## Data Model
 
-`podStorage` is the root of a user's Pod. We choose to write the Book Library data on the Pod in a container called `bookLibrary`. Together the form the base for where the data is stored ona user's Pod: `podStorage/bookLibrary`
+`podStorage` is the root of a user's storage. We choose to write the Book Library data on the storage in a container called `bookLibrary`. Together the form the base for where the data is stored on a user's storage: `podStorage/bookLibrary`.
+Data model design choice: by the Book being part of the BookLibrary resource directly we express implicitly that the Book is part of only this library. For integration into other libraries one can add the Book triples into the new BookLibrary resource or consider a vocabulary with a dedicated relation (ex: contains book) and dedicated resources per Book.
 
 ### The Book model
 
 ```
-@prefix book : <{podStorage}/bookLibrary#> .
-@prefix vocabulary : <https://inrupt.github.io/solid-client-java/vocab/BookLibraryVocabulary#>
+@prefix book: <{podStorage}/MyBookLibrary/bookLibResource.ttl#> .
+@prefix vocabulary: <{podStorage}/MyBookLibrary/bookLibraryVocabulary#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<{podStorage}/bookLibrary> a vocabulary:BookLibrary .
+<{podStorage}/MyBookLibrary/bookLibResource.ttl> a vocabulary:BookLibrary ;
+    vocabulary:containsBook book:uuid1;
+    vocabulary:containsBook book:uuid2;
+    vocabulary:containsBook book:uuid3;
+    vocabulary:containsBook book:uuid4.
 
 book:uuid1 a vocabulary:Book ;
     dc:title "Dracula" ;
@@ -103,5 +97,6 @@ book:uuid3 a vocabulary:Book;
 book:uuid4 a vocabulary:Book;
   dc:title "The alchemist" ;
   vocabulary:author "Paulo Coelho" .
+
 
 ```
