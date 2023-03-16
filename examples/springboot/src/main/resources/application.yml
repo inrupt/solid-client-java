@@ -10,14 +10,14 @@ spring:
     oauth2:
       client:
         registration:
-          podspaces:
-            client-id: https://inrupt.github.io/solid-client-java/clients/springboot-testing.jsonld
-            provider: podspaces
+          myApp:
+            client-id: https://timea.solidcommunity.net/client_id.jsonld
+            provider: inrupt
             scope:
               - openid
               - webid
             client-authentication-method: none
             authorization-grant-type: authorization_code
         provider:
-          podspaces:
+          inrupt:
             issuer-uri: https://login.inrupt.com

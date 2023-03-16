@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 public final class Vocabulary {
 
     //-----REPLACE------
-    private static final URI BASE = URI.create("podStorage");
+    private static final URI BASE = URI.create("https://timea.solidcommunity.net");
 
     private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
     private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary";

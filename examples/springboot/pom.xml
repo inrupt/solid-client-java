@@ -20,6 +20,7 @@
     <maven.compiler.source>17</maven.compiler.source>
 
     <springboot.version>3.0.4</springboot.version>
+    <thymeleaf.security.version>3.1.1.RELEASE</thymeleaf.security.version>
   </properties>
 
   <dependencyManagement>
@@ -72,7 +73,11 @@
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-thymeleaf</artifactId>
-      </dependency>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-oauth2-client</artifactId>
+    </dependency>
     <!-- for development use, such as restart app when any changes -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
