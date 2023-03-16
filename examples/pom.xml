@@ -14,12 +14,6 @@
   </description>
   <packaging>pom</packaging>
 
-  <modules>
-    <module>cli</module>
-    <module>webapp</module>
-    <module>springboot</module>
-  </modules>
-
   <build>
     <plugins>
       <plugin>
