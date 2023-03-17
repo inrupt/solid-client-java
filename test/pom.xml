@@ -49,6 +49,14 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- transitive dependency via wiremock -->
+    <!-- when wiremock is updated beyond 2.35, this can be removed -->
+    <dependency>
+      <groupId>net.minidev</groupId>
+      <artifactId>json-smart</artifactId>
+      <version>2.4.9</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
