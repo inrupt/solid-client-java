@@ -2,18 +2,15 @@
     "@context": "https://www.w3.org/ns/solid/oidc-context.jsonld",
     "client_id": "https://inrupt.github.io/solid-client-java/clients/springboot.jsonld",
     "redirect_uris": [
-      "http://localhost:8080/login/oauth2/code/podspaces"
+      "http://localhost:8080/login/oauth2/code/myApp"
     ],
     "post_logout_redirect_uris": [
       "http://localhost:8080",
       "http://localhost:8080/"
     ],
-    "client_name": "Test Application (Not for production use)",
+    "client_name": "Spring-Boot Demo App",
     "id_token_signed_response_alg": "ES256",
     "grant_types": [
       "authorization_code"
-    ],
-    "response_types": [
-      "code"
     ]
   }
