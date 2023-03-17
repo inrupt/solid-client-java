@@ -1,0 +1,23 @@
+server:
+  port: 8080
+logging:
+  level:
+    root: info
+spring:
+  main:
+    lazy-initialization: true
+  security:
+    oauth2:
+      client:
+        registration:
+          podspaces:
+            client-id: https://inrupt.github.io/solid-client-java/clients/springboot.jsonld
+            provider: podspaces
+            scope:
+              - openid
+              - webid
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+        provider:
+          podspaces:
+            issuer-uri: https://login.inrupt.com
