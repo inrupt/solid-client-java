@@ -21,6 +21,7 @@
 package com.inrupt.client.examples.springboot.model;
 
 import com.inrupt.client.util.URIBuilder;
+
 import java.net.URI;
 
 import org.springframework.stereotype.Component;

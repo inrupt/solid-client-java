@@ -42,6 +42,7 @@
       </activation>
       <modules>
         <module>cli</module>
+        <module>springboot</module>
         <module>webapp</module>
       </modules>
     </profile>
