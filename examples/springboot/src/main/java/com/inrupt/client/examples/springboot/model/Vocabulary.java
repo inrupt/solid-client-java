@@ -21,7 +21,6 @@
 package com.inrupt.client.examples.springboot.model;
 
 import com.inrupt.client.util.URIBuilder;
-
 import java.net.URI;
 
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ import org.springframework.stereotype.Component;
 @Component
 public final class Vocabulary {
 
-    //-----REPLACE------
+    // TODO: -----REPLACE------
     private static final URI BASE = URI.create("podStorage");
 
     private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
@@ -60,10 +59,6 @@ public final class Vocabulary {
     //DC Vocabulary
     private static final String DC_BASE = "http://purl.org/dc/elements/1.1/";
     public static final String DC_TITLE = DC_BASE.concat("title");
-
-     //RDF Vocabulary
-    private static final String RDF_BASE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-    public static final String RDF_TYPE = RDF_BASE.concat("type");
 
     private Vocabulary() {
     }
