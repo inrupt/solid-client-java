@@ -34,7 +34,6 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-
 public class BookLibrary extends SolidResource {
 
     private Node bookLibraryId;

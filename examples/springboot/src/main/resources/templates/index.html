@@ -202,14 +202,14 @@
                     <h3>Actions:</h3>
                     <ul class="provided-code">
                         <li class="provided-code">
-                            <a th:if="${userName}" href="/logout" class="path-link">Logout</a>
-                            <a th:unless="${userName}" href="/logmein" class="path-link">Login</a>
-                        </li>
-                        <li class="provided-code">
                             <a href="/allbooks" class="path-link">List all my books</a>
                         </li>
                         <li class="provided-code">
                             <a href="/bookbytitle" class="path-link">Get the "Dracula" book</a>
+                        </li>
+                       <!-- <li th:if="${userName}" class="provided-code"> -->
+                        <li class="provided-code">
+                            <a href="/logout" class="path-link">Logout</a>
                         </li>
                     </ul>
                 </div>

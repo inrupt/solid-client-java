@@ -20,15 +20,47 @@
  */
 package com.inrupt.client.examples.springboot;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfiguration {
 
+    @Autowired
+    ClientRegistrationRepository clientRegistrationRepository;
+
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/", "/index");
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers("/", "/index").permitAll()
+                .anyRequest().authenticated()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/")
+                .logoutSuccessHandler(oidcLogoutSuccessHandler())
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+            )
+            .oauth2Login();
+        return http.build();
     }
+
+    private OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler() { 
+        OidcClientInitiatedLogoutSuccessHandler successHandler = 
+            new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        //unfortunately this does not work with just "/" because
+        //it would redirect to the IdP frontend at https://login.inrupt.com/logout.html
+        successHandler.setPostLogoutRedirectUri("/"); 
+        return successHandler;
+    }
+
 }
