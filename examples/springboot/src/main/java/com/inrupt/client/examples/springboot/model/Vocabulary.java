@@ -44,7 +44,8 @@ public final class Vocabulary {
 
     public static final String BOOK_LIBRARY_RESOURCE = URIBuilder.newBuilder(BASE)
         .path(BOOK_LIBRARY_CONTAINER)
-        .path("bookLibResource.ttl")
+        .path("bookLibResourcePrivate.ttl")
+        //.path("bookLibResource.ttl")
         .build()
         .toString();
 

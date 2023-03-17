@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -59,7 +60,7 @@ public class SecurityConfiguration {
             new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
         //unfortunately this does not work with just "/" because
         //it would redirect to the IdP frontend at https://login.inrupt.com/logout.html
-        successHandler.setPostLogoutRedirectUri("/"); 
+        successHandler.setPostLogoutRedirectUri("http://localhost:8080/"); 
         return successHandler;
     }
 

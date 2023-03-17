@@ -23,6 +23,7 @@ package com.inrupt.client.examples.springboot;
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.model.BookLibrary;
 import com.inrupt.client.examples.springboot.model.Vocabulary;
+import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.util.URIBuilder;
 
@@ -39,13 +40,18 @@ public class BookLibraryService {
     private final SolidSyncClient client = SolidSyncClient.getClient();
     private BookLibrary bookLib;
 
-    private BookLibrary loadBookLibraryResource() {
+    private void loadBookLibraryResource() throws AuthenticationFailException {
 
         final URI bookLibraryId = URIBuilder
             .newBuilder(URI.create(BOOK_LIBRARY_RESOURCE))
             .build();
-        this.bookLib = client.read(bookLibraryId, BookLibrary.class);
-        return this.bookLib;
+        try {
+            this.bookLib = client.read(bookLibraryId, BookLibrary.class);
+        } catch(SolidClientException exception) {
+            if (authenticationFail(exception.getStatusCode())) {
+                throw new AuthenticationFailException("You need to authenticate first!");
+            }
+        }
     }
 
     public Set<URI> getAllBooks() {
@@ -83,6 +89,10 @@ public class BookLibraryService {
         });
 
         return foundBooks;
+    }
+
+    static boolean authenticationFail(final int statusCode) {
+        return statusCode == 401 || statusCode == 403;
     }
 
 }
