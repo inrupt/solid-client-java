@@ -27,6 +27,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -51,6 +52,12 @@ public class BookLibraryController {
         } else {
             model.addAttribute("error", "Did not find the book");
         }
+        return "index";
+    }
+
+    @ExceptionHandler(AuthenticationFailException.class)
+    public String handleAuthenticationFailException(final AuthenticationFailException exception, final Model model) {
+        model.addAttribute("error", "You are trying to access private resources. Please authenticate first!");
         return "index";
     }
 }

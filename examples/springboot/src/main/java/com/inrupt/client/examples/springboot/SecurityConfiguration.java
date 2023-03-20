@@ -41,7 +41,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/", "/index").permitAll()
+                .requestMatchers("/", "/index", "/bookbytitle", "/allbooks").permitAll()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
