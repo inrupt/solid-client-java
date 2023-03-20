@@ -62,7 +62,7 @@
     <surefire.plugin.version>3.0.0-M9</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.8.1</checkstyle.tool.version>
+    <checkstyle.tool.version>10.9.2</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
