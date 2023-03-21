@@ -37,7 +37,7 @@ public class SecurityConfiguration {
     ClientRegistrationRepository clientRegistrationRepository;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authz) -> authz
                 .requestMatchers("/", "/index", "/welcome", "/bookbytitle", "/allbooks").permitAll()

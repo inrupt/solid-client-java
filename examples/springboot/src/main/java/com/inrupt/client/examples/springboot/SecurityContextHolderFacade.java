@@ -20,19 +20,27 @@
  */
 package com.inrupt.client.examples.springboot;
 
-import com.inrupt.client.examples.springboot.model.Book;
-
-import java.net.URI;
-import java.util.Set;
-
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+interface SecurityContextFacade {
+
+    SecurityContext getContext();
+
+    void setContext(SecurityContext securityContext);
+
+}
+
 @Service
-interface IBookLibraryService {
-    void loadBookLibrary(String bookLibResource);
-    void loadBookLibrary(String bookLibResource, String principal);
-    Set<URI> getAllBookURIs();
-    Set<Book> getAllBooks();
-    Set<Book> getBookForTitle(final String bookTitle);
-    Set<URI> getBookForAuthor(final String bookAuthor);
+public class SecurityContextHolderFacade implements SecurityContextFacade {
+
+    public SecurityContext getContext() {
+        return SecurityContextHolder.getContext();
+    }
+
+    public void setContext(final SecurityContext securityContext) {
+        SecurityContextHolder.setContext(securityContext);
+    }
+
 }

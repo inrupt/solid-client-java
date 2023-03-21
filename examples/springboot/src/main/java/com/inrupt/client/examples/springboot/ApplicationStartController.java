@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,10 +38,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ApplicationStartController {
 
     @Autowired
+    private SecurityContextHolderFacade context;
+
+    @Autowired
     private IBookLibraryService bookLibService;
 
     private String bookLibraryResource;
     private String userName;
+
 
     @GetMapping("/")
     public String index() {
@@ -50,7 +53,7 @@ public class ApplicationStartController {
     }
 
     @PostMapping("/welcome")
-    public String welcome(@RequestParam String resource, Model model) {
+    public String welcome(final @RequestParam String resource, final Model model) {
         Objects.nonNull(resource);
         this.bookLibraryResource = resource;
         this.bookLibService.loadBookLibrary(resource);
@@ -59,11 +62,12 @@ public class ApplicationStartController {
     }
 
     @GetMapping("/logmein")
-    public String login(final @AuthenticationPrincipal OidcUser principal, final Model model) {
-        this.userName =  principal.getClaim("webid");
-        model.addAttribute("userName", this.userName);
-        model.addAttribute("resource", this.bookLibraryResource);
-        this.bookLibService.loadBookLibrary(this.bookLibraryResource, principal.getIdToken().getTokenValue());
+    public String login(final Model model) {
+        final Object principal = context.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof OidcUser) {
+            final OidcUser user = (OidcUser) principal;
+            model.addAttribute("userName", user.getClaim("webid"));
+        }
         return "index";
     }
 

@@ -37,9 +37,9 @@ public class Application {
     }
 
     @Bean
-	public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
-		OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
-		idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
-		return idTokenDecoderFactory;
-	}
+    public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+        final OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+        idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
+        return idTokenDecoderFactory;
+    }
 }

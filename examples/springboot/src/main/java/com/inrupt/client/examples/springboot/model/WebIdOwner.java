@@ -22,7 +22,7 @@ package com.inrupt.client.examples.springboot.model;
 
 import java.util.Objects;
 
-public class WebIdOwner {
+public final class WebIdOwner {
     
     private final String name;
     private final String email;
@@ -53,15 +53,19 @@ public class WebIdOwner {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object o) {
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
-            WebIdOwner that = (WebIdOwner) o;
+        }
+        WebIdOwner that = (WebIdOwner) o;
         return name.equals(that.name) && bday.equals(that.bday) && email.equals(that.email) && webid.equals(that.webid);
+
     }
 
     @Override
