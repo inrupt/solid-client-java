@@ -28,7 +28,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -41,7 +40,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/", "/index", "/bookbytitle", "/allbooks").permitAll()
+                .requestMatchers("/", "/index", "/welcome", "/bookbytitle", "/allbooks").permitAll()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout

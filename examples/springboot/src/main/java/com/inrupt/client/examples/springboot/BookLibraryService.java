@@ -22,7 +22,7 @@ package com.inrupt.client.examples.springboot;
 
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.model.BookLibrary;
-import com.inrupt.client.examples.springboot.model.Vocabulary;
+import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.util.URIBuilder;
@@ -34,16 +34,15 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BookLibraryService {
+public class BookLibraryService implements IBookLibraryService {
 
-    private static final String BOOK_LIBRARY_RESOURCE = Vocabulary.BOOK_LIBRARY_RESOURCE;
     private final SolidSyncClient client = SolidSyncClient.getClient();
     private BookLibrary bookLib;
+    private Set<Book> allBooks;
 
-    private void loadBookLibraryResource() throws AuthenticationFailException {
-
+    public void loadBookLibrary(String bookLibResource) throws AuthenticationFailException {
         final URI bookLibraryId = URIBuilder
-            .newBuilder(URI.create(BOOK_LIBRARY_RESOURCE))
+            .newBuilder(URI.create(bookLibResource))
             .build();
         try {
             this.bookLib = client.read(bookLibraryId, BookLibrary.class);
@@ -52,20 +51,47 @@ public class BookLibraryService {
                 throw new AuthenticationFailException("You need to authenticate first!");
             }
         }
+
+        this.allBooks = new HashSet<>();
+        final Set<URI> allBookURIs = this.bookLib.getAllBooks();
+        allBookURIs.stream().forEach(oneBookURI -> {
+            this.allBooks.add(client.read(oneBookURI, Book.class));
+        });
     }
 
-    public Set<URI> getAllBooks() {
-        loadBookLibraryResource();
+    public void loadBookLibrary(String bookLibResource, String token) throws AuthenticationFailException {
+        final SolidSyncClient session = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
+        final URI bookLibraryId = URIBuilder
+            .newBuilder(URI.create(bookLibResource))
+            .build();
+        try {
+            this.bookLib = session.read(bookLibraryId, BookLibrary.class);
+        } catch(SolidClientException exception) {
+            if (authenticationFail(exception.getStatusCode())) {
+                throw new AuthenticationFailException("You need to authenticate first!");
+            }
+        }
+
+        this.allBooks = new HashSet<>();
+        final Set<URI> allBookURIs = this.bookLib.getAllBooks();
+        allBookURIs.stream().forEach(oneBookURI -> {
+            this.allBooks.add(session.read(oneBookURI, Book.class));
+        });
+    }
+
+    public Set<URI> getAllBookURIs() {
         return this.bookLib.getAllBooks();
     }
 
+    public Set<Book> getAllBooks() {
+        return this.allBooks;
+    }
+
     public Set<Book> getBookForTitle(final String bookTitle) {
-        loadBookLibraryResource();
 
         final Set<Book> foundBooks = new HashSet<>();
 
-        final Set<URI> allBooks = this.bookLib.getAllBooks();
-        allBooks.stream().forEach(oneBookURI -> {
+        this.bookLib.getAllBooks().stream().forEach(oneBookURI -> {
             final Book book = client.read(oneBookURI, Book.class);
             if (book.getTitle() != null &&  book.getTitle().equals(bookTitle)) {
                 foundBooks.add(book);
@@ -76,12 +102,10 @@ public class BookLibraryService {
     }
 
     public Set<URI> getBookForAuthor(final String bookAuthor) {
-        loadBookLibraryResource();
 
         final Set<URI> foundBooks = new HashSet<>();
 
-        final Set<URI> allBooks = this.bookLib.getAllBooks();
-        allBooks.stream().forEach(oneBookURI -> {
+        this.bookLib.getAllBooks().stream().forEach(oneBookURI -> {
             final Book book = client.read(oneBookURI, Book.class);
             if (book.getAuthor().equals(bookAuthor)) {
                 foundBooks.add(oneBookURI);

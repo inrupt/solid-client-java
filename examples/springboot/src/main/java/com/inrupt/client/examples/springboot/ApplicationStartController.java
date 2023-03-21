@@ -20,24 +20,79 @@
  */
 package com.inrupt.client.examples.springboot;
 
+import com.inrupt.client.examples.springboot.model.Book;
+
+import java.util.Objects;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class ApplicationStartController {
+
+    @Autowired
+    private IBookLibraryService bookLibService;
+
+    private String bookLibraryResource;
+    private String userName;
 
     @GetMapping("/")
     public String index() {
         return "index";
     }
 
-    @GetMapping("/logmein")
-    public String login(final @AuthenticationPrincipal OidcUser principal, final Model model) {
-        model.addAttribute("userName", principal.getClaim("webid"));
+    @PostMapping("/welcome")
+    public String welcome(@RequestParam String resource, Model model) {
+        Objects.nonNull(resource);
+        this.bookLibraryResource = resource;
+        this.bookLibService.loadBookLibrary(resource);
+        model.addAttribute("resource", resource);
         return "index";
     }
 
+    @GetMapping("/logmein")
+    public String login(final @AuthenticationPrincipal OidcUser principal, final Model model) {
+        this.userName =  principal.getClaim("webid");
+        model.addAttribute("userName", this.userName);
+        model.addAttribute("resource", this.bookLibraryResource);
+        this.bookLibService.loadBookLibrary(this.bookLibraryResource, principal.getIdToken().getTokenValue());
+        return "index";
+    }
+
+    @ExceptionHandler(AuthenticationFailException.class)
+    public String handleAuthenticationFailException(final AuthenticationFailException exception, final Model model) {
+        model.addAttribute("error", "You are trying to access private resources. Please authenticate first!");
+        model.addAttribute("resource", this.bookLibraryResource);
+        return "index";
+    }
+
+    @GetMapping("/allbooks")
+    public String books(final Model model ) {
+        model.addAttribute("allBooks", this.bookLibService.getAllBookURIs());
+        model.addAttribute("resource", this.bookLibraryResource);
+        model.addAttribute("userName", this.userName);
+        return "index";
+    }
+
+    @GetMapping("/bookbytitle")
+    public String bookbytitle(@RequestParam(value = "title", defaultValue = "Dracula")
+        final String title, final Model model) {
+        final Set<Book> result = this.bookLibService.getBookForTitle(title);
+        if (!result.isEmpty()) {
+            model.addAttribute("booksByTitle", result);
+        } else {
+            model.addAttribute("error", "Did not find the book");
+        }
+        model.addAttribute("resource", this.bookLibraryResource);
+        model.addAttribute("userName", this.userName);
+        return "index";
+    }
 }

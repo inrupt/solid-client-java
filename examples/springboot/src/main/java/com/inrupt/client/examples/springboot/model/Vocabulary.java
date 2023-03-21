@@ -29,25 +29,18 @@ import org.springframework.stereotype.Component;
 public final class Vocabulary {
 
      // TODO: -----REPLACE------
-    private static final URI BASE = URI.create("https://timea.solidcommunity.net");
+    public static final URI VOCABULARY_BASE = URI.create("https://timea.solidcommunity.net");
 
     private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
     private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary";
     private static final String VOCABULARY_RESOURCE_SEPARATOR = "#";
 
-    private static final String BOOK_LIBRARY_VOCABULARY = URIBuilder.newBuilder(BASE)
+    private static final String BOOK_LIBRARY_VOCABULARY = URIBuilder.newBuilder(VOCABULARY_BASE)
         .path(BOOK_LIBRARY_CONTAINER)
         .path(BOOK_LIBRARY_VOCABULARY_RESOURCE)
         .build()
         .toString()
         .concat(VOCABULARY_RESOURCE_SEPARATOR);
-
-    public static final String BOOK_LIBRARY_RESOURCE = URIBuilder.newBuilder(BASE)
-        .path(BOOK_LIBRARY_CONTAINER)
-        .path("bookLibResourcePrivate.ttl")
-        //.path("bookLibResource.ttl")
-        .build()
-        .toString();
 
     //Classes
     public static final String BOOK_LIBRARY = BOOK_LIBRARY_VOCABULARY.concat("BookLibrary");
