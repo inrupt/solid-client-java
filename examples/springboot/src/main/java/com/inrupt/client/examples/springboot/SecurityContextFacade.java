@@ -21,18 +21,10 @@
 package com.inrupt.client.examples.springboot;
 
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
-@Service
-public class SecurityContextHolderFacade implements SecurityContextFacade {
+interface SecurityContextFacade {
 
-    public SecurityContext getContext() {
-        return SecurityContextHolder.getContext();
-    }
-
-    public void setContext(final SecurityContext securityContext) {
-        SecurityContextHolder.setContext(securityContext);
-    }
+    SecurityContext getContext();
+    void setContext(SecurityContext securityContext);
 
 }

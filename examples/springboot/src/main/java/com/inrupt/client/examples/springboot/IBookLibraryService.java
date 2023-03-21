@@ -25,9 +25,6 @@ import com.inrupt.client.examples.springboot.model.Book;
 import java.net.URI;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
-
-@Service
 interface IBookLibraryService {
     void loadBookLibrary(String bookLibResource);
     void loadBookLibrary(String bookLibResource, String principal);

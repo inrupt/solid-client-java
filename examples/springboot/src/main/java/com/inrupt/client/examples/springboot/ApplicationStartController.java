@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,9 +35,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class ApplicationStartController {
-
-    @Autowired
-    private SecurityContextHolderFacade context;
 
     @Autowired
     private IBookLibraryService bookLibService;
@@ -63,10 +59,14 @@ public class ApplicationStartController {
 
     @GetMapping("/logmein")
     public String login(final Model model) {
-        final Object principal = context.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof OidcUser) {
-            final OidcUser user = (OidcUser) principal;
-            model.addAttribute("userName", user.getClaim("webid"));
+        if (UserService.getCurrentUser() != null) {
+            if (UserService.getCurrentUser().getName().isEmpty()) {
+                this.userName = UserService.getCurrentUser().getIdentifier().toString();
+            } else {
+                this.userName = UserService.getCurrentUser().getName();
+            }
+            model.addAttribute("userName", this.userName);
+            model.addAttribute("resource", this.bookLibraryResource);
         }
         return "index";
     }

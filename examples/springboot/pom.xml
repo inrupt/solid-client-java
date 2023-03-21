@@ -75,7 +75,12 @@
         <groupId>com.inrupt</groupId>
         <artifactId>inrupt-client-vocabulary</artifactId>
         <version>${project.version}</version>
-      </dependency>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt</groupId>
+        <artifactId>inrupt-client-webid</artifactId>
+        <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>

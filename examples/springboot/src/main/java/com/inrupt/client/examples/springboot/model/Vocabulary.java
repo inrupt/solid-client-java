@@ -54,6 +54,10 @@ public final class Vocabulary {
     private static final String DC_BASE = "http://purl.org/dc/elements/1.1/";
     public static final String DC_TITLE = DC_BASE.concat("title");
 
+    //VCARD
+    private static final String VCARD_BASE = "http://www.w3.org/2006/vcard/ns#";
+    public static final String FN = VCARD_BASE.concat("fn");
+
     private Vocabulary() {
     }
 }

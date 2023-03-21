@@ -20,88 +20,42 @@
  */
 package com.inrupt.client.examples.springboot.model;
 
-import java.util.Objects;
+import com.inrupt.client.webid.WebIdProfile;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
-public final class WebIdOwner {
+import java.net.URI;
+
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+
+public final class WebIdOwner extends WebIdProfile {
     
-    private final String name;
-    private final String email;
-    private final String bday;
-    private final String webid;
+    private final IRI name;
 
-    private WebIdOwner(Builder builder) {
-        this.name = builder.name;
-        this.email = builder.email;
-        this.bday = builder.bday;
-        this.webid = builder.webid;
+    public WebIdOwner(final URI identifier, final Dataset dataset) {
+        super(identifier, dataset);
+        this.name = rdf.createIRI(Vocabulary.FN);
     }
 
     public String getName() {
-        return this.name;
-    }
-
-    public String getEmail() {
-        return this.email;
-    }
-
-    public String getBday() {
-        return this.bday;
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getName();
     }
 
     public String getWebid() {
-        return this.webid;
+        return this.getIdentifier().toString();
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        WebIdOwner that = (WebIdOwner) o;
-        return name.equals(that.name) && bday.equals(that.bday) && email.equals(that.email) && webid.equals(that.webid);
+    class Node extends WrapperIRI {
 
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), name, email, bday, webid);
-    }
-
-    public static class Builder {
-
-        private String name;
-        private String email;
-        private String bday;
-        private String webid;
-
-        public Builder withName(String name) {
-            this.name = name;
-            return this;
+        Node(final RDFTerm original, final Graph graph) {
+            super(original, graph);
         }
 
-        public Builder withEmail(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder withBday(String bday) {
-            this.bday = bday;
-            return this;
-        }
-
-        public Builder withWebid(String webid) {
-            this.webid = webid;
-            return this;
-        }
-
-        public WebIdOwner build() {
-            return new WebIdOwner(this);
+        String getName() {
+            return singleOrNull(name, ValueMappings::literalAsString);
         }
     }
 }
