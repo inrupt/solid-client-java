@@ -25,7 +25,7 @@ import com.inrupt.client.examples.springboot.model.Book;
 import java.net.URI;
 import java.util.Set;
 
-interface IBookLibraryService {
+public interface IBookLibraryService {
     void loadBookLibrary(String bookLibResource);
     void loadBookLibrary(String bookLibResource, String principal);
     Set<URI> getAllBookURIs();
