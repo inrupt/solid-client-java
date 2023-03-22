@@ -32,7 +32,7 @@ import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
 public final class WebIdOwner extends WebIdProfile {
-    
+
     private final IRI vcardName;
     private String token;
 
@@ -53,7 +53,7 @@ public final class WebIdOwner extends WebIdProfile {
         return this.getIdentifier().toString();
     }
 
-    public void setToken(String token) {
+    public void setToken(final String token) {
         this.token = token;
     }
 

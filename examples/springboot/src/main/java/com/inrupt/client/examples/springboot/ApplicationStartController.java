@@ -23,6 +23,7 @@ package com.inrupt.client.examples.springboot;
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.service.IBookLibraryService;
 import com.inrupt.client.examples.springboot.service.UserService;
+
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,6 +38,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ApplicationStartController {
 
+    private static final String INDEX_PAGE = "index";
+    private static final String FRONTEND_USERNAME = "userName";
+    private static final String FRONTEND_RESOURCE = "resource";
+    private static final String FRONTEND_ERROR_MESSAGE = "error";
+    private static final String FRONTEND_MESSAGE = "message";
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -48,7 +55,7 @@ public class ApplicationStartController {
 
     @GetMapping("/")
     public String index() {
-        return "index";
+        return INDEX_PAGE;
     }
 
     @PostMapping("/load")
@@ -56,44 +63,43 @@ public class ApplicationStartController {
         Objects.nonNull(resource);
         this.bookLibraryResource = resource;
         this.bookLibService.loadBookLibrary(resource);
-        model.addAttribute("resource", resource);
-        model.addAttribute("userName", this.userName);
-        return "index";
+        model.addAttribute(FRONTEND_RESOURCE, resource);
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        return INDEX_PAGE;
     }
 
     @GetMapping("/logmein")
     public String login(final Model model) {
         if (userService.getCurrentUser() != null) {
-                this.userName = userService.getCurrentUser().geUserName();
-                model.addAttribute("userName", this.userName);
-                this.bookLibService.loadBookLibrary(this.bookLibraryResource);
-            }
-        else {
-            model.addAttribute("error", "Something went wrong with the login!");
+            this.userName = userService.getCurrentUser().geUserName();
+            model.addAttribute(FRONTEND_USERNAME, this.userName);
+            this.bookLibService.loadBookLibrary(this.bookLibraryResource);
+        } else {
+            model.addAttribute(FRONTEND_ERROR_MESSAGE, "Something went wrong with the login!");
         }
-        model.addAttribute("resource", this.bookLibraryResource);
-        return "index";
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
+        return INDEX_PAGE;
     }
 
     @ExceptionHandler(AuthNAuthZFailException.class)
     public String handleAuthenticationFailException(final AuthNAuthZFailException exception, final Model model) {
-        model.addAttribute("error", exception.getMessage());
-        model.addAttribute("resource", this.bookLibraryResource);
-        model.addAttribute("userName", this.userName);
+        model.addAttribute(FRONTEND_ERROR_MESSAGE, exception.getMessage());
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
         this.bookLibService.clearBookLibrary();
-        return "index";
+        return INDEX_PAGE;
     }
 
     @GetMapping("/allbooks")
     public String books(final Model model ) {
-        if (this.bookLibService.getAllBookURIs() == null) {
-            model.addAttribute("message", "We did not find any book.");
+        if (this.bookLibService.getAllBookURIs() == null || this.bookLibService.getAllBookURIs().isEmpty()) {
+            model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
         } else {
             model.addAttribute("allBooks", this.bookLibService.getAllBookURIs());
         }
-        model.addAttribute("resource", this.bookLibraryResource);
-        model.addAttribute("userName", this.userName);
-        return "index";
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        return INDEX_PAGE;
     }
 
     @GetMapping("/bookbytitle")
@@ -102,10 +108,10 @@ public class ApplicationStartController {
         final Set<Book> result = this.bookLibService.getBookForTitle(title);
         model.addAttribute("booksByTitle", result);
         if (result.isEmpty()) {
-            model.addAttribute("message", "We did not find the book.");
+            model.addAttribute(FRONTEND_MESSAGE, "We did not find the book.");
         }
-        model.addAttribute("resource", this.bookLibraryResource);
-        model.addAttribute("userName", this.userName);
-        return "index";
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        return INDEX_PAGE;
     }
 }

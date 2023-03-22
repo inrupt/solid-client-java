@@ -44,7 +44,7 @@ public class BookLibraryService implements IBookLibraryService {
     private SolidSyncClient client;
     private BookLibrary bookLib;
 
-    public void loadBookLibrary(String bookLibResource) throws AuthNAuthZFailException {
+    public void loadBookLibrary(final String bookLibResource) throws AuthNAuthZFailException {
         client = getClient();
 
         final URI bookLibraryId = URIBuilder
@@ -52,7 +52,7 @@ public class BookLibraryService implements IBookLibraryService {
             .build();
         try {
             this.bookLib = client.read(bookLibraryId, BookLibrary.class);
-        } catch(SolidClientException exception) {
+        } catch (SolidClientException exception) {
             if (authenticationFail(exception.getStatusCode())) {
                 throw new AuthNAuthZFailException("You are not authenticated! Try logging in.");
             }

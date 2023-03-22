@@ -39,8 +39,8 @@ public class UserService {
     public WebIdOwner getCurrentUser() {
 
         if (SecurityContextHolder.getContext() != null) {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        
+            final Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
             if (principal instanceof OidcUser) {
                 final OidcUser user = (OidcUser) principal;
                 final String webidUrl = user.getClaim("webid");

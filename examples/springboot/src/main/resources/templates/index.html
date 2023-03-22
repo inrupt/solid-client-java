@@ -177,7 +177,7 @@
                 visibility: visible;
             }
             .resource-input {
-                width: 50%;
+                width: 68%;
             }
             .error {
                 color: red;
@@ -210,7 +210,7 @@
             <div>
                 <form th:action="@{/load}" method="post">
                     <p>Book Library location: 
-                        <input class="resource-input" type="text" name="resource" th:value="${resource} ? ${resource} : 'https://timea.solidcommunity.net/MyBookLibrary/bookLibResourcePrivate.ttl'"/>
+                        <input class="resource-input" type="text" name="resource" th:value="${resource} ? ${resource} : 'https://storage.inrupt.com/0c51f30b-7160-4b33-a6e6-22d6501f0382/MyBookLibrary/bookLibResource.ttl'"/>
                     </p>
                     <p><input type="submit" value="Load" /></p>
                 </form>
@@ -232,7 +232,7 @@
                         <li th:if="${userName}" class="provided-code">
                             <a href="/logout" class="path-link">Logout</a>
                         </li>
-                        <li th:unless="${userName}" class="provided-code">
+                        <li class="provided-code">
                             <a href="/logmein" class="path-link">Login</a>
                         </li>
                     </ul>

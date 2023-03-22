@@ -29,6 +29,6 @@ public interface IBookLibraryService {
     void loadBookLibrary(String bookLibResource);
     void clearBookLibrary();
     Set<URI> getAllBookURIs();
-    Set<Book> getBookForTitle(final String bookTitle);
-    Set<URI> getBookForAuthor(final String bookAuthor);
+    Set<Book> getBookForTitle(String bookTitle);
+    Set<URI> getBookForAuthor(String bookAuthor);
 }

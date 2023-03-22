@@ -54,8 +54,8 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    private OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler() { 
-        OidcClientInitiatedLogoutSuccessHandler successHandler = 
+    private OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler() {
+        final OidcClientInitiatedLogoutSuccessHandler successHandler =
             new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
         //unfortunately this does not work with just "/" because
         //it would redirect to the IdP frontend at https://login.inrupt.com/logout.html

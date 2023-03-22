@@ -21,6 +21,7 @@
 package com.inrupt.client.examples.springboot.model;
 
 import com.inrupt.client.util.URIBuilder;
+
 import java.net.URI;
 
 import org.springframework.stereotype.Component;
@@ -28,11 +29,11 @@ import org.springframework.stereotype.Component;
 @Component
 public final class Vocabulary {
 
-     // TODO: -----REPLACE------
-    public static final URI VOCABULARY_BASE = URI.create("https://timea.solidcommunity.net");
+    public static final URI VOCABULARY_BASE =
+        URI.create("https://storage.inrupt.com/0c51f30b-7160-4b33-a6e6-22d6501f0382");
 
     private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
-    private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary";
+    private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary.ttl";
     private static final String VOCABULARY_RESOURCE_SEPARATOR = "#";
 
     private static final String BOOK_LIBRARY_VOCABULARY = URIBuilder.newBuilder(VOCABULARY_BASE)
