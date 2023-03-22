@@ -33,7 +33,7 @@
     <json.bind.version>1.0.2</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
     <rdf4j.version>4.2.3</rdf4j.version>
-    <slf4j.version>1.7.36</slf4j.version>
+    <slf4j.version>2.0.7</slf4j.version>
     <inrupt.commons.rdf4j.version>0.5.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>0.2.1</inrupt.rdf.wrapping.version>
 
@@ -55,18 +55,18 @@
     <projectinfo.plugin.version>3.4.2</projectinfo.plugin.version>
     <pmd.plugin.version>3.20.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
-    <release.plugin.version>2.5.3</release.plugin.version>
+    <release.plugin.version>3.0.0</release.plugin.version>
     <resources.plugin.version>3.3.0</resources.plugin.version>
     <sonar.plugin.version>3.9.1.2184</sonar.plugin.version>
     <source.plugin.version>3.2.1</source.plugin.version>
-    <surefire.plugin.version>3.0.0-M9</surefire.plugin.version>
+    <surefire.plugin.version>3.0.0</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.8.1</checkstyle.tool.version>
+    <checkstyle.tool.version>10.9.2</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.14</equalsverifier.version>
+    <equalsverifier.version>3.14.1</equalsverifier.version>
     <junit.version>5.9.2</junit.version>
     <yasson.version>1.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>

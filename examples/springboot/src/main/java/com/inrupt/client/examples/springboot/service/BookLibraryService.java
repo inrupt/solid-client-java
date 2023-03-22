@@ -23,6 +23,7 @@ package com.inrupt.client.examples.springboot.service;
 import com.inrupt.client.examples.springboot.AuthNAuthZFailException;
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.model.BookLibrary;
+import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidSyncClient;
@@ -125,7 +126,11 @@ public class BookLibraryService implements IBookLibraryService {
         SolidSyncClient defaultClient = SolidSyncClient.getClient();
 
         if (userService.getCurrentUser() != null) {
-            defaultClient = defaultClient.session(OpenIdSession.ofIdToken(userService.getCurrentUser().getToken()));
+            try {
+                defaultClient = defaultClient.session(OpenIdSession.ofIdToken(userService.getCurrentUser().getToken()));
+            } catch (OpenIdException exception) {
+                throw new AuthNAuthZFailException("Session expired, please relogin.");
+            }
         }
 
         return defaultClient;
