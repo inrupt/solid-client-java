@@ -227,7 +227,10 @@
                             <a href="/allbooks" class="path-link">List all my books</a>
                         </li>
                         <li class="provided-code">
-                            <a href="/bookbytitle" class="path-link">Get the "Dracula" book</a>
+                            <a href="/booksbyauthor" class="path-link">Get books by Bram Stoker</a>
+                        </li>
+                        <li class="provided-code">
+                            <a href="/booksbytitle" class="path-link">Get books which contains 'Women' in the title</a>
                         </li>
                         <li th:if="${userName}" class="provided-code">
                             <a href="/logout" class="path-link">Logout</a>
@@ -237,18 +240,12 @@
                         </li>
                     </ul>
                 </div>
-                <div class="right-column" th:classappend="${(allBooks!=null and !allBooks.empty) or (booksByTitle!=null and !booksByTitle.empty)} ? 'visible' : 'hidden'">
+                <div class="right-column" th:classappend="${(allBooks!=null and !allBooks.empty)} ? 'visible' : 'hidden'">
                     <h3>Result:</h3>
                     
                     <ul th:each="book : ${allBooks}">
-                        <li><span th:text="${book}"> </span></li>
+                        <li><span th:text="${book.author}"> Author </span>: <span th:text="${book.title}"> Title </span></li>
                     </ul>
-                    <table>
-                        <tr th:each="book : ${booksByTitle}">
-                            <td><span th:text="${book.title}"> Title </span></td>
-                            <td><span th:text="${book.author}"> Author </span></td>
-                        </tr>
-                    </table>
                 </div>
             </div>
         </div>

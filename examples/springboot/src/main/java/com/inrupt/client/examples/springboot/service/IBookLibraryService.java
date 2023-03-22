@@ -22,13 +22,12 @@ package com.inrupt.client.examples.springboot.service;
 
 import com.inrupt.client.examples.springboot.model.Book;
 
-import java.net.URI;
 import java.util.Set;
 
 public interface IBookLibraryService {
     void loadBookLibrary(String bookLibResource);
     void clearBookLibrary();
-    Set<URI> getAllBookURIs();
+    Set<Book> getAllBook();
     Set<Book> getBookForTitle(String bookTitle);
-    Set<URI> getBookForAuthor(String bookAuthor);
+    Set<Book> getBookForAuthor(String bookAuthor);
 }

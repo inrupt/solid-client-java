@@ -9,8 +9,9 @@ See an example below of how a Book Library Solid resource could look like.
 
 ## The following user stories (US) will help:
 
-    * US1: As a digital book library owner I want to see all the publicly available books I have in my Digital Book Library.
-    * US2: As a digital book library owner I want to see all the books which have a specified title. 
+    * US1: As a digital book library owner I want to see all the available books I have in my Digital Book Library.
+    * US2: As a digital book library owner I want to see all the books which have a specified word in the title. 
+    * US3: As a digital book library owner I want to see all the books by a given author. 
 
 ## Data Model
 

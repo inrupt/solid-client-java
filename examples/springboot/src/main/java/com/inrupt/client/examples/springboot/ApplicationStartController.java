@@ -92,26 +92,40 @@ public class ApplicationStartController {
 
     @GetMapping("/allbooks")
     public String books(final Model model ) {
-        if (this.bookLibService.getAllBookURIs() == null || this.bookLibService.getAllBookURIs().isEmpty()) {
+        if (this.bookLibService.getAllBook() == null || this.bookLibService.getAllBook().isEmpty()) {
             model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
         } else {
-            model.addAttribute("allBooks", this.bookLibService.getAllBookURIs());
+            model.addAttribute("allBooks", this.bookLibService.getAllBook());
         }
         model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
         model.addAttribute(FRONTEND_USERNAME, this.userName);
         return INDEX_PAGE;
     }
 
-    @GetMapping("/bookbytitle")
-    public String bookbytitle(@RequestParam(value = "title", defaultValue = "Dracula")
-        final String title, final Model model) {
-        final Set<Book> result = this.bookLibService.getBookForTitle(title);
-        model.addAttribute("booksByTitle", result);
+    @GetMapping("/booksbyauthor")
+    public String bookbyauthor(@RequestParam(value = "author", defaultValue = "Bram Stoker")
+        final String author, final Model model) {
+        final Set<Book> result = this.bookLibService.getBookForAuthor(author);
+        model.addAttribute("allBooks", result);
         if (result.isEmpty()) {
-            model.addAttribute(FRONTEND_MESSAGE, "We did not find the book.");
+            model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
         }
         model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
         model.addAttribute(FRONTEND_USERNAME, this.userName);
         return INDEX_PAGE;
     }
+
+    @GetMapping("/booksbytitle")
+    public String bookbytitle(@RequestParam(value = "title", defaultValue = "Women")
+        final String title, final Model model) {
+        final Set<Book> result = this.bookLibService.getBookForTitle(title);
+        model.addAttribute("allBooks", result);
+        if (result.isEmpty()) {
+            model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
+        }
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        return INDEX_PAGE;
+    }
+
 }

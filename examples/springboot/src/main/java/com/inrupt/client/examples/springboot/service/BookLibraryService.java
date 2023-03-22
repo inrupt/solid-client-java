@@ -73,6 +73,18 @@ public class BookLibraryService implements IBookLibraryService {
         return this.bookLib.getAllBooks();
     }
 
+    public Set<Book> getAllBook() {
+        if (this.bookLib == null) {
+            throw new AuthNAuthZFailException("Not allowed.");
+        }
+        final Set<Book> allBooks = new HashSet<>();
+        this.bookLib.getAllBooks().stream().forEach(oneBookURI -> {
+            final Book book = client.read(oneBookURI, Book.class);
+            allBooks.add(book);
+        });
+        return allBooks;
+    }
+
     public Set<Book> getBookForTitle(final String bookTitle) {
         if (this.bookLib == null) {
             throw new AuthNAuthZFailException("Not allowed.");
@@ -83,7 +95,7 @@ public class BookLibraryService implements IBookLibraryService {
 
         this.bookLib.getAllBooks().stream().forEach(oneBookURI -> {
             final Book book = client.read(oneBookURI, Book.class);
-            if (book.getTitle() != null &&  book.getTitle().equals(bookTitle)) {
+            if (book.getTitle() != null && book.getTitle().contains(bookTitle)) {
                 foundBooks.add(book);
             }
         });
@@ -91,18 +103,18 @@ public class BookLibraryService implements IBookLibraryService {
         return foundBooks;
     }
 
-    public Set<URI> getBookForAuthor(final String bookAuthor) {
+    public Set<Book> getBookForAuthor(final String bookAuthor) {
         if (this.bookLib == null) {
             throw new AuthNAuthZFailException("Not allowed.");
         }
         client = getClient();
 
-        final Set<URI> foundBooks = new HashSet<>();
+        final Set<Book> foundBooks = new HashSet<>();
 
         this.bookLib.getAllBooks().stream().forEach(oneBookURI -> {
             final Book book = client.read(oneBookURI, Book.class);
-            if (book.getAuthor().equals(bookAuthor)) {
-                foundBooks.add(oneBookURI);
+            if (book.getAuthor() != null && book.getAuthor().equals(bookAuthor)) {
+                foundBooks.add(book);
             }
         });
 
