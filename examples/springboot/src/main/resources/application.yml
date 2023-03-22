@@ -11,7 +11,7 @@ spring:
       client:
         registration:
           myApp:
-            client-id: https://timea.solidcommunity.net/client_id.jsonld
+            client-id: https://inrupt.github.io/solid-client-java/clients/springboot-testing.jsonld
             provider: inrupt
             scope:
               - openid
