@@ -39,6 +39,9 @@ public class ApplicationStartController {
     @Autowired
     private IBookLibraryService bookLibService;
 
+    @Autowired
+    private UserService userService;
+
     private String bookLibraryResource;
     private String userName;
 
@@ -59,14 +62,15 @@ public class ApplicationStartController {
 
     @GetMapping("/logmein")
     public String login(final Model model) {
-        if (UserService.getCurrentUser() != null) {
-            if (UserService.getCurrentUser().getName().isEmpty()) {
-                this.userName = UserService.getCurrentUser().getIdentifier().toString();
+        if (userService.getCurrentUser() != null) {
+            if (userService.getCurrentUser().getName() != null) {
+                this.userName = userService.getCurrentUser().getName();
             } else {
-                this.userName = UserService.getCurrentUser().getName();
+                this.userName = userService.getCurrentUser().getWebid();
             }
             model.addAttribute("userName", this.userName);
             model.addAttribute("resource", this.bookLibraryResource);
+            this.bookLibService.loadBookLibrary(this.bookLibraryResource, userService.getCurrentUser().getToken());
         }
         return "index";
     }

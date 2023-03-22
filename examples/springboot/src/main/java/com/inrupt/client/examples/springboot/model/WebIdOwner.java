@@ -34,6 +34,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 public final class WebIdOwner extends WebIdProfile {
     
     private final IRI name;
+    private String token;
 
     public WebIdOwner(final URI identifier, final Dataset dataset) {
         super(identifier, dataset);
@@ -48,6 +49,14 @@ public final class WebIdOwner extends WebIdProfile {
         return this.getIdentifier().toString();
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return this.token;
+    }
+
     class Node extends WrapperIRI {
 
         Node(final RDFTerm original, final Graph graph) {
@@ -55,7 +64,7 @@ public final class WebIdOwner extends WebIdProfile {
         }
 
         String getName() {
-            return singleOrNull(name, ValueMappings::literalAsString);
+            return anyOrNull(name, ValueMappings::literalAsString);
         }
     }
 }

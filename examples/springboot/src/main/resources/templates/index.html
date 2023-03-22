@@ -177,7 +177,7 @@
                 visibility: visible;
             }
             .resource-input {
-                width: 40%;
+                width: 50%;
             }
         </style>
     </head>
@@ -220,8 +220,7 @@
                         <li class="provided-code">
                             <a href="/bookbytitle" class="path-link">Get the "Dracula" book</a>
                         </li>
-                        <!--<li th:if="${userName}" class="provided-code">-->
-                        <li class="provided-code">
+                        <li th:if="${userName}" class="provided-code">
                             <a href="/logout" class="path-link">Logout</a>
                         </li>
                         <li th:unless="${userName}" class="provided-code">
