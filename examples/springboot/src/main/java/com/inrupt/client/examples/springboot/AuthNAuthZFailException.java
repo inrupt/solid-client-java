@@ -18,17 +18,17 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.examples.springboot.service;
+package com.inrupt.client.examples.springboot;
 
-import com.inrupt.client.examples.springboot.model.Book;
+public class AuthNAuthZFailException extends RuntimeException {
 
-import java.net.URI;
-import java.util.Set;
+    private static final long serialVersionUID = 3854695545552441025L;
 
-public interface IBookLibraryService {
-    void loadBookLibrary(String bookLibResource);
-    void clearBookLibrary();
-    Set<URI> getAllBookURIs();
-    Set<Book> getBookForTitle(final String bookTitle);
-    Set<URI> getBookForAuthor(final String bookAuthor);
+    public AuthNAuthZFailException(final String message) {
+        super(message);
+    }
+
+    public AuthNAuthZFailException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }

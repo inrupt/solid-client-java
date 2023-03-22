@@ -170,14 +170,20 @@
                     grid-column: span 12;
                 }
             }
-            .grid.hidden {
+            .hidden {
                 visibility: hidden;
             }
-            .grid.visible {
+            .visible {
                 visibility: visible;
             }
             .resource-input {
                 width: 50%;
+            }
+            .error {
+                color: red;
+            }
+            .message {
+                color: green;
             }
         </style>
     </head>
@@ -202,13 +208,16 @@
         <div class="content-wrapper">
             <h1 th:text="${userName} ? 'Welcome ' + ${userName} + '!' : 'Welcome!'"></h1>
             <div>
-                <form th:action="@{/welcome}" method="post">
+                <form th:action="@{/load}" method="post">
                     <p>Book Library location: 
                         <input class="resource-input" type="text" name="resource" th:value="${resource} ? ${resource} : 'https://timea.solidcommunity.net/MyBookLibrary/bookLibResourcePrivate.ttl'"/>
                     </p>
-                    <p><input type="submit" value="Submit" /></p>
+                    <p><input type="submit" value="Load" /></p>
                 </form>
             </div>
+            <br/>
+            <p class="message" th:text="${message}"></p>
+            <p class="error" th:text="${error}"></p>
             <br/>
             <div class="grid" th:classappend="${resource} ? 'visible' : 'hidden'" >
                 <div class="left-column">
@@ -228,11 +237,8 @@
                         </li>
                     </ul>
                 </div>
-                <div class="right-column">
+                <div class="right-column" th:classappend="${(allBooks!=null and !allBooks.empty) or (booksByTitle!=null and !booksByTitle.empty)} ? 'visible' : 'hidden'">
                     <h3>Result:</h3>
-                    <p th:text="${message}"></p>
-                    
-                    <p th:text="${error}"></p>
                     
                     <ul th:each="book : ${allBooks}">
                         <li><span th:text="${book}"> </span></li>

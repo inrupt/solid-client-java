@@ -40,7 +40,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/", "/index", "/welcome", "/bookbytitle", "/allbooks").permitAll()
+                .requestMatchers("/", "/index", "/load", "/bookbytitle", "/allbooks").permitAll()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
@@ -59,7 +59,7 @@ public class SecurityConfiguration {
             new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
         //unfortunately this does not work with just "/" because
         //it would redirect to the IdP frontend at https://login.inrupt.com/logout.html
-        successHandler.setPostLogoutRedirectUri("http://localhost:8080/"); 
+        successHandler.setPostLogoutRedirectUri("http://localhost:8080/");
         return successHandler;
     }
 

@@ -38,10 +38,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ApplicationStartController {
 
     @Autowired
-    private IBookLibraryService bookLibService;
-
-    @Autowired
     private UserService userService;
+    @Autowired
+    private IBookLibraryService bookLibService;
 
     private String bookLibraryResource;
     private String userName;
@@ -52,12 +51,13 @@ public class ApplicationStartController {
         return "index";
     }
 
-    @PostMapping("/welcome")
+    @PostMapping("/load")
     public String welcome(final @RequestParam String resource, final Model model) {
         Objects.nonNull(resource);
         this.bookLibraryResource = resource;
         this.bookLibService.loadBookLibrary(resource);
         model.addAttribute("resource", resource);
+        model.addAttribute("userName", this.userName);
         return "index";
     }
 
@@ -66,8 +66,7 @@ public class ApplicationStartController {
         if (userService.getCurrentUser() != null) {
                 this.userName = userService.getCurrentUser().geUserName();
                 model.addAttribute("userName", this.userName);
-                this.bookLibService.loadBookLibrary(this.bookLibraryResource, userService.getCurrentUser().getToken());
-                model.addAttribute("error", "You are logged in!");
+                this.bookLibService.loadBookLibrary(this.bookLibraryResource);
             }
         else {
             model.addAttribute("error", "Something went wrong with the login!");
@@ -76,17 +75,19 @@ public class ApplicationStartController {
         return "index";
     }
 
-    @ExceptionHandler(AuthenticationFailException.class)
-    public String handleAuthenticationFailException(final AuthenticationFailException exception, final Model model) {
+    @ExceptionHandler(AuthNAuthZFailException.class)
+    public String handleAuthenticationFailException(final AuthNAuthZFailException exception, final Model model) {
         model.addAttribute("error", exception.getMessage());
         model.addAttribute("resource", this.bookLibraryResource);
+        model.addAttribute("userName", this.userName);
+        this.bookLibService.clearBookLibrary();
         return "index";
     }
 
     @GetMapping("/allbooks")
     public String books(final Model model ) {
         if (this.bookLibService.getAllBookURIs() == null) {
-            model.addAttribute("error", "We did not find any book.");
+            model.addAttribute("message", "We did not find any book.");
         } else {
             model.addAttribute("allBooks", this.bookLibService.getAllBookURIs());
         }
@@ -99,10 +100,9 @@ public class ApplicationStartController {
     public String bookbytitle(@RequestParam(value = "title", defaultValue = "Dracula")
         final String title, final Model model) {
         final Set<Book> result = this.bookLibService.getBookForTitle(title);
-        if (!result.isEmpty()) {
-            model.addAttribute("booksByTitle", result);
-        } else {
-            model.addAttribute("error", "We did not find the book.");
+        model.addAttribute("booksByTitle", result);
+        if (result.isEmpty()) {
+            model.addAttribute("message", "We did not find the book.");
         }
         model.addAttribute("resource", this.bookLibraryResource);
         model.addAttribute("userName", this.userName);

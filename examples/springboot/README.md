@@ -1,11 +1,11 @@
 # Digital Book Library on a Pod
 
-This example Web Application is a Digital Book Library based on Solid. It is based on SpringBoot 3.
+This example Web Application is a Digital Book Library based on Solid. It is based on [SpringBoot 3](https://spring.io/guides/gs/spring-boot/) and [Thymeleaf](https://www.thymeleaf.org/) for frontend.
 
 ## How to get the example to run
 
 To run this application you need to have a Book Library Solid resource already somewhere on a Pod. That is all.
-See an example below of how the a Book Library Solid resource could look like.
+See an example below of how a Book Library Solid resource could look like.
 
 ## The following user stories (US) will help:
 
@@ -48,7 +48,6 @@ book:uuid3 a vocabulary:Book;
 book:uuid4 a vocabulary:Book;
   dc:title "The alchemist" ;
   vocabulary:author "Paulo Coelho" .
-
 
 ```
 

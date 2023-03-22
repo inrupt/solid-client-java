@@ -62,9 +62,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-        <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-openid</artifactId>
-        <version>${project.version}</version>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-openid</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inrupt</groupId>
@@ -72,32 +72,32 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-        <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-vocabulary</artifactId>
-        <version>${project.version}</version>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-vocabulary</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-        <groupId>com.inrupt</groupId>
-        <artifactId>inrupt-client-webid</artifactId>
-        <version>${project.version}</version>
+      <groupId>com.inrupt</groupId>
+      <artifactId>inrupt-client-webid</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-oauth2-client</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
     <!-- for development use, such as restart app when any changes -->
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-devtools</artifactId>
-        <optional>true</optional>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 

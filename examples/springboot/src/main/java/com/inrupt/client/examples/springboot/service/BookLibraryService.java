@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.examples.springboot.service;
 
-import com.inrupt.client.examples.springboot.AuthenticationFailException;
+import com.inrupt.client.examples.springboot.AuthNAuthZFailException;
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.model.BookLibrary;
 import com.inrupt.client.openid.OpenIdSession;
@@ -32,16 +32,21 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BookLibraryService implements IBookLibraryService {
 
-    private final SolidSyncClient client = SolidSyncClient.getClient();
-    private BookLibrary bookLib;
-    private Set<Book> allBooks;
+    @Autowired
+    private UserService userService;
 
-    public void loadBookLibrary(String bookLibResource) throws AuthenticationFailException {
+    private SolidSyncClient client;
+    private BookLibrary bookLib;
+
+    public void loadBookLibrary(String bookLibResource) throws AuthNAuthZFailException {
+        client = getClient();
+
         final URI bookLibraryId = URIBuilder
             .newBuilder(URI.create(bookLibResource))
             .build();
@@ -49,46 +54,30 @@ public class BookLibraryService implements IBookLibraryService {
             this.bookLib = client.read(bookLibraryId, BookLibrary.class);
         } catch(SolidClientException exception) {
             if (authenticationFail(exception.getStatusCode())) {
-                throw new AuthenticationFailException("You need to authenticate first!");
+                throw new AuthNAuthZFailException("You are not authenticated! Try logging in.");
+            }
+            if (authorizationFail(exception.getStatusCode())) {
+                throw new AuthNAuthZFailException("You do not have the corresponding access rights.");
             }
         }
-
-        this.allBooks = new HashSet<>();
-        final Set<URI> allBookURIs = this.bookLib.getAllBooks();
-        allBookURIs.stream().forEach(oneBookURI -> {
-            this.allBooks.add(client.read(oneBookURI, Book.class));
-        });
     }
 
-    public void loadBookLibrary(String bookLibResource, String token) throws AuthenticationFailException {
-        final SolidSyncClient session = SolidSyncClient.getClient().session(OpenIdSession.ofIdToken(token));
-        final URI bookLibraryId = URIBuilder
-            .newBuilder(URI.create(bookLibResource))
-            .build();
-        try {
-            this.bookLib = session.read(bookLibraryId, BookLibrary.class);
-        } catch(SolidClientException exception) {
-            if (authenticationFail(exception.getStatusCode())) {
-                throw new AuthenticationFailException("You need to authenticate first!");
-            }
-        }
-
-        this.allBooks = new HashSet<>();
-        final Set<URI> allBookURIs = this.bookLib.getAllBooks();
-        allBookURIs.stream().forEach(oneBookURI -> {
-            this.allBooks.add(session.read(oneBookURI, Book.class));
-        });
+    public void clearBookLibrary() {
+        this.bookLib = null;
     }
 
     public Set<URI> getAllBookURIs() {
+        if (this.bookLib == null) {
+            throw new AuthNAuthZFailException("Not allowed.");
+        }
         return this.bookLib.getAllBooks();
     }
 
-    public Set<Book> getAllBooks() {
-        return this.allBooks;
-    }
-
     public Set<Book> getBookForTitle(final String bookTitle) {
+        if (this.bookLib == null) {
+            throw new AuthNAuthZFailException("Not allowed.");
+        }
+        client = getClient();
 
         final Set<Book> foundBooks = new HashSet<>();
 
@@ -103,6 +92,10 @@ public class BookLibraryService implements IBookLibraryService {
     }
 
     public Set<URI> getBookForAuthor(final String bookAuthor) {
+        if (this.bookLib == null) {
+            throw new AuthNAuthZFailException("Not allowed.");
+        }
+        client = getClient();
 
         final Set<URI> foundBooks = new HashSet<>();
 
@@ -116,8 +109,22 @@ public class BookLibraryService implements IBookLibraryService {
         return foundBooks;
     }
 
-    static boolean authenticationFail(final int statusCode) {
-        return statusCode == 401 || statusCode == 403;
+    private SolidSyncClient getClient() {
+        SolidSyncClient defaultClient = SolidSyncClient.getClient();
+
+        if (userService.getCurrentUser() != null) {
+            defaultClient = defaultClient.session(OpenIdSession.ofIdToken(userService.getCurrentUser().getToken()));
+        }
+
+        return defaultClient;
+    }
+
+    private boolean authenticationFail(final int statusCode) {
+        return statusCode == 401;
+    }
+
+    private boolean authorizationFail(final int statusCode) {
+        return statusCode == 403;
     }
 
 }
