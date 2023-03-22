@@ -44,7 +44,6 @@
         <module>cli</module>
         <module>springboot</module>
         <module>webapp</module>
-        <module>springboot</module>
       </modules>
     </profile>
   </profiles>
