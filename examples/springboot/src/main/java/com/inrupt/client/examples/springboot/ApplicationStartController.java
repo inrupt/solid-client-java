@@ -63,15 +63,14 @@ public class ApplicationStartController {
     @GetMapping("/logmein")
     public String login(final Model model) {
         if (userService.getCurrentUser() != null) {
-            if (userService.getCurrentUser().getName() != null) {
-                this.userName = userService.getCurrentUser().getName();
-            } else {
-                this.userName = userService.getCurrentUser().getWebid();
+                this.userName = userService.getCurrentUser().geUserName();
+                model.addAttribute("userName", this.userName);
+                this.bookLibService.loadBookLibrary(this.bookLibraryResource, userService.getCurrentUser().getToken());
             }
-            model.addAttribute("userName", this.userName);
-            model.addAttribute("resource", this.bookLibraryResource);
-            this.bookLibService.loadBookLibrary(this.bookLibraryResource, userService.getCurrentUser().getToken());
+        else {
+            model.addAttribute("error", "Something went wrong with the login!");
         }
+        model.addAttribute("resource", this.bookLibraryResource);
         return "index";
     }
 

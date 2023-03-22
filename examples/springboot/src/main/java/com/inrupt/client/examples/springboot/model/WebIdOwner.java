@@ -33,19 +33,23 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 public final class WebIdOwner extends WebIdProfile {
     
-    private final IRI name;
+    private final IRI vcardName;
     private String token;
 
     public WebIdOwner(final URI identifier, final Dataset dataset) {
         super(identifier, dataset);
-        this.name = rdf.createIRI(Vocabulary.FN);
+        this.vcardName = rdf.createIRI(Vocabulary.FN);
     }
 
-    public String getName() {
-        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getName();
+    private String getVCARDName() {
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getVCARDName();
     }
 
-    public String getWebid() {
+    public String geUserName() {
+        return getVCARDName() != null ? getVCARDName() : getWebid();
+    }
+
+    private String getWebid() {
         return this.getIdentifier().toString();
     }
 
@@ -63,8 +67,8 @@ public final class WebIdOwner extends WebIdProfile {
             super(original, graph);
         }
 
-        String getName() {
-            return anyOrNull(name, ValueMappings::literalAsString);
+        String getVCARDName() {
+            return anyOrNull(vcardName, ValueMappings::literalAsString);
         }
     }
 }

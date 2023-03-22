@@ -45,10 +45,10 @@ public class SecurityConfiguration {
             )
             .logout(logout -> logout
                 .logoutSuccessUrl("/")
-                .logoutSuccessHandler(oidcLogoutSuccessHandler())
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler(oidcLogoutSuccessHandler())
             )
             .oauth2Login();
         return http.build();
