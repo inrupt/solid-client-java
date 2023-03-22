@@ -18,8 +18,9 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.examples.springboot;
+package com.inrupt.client.examples.springboot.service;
 
+import com.inrupt.client.examples.springboot.AuthenticationFailException;
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.model.BookLibrary;
 import com.inrupt.client.openid.OpenIdSession;

@@ -21,7 +21,8 @@
 package com.inrupt.client.examples.springboot;
 
 import com.inrupt.client.examples.springboot.model.Book;
-
+import com.inrupt.client.examples.springboot.service.IBookLibraryService;
+import com.inrupt.client.examples.springboot.service.UserService;
 import java.util.Objects;
 import java.util.Set;
 
