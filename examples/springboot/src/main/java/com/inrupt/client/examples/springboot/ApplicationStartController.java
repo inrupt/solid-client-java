@@ -67,6 +67,7 @@ public class ApplicationStartController {
                 this.userName = userService.getCurrentUser().geUserName();
                 model.addAttribute("userName", this.userName);
                 this.bookLibService.loadBookLibrary(this.bookLibraryResource, userService.getCurrentUser().getToken());
+                model.addAttribute("error", "You are logged in!");
             }
         else {
             model.addAttribute("error", "Something went wrong with the login!");
@@ -77,14 +78,18 @@ public class ApplicationStartController {
 
     @ExceptionHandler(AuthenticationFailException.class)
     public String handleAuthenticationFailException(final AuthenticationFailException exception, final Model model) {
-        model.addAttribute("error", "You are trying to access private resources. Please authenticate first!");
+        model.addAttribute("error", exception.getMessage());
         model.addAttribute("resource", this.bookLibraryResource);
         return "index";
     }
 
     @GetMapping("/allbooks")
     public String books(final Model model ) {
-        model.addAttribute("allBooks", this.bookLibService.getAllBookURIs());
+        if (this.bookLibService.getAllBookURIs() == null) {
+            model.addAttribute("error", "We did not find any book.");
+        } else {
+            model.addAttribute("allBooks", this.bookLibService.getAllBookURIs());
+        }
         model.addAttribute("resource", this.bookLibraryResource);
         model.addAttribute("userName", this.userName);
         return "index";
@@ -97,7 +102,7 @@ public class ApplicationStartController {
         if (!result.isEmpty()) {
             model.addAttribute("booksByTitle", result);
         } else {
-            model.addAttribute("error", "Did not find the book");
+            model.addAttribute("error", "We did not find the book.");
         }
         model.addAttribute("resource", this.bookLibraryResource);
         model.addAttribute("userName", this.userName);
