@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                 .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
+                .deleteCookies("q_session")
                 .deleteCookies("JSESSIONID")
                 .logoutSuccessHandler(oidcLogoutSuccessHandler())
             )

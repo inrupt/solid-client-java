@@ -55,6 +55,8 @@ public class ApplicationStartController {
 
     @GetMapping("/")
     public String index() {
+        this.userName = null;
+        this.bookLibService.clearBookLibrary();
         return INDEX_PAGE;
     }
 
@@ -73,6 +75,7 @@ public class ApplicationStartController {
         if (userService.getCurrentUser() != null) {
             this.userName = userService.getCurrentUser().geUserName();
             model.addAttribute(FRONTEND_USERNAME, this.userName);
+            model.addAttribute(FRONTEND_ERROR_MESSAGE, "");
             this.bookLibService.loadBookLibrary(this.bookLibraryResource);
         } else {
             model.addAttribute(FRONTEND_ERROR_MESSAGE, "Something went wrong with the login!");

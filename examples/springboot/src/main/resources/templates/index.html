@@ -227,7 +227,7 @@
                             <a href="/allbooks" class="path-link">List all my books</a>
                         </li>
                         <li class="provided-code">
-                            <a href="/booksbyauthor" class="path-link">Get books by Bram Stoker</a>
+                            <a href="/booksbyauthor" class="path-link">Get books by 'Bram Stoker'</a>
                         </li>
                         <li class="provided-code">
                             <a href="/booksbytitle" class="path-link">Get books which contains 'Women' in the title</a>
@@ -235,7 +235,7 @@
                         <li th:if="${userName}" class="provided-code">
                             <a href="/logout" class="path-link">Logout</a>
                         </li>
-                        <li class="provided-code">
+                        <li th:unless="${userName}" class="provided-code">
                             <a href="/logmein" class="path-link">Login</a>
                         </li>
                     </ul>
