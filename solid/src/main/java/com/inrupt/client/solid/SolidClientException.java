@@ -37,6 +37,11 @@ public class SolidClientException extends InruptClientException {
     private final String body;
     private final transient Headers headers;
 
+    public SolidClientException(final String message, final URI uri, final int statusCode,
+            final Headers headers) {
+        this(message, uri, statusCode, headers, null);
+    }
+
     /**
      * Create a SolidClient exception.
      *

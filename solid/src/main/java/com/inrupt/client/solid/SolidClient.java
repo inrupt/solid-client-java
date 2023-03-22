@@ -148,6 +148,34 @@ public class SolidClient {
             });
     }
 
+    public CompletionStage<SolidEntity> read(final URI identifier) {
+        return read(identifier, EMPTY_HEADERS);
+    }
+
+    public CompletionStage<SolidEntity> read(final URI identifier, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(identifier).GET();
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.ofInputStream())
+            .thenApply(response -> {
+                if (response.statusCode() >= ERROR_STATUS) {
+                    throw new SolidClientException("Unable to read resource at " + identifier, identifier,
+                            response.statusCode(), response.headers());
+                } else {
+                    final String contentType = response.headers().firstValue(CONTENT_TYPE)
+                        .orElse("application/octet-stream");
+                    final Metadata metadata = SolidResourceHandlers.buildMetadata(response.uri(),
+                            response.headers());
+                    return new SolidEntity(identifier, contentType, response.body(), metadata);
+                }
+            });
+    }
+
     /**
      * Create a new Solid Resource.
      *
@@ -174,6 +202,24 @@ public class SolidClient {
         decorateHeaders(builder, headers);
 
         builder.setHeader(CONTENT_TYPE, TEXT_TURTLE).setHeader(IF_NONE_MATCH, WILDCARD);
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.discarding());
+    }
+
+    public CompletionStage<Response<Void>> create(final SolidEntity entity) {
+        return create(entity, EMPTY_HEADERS);
+    }
+
+    public CompletionStage<Response<Void>> create(final SolidEntity entity, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(entity.getIdentifier())
+            .PUT(Request.BodyPublishers.ofInputStream(entity.getEntity()));
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        builder.setHeader(CONTENT_TYPE, entity.getContentType()).setHeader(IF_NONE_MATCH, WILDCARD);
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
@@ -212,6 +258,25 @@ public class SolidClient {
         return client.send(builder.build(), Response.BodyHandlers.discarding());
     }
 
+    public CompletionStage<Response<Void>> update(final SolidEntity entity) {
+        return update(entity, EMPTY_HEADERS);
+    }
+
+    public CompletionStage<Response<Void>> update(final SolidEntity entity, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(entity.getIdentifier())
+            .PUT(Request.BodyPublishers.ofInputStream(entity.getEntity()));
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        builder.setHeader(CONTENT_TYPE, entity.getContentType());
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.discarding());
+    }
+
+
     /**
      * Delete an existing Solid Resource.
      *
@@ -233,6 +298,22 @@ public class SolidClient {
      */
     public <T extends Resource> CompletionStage<Response<Void>> delete(final T resource, final Headers headers) {
         final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).DELETE();
+
+        decorateHeaders(builder, defaultHeaders);
+        decorateHeaders(builder, headers);
+
+        defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+        headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
+
+        return client.send(builder.build(), Response.BodyHandlers.discarding());
+    }
+
+    public CompletionStage<Response<Void>> delete(final SolidEntity entity) {
+        return delete(entity, EMPTY_HEADERS);
+    }
+
+    public CompletionStage<Response<Void>> delete(final SolidEntity entity, final Headers headers) {
+        final Request.Builder builder = Request.newBuilder(entity.getIdentifier()).DELETE();
 
         decorateHeaders(builder, defaultHeaders);
         decorateHeaders(builder, headers);

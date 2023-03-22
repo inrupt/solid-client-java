@@ -82,6 +82,10 @@ public class SolidSyncClient {
         return awaitAsync(client.read(identifier, clazz));
     }
 
+    public SolidEntity read(final URI identifier) {
+        return awaitAsync(client.read(identifier));
+    }
+
     /**
      * Create a new Solid Resource.
      *
@@ -90,6 +94,10 @@ public class SolidSyncClient {
      */
     public <T extends Resource> void create(final T resource) {
         awaitAsync(client.create(resource));
+    }
+
+    public void create(final SolidEntity entity) {
+        awaitAsync(client.create(entity));
     }
 
     /**
@@ -103,6 +111,10 @@ public class SolidSyncClient {
         return awaitAsync(client.update(resource));
     }
 
+    public Response<Void> update(final SolidEntity entity) {
+        return awaitAsync(client.update(entity));
+    }
+
     /**
      * Delete an existing Solid Resource.
      *
@@ -112,6 +124,10 @@ public class SolidSyncClient {
      */
     public <T extends Resource> Response<Void> delete(final T resource) {
         return awaitAsync(client.delete(resource));
+    }
+
+    public Response<Void> delete(final SolidEntity entity) {
+        return awaitAsync(client.delete(entity));
     }
 
     /**
