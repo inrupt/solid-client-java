@@ -5,11 +5,11 @@ This example Web Application is a Digital Book Library based on Solid. It is bas
 ## How to get the example to run
 
 To run this application you need to have a Book Library Solid resource already somewhere on a Pod. That is all.
-See an example below of how a Book Library Solid resource could look like.
+See an example below of how a Book Library Solid resource should look like.
 
 ## The following user stories (US) will help:
 
-    * US1: As a digital book library owner I want to see all the available books I have in my Digital Book Library.
+    * US1: As a digital book library owner I want to see all the available books I or someone else has in their Digital Book Library.
     * US2: As a digital book library owner I want to see all the books which have a specified word in the title. 
     * US3: As a digital book library owner I want to see all the books by a given author. 
 
@@ -24,7 +24,7 @@ The Book Library uses a dedicated vocabulary which does not need to be deployed 
 
 ```
 @prefix book: <{podStorage}/MyBookLibrary/bookLibResource.ttl#> .
-@prefix vocabulary: <{vocabularyPodStorage}/MyBookLibrary/bookLibraryVocabulary#> .
+@prefix vocabulary: <{vocabularyPodStorage}/MyBookLibrary/bookLibraryVocabulary.ttl#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
@@ -66,7 +66,7 @@ The vocabulary expects a `{vocabularyPodStorage}` link. You can replace it in th
 # Ontology metadata
 ###
 
-<{podStorage}/MyBookLibrary/bookLibraryVocabulary.ttl> a owl:Ontology .
+<{vocabularyPodStorage}/MyBookLibrary/bookLibraryVocabulary.ttl> a owl:Ontology .
 
 ###
 # Ontology classes
