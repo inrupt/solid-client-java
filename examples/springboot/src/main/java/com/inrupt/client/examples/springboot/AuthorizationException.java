@@ -20,15 +20,15 @@
  */
 package com.inrupt.client.examples.springboot;
 
-public class AuthNAuthZFailException extends RuntimeException {
+public class AuthorizationException  extends RuntimeException {
 
-    private static final long serialVersionUID = 3854695545552441025L;
+    private static final long serialVersionUID = 3854695545552441026L;
 
-    public AuthNAuthZFailException(final String message) {
+    public AuthorizationException(final String message) {
         super(message);
     }
 
-    public AuthNAuthZFailException(final String message, final Throwable cause) {
+    public AuthorizationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

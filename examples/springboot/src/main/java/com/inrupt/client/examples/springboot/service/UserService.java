@@ -20,9 +20,7 @@
  */
 package com.inrupt.client.examples.springboot.service;
 
-import com.inrupt.client.examples.springboot.AuthNAuthZFailException;
 import com.inrupt.client.examples.springboot.model.WebIdOwner;
-import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.solid.SolidSyncClient;
 
 import java.net.URI;
@@ -47,8 +45,6 @@ public class UserService {
                 try (final WebIdOwner profile = client.read(URI.create(webidUrl), WebIdOwner.class)) {
                     profile.setToken(user.getIdToken().getTokenValue());
                     return profile;
-                } catch (OpenIdException e) {
-                    throw new AuthNAuthZFailException(e.getMessage());
                 }
             }
         }

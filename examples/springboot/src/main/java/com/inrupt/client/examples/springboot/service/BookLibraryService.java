@@ -20,7 +20,8 @@
  */
 package com.inrupt.client.examples.springboot.service;
 
-import com.inrupt.client.examples.springboot.AuthNAuthZFailException;
+import com.inrupt.client.examples.springboot.AuthenticationException;
+import com.inrupt.client.examples.springboot.AuthorizationException;
 import com.inrupt.client.examples.springboot.model.Book;
 import com.inrupt.client.examples.springboot.model.BookLibrary;
 import com.inrupt.client.openid.OpenIdException;
@@ -45,7 +46,7 @@ public class BookLibraryService implements IBookLibraryService {
     private SolidSyncClient client;
     private BookLibrary bookLib;
 
-    public void loadBookLibrary(final String bookLibResource) throws AuthNAuthZFailException {
+    public void loadBookLibrary(final String bookLibResource) throws AuthenticationException {
         client = getClient();
 
         final URI bookLibraryId = URIBuilder
@@ -55,10 +56,10 @@ public class BookLibraryService implements IBookLibraryService {
             this.bookLib = client.read(bookLibraryId, BookLibrary.class);
         } catch (SolidClientException exception) {
             if (authenticationFail(exception.getStatusCode())) {
-                throw new AuthNAuthZFailException("You are not authenticated! Try logging in.");
+                throw new AuthenticationException("You are not authenticated! Try logging in.");
             }
             if (authorizationFail(exception.getStatusCode())) {
-                throw new AuthNAuthZFailException("You do not have the corresponding access rights.");
+                throw new AuthorizationException("You do not have the corresponding access rights.");
             }
         }
     }
@@ -69,14 +70,14 @@ public class BookLibraryService implements IBookLibraryService {
 
     public Set<URI> getAllBookURIs() {
         if (this.bookLib == null) {
-            throw new AuthNAuthZFailException("Not allowed.");
+            throw new AuthorizationException("Not allowed.");
         }
         return this.bookLib.getAllBooks();
     }
 
     public Set<Book> getAllBook() {
         if (this.bookLib == null) {
-            throw new AuthNAuthZFailException("Not allowed.");
+            throw new AuthorizationException("Not allowed.");
         }
         final Set<Book> allBooks = new HashSet<>();
         this.bookLib.getAllBooks().stream().forEach(oneBookURI -> {
@@ -88,7 +89,7 @@ public class BookLibraryService implements IBookLibraryService {
 
     public Set<Book> getBookForTitle(final String bookTitle) {
         if (this.bookLib == null) {
-            throw new AuthNAuthZFailException("Not allowed.");
+            throw new AuthorizationException("Not allowed.");
         }
         client = getClient();
 
@@ -106,7 +107,7 @@ public class BookLibraryService implements IBookLibraryService {
 
     public Set<Book> getBookForAuthor(final String bookAuthor) {
         if (this.bookLib == null) {
-            throw new AuthNAuthZFailException("Not allowed.");
+            throw new AuthorizationException("Not allowed.");
         }
         client = getClient();
 
@@ -129,7 +130,7 @@ public class BookLibraryService implements IBookLibraryService {
             try {
                 defaultClient = defaultClient.session(OpenIdSession.ofIdToken(userService.getCurrentUser().getToken()));
             } catch (OpenIdException exception) {
-                throw new AuthNAuthZFailException("Session expired, please relogin.");
+                throw new AuthorizationException("Token expired, please log out and re-login.");
             }
         }
 

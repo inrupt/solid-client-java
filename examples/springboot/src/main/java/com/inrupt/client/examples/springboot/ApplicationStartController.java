@@ -84,8 +84,18 @@ public class ApplicationStartController {
         return INDEX_PAGE;
     }
 
-    @ExceptionHandler(AuthNAuthZFailException.class)
-    public String handleAuthenticationFailException(final AuthNAuthZFailException exception, final Model model) {
+    @ExceptionHandler(AuthenticationException.class)
+    public String handleAuthenticationException(final AuthenticationException exception, final Model model) {
+        model.addAttribute(FRONTEND_ERROR_MESSAGE, exception.getMessage());
+        this.userName = null;
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        this.bookLibService.clearBookLibrary();
+        return INDEX_PAGE;
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public String handleAuthorizationException(final AuthorizationException exception, final Model model) {
         model.addAttribute(FRONTEND_ERROR_MESSAGE, exception.getMessage());
         model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
         model.addAttribute(FRONTEND_USERNAME, this.userName);
