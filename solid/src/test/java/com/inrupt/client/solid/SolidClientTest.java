@@ -175,6 +175,22 @@ class SolidClientTest {
     }
 
     @Test
+    void testGetBinary() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
+
+        client.read(uri, SolidBinary.class).thenAccept(container -> {
+            try (final SolidBinary c = container) {
+                assertEquals(uri, c.getIdentifier());
+                assertEquals("text/plain", c.getContentType());
+
+                assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
+                assertDoesNotThrow(client.create(c).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(c).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
     void testGetInvalidType() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
         final CompletionException err1 = assertThrows(CompletionException.class,

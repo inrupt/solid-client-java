@@ -18,17 +18,25 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.solid;
 
-import java.io.IOException;
+import com.inrupt.client.NonRDFSource;
+
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Objects;
 
-public interface Resource extends AutoCloseable {
+public class SolidBinary extends NonRDFSource {
 
-    URI getIdentifier();
+    private final Metadata metadata;
 
-    String getContentType();
+    public SolidBinary(final URI identifier, final String contentType, final InputStream entity,
+            final Metadata metadata) {
+        super(identifier, contentType, entity);
+        this.metadata = Objects.requireNonNull(metadata, "metadata may not be null!");
+    }
 
-    InputStream getEntity() throws IOException;
+    public Metadata getMetadata() {
+        return metadata;
+    }
 }

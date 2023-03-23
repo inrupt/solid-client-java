@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.rdf.api.RDFSyntax;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -226,14 +225,12 @@ class ServerTest {
     }
 
     private Request.BodyPublisher cast(final Resource resource) {
-        return com.inrupt.client.util.IOUtils.buffer(out -> {
-            try {
-                resource.serialize(RDFSyntax.TURTLE, out);
-            } catch (final IOException ex) {
-                throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
-                        " into Solid Resource", ex);
-            }
-        });
+        try {
+            return Request.BodyPublishers.ofInputStream(resource.getEntity());
+        } catch (final IOException ex) {
+            throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
+                    " into Solid Resource", ex);
+        }
     }
 
     static String setupIdToken(final String webid, final String username, final String issuer) {

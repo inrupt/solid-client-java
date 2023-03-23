@@ -20,15 +20,24 @@
  */
 package com.inrupt.client;
 
-import java.io.IOException;
-import java.io.InputStream;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.inrupt.client.spi.RDFFactory;
+
 import java.net.URI;
 
-public interface Resource extends AutoCloseable {
+import org.apache.commons.rdf.api.RDF;
+import org.junit.jupiter.api.Test;
 
-    URI getIdentifier();
+class RDFSourceTest {
 
-    String getContentType();
+    static final RDF rdf = RDFFactory.getInstance();
 
-    InputStream getEntity() throws IOException;
+    @Test
+    void testValidate() {
+        final URI id = URI.create("https://resource.test/path");
+        try (final RDFSource resource = new RDFSource(id, null)) {
+            assertDoesNotThrow(() -> resource.validate());
+        }
+    }
 }

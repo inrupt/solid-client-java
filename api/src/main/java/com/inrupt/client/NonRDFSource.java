@@ -20,24 +20,45 @@
  */
 package com.inrupt.client;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.inrupt.client.spi.RDFFactory;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.util.Objects;
 
-import org.apache.commons.rdf.api.RDF;
-import org.junit.jupiter.api.Test;
+public class NonRDFSource implements Resource {
 
-class ResourceTest {
+    private final URI identifier;
+    private final String contentType;
+    private final InputStream entity;
 
-    static final RDF rdf = RDFFactory.getInstance();
+    protected NonRDFSource(final URI identifier, final String contentType, final InputStream entity) {
+        this.identifier = Objects.requireNonNull(identifier, "identifier may not be null!");
+        this.contentType = Objects.requireNonNull(contentType, "contentType may not be null!");
+        this.entity = Objects.requireNonNull(entity, "entity may not be null!");
+    }
 
-    @Test
-    void testValidate() {
-        final URI id = URI.create("https://resource.test/path");
-        try (final Resource resource = new Resource(id, null)) {
-            assertDoesNotThrow(() -> resource.validate());
+    @Override
+    public URI getIdentifier() {
+        return identifier;
+    }
+
+    @Override
+    public String getContentType() {
+        return contentType;
+    }
+
+    @Override
+    public InputStream getEntity() throws IOException {
+        return entity;
+    }
+
+    @Override
+    public void close() {
+        try {
+            entity.close();
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to close NonRDFSource entity", ex);
         }
     }
 }

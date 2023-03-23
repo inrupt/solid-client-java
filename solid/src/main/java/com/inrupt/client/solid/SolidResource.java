@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Resource;
+import com.inrupt.client.RDFSource;
 
 import java.net.URI;
 
@@ -29,7 +29,7 @@ import org.apache.commons.rdf.api.Dataset;
 /**
  * A Solid Resource Object.
  */
-public class SolidResource extends Resource {
+public class SolidResource extends RDFSource {
 
     private final Metadata metadata;
 
