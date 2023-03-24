@@ -24,11 +24,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+/**
+ * A base class for all resources.
+ *
+ * <p>This class can be used as a basis for higher-level client applications.
+ */
 public interface Resource extends AutoCloseable {
 
+    /**
+     * The resource identifier.
+     *
+     * @return the identifier
+     */
     URI getIdentifier();
 
+    /**
+     * The content type of the resource.
+     *
+     * @return the content type
+     */
     String getContentType();
 
+    /**
+     * The resource entity.
+     *
+     * @return the resource entity
+     * @throws IOException in the case of an error when generating the entity
+     */
     InputStream getEntity() throws IOException;
 }

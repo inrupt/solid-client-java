@@ -26,7 +26,7 @@ import java.net.URI;
 
 import org.apache.commons.rdf.api.RDFSyntax;
 
-public class InvalidType extends SolidResource {
+public class InvalidType extends SolidRDFSource {
     public InvalidType(final URI identifier) {
         super(identifier, null, null);
     }

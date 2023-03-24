@@ -121,7 +121,7 @@ class ServerTest {
 
         final var reqGet =
                 Request.newBuilder().uri(resourceUri).header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
-        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
+        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidRDFSource());
 
         assertTrue(Utils.isSuccessful(resGet.statusCode()));
 
@@ -179,7 +179,7 @@ class ServerTest {
 
         final var reqGet = Request.newBuilder().uri(resourceUri)
                 .header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
-        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
+        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidRDFSource());
 
         assertEquals(Utils.UNAUTHORIZED, resGet.statusCode());
         final var challenges = WwwAuthenticate.parse(
@@ -212,7 +212,7 @@ class ServerTest {
 
         final var reqGet = Request.newBuilder().uri(resourceUri)
                 .header(Utils.ACCEPT, Utils.TEXT_TURTLE).GET().build();
-        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidResource());
+        final var resGet = client.send(reqGet, SolidResourceHandlers.ofSolidRDFSource());
 
         assertTrue(Utils.isSuccessful(resGet.statusCode()));
 

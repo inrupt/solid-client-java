@@ -36,7 +36,7 @@ import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
- * A base class for resource mapping.
+ * A base class for RDF-based resource mapping.
  *
  * <p>This class can be used as a basis for object mapping with higher-level client applications.
  */
@@ -50,7 +50,7 @@ public class RDFSource extends WrapperDataset implements Resource {
     private final URI identifier;
 
     /**
-     * Create a new resource.
+     * Create a new RDF-bearing resource.
      *
      * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
      *
@@ -62,11 +62,6 @@ public class RDFSource extends WrapperDataset implements Resource {
         this.identifier = identifier;
     }
 
-    /**
-     * Get the identifier for this resource.
-     *
-     * @return the resource identifier
-     */
     @Override
     public URI getIdentifier() {
         return identifier;

@@ -139,8 +139,8 @@ class SolidClientTest {
     void testGetResource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
 
-        client.read(uri, SolidResource.class).thenAccept(resource -> {
-            try (final SolidResource r = resource) {
+        client.read(uri, SolidRDFSource.class).thenAccept(resource -> {
+            try (final SolidRDFSource r = resource) {
                 assertEquals(uri, r.getIdentifier());
                 assertEquals(4, r.size());
                 assertEquals(2, r.stream(Optional.empty(), rdf.createIRI(uri.toString()),
@@ -178,14 +178,14 @@ class SolidClientTest {
     void testGetBinary() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
 
-        client.read(uri, SolidBinary.class).thenAccept(container -> {
-            try (final SolidBinary c = container) {
-                assertEquals(uri, c.getIdentifier());
-                assertEquals("text/plain", c.getContentType());
+        client.read(uri, SolidNonRDFSource.class).thenAccept(binary -> {
+            try (final SolidNonRDFSource b = binary) {
+                assertEquals(uri, b.getIdentifier());
+                assertEquals("text/plain", b.getContentType());
 
-                assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
-                assertDoesNotThrow(client.create(c).toCompletableFuture()::join);
-                assertDoesNotThrow(client.delete(c).toCompletableFuture()::join);
+                assertDoesNotThrow(client.update(b).toCompletableFuture()::join);
+                assertDoesNotThrow(client.create(b).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
     }

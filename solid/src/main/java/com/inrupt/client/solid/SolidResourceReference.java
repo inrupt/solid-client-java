@@ -18,38 +18,33 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.solid;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.Objects;
 
 /**
- * A base class for non-RDF-bearing resources.
- *
- * <p>This class can be used as a basis for object mapping with the high-level client operations.
+ * A reference to a Solid Resource without any corresponding data.
  */
-public class NonRDFSource implements Resource {
+public class SolidResourceReference implements SolidResource {
 
-    private final URI identifier;
-    private final String contentType;
     private final InputStream entity;
+    private final Metadata metadata;
+    private final URI identifier;
 
     /**
-     * Create a new non-RDF-bearing resource.
-     *
-     * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
+     * Create a reference to a Solid resource.
      *
      * @param identifier the resource identifier
-     * @param contentType the content type of the resource
-     * @param entity the resource entity
+     * @param metadata the resource metadata
      */
-    protected NonRDFSource(final URI identifier, final String contentType, final InputStream entity) {
-        this.identifier = Objects.requireNonNull(identifier, "identifier may not be null!");
-        this.contentType = Objects.requireNonNull(contentType, "contentType may not be null!");
-        this.entity = Objects.requireNonNull(entity, "entity may not be null!");
+    public SolidResourceReference(final URI identifier, final Metadata metadata) {
+        this.identifier = identifier;
+        this.metadata = metadata;
+        this.entity = new ByteArrayInputStream(new byte[0]);
     }
 
     @Override
@@ -58,8 +53,8 @@ public class NonRDFSource implements Resource {
     }
 
     @Override
-    public String getContentType() {
-        return contentType;
+    public Metadata getMetadata() {
+        return metadata;
     }
 
     @Override
@@ -68,11 +63,16 @@ public class NonRDFSource implements Resource {
     }
 
     @Override
+    public String getContentType() {
+        return null;
+    }
+
+    @Override
     public void close() {
         try {
             entity.close();
         } catch (final IOException ex) {
-            throw new UncheckedIOException("Unable to close NonRDFSource entity", ex);
+            throw new UncheckedIOException("Unable to close empty entity", ex);
         }
     }
 }

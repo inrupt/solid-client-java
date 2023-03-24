@@ -24,18 +24,37 @@ import com.inrupt.client.NonRDFSource;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Objects;
 
-public class SolidBinary extends NonRDFSource {
+/**
+ * A non-RDF-bearing Solid Resource.
+ */
+public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
 
     private final Metadata metadata;
 
-    public SolidBinary(final URI identifier, final String contentType, final InputStream entity,
+    /**
+     * Create a non-RDF-bearing Solid Resource.
+     *
+     * @param identifier the resource identifier
+     * @param contentType the content type
+     * @param entity the entity
+     * @param metadata the metadata, may be {@code null}
+     */
+    public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,
             final Metadata metadata) {
         super(identifier, contentType, entity);
-        this.metadata = Objects.requireNonNull(metadata, "metadata may not be null!");
+        if (metadata == null) {
+            this.metadata = Metadata.newBuilder().build();
+        } else {
+            this.metadata = metadata;
+        }
     }
 
+    /**
+     * Get the metadata for this resource.
+     *
+     * @return the metadata
+     */
     public Metadata getMetadata() {
         return metadata;
     }
