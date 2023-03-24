@@ -36,7 +36,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 /**
  * A Solid Container Object.
  */
-public final class SolidContainer extends SolidResource {
+public class SolidContainer extends SolidResource {
 
     /**
      * Create a new SolidContainer.
