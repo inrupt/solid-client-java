@@ -21,7 +21,7 @@
 package com.inrupt.client.integration.base;
 
 import com.inrupt.client.solid.Metadata;
-import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -34,7 +34,7 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-class Playlist extends SolidResource {
+class Playlist extends SolidRDFSource {
 
     private final IRI dcTitle;
     private final IRI exSong;

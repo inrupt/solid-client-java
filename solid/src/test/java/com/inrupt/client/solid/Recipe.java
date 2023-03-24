@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Resource;
+import com.inrupt.client.RDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -33,7 +33,7 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-public class Recipe extends Resource {
+public class Recipe extends RDFSource {
 
     private final IRI dcTitle;
     private final IRI exIngredient;
