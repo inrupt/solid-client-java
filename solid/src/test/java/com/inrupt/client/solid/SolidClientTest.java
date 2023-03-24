@@ -84,6 +84,7 @@ class SolidClientTest {
                 assertDoesNotThrow(customClient.create(p).toCompletableFuture()::join);
                 assertDoesNotThrow(customClient.update(p).toCompletableFuture()::join);
                 assertDoesNotThrow(customClient.delete(p).toCompletableFuture()::join);
+                assertDoesNotThrow(customClient.delete(p.getIdentifier()).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
     }
@@ -108,6 +109,7 @@ class SolidClientTest {
                 assertDoesNotThrow(client.create(p, headers).toCompletableFuture()::join);
                 assertDoesNotThrow(client.update(p, headers).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(p, headers).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(p.getIdentifier(), headers).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
     }
@@ -131,6 +133,7 @@ class SolidClientTest {
                 assertDoesNotThrow(client.create(p).toCompletableFuture()::join);
                 assertDoesNotThrow(client.update(p).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(p).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(p.getIdentifier()).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
     }
@@ -149,6 +152,7 @@ class SolidClientTest {
                 assertDoesNotThrow(client.create(r).toCompletableFuture()::join);
                 assertDoesNotThrow(client.update(r).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(r).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(r.getIdentifier()).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
 
@@ -169,6 +173,7 @@ class SolidClientTest {
                 assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.create(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(c).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(c.getIdentifier()).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
 
@@ -186,6 +191,7 @@ class SolidClientTest {
                 assertDoesNotThrow(client.update(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.create(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(b.getIdentifier()).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
     }
