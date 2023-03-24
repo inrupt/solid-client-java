@@ -30,9 +30,9 @@ import org.springframework.stereotype.Component;
 public final class Vocabulary {
 
     public static final URI VOCABULARY_BASE =
-        URI.create("https://storage.inrupt.com/0c51f30b-7160-4b33-a6e6-22d6501f0382");
+        URI.create("https://inrupt.github.io/solid-client-java/data");
 
-    private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
+    private static final String BOOK_LIBRARY_CONTAINER = "myBookLibrary";
     private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary.ttl";
     private static final String VOCABULARY_RESOURCE_SEPARATOR = "#";
 

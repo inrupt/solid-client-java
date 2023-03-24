@@ -15,16 +15,16 @@ See an example below of how a Book Library Solid resource should look like.
 
 ## Data Model
 
-This is an example Book Library Solid resource. It is important to have the same same vocabulary because it is hardcoded in the code. 
+This is an example Book Library Solid resource. It is important to have the same vocabulary because it is hardcoded in the code.
 `podStorage` is the root of a user's storage. This is just an example and the book prefix can look however you'd like.
 Data model design choice: the Book is part of the BookLibrary resource directly. We must express explicitly that the Book is part of the library by using a predicate like `vocabulary:containsBook`.
-The Book Library uses a dedicated vocabulary which does not need to be deployed anywhere, but if you chose to deploy it, it can be on the same pod or another pod. Let's say it is on a different Pod and that `{vocabularyPodStorage}` is the root storage.
+The Book Library uses a dedicated vocabulary. The example vocabulary is part og the repository so it can be found at `https://inrupt.github.io/solid-client-java/data/myBookLibrary/bookLibraryVocabulary.ttl`.
 
 ### The Book model
 
 ```
 @prefix book: <{podStorage}/MyBookLibrary/bookLibResource.ttl#> .
-@prefix vocabulary: <{vocabularyPodStorage}/MyBookLibrary/bookLibraryVocabulary.ttl#> .
+@prefix vocabulary: <https://inrupt.github.io/solid-client-java/data/myBookLibrary/bookLibraryVocabulary.ttl#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
@@ -54,10 +54,12 @@ book:uuid4 a vocabulary:Book;
 
 ## Vocabulary
 
-The vocabulary expects a `{vocabularyPodStorage}` link. You can replace it in the `Vocabulary.java` if you deploy it on a Pod.
+The vocabulary is used in the `Vocabulary.java` class. If you make any changes to the vocabulary make sure to update the class.
+
+The content of our example vocabulary:
 
 ```
-@prefix vocabulary: <{vocabularyPodStorage}/MyBookLibrary/bookLibraryVocabulary#> .
+@prefix vocabulary: <https://inrupt.github.io/solid-client-java/data/myBookLibrary/bookLibraryVocabulary#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -66,7 +68,7 @@ The vocabulary expects a `{vocabularyPodStorage}` link. You can replace it in th
 # Ontology metadata
 ###
 
-<{vocabularyPodStorage}/MyBookLibrary/bookLibraryVocabulary.ttl> a owl:Ontology .
+<https://inrupt.github.io/solid-client-java/data/myBookLibrary/bookLibraryVocabulary.ttl> a owl:Ontology .
 
 ###
 # Ontology classes
