@@ -18,26 +18,44 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.solid;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.inrupt.client.NonRDFSource;
 
-import com.inrupt.client.spi.RDFFactory;
-
+import java.io.InputStream;
 import java.net.URI;
 
-import org.apache.commons.rdf.api.RDF;
-import org.junit.jupiter.api.Test;
+/**
+ * A non-RDF-bearing Solid Resource.
+ */
+public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
 
-class ResourceTest {
+    private final Metadata metadata;
 
-    static final RDF rdf = RDFFactory.getInstance();
-
-    @Test
-    void testValidate() {
-        final URI id = URI.create("https://resource.test/path");
-        try (final Resource resource = new Resource(id, null)) {
-            assertDoesNotThrow(() -> resource.validate());
+    /**
+     * Create a non-RDF-bearing Solid Resource.
+     *
+     * @param identifier the resource identifier
+     * @param contentType the content type
+     * @param entity the entity
+     * @param metadata the metadata, may be {@code null}
+     */
+    public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,
+            final Metadata metadata) {
+        super(identifier, contentType, entity);
+        if (metadata == null) {
+            this.metadata = Metadata.newBuilder().build();
+        } else {
+            this.metadata = metadata;
         }
+    }
+
+    /**
+     * Get the metadata for this resource.
+     *
+     * @return the metadata
+     */
+    public Metadata getMetadata() {
+        return metadata;
     }
 }

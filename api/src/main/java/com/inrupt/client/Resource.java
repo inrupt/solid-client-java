@@ -20,84 +20,36 @@
  */
 package com.inrupt.client;
 
-import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.rdf.wrapping.commons.WrapperDataset;
-
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.URI;
 
-import org.apache.commons.rdf.api.Dataset;
-import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.api.RDFSyntax;
-
 /**
- * A base class for resource mapping.
+ * A base class for all resources.
  *
- * <p>This class can be used as a basis for object mapping with higher-level client applications.
+ * <p>This class can be used as a basis for higher-level client applications.
  */
-public class Resource extends WrapperDataset {
+public interface Resource extends AutoCloseable {
 
     /**
-     * The RDF Factory instance.
+     * The resource identifier.
+     *
+     * @return the identifier
      */
-    protected static final RDF rdf = RDFFactory.getInstance();
-
-    private final URI identifier;
+    URI getIdentifier();
 
     /**
-     * Create a new resource.
+     * The content type of the resource.
      *
-     * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
-     *
-     * @param identifier the resource identifier
-     * @param dataset the dataset corresponding to this resource, may be {@code null}
+     * @return the content type
      */
-    protected Resource(final URI identifier, final Dataset dataset) {
-        super(dataset == null ? rdf.createDataset() : dataset);
-        this.identifier = identifier;
-    }
+    String getContentType();
 
     /**
-     * Get the identifier for this resource.
+     * The resource entity.
      *
-     * @return the resource identifier
+     * @return the resource entity
+     * @throws IOException in the case of an error when generating the entity
      */
-    public URI getIdentifier() {
-        return identifier;
-    }
-
-    /**
-     * Serialize this object with a defined RDF syntax.
-     *
-     * @param syntax the RDF syntax
-     * @param out the output stream
-     * @throws IOException in the case of an I/O error
-     */
-    public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
-        ServiceProvider.getRdfService().fromDataset(this, syntax, out);
-    }
-
-    /**
-     * Validate the dataset for this object.
-     *
-     * <p>Subclasses may override this method to perform validation on the provided dataset.
-     * By default, this method is a no-op.
-     * 
-     * @return the validation result
-     */
-    public ValidationResult validate() {
-        return new ValidationResult(true);
-    }
-
-
-    @Override
-    public void close() {
-        try {
-            super.close();
-        } catch (final Exception ex) {
-            throw new InruptClientException("Error closing dataset", ex);
-        }
-    }
+    InputStream getEntity() throws IOException;
 }

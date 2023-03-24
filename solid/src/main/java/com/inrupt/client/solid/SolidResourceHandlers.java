@@ -50,15 +50,15 @@ public final class SolidResourceHandlers {
      *
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<SolidResource> ofSolidResource() {
+    public static Response.BodyHandler<SolidRDFSource> ofSolidRDFSource() {
         return responseInfo -> {
             final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
 
             return responseInfo.headers().firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
                         buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
-                .map(dataset -> new SolidResource(responseInfo.uri(), dataset, metadata))
-                .orElseGet(() -> new SolidResource(responseInfo.uri(), null, metadata));
+                .map(dataset -> new SolidRDFSource(responseInfo.uri(), dataset, metadata))
+                .orElseGet(() -> new SolidRDFSource(responseInfo.uri(), null, metadata));
         };
     }
 

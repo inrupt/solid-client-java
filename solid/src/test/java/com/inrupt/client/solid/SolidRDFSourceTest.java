@@ -45,7 +45,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class SolidResourceTest {
+class SolidRDFSourceTest {
 
     private static final SolidMockHttpService mockHttpServer = new SolidMockHttpService();
     private static Map<String, String> config = new HashMap<>();
@@ -62,18 +62,18 @@ class SolidResourceTest {
     }
 
     @Test
-    void testGetOfSolidResource() throws IOException, InterruptedException {
+    void testGetOfSolidRDFSource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/solid/");
         final Request request =
                 Request.newBuilder().uri(uri).header("Accept", "text/turtle").GET().build();
 
-        final Response<SolidResource> response =
-                client.send(request, SolidResourceHandlers.ofSolidResource()).toCompletableFuture()
+        final Response<SolidRDFSource> response =
+                client.send(request, SolidResourceHandlers.ofSolidRDFSource()).toCompletableFuture()
                         .join();
 
         assertEquals(200, response.statusCode());
 
-        try (final SolidResource resource = response.body()) {
+        try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
             assertEquals(Optional.of(URI.create("http://storage.example/")),
@@ -96,7 +96,7 @@ class SolidResourceTest {
     }
 
     @Test
-    void testCheckRootOfSolidResource() throws IOException, InterruptedException {
+    void testCheckRootOfSolidRDFSource() throws IOException, InterruptedException {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/");
         final Request request = Request.newBuilder()
             .uri(uri)
@@ -104,14 +104,14 @@ class SolidResourceTest {
             .GET()
             .build();
 
-        final Response<SolidResource> response = client.send(
+        final Response<SolidRDFSource> response = client.send(
             request,
-            SolidResourceHandlers.ofSolidResource()
+            SolidResourceHandlers.ofSolidRDFSource()
         ).toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
 
-        try (final SolidResource resource = response.body()) {
+        try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
             assertEquals(Optional.of(uri), resource.getMetadata().getStorage());
@@ -151,7 +151,7 @@ class SolidResourceTest {
     @Test
     void testEmptyResourceBuilder() {
         final URI id = URI.create("https://resource.example/");
-        try (final SolidResource res = new SolidResource(id, null, null)) {
+        try (final SolidRDFSource res = new SolidRDFSource(id, null, null)) {
             assertFalse(res.getMetadata().getStorage().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
             assertEquals(0, res.size());
@@ -176,13 +176,13 @@ class SolidResourceTest {
         final Request request =
                 Request.newBuilder().uri(uri).header("Accept", "text/turtle").GET().build();
 
-        final Response<SolidResource> response =
-                client.send(request, SolidResourceHandlers.ofSolidResource()).toCompletableFuture()
+        final Response<SolidRDFSource> response =
+                client.send(request, SolidResourceHandlers.ofSolidRDFSource()).toCompletableFuture()
                         .join();
 
         assertEquals(200, response.statusCode());
 
-        try (final SolidResource resource = response.body()) {
+        try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertEquals("application/octet-stream", resource.getMetadata().getContentType());
         }

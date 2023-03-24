@@ -22,51 +22,7 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Resource;
 
-import java.net.URI;
-
-import org.apache.commons.rdf.api.Dataset;
-
-/**
- * A Solid Resource Object.
- */
-public class SolidResource extends Resource {
-
-    private final Metadata metadata;
-
-    /**
-     * Create a Solid resource.
-     *
-     * @param identifier the Solid Resource identifier
-     */
-    public SolidResource(final URI identifier) {
-        this(identifier, null);
-    }
-
-    /**
-     * Create a Solid resource.
-     *
-     * @param identifier the Solid Resource identifier
-     * @param dataset the resource dataset, may be {@code null}
-     */
-    public SolidResource(final URI identifier, final Dataset dataset) {
-        this(identifier, dataset, null);
-    }
-
-    /**
-     * Create a Solid resource.
-     *
-     * @param identifier the Solid Resource identifier
-     * @param dataset the resource dataset, may be {@code null}
-     * @param metadata metadata associated with this resource, may be {@code null}
-     */
-    public SolidResource(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset);
-        if (metadata == null) {
-            this.metadata = Metadata.newBuilder().build();
-        } else {
-            this.metadata = metadata;
-        }
-    }
+public interface SolidResource extends Resource {
 
     /**
      * Get the associated metadata about this resource.
@@ -76,7 +32,6 @@ public class SolidResource extends Resource {
      *
      * @return the metadata
      */
-    public Metadata getMetadata() {
-        return metadata;
-    }
+    Metadata getMetadata();
+
 }
