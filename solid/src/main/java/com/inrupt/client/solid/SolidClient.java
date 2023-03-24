@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.solid;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Headers;
@@ -38,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.rdf.api.Dataset;
@@ -59,10 +62,12 @@ public class SolidClient {
 
     private final Client client;
     private final Headers defaultHeaders;
+    private final boolean fetchAfterWrite;
 
-    SolidClient(final Client client, final Headers headers) {
+    SolidClient(final Client client, final Headers headers, final boolean fetchAfterWrite) {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
+        this.fetchAfterWrite = fetchAfterWrite;
     }
 
     /**
@@ -72,7 +77,7 @@ public class SolidClient {
      * @return a session-scoped client
      */
     public SolidClient session(final Session session) {
-        return new SolidClient(client.session(session), defaultHeaders);
+        return new SolidClient(client.session(session), defaultHeaders, fetchAfterWrite);
     }
 
     /**
@@ -164,7 +169,7 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends Resource> CompletionStage<Response<Void>> create(final T resource) {
+    public <T extends Resource> CompletionStage<T> create(final T resource) {
         return create(resource, EMPTY_HEADERS);
     }
 
@@ -176,7 +181,7 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends Resource> CompletionStage<Response<Void>> create(final T resource, final Headers headers) {
+    public <T extends Resource> CompletionStage<T> create(final T resource, final Headers headers) {
         final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).PUT(cast(resource));
 
         decorateHeaders(builder, defaultHeaders);
@@ -186,7 +191,20 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.discarding());
+        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenCompose(res -> {
+            if (isSuccess(res.statusCode())) {
+                if (fetchAfterWrite) {
+                    @SuppressWarnings("unchecked")
+                    final Class<T> clazz = (Class<T>) resource.getClass();
+                    return read(resource.getIdentifier(), headers, clazz);
+                } else {
+                    return CompletableFuture.completedFuture(resource);
+                }
+            } else {
+                throw new SolidClientException("Unable to create new resource", resource.getIdentifier(),
+                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+            }
+        });
     }
 
     /**
@@ -196,7 +214,7 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends Resource> CompletionStage<Response<Void>> update(final T resource) {
+    public <T extends Resource> CompletionStage<T> update(final T resource) {
         return update(resource, EMPTY_HEADERS);
     }
 
@@ -208,7 +226,7 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends Resource> CompletionStage<Response<Void>> update(final T resource, final Headers headers) {
+    public <T extends Resource> CompletionStage<T> update(final T resource, final Headers headers) {
         final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).PUT(cast(resource));
 
         decorateHeaders(builder, defaultHeaders);
@@ -218,7 +236,20 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.discarding());
+        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenCompose(res -> {
+            if (isSuccess(res.statusCode())) {
+                if (fetchAfterWrite) {
+                    @SuppressWarnings("unchecked")
+                    final Class<T> clazz = (Class<T>) resource.getClass();
+                    return read(resource.getIdentifier(), headers, clazz);
+                } else {
+                    return CompletableFuture.completedFuture(resource);
+                }
+            } else {
+                throw new SolidClientException("Unable to update resource", resource.getIdentifier(),
+                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+            }
+        });
     }
 
     /**
@@ -227,7 +258,7 @@ public class SolidClient {
      * @param resource the resource URI
      * @return the next stage of completion
      */
-    public CompletionStage<Response<Void>> delete(final URI resource) {
+    public CompletionStage<Void> delete(final URI resource) {
         return delete(new SolidResourceReference(resource, null));
     }
 
@@ -238,7 +269,7 @@ public class SolidClient {
      * @param headers headers to add to this request
      * @return the next stage of completion
      */
-    public CompletionStage<Response<Void>> delete(final URI resource, final Headers headers) {
+    public CompletionStage<Void> delete(final URI resource, final Headers headers) {
         return delete(new SolidResourceReference(resource, null), headers);
     }
 
@@ -249,7 +280,7 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends Resource> CompletionStage<Response<Void>> delete(final T resource) {
+    public <T extends Resource> CompletionStage<Void> delete(final T resource) {
         return delete(resource, EMPTY_HEADERS);
     }
 
@@ -261,7 +292,7 @@ public class SolidClient {
      * @param <T> the resource type
      * @return the next stage of completion
      */
-    public <T extends Resource> CompletionStage<Response<Void>> delete(final T resource, final Headers headers) {
+    public <T extends Resource> CompletionStage<Void> delete(final T resource, final Headers headers) {
         final Request.Builder builder = Request.newBuilder(resource.getIdentifier()).DELETE();
 
         decorateHeaders(builder, defaultHeaders);
@@ -270,7 +301,14 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.discarding());
+        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenApply(res -> {
+            if (isSuccess(res.statusCode())) {
+                return null;
+            } else {
+                throw new SolidClientException("Unable to delete resource", resource.getIdentifier(),
+                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+            }
+        });
     }
 
     /**
@@ -297,6 +335,7 @@ public class SolidClient {
     public static class Builder {
         private Client builderClient;
         private Headers builderHeaders;
+        private boolean builderFetchAfterWrite = true;
 
         Builder() {
         }
@@ -324,6 +363,17 @@ public class SolidClient {
         }
 
         /**
+         * Set whether to fetch a resource after a write operation.
+         *
+         * @param fetch whether to fetch the remote resource after a write operation
+         * @return this builder
+         */
+        public Builder fetchAfterWrite(final boolean fetch) {
+            this.builderFetchAfterWrite = fetch;
+            return this;
+        }
+
+        /**
          * Build the {@link SolidClient}.
          *
          * @return the Solid client
@@ -331,7 +381,7 @@ public class SolidClient {
         public SolidClient build() {
             final Client c = builderClient == null ? ClientProvider.getClient() : builderClient;
             final Headers h = builderHeaders == null ? EMPTY_HEADERS : builderHeaders;
-            return new SolidClient(c, h);
+            return new SolidClient(c, h, builderFetchAfterWrite);
         }
     }
 
@@ -368,6 +418,10 @@ public class SolidClient {
                 builder.header(entry.getKey(), item);
             }
         }
+    }
+
+    static boolean isSuccess(final int statusCode) {
+        return statusCode >= 200 && statusCode < 300;
     }
 
     static Request.BodyPublisher cast(final Resource resource) {

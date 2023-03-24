@@ -39,6 +39,8 @@ import java.util.UUID;
 
 class SolidServerTransformer extends ResponseDefinitionTransformer {
 
+    private static final String SLASH = "/";
+
     private final Map<String, ServerBody> storage;
     private String asUri;
 
@@ -152,10 +154,10 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
     }
 
     private void addSubContainersToStorage(final String path, final String mimeType) {
-        final var newPath = path.startsWith("/") ? path.substring(1, path.length()) : path;
-        var containers = newPath.split("/");
+        final var newPath = path.startsWith(SLASH) ? path.substring(1, path.length()) : path;
+        var containers = newPath.split(SLASH);
         while (containers.length > 0) {
-            final var uri = "/" + String.join("/", containers);
+            final var uri = SLASH + String.join(SLASH, containers) + SLASH;
             if (!this.storage.containsKey(uri)) {
                 this.storage.put(uri, new ServerBody(new byte[0], mimeType));
             }

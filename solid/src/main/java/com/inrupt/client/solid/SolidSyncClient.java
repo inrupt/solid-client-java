@@ -39,8 +39,8 @@ public class SolidSyncClient {
 
     private final SolidClient client;
 
-    SolidSyncClient(final Client client, final Headers headers) {
-        this(new SolidClient(client, headers));
+    SolidSyncClient(final Client client, final Headers headers, final boolean fetchAfterWrite) {
+        this(new SolidClient(client, headers, fetchAfterWrite));
     }
 
     SolidSyncClient(final SolidClient client) {
@@ -87,9 +87,10 @@ public class SolidSyncClient {
      *
      * @param resource the resource
      * @param <T> the resource type
+     * @return the created resource
      */
-    public <T extends Resource> void create(final T resource) {
-        awaitAsync(client.create(resource));
+    public <T extends Resource> T create(final T resource) {
+        return awaitAsync(client.create(resource));
     }
 
     /**
@@ -97,9 +98,9 @@ public class SolidSyncClient {
      *
      * @param resource the resource
      * @param <T> the resource type
-     * @return the response
+     * @return the updated resource
      */
-    public <T extends Resource> Response<Void> update(final T resource) {
+    public <T extends Resource> T update(final T resource) {
         return awaitAsync(client.update(resource));
     }
 
@@ -107,10 +108,9 @@ public class SolidSyncClient {
      * Delete an existing Solid Resource.
      *
      * @param resource the resource URI
-     * @return the next stage of completion
      */
-    public Response<Void> delete(final URI resource) {
-        return awaitAsync(client.delete(new SolidResourceReference(resource, null)));
+    public void delete(final URI resource) {
+        awaitAsync(client.delete(new SolidResourceReference(resource, null)));
     }
 
     /**
@@ -118,10 +118,9 @@ public class SolidSyncClient {
      *
      * @param resource the resource
      * @param <T> the resource type
-     * @return the next stage of completion
      */
-    public <T extends Resource> Response<Void> delete(final T resource) {
-        return awaitAsync(client.delete(resource));
+    public <T extends Resource> void delete(final T resource) {
+        awaitAsync(client.delete(resource));
     }
 
     /**
@@ -143,6 +142,7 @@ public class SolidSyncClient {
     public static class Builder {
         private Client builderClient;
         private Headers builderHeaders;
+        private boolean builderFetchAfterWrite = true;
 
         Builder() {
         }
@@ -170,6 +170,17 @@ public class SolidSyncClient {
         }
 
         /**
+         * Set whether to fetch a resource after a write operation.
+         *
+         * @param fetch whether to fetch the remote resource after a write operation
+         * @return this builder
+         */
+        public Builder fetchAfterWrite(final boolean fetch) {
+            this.builderFetchAfterWrite = fetch;
+            return this;
+        }
+
+        /**
          * Build the {@link SolidSyncClient}.
          *
          * @return the Solid client
@@ -177,7 +188,7 @@ public class SolidSyncClient {
         public SolidSyncClient build() {
             final Client c = builderClient == null ? ClientProvider.getClient() : builderClient;
             final Headers h = builderHeaders == null ? SolidClient.EMPTY_HEADERS : builderHeaders;
-            return new SolidSyncClient(c, h);
+            return new SolidSyncClient(c, h, builderFetchAfterWrite);
         }
     }
 

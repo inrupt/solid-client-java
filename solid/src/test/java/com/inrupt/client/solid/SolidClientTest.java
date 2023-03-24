@@ -180,7 +180,7 @@ class SolidClientTest {
     }
 
     @Test
-    void testGetBinary() {
+    void testGetBinaryUpdate() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
 
         client.read(uri, SolidNonRDFSource.class).thenAccept(binary -> {
@@ -189,6 +189,21 @@ class SolidClientTest {
                 assertEquals("text/plain", b.getContentType());
 
                 assertDoesNotThrow(client.update(b).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
+                assertDoesNotThrow(client.delete(b.getIdentifier()).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
+    void testGetBinaryCreate() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
+
+        client.read(uri, SolidNonRDFSource.class).thenAccept(binary -> {
+            try (final SolidNonRDFSource b = binary) {
+                assertEquals(uri, b.getIdentifier());
+                assertEquals("text/plain", b.getContentType());
+
                 assertDoesNotThrow(client.create(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b.getIdentifier()).toCompletableFuture()::join);
