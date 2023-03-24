@@ -76,6 +76,7 @@ class SolidSyncClientTest {
             assertDoesNotThrow(() -> client.create(playlist));
             assertDoesNotThrow(() -> client.update(playlist));
             assertDoesNotThrow(() -> client.delete(playlist));
+            assertDoesNotThrow(() -> client.delete(playlist.getIdentifier()));
         }
     }
 
@@ -104,6 +105,7 @@ class SolidSyncClientTest {
             assertDoesNotThrow(() -> client.create(resource));
             assertDoesNotThrow(() -> client.update(resource));
             assertDoesNotThrow(() -> client.delete(resource));
+            assertDoesNotThrow(() -> client.delete(resource.getIdentifier()));
         }
     }
 
@@ -123,6 +125,7 @@ class SolidSyncClientTest {
             assertDoesNotThrow(() -> client.update(container));
             assertDoesNotThrow(() -> client.create(container));
             assertDoesNotThrow(() -> client.delete(container));
+            assertDoesNotThrow(() -> client.delete(container.getIdentifier()));
         }
     }
 
