@@ -27,8 +27,10 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
+
 import java.net.URI;
 import java.util.UUID;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -97,7 +99,7 @@ public class AccessGrantScenarios {
         if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
-        
+
         testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
             .path("accessgrant-test-" + UUID.randomUUID())
             .build();
@@ -105,7 +107,7 @@ public class AccessGrantScenarios {
         sharedFileURI = URIBuilder.newBuilder(URI.create(testContainerURI.toString()))
             .path(sharedFileName)
             .build();
-        
+
         session = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
             CLIENT_ID,
