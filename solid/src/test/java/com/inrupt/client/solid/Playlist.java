@@ -33,7 +33,7 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-public class Playlist extends SolidResource {
+public class Playlist extends SolidRDFSource {
 
     private final IRI dcTitle;
     private final IRI exSong;

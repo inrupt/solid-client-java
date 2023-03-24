@@ -23,14 +23,16 @@ package com.inrupt.client.solid;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Headers;
+import com.inrupt.client.RDFSource;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
 import com.inrupt.client.ValidationResult;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.util.IOUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +41,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 import org.apache.commons.rdf.api.Dataset;
-import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * A high-level client for interacting with Solid resources.
@@ -130,19 +131,27 @@ public class SolidClient {
                         .orElse("application/octet-stream");
                     final Metadata metadata = SolidResourceHandlers.buildMetadata(response.uri(),
                             response.headers());
-                    final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
-                            identifier.toString()).orElse(null);
                     try {
-                        final T obj = construct(identifier, clazz, dataset, metadata);
-                        final ValidationResult res = obj.validate();
-                        if (!res.isValid()) {
-                            throw new DataMappingException(
-                                "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
-                                 res.getResults());
+                        // Check that this is an RDFSoure
+                        if (RDFSource.class.isAssignableFrom(clazz)) {
+                            final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
+                                    identifier.toString()).orElse(null);
+                            final T obj = construct(identifier, clazz, dataset, metadata);
+                            final ValidationResult res = RDFSource.class.cast(obj).validate();
+                            if (!res.isValid()) {
+                                throw new DataMappingException(
+                                    "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
+                                     res.getResults());
+                            }
+                            return obj;
+                        // Otherwise, create a non-RDF-bearing resource
+                        } else {
+                            return construct(identifier, clazz, contentType,
+                                    new ByteArrayInputStream(response.body()), metadata);
                         }
-                        return obj;
                     } catch (final ReflectiveOperationException ex) {
-                        throw new SolidResourceException("Unable to read resource into type " + clazz.getName(), ex);
+                        throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
+                                ex);
                     }
                 }
             });
@@ -173,7 +182,7 @@ public class SolidClient {
         decorateHeaders(builder, defaultHeaders);
         decorateHeaders(builder, headers);
 
-        builder.setHeader(CONTENT_TYPE, TEXT_TURTLE).setHeader(IF_NONE_MATCH, WILDCARD);
+        builder.setHeader(CONTENT_TYPE, resource.getContentType()).setHeader(IF_NONE_MATCH, WILDCARD);
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
@@ -205,7 +214,7 @@ public class SolidClient {
         decorateHeaders(builder, defaultHeaders);
         decorateHeaders(builder, headers);
 
-        builder.setHeader(CONTENT_TYPE, TEXT_TURTLE);
+        builder.setHeader(CONTENT_TYPE, resource.getContentType());
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
@@ -318,6 +327,20 @@ public class SolidClient {
         }
     }
 
+    static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
+            final String contentType, final InputStream entity, final Metadata metadata)
+            throws ReflectiveOperationException {
+        try {
+            // First try an arity-4 ctor
+            return clazz.getConstructor(URI.class, String.class, InputStream.class, Metadata.class)
+                .newInstance(identifier, contentType, entity, metadata);
+        } catch (final NoSuchMethodException ex) {
+            // Fall back to an arity-3 ctor
+            return clazz.getConstructor(URI.class, String.class, InputStream.class)
+                .newInstance(identifier, contentType, entity);
+        }
+    }
+
     static void decorateHeaders(final Request.Builder builder, final Headers headers) {
         for (final Map.Entry<String, List<String>> entry : headers.asMap().entrySet()) {
             for (final String item : entry.getValue()) {
@@ -327,13 +350,11 @@ public class SolidClient {
     }
 
     static Request.BodyPublisher cast(final Resource resource) {
-        return IOUtils.buffer(out -> {
-            try {
-                resource.serialize(RDFSyntax.TURTLE, out);
-            } catch (final IOException ex) {
-                throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
-                        " into Solid Resource", ex);
-            }
-        });
+        try {
+            return Request.BodyPublishers.ofInputStream(resource.getEntity());
+        } catch (final IOException ex) {
+            throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
+                    " into Solid Resource", ex);
+        }
     }
 }

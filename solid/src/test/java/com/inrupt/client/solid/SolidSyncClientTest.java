@@ -93,7 +93,7 @@ class SolidSyncClientTest {
     void testGetResource() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
 
-        try (final SolidResource resource = client.read(uri, SolidResource.class)) {
+        try (final SolidRDFSource resource = client.read(uri, SolidRDFSource.class)) {
             assertEquals(uri, resource.getIdentifier());
             assertEquals(4, resource.size());
             try (final Stream<? extends Quad> stream = resource.stream(Optional.empty(),

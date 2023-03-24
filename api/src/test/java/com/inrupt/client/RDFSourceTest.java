@@ -18,22 +18,26 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.solid;
+package com.inrupt.client;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.inrupt.client.spi.RDFFactory;
+
 import java.net.URI;
 
-import org.apache.commons.rdf.api.RDFSyntax;
+import org.apache.commons.rdf.api.RDF;
+import org.junit.jupiter.api.Test;
 
-public class InvalidType extends SolidRDFSource {
-    public InvalidType(final URI identifier) {
-        super(identifier, null, null);
-    }
+class RDFSourceTest {
 
-    @Override
-    public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
-        throw new IOException("Expected exception");
+    static final RDF rdf = RDFFactory.getInstance();
+
+    @Test
+    void testValidate() {
+        final URI id = URI.create("https://resource.test/path");
+        try (final RDFSource resource = new RDFSource(id, null)) {
+            assertDoesNotThrow(() -> resource.validate());
+        }
     }
 }
-

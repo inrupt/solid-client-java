@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.webid;
 
-import com.inrupt.client.Resource;
+import com.inrupt.client.RDFSource;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.client.vocabulary.RDFS;
@@ -40,7 +40,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 /**
  * A WebID Profile for use with Solid.
  */
-public class WebIdProfile extends Resource {
+public class WebIdProfile extends RDFSource {
 
     private final IRI rdfType;
     private final IRI oidcIssuer;
