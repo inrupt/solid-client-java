@@ -158,6 +158,26 @@ public class SolidMockHttpService {
             .willReturn(aResponse()
                 .withStatus(204)));
 
+        wireMockServer.stubFor(get(urlEqualTo("/binary"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/plain")
+                .withBody("This is a plain text document.")));
+
+        wireMockServer.stubFor(put(urlEqualTo("/binary"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .withHeader("Content-Type", containing("text/plain"))
+            .withRequestBody(containing(
+                    "This is a plain text document."))
+            .willReturn(aResponse()
+                .withStatus(204)));
+
+        wireMockServer.stubFor(delete(urlEqualTo("/binary"))
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .willReturn(aResponse()
+                .withStatus(204)));
+
         wireMockServer.stubFor(get(urlEqualTo("/nonRDF"))
             .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()

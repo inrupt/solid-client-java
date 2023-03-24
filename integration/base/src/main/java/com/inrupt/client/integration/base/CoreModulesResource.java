@@ -32,7 +32,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
-import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.util.URIBuilder;
@@ -320,8 +320,8 @@ public class CoreModulesResource {
         assertTrue(Utils.isSuccessful(responseCreate.statusCode()));
 
         final Request req = Request.newBuilder(URI.create(fileURL)).GET().build();
-        final Response<SolidResource> headerResponse =
-                client.send(req, SolidResourceHandlers.ofSolidResource());
+        final Response<SolidRDFSource> headerResponse =
+                client.send(req, SolidResourceHandlers.ofSolidRDFSource());
 
         assertTrue(headerResponse.body().getMetadata().getContentType().contains(Utils.PLAIN_TEXT));
 

@@ -36,7 +36,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 /**
  * A Solid Container Object.
  */
-public class SolidContainer extends SolidResource {
+public class SolidContainer extends SolidRDFSource {
 
     /**
      * Create a new SolidContainer.
@@ -61,7 +61,7 @@ public class SolidContainer extends SolidResource {
                 final Metadata.Builder builder = Metadata.newBuilder();
                 getMetadata().getStorage().ifPresent(builder::storage);
                 child.getTypes().forEach(builder::type);
-                return new SolidResource(URI.create(child.getIRIString()), null, builder.build());
+                return new SolidResourceReference(URI.create(child.getIRIString()), builder.build());
             });
     }
 

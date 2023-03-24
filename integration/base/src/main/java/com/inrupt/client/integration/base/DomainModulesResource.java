@@ -28,7 +28,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidContainer;
-import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
@@ -161,10 +161,10 @@ public class DomainModulesResource {
         final Dataset dataset = rdf.createDataset();
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
-        try (final SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null)) {
+        try (final SolidRDFSource newResource = new SolidRDFSource(URI.create(newResourceName), dataset, null)) {
             assertDoesNotThrow(() -> client.create(newResource));
 
-            try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
+            try (final SolidRDFSource resource = client.read(URI.create(newResourceName), SolidRDFSource.class)) {
                 assertEquals(newResource.getIdentifier(), resource.getIdentifier());
                 assertEquals(1, resource.size());
 
@@ -175,7 +175,7 @@ public class DomainModulesResource {
                             rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
                         .forEach(newDataset::add);
                 }
-                try (final SolidResource updatedResource = new SolidResource(URI.create(newResourceName),
+                try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
                     assertDoesNotThrow(() -> client.delete(updatedResource));
@@ -219,10 +219,10 @@ public class DomainModulesResource {
         final BlankNode bn = rdf.createBlankNode("blank");
         dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newBNPredicateNode, bn));
 
-        try (final SolidResource newResource = new SolidResource(URI.create(newResourceName), dataset, null)) {
+        try (final SolidRDFSource newResource = new SolidRDFSource(URI.create(newResourceName), dataset, null)) {
             assertDoesNotThrow(() -> client.create(newResource));
 
-            try (final SolidResource resource = client.read(URI.create(newResourceName), SolidResource.class)) {
+            try (final SolidRDFSource resource = client.read(URI.create(newResourceName), SolidRDFSource.class)) {
                 assertEquals(URI.create(newResourceName), resource.getIdentifier());
                 assertEquals(2, resource.size());
 
@@ -242,7 +242,7 @@ public class DomainModulesResource {
                 allQuads.add(toAddQuad);
                 allQuads.forEach(newDataset::add);
 
-                try (final SolidResource updatedResource = new SolidResource(URI.create(newResourceName),
+                try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
                     assertDoesNotThrow(() -> client.delete(updatedResource));
@@ -286,8 +286,8 @@ public class DomainModulesResource {
         final URI storage = URI.create(PIM.getNamespace() + "Storage");
         while (tempURL.chars().filter(ch -> ch == '/').count() >= 3) {
             final Request req = Request.newBuilder(URI.create(tempURL)).GET().build();
-            final Response<SolidResource> headerResponse =
-                    client.send(req, SolidResourceHandlers.ofSolidResource());
+            final Response<SolidRDFSource> headerResponse =
+                    client.send(req, SolidResourceHandlers.ofSolidRDFSource());
             final var headers = headerResponse.headers();
             final var isRoot = headers.allValues("Link").stream()
                 .flatMap(l -> Headers.Link.parse(l).stream())
@@ -304,7 +304,7 @@ public class DomainModulesResource {
     private void recursiveDeleteLDPcontainers(final String leafPath) {
         String tempURL = leafPath;
         while (!tempURL.equals(podUrl) && !tempURL.equals(podUrl + "/")) {
-            final var url = new SolidResource(URI.create(tempURL),null, null);
+            final var url = new SolidRDFSource(URI.create(tempURL),null, null);
             client.delete(url);
             tempURL = tempURL.substring(0, tempURL.lastIndexOf("/"));
             tempURL = tempURL.substring(0, tempURL.lastIndexOf("/") + 1);
@@ -317,7 +317,7 @@ public class DomainModulesResource {
             tempURL.path(UUID.randomUUID().toString());
         }
         final String newURL = tempURL.build() + Utils.FOLDER_SEPARATOR;
-        final var resource = new SolidResource(URI.create(newURL));
+        final var resource = new SolidRDFSource(URI.create(newURL));
         client.create(resource);
         return newURL;
     }
