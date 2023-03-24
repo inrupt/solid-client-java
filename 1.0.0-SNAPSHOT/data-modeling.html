@@ -118,7 +118,7 @@ public class Playlist extends Resource {
     static IRI DC_TITLE = rdf.createIRI(&quot;http://purl.org/dc/terms/title&quot;);
     static IRI EX_SONG = rdf.createIRI(&quot;http://music.example/song&quot;);
 
-    static class Node extends WrapperIRI {
+    class Node extends WrapperIRI {
         Node(RDFTerm original, Graph graph) {
             super(original, graph);
         }
@@ -159,7 +159,7 @@ public class Playlist extends Resource {
     public Playlist(URI identifier, Dataset dataset) {
         super(identifier, dataset);
 
-        subject = new Node(rdf.createIRI(identifier.toString()), dataset.getGraph());
+        subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
     }
 
     public String getTitle() {
