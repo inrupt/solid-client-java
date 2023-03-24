@@ -3,14 +3,15 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Solid Book Library</title>
+        <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet'>
         <style>
             body {
                 margin: 0;
-                font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+                font-family: 'Raleway', sans-serif;
             }
             code {
                 font-family: "Courier New", monospace;
-                color: #e83e8c;
+                color: #814aff;
                 word-break: break-word;
             }
             h1, h2, h3, h4, h5, h6 {
@@ -41,11 +42,13 @@
             }
             .header-wrapper {
                 padding: 0 13rem;
-                background: black;
+                background: #01354f;
             }
             .banner-wrapper {
                 padding: 0 13rem;
-                background: rgba(0, 128, 0, 0.3);
+                background: url(https://media.licdn.com/dms/image/C4E1BAQFE6XpYA-zUzQ/company-background_10000/0/1605028958453?e=1679889600&v=beta&t=hEQ-xNb1GSabPJaXYqJPiYWhdkKr9PuoBNfaEx4bsj4),#0D1C2C;
+                background-position: center center;
+                background-size: auto;
             }
             .content-wrapper {
                 padding: 0 13rem;
@@ -56,20 +59,15 @@
                 min-height: 60px;
                 grid-column: span 12;
             }
-            #quarkus-logo-svg {
-                width: 200px;
-                height: 30px;
-                padding-top: 1rem;
-            }
             .banner {
                 grid-column: span 12;
-                padding: 2rem 0;
+                padding: 1rem 0;
             }
             .callout {
                 color: white;
                 font-size: 3.5rem;
                 margin: 0;
-                padding-top: 5rem;
+                padding-top: 2.5rem;
                 grid-column: span 8;
             }
             .app-details {
@@ -93,7 +91,7 @@
                 padding: 0;
             }
             .left-column {
-                grid-column: span 8;
+                grid-column: span 20;
                 padding-right: 3rem;
             }
             .left-column p {
@@ -109,14 +107,18 @@
             }
             .left-column li { padding-left: 10px; }
             .left-column .cta-button {
-                margin: 20px 0;
-                display: inline-block;
-                padding: 1rem 2rem;
-                background-color: #4695EB;
-                font-weight: 600;
-                color: white;
-                text-decoration: none;
-                text-transform: uppercase;
+                background: #804BFF;
+                border-color: #804BFF;
+                border-radius: 10px;
+                border-style: solid;
+                border-width: 1px;
+                color: #ffffff;
+                text-align: center;
+                font-size: 18px;
+                font-weight: bolder;
+                font-family: 'Raleway', sans-serif;
+                padding: 10px 18px;
+                max-width: 60px;
             }
             .right-column {
                 grid-column: span 4;
@@ -152,7 +154,7 @@
                     background: white;
                 }
                 .left-column {
-                    grid-column: span 12;
+                    grid-column: span 20;
                 }
                 .right-column {
                     grid-column: span 12;
@@ -178,19 +180,11 @@
         </style>
     </head>
     <body>
-        <div class="header-wrapper">
-            <div class="grid">
-                <div class="header">
-                    
-                </div>
-            </div>
-        </div>
         <div class="banner-wrapper">
             <div class="grid">
                 <div class="banner">
-                    <div class="grid">
-                        <div class="callout">A Solid Book Library</div>
-                    </div>
+                    <img src="https://uploads-ssl.webflow.com/62d722f9cc456d1fb015d3e7/62d7239e66227a7c641e22dc_white.webp" loading="lazy" width="100" height="auto" style="float: left;" alt="Inrupt logo">
+                    <div class="callout">A Solid Book Library</div>
                 </div>
             </div>
         </div>
@@ -200,28 +194,18 @@
             <div class="grid">
                 <div class="left-column">
                     <h3>Actions:</h3>
-                    <ul class="provided-code">
-                        <li class="provided-code">
-                            <a href="/allbooks" class="path-link">List all my books</a>
-                        </li>
-                        <li class="provided-code">
-                            <a href="/bookbytitle" class="path-link">Get book with the title "Dracula"</a>
-                        </li>
-                        <li class="provided-code">
-                            <a href="/login" class="path-link">Login</a>
-                        </li>
-                    </ul>
+                            <h3 Style="word-spacing: normal;"><a style="color: #FFFFFF; text-decoration:none;" href="/allbooks" class="cta-button">List all my books</a>
+                            <a style="color: #FFFFFF; text-decoration:none;" href="/bookbytitle" class="cta-button">Get book with the title "Dracula"</a>
+                            <a style="color: #FFFFFF; text-decoration:none;" href="/login" class="cta-button">Login</a>
+                            </h3>
                 </div>
-                <div class="right-column">
+                <div class="left-column">
                     <h3>Result:</h3>
-                    <p th:text="${message}"></p>
-                    
-                    <p th:text="${error}"></p>
-                    
+                    <p th:text="${message}"></p>                        
+                    <p th:text="${error}"></p>                        
                     <ul th:each="book : ${allBooks}">
                         <li><span th:text="${book}"> </span></li>
-                    </ul>
-                
+                    </ul>                    
                     <tr th:each="book : ${booksByTitle}">
                         <td><span th:text="${book.title}"> Title </span></td>
                         <td><span th:text="${book.author}"> Author </span></td>
