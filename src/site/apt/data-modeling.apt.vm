@@ -124,7 +124,7 @@ public class Playlist extends Resource {
     public Playlist(URI identifier, Dataset dataset) {
         super(identifier, dataset);
 
-        subject = new Node(rdf.createIRI(identifier.toString()), dataset.getGraph());
+        subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
     }
 
     public String getTitle() {
