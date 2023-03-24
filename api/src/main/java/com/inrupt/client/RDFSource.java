@@ -48,6 +48,7 @@ public class RDFSource extends WrapperDataset implements Resource {
     protected static final RDF rdf = RDFFactory.getInstance();
 
     private final URI identifier;
+    private final RDFSyntax syntax;
 
     /**
      * Create a new RDF-bearing resource.
@@ -58,8 +59,22 @@ public class RDFSource extends WrapperDataset implements Resource {
      * @param dataset the dataset corresponding to this resource, may be {@code null}
      */
     protected RDFSource(final URI identifier, final Dataset dataset) {
+        this(identifier, RDFSyntax.TURTLE, dataset);
+    }
+
+    /**
+     * Create a new RDF-bearing resource.
+     *
+     * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
+     *
+     * @param identifier the resource identifier
+     * @param syntax the original RDF syntax in use
+     * @param dataset the dataset corresponding to this resource, may be {@code null}
+     */
+    protected RDFSource(final URI identifier, final RDFSyntax syntax, final Dataset dataset) {
         super(dataset == null ? rdf.createDataset() : dataset);
         this.identifier = identifier;
+        this.syntax = syntax;
     }
 
     @Override
@@ -69,13 +84,13 @@ public class RDFSource extends WrapperDataset implements Resource {
 
     @Override
     public String getContentType() {
-        return RDFSyntax.TURTLE.mediaType();
+        return syntax.mediaType();
     }
 
     @Override
     public InputStream getEntity() throws IOException {
         try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            serialize(RDFSyntax.TURTLE, out);
+            serialize(syntax, out);
             return new ByteArrayInputStream(out.toByteArray());
         }
     }
