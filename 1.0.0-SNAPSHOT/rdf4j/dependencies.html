@@ -159,7 +159,13 @@
 <td><a class="externalLink" href="https://rdf4j.org/rdf4j-core/rdf4j-sail/rdf4j-sail-memory/">rdf4j-sail-memory</a></td>
 <td>4.2.3</td>
 <td>jar</td>
-<td><a class="externalLink" href="https://eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License 1.0</a></td></tr></table></section><a name="Project_Dependencies_test"></a><section>
+<td><a class="externalLink" href="https://eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License 1.0</a></td></tr>
+<tr class="b">
+<td align="left">org.slf4j</td>
+<td><a class="externalLink" href="http://www.slf4j.org">slf4j-api</a></td>
+<td>2.0.7</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></td></tr></table></section><a name="Project_Dependencies_test"></a><section>
 <h3><a name="test"></a>test</h3>
 <p>The following is a list of test dependencies for this project. These dependencies are only required to compile and run unit tests for the application:</p>
 <table border="0" class="table table-striped">
@@ -431,13 +437,7 @@
 <td><a class="externalLink" href="http://www.mapdb.org">mapdb</a></td>
 <td>1.0.8</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
-<tr class="a">
-<td align="left">org.slf4j</td>
-<td><a class="externalLink" href="http://www.slf4j.org">slf4j-api</a></td>
-<td>1.7.36</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></td></tr></table></section><a name="Project_Transitive_Dependencies_runtime"></a><section>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr></table></section><a name="Project_Transitive_Dependencies_runtime"></a><section>
 <h3><a name="runtime"></a>runtime</h3>
 <p>The following is a list of runtime dependencies for this project. These dependencies are required to run the application:</p>
 <table border="0" class="table table-striped">
@@ -806,16 +806,7 @@ file comparators, endian transformation classes, and much more.</p>
 <p><b>Description: </b>Commons Java API for RDF 1.1</p>
 <p><b>URL: </b><a class="externalLink" href="https://commons.apache.org/proper/commons-rdf/commons-rdf-api/">https://commons.apache.org/proper/commons-rdf/commons-rdf-api/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.slf4j:slf4j-api:jar:1.7.36 (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep8" style="display:none">
-<table border="0" class="table table-striped">
-<tr class="a">
-<th>SLF4J API Module</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>The slf4j API</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.slf4j.org">http://www.slf4j.org</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></p></td></tr></table></div></li>
-<li>com.inrupt:inrupt-rdf-wrapping-commons:jar:0.2.1 (compile) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep10" style="display:none">
+<li>com.inrupt:inrupt-rdf-wrapping-commons:jar:0.2.1 (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep8" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Inrupt RDF Wrapping - Commons RDF</th></tr>
@@ -824,7 +815,7 @@ file comparators, endian transformation classes, and much more.</p>
 <p><b>Description: </b>Inrupt Commons RDF Wrapping libraries</p>
 <p><b>URL: </b><a class="externalLink" href="https://inrupt.github.io/rdf-wrapping/inrupt-rdf-wrapping-commons/">https://inrupt.github.io/rdf-wrapping/inrupt-rdf-wrapping-commons/</a></p>
 <p><b>Project Licenses: </b><a href="LICENSE">MIT License</a></p></td></tr></table></div></li></ul></li>
-<li>com.inrupt:inrupt-commons-rdf4j:jar:0.5.0 (compile) <img id="_img13" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep12', '_img13' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep12" style="display:none">
+<li>com.inrupt:inrupt-commons-rdf4j:jar:0.5.0 (compile) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep10" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
 <th>Commons RDF Adaptor for RDF4J</th></tr>
@@ -833,6 +824,15 @@ file comparators, endian transformation classes, and much more.</p>
 <p><b>Description: </b>An RDF4J adaptor for the Apache Commons RDF APIs.</p>
 <p><b>URL: </b><a class="externalLink" href="https://inrupt.com">https://inrupt.com</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>org.slf4j:slf4j-api:jar:2.0.7 (compile) <img id="_img13" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep12', '_img13' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep12" style="display:none">
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>SLF4J API Module</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>The slf4j API</p>
+<p><b>URL: </b><a class="externalLink" href="http://www.slf4j.org">http://www.slf4j.org</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></p></td></tr></table></div></li>
 <li>org.eclipse.rdf4j:rdf4j-rio-api:jar:4.2.3 (compile) <img id="_img15" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep14', '_img15' );" style="cursor: pointer; vertical-align: text-bottom;" /><div id="_dep14" style="display:none">
 <table border="0" class="table table-striped">
 <tr class="a">
