@@ -17,18 +17,18 @@ Data Modeling
     The solution involves creating a wrapper class so that your class can act not only as an RDF Graph
     but also as a domain-specific type.
 
-* 1. Subclass the Resource type
+* 1. Subclass the RDFSource type
 
-    The first step involves ensuring that your class extends the <<<com.inrupt.client.Resource>>> class.
+    The first step involves ensuring that your class extends the <<<com.inrupt.client.RDFSource>>> class.
     Afterwards, consider the methods you expect in your class.
 
 +---
-import com.inrupt.client.Resource;
+import com.inrupt.client.RDFSource;
 import java.net.URI;
 import java.util.Set;
 import org.apache.commons.rdf.api.Dataset;
 
-public class Playlist extends Resource {
+public class Playlist extends RDFSource {
 
     public Playlist(URI identifier, Dataset dataset) {
         super(identifier, dataset);
@@ -55,7 +55,7 @@ public class Playlist extends Resource {
     Next, you will create an inner class that binds the data between RDF and your class.
 
 +---
-import com.inrupt.client.Resource;
+import com.inrupt.client.RDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -66,7 +66,7 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-public class Playlist extends Resource {
+public class Playlist extends RDFSource {
 
     ...
 
@@ -106,7 +106,7 @@ public class Playlist extends Resource {
     Now you are ready to link your public methods to the methods from your inner class.
 
 +---
-import com.inrupt.client.Resource;
+import com.inrupt.client.RDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -117,7 +117,7 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-public class Playlist extends Resource {
+public class Playlist extends RDFSource {
 
     private Node subject;
 
