@@ -1,12 +1,12 @@
 # Security policy
 
-Inrupt takes the security of our software products and services seriously. This includes all source code repositories managed through our GitHub organization, which includes [solid-client-js](https://github.com/inrupt/solid-client-js), [solid-ui-react](https://github.com/inrupt/solid-ui-react), and [our GitHub organization](https://github.com/inrupt).
+Inrupt takes the security of our software products and services seriously. This includes all source code repositories managed through our [GitHub organization](https://github.com/inrupt).
 
 If you believe you have found a security vulnerability in any Inrupt-owned repository please report it to us as described below.
 
 ## About this repository
 
-This libraries help developers create [Solid](https://solidproject.org/) applications. The libraries are composed of different modules with different functionalities.
+These libraries help developers create [Solid](https://solidproject.org/) applications. The libraries are composed of different modules with different features.
 
 * Some modules help with reading and writing data in Solid servers. Data should always be considered sensitive and be processed with care and regards to access restrictions and personal information.
 * Some modules help with Authentication. Authentication is a sensitive domain, and as such we designed these libraries with a particular attention to security. In particular, we decided to apply the following rules:
