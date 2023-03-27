@@ -73,10 +73,33 @@ class SolidSyncClientTest {
             assertTrue(playlist.getSongs().contains(song2));
             assertTrue(playlist.validate().isValid());
 
-            assertDoesNotThrow(() -> client.create(playlist));
-            assertDoesNotThrow(() -> client.update(playlist));
+            assertDoesNotThrow(() -> assertNotEquals(playlist, client.create(playlist)));
+            assertDoesNotThrow(() -> assertNotEquals(playlist, client.update(playlist)));
             assertDoesNotThrow(() -> client.delete(playlist));
             assertDoesNotThrow(() -> client.delete(playlist.getIdentifier()));
+        }
+    }
+
+    @Test
+    void testGetPlaylistNoRefetch() {
+        final SolidSyncClient localClient = SolidSyncClient.getClientBuilder().fetchAfterWrite(false).build()
+            .session(Session.anonymous());
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
+        final URI song1 = URI.create("https://library.test/12345/song1.mp3");
+        final URI song2 = URI.create("https://library.test/12345/song2.mp3");
+
+        try (final Playlist playlist = localClient.read(uri, Playlist.class)) {
+            assertEquals(uri, playlist.getIdentifier());
+            assertEquals("My playlist", playlist.getTitle());
+            assertEquals(2, playlist.getSongs().size());
+            assertTrue(playlist.getSongs().contains(song1));
+            assertTrue(playlist.getSongs().contains(song2));
+            assertTrue(playlist.validate().isValid());
+
+            assertDoesNotThrow(() -> assertEquals(playlist, localClient.create(playlist)));
+            assertDoesNotThrow(() -> assertEquals(playlist, localClient.update(playlist)));
+            assertDoesNotThrow(() -> localClient.delete(playlist));
+            assertDoesNotThrow(() -> localClient.delete(playlist.getIdentifier()));
         }
     }
 
