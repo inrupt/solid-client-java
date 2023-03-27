@@ -43,7 +43,11 @@ public class SolidResourceReference implements SolidResource {
      */
     public SolidResourceReference(final URI identifier, final Metadata metadata) {
         this.identifier = identifier;
-        this.metadata = metadata;
+        if (metadata == null) {
+            this.metadata = Metadata.newBuilder().build();
+        } else {
+            this.metadata = metadata;
+        }
         this.entity = new ByteArrayInputStream(new byte[0]);
     }
 

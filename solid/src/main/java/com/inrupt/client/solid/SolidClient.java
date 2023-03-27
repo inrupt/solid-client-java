@@ -224,6 +224,27 @@ public class SolidClient {
     /**
      * Delete an existing Solid Resource.
      *
+     * @param resource the resource URI
+     * @return the next stage of completion
+     */
+    public CompletionStage<Response<Void>> delete(final URI resource) {
+        return delete(new SolidResourceReference(resource, null));
+    }
+
+    /**
+     * Delete an existing Solid Resource.
+     *
+     * @param resource the resource URI
+     * @param headers headers to add to this request
+     * @return the next stage of completion
+     */
+    public CompletionStage<Response<Void>> delete(final URI resource, final Headers headers) {
+        return delete(new SolidResourceReference(resource, null), headers);
+    }
+
+    /**
+     * Delete an existing Solid Resource.
+     *
      * @param resource the resource
      * @param <T> the resource type
      * @return the next stage of completion

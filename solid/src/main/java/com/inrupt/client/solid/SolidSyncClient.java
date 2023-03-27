@@ -106,6 +106,16 @@ public class SolidSyncClient {
     /**
      * Delete an existing Solid Resource.
      *
+     * @param resource the resource URI
+     * @return the next stage of completion
+     */
+    public Response<Void> delete(final URI resource) {
+        return awaitAsync(client.delete(new SolidResourceReference(resource, null)));
+    }
+
+    /**
+     * Delete an existing Solid Resource.
+     *
      * @param resource the resource
      * @param <T> the resource type
      * @return the next stage of completion
