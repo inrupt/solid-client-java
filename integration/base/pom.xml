@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.inrupt</groupId>
         <artifactId>inrupt-client-integration-tests</artifactId>
-        <version>1.0.0.Beta1</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>inrupt-client-integration-base-tests</artifactId>
     <name>Inrupt Java Client Libraries - Integration Base Tests</name>
