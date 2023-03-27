@@ -1,6 +1,6 @@
 Usage Examples
 
-    The Inrupt Java Client Libraries come with abstractions such as <<<SolidResource>>> that make it very easy to interact with data stored in a {{{https://solidproject.org/about}Solid Pod}}. 
+    The Inrupt Java Client Libraries come with abstractions such as <<<SolidRDFSource>>> that make it very easy to interact with data stored in a {{{https://solidproject.org/about}Solid Pod}}. 
 
 * What you will need
 
@@ -36,7 +36,7 @@ public void createEmptyResource() {
 
     URI newResourceURI = URIBuilder.newBuilder(podStorage).path("newResource").build();
 
-    try (SolidResource newResource = new SolidResource(newResourceURI, null, null)) {
+    try (SolidRDFSource newResource = new SolidRDFSource(newResourceURI, null, null)) {
         client.create(newResource);
     }
 }
@@ -55,7 +55,7 @@ public void readResource() {
 
     URI newResourceURI = URIBuilder.newBuilder(podStorage).path("newResource").build();
 
-    SolidResource resource = client.read(newResourceURI, SolidResource.class);
+    SolidRDFSource resource = client.read(newResourceURI, SolidRDFSource.class);
 }
 
 +----------------
@@ -84,7 +84,7 @@ public void updateResource() {
         rdf.createIRI("https://resource.test/predicate"), 
         rdf.createLiteral("TestObject"));
 
-    try (SolidResource updatedResource = new SolidResource(newResourceURI, newDataset, null)) {
+    try (SolidRDFSource updatedResource = new SolidRDFSource(newResourceURI, newDataset, null)) {
         client.update(updatedResource);
     }
 }
