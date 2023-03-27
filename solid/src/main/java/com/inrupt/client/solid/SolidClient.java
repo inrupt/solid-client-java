@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import org.apache.commons.rdf.api.Dataset;
 
@@ -191,20 +192,8 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenCompose(res -> {
-            if (isSuccess(res.statusCode())) {
-                if (fetchAfterWrite) {
-                    @SuppressWarnings("unchecked")
-                    final Class<T> clazz = (Class<T>) resource.getClass();
-                    return read(resource.getIdentifier(), headers, clazz);
-                } else {
-                    return CompletableFuture.completedFuture(resource);
-                }
-            } else {
-                throw new SolidClientException("Unable to create new resource", resource.getIdentifier(),
-                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
-            }
-        });
+        return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
+            .thenCompose(handleResponse(resource, headers, "Unable to create resource"));
     }
 
     /**
@@ -236,20 +225,8 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenCompose(res -> {
-            if (isSuccess(res.statusCode())) {
-                if (fetchAfterWrite) {
-                    @SuppressWarnings("unchecked")
-                    final Class<T> clazz = (Class<T>) resource.getClass();
-                    return read(resource.getIdentifier(), headers, clazz);
-                } else {
-                    return CompletableFuture.completedFuture(resource);
-                }
-            } else {
-                throw new SolidClientException("Unable to update resource", resource.getIdentifier(),
-                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
-            }
-        });
+        return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
+            .thenCompose(handleResponse(resource, headers, "Unable to update resource"));
     }
 
     /**
@@ -383,6 +360,25 @@ public class SolidClient {
             final Headers h = builderHeaders == null ? EMPTY_HEADERS : builderHeaders;
             return new SolidClient(c, h, builderFetchAfterWrite);
         }
+    }
+
+    <T extends Resource> Function<Response<byte[]>, CompletionStage<T>> handleResponse(final T resource,
+            final Headers headers, final String message) {
+        return res -> {
+            if (isSuccess(res.statusCode())) {
+                if (fetchAfterWrite) {
+                    @SuppressWarnings("unchecked")
+                    final Class<T> clazz = (Class<T>) resource.getClass();
+                    return read(resource.getIdentifier(), headers, clazz);
+                } else {
+                    return CompletableFuture.completedFuture(resource);
+                }
+            } else {
+                throw new SolidClientException(message, resource.getIdentifier(),
+                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+            }
+
+        };
     }
 
     static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
