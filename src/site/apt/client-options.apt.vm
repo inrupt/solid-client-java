@@ -43,7 +43,7 @@ Client Options
     The high-level synchronous client, offers a RESTful API, allowing for synchronous interaction with Solid resources. In addition this client manages a data binding between the Java types you define and the underlying Solid resources.
 
 +----------------
-import com.inrupt.client.solid.SolidResource;
+import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidSyncClient;
 import java.net.URI;
 
@@ -53,7 +53,7 @@ public class ClientSample {
         SolidSyncClient client = SolidSyncClient.getClient();
 
         URI uri = URI.create("https://storage.example/resource.ttl");
-        SolidResource resource = client.read(uri, SolidResource.class);
+        SolidRDFSource resource = client.read(uri, SolidRDFSource.class);
     }
 }
 +----------------
@@ -63,18 +63,18 @@ public class ClientSample {
     The high-level asynchronous client API is exactly like the synchronous API, except that the return types are wrapped in a <<<CompletionStage<T\>>>>.
 
 +----------------
-import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.solid.SolidRDFSource;
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
 
 public class ClientSample {
 
-    public CompletionStage<SolidResource> useTheHighLevelAsyncClient() {
+    public CompletionStage<SolidRDFSource> useTheHighLevelAsyncClient() {
         SolidClient client = SolidClient.getClient();
 
         URI uri = URI.create("https://storage.example/resource.ttl");
-        return client.read(uri, SolidResource.class);
+        return client.read(uri, SolidRDFSource.class);
     }
 }
 +----------------

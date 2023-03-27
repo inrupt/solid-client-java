@@ -83,10 +83,10 @@
     client.delete(uri).toCompletableFuture().join(); }
  * </pre>
  * 
- * <h3>Solid Resource and Solid Container</h3>
+ * <h3>Solid RDFSource and Solid Container</h3>
  *
  * <p>This module also contains a BodyHandler which consumes the response body
- *  and converts it into a {@link SolidResource} or a {@link SolidContainer} Java object.
+ *  and converts it into a {@link SolidRDFSource} or a {@link SolidContainer} Java object.
  *
  * <p>The following example reads a Solid Container and presents it as a {@link SolidContainer} Java object:
  *
