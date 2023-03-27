@@ -103,7 +103,7 @@ public class HttpServices {
 
     @Test
     void testPostTriple() throws IOException {
-        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf");
+        final URI uri = URI.create(config.get(HTTP_URI) + "/rdf/");
         final String triple = "<http://example.test/s> <http://example.test/p> \"object\" .";
         final Request request = Request.newBuilder()
                 .uri(uri)
