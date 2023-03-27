@@ -83,7 +83,7 @@ class HttpMockService {
                         .withHeader(CONTENT_TYPE, TEXT_TURTLE)
                         .withBodyFile("profileExample.ttl")));
 
-        wireMockServer.stubFor(post(urlEqualTo("/rdf"))
+        wireMockServer.stubFor(post(urlEqualTo("/rdf/"))
                     .withRequestBody(equalTo(
                             "<http://example.test/s> " +
                             "<http://example.test/p> \"object\" ."))
