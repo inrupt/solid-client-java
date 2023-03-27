@@ -365,18 +365,18 @@ public class SolidClient {
     <T extends Resource> Function<Response<byte[]>, CompletionStage<T>> handleResponse(final T resource,
             final Headers headers, final String message) {
         return res -> {
-            if (isSuccess(res.statusCode())) {
-                if (fetchAfterWrite) {
-                    @SuppressWarnings("unchecked")
-                    final Class<T> clazz = (Class<T>) resource.getClass();
-                    return read(resource.getIdentifier(), headers, clazz);
-                } else {
-                    return CompletableFuture.completedFuture(resource);
-                }
-            } else {
+            if (!isSuccess(res.statusCode())) {
                 throw new SolidClientException(message, resource.getIdentifier(),
                         res.statusCode(), res.headers(), new String(res.body(), UTF_8));
             }
+
+            if (!fetchAfterWrite) {
+                return CompletableFuture.completedFuture(resource);
+            }
+
+            @SuppressWarnings("unchecked")
+            final Class<T> clazz = (Class<T>) resource.getClass();
+            return read(resource.getIdentifier(), headers, clazz);
 
         };
     }
