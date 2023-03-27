@@ -336,7 +336,7 @@ class DefaultClientTest {
         final String token = generateIdToken(claims);
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(baseUri.get() + "/postString"))
+                .uri(URI.create(baseUri.get() + "/postStringContainer/"))
                 .header("Content-Type", "text/plain")
                 .POST(Request.BodyPublishers.ofString("Test String 1"))
                 .build();
@@ -356,7 +356,7 @@ class DefaultClientTest {
     @Test
     void testOfStringPublisherUmaAnonSession() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
-                .uri(URI.create(baseUri.get() + "/postString"))
+                .uri(URI.create(baseUri.get() + "/postStringContainer/"))
                 .header("Content-Type", "text/plain")
                 .POST(Request.BodyPublishers.ofString("Test String 1"))
                 .build();
@@ -387,7 +387,7 @@ class DefaultClientTest {
         await().atMost(5, SECONDS).until(() -> !s.getCredential(OpenIdSession.ID_TOKEN, null).isPresent());
 
         final Request request = Request.newBuilder()
-                .uri(URI.create(baseUri.get() + "/postString"))
+                .uri(URI.create(baseUri.get() + "/postStringContainer/"))
                 .header("Content-Type", "text/plain")
                 .POST(Request.BodyPublishers.ofString("Test String 1"))
                 .build();

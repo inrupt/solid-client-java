@@ -128,7 +128,7 @@ class MockHttpService {
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
 
-        wireMockServer.stubFor(post(urlEqualTo("/postString"))
+        wireMockServer.stubFor(post(urlEqualTo("/postStringContainer/"))
                     .atPriority(1)
                     .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(matching("Test String 1"))
@@ -138,7 +138,7 @@ class MockHttpService {
                     .willReturn(aResponse()
                         .withStatus(201)));
 
-        wireMockServer.stubFor(post(urlEqualTo("/postString"))
+        wireMockServer.stubFor(post(urlEqualTo("/postStringContainer/"))
                     .atPriority(2)
                     .withHeader("User-Agent", equalTo(USER_AGENT))
                     .willReturn(aResponse()

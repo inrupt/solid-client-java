@@ -42,8 +42,8 @@
     <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
-    <deploy.plugin.version>3.1.0</deploy.plugin.version>
-    <install.plugin.version>3.1.0</install.plugin.version>
+    <deploy.plugin.version>3.1.1</deploy.plugin.version>
+    <install.plugin.version>3.1.1</install.plugin.version>
     <git.plugin.version>4.9.10</git.plugin.version>
     <gpg.plugin.version>3.0.1</gpg.plugin.version>
     <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
@@ -51,7 +51,7 @@
     <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
     <license.plugin.version>4.1</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
-    <owasp.plugin.version>8.1.2</owasp.plugin.version>
+    <owasp.plugin.version>8.2.1</owasp.plugin.version>
     <projectinfo.plugin.version>3.4.2</projectinfo.plugin.version>
     <pmd.plugin.version>3.20.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
