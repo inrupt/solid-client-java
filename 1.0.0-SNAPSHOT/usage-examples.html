@@ -63,7 +63,7 @@
         <main id="bodyColumn"  class="span10" >
 <section>
 <h2><a name="Usage_Examples"></a>Usage Examples</h2>
-<p>The Inrupt Java Client Libraries come with abstractions such as <code>SolidResource</code> that make it very easy to interact with data stored in a <a class="externalLink" href="https://solidproject.org/about">Solid Pod</a>. </p><section>
+<p>The Inrupt Java Client Libraries come with abstractions such as <code>SolidRDFSource</code> that make it very easy to interact with data stored in a <a class="externalLink" href="https://solidproject.org/about">Solid Pod</a>. </p><section>
 <h3><a name="What_you_will_need"></a>What you will need</h3>
 <ul>
 <li><a class="externalLink" href="https://start.inrupt.com/profile">A Solid Pod</a></li>
@@ -86,7 +86,7 @@ public void createEmptyResource() {
 
     URI newResourceURI = URIBuilder.newBuilder(podStorage).path(&quot;newResource&quot;).build();
 
-    try (SolidResource newResource = new SolidResource(newResourceURI, null, null)) {
+    try (SolidRDFSource newResource = new SolidRDFSource(newResourceURI, null, null)) {
         client.create(newResource);
     }
 }
@@ -101,7 +101,7 @@ public void readResource() {
 
     URI newResourceURI = URIBuilder.newBuilder(podStorage).path(&quot;newResource&quot;).build();
 
-    SolidResource resource = client.read(newResourceURI, SolidResource.class);
+    SolidRDFSource resource = client.read(newResourceURI, SolidRDFSource.class);
 }
 </pre></div></section><section>
 <h3><a name="Update_a_resource"></a>Update a resource</h3>
@@ -125,7 +125,7 @@ public void updateResource() {
         rdf.createIRI(&quot;https://resource.test/predicate&quot;), 
         rdf.createLiteral(&quot;TestObject&quot;));
 
-    try (SolidResource updatedResource = new SolidResource(newResourceURI, newDataset, null)) {
+    try (SolidRDFSource updatedResource = new SolidRDFSource(newResourceURI, newDataset, null)) {
         client.update(updatedResource);
     }
 }
