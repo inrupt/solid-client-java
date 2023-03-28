@@ -171,7 +171,7 @@
         <div class="content-wrapper">
             <h1 th:text="${userName} ? 'Welcome ' + ${userName} + '!' : 'Welcome!'"></h1>
             <div>
-                <form th:action="@{/load}" method="post">
+                <form th:action="@{/loadlibrary}" method="post">
                     <p>Book Library location: 
                         <input class="resource-input" type="text" name="resource" th:value="${resource} ? ${resource} : 'https://storage.inrupt.com/0c51f30b-7160-4b33-a6e6-22d6501f0382/MyBookLibrary/bookLibResource.ttl'"/>
                     </p>

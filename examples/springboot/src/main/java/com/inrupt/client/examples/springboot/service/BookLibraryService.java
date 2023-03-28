@@ -36,18 +36,22 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 @Service
+@SessionScope
 public class BookLibraryService implements IBookLibraryService {
 
     @Autowired
     private UserService userService;
-
     private SolidSyncClient client;
     private BookLibrary bookLib;
+    private String uriOfBookLibraryResource;
 
-    public void loadBookLibrary(final String bookLibResource) throws AuthenticationException {
+    public void loadBookLibrary(final String bookLibResource) {
         client = getClient();
+
+        this.uriOfBookLibraryResource = bookLibResource;
 
         final URI bookLibraryId = URIBuilder
             .newBuilder(URI.create(bookLibResource))
@@ -121,6 +125,10 @@ public class BookLibraryService implements IBookLibraryService {
         });
 
         return foundBooks;
+    }
+
+    public String getBookLibraryUri() {
+        return this.uriOfBookLibraryResource;
     }
 
     private SolidSyncClient getClient() {

@@ -27,6 +27,7 @@ import java.util.Set;
 public interface IBookLibraryService {
     void loadBookLibrary(String bookLibResource);
     void clearBookLibrary();
+    String getBookLibraryUri();
     Set<Book> getAllBook();
     Set<Book> getBookForTitle(String bookTitle);
     Set<Book> getBookForAuthor(String bookAuthor);

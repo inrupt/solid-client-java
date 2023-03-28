@@ -45,11 +45,11 @@ public class ApplicationStartController {
     private static final String FRONTEND_MESSAGE = "message";
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private IBookLibraryService bookLibService;
 
-    private String bookLibraryResource;
+    @Autowired
+    private UserService userService;
+
     private String userName;
 
 
@@ -60,85 +60,79 @@ public class ApplicationStartController {
         return INDEX_PAGE;
     }
 
-    @PostMapping("/load")
+    @PostMapping("/loadlibrary")
     public String welcome(final @RequestParam String resource, final Model model) {
         Objects.nonNull(resource);
-        this.bookLibraryResource = resource;
+        setUsernameFrontendState(model);
         this.bookLibService.loadBookLibrary(resource);
         model.addAttribute(FRONTEND_RESOURCE, resource);
-        model.addAttribute(FRONTEND_USERNAME, this.userName);
         return INDEX_PAGE;
     }
 
     @GetMapping("/logmein")
     public String login(final Model model) {
-        if (userService.getCurrentUser() != null) {
-            this.userName = userService.getCurrentUser().geUserName();
-            model.addAttribute(FRONTEND_USERNAME, this.userName);
-            model.addAttribute(FRONTEND_ERROR_MESSAGE, "");
-            this.bookLibService.loadBookLibrary(this.bookLibraryResource);
-        } else {
-            model.addAttribute(FRONTEND_ERROR_MESSAGE, "Something went wrong with the login!");
-        }
-        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
-        return INDEX_PAGE;
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public String handleAuthenticationException(final AuthenticationException exception, final Model model) {
-        model.addAttribute(FRONTEND_ERROR_MESSAGE, exception.getMessage());
-        this.userName = null;
-        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
-        model.addAttribute(FRONTEND_USERNAME, this.userName);
-        this.bookLibService.clearBookLibrary();
-        return INDEX_PAGE;
-    }
-
-    @ExceptionHandler(AuthorizationException.class)
-    public String handleAuthorizationException(final AuthorizationException exception, final Model model) {
-        model.addAttribute(FRONTEND_ERROR_MESSAGE, exception.getMessage());
-        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
-        model.addAttribute(FRONTEND_USERNAME, this.userName);
-        this.bookLibService.clearBookLibrary();
+        setUsernameFrontendState(model);
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibService.getBookLibraryUri());
+        this.bookLibService.loadBookLibrary(this.bookLibService.getBookLibraryUri());
         return INDEX_PAGE;
     }
 
     @GetMapping("/allbooks")
     public String books(final Model model ) {
-        if (this.bookLibService.getAllBook() == null || this.bookLibService.getAllBook().isEmpty()) {
+        setUsernameFrontendState(model);
+        final Set<Book> result = this.bookLibService.getAllBook();
+        model.addAttribute("allBooks", result);
+        if (result.isEmpty()) {
             model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
-        } else {
-            model.addAttribute("allBooks", this.bookLibService.getAllBook());
         }
-        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
-        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibService.getBookLibraryUri());
         return INDEX_PAGE;
     }
 
     @GetMapping("/booksbyauthor")
     public String bookbyauthor(@RequestParam(value = "author", defaultValue = "Bram Stoker")
         final String author, final Model model) {
+        setUsernameFrontendState(model);
         final Set<Book> result = this.bookLibService.getBookForAuthor(author);
-        model.addAttribute("allBooks", result);
+        model.addAttribute("allBooks", this.bookLibService.getBookForAuthor(author));
         if (result.isEmpty()) {
             model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
         }
-        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
-        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibService.getBookLibraryUri());
         return INDEX_PAGE;
     }
 
     @GetMapping("/booksbytitle")
     public String bookbytitle(@RequestParam(value = "title", defaultValue = "Women")
         final String title, final Model model) {
+        setUsernameFrontendState(model);
         final Set<Book> result = this.bookLibService.getBookForTitle(title);
         model.addAttribute("allBooks", result);
         if (result.isEmpty()) {
             model.addAttribute(FRONTEND_MESSAGE, "We did not find any book.");
         }
-        model.addAttribute(FRONTEND_RESOURCE, this.bookLibraryResource);
-        model.addAttribute(FRONTEND_USERNAME, this.userName);
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibService.getBookLibraryUri());
         return INDEX_PAGE;
+    }
+
+    @ExceptionHandler(value = { AuthorizationException.class, AuthenticationException.class,
+        IllegalArgumentException.class })
+    public String handleAuthorizationException(final RuntimeException exception, final Model model) {
+        setUsernameFrontendState(model);
+        model.addAttribute(FRONTEND_ERROR_MESSAGE, exception.getMessage());
+        model.addAttribute(FRONTEND_RESOURCE, this.bookLibService.getBookLibraryUri());
+        this.bookLibService.clearBookLibrary();
+        return INDEX_PAGE;
+    }
+
+    private void setUsernameFrontendState(final Model model) {
+        if (userService.getCurrentUser() != null) {
+            this.userName = userService.getCurrentUser().getIdentifier().toString();
+            model.addAttribute(FRONTEND_ERROR_MESSAGE, "");
+        } else {
+            this.userName = null;
+        }
+        model.addAttribute(FRONTEND_USERNAME, this.userName);
     }
 
 }

@@ -25,18 +25,21 @@ import com.inrupt.client.solid.SolidSyncClient;
 
 import java.net.URI;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 @Service
+@SessionScope
 public class UserService {
 
     private final SolidSyncClient client = SolidSyncClient.getClient();
 
     public WebIdOwner getCurrentUser() {
 
-        if (SecurityContextHolder.getContext() != null) {
+        if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
             final Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
             if (principal instanceof OidcUser) {
