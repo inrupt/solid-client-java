@@ -2,8 +2,6 @@ com.inrupt.client
 com.inrupt.client.accessgrant
 com.inrupt.client.auth
 com.inrupt.client.core
-com.inrupt.client.examples.cli
-com.inrupt.client.examples.webapp
 com.inrupt.client.httpclient
 com.inrupt.client.integration.base
 com.inrupt.client.jackson
