@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1679961103434">
+    <module artifactId="inrupt-client-api" groupId="com.inrupt" version="1.0.0.Beta1"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/ByteBufferPublisher.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/Client.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/ClientProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/Headers.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/InruptClientException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/NonRDFSource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/RDFSource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/Request.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/Resource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/Response.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/ValidationResult.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/Authenticator.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/Challenge.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/Credential.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/DPoP.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/ReactiveAuthorization.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/Session.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/auth/package-info.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/package-info.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/AuthenticationProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/ClientProviderResolver.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/DpopService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/HeaderParser.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/HttpService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/JsonService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/RDFFactory.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/RdfService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/ServiceProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/spi/package-info.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/util/IOUtils.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/util/URIBuilder.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/util/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/RDFSourceTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/util/IOUtilsTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/util/URIBuilderTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
