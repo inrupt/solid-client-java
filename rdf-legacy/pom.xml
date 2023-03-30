@@ -118,6 +118,12 @@
       <artifactId>wiremock-jre8</artifactId>
       <version>${wiremock.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+            <groupId>net.minidev</groupId>
+            <artifactId>accessors-smart</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
