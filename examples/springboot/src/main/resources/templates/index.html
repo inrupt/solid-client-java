@@ -141,6 +141,21 @@
                     grid-column: span 12;
                 }
             }
+            .hidden {
+                visibility: hidden;
+            }
+            .visible {
+                visibility: visible;
+            }
+            .resource-input {
+                width: 68%;
+            }
+            .error {
+                color: red;
+            }
+            .message {
+                color: green;
+            }
         </style>
     </head>
     <body>
@@ -154,27 +169,46 @@
         </div>
         
         <div class="content-wrapper">
-            <h1>Welcome!</h1>
-            <div class="grid">
+            <h1 th:text="${userName} ? 'Welcome ' + ${userName} + '!' : 'Welcome!'"></h1>
+            <div>
+                <form th:action="@{/loadlibrary}" method="post">
+                    <p>Book Library location: 
+                        <input class="resource-input" type="text" name="resource" th:value="${resource} ? ${resource} : 'https://storage.inrupt.com/0c51f30b-7160-4b33-a6e6-22d6501f0382/MyBookLibrary/bookLibResource.ttl'"/>
+                    </p>
+                    <p><input type="submit" value="Load" /></p>
+                </form>
+            </div>
+            <br/>
+            <p class="message" th:text="${message}"></p>
+            <p class="error" th:text="${error}"></p>
+            <br/>
+            <div class="grid" th:classappend="${resource} ? 'visible' : 'hidden'" >
                 <div class="left-column">
                     <h3>Actions:</h3>
-                            <h3 Style="word-spacing: normal;"><a style="color: #FFFFFF; text-decoration:none;" href="/allbooks" class="cta-button">List all my books</a>
-                            <a style="color: #FFFFFF; text-decoration:none;" href="/bookbytitle" class="cta-button">Get book with the title "Dracula"</a>
-                            <a style="color: #FFFFFF; text-decoration:none;" href="/login" class="cta-button">Login</a>
-                            </h3>
+                    <ul class="provided-code">
+                        <li class="provided-code">
+                            <a href="/allbooks" class="path-link">List all my books</a>
+                        </li>
+                        <li class="provided-code">
+                            <a href="/booksbyauthor" class="path-link">Get books by 'Bram Stoker'</a>
+                        </li>
+                        <li class="provided-code">
+                            <a href="/booksbytitle" class="path-link">Get books which contains 'Women' in the title</a>
+                        </li>
+                        <li th:if="${userName}" class="provided-code">
+                            <a href="/logout" class="path-link">Logout</a>
+                        </li>
+                        <li th:unless="${userName}" class="provided-code">
+                            <a href="/logmein" class="path-link">Login</a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="left-column">
+                <div class="right-column" th:classappend="${(allBooks!=null and !allBooks.empty)} ? 'visible' : 'hidden'">
                     <h3>Result:</h3>
-                    <p th:text="${message}"></p>                        
-                    <p th:text="${error}"></p>                        
+                    
                     <ul th:each="book : ${allBooks}">
-                        <li><span th:text="${book}"> </span></li>
-                    </ul>                    
-                    <tr th:each="book : ${booksByTitle}">
-                        <td><span th:text="${book.title}"> Title </span></td>
-                        <td><span th:text="${book.author}"> Author </span></td>
-                    </tr>
-                </form>
+                        <li><span th:text="${book.author}"> Author </span>: <span th:text="${book.title}"> Title </span></li>
+                    </ul>
                 </div>
             </div>
         </div>

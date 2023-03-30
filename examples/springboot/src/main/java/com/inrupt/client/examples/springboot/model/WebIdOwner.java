@@ -20,33 +20,45 @@
  */
 package com.inrupt.client.examples.springboot.model;
 
-import com.inrupt.client.solid.Metadata;
-import com.inrupt.client.solid.SolidRDFSource;
-import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.client.webid.WebIdProfile;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
 import java.net.URI;
-import java.util.Set;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-public class BookLibrary extends SolidRDFSource {
+public final class WebIdOwner extends WebIdProfile {
 
-    private Node bookLibraryId;
-    private final IRI contains = rdf.createIRI(Vocabulary.CONTAINS_BOOK);
+    private final IRI vcardName;
+    private String token;
 
-    public BookLibrary(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset, metadata);
-
-        this.bookLibraryId = new Node(rdf.createIRI(identifier.toString()), getGraph());
+    public WebIdOwner(final URI identifier, final Dataset dataset) {
+        super(identifier, dataset);
+        this.vcardName = rdf.createIRI(Vocabulary.FN);
     }
 
-    public Set<URI> getAllBooks() {
-        return bookLibraryId.getAllBooks();
+    private String getVCARDName() {
+        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getVCARDName();
+    }
+
+    public String geUserName() {
+        return getVCARDName() != null ? getVCARDName() : getWebid();
+    }
+
+    private String getWebid() {
+        return this.getIdentifier().toString();
+    }
+
+    public void setToken(final String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return this.token;
     }
 
     class Node extends WrapperIRI {
@@ -55,10 +67,8 @@ public class BookLibrary extends SolidRDFSource {
             super(original, graph);
         }
 
-        Set<URI> getAllBooks() {
-            return objects(contains, TermMappings::asIri, ValueMappings::iriAsUri);
+        String getVCARDName() {
+            return anyOrNull(vcardName, ValueMappings::literalAsString);
         }
-
     }
-
 }

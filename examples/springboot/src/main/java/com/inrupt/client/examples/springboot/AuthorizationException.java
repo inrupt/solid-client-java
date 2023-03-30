@@ -20,37 +20,15 @@
  */
 package com.inrupt.client.examples.springboot;
 
-import com.inrupt.client.examples.springboot.model.Book;
+public class AuthorizationException  extends RuntimeException {
 
-import java.util.Set;
+    private static final long serialVersionUID = 3854695545552441026L;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-@Controller
-public class BookLibraryController {
-
-    @Autowired
-    private BookLibraryService bookLibService;
-
-    @GetMapping("/allbooks")
-    public String books(final Model model ) {
-        model.addAttribute("allBooks", bookLibService.getAllBooks());
-        return "index";
+    public AuthorizationException(final String message) {
+        super(message);
     }
 
-    @GetMapping("/bookbytitle")
-    public String bookbytitle(@RequestParam(value = "title", defaultValue = "Dracula")
-        final String title, final Model model) {
-        final Set<Book> result = bookLibService.getBookForTitle(title);
-        if (!result.isEmpty()) {
-            model.addAttribute("booksByTitle", result);
-        } else {
-            model.addAttribute("error", "Did not find the book");
-        }
-        return "index";
+    public AuthorizationException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }
