@@ -29,25 +29,19 @@ import org.springframework.stereotype.Component;
 @Component
 public final class Vocabulary {
 
-    // TODO: -----REPLACE------
-    private static final URI BASE = URI.create("podStorage");
+    public static final URI VOCABULARY_BASE =
+        URI.create("https://inrupt.github.io/solid-client-java/data");
 
-    private static final String BOOK_LIBRARY_CONTAINER = "MyBookLibrary";
-    private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary";
+    private static final String BOOK_LIBRARY_CONTAINER = "myBookLibrary";
+    private static final String BOOK_LIBRARY_VOCABULARY_RESOURCE = "bookLibraryVocabulary.ttl";
     private static final String VOCABULARY_RESOURCE_SEPARATOR = "#";
 
-    private static final String BOOK_LIBRARY_VOCABULARY = URIBuilder.newBuilder(BASE)
+    private static final String BOOK_LIBRARY_VOCABULARY = URIBuilder.newBuilder(VOCABULARY_BASE)
         .path(BOOK_LIBRARY_CONTAINER)
         .path(BOOK_LIBRARY_VOCABULARY_RESOURCE)
         .build()
         .toString()
         .concat(VOCABULARY_RESOURCE_SEPARATOR);
-
-    public static final String BOOK_LIBRARY_RESOURCE = URIBuilder.newBuilder(BASE)
-        .path(BOOK_LIBRARY_CONTAINER)
-        .path("bookLibResource.ttl")
-        .build()
-        .toString();
 
     //Classes
     public static final String BOOK_LIBRARY = BOOK_LIBRARY_VOCABULARY.concat("BookLibrary");
@@ -60,6 +54,10 @@ public final class Vocabulary {
     //DC Vocabulary
     private static final String DC_BASE = "http://purl.org/dc/elements/1.1/";
     public static final String DC_TITLE = DC_BASE.concat("title");
+
+    //VCARD
+    private static final String VCARD_BASE = "http://www.w3.org/2006/vcard/ns#";
+    public static final String FN = VCARD_BASE.concat("fn");
 
     private Vocabulary() {
     }
