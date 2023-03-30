@@ -140,5 +140,13 @@ public class AccessGrantScenarios {
     @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
     void accessGrantIssuanceLifecycleTest() {
         LOGGER.info("Integration Test - Access Grant issuance lifecycle");
+
+        //Steps
+        //1. issue access grant (request)
+        //2. approve access grant (request)
+        //3. call verify endpoint to verify grant
+        //4. get access grant from vcProvider - check that they match on proof at least
+        //5. revoke access grant
+        //6. call very endpoint to check the grant is not valid
     }
 }
