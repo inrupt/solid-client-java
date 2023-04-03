@@ -64,7 +64,7 @@ forum is a good place to meet the rest of the community.
 ## Documentation
 
 - [Inrupt Java Client Libraries getting started](https://docs.inrupt.com/developer-tools/java/client-libraries/getting-started/)
-- [Inrupt Java Client Libraries javadocs](https://docs.inrupt.com/developer-tools/api/java/inrupt-client/latest/index.html)
+- [Inrupt Java Client Libraries javadocs](https://docs.inrupt.com/developer-tools/api/java/inrupt-client/latest/)
 
 ## Changelog
 
