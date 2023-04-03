@@ -47,7 +47,7 @@ class MockSolidServer {
     }
 
     private void setupMocks() {
-        wireMockServer.stubFor(get(anyUrl()).withHeader("User-Agent", equalTo(USER_AGENT)));
+        wireMockServer.stubFor(get(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
         wireMockServer.stubFor(put(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
         wireMockServer.stubFor(post(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
         wireMockServer.stubFor(patch(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));

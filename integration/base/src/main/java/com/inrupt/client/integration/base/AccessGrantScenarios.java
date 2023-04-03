@@ -20,23 +20,39 @@
  */
 package com.inrupt.client.integration.base;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.accessgrant.AccessGrant;
+import com.inrupt.client.accessgrant.AccessGrantClient;
+import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-
+import java.util.stream.Stream;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +76,11 @@ public class AccessGrantScenarios {
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
+    private static final String VC_PROVIDER = config
+        .getOptionalValue("inrupt.test.vc.provider", String.class)
+        .orElse("https://vc.inrupt.com");
 
+    private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
     private static URI testContainerURI;
     private static String sharedFileName = "sharedFile.txt";
     private static URI sharedFileURI;
@@ -108,12 +128,6 @@ public class AccessGrantScenarios {
             .path(sharedFileName)
             .build();
 
-        session = OpenIdSession.ofClientCredentials(
-            URI.create(issuer), //Client credentials
-            CLIENT_ID,
-            CLIENT_SECRET,
-            AUTH_METHOD);
-
         //create test file in test container
         final Request reqCreate =
             Request.newBuilder(sharedFileURI).header(Utils.CONTENT_TYPE, Utils.PLAIN_TEXT)
@@ -136,17 +150,49 @@ public class AccessGrantScenarios {
         webIdService.stop();
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("provideSessions")
     @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
-    void accessGrantIssuanceLifecycleTest() {
+    void accessGrantIssuanceLifecycleTest(final Session session) {
         LOGGER.info("Integration Test - Access Grant issuance lifecycle");
 
+        final AccessGrantClient client = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
+
         //Steps
-        //1. issue access grant (request)
-        //2. approve access grant (request)
-        //3. call verify endpoint to verify grant
-        //4. get access grant from vcProvider - check that they match on proof at least
-        //5. revoke access grant
-        //6. call very endpoint to check the grant is not valid
+        //1. issue & approve access grant (request)
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read"));
+        final Set<String> purposes = new HashSet<>(Arrays.asList(
+            "https://some.purpose/not-a-nefarious-one/i-promise",
+            "https://some.other.purpose/"));
+        final Instant expiration = Instant.parse("2023-04-03T12:00:00Z");
+        final AccessGrant grant = client.issue(ACCESS_GRANT, URI.create(webidUrl), 
+            new HashSet<>(Arrays.asList(sharedFileURI)), modes, purposes, expiration)
+            .toCompletableFuture().join();
+
+        //2. call verify endpoint to verify grant
+
+        //3. get access grant from vcProvider - check that they match on proof at least
+        final URI uri = URIBuilder.newBuilder(URI.create(VC_PROVIDER)).path(grant.getIdentifier().toString()).build();
+        final AccessGrant grantFromVcProvider = client.fetch(uri).toCompletableFuture().join();
+        assertEquals(grant.getPurpose(), grantFromVcProvider.getPurpose());
+
+        //4. revoke access grant
+        assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
+
+        //5. call verify endpoint to check the grant is not valid
+    }
+
+    private static Stream<Arguments> provideSessions() throws SolidClientException {
+        session = OpenIdSession.ofClientCredentials(
+            URI.create(issuer), //Client credentials
+            CLIENT_ID,
+            CLIENT_SECRET,
+            AUTH_METHOD);
+        final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN, null);
+        final var token = credential.map(Credential::getToken)
+            .orElseThrow(() -> new OpenIdException("We could not get a token"));
+        return Stream.of(
+            Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
+            Arguments.of(session)));
     }
 }
