@@ -468,7 +468,7 @@ public class AccessGrantClient {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("expirationDate", expiration);
-        credential.put("credentialSubjct", subject);
+        credential.put("credentialSubject", subject);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("credential", credential);
@@ -492,7 +492,7 @@ public class AccessGrantClient {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("expirationDate", expiration);
-        credential.put("credentialSubjct", subject);
+        credential.put("credentialSubject", subject);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("credential", credential);
