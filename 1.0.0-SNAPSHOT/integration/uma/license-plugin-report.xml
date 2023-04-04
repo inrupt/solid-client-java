@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1680546396312">
+<licensePluginReport goal="CHECK" timestamp="1680632519904">
     <module artifactId="inrupt-client-integration-uma-tests" groupId="com.inrupt" version="1.0.0-SNAPSHOT"/>
     <files>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaAuthenticationScenariosTest.java" result="PRESENT"/>
