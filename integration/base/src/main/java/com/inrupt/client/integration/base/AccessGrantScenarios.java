@@ -22,6 +22,7 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.accessgrant.AccessGrant;
@@ -38,18 +39,17 @@ import com.inrupt.client.webid.WebIdProfile;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -64,6 +64,8 @@ public class AccessGrantScenarios {
     private static MockOpenIDProvider identityProviderServer;
     private static MockUMAAuthorizationServer authServer;
     private static MockWebIdService webIdService;
+    private static MockAccessGrantServer accessGrantServer;
+    
     private static String podUrl;
     private static String issuer;
     private static String webidUrl;
@@ -76,11 +78,10 @@ public class AccessGrantScenarios {
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
-    private static final String VC_PROVIDER = config
-        .getOptionalValue("inrupt.test.vc.provider", String.class)
-        .orElse("https://vc.inrupt.com");
+    private static String VC_PROVIDER;
 
     private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+    private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
     private static URI testContainerURI;
     private static String sharedFileName = "sharedFile.txt";
     private static URI sharedFileURI;
@@ -134,20 +135,35 @@ public class AccessGrantScenarios {
                     .PUT(Request.BodyPublishers.noBody()).build();
         client.send(reqCreate, Response.BodyHandlers.discarding());
 
+        accessGrantServer = new MockAccessGrantServer(State.WEBID.toString(), sharedFileURI.toString());
+        accessGrantServer.start();
+
+        VC_PROVIDER = config
+            .getOptionalValue("inrupt.test.vc.provider", String.class)
+            .orElse(accessGrantServer.getMockServerUrl());
+
+        config
+            .getOptionalValue("inrupt.test.webid", String.class)
+            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                .path(MOCK_USERNAME)
+                .build()
+                .toString());
+
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
-        LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
+        LOGGER.info("Integration Test Pod Host: [{}]", podUrl);
     }
     @AfterAll
     static void teardown() {
          //cleanup pod
-        final SolidSyncClient client = SolidSyncClient.getClient().session(session);
+        /*final SolidSyncClient client = SolidSyncClient.getClient().session(session);
         client.send(Request.newBuilder(sharedFileURI).DELETE().build(), Response.BodyHandlers.discarding());
         client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-
+*/
         mockHttpServer.stop();
         identityProviderServer.stop();
         authServer.stop();
         webIdService.stop();
+        accessGrantServer.stop();
     }
 
     @ParameterizedTest
@@ -159,13 +175,13 @@ public class AccessGrantScenarios {
         final AccessGrantClient client = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //Steps
-        //1. issue & approve access grant (request)
+        //1. issue & approve access request
         final Set<String> modes = new HashSet<>(Arrays.asList("Read"));
         final Set<String> purposes = new HashSet<>(Arrays.asList(
             "https://some.purpose/not-a-nefarious-one/i-promise",
             "https://some.other.purpose/"));
         final Instant expiration = Instant.parse("2023-04-03T12:00:00Z");
-        final AccessGrant grant = client.issue(ACCESS_GRANT, URI.create(webidUrl), 
+        final AccessGrant grant = client.issue(ACCESS_REQUEST, URI.create(webidUrl),
             new HashSet<>(Arrays.asList(sharedFileURI)), modes, purposes, expiration)
             .toCompletableFuture().join();
 
@@ -176,10 +192,12 @@ public class AccessGrantScenarios {
         final AccessGrant grantFromVcProvider = client.fetch(uri).toCompletableFuture().join();
         assertEquals(grant.getPurpose(), grantFromVcProvider.getPurpose());
 
-        //4. revoke access grant
+        //4. request file with access grant
+
+        //5. revoke access grant
         assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
 
-        //5. call verify endpoint to check the grant is not valid
+        //6. call verify endpoint to check the grant is not valid
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
