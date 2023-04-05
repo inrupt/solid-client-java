@@ -42,7 +42,6 @@ class MockAccessGrantServer {
         this.webId = webId;
         this.sharedFile = sharedFile;
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort()
-        //.notifier(new ConsoleNotifier(true))
         );
     }
 
@@ -72,13 +71,6 @@ class MockAccessGrantServer {
                     .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));
 
-        /* wireMockServer.stubFor(post(urlEqualTo("/derive"))
-                    .withHeader("Authorization", containing("Bearer"))
-                    .withRequestBody(containing("\"https://storage.example/"))
-                    .willReturn(aResponse()
-                        .withStatus(Utils.SUCCESS)
-                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/query_response2.json", wireMockServer.baseUrl())))); */
     }
 
     private String getResource(final String path) {
