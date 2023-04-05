@@ -32,6 +32,7 @@ import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -63,6 +64,7 @@ public final class DefaultClient implements Client {
 
     @Override
     public Client session(final Session session) {
+        Objects.requireNonNull(session, "Session may not be null!");
         return new DefaultClient(this.httpClient, session);
     }
 
