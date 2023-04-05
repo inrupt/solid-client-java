@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1680631990159">
+<licensePluginReport goal="CHECK" timestamp="1680701521049">
     <module artifactId="inrupt-client-test" groupId="com.inrupt" version="1.0.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/test/HttpMockService.java" result="PRESENT"/>
