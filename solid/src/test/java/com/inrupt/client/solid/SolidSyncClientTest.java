@@ -138,12 +138,16 @@ class SolidSyncClientTest {
 
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             assertEquals(uri, container.getIdentifier());
-            assertEquals(0, container.getContainedResources().count());
+            assertEquals(0, container.getResources().size());
             assertEquals(4, container.size());
             try (final Stream<? extends Quad> stream = container.stream(Optional.empty(),
                         rdf.createIRI(uri.toString()), rdf.createIRI("https://example.com/song"), null)) {
                 assertEquals(2, stream.count());
             }
+
+            @SuppressWarnings("deprecation")
+            final long count = container.getContainedResources().count();
+            assertEquals(0, count);
 
             assertDoesNotThrow(() -> client.update(container));
             assertDoesNotThrow(() -> client.create(container));
