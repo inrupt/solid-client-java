@@ -136,14 +136,18 @@ class SolidRDFSourceTest {
 
         try (final SolidContainer container = response.body()) {
             assertEquals(resource, container.getIdentifier());
-            assertEquals(3, container.getContainedResources().count());
+            assertEquals(3, container.getResources().size());
+
+            @SuppressWarnings("deprecation")
+            final long count = container.getContainedResources().count();
+            assertEquals(3, count);
 
             final Set<URI> uris = new HashSet<>();
             uris.add(URIBuilder.newBuilder(resource).path("test.txt").build());
             uris.add(URIBuilder.newBuilder(resource).path("test2.txt").build());
             uris.add(URIBuilder.newBuilder(resource).path("newContainer/").build());
 
-            container.getContainedResources().forEach(child ->
+            container.getResources().forEach(child ->
                 assertTrue(uris.contains(child.getIdentifier())));
         }
     }
