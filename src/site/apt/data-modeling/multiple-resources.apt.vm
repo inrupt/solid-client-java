@@ -30,7 +30,8 @@ public class MyApplication {
                     final Request req = Request.newBuilder(r.getIdentifier())
                         .HEAD()
                         .build();
-                    final var contentType = req.headers().firstValue("Content-Type");
+                    final var res = client.send(req, Response.BodyHandlers.discarding());
+                    final var contentType = res.headers().firstValue("Content-Type");
                     if (contentType.isPresent() && (contentType.get().toLowerCase().contains("text/turtle"))) {
                         try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
                             System.out.println(playlist.getTitle());

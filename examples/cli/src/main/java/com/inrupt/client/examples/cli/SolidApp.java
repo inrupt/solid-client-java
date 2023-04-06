@@ -22,19 +22,18 @@ package com.inrupt.client.examples.cli;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.solid.SolidSyncClient;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 
 import java.io.PrintWriter;
-import java.net.URI;
-import java.util.Collection;
 
 import javax.inject.Inject;
 
@@ -91,9 +90,8 @@ public class SolidApp implements QuarkusApplication {
                             printWriter.format("Total number of contained resources is: %s ", resources.size());
                             printWriter.println();
 
-                            resources.stream().filter(r -> filterResource(r, cmd)).forEach(r -> {
-                                printWriter.format("Resource: %s, %s", r.getIdentifier(),
-                                    principalType(r.getMetadata().getType()));
+                            resources.stream().filter(r -> filterResource(client, r, cmd)).forEach(r -> {
+                                printWriter.format("Resource: %s", r.getIdentifier());
                                 printWriter.println();
                             });
                         }
@@ -108,28 +106,24 @@ public class SolidApp implements QuarkusApplication {
         return 0;
     }
 
-    boolean filterResource(final SolidResource resource, final CommandLine cl) {
-        if (cl.hasOption("c") && resource.getMetadata().getType().contains(LDP.BasicContainer)) {
+    boolean filterResource(final SolidSyncClient client, final SolidResource resource, final CommandLine cl) {
+        if (cl.hasOption("c") && resource.getIdentifier().toString().endsWith("/")) {
             return true;
         }
-        if (cl.hasOption("r") && resource.getMetadata().getType().contains(LDP.RDFSource)) {
+        final var req = Request.newBuilder(resource.getIdentifier())
+                .HEAD()
+                .build();
+        final var res = client.send(req, Response.BodyHandlers.discarding());
+        final var contentType = res.headers().firstValue("Content-Type");
+        if (cl.hasOption("r") && contentType.isPresent() &&
+            (contentType.get().toLowerCase().contains("text/turtle")) ) {
             return true;
         }
-        if (cl.hasOption("n") && resource.getMetadata().getType().contains(LDP.NonRDFSource)) {
+        if (cl.hasOption("n") && contentType.isPresent() &&
+            !(contentType.get().toLowerCase().contains("text/turtle"))) {
             return true;
         }
         return false;
-    }
-
-    public URI principalType(final Collection<URI> types) {
-        if (types.contains(LDP.BasicContainer)) {
-            return LDP.BasicContainer;
-        } else if (types.contains(LDP.RDFSource)) {
-            return LDP.RDFSource;
-        } else if (types.contains(LDP.NonRDFSource)) {
-            return LDP.NonRDFSource;
-        }
-        return LDP.Resource;
     }
 
     void showHelp(final Options options) {
