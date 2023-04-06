@@ -91,7 +91,8 @@ public class MyApplication {
                     final Request req = Request.newBuilder(r.getIdentifier())
                         .HEAD()
                         .build();
-                    final var contentType = req.headers().firstValue(&quot;Content-Type&quot;);
+                    final var res = client.send(req, Response.BodyHandlers.discarding());
+                    final var contentType = res.headers().firstValue(&quot;Content-Type&quot;);
                     if (contentType.isPresent() &amp;&amp; (contentType.get().toLowerCase().contains(&quot;text/turtle&quot;))) {
                         try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
                             System.out.println(playlist.getTitle());
