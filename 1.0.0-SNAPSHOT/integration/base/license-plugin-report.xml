@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1680773176096">
-    <module artifactId="inrupt-client-integration-base-tests" groupId="com.inrupt" version="1.0.0-SNAPSHOT"/>
+<licensePluginReport goal="CHECK" timestamp="1680784691831">
+    <module artifactId="inrupt-client-integration-base-tests" groupId="com.inrupt.client" version="1.0.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/integration/base/AuthenticationScenarios.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/integration/base/CoreModulesResource.java" result="PRESENT"/>
