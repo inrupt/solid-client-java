@@ -19,7 +19,8 @@
     </properties>
 
     <dependencies>
-            <groupId>com.inrupt</groupId>
+        <dependency>
+            <groupId>com.inrupt.client</groupId>
             <artifactId>inrupt-client-accessgrant</artifactId>
             <version>${project.version}</version>
         </dependency>
