@@ -134,6 +134,7 @@ public class AccessGrantClient {
      * @return the scoped access grant client
      */
     public AccessGrantClient session(final Session session) {
+        Objects.requireNonNull(session, "Session may not be null!");
         return new AccessGrantClient(client.session(session), config);
     }
 

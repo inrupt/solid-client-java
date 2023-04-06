@@ -78,6 +78,7 @@ public class SolidClient {
      * @return a session-scoped client
      */
     public SolidClient session(final Session session) {
+        Objects.requireNonNull(session, "Session may not be null!");
         return new SolidClient(client.session(session), defaultHeaders, fetchAfterWrite);
     }
 
