@@ -25,7 +25,7 @@ public class MyApplication {
         URI uri = URI.create("https://storage.example/booklibrary/");
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             final var resources = container.getResources();
-            resources.stream().forEach(r -> {
+            resources.forEach(r -> {
                 if (!(r.getIdentifier().toString().endsWith("/"))) { //if it ends in a '/' it is a container
                     final Request req = Request.newBuilder(r.getIdentifier())
                         .HEAD(Request.BodyPublishers.noBody())
