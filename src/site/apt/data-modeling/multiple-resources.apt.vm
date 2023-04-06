@@ -27,14 +27,19 @@ public class MyApplication {
             final var resources = container.getResources();
             resources.stream().forEach(r -> {
                 if (!(r.getIdentifier().toString().endsWith("/"))) { //if it ends in a '/' it is a container
-                    try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
-                        System.out.println(playlist.getTitle());
+                    final Request req = Request.newBuilder(r.getIdentifier())
+                        .HEAD(Request.BodyPublishers.noBody())
+                        .build();
+                    if (req.headers().firstValue("Content-Type").get().equalsIgnoreCase("text/turtle")) {
+                        try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
+                            System.out.println(playlist.getTitle());
 
-                        // Set the playlist title
-                        playlist.setTitle(title);
+                            // Set the playlist title
+                            playlist.setTitle(title);
 
-                        // Update the playlist in your storage
-                        client.update(playlist);
+                            // Update the playlist in your storage
+                            client.update(playlist);
+                        }
                     }
                 }
             });
