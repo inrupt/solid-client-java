@@ -604,6 +604,7 @@
         </executions>
         <configuration>
           <failBuildOnCVSS>7</failBuildOnCVSS>
+          <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
           <formats>
             <format>HTML</format>
             <format>JSON</format>
