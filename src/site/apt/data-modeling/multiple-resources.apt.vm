@@ -1,0 +1,46 @@
+Data Modeling for multiple Solid Resources
+
+* How to complete
+
+    The solution involves working with domain-specific type such as <<<SolidContainer>>> and <<<SolidResource>>>. 
+
+* Working with Solid Containers
+
+    We have to access the contained resources of a Solid Container. We assume that all Solid RDF Resources are Books. 
+
+    You can use a wrapper class (describe on the {{{./one-resource.html}One Solid Resource}} page) with the high-level Solid client, mapping data seamlessly between your Java application and an RDF resource.
+
++---
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidContainer;
+import java.net.URI;
+
+public class MyApplication {
+
+    public void run() {
+        Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
+        SolidSyncClient client = SolidSyncClient.getClient().session(session);
+
+        URI uri = URI.create("https://storage.example/booklibrary/");
+        try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
+            final var resources = container.getResources();
+            resources.stream().forEach(r -> {
+                if (!(r.getIdentifier().toString().endsWith("/"))) { //if it ends in a '/' it is a container
+                    try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
+                        System.out.println(playlist.getTitle());
+
+                        // Set the playlist title
+                        playlist.setTitle(title);
+
+                        // Update the playlist in your storage
+                        client.update(playlist);
+                    }
+                }
+            });
+        }
+        
+    }
+}
++---
+

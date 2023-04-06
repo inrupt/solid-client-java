@@ -17,7 +17,10 @@
         <item name="Command Line Apps" href="/sessions/session-clis.html"/>
         <item name="Access Grants" href="/sessions/session-access-grants.html"/>
       </item>
-      <item name="Data Modeling" href="data-modeling.html"/>
+      <item name="Data Modeling" href="data-modeling.html" collapse="true">
+        <item name="One Solid Resource" href="/data-modeling/one-resource.html"/>
+        <item name="Multiple Solid Resources" href="/data-modeling/multiple-resources.html"/>
+      </item>
       <item name="Documentation" href="apidocs/"/>
       <item name="License" href="licenses.html"/>
       <item name="Modules" href="modules.html"/>
