@@ -165,10 +165,14 @@ class SolidClientTest {
         client.read(uri, SolidContainer.class).thenAccept(container -> {
             try (final SolidContainer c = container) {
                 assertEquals(uri, c.getIdentifier());
-                assertEquals(0, c.getContainedResources().count());
+                assertEquals(0, c.getResources().size());
                 assertEquals(4, c.size());
                 assertEquals(2, c.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
+
+                @SuppressWarnings("deprecation")
+                final long count = c.getContainedResources().count();
+                assertEquals(0, count);
 
                 assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.create(c).toCompletableFuture()::join);

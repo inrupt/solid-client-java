@@ -86,13 +86,12 @@ public class SolidApp implements QuarkusApplication {
                     profile.getStorage().stream().findFirst().ifPresent(storage -> {
                         printWriter.format("Storage %s ", storage);
                         printWriter.println();
-                        try (final var container = client.read(storage, SolidContainer.class);
-                            final var stream = container.getContainedResources()) {
-                            printWriter.format("Total number of contained resources are: %s ",
-                                container.getContainedResources().count());
+                        try (final var container = client.read(storage, SolidContainer.class)) {
+                            final var resources = container.getResources();
+                            printWriter.format("Total number of contained resources is: %s ", resources.size());
                             printWriter.println();
 
-                            stream.filter(r -> filterResource(r, cmd)).forEach(r -> {
+                            resources.stream().filter(r -> filterResource(r, cmd)).forEach(r -> {
                                 printWriter.format("Resource: %s, %s", r.getIdentifier(),
                                     principalType(r.getMetadata().getType()));
                                 printWriter.println();

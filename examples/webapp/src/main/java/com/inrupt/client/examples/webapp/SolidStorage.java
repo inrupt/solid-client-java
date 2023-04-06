@@ -73,10 +73,11 @@ public class SolidStorage {
             return session.read(webid, WebIdProfile.class)
                 .thenCompose(profile -> profile.getStorage().stream().findFirst().map(storage ->
                             session.read(storage, SolidContainer.class).thenApply(container -> {
-                                try (container; final var stream = container.getContainedResources()) {
-                                    final var resources = stream.collect(Collectors.groupingBy(c ->
-                                                getPrincipalType(c.getMetadata().getType()), Collectors.mapping(c ->
-                                                    c.getIdentifier().toString(), Collectors.toList())));
+                                try (container) {
+                                    final var resources = container.getResources().stream()
+                                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getMetadata().getType()),
+                                                    Collectors.mapping(c -> c.getIdentifier().toString(),
+                                                        Collectors.toList())));
                                     return Templates.profile(profile, resources.get(LDP.BasicContainer),
                                             resources.get(LDP.RDFSource));
                                 }

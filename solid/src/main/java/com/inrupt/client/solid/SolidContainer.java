@@ -26,6 +26,9 @@ import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Dataset;
@@ -50,19 +53,31 @@ public class SolidContainer extends SolidRDFSource {
     }
 
     /**
-     * Retrieve the resources contained in this SolidContainer.
+     * Get an immutable collection of resources contained in this SolidContainer.
      *
      * @return the contained resources
      */
-    public Stream<SolidResource> getContainedResources() {
-        return new Node(rdf.createIRI(getIdentifier().toString()), getGraph())
-            .getContainedResources()
-            .map(child -> {
+    public Set<SolidResource> getResources() {
+        final Node node = new Node(rdf.createIRI(getIdentifier().toString()), getGraph());
+        try (final Stream<Node.TypedNode> stream = node.getResources()) {
+            return stream.map(child -> {
                 final Metadata.Builder builder = Metadata.newBuilder();
                 getMetadata().getStorage().ifPresent(builder::storage);
                 child.getTypes().forEach(builder::type);
                 return new SolidResourceReference(URI.create(child.getIRIString()), builder.build());
-            });
+            }).collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+        }
+    }
+
+    /**
+     * Retrieve the resources contained in this SolidContainer.
+     *
+     * @deprecated As of Beta2, replaced by the {@link #getResources()} method.
+     * @return the contained resources
+     */
+    @Deprecated
+    public Stream<SolidResource> getContainedResources() {
+        return getResources().stream();
     }
 
     @SuppressWarnings("java:S2160") // Wrapper equality is correctly delegated to underlying node
@@ -73,7 +88,7 @@ public class SolidContainer extends SolidRDFSource {
             super(original, graph);
         }
 
-        Stream<TypedNode> getContainedResources() {
+        Stream<TypedNode> getResources() {
             return objectStream(ldpContains, ValueMappings.as(TypedNode.class));
         }
 
