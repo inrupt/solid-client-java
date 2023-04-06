@@ -29,6 +29,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
@@ -54,6 +55,7 @@ public class SolidSyncClient {
      * @return a session-scoped client
      */
     public SolidSyncClient session(final Session session) {
+        Objects.requireNonNull(session, "Session may not be null!");
         return new SolidSyncClient(client.session(session));
     }
 

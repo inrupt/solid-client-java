@@ -144,7 +144,7 @@ public final class OpenIdSession implements Session {
      * @param clientId the client id value
      * @param clientSecret the client secret value
      * @param authMethod the authentication mechanism (e.g. {@code client_secret_post} or {@code client_secret_basic})
-     * @param config the ID token verifification config
+     * @param config the ID token verification config
      * @return the session
      */
     public static Session ofClientCredentials(final OpenIdProvider provider,
