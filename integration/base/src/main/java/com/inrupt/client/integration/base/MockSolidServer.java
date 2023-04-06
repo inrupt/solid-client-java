@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.Request;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 class MockSolidServer {
 
     private final WireMockServer wireMockServer;
+    private final String USER_AGENT_HEADER = "User-Agent";
+    private static final String USER_AGENT = "InruptJavaClient/" + Request.class
+        .getPackage().getImplementationVersion();
     private Map<String, ServerBody> storage = new ConcurrentHashMap<>();
     private String asUri;
 
@@ -43,11 +47,11 @@ class MockSolidServer {
     }
 
     private void setupMocks() {
-        wireMockServer.stubFor(get(anyUrl()));
-        wireMockServer.stubFor(put(anyUrl()));
-        wireMockServer.stubFor(post(anyUrl()));
-        wireMockServer.stubFor(patch(anyUrl()));
-        wireMockServer.stubFor(delete(anyUrl()));
+        wireMockServer.stubFor(get(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
+        wireMockServer.stubFor(put(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
+        wireMockServer.stubFor(post(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
+        wireMockServer.stubFor(patch(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
+        wireMockServer.stubFor(delete(anyUrl()).withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT)));
     }
 
     public void start() {

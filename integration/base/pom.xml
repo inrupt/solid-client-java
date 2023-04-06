@@ -21,6 +21,11 @@
     <dependencies>
         <dependency>
             <groupId>com.inrupt.client</groupId>
+            <artifactId>inrupt-client-accessgrant</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.inrupt.client</groupId>
             <artifactId>inrupt-client-api</artifactId>
             <version>${project.version}</version>
         </dependency>
