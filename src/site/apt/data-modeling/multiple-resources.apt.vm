@@ -28,9 +28,10 @@ public class MyApplication {
             resources.forEach(r -> {
                 if (!(r.getIdentifier().toString().endsWith("/"))) { //if it ends in a '/' it is a container
                     final Request req = Request.newBuilder(r.getIdentifier())
-                        .HEAD(Request.BodyPublishers.noBody())
+                        .HEAD()
                         .build();
-                    if (req.headers().firstValue("Content-Type").get().equalsIgnoreCase("text/turtle")) {
+                    final var contentType = req.headers().firstValue("Content-Type");
+                    if (contentType.isPresent() && (contentType.get().toLowerCase().contains("text/turtle"))) {
                         try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
                             System.out.println(playlist.getTitle());
 
