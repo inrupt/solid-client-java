@@ -4,7 +4,7 @@
     <notes><![CDATA[
         This suppresses a false positive CPE match
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.inrupt/inrupt\-client\-openid@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/com\.inrupt\.client/inrupt\-client\-openid@.*$</packageUrl>
     <cpe>cpe:/a:openid:openid</cpe>
   </suppress>
   <suppress>
