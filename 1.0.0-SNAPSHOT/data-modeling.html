@@ -45,7 +45,11 @@
     <li><a href="usage-examples.html" title="Usage Examples"><span class="none"></span>Usage Examples</a></li>
     <li><a href="client-options.html" title="Client Options"><span class="none"></span>Client Options</a></li>
     <li><a href="session-management.html" title="Session Management"><span class="icon-chevron-right"></span>Session Management</a></li>
-    <li class="active"><a><span class="none"></span>Data Modeling</a></li>
+    <li class="active"><a><span class="icon-chevron-down"></span>Data Modeling</a>
+     <ul class="nav nav-list">
+      <li><a href="data-modeling/one-resource.html" title="One Solid Resource"><span class="none"></span>One Solid Resource</a></li>
+      <li><a href="data-modeling/multiple-resources.html" title="Multiple Solid Resources"><span class="none"></span>Multiple Solid Resources</a></li>
+     </ul></li>
     <li><a href="apidocs/" title="Documentation"><span class="none"></span>Documentation</a></li>
     <li><a href="licenses.html" title="License"><span class="none"></span>License</a></li>
     <li><a href="modules.html" title="Modules"><span class="none"></span>Modules</a></li>
@@ -66,140 +70,16 @@
 <p>Data modeling makes it easy to work with client domain specific objects that go beyond simple Solid resources. The high-level <code>SolidClient</code> and <code>SolidSyncClient</code> make it easy to bind your Java objects to RDF-based Solid resources. This guide will help you structure your class definitions to make this possible.</p><section>
 <h3><a name="What_you_will_need"></a>What you will need</h3>
 <ul>
+<li><a class="externalLink" href="https://start.inrupt.com/profile">A Solid Pod</a></li>
 <li>About 15 minutes</li>
 <li>Your favorite text editor or IDE</li>
 <li>Java 11 or later</li>
 <li>Maven 3.5 or later</li></ul></section><section>
 <h3><a name="How_to_complete"></a>How to complete</h3>
-<p>The solution involves creating a wrapper class so that your class can act not only as an RDF Graph but also as a domain-specific type.</p></section><section>
-<h3><a name="a1._Subclass_the_RDFSource_type"></a>1. Subclass the RDFSource type</h3>
-<p>The first step involves ensuring that your class extends the <code>com.inrupt.client.RDFSource</code> class. Afterwards, consider the methods you expect in your class.</p>
-<div class="source"><pre class="prettyprint">import com.inrupt.client.RDFSource;
-import java.net.URI;
-import java.util.Set;
-import org.apache.commons.rdf.api.Dataset;
-
-public class Playlist extends RDFSource {
-
-    public Playlist(URI identifier, Dataset dataset) {
-        super(identifier, dataset);
-    }
-
-    public String getTitle() {
-        ...
-    }
-
-    public void setTitle(String title) {
-        ...
-    }
-
-    public Set&lt;URI&gt; getSongs() {
-        ...
-    }
-
-}</pre></div></section><section>
-<h3><a name="a2._Create_the_wrapper_node"></a>2. Create the wrapper node</h3>
-<p>Next, you will create an inner class that binds the data between RDF and your class.</p>
-<div class="source"><pre class="prettyprint">import com.inrupt.client.RDFSource;
-import com.inrupt.rdf.wrapping.commons.TermMappings;
-import com.inrupt.rdf.wrapping.commons.ValueMappings;
-import com.inrupt.rdf.wrapping.commons.WrapperIRI;
-import java.net.URI;
-import java.util.Set;
-import org.apache.commons.rdf.api.Dataset;
-import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDFTerm;
-
-public class Playlist extends RDFSource {
-
-    ...
-
-    static IRI DC_TITLE = rdf.createIRI(&quot;http://purl.org/dc/terms/title&quot;);
-    static IRI EX_SONG = rdf.createIRI(&quot;http://music.example/song&quot;);
-
-    class Node extends WrapperIRI {
-        Node(RDFTerm original, Graph graph) {
-            super(original, graph);
-        }
-
-        String getTitle() {
-            return anyOrNull(DC_TITLE, ValueMappings::literalAsString);
-        }
-
-        void setTitle(String value) {
-            overwriteNullable(DC_TITLE, value, TermMappings::asStringLiteral);
-        }
-
-        Set&lt;URI&gt; getSongs() {
-            return objects(EX_SONG, TermMappings::asIri, ValueMappings::iriAsUri);
-        }
-
-    }
-}</pre></div>
-<p>Your inner class (<code>Node</code> in this example) will have access to a variety of functions to aid in mapping between the underlying RDF Graph and your Java type. <a class="externalLink" href="https://javadoc.io/doc/com.inrupt/inrupt-rdf-wrapping-commons/latest/com/inrupt/rdf/wrapping/commons/WrapperBlankNodeOrIRI.html">These methods</a> are summarized in the <code>inrupt-rdf-wrapping-commons</code> Javadocs.</p>
-<p>Similarly, the built-in <a class="externalLink" href="https://javadoc.io/doc/com.inrupt/inrupt-rdf-wrapping-commons/latest/com/inrupt/rdf/wrapping/commons/TermMappings.html">TermMappings</a> and <a class="externalLink" href="https://javadoc.io/doc/com.inrupt/inrupt-rdf-wrapping-commons/latest/com/inrupt/rdf/wrapping/commons/ValueMappings.html">ValueMappings</a> are described in the <a class="externalLink" href="https://javadoc.io/doc/com.inrupt/inrupt-rdf-wrapping-commons/latest/com/inrupt/rdf/wrapping/commons/package-summary.html">Javadocs</a> for the <code>inrupt-rdf-wrapping-commons</code> library.</p></section><section>
-<h3><a name="a3._Connect_your_public_methods_to_the_wrapper_node"></a>3. Connect your public methods to the wrapper node</h3>
-<p>Now you are ready to link your public methods to the methods from your inner class.</p>
-<div class="source"><pre class="prettyprint">import com.inrupt.client.RDFSource;
-import com.inrupt.rdf.wrapping.commons.TermMappings;
-import com.inrupt.rdf.wrapping.commons.ValueMappings;
-import com.inrupt.rdf.wrapping.commons.WrapperIRI;
-import java.net.URI;
-import java.util.Set;
-import org.apache.commons.rdf.api.Dataset;
-import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDFTerm;
-
-public class Playlist extends RDFSource {
-
-    private Node subject;
-
-    public Playlist(URI identifier, Dataset dataset) {
-        super(identifier, dataset);
-
-        subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
-    }
-
-    public String getTitle() {
-        return subject.getTitle();
-    }
-
-    public void setTitle(String title) {
-        subject.setTitle(title);
-    }
-
-    public Set&lt;URI&gt; getSongs() {
-        return subject.getSongs();
-    }
-
-    ...
-</pre></div></section><section>
-<h3><a name="a4._Use_your_class_in_the_high-level_client"></a>4. Use your class in the high-level client</h3>
-<p>Now, you can use your class with the high-level Solid client, mapping data seamlessly between your Java application and an RDF resource.</p>
-<div class="source"><pre class="prettyprint">import com.inrupt.client.auth.Session;
-import com.inrupt.client.openid.OpenIdSession;
-import java.net.URI;
-
-public class MyApplication {
-
-    public void run() {
-        Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, &quot;client_secret_basic&quot;);
-        SolidSyncClient client = SolidSyncClient.getClient().session(session);
-
-        URI uri = URI.create(&quot;https://storage.example/playlists/910b509c-1ca5-4d6a-a093-377e8e1b390e&quot;);
-        try (Playlist playlist = client.read(uri, Playlist.class)) {
-            System.out.println(playlist.getTitle());
-
-            // Set the playlist title
-            playlist.setTitle(title);
-
-            // Update the playlist in your storage
-            client.update(playlist);
-        }
-    }
-}</pre></div></section></section>
+<p>At first you need to know (or choose) how your data is modeled on the Solid Pod. Than one can model your data wite the available domain-specific types of with the class wrapper.</p></section><section>
+<h3><a name="Different_data_model_approaches"></a>Different data model approaches</h3>
+<p>Let's work with an example to describe the data model options. </p>
+<p>We want to model a Book Library on the Pod: * One Solid Resource - we have a Book Library Solid Resource which contains all the book descriptions part of that library it one Solid Resource or * Multiple Solid Resources - we have a Book Library Solid Container which holds more Solid Resources. Each Resource, in turn, contains the description of only one Book.</p></section></section>
         </main>
       </div>
     </div>
