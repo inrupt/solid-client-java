@@ -14,7 +14,7 @@
             {/for}
             </ul>
 
-            {#if containers.size > 0}
+            {#if containers && containers.size > 0}
             <h3>Containers</h3>
             <ul style= "list-style-type: '\1F4E6'">
             {#for c in containers}
@@ -23,10 +23,28 @@
             </ul>
             {/if}
 
-            {#if resources.size > 0}
+            {#if resources && resources.size > 0}
             <h3>Resources</h3>
             <ul style= "list-style-type: '\1F4D6'">
             {#for r in resources}
+              <li>&rsaquo; {r}</li>
+            {/for}
+            </ul>
+            {/if}
+
+            {#if nonRDFresources && nonRDFresources.size > 0}
+            <h3>Non RDF Resources</h3>
+            <ul style= "list-style-type: '\1F4D6'">
+            {#for r in nonRDFresources}
+              <li>&rsaquo; {r}</li>
+            {/for}
+            </ul>
+            {/if}
+
+            {#if anyResource && anyResource.size > 0}
+            <h3>Any Resources</h3>
+            <ul style= "list-style-type: '\1F4D6'">
+            {#for r in anyResource}
               <li>&rsaquo; {r}</li>
             {/for}
             </ul>
