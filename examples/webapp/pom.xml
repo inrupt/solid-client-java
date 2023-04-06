@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.inrupt</groupId>
+    <groupId>com.inrupt.client</groupId>
     <artifactId>inrupt-client-examples-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
@@ -36,32 +36,32 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-vocabulary</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-webid</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-jena</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-openid</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-okhttp</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -71,17 +71,17 @@
       <version>${okhttp.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-jackson</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.inrupt</groupId>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-solid</artifactId>
       <version>${project.version}</version>
     </dependency>
