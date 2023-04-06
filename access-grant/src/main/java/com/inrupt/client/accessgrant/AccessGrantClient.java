@@ -82,6 +82,7 @@ public class AccessGrantClient {
     private static final String TYPE = "type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CREDENTIAL_SUBJECT = "credentialSubject";
     private static final String IS_PROVIDED_TO_PERSON = "isProvidedToPerson";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
@@ -413,7 +414,7 @@ public class AccessGrantClient {
             } else if (isAccessRequest(type)) {
                 subject.put("hasConsent", consent);
             }
-            credential.put("credentialSubject", subject);
+            credential.put(CREDENTIAL_SUBJECT, subject);
         }
 
         final Map<String, Object> data = new HashMap<>();
@@ -469,7 +470,7 @@ public class AccessGrantClient {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("expirationDate", expiration);
-        credential.put("credentialSubject", subject);
+        credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("credential", credential);
@@ -493,7 +494,7 @@ public class AccessGrantClient {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("expirationDate", expiration);
-        credential.put("credentialSubject", subject);
+        credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("credential", credential);
