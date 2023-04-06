@@ -1,0 +1,163 @@
+Data Modeling for one Solid Resource
+
+* How to complete
+
+    The solution involves creating a wrapper class so that your class can act not only as an RDF Graph
+    but also as a domain-specific type.
+
+* 1. Subclass the SolidRDFSource type
+
+    The first step involves ensuring that your class extends the <<<com.inrupt.client.SolidRDFSource>>> class.
+    Afterwards, consider the methods you expect in your class.
+
++---
+import com.inrupt.client.SolidRDFSource;
+import java.net.URI;
+import java.util.Set;
+import org.apache.commons.rdf.api.Dataset;
+
+public class Playlist extends SolidRDFSource {
+
+    public Playlist(URI identifier, Dataset dataset) {
+        super(identifier, dataset);
+    }
+
+    public String getTitle() {
+        ...
+    }
+
+    public void setTitle(String title) {
+        ...
+    }
+
+    public Set<URI> getSongs() {
+        ...
+    }
+
+}
++---
+
+
+* 2. Create the wrapper node
+
+    Next, you will create an inner class that binds the data between RDF and your class.
+
++---
+import com.inrupt.client.SolidRDFSource;
+import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
+import java.net.URI;
+import java.util.Set;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+
+public class Playlist extends SolidRDFSource {
+
+    ...
+
+    static IRI DC_TITLE = rdf.createIRI("http://purl.org/dc/terms/title");
+    static IRI EX_SONG = rdf.createIRI("http://music.example/song");
+
+    class Node extends WrapperIRI {
+        Node(RDFTerm original, Graph graph) {
+            super(original, graph);
+        }
+
+        String getTitle() {
+            return anyOrNull(DC_TITLE, ValueMappings::literalAsString);
+        }
+
+        void setTitle(String value) {
+            overwriteNullable(DC_TITLE, value, TermMappings::asStringLiteral);
+        }
+
+        Set<URI> getSongs() {
+            return objects(EX_SONG, TermMappings::asIri, ValueMappings::iriAsUri);
+        }
+
+    }
+}
++---
+
+    Your inner class (<<<Node>>> in this example) will have access to a variety of functions
+    to aid in mapping between the underlying RDF Graph and your Java type. {{{https://docs.inrupt.com/developer-tools/api/java/inrupt-client/latest/com/inrupt/rdf/wrapping/commons/package-summary.html}These methods}} are summarized in the <<<inrupt-rdf-wrapping-commons>>> Javadocs.
+
+    Similarly, the built-in {{{https://docs.inrupt.com/developer-tools/api/java/inrupt-client/latest/com/inrupt/rdf/wrapping/commons/TermMappings.html}TermMappings}}
+    and {{{https://docs.inrupt.com/developer-tools/api/java/inrupt-client/latest/com/inrupt/rdf/wrapping/commons/ValueMappings.html}ValueMappings}}
+    are described in the {{{https://docs.inrupt.com/developer-tools/api/java/inrupt-client/latest/com/inrupt/rdf/wrapping/commons/package-summary.html}Javadocs}} for the <<<inrupt-rdf-wrapping-commons>>> library.
+
+* 3. Connect your public methods to the wrapper node
+
+    Now you are ready to link your public methods to the methods from your inner class.
+
++---
+import com.inrupt.client.SolidRDFSource;
+import com.inrupt.rdf.wrapping.commons.TermMappings;
+import com.inrupt.rdf.wrapping.commons.ValueMappings;
+import com.inrupt.rdf.wrapping.commons.WrapperIRI;
+import java.net.URI;
+import java.util.Set;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+
+public class Playlist extends SolidRDFSource {
+
+    private Node subject;
+
+    public Playlist(URI identifier, Dataset dataset) {
+        super(identifier, dataset);
+
+        subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
+    }
+
+    public String getTitle() {
+        return subject.getTitle();
+    }
+
+    public void setTitle(String title) {
+        subject.setTitle(title);
+    }
+
+    public Set<URI> getSongs() {
+        return subject.getSongs();
+    }
+
+    ...
+
++---
+
+* 4. Use your class in the high-level client
+
+    Now, you can use your class with the high-level Solid client, mapping data seamlessly between your
+    Java application and an RDF resource.
+
++---
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import java.net.URI;
+
+public class MyApplication {
+
+    public void run() {
+        Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
+        SolidSyncClient client = SolidSyncClient.getClient().session(session);
+
+        URI uri = URI.create("https://storage.example/playlists/910b509c-1ca5-4d6a-a093-377e8e1b390e");
+        try (Playlist playlist = client.read(uri, Playlist.class)) {
+            System.out.println(playlist.getTitle());
+
+            // Set the playlist title
+            playlist.setTitle(title);
+
+            // Update the playlist in your storage
+            client.update(playlist);
+        }
+    }
+}
++---
+
