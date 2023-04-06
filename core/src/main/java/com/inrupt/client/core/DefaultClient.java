@@ -58,6 +58,7 @@ public final class DefaultClient implements Client {
     }
 
     DefaultClient(final HttpService httpClient, final Session session) {
+        Objects.requireNonNull(httpClient, "Http client may not be null!");
         Objects.requireNonNull(session, "Session may not be null!");
         this.httpClient = httpClient;
         this.clientSession = session;
