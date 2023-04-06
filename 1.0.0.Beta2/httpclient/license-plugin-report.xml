@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1680803743827">
+    <module artifactId="inrupt-client-httpclient" groupId="com.inrupt.client" version="1.0.0.Beta2"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/httpclient/HttpClientResponse.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/httpclient/HttpClientResponseInfo.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/httpclient/HttpClientService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/httpclient/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/httpclient/HttpclientServiceTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

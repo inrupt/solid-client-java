@@ -1,0 +1,264 @@
+@prefix td:      <http://www.w3.org/2006/03/test-description#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix earl:    <http://www.w3.org/ns/earl#> .
+@prefix inrupt:  <http://www.inrupt.com/ns/terms#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+
+@prefix : <https://w3id.org/inrupt/qa/manifest/solid-client-java/> . 
+
+<https://w3id.org/inrupt/qa/manifest/solid-client-java> a earl:Software;
+  doap:name "Inrupt Java Client Libraries";
+  inrupt:jiraComponent "JCL";
+  doap:programming-language "Java";
+  doap:developer <https://github.com/inrupt/solid-client-java/graphs/contributors>;
+  doap:homepage <https://inrupt.github.io/solid-client-java/> ;
+  doap:homepage <https://github.com/inrupt/solid-client-java> ;
+  inrupt:testSuite :resourceTestSuite, :authenticationTestSuite, :vcTestSuite. 
+
+:resourceTestSuite dcterms:hasPart
+  #new tests specific for Java SDK - based on core modules layer of Java SDK
+  :coreModulesLayerRdfSourceCrud,
+  :coreModulesLayerNonRdfSourceCrud,
+  :coreModulesLayerContainerCrud,
+  :coreModulesLayerBlankNodeSupport,
+  #same tests (and name) like in JS SDK - based on domain-specific modules layer 
+  :baseRdfSourceCrud,
+  :baseNonRdfSourceCrud,
+  :baseContainerCrud,
+  :blankNodeSupport,
+  #new tests specific for Java SDK - based on domain-specific modules layer
+  :podStorageFinding,
+  :ldpNavigation;
+  inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
+
+:coreModulesLayerRdfSourceCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on RDF resource"@en;
+  dcterms:description "An authenticated user with sufficient permission creates an RDF resource in an existing container, reads it back, updates it, and finally deletes it."@en;
+  rdfs:comment "We make use of the RDF processing module from the core modules layer."@en;
+  td:reviewStatus td:approved.
+
+:coreModulesLayerNonRdfSourceCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on non-RDF resource"@en;
+  dcterms:description "An authenticated user with sufficient permission creates a non-RDF resource in an existing container, checks that it is not recognized as RDF, and finally deletes it."@en;
+  rdfs:comment "We make use of the HTTP interaction module from the core modules layer."@en;
+  td:reviewStatus td:approved.
+
+:coreModulesLayerContainerCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on containers"@en;
+  dcterms:description "An authenticated user with sufficient permission creates container from the Pod root, another container in an existing container, and finally deletes both."@en;
+  rdfs:comment "We make use of the HTTP interaction module from the core modules layer."@en;
+  td:reviewStatus td:approved.
+
+:coreModulesLayerBlankNodeSupport a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Blank node support"@en;
+  dcterms:description "An authenticated user with sufficient permission creates an RDF resource including a triple with a blank node object. The user updates another triple in the resource, and saves it back without an exception being thrown because of conflicts."@en;
+  rdfs:comment "We make use the RDF processing module from the core modules layer."@en;
+  td:reviewStatus td:approved.
+
+:baseRdfSourceCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on RDF resource"@en;
+  dcterms:description "An authenticated user with sufficient permission creates an RDF resource in an existing container, reads it back, updates it, and finally deletes it."@en;
+  td:reviewStatus td:approved.
+
+:baseNonRdfSourceCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on non-RDF resource"@en;
+  dcterms:description "An authenticated user with sufficient permission creates a non-RDF resource in an existing container, checks that it is not recognized as RDF, and finally deletes it."@en;
+  td:reviewStatus td:approved.
+
+:baseContainerCrud a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "CRUD on containers"@en;
+  dcterms:description "An authenticated user with sufficient permission creates container from the Pod root, another container in an existing container, and finally deletes both."@en;
+  td:reviewStatus td:approved.
+
+:blankNodeSupport a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Blank node support"@en;
+  dcterms:description "An authenticated user with sufficient permission creates an RDF resource including a triple with a blank node object. The user updates another triple in the resource, and saves it back without an exception being thrown because of conflicts."@en;
+  td:reviewStatus td:approved.
+
+:podStorageFinding a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Finding the Pod storage"@en;
+  dcterms:description "A user finds the Pod storage from a webId"@en;
+  td:reviewStatus td:approved.
+
+:ldpNavigation a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Navigation through the containment hierarchy of a Solid Pod"@en;
+  dcterms:description "Starting from a lefe container, a user can navigate up to find the pod root."@en;
+  td:reviewStatus td:approved.
+
+:authenticationTestSuite dcterms:hasPart
+  #same tests (and name) like in JS SDK
+  :unauthenticatedPublicNode,
+  :unauthenticatedPrivateNode,
+  :authenticatedPublicNode,
+  :authenticatedPrivateNode,
+  :authenticatedPrivateNodeAfterLogin,
+  :authenticatedMultisessionNode;
+  inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
+
+:unauthenticatedPublicNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Unauthenticated fetch of public resource"@en;
+  dcterms:description "An unauthenticated user requests a public resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  rdfs:comment "The default ESS configuration results in this test failing."@en;
+  td:reviewStatus td:approved.
+
+:unauthenticatedPrivateNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Unauthenticated fetch of private resource"@en;
+  dcterms:description "An unauthenticated user requests a private resource."@en;
+  td:expectedResults "The request fails."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedPublicNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Authenticated fetch of public resource"@en;
+  dcterms:description "An authenticated user requests a public resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedPrivateNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Authenticated fetch of private resource"@en;
+  dcterms:description "An authenticated user request a private resource."@en;
+  td:expectedResults "The request succeeds."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedPrivateNodeAfterLogin a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Unauthenticated, then auth fetch of private resource"@en;
+  dcterms:description "An unauthenticated user request a private resource, then logs in, and requests the same resource again."@en;
+  td:expectedResults "The second request succeeds."@en;
+  td:reviewStatus td:approved.
+
+:authenticatedMultisessionNode a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Multiple sessions authenticated in parallel"@en;
+  dcterms:description "Two unauthenticated users fetch two private resources, each of them being allowed to access only one of these resources."@en;
+  td:expectedResults "Each user only retrieves the resource they are allowed to access, and not the other."@en;
+  td:reviewStatus td:accepted.
+
+#aligned with JS scenarios (and naming conventions)
+:vcTestSuite dcterms:hasPart
+  :accessGrantLifecycle,
+  :accessGrantOverride,
+  :accessGrantQueryByRequestor,
+  :accessGrantQueryByResource,
+  :accessGrantQueryByPurpose,
+  :accessGrantGetRdf,
+  :accessGrantSetRdf,
+  :accessGrantCreateRdf,
+  :accessGrantGetNonRdf,
+  :accessGrantSetNonRdf,
+  :accessGrantCreateNonRdf;
+  inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
+
+:accessGrantLifecycle a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;
+  dcterms:title "Access Grant issuance lifecycle"@en;
+  dcterms:description "An authenticated requestor issues an access request, an authenticated resource owner approves it and issues an access grant, and then revokes it."@en;
+  td:expectedResults "A valid Access Grant is issued and then revoked."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantOverride a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Access Grant with request overrides"@en;
+  dcterms:description "An authenticated requestor issues an access request, and the authenticated resource owner overrides the grant duration approving it."@en;
+  td:expectedResults "A valid Access Grant with the overridden duration is issued."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantQueryByRequestor a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Lookup Access Grants by requestor"@en;
+  dcterms:description "An authenticated resource owner having previously issued Access Grants sends a request to list the Grants they have issued to a given requestor."@en;
+  td:expectedResults "The list of the Access Grants they have issued to the given requestor is returned."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantQueryByResource a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Lookup Access Grants by resource"@en;
+  dcterms:description "An authenticated resource owner having previously issued Access Grants sends a request to list the Grants they have issued for a given resource."@en;
+  td:expectedResults "The list of the Access Grants they have issued for the given resource is returned."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantQueryByPurpose a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Lookup Access Grants by purpose"@en;
+  dcterms:description "An authenticated resource owner having previously issued Access Grants sends a request to list the Grants they have issued for a given purpose."@en;
+  td:expectedResults "The list of the Access Grants they have issued for the given purpose is returned."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantGetRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Fetching RDF using an Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to read an existing RDF resource."@en;
+  td:expectedResults "The RDF resource is returned successfully."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantSetRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Appending RDF using Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to append to an existing RDF resource."@en;
+  td:expectedResults "The RDF resource is updated successfully."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantCreateRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Creating RDF using Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to create a new RDF resource."@en;
+  td:expectedResults "The RDF resource is created successfully."@en;
+  # Note that this doesn't currently work
+  td:reviewStatus td:rejected.
+
+:accessGrantGetNonRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Fetching non-RDF using Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to read an existing non-RDF resource."@en;
+  td:expectedResults "The resource is returned successfully."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantSetNonRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Overwriting non-RDF using Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to overwrite an existing RDF resource."@en;
+  td:expectedResults "The RDF resource is updated successfully."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantCreateRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Creating non-RDF using Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to create a new non-RDF resource."@en;
+  td:expectedResults "The RDF resource is created successfully."@en;
+  # Note that this doesn't currently work
+  td:reviewStatus td:rejected.
+
+:accessGrantSetNonRdf a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Creating non-RDF as child using Access Grant"@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to create an new non-RDF resource as a child of an existing container."@en;
+  td:expectedResults "The non-RDF resource is created successfully."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantAppTestSuite dcterms:hasPart :grantThenRevoke;
+  inrupt:targetEnvironment <https://dom.spec.whatwg.org/>.
+
+:grantThenRevoke a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>;
+  dcterms:title "Issue and revoke Access Grant"@en;
+  dcterms:description "An authenticated user uses an in-browser app to issue an access grant, and then revoke it."@en;
+  td:expectedResults "The Grant is issued and then revoked."@en;
+  td:reviewStatus td:approved.
