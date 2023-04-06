@@ -369,6 +369,12 @@ class DefaultClientTest {
     }
 
     @Test
+    void testNullSession() {
+        assertThrows(NullPointerException.class, () ->
+                client.session(null));
+    }
+
+    @Test
     void testUmaSessionExpiredIdToken() throws Exception {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
