@@ -1,5 +1,7 @@
 Data Modeling for one Solid Resource
 
+    This data modeling approach can be used when there is one Solid Resource, for example to describe a Playlist. The Solid Resource lists and describes all the songs part of the playlist in the same Solid Resource.
+
 * How to complete
 
     The solution involves creating a wrapper class so that your class can act not only as an RDF Graph
@@ -128,6 +130,7 @@ public class Playlist extends SolidRDFSource {
     }
 
     ...
+}
 
 +---
 
