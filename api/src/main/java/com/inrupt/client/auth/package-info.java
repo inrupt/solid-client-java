@@ -36,9 +36,9 @@
  * for each implementation. Some examples:
  * 
  * <pre>{@code
-    Session session = OpenIdSession.ofIdToken(token);
-    Session sessionWithConfig = OpenIdSession.ofIdToken(token, config);
-    Session umaSession = UmaSession.of(session);
+    Session openidSession = OpenIdSession.ofIdToken(token);
+    Session openidSessionWithConfig = OpenIdSession.ofIdToken(token, config);
+    Session accessGrantSession = AccessGrantSession.ofAccessGrant(openidSession, accessGrant);
  * }</pre>
  * 
  * <h3>HTTP challenges</h3>
