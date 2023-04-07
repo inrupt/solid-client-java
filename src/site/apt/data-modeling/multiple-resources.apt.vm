@@ -24,7 +24,7 @@ public class MyApplication {
         Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
         SolidSyncClient client = SolidSyncClient.getClient().session(session);
 
-        URI uri = URI.create("https://storage.example/BookLgitibrary/");
+        URI uri = URI.create("https://storage.example/BookLibrary/");
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             final var resources = container.getResources();
             resources.forEach(r -> {
