@@ -105,6 +105,7 @@
     <module>webid</module>
     <module>vocabulary</module>
     <module>archetypes</module>
+    <module>gradle</module>
   </modules>
 
   <distributionManagement>
