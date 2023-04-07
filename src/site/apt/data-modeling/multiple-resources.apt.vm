@@ -1,14 +1,16 @@
 Data Modeling for multiple Solid Resources
 
+    This data modeling approach can be used when the data we need is in multiple Solid Resources. Foe example, there is a Book Library Solid Container which holds more Solid Resources. Each Solid Resource, in turn, contains the description of only one Book.
+
 * How to complete
 
     The solution involves working with domain-specific type such as <<<SolidContainer>>> and <<<SolidResource>>>. 
 
 * Working with Solid Containers
 
-    We have to access the contained resources of a Solid Container. We assume that all Solid RDF Resources are Books. 
+    Given a Solid Container, we assume that all Solid RDF Resources contained in the container are Books. One Book per Solid Resource. 
 
-    You can use a wrapper class (describe on the {{{./one-resource.html}One Solid Resource}} page) with the high-level Solid client, mapping data seamlessly between your Java application and an RDF resource.
+    For modeling a single Book one can use a <<<SolidResource>>> or a wrapper class as (describe on the {{{./one-resource.html}one Solid Resource}} page).
 
 +---
 import com.inrupt.client.auth.Session;
@@ -22,7 +24,7 @@ public class MyApplication {
         Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
         SolidSyncClient client = SolidSyncClient.getClient().session(session);
 
-        URI uri = URI.create("https://storage.example/booklibrary/");
+        URI uri = URI.create("https://storage.example/BookLgitibrary/");
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             final var resources = container.getResources();
             resources.forEach(r -> {
@@ -33,14 +35,14 @@ public class MyApplication {
                     final var res = client.send(req, Response.BodyHandlers.discarding());
                     final var contentType = res.headers().firstValue("Content-Type");
                     if (contentType.isPresent() && (contentType.get().toLowerCase().contains("text/turtle"))) {
-                        try (Playlist playlist = client.read(r.getIdentifier(), Playlist.class)) {
-                            System.out.println(playlist.getTitle());
+                        try (Book book = client.read(r.getIdentifier(), Book.class)) {
+                            System.out.println(book.getTitle());
 
-                            // Set the playlist title
-                            playlist.setTitle(title);
+                            // Set the book title
+                            book.setTitle(title);
 
-                            // Update the playlist in your storage
-                            client.update(playlist);
+                            // Update the book in your storage
+                            client.update(book);
                         }
                     }
                 }

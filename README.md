@@ -68,6 +68,8 @@ forum is a good place to meet the rest of the community.
 
 ## Changelog
 
+See the [Release notes](https://github.com/inrupt/solid-client-java/releases)
+
 ## License
 
 MIT © [Inrupt](https://inrupt.com)

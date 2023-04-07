@@ -24,6 +24,8 @@ Data Modeling
     Let's work with an example to describe the data model options. 
 
     We want to model a Book Library on the Pod:
-    * One Solid Resource - we have a Book Library Solid Resource which contains all the book descriptions part of that library it one Solid Resource or
-    * Multiple Solid Resources - we have a Book Library Solid Container which holds more Solid Resources. Each Resource, in turn, contains the description of only one Book.
+
+      * One Solid Resource - we have a Book Library Solid Resource which contains all the book descriptions part of that library it one Solid Resource or
+
+      * Multiple Solid Resources - we have a Book Library Solid Container which holds more Solid Resources. Each Resource, in turn, contains the description of only one Book.
 
