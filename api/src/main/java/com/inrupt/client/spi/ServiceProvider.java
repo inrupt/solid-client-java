@@ -33,6 +33,7 @@ public final class ServiceProvider {
     private static HttpService httpService;
     private static DpopService dpopService;
     private static HeaderParser headerParser;
+    private static CacheBuilderService cacheBuilder;
 
     /**
      * Get the {@link JsonService} for this application.
@@ -120,6 +121,25 @@ public final class ServiceProvider {
             }
         }
         return headerParser;
+    }
+
+    /**
+     * Get the {@link CacheBuilderService} for this application.
+     *
+     * @return a service capable of building a cache.
+     */
+    public static CacheBuilderService getCacheBuilder() {
+        if (cacheBuilder == null) {
+            synchronized (ServiceProvider.class) {
+                if (cacheBuilder != null) {
+                    return cacheBuilder;
+                }
+                final Iterator<CacheBuilderService> iter = ServiceLoader.load(CacheBuilderService.class,
+                        ServiceProvider.class.getClassLoader()).iterator();
+                cacheBuilder = iter.hasNext() ? iter.next() : new NoopCache.NoopCacheBuilder();
+            }
+        }
+        return cacheBuilder;
     }
 
     static <T> T loadSpi(final Class<T> clazz, final ClassLoader cl) {
