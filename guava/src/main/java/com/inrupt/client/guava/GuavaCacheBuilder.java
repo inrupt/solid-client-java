@@ -37,7 +37,7 @@ public class GuavaCacheBuilder implements CacheBuilderService {
     public <T, U> ClientCache<T, U> build(final int maximumSize, final Duration duration) {
         return ofCache(CacheBuilder.newBuilder()
                 .maximumSize(maximumSize)
-                .expireAfterAccess(duration.getSeconds(), TimeUnit.SECONDS)
+                .expireAfterWrite(duration.getSeconds(), TimeUnit.SECONDS)
                 .build());
     }
 

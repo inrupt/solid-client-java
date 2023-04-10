@@ -36,7 +36,7 @@ public class CaffeineCacheBuilder implements CacheBuilderService {
     public <T, U> ClientCache<T, U> build(final int maximumSize, final Duration duration) {
         return ofCache(Caffeine.newBuilder()
                 .maximumSize(maximumSize)
-                .expireAfterAccess(duration)
+                .expireAfterWrite(duration)
                 .build());
     }
 
