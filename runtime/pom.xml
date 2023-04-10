@@ -1,15 +1,19 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>com.inrupt.client</groupId>
     <artifactId>inrupt-client</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
 
-  <artifactId>inrupt-client-report</artifactId>
-  <name>Inrupt Java Client Libraries - Report</name>
-  <packaging>pom</packaging>
+  <artifactId>inrupt-client-runtime</artifactId>
+  <name>Inrupt Java Client Libraries - Runtime Modules</name>
+  <description>
+    An artifact that references the standard Inrupt Java Client Libraries with a single dependency.
+  </description>
 
   <dependencies>
     <dependency>
@@ -34,7 +38,7 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-guava</artifactId>
+      <artifactId>inrupt-client-okhttp</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -49,42 +53,7 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-jsonb</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-openid</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-okhttp</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-httpclient</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-rdf4j</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-rdf-legacy</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-runtime</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -102,21 +71,10 @@
       <artifactId>inrupt-client-webid</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-vocabulary</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 </project>
