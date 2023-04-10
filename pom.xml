@@ -68,7 +68,7 @@
     <awaitility.version>4.2.0</awaitility.version>
     <equalsverifier.version>3.14.1</equalsverifier.version>
     <junit.version>5.9.2</junit.version>
-    <yasson.version>1.0.3</yasson.version>
+    <yasson.version>3.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
