@@ -4,6 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "gradle"
+    directory: "/gradle/"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
