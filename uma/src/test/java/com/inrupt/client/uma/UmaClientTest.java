@@ -42,6 +42,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class UmaClientTest {
 
+    private static final UmaClient client = new UmaClient();
     private static final MockAuthorizationServer as = new MockAuthorizationServer();
     private static final Map<String, String> config = new HashMap<>();
     private static final URI ID_TOKEN_CLAIM_TOKEN_FORMAT =
@@ -60,7 +61,6 @@ class UmaClientTest {
     @Test
     void testMetadataAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final Metadata metadata = client.metadata(asUri).toCompletableFuture().join();
         checkMetadata(metadata);
     }
@@ -68,7 +68,6 @@ class UmaClientTest {
     @Test
     void testMetadataNotFoundAsync() {
         final URI asUri = URI.create(config.get("as_uri") + "/not-found");
-        final UmaClient client = new UmaClient();
         final CompletionException err = assertThrows(CompletionException.class,
                 client.metadata(asUri).toCompletableFuture()::join);
         assertTrue(err.getCause() instanceof UmaException);
@@ -77,7 +76,6 @@ class UmaClientTest {
     @Test
     void testMetadataMalformedAsync() {
         final URI asUri = URI.create(config.get("as_uri") + "/malformed");
-        final UmaClient client = new UmaClient();
         final CompletionException err = assertThrows(CompletionException.class,
                 client.metadata(asUri).toCompletableFuture()::join);
         assertTrue(err.getCause() instanceof UmaException);
@@ -86,7 +84,6 @@ class UmaClientTest {
     @Test
     void testSimpleTokenNegotiationInvalidTicketAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String ticket = "ticket-invalid-grant";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
@@ -104,7 +101,6 @@ class UmaClientTest {
     @Test
     void testSimpleTokenNegotiationRequestDeniedAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String ticket = "ticket-request-denied";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
@@ -123,7 +119,6 @@ class UmaClientTest {
     @MethodSource
     void testSimpleTokenErrorAsync(final String ticket) {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
         final CompletionException err =
@@ -145,7 +140,6 @@ class UmaClientTest {
     @Test
     void testSimpleTokenInvalidScopeAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String ticket = "ticket-invalid-scope";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, Arrays.asList("invalid-scope"));
 
@@ -163,7 +157,6 @@ class UmaClientTest {
     @Test
     void testSimpleTokenNegotiationAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String ticket = "ticket-12345";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
@@ -179,7 +172,6 @@ class UmaClientTest {
     @Test
     void testTokenNegotiationMissingResponseTicketAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String ticket = "ticket-need-info-no-response-ticket";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
@@ -197,7 +189,6 @@ class UmaClientTest {
     @Test
     void testTokenNegotiationNullResponseAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String ticket = "ticket-need-info-with-ticket";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
 
@@ -214,7 +205,6 @@ class UmaClientTest {
     @Test
     void testTokenNegotiationOidcMapperAsync() {
         final URI asUri = URI.create(config.get("as_uri"));
-        final UmaClient client = new UmaClient();
         final String idToken = "oidc-id-token";
         final String ticket = "ticket-need-info-oidc-requirement";
         final TokenRequest req = new TokenRequest(ticket, null, null, null, null);
