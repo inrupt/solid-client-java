@@ -38,7 +38,10 @@ import java.util.concurrent.CompletionStage;
 
 /**
  * A session implementation for use with UMA Authorization Servers.
+ *
+ * @deprecated As of Beta3, this class is deprecated
  */
+@Deprecated
 public final class UmaSession implements Session {
 
     private final String id;
