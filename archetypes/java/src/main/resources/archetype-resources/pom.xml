@@ -46,6 +46,10 @@
     </dependency>
     <dependency>
         <groupId>com.inrupt.client</groupId>
+        <artifactId>inrupt-client-caffeine</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt.client</groupId>
         <artifactId>inrupt-client-core</artifactId>
     </dependency>
     <dependency>
@@ -63,6 +67,10 @@
     <dependency>
         <groupId>com.inrupt.client</groupId>
         <artifactId>inrupt-client-openid</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.inrupt.client</groupId>
+        <artifactId>inrupt-client-uma</artifactId>
     </dependency>
     <dependency>
         <groupId>com.inrupt.client</groupId>

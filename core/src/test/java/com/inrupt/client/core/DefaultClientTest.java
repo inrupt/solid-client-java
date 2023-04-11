@@ -36,7 +36,6 @@ import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
 import com.inrupt.client.openid.OpenIdConfig;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.uma.UmaSession;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -206,10 +205,10 @@ class DefaultClientTest {
         claims.put("azp", AZP);
         claims.put("cnf", Collections.singletonMap("jkt", ecJwk.calculateBase64urlEncodedThumbprint(SHA_256)));
         final String token = generateIdToken(claims);
-        final Session session = UmaSession.of(OpenIdSession.ofIdToken(token, config));
+        final Session session = OpenIdSession.ofIdToken(token, config);
         assertEquals(Optional.of(URI.create(WEBID)), session.getPrincipal());
 
-        final Session session2 = UmaSession.of();
+        final Session session2 = Session.anonymous();
         assertFalse(session2.getPrincipal().isPresent());
         assertNotEquals(session2.getId(), session.getId());
         assertFalse(session2.generateProof(null, null).isPresent());
@@ -327,7 +326,7 @@ class DefaultClientTest {
     }
 
     @Test
-    void testOfStringPublisherUmaSession() throws IOException, InterruptedException {
+    void testOfStringPublisherOpenidSession() throws IOException, InterruptedException {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
@@ -346,7 +345,7 @@ class DefaultClientTest {
         config.setProofKeyPairs(Collections.singletonMap("RS256",
                     new KeyPair(jwk.getPublicKey(), jwk.getPrivateKey())));
 
-        final Response<Void> response = client.session(UmaSession.of(OpenIdSession.ofIdToken(token, config)))
+        final Response<Void> response = client.session(OpenIdSession.ofIdToken(token, config))
             .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
@@ -361,7 +360,7 @@ class DefaultClientTest {
                 .POST(Request.BodyPublishers.ofString("Test String 1"))
                 .build();
 
-        final Response<Void> response = client.session(UmaSession.of())
+        final Response<Void> response = client.session(Session.anonymous())
             .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 
@@ -375,7 +374,7 @@ class DefaultClientTest {
     }
 
     @Test
-    void testUmaSessionExpiredIdToken() throws Exception {
+    void testSessionExpiredIdToken() throws Exception {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
@@ -398,7 +397,7 @@ class DefaultClientTest {
                 .POST(Request.BodyPublishers.ofString("Test String 1"))
                 .build();
 
-        final Response<Void> response = client.session(UmaSession.of(s))
+        final Response<Void> response = client.session(s)
             .send(request, Response.BodyHandlers.discarding())
             .toCompletableFuture().join();
 

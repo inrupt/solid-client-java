@@ -65,11 +65,13 @@ class AccessGrantClientTest {
     private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
 
     private static final MockAccessGrantServer mockServer = new MockAccessGrantServer();
+    private static AccessGrantClient agClient;
     private static URI baseUri;
 
     @BeforeAll
     static void setup() {
         baseUri = URI.create(mockServer.start());
+        agClient = new AccessGrantClient(baseUri);
     }
 
     @AfterAll
@@ -93,8 +95,7 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final URI uri = URIBuilder.newBuilder(baseUri).path("access-grant-1").build();
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
         final AccessGrant grant = client.fetch(uri).toCompletableFuture().join();
 
         assertEquals(uri, grant.getIdentifier());
@@ -116,8 +117,7 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final URI uri = URIBuilder.newBuilder(baseUri).path("access-grant-2").build();
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
         final AccessGrant grant = client.fetch(uri).toCompletableFuture().join();
 
         assertEquals(uri, grant.getIdentifier());
@@ -143,8 +143,7 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final URI uri = URIBuilder.newBuilder(baseUri).path("access-grant-6").build();
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
         final AccessGrant grant = client.fetch(uri).toCompletableFuture().join();
 
         assertEquals(uri, grant.getIdentifier());
@@ -168,8 +167,7 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final URI uri = URIBuilder.newBuilder(baseUri).path("vc-3").build();
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
         final CompletionException err = assertThrows(CompletionException.class,
                 client.fetch(uri).toCompletableFuture()::join);
     }
@@ -177,9 +175,8 @@ class AccessGrantClientTest {
     @Test
     void testFetchInvalid() {
         final URI uri = URIBuilder.newBuilder(baseUri).path(".well-known/vc-configuration").build();
-        final AccessGrantClient client = new AccessGrantClient(baseUri);
         final CompletionException err = assertThrows(CompletionException.class,
-                client.fetch(uri).toCompletableFuture()::join);
+                agClient.fetch(uri).toCompletableFuture()::join);
 
         assertTrue(err.getCause() instanceof AccessGrantException);
     }
@@ -187,16 +184,15 @@ class AccessGrantClientTest {
     @Test
     void testFetchNotFound() {
         final URI uri = URIBuilder.newBuilder(baseUri).path("not-found").build();
-        final AccessGrantClient client = new AccessGrantClient(uri);
         final CompletionException err1 = assertThrows(CompletionException.class,
-                client.fetch(uri).toCompletableFuture()::join);
+                agClient.fetch(uri).toCompletableFuture()::join);
 
         assertTrue(err1.getCause() instanceof AccessGrantException);
 
         final URI agent = URI.create("https://id.test/agent");
 
         final CompletionException err2 = assertThrows(CompletionException.class,
-                client.issue(ACCESS_GRANT, agent, Collections.emptySet(), Collections.emptySet(),
+                agClient.issue(ACCESS_GRANT, agent, Collections.emptySet(), Collections.emptySet(),
                     Collections.emptySet(), Instant.now()).toCompletableFuture()::join);
         assertTrue(err2.getCause() instanceof AccessGrantException);
     }
@@ -209,8 +205,7 @@ class AccessGrantClientTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
@@ -238,8 +233,7 @@ class AccessGrantClientTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
@@ -261,8 +255,6 @@ class AccessGrantClientTest {
 
     @Test
     void testIssueNoAuth() {
-        final AccessGrantClient client = new AccessGrantClient(baseUri);
-
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
         final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
@@ -270,7 +262,7 @@ class AccessGrantClientTest {
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final CompletionException err = assertThrows(CompletionException.class, () ->
-                client.issue(ACCESS_GRANT, agent, resources, modes, purposes, expiration)
+                agClient.issue(ACCESS_GRANT, agent, resources, modes, purposes, expiration)
                     .toCompletableFuture().join());
         assertTrue(err.getCause() instanceof AccessGrantException);
     }
@@ -283,8 +275,7 @@ class AccessGrantClientTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
@@ -306,8 +297,7 @@ class AccessGrantClientTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessGrant> grants = client.query(URI.create("SolidAccessGrant"), null,
                 URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c"), "Read")
@@ -323,8 +313,7 @@ class AccessGrantClientTest {
         claims.put("iss", ISS);
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
-        final AccessGrantClient client = new AccessGrantClient(baseUri)
-            .session(OpenIdSession.ofIdToken(token));
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessGrant> grants = client.query(URI.create("SolidAccessRequest"), null,
                 URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c"), "Read")
@@ -334,10 +323,8 @@ class AccessGrantClientTest {
 
     @Test
     void testQueryInvalidAuth() {
-        final AccessGrantClient client = new AccessGrantClient(baseUri);
-
         final CompletionException err = assertThrows(CompletionException.class,
-                client.query(URI.create("SolidAccessGrant"), null, null, null).toCompletableFuture()::join);
+                agClient.query(URI.create("SolidAccessGrant"), null, null, null).toCompletableFuture()::join);
 
         assertTrue(err.getCause() instanceof AccessGrantException);
     }

@@ -23,6 +23,7 @@ package com.inrupt.client.accessgrant;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.Client;
+import com.inrupt.client.ClientCache;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +94,7 @@ public class AccessGrantClient {
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
 
     private final Client client;
+    private final ClientCache<URI, Metadata> metadataCache;
     private final JsonService jsonService;
     private final AccessGrantConfiguration config;
 
@@ -107,23 +110,38 @@ public class AccessGrantClient {
     /**
      * Create an access grant client.
      *
-     * @param issuer the issuer
      * @param client the client
+     * @param issuer the issuer
      */
     public AccessGrantClient(final Client client, final URI issuer) {
-        this(client, new AccessGrantConfiguration(issuer));
+        this(client, ServiceProvider.getCacheBuilder().build(100, Duration.ofMinutes(60)),
+                new AccessGrantConfiguration(issuer));
     }
 
     /**
      * Create an access grant client.
      *
      * @param client the client
+     * @param issuer the issuer
+     * @param metadataCache the metadata cache
+     */
+    public AccessGrantClient(final Client client, final URI issuer, final ClientCache<URI, Metadata> metadataCache) {
+        this(client, metadataCache, new AccessGrantConfiguration(issuer));
+    }
+
+    /**
+     * Create an access grant client.
+     *
+     * @param client the client
+     * @param metadataCache the metadata cache
      * @param config the access grant configuration
      */
     // This ctor may be made public at a later point
-    private AccessGrantClient(final Client client, final AccessGrantConfiguration config) {
-        this.client = Objects.requireNonNull(client);
-        this.config = Objects.requireNonNull(config);
+    private AccessGrantClient(final Client client, final ClientCache<URI, Metadata> metadataCache,
+            final AccessGrantConfiguration config) {
+        this.client = Objects.requireNonNull(client, "client may not be null!");
+        this.config = Objects.requireNonNull(config, "config may not be null!");
+        this.metadataCache = Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
         this.jsonService = ServiceProvider.getJsonService();
     }
 
@@ -135,7 +153,7 @@ public class AccessGrantClient {
      */
     public AccessGrantClient session(final Session session) {
         Objects.requireNonNull(session, "Session may not be null!");
-        return new AccessGrantClient(client.session(session), config);
+        return new AccessGrantClient(client.session(session), metadataCache, config);
     }
 
     /**
@@ -346,6 +364,11 @@ public class AccessGrantClient {
 
     CompletionStage<Metadata> v1Metadata() {
         final URI uri = URIBuilder.newBuilder(config.getIssuer()).path(".well-known/vc-configuration").build();
+        final Metadata cached = metadataCache.get(uri);
+        if (cached != null) {
+            return CompletableFuture.completedFuture(cached);
+        }
+
         final Request req = Request.newBuilder(uri).header("Accept", APPLICATION_JSON).build();
         return client.send(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
@@ -369,6 +392,7 @@ public class AccessGrantClient {
                 m.issueEndpoint = asUri(metadata.get("issuerService"));
                 m.verifyEndpoint = asUri(metadata.get("verifierService"));
                 m.statusEndpoint = asUri(metadata.get("statusService"));
+                metadataCache.put(uri, m);
                 return m;
             });
     }
