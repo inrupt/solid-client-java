@@ -92,7 +92,6 @@
     <module>examples</module>
     <module>guava</module>
     <module>httpclient</module>
-    <module>integration</module>
     <module>jackson</module>
     <module>jena</module>
     <module>jsonb</module>
@@ -101,12 +100,14 @@
     <module>parser</module>
     <module>rdf4j</module>
     <module>rdf-legacy</module>
-    <module>reports</module>
     <module>solid</module>
     <module>test</module>
     <module>uma</module>
     <module>webid</module>
     <module>vocabulary</module>
+    <module>runtime</module>
+    <module>integration</module>
+    <module>reports</module>
     <module>archetypes</module>
   </modules>
 
