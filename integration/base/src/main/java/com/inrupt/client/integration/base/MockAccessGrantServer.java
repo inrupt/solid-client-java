@@ -52,12 +52,16 @@ class MockAccessGrantServer {
                     .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                     .withBody(getResource("/vc-configuration.json", wireMockServer.baseUrl()))));
 
-        wireMockServer.stubFor(get(urlEqualTo("/vc-grant"))
+        wireMockServer.stubFor(get(urlPathMatching(".+:(\\d*)/vc-grant"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
                             this.webId, this.sharedFile))));
+
+        wireMockServer.stubFor(delete(urlPathMatching("/vc-grant"))
+                    .willReturn(aResponse()
+                        .withStatus(204)));
 
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
                     .willReturn(aResponse()
