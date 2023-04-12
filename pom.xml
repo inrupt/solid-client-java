@@ -166,6 +166,7 @@
           <version>${javadoc.plugin.version}</version>
           <configuration>
             <sourceFileExcludes>**/generated-sources/**</sourceFileExcludes>
+            <excludePackageNames>*:inrupt-client-runtime</excludePackageNames>
             <quiet>true</quiet>
             <links>
               <link>https://javaee.github.io/javaee-spec/javadocs/</link>
