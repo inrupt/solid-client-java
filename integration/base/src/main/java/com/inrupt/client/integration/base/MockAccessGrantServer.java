@@ -75,6 +75,13 @@ class MockAccessGrantServer {
                     .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));
 
+        wireMockServer.stubFor(post(urlEqualTo("/derive"))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedFile))));
+
     }
 
     private String getResource(final String path) {

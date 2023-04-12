@@ -50,6 +50,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -302,13 +303,22 @@ public class AccessGrantScenarios {
             new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
-        //Steps
-        //1. query for all grants issued by the user - should be 0
-        //2. query for all grants issued by a random user - should be 0
+        //1. query for all grants issued by the user
+        final List<AccessGrant> grants = accessGrantClient.query(
+                ACCESS_REQUEST, URI.create(webidUrl),
+                sharedTextFileURI, GRANT_MODE_READ)
+            .toCompletableFuture().join();
+        assertEquals(1, grants.size());
+
+        //2. query for all grants issued by a random user
+        final List<AccessGrant> grantRandomUser = accessGrantClient.query(
+                ACCESS_REQUEST, URI.create("https://username.test"),
+                sharedTextFileURI, GRANT_MODE_READ)
+            .toCompletableFuture().join();
+        assertEquals(0, grantRandomUser.size());
 
         assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
         assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
-
     }
 
     @ParameterizedTest
