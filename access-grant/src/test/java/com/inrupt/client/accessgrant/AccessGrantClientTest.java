@@ -23,7 +23,7 @@ package com.inrupt.client.accessgrant;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
-
+import com.inrupt.client.Request;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.util.URIBuilder;
@@ -198,6 +198,24 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testFetchNotFoundWithApproval() {
+        final URI uri = URIBuilder.newBuilder(baseUri).path("not-found").build();
+        final CompletionException err1 = assertThrows(CompletionException.class,
+                agClient.fetch(uri).toCompletableFuture()::join);
+
+        assertTrue(err1.getCause() instanceof AccessGrantException);
+
+        final URI agent = URI.create("https://id.test/agent");
+
+        Request req = agClient.issueAccessRequest(ACCESS_GRANT, agent, Collections.emptySet(), Collections.emptySet(),
+        Collections.emptySet(), Instant.now());
+
+        final CompletionException err2 = assertThrows(CompletionException.class,
+                agClient.approveAccessRequest(req));
+        assertTrue(err2.getCause() instanceof AccessGrantException);
+    }
+
+    @Test
     void testIssueGrant() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -214,6 +232,35 @@ class AccessGrantClientTest {
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final AccessGrant grant = client.issue(ACCESS_GRANT, agent, resources, modes, purposes, expiration)
+            .toCompletableFuture().join();
+
+        assertTrue(grant.getTypes().contains("SolidAccessGrant"));
+        assertEquals(Optional.of(agent), grant.getGrantee());
+        assertEquals(modes, grant.getModes());
+        assertEquals(expiration, grant.getExpiration());
+        assertEquals(baseUri, grant.getIssuer());
+        assertEquals(purposes, grant.getPurpose());
+        assertEquals(resources, grant.getResources());
+    }
+
+    @Test
+    void testApproveGrant() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI agent = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        Request request = client.issueAccessRequest(ACCESS_GRANT, agent, resources, modes, purposes, expiration);
+        final AccessGrant grant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
 
         assertTrue(grant.getTypes().contains("SolidAccessGrant"));
@@ -254,6 +301,35 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testApproveRequest() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI agent = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        Request request = client.issueAccessRequest(ACCESS_REQUEST, agent, resources, modes, purposes, expiration);
+        final AccessGrant requestTypeGrant = client.approveAccessRequest(request)
+            .toCompletableFuture().join();
+
+        assertTrue(requestTypeGrant.getTypes().contains("SolidAccessRequest"));
+        assertEquals(Optional.of(agent), requestTypeGrant.getGrantee());
+        assertEquals(modes, requestTypeGrant.getModes());
+        assertEquals(expiration, requestTypeGrant.getExpiration());
+        assertEquals(baseUri, requestTypeGrant.getIssuer());
+        assertEquals(purposes, requestTypeGrant.getPurpose());
+        assertEquals(resources, requestTypeGrant.getResources());
+    }
+
+    @Test
     void testIssueNoAuth() {
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
@@ -263,6 +339,21 @@ class AccessGrantClientTest {
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final CompletionException err = assertThrows(CompletionException.class, () ->
                 agClient.issue(ACCESS_GRANT, agent, resources, modes, purposes, expiration)
+                    .toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof AccessGrantException);
+    }
+
+    @Test
+    void testIssueNoAuthWithApproval() {
+        final URI agent = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        Request request = agClient.issueAccessRequest(ACCESS_GRANT, agent, resources, modes, purposes, expiration);
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                agClient.approveAccessRequest(request)
                     .toCompletableFuture().join());
         assertTrue(err.getCause() instanceof AccessGrantException);
     }
@@ -285,6 +376,29 @@ class AccessGrantClientTest {
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final CompletionException err = assertThrows(CompletionException.class, () ->
                 client.issue(URI.create("https://vc.test/Type"), agent, resources, modes, purposes, expiration)
+                    .toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof AccessGrantException);
+    }
+
+    @Test
+    void testApproveOther() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI agent = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        Request request = client.issueAccessRequest(URI.create("https://vc.test/Type"), agent, resources, modes, purposes, expiration);
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                client.approveAccessRequest(request)
                     .toCompletableFuture().join());
         assertTrue(err.getCause() instanceof AccessGrantException);
     }

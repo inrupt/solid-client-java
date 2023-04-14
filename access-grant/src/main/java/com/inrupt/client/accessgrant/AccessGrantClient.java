@@ -201,6 +201,57 @@ public class AccessGrantClient {
     }
 
     /**
+     * A POST Request to be used for issuing an access grant or request. 
+     *
+     * @param type the credential type
+     * @param agent the receiving agent for this credential
+     * @param resources the resources to which this credential applies
+     * @param modes the access modes for this credential
+     * @param purposes the purposes of this credential
+     * @param expiration the expiration time of this credential
+     * @return a HTTP POST Request for issuing an access grant or request
+     */
+    public Request issueAccessRequest(final URI type, final URI agent, final Set<URI> resources, final Set<String> modes, final Set<String> purposes, final Instant expiration) {
+        return v1Metadata().thenApply(metadata -> {
+            final Map<String, Object> data;
+            if (ACCESS_GRANT.equals(type)) {
+                data = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
+            } else if (ACCESS_REQUEST.equals(type)) {
+                data = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
+            } else {
+                throw new AccessGrantException("Unsupported grant type: " + type);
+            }
+
+            return Request.newBuilder(metadata.issueEndpoint)
+                .header(CONTENT_TYPE, APPLICATION_JSON)
+                .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
+        }).toCompletableFuture().join();
+    }
+
+    /**
+     * Approves an access grant or request.
+     *
+     * @param request HTTP issue request
+     * @return the next stage of completion containing the resulting credential
+     */
+    public CompletionStage<AccessGrant> approveAccessRequest(Request request) {
+        return client.send(request, Response.BodyHandlers.ofInputStream())
+                .thenApply(res -> {
+                    try (final InputStream input = res.body()) {
+                        final int status = res.statusCode();
+                        if (isSuccess(status)) {
+                            return processVerifiableCredential(input, ACCESS_GRANT_TYPES);
+                        }
+                        throw new AccessGrantException("Unable to issue Access Grant: HTTP error " + status,
+                                status);
+                    } catch (final IOException ex) {
+                        throw new AccessGrantException(
+                                "Unexpected I/O exception while processing Access Grant", ex);
+                    }
+                });
+    }
+
+    /**
      * Verify an access grant or request.
      *
      * @param accessGrant the access grant to verify
