@@ -201,6 +201,39 @@ public class AccessGrantClient {
     }
 
     /**
+     * Verify an access grant or request.
+     *
+     * @param accessGrant the access grant to verify
+     * @return the next stage of completion containing the resulting credential
+     */
+    public CompletionStage<VerificationResponse> verify(final AccessGrant accessGrant) {
+        return v1Metadata().thenCompose(metadata -> {
+
+            final Map<String, Object> presentation = new HashMap<>();
+            presentation.put(VERIFIABLE_CREDENTIAL, accessGrant);
+
+            final Request req = Request.newBuilder(metadata.verifyEndpoint)
+                .header(CONTENT_TYPE, APPLICATION_JSON)
+                .POST(Request.BodyPublishers.ofByteArray(serialize(presentation))).build();
+
+            return client.send(req, Response.BodyHandlers.ofInputStream())
+                .thenApply(res -> {
+                    try (final InputStream input = res.body()) {
+                        final int status = res.statusCode();
+                        if (isSuccess(status)) {
+                            return processVerificationResult(input);
+                        }
+                        throw new AccessGrantException("Unable to perform Access Grant verify: HTTP error " + status,
+                                status);
+                    } catch (final IOException ex) {
+                        throw new AccessGrantException(
+                                "Unexpected I/O exception while verifying Access Grant", ex);
+                    }
+                });
+        });
+    }
+
+    /**
      * Perform an Access Grant query.
      *
      * <p>The {@code type} parameter must be an absolute URI. For Access Requests,
@@ -337,6 +370,10 @@ public class AccessGrantClient {
         } else {
             throw new AccessGrantException("Invalid Access Grant: missing SolidAccessGrant type");
         }
+    }
+
+    VerificationResponse processVerificationResult(final InputStream input) throws IOException {
+        return jsonService.fromJson(input, VerificationResponse.class);
     }
 
     List<AccessGrant> processQueryResponse(final InputStream input, final Set<String> validTypes) throws IOException {
@@ -545,5 +582,25 @@ public class AccessGrantClient {
     static boolean isAccessRequest(final URI type) {
         return "SolidAccessRequest".equals(type.toString()) || ACCESS_REQUEST.equals(type);
 
+    }
+
+    /**
+     * A data objects for verification responses.
+     */
+    public static class VerificationResponse {
+        /**
+         * The verification checks that were performed.
+         */
+        public List<String> checks;
+
+        /**
+         * The verification warnings that were discovered.
+         */
+        public List<String> warnings;
+
+        /**
+         * The verification errors that were discovered.
+         */
+        public List<String> errors;
     }
 }
