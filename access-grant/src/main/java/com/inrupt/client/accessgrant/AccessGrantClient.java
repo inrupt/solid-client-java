@@ -81,7 +81,6 @@ public class AccessGrantClient {
     private static final String VC_CONTEXT_URI = "https://www.w3.org/2018/credentials/v1";
     private static final String INRUPT_CONTEXT_URI = "https://schema.inrupt.com/credentials/v1.jsonld";
     private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
-    private static final String OPTIONS = "options";
     private static final String TYPE = "type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -208,12 +207,11 @@ public class AccessGrantClient {
      * @param options the options to which this credential applies
      * @return the next stage of completion containing the resulting credential
      */
-    public CompletionStage<VerificationResponse> verify(final AccessGrant accessGrant, final Set<String> options) {
+    public CompletionStage<VerificationResponse> verify(final AccessGrant accessGrant) {
         return v1Metadata().thenCompose(metadata -> {
             
             final Map<String, Object> presentation = new HashMap<>();
             presentation.put(VERIFIABLE_CREDENTIAL, accessGrant);
-            presentation.put(OPTIONS, Arrays.asList(options));
 
             final Request req = Request.newBuilder(metadata.verifyEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -370,22 +368,6 @@ public class AccessGrantClient {
             presentation.put(TYPE, Arrays.asList("VerifiablePresentation"));
             presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(data));
             return AccessGrant.ofAccessGrant(new String(serialize(presentation), UTF_8));
-        } else {
-            throw new AccessGrantException("Invalid Access Grant: missing SolidAccessGrant type");
-        }
-    }
-
-    String prepareVerifyPayload(final InputStream input, final Set<String> validTypes, final Set<String> options) throws IOException {
-        final Map<String, Object> data = jsonService.fromJson(input,
-                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
-        final Set<String> types = AccessGrant.asSet(data.get(TYPE)).orElseThrow(() ->
-                new AccessGrantException("Invalid Access Grant: no 'type' field"));
-        types.retainAll(validTypes);
-        if (!types.isEmpty()) {
-            final Map<String, Object> presentation = new HashMap<>();
-            presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(data));
-            presentation.put(OPTIONS, Arrays.asList(options));
-            return new String(serialize(presentation), UTF_8);
         } else {
             throw new AccessGrantException("Invalid Access Grant: missing SolidAccessGrant type");
         }
