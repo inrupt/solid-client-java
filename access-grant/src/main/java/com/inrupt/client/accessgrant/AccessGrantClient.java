@@ -204,12 +204,11 @@ public class AccessGrantClient {
      * Verify an access grant or request.
      *
      * @param accessGrant the access grant to verify
-     * @param options the options to which this credential applies
      * @return the next stage of completion containing the resulting credential
      */
     public CompletionStage<VerificationResponse> verify(final AccessGrant accessGrant) {
         return v1Metadata().thenCompose(metadata -> {
-            
+
             final Map<String, Object> presentation = new HashMap<>();
             presentation.put(VERIFIABLE_CREDENTIAL, accessGrant);
 
