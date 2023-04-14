@@ -1,0 +1,55 @@
+Data Modeling for multiple Solid Resources
+
+    This data modeling approach can be used when the data we need is in multiple Solid Resources. Foe example, there is a Book Library Solid Container which holds more Solid Resources. Each Solid Resource, in turn, contains the description of only one Book.
+
+* How to complete
+
+    The solution involves working with domain-specific type such as <<<SolidContainer>>> and <<<SolidResource>>>. 
+
+* Working with Solid Containers
+
+    Given a Solid Container, we assume that all Solid RDF Resources contained in the container are Books. One Book per Solid Resource. 
+
+    For modeling a single Book one can use a <<<SolidResource>>> or a wrapper class as (describe on the {{{./one-resource.html}one Solid Resource}} page).
+
++---
+import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.SolidContainer;
+import java.net.URI;
+
+public class MyApplication {
+
+    public void run() {
+        Session session = OpenIdSession.ofClientCredentials(issuer, clientId, clientSecret, "client_secret_basic");
+        SolidSyncClient client = SolidSyncClient.getClient().session(session);
+
+        URI uri = URI.create("https://storage.example/BookLibrary/");
+        try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
+            final var resources = container.getResources();
+            resources.forEach(r -> {
+                if (!(r.getIdentifier().toString().endsWith("/"))) { //if it ends in a '/' it is a container
+                    final Request req = Request.newBuilder(r.getIdentifier())
+                        .HEAD()
+                        .build();
+                    final var res = client.send(req, Response.BodyHandlers.discarding());
+                    final var contentType = res.headers().firstValue("Content-Type");
+                    if (contentType.isPresent() && (contentType.get().toLowerCase().contains("text/turtle"))) {
+                        try (Book book = client.read(r.getIdentifier(), Book.class)) {
+                            System.out.println(book.getTitle());
+
+                            // Set the book title
+                            book.setTitle(title);
+
+                            // Update the book in your storage
+                            client.update(book);
+                        }
+                    }
+                }
+            });
+        }
+        
+    }
+}
++---
+

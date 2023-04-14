@@ -20,9 +20,12 @@
  */
 package com.inrupt.client.examples.webapp;
 
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidContainer;
+import com.inrupt.client.solid.SolidResource;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -30,7 +33,6 @@ import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -62,7 +64,9 @@ public class SolidStorage {
         private static native TemplateInstance profile(
                 WebIdProfile profile,
                 List<String> containers,
-                List<String> resources);
+                List<String> resources,
+                List<String> nonRDFresources,
+                List<String> anyResource);
     }
 
     @GET
@@ -75,11 +79,12 @@ public class SolidStorage {
                             session.read(storage, SolidContainer.class).thenApply(container -> {
                                 try (container) {
                                     final var resources = container.getResources().stream()
-                                        .collect(Collectors.groupingBy(c -> getPrincipalType(c.getMetadata().getType()),
+                                        .collect(Collectors.groupingBy(c -> filterResource(session, c),
                                                     Collectors.mapping(c -> c.getIdentifier().toString(),
                                                         Collectors.toList())));
                                     return Templates.profile(profile, resources.get(LDP.BasicContainer),
-                                            resources.get(LDP.RDFSource));
+                                    resources.get(LDP.RDFSource), resources.get(LDP.NonRDFSource),
+                                    resources.get(LDP.Resource));
                                 }
                             }))
                         .orElseGet(SolidStorage::emptyProfile)
@@ -88,15 +93,22 @@ public class SolidStorage {
     }
 
     static CompletionStage<TemplateInstance> emptyProfile() {
-        return CompletableFuture.completedFuture(Templates.profile(null, List.of(), List.of()));
+        return CompletableFuture.completedFuture(Templates.profile(null, List.of(), List.of(), List.of(), List.of()));
     }
 
-    static URI getPrincipalType(final Collection<URI> types) {
-        if (types.contains(LDP.BasicContainer)) {
+    static URI filterResource(final SolidClient client, final SolidResource resource) {
+        if (resource.getIdentifier().toString().endsWith("/")) {
             return LDP.BasicContainer;
-        } else if (types.contains(LDP.RDFSource)) {
+        }
+        final var req = Request.newBuilder(resource.getIdentifier())
+                .HEAD()
+                .build();
+        final var res = client.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
+        final var contentType = res.headers().firstValue("Content-Type");
+        if (contentType.isPresent() && (contentType.get().toLowerCase().contains("text/turtle")) ) {
             return LDP.RDFSource;
-        } else if (types.contains(LDP.NonRDFSource)) {
+        }
+        if (contentType.isPresent() && !(contentType.get().toLowerCase().contains("text/turtle"))) {
             return LDP.NonRDFSource;
         }
         return LDP.Resource;

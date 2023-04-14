@@ -30,7 +30,17 @@
       </dependency>
       <dependency>
         <groupId>com.inrupt.client</groupId>
+        <artifactId>inrupt-client-caffeine</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt.client</groupId>
         <artifactId>inrupt-client-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt.client</groupId>
+        <artifactId>inrupt-client-guava</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -76,6 +86,11 @@
       <dependency>
         <groupId>com.inrupt.client</groupId>
         <artifactId>inrupt-client-rdf-legacy</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt.client</groupId>
+        <artifactId>inrupt-client-runtime</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

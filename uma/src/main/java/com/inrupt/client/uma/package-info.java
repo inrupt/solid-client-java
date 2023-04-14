@@ -23,23 +23,10 @@
  *
  * <p>UMA builds on the OAuth 2.0 authorization framework, defining a mechanism by which
  * a client can iteratively negotiate for an access token.
- * 
+ *
  * <p>{@code UmaClient} helps in the interaction with different endpoints, to construct helper
  * requests for authentication and to negotiate for a token.
- * 
- * <h3>Using a UMA session</h3>
  *
- * <p>This module has a session implementation, {@code UmaSession}, for use with UMA Authorization Servers.
- *
- * <p>This session implementation can be used to wrap other session objects, such as
- * ones that use OpenID Connect tokens.
- *
- * <pre>{@code
- *   Client client = ClientProvider.getClient();
- *   Session session = client.session(UmaSession.ofSession(OpenIdSession.ofIdToken(jwt)));
- *   Response res = session.send(req, bodyHandler);
- * }</pre>
- * 
  * <h3>Discovering the UMA configuration</h3>
  * 
  * <pre>{@code

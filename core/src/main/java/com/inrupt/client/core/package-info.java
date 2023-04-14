@@ -44,7 +44,7 @@
         .POST(Request.BodyPublishers.ofString("Test String 1"))
         .build();
 
-    Response<Void> response = client.session(UmaSession.of(s))
+    Response<Void> response = client
         .send(request, Response.BodyHandlers.discarding())
         .toCompletableFuture().join();
  * }</pre>

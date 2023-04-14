@@ -19,7 +19,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
 
-    <quarkus.version>2.16.5.Final</quarkus.version>
+    <quarkus.version>2.16.6.Final</quarkus.version>
   </properties>
 
   <dependencyManagement>
@@ -52,6 +52,11 @@
     <dependency>
       <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-webid</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-caffeine</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

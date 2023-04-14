@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class UmaClient {
     private static final String NEED_INFO = "need_info";
     private static final String REQUEST_DENIED = "request_denied";
 
-    // TODO add metadata cache
+    private final ClientCache<URI, Metadata> metadataCache;
     private final HttpService httpClient;
     private final JsonService jsonService;
     private final int maxIterations;
@@ -97,10 +98,24 @@ public class UmaClient {
      * @param maxIterations the maximum number of claims gathering stages
      */
     public UmaClient(final HttpService httpClient, final int maxIterations) {
-        this.httpClient = httpClient;
+        this(httpClient, ServiceProvider.getCacheBuilder().build(100, Duration.ofMinutes(60)), maxIterations);
+    }
+
+    /**
+     * Create an UMA client using an externally-configured HTTP client and cache.
+     *
+     * @param httpClient the externally configured HTTP client
+     * @param metadataCache the externally configured metadata cache
+     * @param maxIterations the maximum number of claims gathering stages
+     */
+    public UmaClient(final HttpService httpClient, final ClientCache<URI, Metadata> metadataCache,
+            final int maxIterations) {
+        this.httpClient = Objects.requireNonNull(httpClient, "httpClient may not be null!");
+        this.metadataCache = Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
         this.maxIterations = maxIterations;
         this.jsonService = ServiceProvider.getJsonService();
     }
+
 
     /**
      * Fetch the UMA metadata resource.
@@ -109,9 +124,15 @@ public class UmaClient {
      * @return the next stage of completion, containing the authorization server discovery metadata
      */
     public CompletionStage<Metadata> metadata(final URI authorizationServer) {
-        final Request req = Request.newBuilder(getMetadataUrl(authorizationServer)).header(ACCEPT, JSON).build();
+        final URI uri = getMetadataUrl(authorizationServer);
+        final Metadata m = metadataCache.get(uri);
+        if (m != null) {
+            return CompletableFuture.completedFuture(m);
+        }
+
+        final Request req = Request.newBuilder(uri).header(ACCEPT, JSON).build();
         return httpClient.send(req, Response.BodyHandlers.ofInputStream())
-            .thenApply(this::processMetadataResponse);
+            .thenApply(res -> processMetadataResponse(uri, res));
     }
 
     /**
@@ -237,10 +258,13 @@ public class UmaClient {
     }
 
 
-    private Metadata processMetadataResponse(final Response<InputStream> response) {
+    private Metadata processMetadataResponse(final URI uri, final Response<InputStream> response) {
         if (response.statusCode() == SUCCESS) {
             try {
-                return jsonService.fromJson(response.body(), Metadata.class);
+                final Metadata metadata = jsonService.fromJson(response.body(), Metadata.class);
+                metadataCache.put(uri, metadata);
+                return metadata;
+
             } catch (final IOException ex) {
                 throw new UmaException("Error while processing UMA metadata response", ex);
             }

@@ -21,11 +21,12 @@
 
     <!-- dependencies -->
     <antlr.version>4.12.0</antlr.version>
-    <caffeine.version>3.1.2</caffeine.version>
+    <caffeine.version>3.1.6</caffeine.version>
     <commons.codec.version>1.15</commons.codec.version>
     <commons.cli.version>1.5.0</commons.cli.version>
     <commons.io.version>2.11.0</commons.io.version>
     <commons.rdf.version>0.5.0</commons.rdf.version>
+    <guava.version>31.1-jre</guava.version>
     <jackson.version>2.14.2</jackson.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
     <jena.version>4.7.0</jena.version>
@@ -43,6 +44,7 @@
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
+    <exec.plugin.version>3.1.0</exec.plugin.version>
     <install.plugin.version>3.1.1</install.plugin.version>
     <git.plugin.version>4.9.10</git.plugin.version>
     <gpg.plugin.version>3.0.1</gpg.plugin.version>
@@ -86,10 +88,11 @@
     <module>access-grant</module>
     <module>api</module>
     <module>bom</module>
+    <module>caffeine</module>
     <module>core</module>
     <module>examples</module>
+    <module>guava</module>
     <module>httpclient</module>
-    <module>integration</module>
     <module>jackson</module>
     <module>jena</module>
     <module>jsonb</module>
@@ -98,13 +101,16 @@
     <module>parser</module>
     <module>rdf4j</module>
     <module>rdf-legacy</module>
-    <module>reports</module>
     <module>solid</module>
     <module>test</module>
     <module>uma</module>
     <module>webid</module>
     <module>vocabulary</module>
+    <module>runtime</module>
+    <module>integration</module>
+    <module>reports</module>
     <module>archetypes</module>
+    <module>gradle</module>
   </modules>
 
   <distributionManagement>

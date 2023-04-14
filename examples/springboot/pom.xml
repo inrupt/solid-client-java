@@ -62,7 +62,17 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-caffeine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-openid</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-uma</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

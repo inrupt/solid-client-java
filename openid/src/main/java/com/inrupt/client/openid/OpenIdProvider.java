@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,6 +62,7 @@ public class OpenIdProvider {
     private final URI issuer;
     private final HttpService httpClient;
     private final JsonService jsonService;
+    private final ClientCache<URI, Metadata> metadataCache;
     private final DPoP dpop;
 
     /**
@@ -80,8 +83,22 @@ public class OpenIdProvider {
      * @param httpClient an HTTP client
      */
     public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpService httpClient) {
-        this.issuer = Objects.requireNonNull(issuer);
-        this.httpClient = Objects.requireNonNull(httpClient);
+        this(issuer, dpop, httpClient, ServiceProvider.getCacheBuilder().build(100, Duration.ofMinutes(60)));
+    }
+
+    /**
+     * Create an OpenID Provider client.
+     *
+     * @param issuer the OpenID provider issuer
+     * @param dpop the DPoP manager
+     * @param httpClient an HTTP client
+     * @param metadataCache an OpenID Metadata cache
+     */
+    public OpenIdProvider(final URI issuer, final DPoP dpop, final HttpService httpClient,
+            final ClientCache<URI, Metadata> metadataCache) {
+        this.issuer = Objects.requireNonNull(issuer, "issuer may not be null!");
+        this.httpClient = Objects.requireNonNull(httpClient, "httpClient may not be null!");
+        this.metadataCache = Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
         this.jsonService = ServiceProvider.getJsonService();
         this.dpop = dpop;
     }
@@ -92,14 +109,21 @@ public class OpenIdProvider {
      * @return the next stage of completion, containing the OpenID Provider's metadata resource
      */
     public CompletionStage<Metadata> metadata() {
-        // consider caching this response
+        final URI uri = getMetadataUrl();
+        final Metadata m = metadataCache.get(uri);
+        if (m != null) {
+            return CompletableFuture.completedFuture(m);
+        }
+
         final Request req = Request.newBuilder(getMetadataUrl()).header("Accept", "application/json").build();
         return httpClient.send(req, Response.BodyHandlers.ofInputStream())
             .thenApply(res -> {
                 try {
                     final int httpStatus = res.statusCode();
                     if (httpStatus >= 200 && httpStatus < 300) {
-                        return jsonService.fromJson(res.body(), Metadata.class);
+                        final Metadata discovery = jsonService.fromJson(res.body(), Metadata.class);
+                        metadataCache.put(uri, discovery);
+                        return discovery;
                     }
                     throw new OpenIdException(
                         "Unexpected error while fetching the OpenID metadata resource.",

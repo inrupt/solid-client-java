@@ -71,6 +71,7 @@ final class Utils {
 
     static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
     static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
+    static final String VC_DISCOVERY_ENDPOINT = "/.well-known/vc-configuration";
     static final String UMA_TOKEN_ENDPOINT = "uma/token";
     static final String OAUTH_TOKEN_ENDPOINT = "oauth/oauth20/token";
     static final String UMA_JWKS_ENDPOINT = "uma/jwks";

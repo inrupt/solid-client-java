@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id "com.gradle.enterprise" version "3.12.6"
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+rootProject.name = "inrupt-gradle-app"
