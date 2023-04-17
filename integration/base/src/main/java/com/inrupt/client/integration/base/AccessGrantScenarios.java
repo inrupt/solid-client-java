@@ -64,7 +64,6 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -165,7 +164,7 @@ public class AccessGrantScenarios {
             .build();
 
         //create test file in test container
-        try (final InputStream is = new ByteArrayInputStream(StandardCharsets.UTF_16.encode("Test text").array())) {
+        try (final InputStream is = new ByteArrayInputStream(StandardCharsets.UTF_8.encode("Test text").array())) {
             final SolidNonRDFSource testResource = new SolidNonRDFSource(sharedTextFileURI, Utils.PLAIN_TEXT, is, null);
             session = OpenIdSession.ofClientCredentials(
                 URI.create(issuer), //Client credentials
@@ -209,7 +208,6 @@ public class AccessGrantScenarios {
         accessGrantServer.stop();
     }
 
-    @Disabled
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
@@ -307,7 +305,7 @@ public class AccessGrantScenarios {
         // result is 4 because we retrieve the grants for each path
         // sharedTextFileURI =
         // http://localhost:57577/private/accessgrant-test-2c82772f-7c0a-4e39-9466-abf9756b59c7/sharedFile.txt
-        assertEquals(4, grants.size());
+        assertEquals(1, grants.size());
 
         //query for all grants issued by a random user
         final List<AccessGrant> randomGrants = accessGrantClient.query(
@@ -331,7 +329,7 @@ public class AccessGrantScenarios {
                 ACCESS_REQUEST, URI.create(webidUrl),
                 sharedTextFileURI, GRANT_MODE_READ)
             .toCompletableFuture().join();
-        assertEquals(4, grants.size());
+        assertEquals(1, grants.size());
 
         //query for all grants of a random resource
         final List<AccessGrant> randomGrants = accessGrantClient.query(
@@ -355,7 +353,7 @@ public class AccessGrantScenarios {
                 ACCESS_REQUEST, URI.create(webidUrl),
                 sharedTextFileURI, GRANT_MODE_READ)
             .toCompletableFuture().join();
-        assertEquals(4, grants.size());
+        assertEquals(1, grants.size());
 
         //query for all grants of dedicated purpose combinations
         final List<AccessGrant> randomGrants = accessGrantClient.query(
@@ -483,7 +481,7 @@ public class AccessGrantScenarios {
             .build();
 
         try (final InputStream is = new ByteArrayInputStream(
-            StandardCharsets.UTF_16.encode("Test test test text").array())) {
+            StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
             assertDoesNotThrow(() -> client.create(testResource));
@@ -521,7 +519,7 @@ public class AccessGrantScenarios {
             .build();
 
         try (final InputStream is = new ByteArrayInputStream(
-            StandardCharsets.UTF_16.encode("Test test test text").array())) {
+            StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
             assertDoesNotThrow(() -> client.create(testResource));
@@ -539,7 +537,7 @@ public class AccessGrantScenarios {
 
         try (final SolidNonRDFSource resource = authClient.read(newTestFileURI, SolidNonRDFSource.class)) {
             try (final InputStream newis = new ByteArrayInputStream(
-                StandardCharsets.UTF_16.encode("Test text").array())) {
+                StandardCharsets.UTF_8.encode("Test text").array())) {
                 final SolidNonRDFSource testResource =
                     new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, newis, resource.getMetadata());
                 assertDoesNotThrow(() -> authClient.update(testResource));
@@ -572,7 +570,7 @@ public class AccessGrantScenarios {
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(newSession);
 
         try (final InputStream is = new ByteArrayInputStream(
-            StandardCharsets.UTF_16.encode("Test test test text").array())) {
+            StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
             assertDoesNotThrow(() -> authClient.create(testResource));

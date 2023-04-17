@@ -24,7 +24,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.io.IOException;
@@ -38,13 +37,12 @@ class MockAccessGrantServer {
     private final WireMockServer wireMockServer;
     private String webId;
     private String sharedFile;
+    private final String DERIVE = "/derive";
 
     public MockAccessGrantServer(final String webId, final String sharedFile) {
         this.webId = webId;
         this.sharedFile = sharedFile;
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort()
-        .notifier(new ConsoleNotifier(true))
-        );
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
 
     private void setupMocks() {
@@ -77,39 +75,24 @@ class MockAccessGrantServer {
                     .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));
 
-        wireMockServer.stubFor(post(urlEqualTo("/derive"))
+        wireMockServer.stubFor(post(urlEqualTo(DERIVE))
+                    .atPriority(1)
                     .withRequestBody(containing("\"Read\""))
                     .withRequestBody(containing("\"" + this.webId + "\""))
+                    .withRequestBody(containing("\"" + this.sharedFile + "\""))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
                             this.webId, this.sharedFile))));
 
-        wireMockServer.stubFor(post(urlEqualTo("/derive"))
-                    .withRequestBody(containing("\"https://someuser.test\""))
-                    .withRequestBody(containing("\"Read\""))
+        wireMockServer.stubFor(post(urlEqualTo(DERIVE))
+                    .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/query_response_empty.json"))));
-
-        wireMockServer.stubFor(post(urlEqualTo("/derive"))
-                    .withRequestBody(containing("\"Write\""))
-                    .withRequestBody(containing(this.webId))
-                    .willReturn(aResponse()
-                        .withStatus(Utils.SUCCESS)
-                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/query_response_empty.json"))));
-
-        wireMockServer.stubFor(post(urlEqualTo("/derive"))
-                        .withRequestBody(containing("\"Read\""))
-                        .withRequestBody(containing("\"https://somerandom.test\""))
-                        .withRequestBody(containing(this.webId))
-                        .willReturn(aResponse()
-                            .withStatus(Utils.SUCCESS)
-                            .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                            .withBody(getResource("/query_response_empty.json"))));
+                        .withBody(getResource("/query_response_empty.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedFile))));
 
     }
 
