@@ -33,9 +33,9 @@ import com.inrupt.client.webid.WebIdProfile;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 
-import java.io.PrintWriter;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
+import java.io.PrintWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
