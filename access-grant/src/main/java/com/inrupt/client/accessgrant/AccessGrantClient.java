@@ -201,7 +201,7 @@ public class AccessGrantClient {
     }
 
     /**
-     * A POST Request to be used for issuing an access grant or request. 
+     * A POST Request to be used for issuing an access grant or request.
      *
      * @param type the credential type
      * @param agent the receiving agent for this credential
@@ -211,7 +211,8 @@ public class AccessGrantClient {
      * @param expiration the expiration time of this credential
      * @return a HTTP POST Request for issuing an access grant or request
      */
-    public Request issueAccessRequest(final URI type, final URI agent, final Set<URI> resources, final Set<String> modes, final Set<String> purposes, final Instant expiration) {
+    public Request issueAccessRequest(final URI type, final URI agent, final Set<URI> resources,
+        final Set<String> modes, final Set<String> purposes, final Instant expiration) {
         return v1Metadata().thenApply(metadata -> {
             final Map<String, Object> data;
             if (ACCESS_GRANT.equals(type)) {
@@ -234,7 +235,7 @@ public class AccessGrantClient {
      * @param request HTTP issue request
      * @return the next stage of completion containing the resulting credential
      */
-    public CompletionStage<AccessGrant> approveAccessRequest(Request request) {
+    public CompletionStage<AccessGrant> approveAccessRequest(final Request request) {
         return client.send(request, Response.BodyHandlers.ofInputStream())
                 .thenApply(res -> {
                     try (final InputStream input = res.body()) {

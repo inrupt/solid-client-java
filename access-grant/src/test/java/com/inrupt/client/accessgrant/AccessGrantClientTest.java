@@ -23,6 +23,7 @@ package com.inrupt.client.accessgrant;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
+
 import com.inrupt.client.Request;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
@@ -207,11 +208,12 @@ class AccessGrantClientTest {
 
         final URI agent = URI.create("https://id.test/agent");
 
-        Request req = agClient.issueAccessRequest(ACCESS_GRANT, agent, Collections.emptySet(), Collections.emptySet(),
-        Collections.emptySet(), Instant.now());
+        final Request req = agClient.issueAccessRequest(ACCESS_GRANT, agent, Collections.emptySet(),
+            Collections.emptySet(), Collections.emptySet(), Instant.now());
 
-        final CompletionException err2 = assertThrows(CompletionException.class,
-                agClient.approveAccessRequest(req));
+        final CompletionException err2 = assertThrows(
+            CompletionException.class,
+            agClient.approveAccessRequest(req).toCompletableFuture()::join);
         assertTrue(err2.getCause() instanceof AccessGrantException);
     }
 
@@ -259,7 +261,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        Request request = client.issueAccessRequest(ACCESS_GRANT, agent, resources, modes, purposes, expiration);
+        final Request request = client.issueAccessRequest(ACCESS_GRANT, agent, resources, modes, purposes, expiration);
         final AccessGrant grant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
 
@@ -316,7 +318,8 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        Request request = client.issueAccessRequest(ACCESS_REQUEST, agent, resources, modes, purposes, expiration);
+        final Request request = client.issueAccessRequest(ACCESS_REQUEST, agent,
+            resources, modes, purposes, expiration);
         final AccessGrant requestTypeGrant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
 
@@ -351,7 +354,8 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        Request request = agClient.issueAccessRequest(ACCESS_GRANT, agent, resources, modes, purposes, expiration);
+        final Request request = agClient.issueAccessRequest(ACCESS_GRANT, agent,
+            resources, modes, purposes, expiration);
         final CompletionException err = assertThrows(CompletionException.class, () ->
                 agClient.approveAccessRequest(request)
                     .toCompletableFuture().join());
@@ -396,10 +400,10 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        Request request = client.issueAccessRequest(URI.create("https://vc.test/Type"), agent, resources, modes, purposes, expiration);
-        final CompletionException err = assertThrows(CompletionException.class, () ->
-                client.approveAccessRequest(request)
-                    .toCompletableFuture().join());
+        final CompletionException err = assertThrows(
+            CompletionException.class,
+            () -> client.issueAccessRequest(URI.create("https://vc.test/Type"),
+                agent, resources, modes, purposes, expiration));
         assertTrue(err.getCause() instanceof AccessGrantException);
     }
 
