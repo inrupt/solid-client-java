@@ -24,7 +24,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Request;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.util.URIBuilder;
@@ -208,7 +207,7 @@ class AccessGrantClientTest {
 
         final URI agent = URI.create("https://id.test/agent");
 
-        final Request req = agClient.issueAccessRequest(ACCESS_GRANT, agent, Collections.emptySet(),
+        final AccessRequest req = agClient.issueAccessRequest(ACCESS_GRANT, agent, Collections.emptySet(),
             Collections.emptySet(), Collections.emptySet(), Instant.now());
 
         final CompletionException err2 = assertThrows(
@@ -261,7 +260,8 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final Request request = client.issueAccessRequest(ACCESS_GRANT, agent, resources, modes, purposes, expiration);
+        final AccessRequest request = client.issueAccessRequest(ACCESS_GRANT, agent,
+            resources, modes, purposes, expiration);
         final AccessGrant grant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
 
@@ -318,7 +318,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final Request request = client.issueAccessRequest(ACCESS_REQUEST, agent,
+        final AccessRequest request = client.issueAccessRequest(ACCESS_REQUEST, agent,
             resources, modes, purposes, expiration);
         final AccessGrant requestTypeGrant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
@@ -354,7 +354,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final Request request = agClient.issueAccessRequest(ACCESS_GRANT, agent,
+        final AccessRequest request = agClient.issueAccessRequest(ACCESS_GRANT, agent,
             resources, modes, purposes, expiration);
         final CompletionException err = assertThrows(CompletionException.class, () ->
                 agClient.approveAccessRequest(request)
