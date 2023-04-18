@@ -156,6 +156,8 @@
 :vcTestSuite dcterms:hasPart
   :accessGrantLifecycle,
   :accessGrantOverride,
+  :accessGrantNonRecursive,
+  :accessGrantNoACRchange,
   :accessGrantQueryByRequestor,
   :accessGrantQueryByResource,
   :accessGrantQueryByPurpose,
@@ -180,6 +182,20 @@
   dcterms:description "An authenticated requestor issues an access request, and the authenticated resource owner overrides the grant duration approving it."@en;
   td:expectedResults "A valid Access Grant with the overridden duration is issued."@en;
   td:reviewStatus td:approved.
+
+:accessGrantNonRecursive a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Issue a non-recursive access grant"@en;
+  dcterms:description "An authenticated requestor can issue a non-recursive access grant."@en;
+  td:expectedResults "A valid Access Grant with a non-recursive ability is issued."@en;
+  td:reviewStatus td:approved.
+
+:accessGrantNoACRchange a td:TestCase ;
+  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
+  dcterms:title "Issue an access grant that does not change ACR"@en;
+  dcterms:description "An authenticated requestor can issue an access request, grant access to a resource, but will not update the ACR if the updateAcr flag is set to false."@en;
+  td:expectedResults "A valid Access Grant without ACR change is issued."@en;
+  td:reviewStatus td:onhold.
 
 :accessGrantQueryByRequestor a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
@@ -221,8 +237,7 @@
   dcterms:title "Creating RDF using Access Grant"@en;
   dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to create a new RDF resource."@en;
   td:expectedResults "The RDF resource is created successfully."@en;
-  # Note that this doesn't currently work
-  td:reviewStatus td:rejected.
+  td:reviewStatus td:approved.
 
 :accessGrantGetNonRdf a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
@@ -234,31 +249,13 @@
 :accessGrantSetNonRdf a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
   dcterms:title "Overwriting non-RDF using Access Grant"@en;
-  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to overwrite an existing RDF resource."@en;
-  td:expectedResults "The RDF resource is updated successfully."@en;
+  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to overwrite an existing non-RDF resource."@en;
+  td:expectedResults "The non-RDF resource is updated successfully."@en;
   td:reviewStatus td:approved.
 
-:accessGrantCreateRdf a td:TestCase ;
+:accessGrantCreateNonRdf a td:TestCase ;
   inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
   dcterms:title "Creating non-RDF using Access Grant"@en;
   dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to create a new non-RDF resource."@en;
   td:expectedResults "The RDF resource is created successfully."@en;
-  # Note that this doesn't currently work
-  td:reviewStatus td:rejected.
-
-:accessGrantSetNonRdf a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
-  dcterms:title "Creating non-RDF as child using Access Grant"@en;
-  dcterms:description "An authenticated user having previously been issued a valid Access Grant uses it to create an new non-RDF resource as a child of an existing container."@en;
-  td:expectedResults "The non-RDF resource is created successfully."@en;
-  td:reviewStatus td:approved.
-
-:accessGrantAppTestSuite dcterms:hasPart :grantThenRevoke;
-  inrupt:targetEnvironment <https://dom.spec.whatwg.org/>.
-
-:grantThenRevoke a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>;
-  dcterms:title "Issue and revoke Access Grant"@en;
-  dcterms:description "An authenticated user uses an in-browser app to issue an access grant, and then revoke it."@en;
-  td:expectedResults "The Grant is issued and then revoked."@en;
   td:reviewStatus td:approved.
