@@ -3,6 +3,123 @@ Access Grants
     {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}} provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries
     provide tooling for working with Access Grants.
 
+    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources one wants to access must have {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}ACP that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
+
+* ACP that enables the use of Access Grants
+
+    One needs to edit the ACP of the resource the access grant will be used for. 
+    
+** Manually adding triples to ACP
+    
+    This can be done manually through using a resource management interface such as {{{https://podpro.dev/} Pod Pro}}.
+
+    The next example, adds a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write for its entire contents (reason why we use the <<<http://www.w3.org/ns/solid/acp#memberAccessControl>>> predicate.)
+    To apply the new access control only to the resource itself use the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
+
++---
+<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774>
+        a       <http://www.w3.org/ns/solid/acp#AccessControlResource> ;
+        // add
+        <http://www.w3.org/ns/solid/acp#memberAccessControl> <https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWaccessControl> .
+
+<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWaccessControl> a <http://www.w3.org/ns/solid/acp#AccessControl> ;
+        <http://www.w3.org/ns/solid/acp#apply> <https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWpolicy> .
+
+<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWpolicy> a <http://www.w3.org/ns/solid/acp#Policy> ;
+        <http://www.w3.org/ns/solid/acp#allOf> <https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWmatcher> ;
+        <http://www.w3.org/ns/solid/acp#allow> <http://www.w3.org/ns/auth/acl#Read> , <http://www.w3.org/ns/auth/acl#Write> .
+
+<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWmatcher> a <http://www.w3.org/ns/solid/acp#Matcher> ;
+        <http://www.w3.org/ns/solid/acp#vc> <http://www.w3.org/ns/solid/vc#SolidAccessGrant> .
++---
+
+** Adding triples to ACP in code
+
+    One can add the above mentioned triples to an ACP using code. The next example will add a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write on the resource the ACP belongs to. We are using the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
+
++---
+import com.inrupt.client.Headers;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.spi.RDFFactory;
+import com.inrupt.client.util.URIBuilder;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.rdf.api.Dataset;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDF;
+
+SolidSyncClient authClient = client.session(session);
+List<URI> acp = new ArrayList<>();
+Request req = Request.newBuilder(sharedTextFileURI)
+        .HEAD()
+        .build();
+Response res = authClient.send(req, Response.BodyHandlers.discarding());
+res.headers().allValues("Link").stream()
+    .flatMap(l -> Headers.Link.parse(l).stream())
+    .forEach(link -> {
+        if (link.getParameter("rel").contains("acl")) {
+            acp.add(link.getUri());
+        }
+    });
+if (!acp.isEmpty()) {
+    URI oneAcp = acp.get(0);
+    IRI acpResource = rdf.createIRI(oneAcp.toString());
+
+    Dataset dataset = rdf.createDataset();
+
+    //creating a new matcher
+    URI newMatcherURI = URIBuilder.newBuilder(oneAcp).fragment("newMatcher").build();
+    IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
+    IRI rdfType = rdf.createIRI(com.inrupt.client.vocabulary.RDF.type.toString());
+    IRI matcherType = rdf.createIRI("http://www.w3.org/ns/solid/acp#Matcher");
+    dataset.add(rdf.createQuad(acpResource, newMatcher, rdfType, matcherType));
+
+    IRI vc = rdf.createIRI("http://www.w3.org/ns/solid/acp#vc");
+    IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+    dataset.add(rdf.createQuad(acpResource, newMatcher, vc, solidAccessGrant));
+
+    //create a new policy
+    URI newPolicyURI = URIBuilder.newBuilder(oneAcp).fragment("newPolicy").build();
+    IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
+    IRI policyType = rdf.createIRI("http://www.w3.org/ns/solid/acp#Policy");
+    dataset.add(rdf.createQuad(acpResource, newPolicy, rdfType, policyType));
+
+    IRI allOf = rdf.createIRI("http://www.w3.org/ns/solid/acp#allOf");
+    dataset.add(rdf.createQuad(acpResource, newPolicy, allOf, newMatcher));
+
+    IRI allow = rdf.createIRI("http://www.w3.org/ns/solid/acp#allow");
+    IRI read = rdf.createIRI("http://www.w3.org/ns/solid/acp#Read");
+    dataset.add(rdf.createQuad(acpResource, newPolicy, allow, read));
+
+    IRI write = rdf.createIRI("http://www.w3.org/ns/solid/acp#Write");
+    dataset.add(rdf.createQuad(acpResource, newPolicy, allow, write));
+    
+    //creating a new access control
+    URI newAccessControlURI = URIBuilder.newBuilder(oneAcp).fragment("newAccessControl").build();
+    IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
+    IRI accessControlType = rdf.createIRI("http://www.w3.org/ns/solid/acp#AccessControl");
+    dataset.add(rdf.createQuad(acpResource, newAccessControl, rdfType, accessControlType));
+
+    IRI apply = rdf.createIRI("http://www.w3.org/ns/solid/acp#apply");
+    dataset.add(rdf.createQuad(acpResource, newAccessControl, apply, newPolicy));
+
+    //adding the new access control to the ACP
+    IRI accessControl = rdf.createIRI("http://www.w3.org/ns/solid/acp#accessControl");
+    dataset.add(rdf.createQuad(acpResource, newAccessControl, accessControl, newAccessControl));
+
+    try (SolidRDFSource updatedAcp = new SolidRDFSource(oneAcp, dataset, null)) {
+        authClient.update(updatedAcp));
+    }
+}
++---
+
+
+* Access Grant-based sessions
+
     Access Grant-based sessions are more complicated than OpenId-based sessions in that an Access Grant session <also> requires an OpenId session. This is best illustrated with an example:
 
 +---
