@@ -27,7 +27,7 @@ import java.net.URI;
  *
  * @see <a href="https://www.w3.org/ns/acp">ACP Vocabulary</a>
  */
-public class ACP {
+public final class ACP {
 
     private static String namespace = "http://www.w3.org/ns/solid/acp#";
 

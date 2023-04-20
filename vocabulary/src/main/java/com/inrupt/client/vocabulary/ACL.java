@@ -27,7 +27,7 @@ import java.net.URI;
  *
  * @see <a href="http://www.w3.org/ns/auth/acl">ACL Vocabulary</a>
  */
-public class ACL {
+public final class ACL {
 
     private static String namespace = "http://www.w3.org/ns/auth/acl#";
 

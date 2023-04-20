@@ -3,7 +3,7 @@ Access Grants
     {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}} provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries
     provide tooling for working with Access Grants.
 
-    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources one wants to access must have {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}ACP that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
+    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources one wants to access must have {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}ACP that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example such as a {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
 
 * ACP that enables the use of Access Grants
 
@@ -47,7 +47,7 @@ prefix acl: <http://www.w3.org/ns/auth/acl#>
 
 ** Adding triples to ACP in code
 
-    One can add the above mentioned triples to an ACP using code. The next example will add a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write on a Solid resource the ACP belongs to. We are using only the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
+    One can add the above mentioned triples to an ACP using code. The next example will add a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>> and allows Read and Write on a Solid resource the ACP belongs to. We are using only the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
 
 +---
 import com.inrupt.client.Headers;
@@ -67,6 +67,8 @@ import com.inrupt.client.vocabulary.ACL;
 
 SolidSyncClient authClient = client.session(session);
 List<URI> acp = new ArrayList<>();
+
+// find the acl Link in the header of the resource
 Request req = Request.newBuilder(sharedTextFileURI)
         .HEAD()
         .build();
@@ -78,6 +80,8 @@ res.headers().allValues("Link").stream()
             acp.add(link.getUri());
         }
     });
+
+// add the triples needed for access grant
 if (!acp.isEmpty()) {
     URI oneAcp = acp.get(0);
     IRI acpResource = rdf.createIRI(oneAcp.toString());
