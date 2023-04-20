@@ -13,7 +13,7 @@ Access Grants
     
     This can be done manually through using a resource management interface such as {{{https://podpro.dev/} Pod Pro}}.
 
-    The next example, adds a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write for a Solid Container and its contents. 
+    The next example, contains a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write for a Solid Container and its contents. 
 
 +---
 prefix acp: <http://www.w3.org/ns/solid/acp#>
@@ -47,7 +47,7 @@ prefix acl: <http://www.w3.org/ns/auth/acl#>
 
 ** Adding triples to ACP in code
 
-    One can write the above triples to an ACL auxiliary resource using code. The next example creates an access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>> and allows Read and Write over a Solid Resource. We are using only the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>> so contained resources are not affected.
+    One can write the above triples to an ACL auxiliary resource using code. The next code appends to an existing ACP, a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>> and allows Read and Write over a Solid Resource. We are using only the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>, so contained resources are not affected.
 
 +---
 import com.inrupt.client.Headers;
