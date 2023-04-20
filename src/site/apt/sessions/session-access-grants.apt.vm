@@ -13,8 +13,7 @@ Access Grants
     
     This can be done manually through using a resource management interface such as {{{https://podpro.dev/} Pod Pro}}.
 
-    The next example, adds a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write for its entire contents (reason why we use the <<<http://www.w3.org/ns/solid/acp#memberAccessControl>>> predicate.)
-    To apply the new access control only to the resource itself use the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
+    The next example, adds a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write for a Solid Container and its contents. 
 
 +---
 prefix acp: <http://www.w3.org/ns/solid/acp#>
@@ -24,23 +23,23 @@ prefix acl: <http://www.w3.org/ns/auth/acl#>
 <>
         a acp:AccessControlResource ;
         # Add access control for the container itself
-        acp:accessControl <#NEWaccessControl> ;
+        acp:accessControl <#newAccessControl> ;
         # Add access control for contained resources
-        acp:memberAccessControl <#NEWaccessControl> .
+        acp:memberAccessControl <#newAccessControl> .
 
-<#NEWaccessControl>
+<#newAccessControl>
         a acp:AccessControl ;
         # The access control applies one policy
-        acp:apply <#NEWpolicy> .
+        acp:apply <#newPolicy> .
 
-<#NEWpolicy>
+<#newPolicy>
         a acp:Policy ;
         # The policy requires one matcher to be satisfied
-        acp:allOf <#NEWmatcher> ;
+        acp:allOf <#newMatcher> ;
         # The policy grants read and write when its matcher is satisfied
         acp:allow acl:Read, acl:Write .
 
-<#NEWmatcher>
+<#newMatcher>
         a acp:Matcher ;
         # The matcher is satisfied if a VC of type Solid Access Grant was presented
         acp:vc <http://www.w3.org/ns/solid/vc#SolidAccessGrant> .
@@ -48,7 +47,7 @@ prefix acl: <http://www.w3.org/ns/auth/acl#>
 
 ** Adding triples to ACP in code
 
-    One can add the above mentioned triples to an ACP using code. The next example will add a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write on the resource the ACP belongs to. We are using the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
+    One can add the above mentioned triples to an ACP using code. The next example will add a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write on a Solid resource the ACP belongs to. We are using only the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
 
 +---
 import com.inrupt.client.Headers;
@@ -63,7 +62,8 @@ import java.util.List;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.RDF;
+import com.inrupt.client.vocabulary.ACP;
+import com.inrupt.client.vocabulary.ACL;
 
 SolidSyncClient authClient = client.session(session);
 List<URI> acp = new ArrayList<>();
@@ -87,45 +87,29 @@ if (!acp.isEmpty()) {
     //creating a new matcher
     URI newMatcherURI = URIBuilder.newBuilder(oneAcp).fragment("newMatcher").build();
     IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
-    IRI rdfType = rdf.createIRI(com.inrupt.client.vocabulary.RDF.type.toString());
-    IRI matcherType = rdf.createIRI("http://www.w3.org/ns/solid/acp#Matcher");
-    dataset.add(rdf.createQuad(acpResource, newMatcher, rdfType, matcherType));
-
-    IRI vc = rdf.createIRI("http://www.w3.org/ns/solid/acp#vc");
     IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
-    dataset.add(rdf.createQuad(acpResource, newMatcher, vc, solidAccessGrant));
+
+    dataset.add(rdf.createQuad(acpResource, newMatcher, ACP.vc, solidAccessGrant));
 
     //create a new policy
     URI newPolicyURI = URIBuilder.newBuilder(oneAcp).fragment("newPolicy").build();
     IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
-    IRI policyType = rdf.createIRI("http://www.w3.org/ns/solid/acp#Policy");
-    dataset.add(rdf.createQuad(acpResource, newPolicy, rdfType, policyType));
 
-    IRI allOf = rdf.createIRI("http://www.w3.org/ns/solid/acp#allOf");
-    dataset.add(rdf.createQuad(acpResource, newPolicy, allOf, newMatcher));
+    dataset.add(rdf.createQuad(acpResource, newPolicy, ACP.allOf, newMatcher));
+    dataset.add(rdf.createQuad(acpResource, newPolicy, ACP.allow, ACL.Read));
+    dataset.add(rdf.createQuad(acpResource, newPolicy, ACP.allow, AC.Write));
 
-    IRI allow = rdf.createIRI("http://www.w3.org/ns/solid/acp#allow");
-    IRI read = rdf.createIRI("http://www.w3.org/ns/solid/acp#Read");
-    dataset.add(rdf.createQuad(acpResource, newPolicy, allow, read));
-
-    IRI write = rdf.createIRI("http://www.w3.org/ns/solid/acp#Write");
-    dataset.add(rdf.createQuad(acpResource, newPolicy, allow, write));
-    
     //creating a new access control
     URI newAccessControlURI = URIBuilder.newBuilder(oneAcp).fragment("newAccessControl").build();
     IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
-    IRI accessControlType = rdf.createIRI("http://www.w3.org/ns/solid/acp#AccessControl");
-    dataset.add(rdf.createQuad(acpResource, newAccessControl, rdfType, accessControlType));
 
-    IRI apply = rdf.createIRI("http://www.w3.org/ns/solid/acp#apply");
-    dataset.add(rdf.createQuad(acpResource, newAccessControl, apply, newPolicy));
+    dataset.add(rdf.createQuad(acpResource, newAccessControl, ACP.apply, newPolicy));
 
     //adding the new access control to the ACP
-    IRI accessControl = rdf.createIRI("http://www.w3.org/ns/solid/acp#accessControl");
-    dataset.add(rdf.createQuad(acpResource, newAccessControl, accessControl, newAccessControl));
+    dataset.add(rdf.createQuad(acpResource, acpResource, ACP.accessControl, newAccessControl));
 
-    try (SolidRDFSource updatedAcp = new SolidRDFSource(oneAcp, dataset, null)) {
-        authClient.update(updatedAcp));
+    try (SolidRDFSource updatedAcp = new SolidRDFSource(oneAcp, dataset)) {
+        authClient.update(updatedAcp);
     }
 }
 +---
