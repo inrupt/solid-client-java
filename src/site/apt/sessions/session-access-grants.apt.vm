@@ -17,20 +17,33 @@ Access Grants
     To apply the new access control only to the resource itself use the <<<http://www.w3.org/ns/solid/acp#accessControl>>> predicate in the <<<AccessControlResource>>>.
 
 +---
-<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774>
-        a       <http://www.w3.org/ns/solid/acp#AccessControlResource> ;
-        // add
-        <http://www.w3.org/ns/solid/acp#memberAccessControl> <https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWaccessControl> .
+prefix acp: <http://www.w3.org/ns/solid/acp#>
+prefix acl: <http://www.w3.org/ns/auth/acl#>
 
-<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWaccessControl> a <http://www.w3.org/ns/solid/acp#AccessControl> ;
-        <http://www.w3.org/ns/solid/acp#apply> <https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWpolicy> .
+# ACR for a Solid Container
+<>
+        a acp:AccessControlResource ;
+        # Add access control for the container itself
+        acp:accessControl <#NEWaccessControl> ;
+        # Add access control for contained resources
+        acp:memberAccessControl <#NEWaccessControl> .
 
-<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWpolicy> a <http://www.w3.org/ns/solid/acp#Policy> ;
-        <http://www.w3.org/ns/solid/acp#allOf> <https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWmatcher> ;
-        <http://www.w3.org/ns/solid/acp#allow> <http://www.w3.org/ns/auth/acl#Read> , <http://www.w3.org/ns/auth/acl#Write> .
+<#NEWaccessControl>
+        a acp:AccessControl ;
+        # The access control applies one policy
+        acp:apply <#NEWpolicy> .
 
-<https://authorization.inrupt.com/38fd26ffbaff4a8e86aaf135fb721774#NEWmatcher> a <http://www.w3.org/ns/solid/acp#Matcher> ;
-        <http://www.w3.org/ns/solid/acp#vc> <http://www.w3.org/ns/solid/vc#SolidAccessGrant> .
+<#NEWpolicy>
+        a acp:Policy ;
+        # The policy requires one matcher to be satisfied
+        acp:allOf <#NEWmatcher> ;
+        # The policy grants read and write when its matcher is satisfied
+        acp:allow acl:Read, acl:Write .
+
+<#NEWmatcher>
+        a acp:Matcher ;
+        # The matcher is satisfied if a VC of type Solid Access Grant was presented
+        acp:vc <http://www.w3.org/ns/solid/vc#SolidAccessGrant> .
 +---
 
 ** Adding triples to ACP in code
