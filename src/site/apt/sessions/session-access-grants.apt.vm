@@ -13,7 +13,7 @@ Access Grants
     
     This can be done manually by using a resource management interface such as {{{https://podpro.dev/} Pod Pro}}.
 
-    The next example, contains a new access control that matches for <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write for a Solid Container and its contents. 
+    The next example contains a new access control that matches <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write access to a Solid Container and its contents. 
 
 +---
 prefix acp: <http://www.w3.org/ns/solid/acp#>
