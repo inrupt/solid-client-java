@@ -3,7 +3,7 @@ Access Grants
     {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}} provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries
     provide tooling for working with Access Grants.
 
-    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources one wants to access must have {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}ACP that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example such as a {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
+    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources one wants to access must have an {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}access control policy that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example such as a {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
 
 * ACP that enables the use of Access Grants
 
