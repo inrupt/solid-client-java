@@ -52,7 +52,7 @@
       <property name="sortStaticImportsAlphabetically" value="true"/>
       <property name="tokens" value="STATIC_IMPORT, IMPORT"/>
       <property name="separated" value="true"/>
-      <property name="groups" value="com,io,jakarta,java,javax,org"/>
+      <property name="groups" value="com,io,jakarta,java,org"/>
     </module>
 
     <module name="ModifierOrder">
