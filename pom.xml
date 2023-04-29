@@ -40,7 +40,7 @@
 
     <!-- plugins -->
     <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
-    <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
+    <checkstyle.plugin.version>3.2.2</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
