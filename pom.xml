@@ -28,10 +28,10 @@
     <commons.rdf.version>0.5.0</commons.rdf.version>
     <guava.version>31.1-jre</guava.version>
     <jackson.version>2.15.0</jackson.version>
-    <jakarta.json.version>1.1.6</jakarta.json.version>
+    <jakarta.json.version>2.1.1</jakarta.json.version>
     <jena.version>4.8.0</jena.version>
     <jose4j.version>0.9.3</jose4j.version>
-    <json.bind.version>1.0.2</json.bind.version>
+    <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
     <rdf4j.version>4.2.4</rdf4j.version>
     <slf4j.version>2.0.7</slf4j.version>
@@ -69,8 +69,9 @@
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
     <equalsverifier.version>3.14.1</equalsverifier.version>
+    <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.9.3</junit.version>
-    <yasson.version>1.0.3</yasson.version>
+    <yasson.version>3.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
