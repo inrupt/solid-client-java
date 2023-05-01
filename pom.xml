@@ -27,9 +27,9 @@
     <commons.io.version>2.11.0</commons.io.version>
     <commons.rdf.version>0.5.0</commons.rdf.version>
     <guava.version>31.1-jre</guava.version>
-    <jackson.version>2.14.2</jackson.version>
+    <jackson.version>2.15.0</jackson.version>
     <jakarta.json.version>2.1.1</jakarta.json.version>
-    <jena.version>4.7.0</jena.version>
+    <jena.version>4.8.0</jena.version>
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
@@ -40,7 +40,7 @@
 
     <!-- plugins -->
     <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
-    <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
+    <checkstyle.plugin.version>3.2.2</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
@@ -70,7 +70,7 @@
     <awaitility.version>4.2.0</awaitility.version>
     <equalsverifier.version>3.14.1</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
-    <junit.version>5.9.2</junit.version>
+    <junit.version>5.9.3</junit.version>
     <yasson.version>3.0.3</yasson.version>
     <wiremock.version>2.35.0</wiremock.version>
 
