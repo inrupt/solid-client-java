@@ -298,7 +298,7 @@ public class AccessGrantClient {
             credentialStatus.put("status", Integer.toString(status.getIndex()));
 
             final Map<String, Object> data = new HashMap<>();
-            data.put("credentialId", status.getIdentifier());
+            data.put("credentialId", accessGrant.getIdentifier());
             data.put("credentialStatus", Arrays.asList(credentialStatus));
 
             final Request req = Request.newBuilder(metadata.statusEndpoint)

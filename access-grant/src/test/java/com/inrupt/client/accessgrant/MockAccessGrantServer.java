@@ -180,14 +180,14 @@ class MockAccessGrantServer {
         wireMockServer.stubFor(post(urlEqualTo("/status"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
-                    .withRequestBody(containing("\"https://accessgrant.example/status/CVAM#2832\""))
+                    .withRequestBody(containing("\"" + wireMockServer.baseUrl() + "/access-grant-1\""))
                     .willReturn(aResponse()
                         .withStatus(204)));
 
         wireMockServer.stubFor(post(urlEqualTo("/status"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
-                    .withRequestBody(containing("\"https://accessgrant.example/status/CVAM#2833\""))
+                    .withRequestBody(containing("\"" + wireMockServer.baseUrl() + "/access-grant-2\""))
                     .willReturn(aResponse()
                         .withStatus(403)));
 
