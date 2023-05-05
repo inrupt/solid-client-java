@@ -53,6 +53,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A client for interacting with and managing Access Grant Resources.
  *
@@ -76,6 +79,8 @@ import java.util.stream.Collectors;
  * }</pre>
  */
 public class AccessGrantClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessGrantClient.class);
 
     private static final String CONTEXT = "@context";
     private static final String VC_CONTEXT_URI = "https://www.w3.org/2018/credentials/v1";
@@ -530,7 +535,7 @@ public class AccessGrantClient {
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("expirationDate", expiration);
+        credential.put("expirationDate", expiration.toString());
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
@@ -554,7 +559,7 @@ public class AccessGrantClient {
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("expirationDate", expiration);
+        credential.put("expirationDate", expiration.toString());
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
