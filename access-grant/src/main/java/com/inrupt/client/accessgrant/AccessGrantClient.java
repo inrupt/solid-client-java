@@ -39,6 +39,7 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -535,7 +536,7 @@ public class AccessGrantClient {
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("expirationDate", expiration.toString());
+        credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
@@ -559,7 +560,7 @@ public class AccessGrantClient {
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("expirationDate", expiration.toString());
+        credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
