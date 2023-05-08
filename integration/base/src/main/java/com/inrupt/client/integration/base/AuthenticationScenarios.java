@@ -170,11 +170,12 @@ public class AuthenticationScenarios {
     void fetchPublicResourceUnauthenticatedTest() {
         LOGGER.info("Integration Test - Unauthenticated fetch of public resource");
         //create a public resource
-        final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null);
-        final SolidSyncClient client = SolidSyncClient.getClient();
-        assertDoesNotThrow(() -> client.create(testResource));
-        assertDoesNotThrow(() -> client.read(publicResourceURL, SolidRDFSource.class));
-        assertDoesNotThrow(() -> client.delete(testResource));
+        try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null)) {
+            final SolidSyncClient client = SolidSyncClient.getClient();
+            assertDoesNotThrow(() -> client.create(testResource));
+            assertDoesNotThrow(() -> client.read(publicResourceURL, SolidRDFSource.class));
+            assertDoesNotThrow(() -> client.delete(testResource));
+        }
     }
 
     @ParameterizedTest
@@ -185,15 +186,16 @@ public class AuthenticationScenarios {
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
-        final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null);
-        assertDoesNotThrow(() -> authClient.create(testResource));
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
+            assertDoesNotThrow(() -> authClient.create(testResource));
 
-        final SolidSyncClient client = SolidSyncClient.getClient();
-        final SolidClientException err = assertThrows(SolidClientException.class,
-                () -> client.read(privateResourceURL, SolidRDFSource.class));
-        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+            final SolidSyncClient client = SolidSyncClient.getClient();
+            final SolidClientException err = assertThrows(SolidClientException.class,
+                    () -> client.read(privateResourceURL, SolidRDFSource.class));
+            assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
-        assertDoesNotThrow(() -> authClient.delete(testResource));
+            assertDoesNotThrow(() -> authClient.delete(testResource));
+        }
     }
 
     @ParameterizedTest
@@ -203,13 +205,14 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test - AuAuthenticatedth fetch of public resource");
         //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
-        final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null);
-        assertDoesNotThrow(() -> client.create(testResource));
+        try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null)) {
+            assertDoesNotThrow(() -> client.create(testResource));
 
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        assertDoesNotThrow(() -> authClient.read(publicResourceURL, SolidRDFSource.class));
+            final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+            assertDoesNotThrow(() -> authClient.read(publicResourceURL, SolidRDFSource.class));
 
-        assertDoesNotThrow(() -> client.delete(testResource));
+            assertDoesNotThrow(() -> client.delete(testResource));
+        }
     }
 
     @ParameterizedTest
@@ -219,12 +222,13 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test - Authenticated fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null);
-        assertDoesNotThrow(() -> authClient.create(testResource));
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
+            assertDoesNotThrow(() -> authClient.create(testResource));
 
-        assertDoesNotThrow(() -> authClient.read(privateResourceURL, SolidRDFSource.class));
+            assertDoesNotThrow(() -> authClient.read(privateResourceURL, SolidRDFSource.class));
 
-        assertDoesNotThrow(() -> authClient.delete(testResource));
+            assertDoesNotThrow(() -> authClient.delete(testResource));
+        }
     }
 
     @ParameterizedTest
@@ -234,18 +238,19 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test - Unauthenticated, then auth fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null);
-        assertDoesNotThrow(() -> authClient.create(testResource));
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
+            assertDoesNotThrow(() -> authClient.create(testResource));
 
-        final SolidSyncClient client = SolidSyncClient.getClient();
-        final SolidClientException err = assertThrows(SolidClientException.class,
-                () -> client.read(privateResourceURL, SolidRDFSource.class));
-        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+            final SolidSyncClient client = SolidSyncClient.getClient();
+            final SolidClientException err = assertThrows(SolidClientException.class,
+                    () -> client.read(privateResourceURL, SolidRDFSource.class));
+            assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
-        final SolidSyncClient authClient2 = client.session(session);
-        assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
+            final SolidSyncClient authClient2 = client.session(session);
+            assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
 
-        assertDoesNotThrow(() -> authClient2.delete(testResource));
+            assertDoesNotThrow(() -> authClient2.delete(testResource));
+        }
     }
 
     @ParameterizedTest
@@ -254,32 +259,34 @@ public class AuthenticationScenarios {
     void multiSessionTest(final Session session) {
         LOGGER.info("Integration Test - Multiple sessions authenticated in parallel");
         //create private resource
-        final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null);
-        final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);
-        assertDoesNotThrow(() -> authClient1.create(testResource));
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
+            final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);
+            assertDoesNotThrow(() -> authClient1.create(testResource));
 
-        //create another private resource with another client
-        final URI privateResourceURL2 = URIBuilder.newBuilder(URI.create(podUrl))
-            .path(State.PRIVATE_RESOURCE_PATH)
-            .path("resource2.ttl")
-            .build();
-        final SolidRDFSource testResource2 = new SolidRDFSource(privateResourceURL2, null, null);
-        final SolidSyncClient authClient2 =
-                SolidSyncClient.getClient().session(session);
-        assertDoesNotThrow(() -> authClient2.create(testResource2));
+            //create another private resource with another client
+            final URI privateResourceURL2 = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(State.PRIVATE_RESOURCE_PATH)
+                .path("resource2.ttl")
+                .build();
+            try (final SolidRDFSource testResource2 = new SolidRDFSource(privateResourceURL2, null, null)) {
+                final SolidSyncClient authClient2 =
+                        SolidSyncClient.getClient().session(session);
+                assertDoesNotThrow(() -> authClient2.create(testResource2));
 
-        //read the other resource created with the other client
-        assertDoesNotThrow(() -> authClient1.read(privateResourceURL2, SolidRDFSource.class));
-        assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
+                //read the other resource created with the other client
+                assertDoesNotThrow(() -> authClient1.read(privateResourceURL2, SolidRDFSource.class));
+                assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
 
-        final SolidSyncClient client = SolidSyncClient.getClient();
-        final SolidClientException err = assertThrows(SolidClientException.class,
-                () -> client.read(privateResourceURL, SolidRDFSource.class));
-        assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+                final SolidSyncClient client = SolidSyncClient.getClient();
+                final SolidClientException err = assertThrows(SolidClientException.class,
+                        () -> client.read(privateResourceURL, SolidRDFSource.class));
+                assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
-        //delete both resources with whichever client
-        assertDoesNotThrow(() -> authClient1.delete(testResource2));
-        assertDoesNotThrow(() -> authClient1.delete(testResource));
+                //delete both resources with whichever client
+                assertDoesNotThrow(() -> authClient1.delete(testResource2));
+            }
+            assertDoesNotThrow(() -> authClient1.delete(testResource));
+        }
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {

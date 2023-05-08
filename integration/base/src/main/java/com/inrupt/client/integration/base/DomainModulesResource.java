@@ -303,7 +303,9 @@ public class DomainModulesResource {
 
     private void recursiveDeleteLDPcontainers(final String leafPath) {
         String tempURL = leafPath;
-        while (!tempURL.equals(podUrl) && !tempURL.equals(podUrl + "/")) {
+        final String notToDeletePath = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH).build().toString();
+        while (!(tempURL.equals(notToDeletePath)) && !(tempURL.equals(notToDeletePath + "/"))) {
             final var url = new SolidRDFSource(URI.create(tempURL),null, null);
             client.delete(url);
             tempURL = tempURL.substring(0, tempURL.lastIndexOf("/"));
