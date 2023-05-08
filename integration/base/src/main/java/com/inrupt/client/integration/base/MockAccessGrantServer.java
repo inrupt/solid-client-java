@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.io.IOException;
@@ -42,7 +43,9 @@ class MockAccessGrantServer {
     public MockAccessGrantServer(final String webId, final String sharedFile) {
         this.webId = webId;
         this.sharedFile = sharedFile;
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        wireMockServer = new WireMockServer(WireMockConfiguration.options()
+        .notifier(new ConsoleNotifier(true))
+        .dynamicPort());
     }
 
     private void setupMocks() {
@@ -71,7 +74,7 @@ class MockAccessGrantServer {
                             this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo("/status"))
-                    .withRequestBody(containing("\"https://accessgrant.example/status/CVAM#2832\""))
+                    .withRequestBody(containing("\"RevocationList2020Status\""))
                     .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));
 
