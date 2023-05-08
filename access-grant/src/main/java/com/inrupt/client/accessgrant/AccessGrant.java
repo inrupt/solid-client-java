@@ -103,7 +103,12 @@ public class AccessGrant {
                 final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
                 final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
                 final Optional<URI> other = asUri(consent.get("isProvidedTo"));
-                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                final Optional<URI> dataSubject = asUri(consent.get("isConsentForDataSubject"));
+                if (subject.containsKey("hasConsent")) {
+                    this.grantee = dataSubject.orElse(null);
+                } else {
+                    this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                }
                 this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
