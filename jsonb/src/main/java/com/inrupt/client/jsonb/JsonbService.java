@@ -22,17 +22,17 @@ package com.inrupt.client.jsonb;
 
 import com.inrupt.client.spi.JsonService;
 
+import jakarta.json.JsonException;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.JsonbException;
+import jakarta.json.bind.config.PropertyNamingStrategy;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-
-import javax.json.JsonException;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.JsonbException;
-import javax.json.bind.config.PropertyNamingStrategy;
 
 /**
  * A {@link JsonService} using the JakartaEE JSON Bind API.

@@ -70,7 +70,7 @@
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>jakarta.json</artifactId>
-      <version>${jakarta.json.version}</version>
+      <version>${glassfish.json.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

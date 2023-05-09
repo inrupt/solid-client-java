@@ -39,6 +39,7 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +53,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A client for interacting with and managing Access Grant Resources.
@@ -76,6 +80,8 @@ import java.util.stream.Collectors;
  * }</pre>
  */
 public class AccessGrantClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessGrantClient.class);
 
     private static final String CONTEXT = "@context";
     private static final String VC_CONTEXT_URI = "https://www.w3.org/2018/credentials/v1";
@@ -169,6 +175,9 @@ public class AccessGrantClient {
      */
     public CompletionStage<AccessGrant> issue(final URI type, final URI agent, final Set<URI> resources,
             final Set<String> modes, final Set<String> purposes, final Instant expiration) {
+        Objects.requireNonNull(type, "Access Grant type may not be null!");
+        Objects.requireNonNull(resources, "Resources may not be null!");
+        Objects.requireNonNull(modes, "Access modes may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data;
             if (ACCESS_GRANT.equals(type)) {
@@ -350,7 +359,7 @@ public class AccessGrantClient {
             credentialStatus.put("status", Integer.toString(status.getIndex()));
 
             final Map<String, Object> data = new HashMap<>();
-            data.put("credentialId", status.getIdentifier());
+            data.put("credentialId", accessGrant.getIdentifier());
             data.put("credentialStatus", Arrays.asList(credentialStatus));
 
             final Request req = Request.newBuilder(metadata.statusEndpoint)
@@ -573,6 +582,7 @@ public class AccessGrantClient {
 
     static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
+        Objects.requireNonNull(agent, "Access grant agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
@@ -587,7 +597,9 @@ public class AccessGrantClient {
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("expirationDate", expiration);
+        if (expiration != null) {
+            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
+        }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
@@ -598,10 +610,12 @@ public class AccessGrantClient {
     static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         final Map<String, Object> consent = new HashMap<>();
-        consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
+        consent.put(MODE, modes);
         consent.put(FOR_PERSONAL_DATA, resources);
-        consent.put(IS_PROVIDED_TO_PERSON, agent);
+        if (agent != null) {
+            consent.put("isConsentForDataSubject", agent);
+        }
         if (!purposes.isEmpty()) {
             consent.put("forPurpose", purposes);
         }
@@ -611,7 +625,9 @@ public class AccessGrantClient {
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
-        credential.put("expirationDate", expiration);
+        if (expiration != null) {
+            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
+        }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
