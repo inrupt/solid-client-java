@@ -248,7 +248,7 @@ public class AccessGrantClient {
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                     .header(CONTENT_TYPE, APPLICATION_JSON)
-                    .POST(Request.BodyPublishers.ofByteArray(serialize(request.credential()))).build();
+                    .POST(Request.BodyPublishers.ofByteArray(serialize(request))).build();
 
             return client.send(req, Response.BodyHandlers.ofInputStream())
                     .thenApply(res -> {
@@ -607,7 +607,7 @@ public class AccessGrantClient {
             grantIssue.expirationDate = expiration.truncatedTo(ChronoUnit.SECONDS).toString();
         }
 
-        final GrantCredential grant;
+        final GrantCredential grant = new GrantCredential();
         grant.credential = grantIssue;
 
         return grant;
@@ -632,7 +632,7 @@ public class AccessGrantClient {
             requestIssue.expirationDate = expiration.truncatedTo(ChronoUnit.SECONDS).toString();
         }
 
-        final RequestCredential grant;
+        final RequestCredential grant = new RequestCredential();
         grant.credential = requestIssue;
 
         return grant;

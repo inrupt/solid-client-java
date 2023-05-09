@@ -207,7 +207,7 @@ class AccessGrantClientTest {
 
         final URI agent = URI.create("https://id.test/agent");
 
-        final Consent req = agClient.issueGrantRequest(ACCESS_GRANT, agent, Collections.emptySet(),
+        final Credential req = agClient.issueGrantRequest(ACCESS_GRANT, agent, Collections.emptySet(),
             Collections.emptySet(), Collections.emptySet(), Instant.now());
 
         final CompletionException err2 = assertThrows(
@@ -260,7 +260,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final Consent request = client.issueGrantRequest(ACCESS_GRANT, agent,
+        final Credential request = client.issueGrantRequest(ACCESS_GRANT, agent,
             resources, modes, purposes, expiration);
         final AccessGrant grant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
@@ -318,7 +318,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final Consent request = client.issueGrantRequest(ACCESS_REQUEST, agent,
+        final Credential request = client.issueGrantRequest(ACCESS_REQUEST, agent,
             resources, modes, purposes, expiration);
         final AccessGrant requestTypeGrant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
@@ -354,7 +354,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final Consent request = agClient.issueGrantRequest(ACCESS_GRANT, agent,
+        final Credential request = agClient.issueGrantRequest(ACCESS_GRANT, agent,
             resources, modes, purposes, expiration);
         final CompletionException err = assertThrows(CompletionException.class, () ->
                 agClient.approveAccessRequest(request)

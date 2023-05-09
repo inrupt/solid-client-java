@@ -29,11 +29,11 @@ import java.util.List;
 public class GrantIssue {
 
     public List<String> context;
-    public ProvidedConsent credentialSubject;
+    public ProvidedConsent credentialSubject = new ProvidedConsent();
     public String expirationDate;
 
     class ProvidedConsent {
-        public GrantConsent providedConsent;
+        public GrantConsent providedConsent = new GrantConsent();
     }
 
     class GrantConsent extends Consent {
