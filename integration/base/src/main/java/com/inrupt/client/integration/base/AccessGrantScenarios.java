@@ -22,7 +22,6 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
@@ -50,7 +49,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -62,7 +60,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -643,7 +640,7 @@ public class AccessGrantScenarios {
                 .HEAD()
                 .build();
         final Response<Void> res = authClient.send(req, Response.BodyHandlers.discarding());
-        Headers.Link acrLink = res.headers().allValues("Link").stream()
+        final Headers.Link acrLink = res.headers().allValues("Link").stream()
             .flatMap(l -> Headers.Link.parse(l).stream())
             .filter(link -> link.getParameter("rel").contains("acl"))
             .findAny()
@@ -659,31 +656,32 @@ public class AccessGrantScenarios {
             try (final SolidRDFSource resource = authClient.read(resourceACRurl, SolidRDFSource.class)) {
                 resource.stream().forEach(dataset::add);
 
-            //creating a new matcher
-            final URI newMatcherURI = URIBuilder.newBuilder(resourceACRurl).fragment("newMatcher").build();
-            final IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
-            final IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+                //creating a new matcher
+                final URI newMatcherURI = URIBuilder.newBuilder(resourceACRurl).fragment("newMatcher").build();
+                final IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
+                final IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
 
-            dataset.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
+                dataset.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
 
-            //create a new policy
-            final URI newPolicyURI = URIBuilder.newBuilder(resourceACRurl).fragment("newPolicy").build();
-            final IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
+                //create a new policy
+                final URI newPolicyURI = URIBuilder.newBuilder(resourceACRurl).fragment("newPolicy").build();
+                final IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
 
-            dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
-            dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
-            dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
+                dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
+                dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
+                dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
 
-            //creating a new access control
-            final URI newAccessControlURI = URIBuilder.newBuilder(resourceACRurl).fragment("newAccessControl").build();
-            final IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
+                //creating a new access control
+                final URI newAccessControlURI =
+                    URIBuilder.newBuilder(resourceACRurl).fragment("newAccessControl").build();
+                final IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
 
-            dataset.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
+                dataset.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
 
-            //adding the new access control to the ACP
-            dataset.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
+                //adding the new access control to the ACP
+                dataset.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
 
-            authClient.update(resource);
+                authClient.update(resource);
             }
         }
     }
