@@ -159,6 +159,14 @@ public class SolidMockHttpService {
                 .withStatus(204)));
 
         wireMockServer.stubFor(get(urlEqualTo("/binary"))
+            .atPriority(1)
+            .withHeader("User-Agent", equalTo(USER_AGENT))
+            .withHeader("Accept", containing("text/turtle"))
+            .willReturn(aResponse()
+                .withStatus(406)));
+
+        wireMockServer.stubFor(get(urlEqualTo("/binary"))
+            .atPriority(2)
             .withHeader("User-Agent", equalTo(USER_AGENT))
             .willReturn(aResponse()
                 .withStatus(200)

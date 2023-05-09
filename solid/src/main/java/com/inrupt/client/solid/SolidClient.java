@@ -123,7 +123,9 @@ public class SolidClient {
         decorateHeaders(builder, defaultHeaders);
         decorateHeaders(builder, headers);
 
-        builder.setHeader(ACCEPT, TEXT_TURTLE);
+        if (RDFSource.class.isAssignableFrom(clazz)) {
+            builder.setHeader(ACCEPT, TEXT_TURTLE);
+        }
 
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
