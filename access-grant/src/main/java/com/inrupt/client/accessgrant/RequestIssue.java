@@ -20,29 +20,23 @@
  */
 package com.inrupt.client.accessgrant;
 
-import java.util.Map;
+import java.net.URI;
+import java.util.List;
 
 /**
  * An Access Request issue request.
  */
-public class RequestIssue extends GrantCredential {
+public class RequestIssue extends Consent {
 
-    private String isConsentForDataSubject;
-    private Map<String, Object> providedConsent;
+    public List<String> context;
+    public HasConsent credentialSubject;
+    public String expirationDate;
 
-    public void isConsentForDataSubject(String isConsentForDataSubject) {
-        this.isConsentForDataSubject = isConsentForDataSubject;
+    class HasConsent {
+        public RequestConsent hasConsent;
     }
 
-    public String isConsentForDataSubject() {
-        return this.isConsentForDataSubject;
-    }
-
-    public void providedConsent(Map<String, Object> providedConsent) {
-        this.providedConsent = providedConsent;
-    }
-
-    public Map<String, Object> providedConsent() {
-        return this.providedConsent;
+    class RequestConsent extends Consent {
+        public URI isConsentForDataSubject;
     }
 }

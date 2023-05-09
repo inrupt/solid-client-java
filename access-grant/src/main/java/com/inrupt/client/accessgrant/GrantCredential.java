@@ -20,77 +20,9 @@
  */
 package com.inrupt.client.accessgrant;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
- * An Generic grant credential.
+ * A Grant Credential.
  */
-public class GrantCredential {
-
-    private List<String> context;
-    private Set<String> modes;
-    private Set<String> purposes;
-    private Set<String> forPersonalData;
-    private String expirationDate;
-    private String inherit;
-    private Map<String, Object> credential;
-
-    public void context(List<String> context) {
-        this.context = context;
-    }
-
-    public List<String> context() {
-        return this.context;
-    }
-    
-    public void modes(Set<String> modes) {
-        this.modes = modes;
-    }
-
-    public Set<String> modes() {
-        return this.modes;
-    }
-
-    public void purposes(Set<String> purposes) {
-        this.purposes = purposes;
-    }
-
-    public Set<String> purposes() {
-        return this.purposes;
-    }
-
-    public void forPersonalData(Set<String> forPersonalData) {
-        this.forPersonalData = forPersonalData;
-    }
-
-    public Set<String> forPersonalData() {
-        return this.forPersonalData;
-    }
-
-    public void expirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
-    public String expirationDate() {
-        return this.expirationDate;
-    }
-
-    public void inherit(String inherit) {
-        this.inherit = inherit;
-    }
-
-    public String inherit() {
-        return this.inherit;
-    }
-
-    public void credential(Map<String, Object> credential) {
-        this.credential = credential;
-    }
-
-    public Map<String, Object> credential() {
-        return this.credential;
-    }
-
+public class GrantCredential implements Credential {
+    public GrantIssue credential;
 }

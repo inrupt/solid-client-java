@@ -20,24 +20,9 @@
  */
 package com.inrupt.client.accessgrant;
 
-import java.net.URI;
-import java.util.List;
-
 /**
- * An Access Grant issue request.
+ * A Request Credential.
  */
-public class GrantIssue {
-
-    public List<String> context;
-    public ProvidedConsent credentialSubject;
-    public String expirationDate;
-
-    class ProvidedConsent {
-        public GrantConsent providedConsent;
-    }
-
-    class GrantConsent extends Consent {
-        public URI isProvidedTo;
-    }
-
+public class RequestCredential implements Credential {
+    public RequestIssue credential;
 }

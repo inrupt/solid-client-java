@@ -21,23 +21,17 @@
 package com.inrupt.client.accessgrant;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 /**
- * An Access Grant issue request.
+ * A generic consent part of a grant.
  */
-public class GrantIssue {
+public class Consent {
 
-    public List<String> context;
-    public ProvidedConsent credentialSubject;
-    public String expirationDate;
-
-    class ProvidedConsent {
-        public GrantConsent providedConsent;
-    }
-
-    class GrantConsent extends Consent {
-        public URI isProvidedTo;
-    }
+    public Set<String> mode;
+    public String hasStatus;
+    public Set<String> forPurpose;
+    public Set<URI> forPersonalData;
+    public String inherit;
 
 }
