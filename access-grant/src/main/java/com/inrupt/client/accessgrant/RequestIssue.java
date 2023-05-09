@@ -23,23 +23,26 @@ package com.inrupt.client.accessgrant;
 import java.util.Map;
 
 /**
- * An Access Grant issue request.
+ * An Access Request issue request.
  */
-public class AccessRequest {
+public class RequestIssue extends GrantCredential {
 
-    private final Map<String, Object> data;
+    private String isConsentForDataSubject;
+    private Map<String, Object> providedConsent;
 
-    /**
-     * The grant data.
-     *
-     * @return the grant returned in a serializable format
-     */
-    public final Map<String, Object> data() {
-        return this.data;
+    public void isConsentForDataSubject(String isConsentForDataSubject) {
+        this.isConsentForDataSubject = isConsentForDataSubject;
     }
 
-    public AccessRequest(final Map<String, Object> data) {
-        this.data = data;
+    public String isConsentForDataSubject() {
+        return this.isConsentForDataSubject;
+    }
 
+    public void providedConsent(Map<String, Object> providedConsent) {
+        this.providedConsent = providedConsent;
+    }
+
+    public Map<String, Object> providedConsent() {
+        return this.providedConsent;
     }
 }

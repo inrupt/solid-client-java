@@ -207,7 +207,7 @@ class AccessGrantClientTest {
 
         final URI agent = URI.create("https://id.test/agent");
 
-        final AccessRequest req = agClient.issueAccessRequest(ACCESS_GRANT, agent, Collections.emptySet(),
+        final GrantCredential req = agClient.issueGrantRequest(ACCESS_GRANT, agent, Collections.emptySet(),
             Collections.emptySet(), Collections.emptySet(), Instant.now());
 
         final CompletionException err2 = assertThrows(
@@ -260,7 +260,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final AccessRequest request = client.issueAccessRequest(ACCESS_GRANT, agent,
+        final GrantCredential request = client.issueGrantRequest(ACCESS_GRANT, agent,
             resources, modes, purposes, expiration);
         final AccessGrant grant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
@@ -318,7 +318,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final AccessRequest request = client.issueAccessRequest(ACCESS_REQUEST, agent,
+        final GrantCredential request = client.issueGrantRequest(ACCESS_REQUEST, agent,
             resources, modes, purposes, expiration);
         final AccessGrant requestTypeGrant = client.approveAccessRequest(request)
             .toCompletableFuture().join();
@@ -354,7 +354,7 @@ class AccessGrantClientTest {
         final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final AccessRequest request = agClient.issueAccessRequest(ACCESS_GRANT, agent,
+        final GrantCredential request = agClient.issueGrantRequest(ACCESS_GRANT, agent,
             resources, modes, purposes, expiration);
         final CompletionException err = assertThrows(CompletionException.class, () ->
                 agClient.approveAccessRequest(request)
@@ -402,7 +402,7 @@ class AccessGrantClientTest {
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final CompletionException err = assertThrows(
             CompletionException.class,
-            () -> client.issueAccessRequest(URI.create("https://vc.test/Type"),
+            () -> client.issueGrantRequest(URI.create("https://vc.test/Type"),
                 agent, resources, modes, purposes, expiration));
         assertTrue(err.getCause() instanceof AccessGrantException);
     }

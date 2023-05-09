@@ -179,18 +179,18 @@ public class AccessGrantClient {
         Objects.requireNonNull(resources, "Resources may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
         return v1Metadata().thenCompose(metadata -> {
-            final Map<String, Object> data;
+            final GrantCredential grantCredential;
             if (ACCESS_GRANT.equals(type)) {
-                data = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
+                grantCredential = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
             } else if (ACCESS_REQUEST.equals(type)) {
-                data = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
+                grantCredential = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
             }
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
-                .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
+                .POST(Request.BodyPublishers.ofByteArray(serialize(grantCredential))).build();
 
             return client.send(req, Response.BodyHandlers.ofInputStream())
                 .thenApply(res -> {
@@ -220,19 +220,19 @@ public class AccessGrantClient {
      * @param expiration the expiration time of this credential
      * @return an AccessRequest for issuing an access grant or request
      */
-    public AccessRequest issueAccessRequest(final URI type, final URI agent, final Set<URI> resources,
+    public GrantCredential issueGrantRequest(final URI type, final URI agent, final Set<URI> resources,
         final Set<String> modes, final Set<String> purposes, final Instant expiration) {
         return v1Metadata().thenApply(metadata -> {
-            final Map<String, Object> data;
+            final GrantCredential grantCredential;
             if (ACCESS_GRANT.equals(type)) {
-                data = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
+                grantCredential = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
             } else if (ACCESS_REQUEST.equals(type)) {
-                data = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
+                grantCredential = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
             }
 
-            return new AccessRequest(data);
+            return grantCredential;
         }).toCompletableFuture().join();
     }
 
@@ -242,12 +242,12 @@ public class AccessGrantClient {
      * @param request an AccessRequest
      * @return the next stage of completion containing the resulting credential
      */
-    public CompletionStage<AccessGrant> approveAccessRequest(final AccessRequest request) {
+    public CompletionStage<AccessGrant> approveAccessRequest(final GrantCredential request) {
         return v1Metadata().thenCompose(metadata -> {
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                     .header(CONTENT_TYPE, APPLICATION_JSON)
-                    .POST(Request.BodyPublishers.ofByteArray(serialize(request.data()))).build();
+                    .POST(Request.BodyPublishers.ofByteArray(serialize(request.credential()))).build();
 
             return client.send(req, Response.BodyHandlers.ofInputStream())
                     .thenApply(res -> {
@@ -509,6 +509,15 @@ public class AccessGrantClient {
         }
     }
 
+    byte[] serialize(final GrantCredential data) {
+        try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            jsonService.toJson(data, output);
+            return output.toByteArray();
+        } catch (final IOException ex) {
+            throw new UncheckedIOException("Unable to serialize data as JSON", ex);
+        }
+    }
+
     static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI agent, final URI resource,
             final String mode) {
         final List<Map<String, Object>> queries = new ArrayList<>();
@@ -580,7 +589,7 @@ public class AccessGrantClient {
         return null;
     }
 
-    static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
+    static GrantIssue buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
@@ -607,7 +616,7 @@ public class AccessGrantClient {
         return data;
     }
 
-    static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
+    static RequestIssue buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         final Map<String, Object> consent = new HashMap<>();
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
