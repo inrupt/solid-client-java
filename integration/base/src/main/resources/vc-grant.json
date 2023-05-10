@@ -19,7 +19,7 @@
         "hasConsent":{
             "mode":["Read"],
             "hasStatus":"https://w3id.org/GConsent#ConsentStatusRequested",
-            "isProvidedToPerson":"{{webId}}",
+            "isConsentForDataSubject":"{{webId}}",
             "forPurpose":["https://some.purpose/not-a-nefarious-one/i-promise", "https://some.other.purpose/"],
             "forPersonalData":["{{sharedFile}}"]}},
     "proof":{
