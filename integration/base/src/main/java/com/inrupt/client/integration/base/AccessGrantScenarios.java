@@ -639,39 +639,35 @@ public class AccessGrantScenarios {
             final URI resourceACRurl = acrLink.getUri();
             final IRI resourceACRiri = rdf.createIRI(resourceACRurl.toString());
 
-            final Dataset dataset = rdf.createDataset();
             //read the existing triples and add them to the dataset
             try (final SolidRDFSource resource = authClient.read(resourceACRurl, SolidRDFSource.class)) {
-                resource.stream().forEach(dataset::add);
-            }
 
             //creating a new matcher
             final URI newMatcherURI = URIBuilder.newBuilder(resourceACRurl).fragment("newMatcher").build();
             final IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
             final IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
 
-            dataset.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
+            resource.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
 
             //create a new policy
             final URI newPolicyURI = URIBuilder.newBuilder(resourceACRurl).fragment("newPolicy").build();
             final IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
 
-            dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
-            dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
-            dataset.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
+            resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
+            resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
+            resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
 
             //creating a new access control
             final URI newAccessControlURI =
                 URIBuilder.newBuilder(resourceACRurl).fragment("newAccessControl").build();
             final IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
 
-            dataset.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
+            resource.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
 
             //adding the new access control to the ACP
-            dataset.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
+            resource.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
 
-            try (final SolidRDFSource newAcr = new SolidRDFSource(resourceACRurl, dataset, null)) {
-                authClient.update(newAcr);
+            authClient.update(resource);
             }
         }
     }
