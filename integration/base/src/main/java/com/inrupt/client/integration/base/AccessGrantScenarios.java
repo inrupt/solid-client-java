@@ -60,7 +60,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
@@ -420,37 +419,36 @@ public class AccessGrantScenarios {
 
         try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI)) {
             assertDoesNotThrow(() -> client.create(resource));
+
+            final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
+
+            final Set<String> modes = new HashSet<>(Arrays.asList(
+                GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+            final Instant expiration = Instant.parse(GRANT_EXPIRATION);
+            final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+                new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
+                .toCompletableFuture().join();
+            final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
+            final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
+                .build().session(newSession);
+
+            final String newResourceName = testRDFresourceURI.toString();
+            final String newPredicateName = "https://example.example/predicate";
+            final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
+
+            final IRI newResourceNode = rdf.createIRI(newResourceName);
+            final IRI newPredicateNode = rdf.createIRI(newPredicateName);
+            final Literal object = rdf.createLiteral("true", booleanType);
+
+            resource.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
+
+            assertDoesNotThrow(() -> authClient.update(resource));
+
+            authClient.delete(testRDFresourceURI);
+
+            assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+            assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
         }
-
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
-
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
-        final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
-            new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
-            .toCompletableFuture().join();
-        final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
-        final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
-
-        final String newResourceName = testRDFresourceURI.toString();
-        final String newPredicateName = "https://example.example/predicate";
-        final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
-
-        final IRI newResourceNode = rdf.createIRI(newResourceName);
-        final IRI newPredicateNode = rdf.createIRI(newPredicateName);
-        final Literal object = rdf.createLiteral("true", booleanType);
-
-        final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
-
-        try (final SolidRDFSource updatedResource = new SolidRDFSource(testRDFresourceURI, dataset, null)) {
-            assertDoesNotThrow(() -> authClient.update(updatedResource));
-        }
-
-        authClient.delete(testRDFresourceURI);
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
-        assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
@@ -642,32 +640,32 @@ public class AccessGrantScenarios {
             //read the existing triples and add them to the dataset
             try (final SolidRDFSource resource = authClient.read(resourceACRurl, SolidRDFSource.class)) {
 
-            //creating a new matcher
-            final URI newMatcherURI = URIBuilder.newBuilder(resourceACRurl).fragment("newMatcher").build();
-            final IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
-            final IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+                //creating a new matcher
+                final URI newMatcherURI = URIBuilder.newBuilder(resourceACRurl).fragment("newMatcher").build();
+                final IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
+                final IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
 
-            resource.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
+                resource.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
 
-            //create a new policy
-            final URI newPolicyURI = URIBuilder.newBuilder(resourceACRurl).fragment("newPolicy").build();
-            final IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
+                //create a new policy
+                final URI newPolicyURI = URIBuilder.newBuilder(resourceACRurl).fragment("newPolicy").build();
+                final IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
 
-            resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
-            resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
-            resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
+                resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
+                resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
+                resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
 
-            //creating a new access control
-            final URI newAccessControlURI =
-                URIBuilder.newBuilder(resourceACRurl).fragment("newAccessControl").build();
-            final IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
+                //creating a new access control
+                final URI newAccessControlURI =
+                    URIBuilder.newBuilder(resourceACRurl).fragment("newAccessControl").build();
+                final IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
 
-            resource.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
+                resource.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
 
-            //adding the new access control to the ACP
-            resource.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
+                //adding the new access control to the ACP
+                resource.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
 
-            authClient.update(resource);
+                authClient.update(resource);
             }
         }
     }
