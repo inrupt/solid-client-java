@@ -66,8 +66,19 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the RDF type values.
      *
      * @return the {@code rdf:type} values
+     * @deprecated use the {@link #getTypes} method
      */
+    @Deprecated
     public Set<URI> getType() {
+        return getTypes();
+    }
+
+    /**
+     * Retrieve the RDF type values.
+     *
+     * @return the {@code rdf:type} values
+     */
+    public Set<URI> getTypes() {
         return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getType();
     }
 
@@ -75,8 +86,19 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the list of OIDC issuers.
      *
      * @return the {@code solid:oidcIssuer} values
+     * @deprecated use the {@link #getOidcIssuers} method
      */
+    @Deprecated
     public Set<URI> getOidcIssuer() {
+        return getOidcIssuers();
+    }
+
+    /**
+     * Retrieve the list of OIDC issuers.
+     *
+     * @return the {@code solid:oidcIssuer} values
+     */
+    public Set<URI> getOidcIssuers() {
         return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getOidcIssuer();
     }
 
@@ -84,8 +106,19 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the list of related profile resources.
      *
      * @return the {@code rdfs:seeAlso} values
+     * @deprecated use the {@link #relatedResources} method
      */
+    @Deprecated
     public Set<URI> getSeeAlso() {
+        return getRelatedResources();
+    }
+
+    /**
+     * Retrieve the list of related profile resources.
+     *
+     * @return the {@code rdfs:seeAlso} values
+     */
+    public Set<URI> getRelatedResources() {
         return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getSeeAlso();
     }
 
@@ -93,8 +126,19 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the list of storage locations.
      *
      * @return the {@code pim:storage} values
+     * @deprecated use the {@link #getStorages} method
      */
+    @Deprecated
     public Set<URI> getStorage() {
+        return getStorages();
+    }
+
+    /**
+     * Retrieve the list of storage locations.
+     *
+     * @return the {@code pim:storage} values
+     */
+    public Set<URI> getStorages() {
         return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getStorage();
     }
 
