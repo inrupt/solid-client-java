@@ -39,7 +39,7 @@
     <inrupt.rdf.wrapping.version>0.4.0</inrupt.rdf.wrapping.version>
 
     <!-- plugins -->
-    <buildhelper.plugin.version>3.3.0</buildhelper.plugin.version>
+    <buildhelper.plugin.version>3.4.0</buildhelper.plugin.version>
     <checkstyle.plugin.version>3.2.2</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
@@ -64,7 +64,7 @@
     <surefire.plugin.version>3.1.0</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.9.3</checkstyle.tool.version>
+    <checkstyle.tool.version>10.11.0</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
