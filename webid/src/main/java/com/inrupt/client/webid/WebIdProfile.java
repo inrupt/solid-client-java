@@ -106,7 +106,7 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the list of related profile resources.
      *
      * @return the {@code rdfs:seeAlso} values
-     * @deprecated use the {@link #relatedResources} method
+     * @deprecated use the {@link #getRelatedResources} method
      */
     @Deprecated
     public Set<URI> getSeeAlso() {
