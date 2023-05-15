@@ -25,8 +25,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
-import java.util.Map;
-
 public class WebIdMockHttpService {
 
     private final WireMockServer wireMockServer;
@@ -56,12 +54,12 @@ public class WebIdMockHttpService {
         );
     }
 
-    public Map<String, String> start() {
+    public String start() {
         wireMockServer.start();
 
         setupMocks();
 
-        return Map.of("webid_uri", wireMockServer.baseUrl());
+        return wireMockServer.baseUrl();
     }
 
     public void stop() {
