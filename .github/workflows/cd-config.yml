@@ -10,11 +10,21 @@ on:
       - inrupt-client-[0-9]+.[0-9]+.[0-9]+.Beta[0-9]+
 
 jobs:
-  publish:
+  deployment:
     name: Deploy artifacts
     runs-on: ubuntu-latest
     environment:
-      name: "Sonatype"
+      name: ${{ matrix.envName }}
+    strategy:
+      matrix:
+        envName: ["Development", "Production"]
+        release:
+          - ${{ contains(github.ref, 'inrupt-client-') }}
+        exclude:
+          - release: false
+            envName: "Production"
+          - release: true
+            envName: "Development"
 
     steps:
       - uses: actions/checkout@v3
@@ -35,14 +45,15 @@ jobs:
         run: mvn -B -ntp install -Pci
 
       - name: Deploy Artifacts
-        run: mvn deploy -P publish
         if: ${{ github.actor != 'dependabot[bot]' }}
+        run: mvn deploy -P publish
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Sonar Analysis
+        if: ${{ github.actor != 'dependabot[bot]' }}
         run: mvn sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
 
   site:
@@ -50,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
     environment:
-      name: "Github Pages"
+      name: "Documentation"
 
     steps:
       - uses: actions/checkout@v3
