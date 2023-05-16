@@ -11,8 +11,10 @@ on:
 
 jobs:
   publish:
-    name: Build and deploy
+    name: Deploy artifacts
     runs-on: ubuntu-latest
+    environment:
+      name: "Sonatype"
 
     steps:
       - uses: actions/checkout@v3
@@ -34,7 +36,7 @@ jobs:
 
       - name: Deploy Artifacts
         run: mvn deploy -P publish
-        if: github.actor != 'dependabot[bot]'
+        if: ${{ github.actor != 'dependabot[bot]' }}
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
@@ -46,6 +48,9 @@ jobs:
   site:
     name: Publish version-specific site
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    environment:
+      name: "Github Pages"
 
     steps:
       - uses: actions/checkout@v3
@@ -70,7 +75,7 @@ jobs:
 
       - name: Publish tagged site to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
-        if: github.actor != 'dependabot[bot]' && startsWith(github.event.ref, 'refs/tags/inrupt-client')
+        if: ${{ startsWith(github.event.ref, 'refs/tags/inrupt-client') }}
         with:
           keep_files: true
           publish_dir: ./target/staging/
@@ -78,7 +83,6 @@ jobs:
 
       - name: Publish versioned site to GitHub pages
         uses: peaceiris/actions-gh-pages@v3
-        if: github.actor != 'dependabot[bot]'
         with:
           keep_files: true
           publish_dir: ./target/staging/
