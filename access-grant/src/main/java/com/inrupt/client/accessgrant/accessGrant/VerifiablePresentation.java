@@ -18,11 +18,39 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.accessgrant;
+package com.inrupt.client.accessgrant.accessGrant;
 
-/**
- * A Grant Credential.
- */
-public class GrantCredential implements Credential {
-    public GrantIssue credential;
+import java.util.List;
+import java.util.Map;
+
+public class VerifiablePresentation {
+    /**
+     * The JSON-LD Context values.
+     */
+    public List<String> context;
+
+    /**
+     * The presentation identifier.
+     */
+    public String id;
+
+    /**
+     * The presentation types.
+     */
+    public List<String> type;
+
+    /**
+     * The presentation holder.
+     */
+    public String holder;
+
+    /**
+     * A collection of credentials.
+     */
+    public List<VerifiableCredential> verifiableCredential;
+
+    /**
+     * The signature for the presentation.
+     */
+    public Map<String, Object> proof;
 }

@@ -18,26 +18,57 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.accessgrant;
+package com.inrupt.client.accessgrant.accessGrant;
 
-import java.net.URI;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**
- * An Access Grant issue request.
- */
-public class GrantIssue {
-
+public class VerifiableCredential {
+    
+    /**
+     * The JSON-LD Context values.
+     */
     public List<String> context;
-    public ProvidedConsent credentialSubject = new ProvidedConsent();
-    public String expirationDate;
 
-    class ProvidedConsent {
-        public GrantConsent providedConsent = new GrantConsent();
-    }
+    /**
+     * The credential identifier.
+     */
+    public String id;
 
-    class GrantConsent extends Consent {
-        public URI isProvidedTo;
-    }
+    /**
+     * The credential types.
+     */
+    public Set<String> type;
 
+    /**
+     * The credential issuer.
+     */
+    public String issuer;
+
+    /**
+     * The credential issuance date.
+     */
+    public Instant issuanceDate;
+
+    /**
+     * The credential expiration date.
+     */
+    public Instant expirationDate;
+
+    /**
+     * The credential subject.
+     */
+    public Map<String, Object> credentialSubject;
+
+    /**
+     * The credential status.
+     */
+    public Status credentialStatus;
+
+    /**
+     * The credential signature.
+     */
+    public Map<String, Object> proof;
 }

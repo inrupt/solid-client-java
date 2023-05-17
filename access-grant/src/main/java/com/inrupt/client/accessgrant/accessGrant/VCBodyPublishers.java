@@ -1,0 +1,68 @@
+/*
+ * Copyright 2023 Inrupt Inc.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+package com.inrupt.client.accessgrant.accessGrant;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.accessgrant.AccessGrantException;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
+import com.inrupt.client.util.IOUtils;
+import java.io.IOException;
+
+public class VCBodyPublishers {
+    private static final JsonService jsonService = ServiceProvider.getJsonService();
+
+    /**
+     * Serialize a {@link VerifiableCredential} as an HTTP request body.
+     *
+     * @param vc the verifiable credential
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofVerifiableCredential(final VerifiableCredential vc) {
+        return IOUtils.buffer(out -> {
+            try {
+                jsonService.toJson(vc, out);
+            } catch (final IOException ex) {
+                throw new AccessGrantException("Error serializing credential", ex);
+            }
+        });
+    }
+
+    /**
+     * Serialize a {@link VerifiablePresentation} as an HTTP request body.
+     *
+     * @param vp the verifiable presentation
+     * @return the body publisher
+     */
+    public static Request.BodyPublisher ofVerifiablePresentation(final VerifiablePresentation vp) {
+        return IOUtils.buffer(out -> {
+            try {
+                jsonService.toJson(vp, out);
+            } catch (final IOException ex) {
+                throw new AccessGrantException("Error serializing presentation", ex);
+            }
+        });
+    }
+
+    private VCBodyPublishers() {
+        // Prevent instantiation
+    }
+}

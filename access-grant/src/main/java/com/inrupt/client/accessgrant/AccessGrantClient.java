@@ -180,18 +180,18 @@ public class AccessGrantClient {
         Objects.requireNonNull(resources, "Resources may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
         return v1Metadata().thenCompose(metadata -> {
-            final Credential grantCredential;
+            final Map<String, Object> data;
             if (ACCESS_GRANT.equals(type)) {
-                grantCredential = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
+                data = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
             } else if (ACCESS_REQUEST.equals(type)) {
-                grantCredential = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
+                data = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
             }
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
-                .POST(Request.BodyPublishers.ofByteArray(serialize(grantCredential))).build();
+                .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
 
             return client.send(req, Response.BodyHandlers.ofInputStream())
                 .thenApply(res -> {
@@ -207,63 +207,6 @@ public class AccessGrantClient {
                                 "Unexpected I/O exception while processing Access Grant", ex);
                     }
                 });
-        });
-    }
-
-    /**
-     * A POST Request to be used for issuing an access grant or request.
-     *
-     * @param type the credential type
-     * @param agent the receiving agent for this credential
-     * @param resources the resources to which this credential applies
-     * @param modes the access modes for this credential
-     * @param purposes the purposes of this credential
-     * @param expiration the expiration time of this credential
-     * @return an AccessRequest for issuing an access grant or request
-     */
-    public Credential issueGrantRequest(final URI type, final URI agent, final Set<URI> resources,
-        final Set<String> modes, final Set<String> purposes, final Instant expiration) {
-        return v1Metadata().thenApply(metadata -> {
-            final Credential grantCredential;
-            if (ACCESS_GRANT.equals(type)) {
-                grantCredential = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
-            } else if (ACCESS_REQUEST.equals(type)) {
-                grantCredential = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
-            } else {
-                throw new AccessGrantException("Unsupported grant type: " + type);
-            }
-
-            return grantCredential;
-        }).toCompletableFuture().join();
-    }
-
-    /**
-     * Approves an access grant or request.
-     *
-     * @param request an AccessRequest
-     * @return the next stage of completion containing the resulting credential
-     */
-    public CompletionStage<AccessGrant> approveAccessRequest(final Credential request) {
-        return v1Metadata().thenCompose(metadata -> {
-
-            final Request req = Request.newBuilder(metadata.issueEndpoint)
-                    .header(CONTENT_TYPE, APPLICATION_JSON)
-                    .POST(Request.BodyPublishers.ofByteArray(serialize(request))).build();
-
-            return client.send(req, Response.BodyHandlers.ofInputStream())
-                    .thenApply(res -> {
-                        try (final InputStream input = res.body()) {
-                            final int status = res.statusCode();
-                            if (isSuccess(status)) {
-                                return processVerifiableCredential(input, ACCESS_GRANT_TYPES);
-                            }
-                            throw new AccessGrantException("Unable to issue Access Grant: HTTP error " + status,
-                                    status);
-                        } catch (final IOException ex) {
-                            throw new AccessGrantException(
-                                    "Unexpected I/O exception while processing Access Grant", ex);
-                        }
-                    });
         });
     }
 
@@ -510,15 +453,6 @@ public class AccessGrantClient {
         }
     }
 
-    byte[] serialize(final Credential data) {
-        try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            jsonService.toJson(data, output);
-            return output.toByteArray();
-        } catch (final IOException ex) {
-            throw new UncheckedIOException("Unable to serialize data as JSON", ex);
-        }
-    }
-
     static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI agent, final URI resource,
             final String mode) {
         final List<Map<String, Object>> queries = new ArrayList<>();
@@ -590,52 +524,59 @@ public class AccessGrantClient {
         return null;
     }
 
-    static GrantCredential buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
+    static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
-        
-        final GrantIssue grantIssue = new GrantIssue();
-        grantIssue.credentialSubject.providedConsent.mode = modes;
-        grantIssue.credentialSubject.providedConsent.hasStatus = "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven";
-        grantIssue.credentialSubject.providedConsent.forPersonalData = resources;
-        grantIssue.credentialSubject.providedConsent.isProvidedTo = agent;
+        final Map<String, Object> consent = new HashMap<>();
+        consent.put(MODE, modes);
+        consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
+        consent.put(FOR_PERSONAL_DATA, resources);
+        consent.put(IS_PROVIDED_TO_PERSON, agent);
         if (!purposes.isEmpty()) {
-            grantIssue.credentialSubject.providedConsent.forPurpose = purposes;
+            consent.put("forPurpose", purposes);
         }
-        grantIssue.context = Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI);
+
+        final Map<String, Object> subject = new HashMap<>();
+        subject.put("providedConsent", consent);
+
+        final Map<String, Object> credential = new HashMap<>();
+        credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         if (expiration != null) {
-            grantIssue.expirationDate = expiration.truncatedTo(ChronoUnit.SECONDS).toString();
+            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
+        credential.put(CREDENTIAL_SUBJECT, subject);
 
-        final GrantCredential grant = new GrantCredential();
-        grant.credential = grantIssue;
-
-        return grant;
+        final Map<String, Object> data = new HashMap<>();
+        data.put("credential", credential);
+        return data;
     }
 
-    static RequestCredential buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
+    static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
-        final RequestIssue requestIssue = new RequestIssue();
-
-        requestIssue.credentialSubject.hasConsent.hasStatus = "https://w3id.org/GConsent#ConsentStatusRequested";
-        requestIssue.credentialSubject.hasConsent.mode = modes;
-        requestIssue.credentialSubject.hasConsent.forPersonalData = resources;
+        final Map<String, Object> consent = new HashMap<>();
+        consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
+        consent.put(MODE, modes);
+        consent.put(FOR_PERSONAL_DATA, resources);
         if (agent != null) {
-            requestIssue.credentialSubject.hasConsent.isConsentForDataSubject = agent;
+            consent.put("isConsentForDataSubject", agent);
         }
         if (!purposes.isEmpty()) {
-            requestIssue.credentialSubject.hasConsent.forPurpose = purposes;
+            consent.put("forPurpose", purposes);
         }
 
-        requestIssue.context = Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI);
+        final Map<String, Object> subject = new HashMap<>();
+        subject.put("hasConsent", consent);
+
+        final Map<String, Object> credential = new HashMap<>();
+        credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         if (expiration != null) {
-            requestIssue.expirationDate = expiration.truncatedTo(ChronoUnit.SECONDS).toString();
+            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
+        credential.put(CREDENTIAL_SUBJECT, subject);
 
-        final RequestCredential grant = new RequestCredential();
-        grant.credential = requestIssue;
-
-        return grant;
+        final Map<String, Object> data = new HashMap<>();
+        data.put("credential", credential);
+        return data;
     }
 
     static boolean isSuccess(final int statusCode) {

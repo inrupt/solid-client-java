@@ -18,20 +18,26 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.accessgrant;
+package com.inrupt.client.accessgrant.accessGrant;
 
-import java.net.URI;
-import java.util.Set;
+import java.util.List;
 
 /**
- * A generic consent part of a grant.
- */
-public class Consent {
+     * A data objects for verification responses.
+     */
+public class VerificationResponse {
+    /**
+     * The verification checks that were performed.
+     */
+    public List<String> checks;
 
-    public Set<String> mode;
-    public String hasStatus;
-    public Set<String> forPurpose;
-    public Set<URI> forPersonalData;
-    public String inherit;
+    /**
+     * The verification warnings that were discovered.
+     */
+    public List<String> warnings;
 
+    /**
+     * The verification errors that were discovered.
+     */
+    public List<String> errors;
 }
