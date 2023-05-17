@@ -231,8 +231,19 @@ public class AccessGrant {
      * Get the purposes of the access grant.
      *
      * @return the access grant purposes
+     * @deprecated as of Beta3, please use the {@link #getPurposes()} method
      */
+    @Deprecated
     public Set<String> getPurpose() {
+        return purposes;
+    }
+
+    /**
+     * Get the purposes of the access grant.
+     *
+     * @return the access grant purposes
+     */
+    public Set<String> getPurposes() {
         return purposes;
     }
 
