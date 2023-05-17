@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class ReactiveAuthorization {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveAuthorization.class);
+    private static final String BEARER = "Bearer";
 
     private static final Comparator<Authenticator> comparator = Comparator
         .comparing(Authenticator::getPriority)
@@ -64,7 +65,9 @@ public class ReactiveAuthorization {
                 ReactiveAuthorization.class.getClassLoader());
 
         for (final AuthenticationProvider provider : loader) {
-            registry.put(provider.getScheme(), provider);
+            for (final String scheme : provider.getSchemes()) {
+                registry.put(provider.getScheme(), provider);
+            }
         }
     }
 
@@ -90,7 +93,14 @@ public class ReactiveAuthorization {
             }
         }
 
-        if (!authenticators.isEmpty()) {
+        if (authenticators.isEmpty()) {
+            // Fallback in case of missing or poorly formed www-authenticate header
+            if (registry.containsKey(BEARER)) {
+                final Authenticator auth = registry.get(BEARER).getAuthenticator(Challenge.of(BEARER));
+                LOGGER.debug("Using fallback Bearer authenticator");
+                return session.authenticate(auth, request, algorithms);
+            }
+        } else {
             // Use the first authenticator, sorted by priority
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);

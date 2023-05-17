@@ -91,6 +91,7 @@ public final class OpenIdSession implements Session {
         // Support case-insensitive lookups
         final Set<String> schemeNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         schemeNames.add("Bearer");
+        schemeNames.add("DPoP");
 
         this.schemes = Collections.unmodifiableSet(schemeNames);
     }

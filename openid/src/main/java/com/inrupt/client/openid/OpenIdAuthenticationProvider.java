@@ -29,6 +29,7 @@ import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -38,11 +39,15 @@ import java.util.concurrent.CompletionStage;
 public class OpenIdAuthenticationProvider implements AuthenticationProvider {
 
     private static final String BEARER = "Bearer";
+    private static final String DPOP = "DPoP";
 
     private final int priorityLevel;
+    private final Set<String> schemes = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
     public OpenIdAuthenticationProvider() {
         this(50);
+        schemes.add(BEARER);
+        schemes.add(DPOP);
     }
 
     /**
@@ -60,14 +65,19 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
+    public Set<String> getSchemes() {
+        return schemes;
+    }
+
+    @Override
     public Authenticator getAuthenticator(final Challenge challenge) {
         validate(challenge);
         return new OpenIdAuthenticator(priorityLevel);
     }
 
-    static void validate(final Challenge challenge) {
+    void validate(final Challenge challenge) {
         if (challenge == null ||
-                !BEARER.equalsIgnoreCase(challenge.getScheme())) {
+                !schemes.contains(challenge.getScheme())) {
             throw new OpenIdException("Invalid challenge for OpenID authentication");
         }
     }
