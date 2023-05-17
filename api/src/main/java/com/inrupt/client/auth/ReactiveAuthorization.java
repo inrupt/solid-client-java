@@ -66,7 +66,7 @@ public class ReactiveAuthorization {
 
         for (final AuthenticationProvider provider : loader) {
             for (final String scheme : provider.getSchemes()) {
-                registry.put(provider.getScheme(), provider);
+                registry.put(scheme, provider);
             }
         }
     }
