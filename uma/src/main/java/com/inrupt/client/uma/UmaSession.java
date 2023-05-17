@@ -20,11 +20,16 @@
  */
 package com.inrupt.client.uma;
 
+import com.inrupt.client.ClientCache;
 import com.inrupt.client.Request;
+import com.inrupt.client.auth.Authenticator;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +52,7 @@ public final class UmaSession implements Session {
     private final String id;
     private final Set<String> schemes;
     private final List<Session> internalSessions = new ArrayList<>();
+    private final ClientCache<URI, Credential> tokenCache;
 
     private UmaSession(final Session... sessions) {
         this.id = UUID.randomUUID().toString();
@@ -57,6 +63,7 @@ public final class UmaSession implements Session {
         }
         schemeTypes.add("UMA");
         this.schemes = Collections.unmodifiableSet(schemeTypes);
+        this.tokenCache = ServiceProvider.getCacheBuilder().build(1000, Duration.ofMinutes(5));
     }
 
     /**
@@ -125,7 +132,20 @@ public final class UmaSession implements Session {
 
     @Override
     public Optional<Credential> fromCache(final Request request) {
-        return Optional.empty();
+        return Optional.ofNullable(tokenCache.get(request.uri()))
+            .filter(credential -> credential.getExpiration().isAfter(Instant.now()));
+    }
+
+    @Override
+    public CompletionStage<Optional<Credential>> authenticate(final Authenticator authenticator,
+            final Request request, final Set<String> algorithms) {
+        return authenticator.authenticate(this, request, algorithms)
+            .thenApply(credential -> {
+                if (credential != null) {
+                    tokenCache.put(request.uri(), credential);
+                }
+                return Optional.ofNullable(credential);
+            });
     }
 
     @Override

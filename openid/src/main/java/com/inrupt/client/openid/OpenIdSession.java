@@ -22,13 +22,17 @@ package com.inrupt.client.openid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.inrupt.client.ClientCache;
 import com.inrupt.client.Request;
+import com.inrupt.client.auth.Authenticator;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.net.URI;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,12 +79,14 @@ public final class OpenIdSession implements Session {
     private final AtomicReference<Credential> credential = new AtomicReference<>();
     private final ForkJoinPool executor = new ForkJoinPool(1);
     private final DPoP dpop;
+    private final ClientCache<URI, Boolean> requestCache;
 
     private OpenIdSession(final String id, final DPoP dpop,
             final Supplier<CompletionStage<Credential>> authenticator) {
         this.id = Objects.requireNonNull(id, "Session id may not be null!");
         this.authenticator = Objects.requireNonNull(authenticator, "OpenID authenticator may not be null!");
         this.dpop = Objects.requireNonNull(dpop);
+        this.requestCache = ServiceProvider.getCacheBuilder().build(1000, Duration.ofMinutes(5));
 
         // Support case-insensitive lookups
         final Set<String> schemeNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -216,16 +222,29 @@ public final class OpenIdSession implements Session {
     @Override
     public Optional<Credential> fromCache(final Request request) {
         final Credential c = credential.get();
-        if (!hasExpired(c)) {
+        if (!hasExpired(c) && request != null && requestCache.get(request.uri()) != null) {
+            LOGGER.debug("Using cached token for request: {}", request.uri());
             return Optional.of(c);
         }
         return Optional.empty();
     }
 
     @Override
+    public CompletionStage<Optional<Credential>> authenticate(final Authenticator auth,
+            final Request request, final Set<String> algorithms) {
+        final Optional<Credential> credential = getCredential(ID_TOKEN, null);
+        if (credential.isPresent() && request != null) {
+            LOGGER.debug("Setting cache entry for request: {}", request.uri());
+            requestCache.put(request.uri(), Boolean.TRUE);
+        }
+        return CompletableFuture.completedFuture(credential);
+    }
+
+    /* deprecated */
+    @Override
     public CompletionStage<Optional<Credential>> authenticate(final Request request,
             final Set<String> algorithms) {
-        return CompletableFuture.completedFuture(getCredential(ID_TOKEN, null));
+        return authenticate(null, request, algorithms);
     }
 
     boolean hasExpired(final Credential credential) {

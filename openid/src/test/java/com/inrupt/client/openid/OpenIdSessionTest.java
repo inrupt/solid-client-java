@@ -157,7 +157,7 @@ class OpenIdSessionTest {
         assertFalse(session.fromCache(null).isPresent());
         final Optional<URI> principal = session.getPrincipal();
         assertEquals(Optional.of(URI.create(WEBID)), principal);
-        assertTrue(session.fromCache(null).isPresent());
+        assertFalse(session.fromCache(null).isPresent());
         final Optional<Credential> credential = session.authenticate(null, Collections.emptySet())
             .toCompletableFuture().join();
         assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
@@ -176,7 +176,7 @@ class OpenIdSessionTest {
         assertFalse(session.fromCache(null).isPresent());
         final Optional<URI> principal = session.getPrincipal();
         assertEquals(Optional.of(URI.create(WEBID)), principal);
-        assertTrue(session.fromCache(null).isPresent());
+        assertFalse(session.fromCache(null).isPresent());
         final Optional<Credential> credential = session.authenticate(null, Collections.emptySet())
             .toCompletableFuture().join();
         assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
