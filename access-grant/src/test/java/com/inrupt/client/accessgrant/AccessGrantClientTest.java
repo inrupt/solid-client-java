@@ -222,6 +222,7 @@ class AccessGrantClientTest {
         assertEquals(expiration, grant.getExpiration());
         assertEquals(baseUri, grant.getIssuer());
         assertEquals(purposes, grant.getPurpose());
+        assertEquals(purposes, grant.getPurposes());
         assertEquals(resources, grant.getResources());
     }
 
@@ -250,6 +251,7 @@ class AccessGrantClientTest {
         assertEquals(expiration, request.getExpiration());
         assertEquals(baseUri, request.getIssuer());
         assertEquals(purposes, request.getPurpose());
+        assertEquals(purposes, request.getPurposes());
         assertEquals(resources, request.getResources());
     }
 
