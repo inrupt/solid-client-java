@@ -59,11 +59,27 @@ class MockAccessGrantServer {
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
                             this.webId, this.sharedFile))));
 
+        wireMockServer.stubFor(get(urlPathMatching(".+:(\\d*)/vc-request"))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedFile))));
+
         wireMockServer.stubFor(delete(urlPathMatching("/vc-grant"))
                     .willReturn(aResponse()
                         .withStatus(204)));
 
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .withRequestBody(containing("hasConsent"))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedFile))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .withRequestBody(containing("providedConsent"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)

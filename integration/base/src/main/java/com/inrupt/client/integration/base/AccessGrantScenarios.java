@@ -31,6 +31,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.accessgrant.AccessGrant;
 import com.inrupt.client.accessgrant.AccessGrantClient;
 import com.inrupt.client.accessgrant.AccessGrantSession;
+import com.inrupt.client.accessgrant.AccessRequest;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
@@ -224,14 +225,17 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
 
         final URI uri = URIBuilder.newBuilder(URI.create(VC_PROVIDER)).path(grant.getIdentifier().toString()).build();
-        final AccessGrant grantFromVcProvider = accessGrantClient.fetch(uri).toCompletableFuture().join();
+        final AccessGrant grantFromVcProvider = accessGrantClient.fetch(uri, AccessGrant.class)
+            .toCompletableFuture().join();
         assertEquals(grant.getPurpose(), grantFromVcProvider.getPurpose());
 
         //unauthorized request test
@@ -260,7 +264,6 @@ public class AccessGrantScenarios {
 
         //6. call verify endpoint to check the grant is not valid
 
-        assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
@@ -273,8 +276,10 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_APPEND));
         final Instant expiration = Instant.now().plus(90, ChronoUnit.DAYS);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_GRANT, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
@@ -292,8 +297,10 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         //Steps
         //1. call verify endpoint to verify grant
@@ -311,9 +318,8 @@ public class AccessGrantScenarios {
         final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //query for all grants issued by the user
-        final List<AccessGrant> grants = accessGrantClient.query(
-                ACCESS_REQUEST, URI.create(webidUrl),
-                sharedTextFileURI, GRANT_MODE_READ)
+        final List<AccessRequest> grants = accessGrantClient.query(URI.create(webidUrl),
+                sharedTextFileURI, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         // result is 4 because we retrieve the grants for each path
         // sharedTextFileURI =
@@ -321,9 +327,8 @@ public class AccessGrantScenarios {
         assertEquals(1, grants.size());
 
         //query for all grants issued by a random user
-        final List<AccessGrant> randomGrants = accessGrantClient.query(
-                ACCESS_REQUEST, URI.create("https://someuser.test"),
-                sharedTextFileURI, GRANT_MODE_READ)
+        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create("https://someuser.test"),
+                sharedTextFileURI, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(0, randomGrants.size());
     }
@@ -337,16 +342,14 @@ public class AccessGrantScenarios {
         final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //query for all grants of a dedicated resource
-        final List<AccessGrant> grants = accessGrantClient.query(
-                ACCESS_REQUEST, URI.create(webidUrl),
-                sharedTextFileURI, GRANT_MODE_READ)
+        final List<AccessRequest> requests = accessGrantClient.query(URI.create(webidUrl),
+                sharedTextFileURI, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
-        assertEquals(1, grants.size());
+        assertEquals(1, requests.size());
 
         //query for all grants of a random resource
-        final List<AccessGrant> randomGrants = accessGrantClient.query(
-                ACCESS_REQUEST, URI.create(webidUrl),
-                URI.create("https://somerandom.test"), GRANT_MODE_READ)
+        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create(webidUrl),
+                URI.create("https://somerandom.test"), GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(0, randomGrants.size());
     }
@@ -360,16 +363,14 @@ public class AccessGrantScenarios {
         final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //query for all grants of existent purposes
-        final List<AccessGrant> grants = accessGrantClient.query(
-                ACCESS_REQUEST, URI.create(webidUrl),
-                sharedTextFileURI, GRANT_MODE_READ)
+        final List<AccessRequest> requests = accessGrantClient.query(URI.create(webidUrl),
+                sharedTextFileURI, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
-        assertEquals(1, grants.size());
+        assertEquals(1, requests.size());
 
         //query for all grants of dedicated purpose combinations
-        final List<AccessGrant> randomGrants = accessGrantClient.query(
-                ACCESS_REQUEST, URI.create(webidUrl),
-                sharedTextFileURI, GRANT_MODE_WRITE)
+        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create(webidUrl),
+                sharedTextFileURI, GRANT_MODE_WRITE, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(0, randomGrants.size()); //our grant is actually a Read
     }
@@ -392,8 +393,10 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
         final SolidSyncClient newClient = SolidSyncClient.getClientBuilder()
@@ -405,7 +408,6 @@ public class AccessGrantScenarios {
 
         newClient.delete(testRDFresourceURI);
         assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
-        assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
@@ -425,8 +427,10 @@ public class AccessGrantScenarios {
             final Set<String> modes = new HashSet<>(Arrays.asList(
                 GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
             final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-            final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+            final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
                 new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
+                .toCompletableFuture().join();
+            final AccessGrant grant = accessGrantClient.grantAccess(request)
                 .toCompletableFuture().join();
             final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
             final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
@@ -465,8 +469,10 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
 
         final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
@@ -479,7 +485,6 @@ public class AccessGrantScenarios {
 
         authClient.delete(newTestFileURI);
         assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
-        assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
@@ -505,8 +510,10 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
@@ -549,8 +556,10 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
@@ -592,12 +601,13 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessGrant grant = accessGrantClient.issue(ACCESS_REQUEST, URI.create(webidUrl),
+        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
+        final AccessGrant grant = accessGrantClient.grantAccess(request)
+            .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
-        final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(newSession);
 
         try (final InputStream is = new ByteArrayInputStream(
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
@@ -608,7 +618,6 @@ public class AccessGrantScenarios {
 
         authClient.delete(newTestFileURI);
         assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
-        assertDoesNotThrow(accessGrantClient.delete(grant).toCompletableFuture()::join);
     }
 
     private static void prepareACPofResource(final SolidSyncClient authClient, final URI resourceURI) {

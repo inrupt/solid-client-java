@@ -47,7 +47,7 @@ class AccessGrantTest {
     @Test
     void testReadAccessGrant() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
-            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
+            final AccessGrant grant = AccessGrant.of(resource);
             assertEquals(Collections.singleton("Read"), grant.getModes());
             assertEquals(URI.create("https://accessgrant.example"), grant.getIssuer());
             final Set<String> expectedTypes = new HashSet<>();
@@ -78,7 +78,7 @@ class AccessGrantTest {
     @Test
     void testReadAccessGrantSingletons() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant2.json")) {
-            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
+            final AccessGrant grant = AccessGrant.of(resource);
             assertEquals(Collections.singleton("Read"), grant.getModes());
             assertEquals(URI.create("https://accessgrant.example"), grant.getIssuer());
             final Set<String> expectedTypes = new HashSet<>();
@@ -104,9 +104,10 @@ class AccessGrantTest {
     void testRawAccessGrant() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
             final String raw = IOUtils.toString(resource, UTF_8);
-            final AccessGrant grant = AccessGrant.ofAccessGrant(raw);
+            final AccessGrant grant = AccessGrant.of(raw);
 
-            assertEquals(raw, grant.getRawGrant());
+            assertEquals(raw, grant.serialize());
+            assertEquals(grant.serialize(), grant.getRawGrant());
         }
     }
 
@@ -165,84 +166,84 @@ class AccessGrantTest {
     @Test
     void testBareAccessGrant() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant1.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantMissingIssuer() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant2.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantMissingCredentialSubject() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant3.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantMissingPresentationType() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant4.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testIrrelevantCredential() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant5.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantMissingId() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant6.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantMissingCredentialSubjectId() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant7.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantMissingConsent() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant8.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantTypeComplexListStructure() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant9.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantTypeObjectStructure() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant10.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantInvalidStatusNoId() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant12.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
     @Test
     void testAccessGrantInvalidStatusBadCredential() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/invalid_access_grant13.json")) {
-            assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+            assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
         }
     }
 
@@ -250,11 +251,11 @@ class AccessGrantTest {
     void testInvalidStream() throws IOException {
         final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant2.json");
         resource.close();
-        assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant(resource));
+        assertThrows(IllegalArgumentException.class, () -> AccessGrant.of(resource));
     }
 
     @Test
     void testInvalidString() throws IOException {
-        assertThrows(IllegalArgumentException.class, () -> AccessGrant.ofAccessGrant("not json"));
+        assertThrows(IllegalArgumentException.class, () -> AccessGrant.of("not json"));
     }
 }
