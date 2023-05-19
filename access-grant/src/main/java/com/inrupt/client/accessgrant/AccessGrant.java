@@ -122,28 +122,6 @@ public class AccessGrant implements AccessCredential {
         }
     }
 
-    static Status asRevocationList2020(final Map credentialStatus) {
-        try {
-            int idx = -1;
-            final Object index = credentialStatus.get("revocationListIndex");
-            if (index instanceof String) {
-                idx = Integer.parseInt((String) index);
-            } else if (index instanceof Integer) {
-                idx = (Integer) index;
-            }
-
-            final Object id = credentialStatus.get("id");
-            final Object credential = credentialStatus.get("revocationListCredential");
-            if (id instanceof String && credential instanceof String && idx >= 0) {
-                final URI uri = URI.create((String) credential);
-                return new Status(URI.create((String) id), REVOCATION_LIST_2020_STATUS, uri, idx);
-            }
-            throw new IllegalArgumentException("Unable to process credential status as Revocation List 2020");
-        } catch (final Exception ex) {
-            throw new IllegalArgumentException("Unable to process credential status data", ex);
-        }
-    }
-
     /**
      * Create an AccessGrant object from a VerifiablePresentation.
      *
