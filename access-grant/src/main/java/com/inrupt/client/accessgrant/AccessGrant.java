@@ -131,11 +131,7 @@ public class AccessGrant implements AccessCredential {
      */
     @Deprecated
     public static AccessGrant ofAccessGrant(final String accessGrant) {
-        try {
-            return new AccessGrant(accessGrant);
-        } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access grant", ex);
-        }
+        return of(accessGrant);
     }
 
     /**
@@ -147,11 +143,7 @@ public class AccessGrant implements AccessCredential {
      */
     @Deprecated
     public static AccessGrant ofAccessGrant(final InputStream accessGrant) {
-        try {
-            return of(IOUtils.toString(accessGrant, UTF_8));
-        } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access grant", ex);
-        }
+        return of(accessGrant);
     }
 
     /**

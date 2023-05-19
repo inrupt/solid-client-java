@@ -116,6 +116,25 @@ class AccessGrantTest {
     }
 
     @Test
+    void testDeprecatedParsingMethod() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
+            final String raw = IOUtils.toString(resource, UTF_8);
+            final AccessGrant grant = AccessGrant.ofAccessGrant(raw);
+
+            assertEquals(raw, grant.serialize());
+            assertEquals(grant.serialize(), grant.getRawGrant());
+        }
+    }
+
+    @Test
+    void testDeprecatedParsingMethod2() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant2.json")) {
+            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
+            assertEquals(Collections.singleton("Read"), grant.getModes());
+        }
+    }
+
+    @Test
     void testRevocationList2020() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list1.json")) {
             final Map<String, Object> data = jsonService.fromJson(resource,
