@@ -23,6 +23,7 @@ package com.inrupt.client.solid;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Headers;
+import com.inrupt.client.InruptClientException;
 import com.inrupt.client.Request;
 import com.inrupt.client.Resource;
 import com.inrupt.client.Response;
@@ -199,7 +200,10 @@ public class SolidSyncClient {
         try {
             return future.toCompletableFuture().join();
         } catch (final CompletionException ex) {
-            throw (R) ex.getCause();
+            if (ex.getCause() != null) {
+                throw (R) ex.getCause();
+            }
+            throw new InruptClientException("Error performing SolidClient operation", ex);
         }
     }
 }
