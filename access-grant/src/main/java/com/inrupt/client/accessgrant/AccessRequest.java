@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -74,8 +75,12 @@ public class AccessRequest implements AccessCredential {
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
 
-            final Map vc = getCredentialFromPresentation(data, supportedTypes).orElseThrow(() ->
-                    new IllegalArgumentException("Invalid Access Grant: missing verifiable credential"));
+            final List<Map> vcs = getCredentialsFromPresentation(data, supportedTypes);
+            if (vcs.size() != 1) {
+                throw new IllegalArgumentException(
+                        "Invalid Access Request: ambiguous number of verifiable credentials");
+            }
+            final Map vc = vcs.get(0);
 
             if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
                 this.credential = grant;

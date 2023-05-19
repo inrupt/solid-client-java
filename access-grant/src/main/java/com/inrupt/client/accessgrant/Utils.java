@@ -22,8 +22,10 @@ package com.inrupt.client.accessgrant;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -94,20 +96,21 @@ final class Utils {
         return Optional.empty();
     }
 
-    public static Optional<Map> getCredentialFromPresentation(final Map<String, Object> data,
+    public static List<Map> getCredentialsFromPresentation(final Map<String, Object> data,
             final Set<String> supportedTypes) {
+        final List<Map> credentials = new ArrayList<>();
         if (data.get("verifiableCredential") instanceof Collection) {
             for (final Object item : (Collection) data.get("verifiableCredential")) {
                 if (item instanceof Map) {
                     final Map vc = (Map) item;
                     if (asSet(vc.get(TYPE)).filter(types ->
                                 types.stream().anyMatch(supportedTypes::contains)).isPresent()) {
-                        return Optional.of(vc);
+                        credentials.add(vc);
                     }
                 }
             }
         }
-        return Optional.empty();
+        return credentials;
     }
 
 
