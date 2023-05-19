@@ -93,7 +93,7 @@ class AccessGrantSessionTest {
             assertFalse(grant.getResources().isEmpty());
             for (final URI uri : grant.getResources()) {
                 final String encoded = Base64.getUrlEncoder().withoutPadding()
-                    .encodeToString(grant.getRawGrant().getBytes(UTF_8));
+                    .encodeToString(grant.serialize().getBytes(UTF_8));
                 assertEquals(Optional.of(encoded),
                         session.getCredential(AccessGrantSession.VERIFIABLE_CREDENTIAL, uri).map(Credential::getToken));
                 final URI child = URIBuilder.newBuilder(uri).path("a").path("b").build();

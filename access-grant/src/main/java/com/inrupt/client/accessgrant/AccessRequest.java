@@ -43,14 +43,14 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 /**
- * An Access Grant abstraction, for use with interacting with Solid resources.
+ * An Access Request abstraction, for use with interacting with Solid resources.
  */
-public class AccessGrant implements AccessCredential {
+public class AccessRequest implements AccessCredential {
 
     private static final String TYPE = "type";
     private static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
-    private static final Set<String> supportedTypes = getSupportedTypes();
     private static final JsonService jsonService = ServiceProvider.getJsonService();
+    private static final Set<String> supportedTypes = getSupportedTypes();
 
     private final String credential;
     private final URI issuer;
@@ -65,11 +65,11 @@ public class AccessGrant implements AccessCredential {
     private final Status status;
 
     /**
-     * Read a verifiable presentation as an AccessGrant.
+     * Read a verifiable presentation as an AccessRequest.
      *
-     * @param grant the Access Grant serialized as a verifiable presentation
+     * @param grant the serialized form of an Access Request
      */
-    protected AccessGrant(final String grant) throws IOException {
+    protected AccessRequest(final String grant) throws IOException {
         try (final InputStream in = new ByteArrayInputStream(grant.getBytes())) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
@@ -78,7 +78,7 @@ public class AccessGrant implements AccessCredential {
             final List<Map> vcs = getCredentialsFromPresentation(data, supportedTypes);
             if (vcs.size() != 1) {
                 throw new IllegalArgumentException(
-                        "Invalid Access Grant: ambiguous number of verifiable credentials");
+                        "Invalid Access Request: ambiguous number of verifiable credentials");
             }
             final Map vc = vcs.get(0);
 
@@ -98,16 +98,13 @@ public class AccessGrant implements AccessCredential {
                 this.creator = asUri(subject.get("id")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
 
-                // V1 Access Grant, using gConsent
-                final Map consent = asMap(subject.get("providedConsent")).orElseThrow(() ->
+                // V1 Access Request, using gConsent
+                final Map consent = asMap(subject.get("hasConsent")).orElseThrow(() ->
                         // Unsupported structure
-                        new IllegalArgumentException("Invalid Access Grant: missing consent clause"));
+                        new IllegalArgumentException("Invalid Access Request: missing consent clause"));
 
-                final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
-                final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
-                final Optional<URI> other = asUri(consent.get("isProvidedTo"));
-
-                this.recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                final Optional<URI> dataSubject = asUri(consent.get("isConsentForDataSubject"));
+                this.recipient = dataSubject.orElse(null);
                 this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
@@ -117,86 +114,33 @@ public class AccessGrant implements AccessCredential {
                             statusTypes.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
                                 asRevocationList2020(credentialStatus))).orElse(null);
             } else {
-                throw new IllegalArgumentException("Invalid Access Grant: missing VerifiablePresentation type");
+                throw new IllegalArgumentException("Invalid Access Request: missing VerifiablePresentation type");
             }
         }
     }
 
-    static Status asRevocationList2020(final Map credentialStatus) {
-        try {
-            int idx = -1;
-            final Object index = credentialStatus.get("revocationListIndex");
-            if (index instanceof String) {
-                idx = Integer.parseInt((String) index);
-            } else if (index instanceof Integer) {
-                idx = (Integer) index;
-            }
-
-            final Object id = credentialStatus.get("id");
-            final Object credential = credentialStatus.get("revocationListCredential");
-            if (id instanceof String && credential instanceof String && idx >= 0) {
-                final URI uri = URI.create((String) credential);
-                return new Status(URI.create((String) id), REVOCATION_LIST_2020_STATUS, uri, idx);
-            }
-            throw new IllegalArgumentException("Unable to process credential status as Revocation List 2020");
-        } catch (final Exception ex) {
-            throw new IllegalArgumentException("Unable to process credential status data", ex);
-        }
-    }
 
     /**
-     * Create an AccessGrant object from a VerifiablePresentation.
-     *
-     * @param accessGrant the access grant
-     * @return a parsed access grant
-     * @deprecated As of Beta3, please use the {@link AccessGrant#of} method
-     */
-    @Deprecated
-    public static AccessGrant ofAccessGrant(final String accessGrant) {
-        try {
-            return new AccessGrant(accessGrant);
-        } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access grant", ex);
-        }
-    }
-
-    /**
-     * Create an AccessGrant object from a VerifiablePresentation.
-     *
-     * @param accessGrant the access grant
-     * @return a parsed access grant
-     * @deprecated As of Beta3, please use the {@link AccessGrant#of} method
-     */
-    @Deprecated
-    public static AccessGrant ofAccessGrant(final InputStream accessGrant) {
-        try {
-            return of(IOUtils.toString(accessGrant, UTF_8));
-        } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access grant", ex);
-        }
-    }
-
-    /**
-     * Create an AccessGrant object from a serialized form.
+     * Create an AccessRequest object from a serialized form.
      *
      * @param serialization the serialized access grant
      * @return a parsed access grant
      */
-    public static AccessGrant of(final String serialization) {
+    public static AccessRequest of(final String serialization) {
         try {
-            return new AccessGrant(serialization);
+            return new AccessRequest(serialization);
         } catch (final IOException ex) {
             throw new IllegalArgumentException("Unable to read access grant", ex);
         }
     }
 
     /**
-     * Create an AccessGrant object from a serialized form.
+     * Create an AccessRequest object from a serialized form.
      *
-     * @param serialization the serialized access grant
+     * @param serialization the access request
      * @return a parsed access grant
      */
-    public static AccessGrant of(final InputStream serialization) {
+    public static AccessRequest of(final InputStream serialization) {
         try {
             return of(IOUtils.toString(serialization, UTF_8));
         } catch (final IOException ex) {
@@ -234,17 +178,6 @@ public class AccessGrant implements AccessCredential {
         return identifier;
     }
 
-    /**
-     * Get the purposes of the access grant.
-     *
-     * @return the access grant purposes
-     * @deprecated as of Beta3, please use the {@link #getPurposes()} method
-     */
-    @Deprecated
-    public Set<String> getPurpose() {
-        return purposes;
-    }
-
     @Override
     public Set<String> getPurposes() {
         return purposes;
@@ -253,28 +186,6 @@ public class AccessGrant implements AccessCredential {
     @Override
     public Set<URI> getResources() {
         return resources;
-    }
-
-    /**
-     * Get the agent to whom access is granted.
-     *
-     * @return the agent that was granted access
-     * @deprecated As of Beta3, please use {@link #getRecipient}
-     */
-    @Deprecated
-    public Optional<URI> getGrantee() {
-        return getRecipient();
-    }
-
-    /**
-     * Get the agent who granted access.
-     *
-     * @return the agent granting access
-     * @deprecated As of Beta3, please use {@link #getCreator}
-     */
-    @Deprecated
-    public URI getGrantor() {
-        return getCreator();
     }
 
     @Override
@@ -292,22 +203,10 @@ public class AccessGrant implements AccessCredential {
         return credential;
     }
 
-    /**
-     * Get the raw access grant.
-     *
-     * @return the access grant
-     * @deprecated as of Beta3, please use the {@link #serialize} method
-     */
-    @Deprecated
-    public String getRawGrant() {
-        return serialize();
-    }
-
     static Set<String> getSupportedTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessGrant");
-        types.add("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+        types.add("SolidAccessRequest");
+        types.add("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
         return Collections.unmodifiableSet(types);
     }
-
 }
