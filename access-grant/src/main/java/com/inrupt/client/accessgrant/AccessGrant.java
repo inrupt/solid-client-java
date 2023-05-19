@@ -51,15 +51,15 @@ public class AccessGrant implements AccessCredential {
     private static final Set<String> supportedTypes = getSupportedTypes();
     private static final JsonService jsonService = ServiceProvider.getJsonService();
 
-    private final String rawGrant;
+    private final String credential;
     private final URI issuer;
     private final URI identifier;
     private final Set<String> types;
     private final Set<String> purposes;
     private final Set<String> modes;
     private final Set<URI> resources;
-    private final URI grantee;
-    private final URI grantor;
+    private final URI recipient;
+    private final URI creator;
     private final Instant expiration;
     private final Status status;
 
@@ -78,7 +78,7 @@ public class AccessGrant implements AccessCredential {
                     new IllegalArgumentException("Invalid Access Grant: missing verifiable credential"));
 
             if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
-                this.rawGrant = grant;
+                this.credential = grant;
                 this.issuer = asUri(vc.get("issuer")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid issuer field"));
                 this.identifier = asUri(vc.get("id")).orElseThrow(() ->
@@ -90,7 +90,7 @@ public class AccessGrant implements AccessCredential {
                 final Map subject = asMap(vc.get("credentialSubject")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid credentialSubject field"));
 
-                this.grantor = asUri(subject.get("id")).orElseThrow(() ->
+                this.creator = asUri(subject.get("id")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
 
                 // V1 Access Grant, using gConsent
@@ -102,7 +102,7 @@ public class AccessGrant implements AccessCredential {
                 final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
                 final Optional<URI> other = asUri(consent.get("isProvidedTo"));
 
-                this.grantee = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                this.recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
                 this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
@@ -274,17 +274,17 @@ public class AccessGrant implements AccessCredential {
 
     @Override
     public URI getCreator() {
-        return grantor;
+        return creator;
     }
 
     @Override
     public Optional<URI> getRecipient() {
-        return Optional.ofNullable(grantee);
+        return Optional.ofNullable(recipient);
     }
 
     @Override
     public String serialize() {
-        return rawGrant;
+        return credential;
     }
 
     /**

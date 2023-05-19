@@ -218,6 +218,7 @@ class AccessGrantClientTest {
 
         assertTrue(grant.getTypes().contains("SolidAccessGrant"));
         assertEquals(Optional.of(agent), grant.getGrantee());
+        assertEquals(Optional.of(agent), grant.getRecipient());
         assertEquals(modes, grant.getModes());
         assertEquals(expiration, grant.getExpiration());
         assertEquals(baseUri, grant.getIssuer());

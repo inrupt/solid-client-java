@@ -63,7 +63,9 @@ class AccessGrantTest {
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
             assertEquals(URI.create("https://id.example/grantor"), grant.getGrantor());
+            assertEquals(URI.create("https://id.example/grantor"), grant.getCreator());
             assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getGrantee());
+            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getRecipient());
             final Optional<Status> status = grant.getStatus();
             assertTrue(status.isPresent());
             status.ifPresent(s -> {
@@ -94,7 +96,9 @@ class AccessGrantTest {
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
             assertEquals(URI.create("https://id.example/grantor"), grant.getGrantor());
+            assertEquals(URI.create("https://id.example/grantor"), grant.getCreator());
             assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getGrantee());
+            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getRecipient());
             final Optional<Status> status = grant.getStatus();
             assertFalse(status.isPresent());
         }
