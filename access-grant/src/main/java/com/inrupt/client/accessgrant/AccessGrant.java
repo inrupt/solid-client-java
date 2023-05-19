@@ -212,7 +212,7 @@ public class AccessGrant implements AccessCredential {
      */
     @Deprecated
     public Set<String> getPurpose() {
-        return purposes;
+        return getPurposes();
     }
 
     @Override
