@@ -107,6 +107,32 @@ class MockAccessGrantServer {
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
 
+        wireMockServer.stubFor(get(urlEqualTo("/access-request-5"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(getResource("/vc-5.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(get(urlEqualTo("/access-request-5"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
+        wireMockServer.stubFor(delete(urlEqualTo("/access-request-5"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .willReturn(aResponse()
+                        .withStatus(204)));
+
+        wireMockServer.stubFor(delete(urlEqualTo("/access-request-5"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
         wireMockServer.stubFor(get(urlEqualTo("/access-grant-6"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
@@ -177,6 +203,30 @@ class MockAccessGrantServer {
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
 
+        wireMockServer.stubFor(post(urlEqualTo("/verify"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"" + wireMockServer.baseUrl() + "/access-grant-1\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/verify-results.json"))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/verify"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"" + wireMockServer.baseUrl() + "/access-request-5\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/verify-results.json"))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/verify"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
         wireMockServer.stubFor(post(urlEqualTo("/status"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
@@ -218,6 +268,24 @@ class MockAccessGrantServer {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(getResource("/query_response1.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/derive"))
+                    .atPriority(2)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"isProvidedToPerson\":\"https://id.test/user\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/query_response4.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/derive"))
+                    .atPriority(2)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"isConsentForDataSubject\":\"https://id.test/user\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/query_response5.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(post(urlEqualTo("/derive"))
                     .atPriority(2)

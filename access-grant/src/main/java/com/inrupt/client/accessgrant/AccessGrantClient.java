@@ -93,6 +93,7 @@ public class AccessGrantClient {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CREDENTIAL_SUBJECT = "credentialSubject";
     private static final String IS_PROVIDED_TO_PERSON = "isProvidedToPerson";
+    private static final String IS_CONSENT_FOR_DATA_SUBJECT = "isConsentForDataSubject";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
     private static final String MODE = "mode";
@@ -122,8 +123,7 @@ public class AccessGrantClient {
      * @param issuer the issuer
      */
     public AccessGrantClient(final Client client, final URI issuer) {
-        this(client, ServiceProvider.getCacheBuilder().build(100, Duration.ofMinutes(60)),
-                new AccessGrantConfiguration(issuer));
+        this(client, issuer, ServiceProvider.getCacheBuilder().build(100, Duration.ofMinutes(60)));
     }
 
     /**
@@ -636,7 +636,11 @@ public class AccessGrantClient {
 
         final Map<String, Object> consent = new HashMap<>();
         if (agent != null) {
-            consent.put(IS_PROVIDED_TO_PERSON, agent);
+            if (isAccessGrant(type)) {
+                consent.put(IS_PROVIDED_TO_PERSON, agent);
+            } else if (isAccessRequest(type)) {
+                consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
+            }
         }
         if (resource != null) {
             consent.put(FOR_PERSONAL_DATA, resource);
@@ -725,7 +729,7 @@ public class AccessGrantClient {
         consent.put(MODE, modes);
         consent.put(FOR_PERSONAL_DATA, resources);
         if (agent != null) {
-            consent.put("isConsentForDataSubject", agent);
+            consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
         }
         if (!purposes.isEmpty()) {
             consent.put("forPurpose", purposes);
