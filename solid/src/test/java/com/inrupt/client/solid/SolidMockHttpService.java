@@ -54,6 +54,7 @@ public class SolidMockHttpService {
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
+                .withHeader("Link", Link.of(URI.create("http://acl.example/"), "acl").toString())
                 .withHeader("Link", Link.of(
                     URI.create(PIM.getNamespace() + "Storage"),
                     "type").toString())
@@ -66,6 +67,7 @@ public class SolidMockHttpService {
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.BasicContainer, "type").toString())
+                .withHeader("Link", Link.of(URI.create("http://acl.example/solid/"), "acl").toString())
                 .withHeader("Link", Link.of(URI.create("http://storage.example/"),
                         PIM.storage).toString())
                 .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
@@ -84,6 +86,7 @@ public class SolidMockHttpService {
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.RDFSource, "type").toString())
+                .withHeader("Link", Link.of(URI.create("http://acl.example/recipe"), "acl").toString())
                 .withHeader("Link", Link.of(URI.create("http://storage.example/"),
                         PIM.storage).toString())
                 .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
@@ -103,6 +106,7 @@ public class SolidMockHttpService {
                 .withHeader("Content-Type", "text/turtle")
                 .withHeader("Link", Link.of(LDP.RDFSource, "type").toString())
                 .withHeader("Link", Link.of(URI.create("http://storage.example/"), PIM.storage).toString())
+                .withHeader("Link", Link.of(URI.create("http://acl.example/custom-agent"), "acl").toString())
                 .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
                 .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
                 .withHeader("Allow", "POST, PUT, PATCH")
@@ -136,6 +140,7 @@ public class SolidMockHttpService {
                 .withHeader("Link", Link.of(URI.create("http://storage.example/"),
                         PIM.storage).toString())
                 .withHeader("Link", Link.of(URI.create("https://history.test/"), "timegate").toString())
+                .withHeader("Link", Link.of(URI.create("http://acl.example/playlist"), "acl").toString())
                 .withHeader("WAC-Allow", "user=\"read write\",public=\"read\"")
                 .withHeader("Allow", "POST, PUT, PATCH")
                 .withHeader("Accept-Post", "application/ld+json, text/turtle")
@@ -171,6 +176,7 @@ public class SolidMockHttpService {
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/plain")
+                .withHeader("Link", Link.of(URI.create("http://acl.example/binary"), "acl").toString())
                 .withBody("This is a plain text document.")));
 
         wireMockServer.stubFor(put(urlEqualTo("/binary"))
@@ -191,6 +197,7 @@ public class SolidMockHttpService {
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
+                .withHeader("Link", Link.of(URI.create("http://acl.example/nonRDF"), "acl").toString())
                 .withBody("This isn't valid turtle.")));
 
         wireMockServer.stubFor(get(urlEqualTo("/missing"))
