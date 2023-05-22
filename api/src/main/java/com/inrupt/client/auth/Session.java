@@ -99,8 +99,21 @@ public interface Session {
      * @param request the HTTP request
      * @param algorithms the supported DPoP algorithms
      * @return the next stage of completion, containing an access token, if present
+     * @deprecated as of Beta3, this method is no longer used
      */
+    @Deprecated
     CompletionStage<Optional<Credential>> authenticate(Request request, Set<String> algorithms);
+
+    /**
+     * Fetch an authentication token from session values.
+     *
+     * @param authenticator the authenticator in use
+     * @param request the HTTP request
+     * @param algorithms the supported DPoP algorithms
+     * @return the next stage of completion, containing an access token, if present
+     */
+    CompletionStage<Optional<Credential>> authenticate(Authenticator authenticator, Request request,
+            Set<String> algorithms);
 
     /**
      * Create a new anonymous session.
@@ -146,6 +159,13 @@ public interface Session {
                 return Optional.empty();
             }
 
+            @Override
+            public CompletionStage<Optional<Credential>> authenticate(final Authenticator authenticator,
+                    final Request request, final Set<String> algorithms) {
+                return authenticator.authenticate(this, request, algorithms).thenApply(Optional::ofNullable);
+            }
+
+            /* deprecated */
             @Override
             public CompletionStage<Optional<Credential>> authenticate(final Request request,
                     final Set<String> algorithms) {
