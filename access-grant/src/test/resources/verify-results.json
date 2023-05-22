@@ -1,0 +1,6 @@
+{
+    "checks": ["expirationDate", "issuanceDate"],
+    "warnings": [],
+    "errors": []
+}
+
