@@ -23,6 +23,8 @@ package com.inrupt.client.spi;
 import com.inrupt.client.auth.Authenticator;
 import com.inrupt.client.auth.Challenge;
 
+import java.util.Set;
+
 /**
  * An authentication mechanism that knows how to authenticate over network connections.
  */
@@ -32,8 +34,17 @@ public interface AuthenticationProvider {
      * Return the authorization scheme, such as Bearer or DPoP.
      *
      * @return the authorization scheme
+     * @deprecated as of Beta3, please use the {@link #getSchemes()} method
      */
+    @Deprecated
     String getScheme();
+
+    /**
+     * Return the set of supported authorization schemes, such as Bearer or DPoP.
+     *
+     * @return the authorization schemes
+     */
+    Set<String> getSchemes();
 
     /**
      * Return an authenticator for the supplied challenge.

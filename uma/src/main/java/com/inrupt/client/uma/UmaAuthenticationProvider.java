@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -65,9 +66,11 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
     private final int priorityLevel;
     private final UmaClient umaClient;
     private final NeedInfoHandler claimHandler;
+    private final Set<String> supportedSchemes = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
     public UmaAuthenticationProvider() {
         this(100);
+        supportedSchemes.add(UMA);
     }
 
     /**
@@ -92,9 +95,15 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
         this.claimHandler = new NeedInfoHandler();
     }
 
+    /* deprecated */
     @Override
     public String getScheme() {
         return UMA;
+    }
+
+    @Override
+    public Set<String> getSchemes() {
+        return supportedSchemes;
     }
 
     @Override
