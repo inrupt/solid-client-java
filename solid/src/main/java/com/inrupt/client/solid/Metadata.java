@@ -32,6 +32,7 @@ import java.util.Set;
  */
 public class Metadata {
 
+    private final URI acl;
     private final URI storage;
     private final Set<URI> type = new HashSet<>();
     private final Map<String, Set<String>> wacAllow = new HashMap<>();
@@ -69,6 +70,15 @@ public class Metadata {
      */
     public Map<String, Set<String>> getWacAllow() {
         return wacAllow;
+    }
+
+    /**
+     * The access control resource location.
+     *
+     * @return the access control resource location, if present
+     */
+    public Optional<URI> getAcl() {
+        return Optional.ofNullable(acl);
     }
 
     /**
@@ -133,9 +143,23 @@ public class Metadata {
      *
      * @param storage the Solid storage in which this resource is managed
      * @param contentType the content type of the respective Solid resource
+     * @deprecated as of Beta3, please use the 3-parameter constructor
      */
+    @Deprecated
     protected Metadata(final URI storage, final String contentType) {
+        this(storage, null, contentType);
+    }
+
+    /**
+     * Create a new Metadata object.
+     *
+     * @param storage the Solid storage in which this resource is managed
+     * @param acl the ACL location for this resource
+     * @param contentType the content type of the respective Solid resource
+     */
+    protected Metadata(final URI storage, final URI acl, final String contentType) {
         this.storage = storage;
+        this.acl = acl;
         this.contentType = contentType;
     }
 
@@ -153,6 +177,7 @@ public class Metadata {
      */
     public static final class Builder {
 
+        private URI builderAcl;
         private URI builderStorage;
         private Set<URI> builderType = new HashSet<>();
         private Map<String, Set<String>> builderWacAllow = new HashMap<>();
@@ -192,6 +217,17 @@ public class Metadata {
          */
         public Builder wacAllow(final Map.Entry<String, Set<String>> accessParam) {
             builderWacAllow.put(accessParam.getKey(), accessParam.getValue());
+            return this;
+        }
+
+        /**
+         * Add an acl property.
+         *
+         * @param acl the acl location
+         * @return this builder
+         */
+        public Builder acl(final URI acl) {
+            builderAcl = acl;
             return this;
         }
 
@@ -256,7 +292,7 @@ public class Metadata {
          * @return the resource Metadata object
          */
         public Metadata build() {
-            final Metadata metadata = new Metadata(builderStorage, builderContentType);
+            final Metadata metadata = new Metadata(builderStorage, builderAcl, builderContentType);
             metadata.wacAllow.putAll(builderWacAllow);
             metadata.type.addAll(builderType);
             metadata.allowedMethods.addAll(builderAllowedMethods);

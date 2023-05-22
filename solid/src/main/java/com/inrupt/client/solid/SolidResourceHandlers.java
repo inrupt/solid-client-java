@@ -101,6 +101,8 @@ public final class SolidResourceHandlers {
                         metadata.storage(uri);
                     }
                     metadata.type(link.getUri());
+                } else if (link.getParameter("rel").contains("acl")) {
+                    metadata.acl(link.getUri());
                 } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
                     metadata.storage(link.getUri());
                 }

@@ -76,6 +76,8 @@ class SolidRDFSourceTest {
         try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+            assertEquals(Optional.of(URI.create("http://acl.example/solid/")),
+                    resource.getMetadata().getAcl());
             assertEquals(Optional.of(URI.create("http://storage.example/")),
                     resource.getMetadata().getStorage());
             assertTrue(resource.getMetadata().getWacAllow().get("user")
@@ -114,6 +116,8 @@ class SolidRDFSourceTest {
         try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+            assertEquals(Optional.of(URI.create("http://acl.example/")),
+                    resource.getMetadata().getAcl());
             assertEquals(Optional.of(uri), resource.getMetadata().getStorage());
         }
     }
@@ -157,6 +161,7 @@ class SolidRDFSourceTest {
         final URI id = URI.create("https://resource.example/");
         try (final SolidRDFSource res = new SolidRDFSource(id, null, null)) {
             assertFalse(res.getMetadata().getStorage().isPresent());
+            assertFalse(res.getMetadata().getAcl().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
             assertEquals(0, res.size());
             assertEquals(id, res.getIdentifier());
@@ -168,6 +173,7 @@ class SolidRDFSourceTest {
         final URI id = URI.create("https://resource.example/");
         try (final SolidContainer res = new SolidContainer(id, null, null)) {
             assertFalse(res.getMetadata().getStorage().isPresent());
+            assertFalse(res.getMetadata().getAcl().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
             assertEquals(0, res.size());
             assertEquals(id, res.getIdentifier());
