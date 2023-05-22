@@ -76,6 +76,7 @@ class SolidRDFSourceTest {
         try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+            assertTrue(resource.getMetadata().getTypes().contains(LDP.BasicContainer));
             assertEquals(Optional.of(URI.create("http://acl.example/solid/")),
                     resource.getMetadata().getAcl());
             assertEquals(Optional.of(URI.create("http://storage.example/")),
@@ -116,6 +117,7 @@ class SolidRDFSourceTest {
         try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
             assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
+            assertTrue(resource.getMetadata().getTypes().contains(LDP.BasicContainer));
             assertEquals(Optional.of(URI.create("http://acl.example/")),
                     resource.getMetadata().getAcl());
             assertEquals(Optional.of(uri), resource.getMetadata().getStorage());

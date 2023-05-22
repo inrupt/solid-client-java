@@ -34,7 +34,7 @@ public class Metadata {
 
     private final URI acl;
     private final URI storage;
-    private final Set<URI> type = new HashSet<>();
+    private final Set<URI> types = new HashSet<>();
     private final Map<String, Set<String>> wacAllow = new HashMap<>();
     private final Set<String> allowedMethods = new HashSet<>();
     private final Set<String> allowedPatchSyntaxes = new HashSet<>();
@@ -58,9 +58,23 @@ public class Metadata {
      * {@code rdf:type} data explicitly set on a resource.
      *
      * @return the type values for a resource
+     * @deprecated as of Beta3, please use the {@link #getTypes} method
      */
+    @Deprecated
     public Set<URI> getType() {
-        return type;
+        return getTypes();
+    }
+
+    /**
+     * The Solid Resource types.
+     *
+     * <p>This data typically comes from HTTP Link headers and may be different than
+     * {@code rdf:type} data explicitly set on a resource.
+     *
+     * @return the type values for a resource
+     */
+    public Set<URI> getTypes() {
+        return types;
     }
 
     /**
@@ -294,7 +308,7 @@ public class Metadata {
         public Metadata build() {
             final Metadata metadata = new Metadata(builderStorage, builderAcl, builderContentType);
             metadata.wacAllow.putAll(builderWacAllow);
-            metadata.type.addAll(builderType);
+            metadata.types.addAll(builderType);
             metadata.allowedMethods.addAll(builderAllowedMethods);
             metadata.allowedPatchSyntaxes.addAll(builderAllowedPatchSyntaxes);
             metadata.allowedPostSyntaxes.addAll(builderAllowedPostSyntaxes);
