@@ -25,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.accessgrant.AccessGrant;
 import com.inrupt.client.accessgrant.AccessGrantClient;
 import com.inrupt.client.accessgrant.AccessGrantSession;
+import com.inrupt.client.accessgrant.AccessGrantUtils;
 import com.inrupt.client.accessgrant.AccessRequest;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
@@ -40,7 +40,6 @@ import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
-import com.inrupt.client.vocabulary.ACP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.io.ByteArrayInputStream;
@@ -620,60 +619,15 @@ public class AccessGrantScenarios {
 
     private static void prepareACPofResource(final SolidSyncClient authClient, final URI resourceURI) {
 
-        final IRI acpAllOf = rdf.createIRI(ACP.allOf.toString());
-        final IRI acpVc = rdf.createIRI(ACP.vc.toString());
-        final IRI acpAllow = rdf.createIRI(ACP.allow.toString());
-        final IRI acpApply = rdf.createIRI(ACP.apply.toString());
-        final IRI acpAccessControl = rdf.createIRI(ACP.accessControl.toString());
-        final IRI aclRead = rdf.createIRI(ACL.Read.toString());
-        final IRI aclWrite = rdf.createIRI(ACL.Write.toString());
-
         // find the acl Link in the header of the resource
-        final Request req = Request.newBuilder(resourceURI)
-                .HEAD()
-                .build();
-        final Response<Void> res = authClient.send(req, Response.BodyHandlers.discarding());
-        final Headers.Link acrLink = res.headers().allValues("Link").stream()
-            .flatMap(l -> Headers.Link.parse(l).stream())
-            .filter(link -> link.getParameter("rel").contains("acl"))
-            .findAny()
-            .orElse(null);
-
-        // add the triples needed for access grant
-        if (acrLink != null) {
-            final URI resourceACRurl = acrLink.getUri();
-            final IRI resourceACRiri = rdf.createIRI(resourceACRurl.toString());
-
-            //read the existing triples and add them to the dataset
-            try (final SolidRDFSource resource = authClient.read(resourceACRurl, SolidRDFSource.class)) {
-
-                //creating a new matcher
-                final URI newMatcherURI = URIBuilder.newBuilder(resourceACRurl).fragment("newMatcher").build();
-                final IRI newMatcher = rdf.createIRI(newMatcherURI.toString());
-                final IRI solidAccessGrant = rdf.createIRI("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
-
-                resource.add(rdf.createQuad(resourceACRiri, newMatcher, acpVc, solidAccessGrant));
-
-                //create a new policy
-                final URI newPolicyURI = URIBuilder.newBuilder(resourceACRurl).fragment("newPolicy").build();
-                final IRI newPolicy = rdf.createIRI(newPolicyURI.toString());
-
-                resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllOf, newMatcher));
-                resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclRead));
-                resource.add(rdf.createQuad(resourceACRiri, newPolicy, acpAllow, aclWrite));
-
-                //creating a new access control
-                final URI newAccessControlURI =
-                    URIBuilder.newBuilder(resourceACRurl).fragment("newAccessControl").build();
-                final IRI newAccessControl = rdf.createIRI(newAccessControlURI.toString());
-
-                resource.add(rdf.createQuad(resourceACRiri, newAccessControl, acpApply, newPolicy));
-
-                //adding the new access control to the ACP
-                resource.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
-
-                authClient.update(resource);
-            }
+        try (final SolidRDFSource resource = authClient.read(resourceURI, SolidRDFSource.class)) {
+            resource.getMetadata().getAcl().ifPresent(acl -> {
+                try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                    AccessGrantUtils.accessControlPolicyTriples(acl, ACL.Read, ACL.Write)
+                        .forEach(acr.getGraph()::add);
+                    authClient.update(acr);
+                }
+            });
         }
     }
 
