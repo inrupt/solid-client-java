@@ -232,7 +232,6 @@ public class AccessGrantClient {
                     }
                 });
         });
-
     }
 
     /**
@@ -298,7 +297,8 @@ public class AccessGrantClient {
             try (final InputStream is = new ByteArrayInputStream(credential.serialize().getBytes(UTF_8))) {
                 final Map<String, Object> data = jsonService.fromJson(is,
                         new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
-                presentation.put(VERIFIABLE_CREDENTIAL, data);
+                Utils.getCredentialsFromPresentation(data, credential.getTypes()).stream().findFirst()
+                    .ifPresent(c -> presentation.put(VERIFIABLE_CREDENTIAL, c));
             } catch (final IOException ex) {
                 throw new AccessGrantException("Unable to serialize credential", ex);
             }
