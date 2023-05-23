@@ -194,11 +194,11 @@ public class AccessGrantClient {
                         if (isSuccess(status)) {
                             return processVerifiableCredential(input, ACCESS_REQUEST_TYPES, AccessRequest.class);
                         }
-                        throw new AccessGrantException("Unable to issue Access Grant: HTTP error " + status,
+                        throw new AccessGrantException("Unable to issue Access Request: HTTP error " + status,
                                 status);
                     } catch (final IOException ex) {
                         throw new AccessGrantException(
-                                "Unexpected I/O exception while processing Access Grant", ex);
+                                "Unexpected I/O exception while processing Access Request", ex);
                     }
                 });
         });
