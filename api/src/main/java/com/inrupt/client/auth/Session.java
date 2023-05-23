@@ -94,6 +94,11 @@ public interface Session {
     Optional<String> selectThumbprint(Collection<String> algorithms);
 
     /**
+     * Reset the session state, clearing any internal caches.
+     */
+    void reset();
+
+    /**
      * Fetch an authentication token from session values.
      *
      * @param request the HTTP request
@@ -157,6 +162,11 @@ public interface Session {
             @Override
             public Optional<String> selectThumbprint(final Collection<String> algorithms) {
                 return Optional.empty();
+            }
+
+            @Override
+            public void reset() {
+                // no-op
             }
 
             @Override
