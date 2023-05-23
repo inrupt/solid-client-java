@@ -384,6 +384,40 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testDenyAccess() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI agent = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-09-12T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        final AccessRequest request = client.requestAccess(agent, resources, modes, purposes, expiration)
+            .toCompletableFuture().join();
+
+        final AccessDenial denial = client.denyAccess(request).toCompletableFuture().join();
+
+        assertTrue(denial.getTypes().contains("SolidAccessDenial"));
+        assertEquals(Optional.of(agent), denial.getRecipient());
+        assertEquals(modes, denial.getModes());
+        assertEquals(expiration, denial.getExpiration());
+        assertEquals(baseUri, denial.getIssuer());
+        assertEquals(purposes, denial.getPurposes());
+        assertEquals(resources, denial.getResources());
+
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                client.session(Session.anonymous()).denyAccess(request).toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof AccessGrantException);
+    }
+
+    @Test
     void testGrantAccessNoAuth() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
