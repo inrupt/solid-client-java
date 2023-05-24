@@ -18,44 +18,35 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.spi;
+package com.inrupt.client.solid;
 
-import com.inrupt.client.auth.Authenticator;
-import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.Headers;
 
-import java.util.Set;
+import java.net.URI;
 
 /**
- * An authentication mechanism that knows how to authenticate over network connections.
+ * A runtime exception that represents an HTTP not acceptable (406) response.
  *
- * <p>Please note that the {@link com.inrupt.client.auth.ReactiveAuthorization} class
- * explicitly prohibits the use of {@code Basic} and {@code Digest} authorization schemes.
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.406">RFC 9110 (15.5.7.) 406 Not Acceptable</a>
  */
-public interface AuthenticationProvider {
+public class NotAcceptableException extends SolidClientException {
+    private static final long serialVersionUID = 6594993822477388733L;
+
+    public static final int STATUS_CODE = 406;
 
     /**
-     * Return the authorization scheme, such as Bearer or DPoP.
+     * Create a NotAcceptableException exception.
      *
-     * @return the authorization scheme
-     * @deprecated as of Beta3, please use the {@link #getSchemes()} method
+     * @param message the message
+     * @param uri the uri
+     * @param headers the response headers
+     * @param body the body
      */
-    @Deprecated
-    String getScheme();
-
-    /**
-     * Return the set of supported authorization schemes, such as Bearer or DPoP.
-     *
-     * @return the authorization schemes
-     */
-    Set<String> getSchemes();
-
-    /**
-     * Return an authenticator for the supplied challenge.
-     *
-     * @param challenge the HTTP challenge value
-     * @return an authenticator
-     */
-    Authenticator getAuthenticator(Challenge challenge);
+    public NotAcceptableException(
+            final String message,
+            final URI uri,
+            final Headers headers,
+            final String body) {
+        super(message, uri, STATUS_CODE, headers, body);
+    }
 }
-
-

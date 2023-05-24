@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -43,6 +44,10 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for negotiating for a supported {@link AuthenticationProvider} based on the {@code WWW-Authenticate}
  * headers received from a resource server.
+ *
+ * <p>In general, any authorization mechanism loaded via the {@link ServiceLoader} will be available for use
+ * during the challenge-response negotiation with a server. There are, however, certain known weak mechanisms
+ * such as Basic auth and Digest auth that are explicitly excluded.
  */
 public class ReactiveAuthorization {
 
@@ -59,14 +64,24 @@ public class ReactiveAuthorization {
     /**
      * Create a new authorization handler, loading any {@link AuthenticationProvider} implementations
      * via the {@link ServiceLoader}.
+     *
+     * <p>Known weak authorization mechanisms such as {@code Basic} and {@code Digest} are explicitly omitted.
      */
     public ReactiveAuthorization() {
         final ServiceLoader<AuthenticationProvider> loader = ServiceLoader.load(AuthenticationProvider.class,
                 ReactiveAuthorization.class.getClassLoader());
 
+        final Set<String> prohibited = getProhibitedSchemes();
         for (final AuthenticationProvider provider : loader) {
             for (final String scheme : provider.getSchemes()) {
-                registry.put(scheme, provider);
+                if (!prohibited.contains(scheme)) {
+                    LOGGER.debug("Registering {} scheme via {} authentication provider", scheme,
+                            provider.getClass().getSimpleName());
+                    registry.put(scheme, provider);
+                } else {
+                    LOGGER.debug("Omitting {} scheme via {} authentication provider", scheme,
+                            provider.getClass().getSimpleName());
+                }
             }
         }
     }
@@ -116,6 +131,13 @@ public class ReactiveAuthorization {
             return true;
         }
         return session.supportedSchemes().contains(scheme);
+    }
+
+    static Set<String> getProhibitedSchemes() {
+        final Set<String> prohibited = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        prohibited.add("Basic");
+        prohibited.add("Digest");
+        return prohibited;
     }
 }
 
