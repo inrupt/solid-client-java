@@ -231,6 +231,12 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
+    public void reset() {
+        credential.set(null);
+        requestCache.invalidateAll();
+    }
+
+    @Override
     public CompletionStage<Optional<Credential>> authenticate(final Authenticator auth,
             final Request request, final Set<String> algorithms) {
         final Optional<Credential> credential = getCredential(ID_TOKEN, null);
