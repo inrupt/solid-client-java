@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP not acceptable (406) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.406">RFC 9110 (15.5.7.) 406 Not Acceptable</a>
  */
 public class NotAcceptableException extends SolidClientException {
     private static final long serialVersionUID = 6594993822477388733L;
