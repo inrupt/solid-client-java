@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1684929805582">
+<licensePluginReport goal="CHECK" timestamp="1684932905045">
     <module artifactId="inrupt-client-accessgrant" groupId="com.inrupt.client" version="1.0.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/accessgrant/AccessCredential.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessCredentialVerification.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrant.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantClient.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantConfiguration.java" result="PRESENT"/>
