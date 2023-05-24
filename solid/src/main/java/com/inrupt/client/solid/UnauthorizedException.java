@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP unauthorized (401) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.401">RFC 9110 (15.5.2.) 401 Unauthorized</a>
  */
 public class UnauthorizedException extends SolidClientException {
     private static final long serialVersionUID = -3219668517323678497L;
