@@ -69,7 +69,12 @@ public class ReactiveAuthorization {
         for (final AuthenticationProvider provider : loader) {
             for (final String scheme : provider.getSchemes()) {
                 if (!prohibited.contains(scheme)) {
+                    LOGGER.debug("Registering {} scheme via {} authentication provider", scheme,
+                            provider.getClass().getSimpleName());
                     registry.put(scheme, provider);
+                } else {
+                    LOGGER.debug("Omitting {} scheme via {} authentication provider", scheme,
+                            provider.getClass().getSimpleName());
                 }
             }
         }
