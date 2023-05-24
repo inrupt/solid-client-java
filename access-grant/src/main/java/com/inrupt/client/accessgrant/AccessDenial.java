@@ -43,14 +43,14 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 /**
- * An Access Request abstraction, for use when interacting with Solid resources.
+ * An Access Denial abstraction, for use when interacting with Solid resources.
  */
-public class AccessRequest implements AccessCredential {
+public class AccessDenial implements AccessCredential {
 
     private static final String TYPE = "type";
     private static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
-    private static final JsonService jsonService = ServiceProvider.getJsonService();
     private static final Set<String> supportedTypes = getSupportedTypes();
+    private static final JsonService jsonService = ServiceProvider.getJsonService();
 
     private final String credential;
     private final URI issuer;
@@ -65,11 +65,11 @@ public class AccessRequest implements AccessCredential {
     private final Status status;
 
     /**
-     * Read a verifiable presentation as an AccessRequest.
+     * Read a verifiable presentation as an AccessDenial.
      *
-     * @param serialization the serialized form of an Access Request
+     * @param serialization the Access Denial serialized as a verifiable presentation
      */
-    protected AccessRequest(final String serialization) throws IOException {
+    protected AccessDenial(final String serialization) throws IOException {
         try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
@@ -78,7 +78,7 @@ public class AccessRequest implements AccessCredential {
             final List<Map> vcs = getCredentialsFromPresentation(data, supportedTypes);
             if (vcs.size() != 1) {
                 throw new IllegalArgumentException(
-                        "Invalid Access Request: ambiguous number of verifiable credentials");
+                        "Invalid Access Denial: ambiguous number of verifiable credentials");
             }
             final Map vc = vcs.get(0);
 
@@ -98,13 +98,16 @@ public class AccessRequest implements AccessCredential {
                 this.creator = asUri(subject.get("id")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
 
-                // V1 Access Request, using gConsent
-                final Map consent = asMap(subject.get("hasConsent")).orElseThrow(() ->
+                // V1 Access Denial, using gConsent
+                final Map consent = asMap(subject.get("providedConsent")).orElseThrow(() ->
                         // Unsupported structure
-                        new IllegalArgumentException("Invalid Access Request: missing consent clause"));
+                        new IllegalArgumentException("Invalid Access Denial: missing consent clause"));
 
-                final Optional<URI> dataSubject = asUri(consent.get("isConsentForDataSubject"));
-                this.recipient = dataSubject.orElse(null);
+                final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
+                final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
+                final Optional<URI> other = asUri(consent.get("isProvidedTo"));
+
+                this.recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
                 this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
@@ -114,37 +117,36 @@ public class AccessRequest implements AccessCredential {
                             statusTypes.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
                                 asRevocationList2020(credentialStatus))).orElse(null);
             } else {
-                throw new IllegalArgumentException("Invalid Access Request: missing VerifiablePresentation type");
+                throw new IllegalArgumentException("Invalid Access Denial: missing VerifiablePresentation type");
             }
         }
     }
 
-
     /**
-     * Create an AccessRequest object from a serialized form.
+     * Create an AccessDenial object from a serialized form.
      *
-     * @param serialization the serialized access request
-     * @return a parsed access request
+     * @param serialization the serialized access denial
+     * @return a parsed access denial
      */
-    public static AccessRequest of(final String serialization) {
+    public static AccessDenial of(final String serialization) {
         try {
-            return new AccessRequest(serialization);
+            return new AccessDenial(serialization);
         } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access request", ex);
+            throw new IllegalArgumentException("Unable to read access denial", ex);
         }
     }
 
     /**
-     * Create an AccessRequest object from a serialized form.
+     * Create an AccessDenial object from a serialized form.
      *
-     * @param serialization the access request
-     * @return a parsed access request
+     * @param serialization the serialized access denial
+     * @return a parsed access denial
      */
-    public static AccessRequest of(final InputStream serialization) {
+    public static AccessDenial of(final InputStream serialization) {
         try {
             return of(IOUtils.toString(serialization, UTF_8));
         } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access request", ex);
+            throw new IllegalArgumentException("Unable to read access denial", ex);
         }
     }
 
@@ -205,8 +207,8 @@ public class AccessRequest implements AccessCredential {
 
     static Set<String> getSupportedTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessRequest");
-        types.add("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
+        types.add("SolidAccessDenial");
+        types.add("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
         return Collections.unmodifiableSet(types);
     }
 }

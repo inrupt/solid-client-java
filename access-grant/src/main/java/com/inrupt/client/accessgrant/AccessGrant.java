@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 /**
- * An Access Grant abstraction, for use with interacting with Solid resources.
+ * An Access Grant abstraction, for use when interacting with Solid resources.
  */
 public class AccessGrant implements AccessCredential {
 
