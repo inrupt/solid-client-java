@@ -70,6 +70,11 @@ class ReactiveAuthorizationTest {
         }
 
         @Override
+        public void reset() {
+            /* no-op */
+        }
+
+        @Override
         public Optional<Credential> fromCache(final Request request) {
             return Optional.empty();
         }
