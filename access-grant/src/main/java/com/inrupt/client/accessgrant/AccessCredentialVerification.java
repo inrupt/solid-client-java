@@ -49,7 +49,7 @@ public class AccessCredentialVerification {
     /**
      * The verification checks that were performed.
      *
-     * @return a list of any verification checks performed, never {@code null}
+     * @return an unmodifiable list of any verification checks performed, never {@code null}
      */
     public List<String> getChecks() {
         return checks;
@@ -58,7 +58,7 @@ public class AccessCredentialVerification {
     /**
      * The verification warnings that were discovered.
      *
-     * @return a list of any verification warnings, never {@code null}
+     * @return an unmodifiable list of any verification warnings, never {@code null}
      */
     public List<String> getWarnings() {
         return warnings;
@@ -67,7 +67,7 @@ public class AccessCredentialVerification {
     /**
      * The verification errors that were discovered.
      *
-     * @return a list of any verification errors, never {@code null}
+     * @return an unmodifiable list of any verification errors, never {@code null}
      */
     public List<String> getErrors() {
         return errors;
