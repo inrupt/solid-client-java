@@ -22,17 +22,15 @@ package com.inrupt.client.solid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Headers;
+import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Stream;
@@ -273,5 +271,61 @@ class SolidClientTest {
                 Arguments.of(
                     URI.create(config.get("solid_resource_uri") + "/missing"), 404,
                         NotFoundException.class));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    <T extends SolidClientException> void testSpecialisedExceptions(
+            final Class<T> clazz,
+            final int statusCode
+    ) {
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"), null, null);
+
+        final SolidClientException exception = assertThrows(
+                clazz,
+                () -> solidClient.handleResponse(resource, headers, "message")
+                        .apply(new Response<byte[]>() {
+                            @Override
+                            public byte[] body() {
+                                return new byte[0];
+                            }
+
+                            @Override
+                            public Headers headers() {
+                                return null;
+                            }
+
+                            @Override
+                            public URI uri() {
+                                return null;
+                            }
+
+                            @Override
+                            public int statusCode() {
+                                return statusCode;
+                            }
+                        })
+        );
+        assertEquals(statusCode, exception.getStatusCode());
+    }
+
+    private static Stream<Arguments> testSpecialisedExceptions() {
+        return Stream.of(
+                Arguments.of(BadRequestException.class, 400),
+                Arguments.of(UnauthorizedException.class, 401),
+                Arguments.of(ForbiddenException.class, 403),
+                Arguments.of(NotFoundException.class, 404),
+                Arguments.of(MethodNotAllowedException.class, 405),
+                Arguments.of(NotAcceptableException.class, 406),
+                Arguments.of(ConflictException.class, 409),
+                Arguments.of(GoneException.class, 410),
+                Arguments.of(PreconditionFailedException.class, 412),
+                Arguments.of(UnsupportedMediaTypeException.class, 415),
+                Arguments.of(TooManyRequestsException.class, 429),
+                Arguments.of(InternalServerErrorException.class, 500),
+                Arguments.of(SolidClientException.class, 418)
+        );
     }
 }
