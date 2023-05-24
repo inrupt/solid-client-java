@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP internal server error (500) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.500">RFC 9110 (15.6.1.) 500 Internal Server Error</a>
  */
 public class InternalServerErrorException extends SolidClientException {
     private static final long serialVersionUID = -6672490715281719330L;
