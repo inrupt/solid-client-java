@@ -27,6 +27,9 @@ import java.util.Set;
 
 /**
  * An authentication mechanism that knows how to authenticate over network connections.
+ *
+ * <p>Please note that the {@link com.inrupt.client.auth.ReactiveAuthorization} class
+ * explicitly prohibits the use of {@code Basic} and {@code Digest} authorization schemes.
  */
 public interface AuthenticationProvider {
 
