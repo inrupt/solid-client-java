@@ -44,6 +44,10 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for negotiating for a supported {@link AuthenticationProvider} based on the {@code WWW-Authenticate}
  * headers received from a resource server.
+ *
+ * <p>In general, any authorization mechanism loaded via the {@link ServiceLoader} will be available for use
+ * during the challenge-response negotiation with a server. There are, however, certain known weak mechanisms
+ * such as Basic auth and Digest auth that are explicitly excluded.
  */
 public class ReactiveAuthorization {
 
@@ -60,6 +64,8 @@ public class ReactiveAuthorization {
     /**
      * Create a new authorization handler, loading any {@link AuthenticationProvider} implementations
      * via the {@link ServiceLoader}.
+     *
+     * <p>Known weak authorization mechanisms such as {@code Basic} and {@code Digest} are explicitly omitted.
      */
     public ReactiveAuthorization() {
         final ServiceLoader<AuthenticationProvider> loader = ServiceLoader.load(AuthenticationProvider.class,
