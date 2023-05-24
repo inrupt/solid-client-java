@@ -33,6 +33,7 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidClientException;
 import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.solid.UnauthorizedException;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -190,7 +191,7 @@ public class AuthenticationScenarios {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
             final SolidSyncClient client = SolidSyncClient.getClient();
-            final SolidClientException err = assertThrows(SolidClientException.class,
+            final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURL, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
@@ -242,7 +243,7 @@ public class AuthenticationScenarios {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
             final SolidSyncClient client = SolidSyncClient.getClient();
-            final SolidClientException err = assertThrows(SolidClientException.class,
+            final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURL, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
@@ -278,7 +279,7 @@ public class AuthenticationScenarios {
                 assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
 
                 final SolidSyncClient client = SolidSyncClient.getClient();
-                final SolidClientException err = assertThrows(SolidClientException.class,
+                final var err = assertThrows(UnauthorizedException.class,
                         () -> client.read(privateResourceURL, SolidRDFSource.class));
                 assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 

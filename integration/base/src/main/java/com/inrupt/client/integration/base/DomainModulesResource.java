@@ -26,11 +26,7 @@ import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.solid.SolidClientException;
-import com.inrupt.client.solid.SolidContainer;
-import com.inrupt.client.solid.SolidRDFSource;
-import com.inrupt.client.solid.SolidResourceHandlers;
-import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
@@ -261,7 +257,7 @@ public class DomainModulesResource {
         }
 
         final var missingWebId = URIBuilder.newBuilder(URI.create(webidUrl)).path(UUID.randomUUID().toString()).build();
-        final var err = assertThrows(SolidClientException.class, () -> client.read(missingWebId, WebIdProfile.class));
+        final var err = assertThrows(NotFoundException.class, () -> client.read(missingWebId, WebIdProfile.class));
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
     }

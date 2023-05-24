@@ -179,8 +179,11 @@ class SolidSyncClientTest {
 
     @ParameterizedTest
     @MethodSource
-    void testExceptionalResources(final URI uri, final int expectedStatusCode) {
-        final SolidClientException err = assertThrows(SolidClientException.class, () -> client.read(uri, Recipe.class));
+    <T extends SolidClientException> void testExceptionalResources(
+            final URI uri,
+            final int expectedStatusCode,
+            final Class<T> clazz) {
+        final SolidClientException err = assertThrows(clazz, () -> client.read(uri, Recipe.class));
 
         assertEquals(expectedStatusCode, err.getStatusCode());
         assertEquals(uri, err.getUri());
@@ -191,10 +194,13 @@ class SolidSyncClientTest {
     private static Stream<Arguments> testExceptionalResources() {
         return Stream.of(
                 Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401),
+                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401,
+                        UnauthorizedException.class),
                 Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403),
+                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403,
+                        ForbiddenException.class),
                 Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/missing"), 404));
+                    URI.create(config.get("solid_resource_uri") + "/missing"), 404,
+                        NotFoundException.class));
     }
 }
