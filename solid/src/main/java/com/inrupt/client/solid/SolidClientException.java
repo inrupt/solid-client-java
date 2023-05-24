@@ -90,5 +90,41 @@ public class SolidClientException extends InruptClientException {
     public String getBody() {
         return body;
     }
+
+    public static SolidClientException handle(
+            final String message,
+            final URI uri,
+            final int statusCode,
+            final Headers headers,
+            final String body) {
+        switch (statusCode) {
+            case BadRequestException.STATUS_CODE:
+                return new BadRequestException(message, uri, headers, body);
+            case UnauthorizedException.STATUS_CODE:
+                return new UnauthorizedException(message, uri, headers, body);
+            case ForbiddenException.STATUS_CODE:
+                return new ForbiddenException(message, uri, headers, body);
+            case NotFoundException.STATUS_CODE:
+                return new NotFoundException(message, uri, headers, body);
+            case MethodNotAllowedException.STATUS_CODE:
+                return new MethodNotAllowedException(message, uri, headers, body);
+            case NotAcceptableException.STATUS_CODE:
+                return new NotAcceptableException(message, uri, headers, body);
+            case ConflictException.STATUS_CODE:
+                return new ConflictException(message, uri, headers, body);
+            case GoneException.STATUS_CODE:
+                return new GoneException(message, uri, headers, body);
+            case PreconditionFailedException.STATUS_CODE:
+                return new PreconditionFailedException(message, uri, headers, body);
+            case UnsupportedMediaTypeException.STATUS_CODE:
+                return new UnsupportedMediaTypeException(message, uri, headers, body);
+            case TooManyRequestsException.STATUS_CODE:
+                return new TooManyRequestsException(message, uri, headers, body);
+            case InternalServerErrorException.STATUS_CODE:
+                return new InternalServerErrorException(message, uri, headers, body);
+            default:
+                return new SolidClientException(message, uri, statusCode, headers, body);
+        }
+    }
 }
 

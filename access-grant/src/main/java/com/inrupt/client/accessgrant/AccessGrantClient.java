@@ -99,8 +99,10 @@ public class AccessGrantClient {
     private static final String MODE = "mode";
     private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
     private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
+    private static final URI ACCESS_DENIAL = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
     private static final Set<String> ACCESS_REQUEST_TYPES = getAccessRequestTypes();
+    private static final Set<String> ACCESS_DENIAL_TYPES = getAccessDenialTypes();
 
     private final Client client;
     private final ClientCache<URI, Metadata> metadataCache;
@@ -192,11 +194,11 @@ public class AccessGrantClient {
                         if (isSuccess(status)) {
                             return processVerifiableCredential(input, ACCESS_REQUEST_TYPES, AccessRequest.class);
                         }
-                        throw new AccessGrantException("Unable to issue Access Grant: HTTP error " + status,
+                        throw new AccessGrantException("Unable to issue Access Request: HTTP error " + status,
                                 status);
                     } catch (final IOException ex) {
                         throw new AccessGrantException(
-                                "Unexpected I/O exception while processing Access Grant", ex);
+                                "Unexpected I/O exception while processing Access Request", ex);
                     }
                 });
         });
@@ -229,6 +231,38 @@ public class AccessGrantClient {
                     } catch (final IOException ex) {
                         throw new AccessGrantException(
                                 "Unexpected I/O exception while processing Access Grant", ex);
+                    }
+                });
+        });
+    }
+
+    /**
+     * Issue an access denial receipt based on an access request.
+     *
+     * @param request the access request
+     * @return the next stage of completion containing the issued access denial
+     */
+    public CompletionStage<AccessDenial> denyAccess(final AccessRequest request) {
+        Objects.requireNonNull(request, "Request may not be null!");
+        return v1Metadata().thenCompose(metadata -> {
+            final Map<String, Object> data = buildAccessDenialv1(request.getCreator(), request.getResources(),
+                    request.getModes(), request.getExpiration(), request.getPurposes());
+            final Request req = Request.newBuilder(metadata.issueEndpoint)
+                .header(CONTENT_TYPE, APPLICATION_JSON)
+                .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
+
+            return client.send(req, Response.BodyHandlers.ofInputStream())
+                .thenApply(res -> {
+                    try (final InputStream input = res.body()) {
+                        final int status = res.statusCode();
+                        if (isSuccess(status)) {
+                            return processVerifiableCredential(input, ACCESS_DENIAL_TYPES, AccessDenial.class);
+                        }
+                        throw new AccessGrantException("Unable to issue Access Denial: HTTP error " + status,
+                                status);
+                    } catch (final IOException ex) {
+                        throw new AccessGrantException(
+                                "Unexpected I/O exception while processing Access Denial", ex);
                     }
                 });
         });
@@ -289,7 +323,7 @@ public class AccessGrantClient {
      * @param credential the credential to verify
      * @return the next stage of completion containing the verification result
      */
-    public CompletionStage<VerificationResponse> verify(final AccessCredential credential) {
+    public CompletionStage<AccessCredentialVerification> verify(final AccessCredential credential) {
         return v1Metadata().thenCompose(metadata -> {
 
             final Map<String, Object> presentation = new HashMap<>();
@@ -312,7 +346,9 @@ public class AccessGrantClient {
                     try (final InputStream input = res.body()) {
                         final int status = res.statusCode();
                         if (isSuccess(status)) {
-                            return processVerificationResult(input);
+                            final VerificationResponseData data = jsonService.fromJson(input,
+                                    VerificationResponseData.class);
+                            return new AccessCredentialVerification(data.checks, data.warnings, data.errors);
                         }
                         throw new AccessGrantException("Unable to perform Access Grant verify: HTTP error " + status,
                                 status);
@@ -509,6 +545,8 @@ public class AccessGrantClient {
                             return (T) processVerifiableCredential(input, ACCESS_GRANT_TYPES, clazz);
                         } else if (AccessRequest.class.equals(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_REQUEST_TYPES, clazz);
+                        } else if (AccessDenial.class.equals(clazz)) {
+                            return (T) processVerifiableCredential(input, ACCESS_DENIAL_TYPES, clazz);
                         }
                         throw new AccessGrantException("Unable to fetch credential as " + clazz);
                     }
@@ -539,13 +577,11 @@ public class AccessGrantClient {
                 return (T) AccessGrant.of(new String(serialize(presentation), UTF_8));
             } else if (AccessRequest.class.isAssignableFrom(clazz)) {
                 return (T) AccessRequest.of(new String(serialize(presentation), UTF_8));
+            } else if (AccessDenial.class.isAssignableFrom(clazz)) {
+                return (T) AccessDenial.of(new String(serialize(presentation), UTF_8));
             }
         }
         throw new AccessGrantException("Invalid Access Grant: missing supported type");
-    }
-
-    VerificationResponse processVerificationResult(final InputStream input) throws IOException {
-        return jsonService.fromJson(input, VerificationResponse.class);
     }
 
     <T extends AccessCredential> List<T> processQueryResponse(final InputStream input, final Set<String> validTypes,
@@ -695,6 +731,33 @@ public class AccessGrantClient {
         return null;
     }
 
+    static Map<String, Object> buildAccessDenialv1(final URI agent, final Set<URI> resources, final Set<String> modes,
+            final Instant expiration, final Set<String> purposes) {
+        Objects.requireNonNull(agent, "Access denial agent may not be null!");
+        final Map<String, Object> consent = new HashMap<>();
+        consent.put(MODE, modes);
+        consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRefused");
+        consent.put(FOR_PERSONAL_DATA, resources);
+        consent.put(IS_PROVIDED_TO_PERSON, agent);
+        if (!purposes.isEmpty()) {
+            consent.put("forPurpose", purposes);
+        }
+
+        final Map<String, Object> subject = new HashMap<>();
+        subject.put("providedConsent", consent);
+
+        final Map<String, Object> credential = new HashMap<>();
+        credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
+        if (expiration != null) {
+            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
+        }
+        credential.put(CREDENTIAL_SUBJECT, subject);
+
+        final Map<String, Object> data = new HashMap<>();
+        data.put("credential", credential);
+        return data;
+    }
+
     static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
             final Instant expiration, final Set<String> purposes) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
@@ -768,6 +831,13 @@ public class AccessGrantClient {
         return Collections.unmodifiableSet(types);
     }
 
+    static Set<String> getAccessDenialTypes() {
+        final Set<String> types = new HashSet<>();
+        types.add("SolidAccessDenial");
+        types.add(ACCESS_DENIAL.toString());
+        return Collections.unmodifiableSet(types);
+    }
+
     static boolean isAccessGrant(final URI type) {
         return "SolidAccessGrant".equals(type.toString()) || ACCESS_GRANT.equals(type);
     }
@@ -778,9 +848,9 @@ public class AccessGrantClient {
     }
 
     /**
-     * A data objects for verification responses.
+     * A data object for verification responses.
      */
-    public static class VerificationResponse {
+    static class VerificationResponseData {
         /**
          * The verification checks that were performed.
          */

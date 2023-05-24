@@ -133,7 +133,7 @@ public class SolidClient {
         return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= ERROR_STATUS) {
-                    throw new SolidClientException("Unable to read resource at " + identifier, identifier,
+                    throw SolidClientException.handle("Unable to read resource at " + identifier, identifier,
                             response.statusCode(), response.headers(), new String(response.body()));
                 } else {
                     final String contentType = response.headers().firstValue(CONTENT_TYPE)
@@ -285,7 +285,7 @@ public class SolidClient {
             if (isSuccess(res.statusCode())) {
                 return null;
             } else {
-                throw new SolidClientException("Unable to delete resource", resource.getIdentifier(),
+                throw SolidClientException.handle("Unable to delete resource", resource.getIdentifier(),
                         res.statusCode(), res.headers(), new String(res.body(), UTF_8));
             }
         });
@@ -369,7 +369,7 @@ public class SolidClient {
             final Headers headers, final String message) {
         return res -> {
             if (!isSuccess(res.statusCode())) {
-                throw new SolidClientException(message, resource.getIdentifier(),
+                throw SolidClientException.handle(message, resource.getIdentifier(),
                         res.statusCode(), res.headers(), new String(res.body(), UTF_8));
             }
 

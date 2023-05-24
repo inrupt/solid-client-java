@@ -101,10 +101,10 @@ class AccessGrantClientTest {
         assertEquals(uri, grant.getIdentifier());
         assertEquals(baseUri, grant.getIssuer());
 
-        final AccessGrantClient.VerificationResponse response = client.verify(grant).toCompletableFuture().join();
-        assertTrue(response.checks.contains("expirationDate"));
-        assertTrue(response.warnings.isEmpty());
-        assertTrue(response.errors.isEmpty());
+        final AccessCredentialVerification response = client.verify(grant).toCompletableFuture().join();
+        assertTrue(response.getChecks().contains("expirationDate"));
+        assertTrue(response.getWarnings().isEmpty());
+        assertTrue(response.getErrors().isEmpty());
 
         // Revoke
         assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
@@ -144,10 +144,10 @@ class AccessGrantClientTest {
         assertEquals(uri, grant.getIdentifier());
         assertEquals(baseUri, grant.getIssuer());
 
-        final AccessGrantClient.VerificationResponse response = client.verify(grant).toCompletableFuture().join();
-        assertTrue(response.checks.contains("expirationDate"));
-        assertTrue(response.warnings.isEmpty());
-        assertTrue(response.errors.isEmpty());
+        final AccessCredentialVerification response = client.verify(grant).toCompletableFuture().join();
+        assertTrue(response.getChecks().contains("expirationDate"));
+        assertTrue(response.getWarnings().isEmpty());
+        assertTrue(response.getErrors().isEmpty());
 
         // Revoke
         assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
@@ -197,10 +197,10 @@ class AccessGrantClientTest {
         assertEquals(uri, request.getIdentifier());
         assertEquals(baseUri, request.getIssuer());
 
-        final AccessGrantClient.VerificationResponse response = client.verify(request).toCompletableFuture().join();
-        assertTrue(response.checks.contains("expirationDate"));
-        assertTrue(response.warnings.isEmpty());
-        assertTrue(response.errors.isEmpty());
+        final AccessCredentialVerification response = client.verify(request).toCompletableFuture().join();
+        assertTrue(response.getChecks().contains("expirationDate"));
+        assertTrue(response.getWarnings().isEmpty());
+        assertTrue(response.getErrors().isEmpty());
 
         // Revoke
         final CompletionException err1 = assertThrows(CompletionException.class, () ->
@@ -381,6 +381,40 @@ class AccessGrantClientTest {
         assertEquals(baseUri, grant.getIssuer());
         assertEquals(purposes, grant.getPurposes());
         assertEquals(resources, grant.getResources());
+    }
+
+    @Test
+    void testDenyAccess() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI agent = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-09-12T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        final AccessRequest request = client.requestAccess(agent, resources, modes, purposes, expiration)
+            .toCompletableFuture().join();
+
+        final AccessDenial denial = client.denyAccess(request).toCompletableFuture().join();
+
+        assertTrue(denial.getTypes().contains("SolidAccessDenial"));
+        assertEquals(Optional.of(agent), denial.getRecipient());
+        assertEquals(modes, denial.getModes());
+        assertEquals(expiration, denial.getExpiration());
+        assertEquals(baseUri, denial.getIssuer());
+        assertEquals(purposes, denial.getPurposes());
+        assertEquals(resources, denial.getResources());
+
+        final CompletionException err = assertThrows(CompletionException.class, () ->
+                client.session(Session.anonymous()).denyAccess(request).toCompletableFuture().join());
+        assertTrue(err.getCause() instanceof AccessGrantException);
     }
 
     @Test

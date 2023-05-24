@@ -177,6 +177,29 @@ class MockAccessGrantServer {
                     .willReturn(aResponse()
                         .withStatus(404)));
 
+        // Access Denial
+        wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"providedConsent\""))
+                    .withRequestBody(containing("\"2022-09-12T12:00:00Z\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/vc-7.json", wireMockServer.baseUrl()))));
+
+        // Access Request
+        wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"hasConsent\""))
+                    .withRequestBody(containing("\"2022-09-12T12:00:00Z\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/vc-8.json", wireMockServer.baseUrl()))));
+
+        // Access Grant
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
@@ -187,6 +210,7 @@ class MockAccessGrantServer {
                         .withHeader("Content-Type", "application/json")
                         .withBody(getResource("/vc-4.json", wireMockServer.baseUrl()))));
 
+        // Access Request
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
