@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP too many requests (429) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc6585#section-4">RFC 6585 (4.) 429 Too Many Requests</a>
  */
 public class TooManyRequestsException extends SolidClientException {
     private static final long serialVersionUID = -1798491190232642824L;
