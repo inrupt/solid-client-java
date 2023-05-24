@@ -169,7 +169,7 @@ public class AccessGrantClient {
     /**
      * Issue an access request.
      *
-     * @param agent the recipient of this credential
+     * @param agent the agent to whom the access request is made; i.e., the agent controlling access to the resources
      * @param resources the resources to which this credential applies
      * @param modes the access modes for this credential
      * @param purposes the purposes of this credential
