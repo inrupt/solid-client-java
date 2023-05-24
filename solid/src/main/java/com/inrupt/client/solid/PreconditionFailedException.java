@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP precondition failed (412) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.412">RFC 9110 (15.5.13.) 412 Precondition Failed</a>
  */
 public class PreconditionFailedException extends SolidClientException {
     private static final long serialVersionUID = 4205761003697773528L;
