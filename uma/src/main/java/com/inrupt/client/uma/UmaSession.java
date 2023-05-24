@@ -82,6 +82,14 @@ public final class UmaSession implements Session {
     }
 
     @Override
+    public void reset() {
+        for (final Session session : internalSessions) {
+            session.reset();
+        }
+        tokenCache.invalidateAll();
+    }
+
+    @Override
     public Optional<URI> getPrincipal() {
         for (final Session session : internalSessions) {
             final Optional<URI> principal = session.getPrincipal();
