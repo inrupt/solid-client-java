@@ -105,6 +105,12 @@ public final class AccessGrantSession implements Session {
     }
 
     @Override
+    public void reset() {
+        session.reset();
+        tokenCache.invalidateAll();
+    }
+
+    @Override
     public Optional<URI> getPrincipal() {
         return session.getPrincipal();
     }

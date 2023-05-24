@@ -33,23 +33,26 @@ import java.util.Objects;
  */
 class NoopCache<T, U> implements ClientCache<T, U> {
 
+    private static final String KEY_NOT_NULL = "cache key may not be null!";
+    private static final String VALUE_NOT_NULL = "cache value may not be null!";
+
     @Override
     public U get(final T key) {
-        Objects.requireNonNull(key, "cache key may not be null!");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
         return null;
     }
 
     @Override
     public void put(final T key, final U value) {
         /* no-op */
-        Objects.requireNonNull(key, "cache key may not be null!");
-        Objects.requireNonNull(value, "cache value may not be null!");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
+        Objects.requireNonNull(value, VALUE_NOT_NULL);
     }
 
     @Override
     public void invalidate(final T key) {
         /* no-op */
-        Objects.requireNonNull(key, "cache key may not be null!");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
     }
 
     @Override
@@ -60,7 +63,7 @@ class NoopCache<T, U> implements ClientCache<T, U> {
     public static class NoopCacheBuilder implements CacheBuilderService {
         @Override
         public <T, U> ClientCache<T, U> build(final int size, final Duration duration) {
-            return new NoopCache<T, U>();
+            return new NoopCache<>();
         }
     }
 }

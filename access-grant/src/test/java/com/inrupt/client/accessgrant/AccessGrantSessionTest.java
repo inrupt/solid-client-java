@@ -24,8 +24,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
+import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdAuthenticationProvider;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.util.URIBuilder;
 
@@ -103,6 +106,32 @@ class AccessGrantSessionTest {
                 assertFalse(session.getCredential(AccessGrantSession.VERIFIABLE_CREDENTIAL,
                             URI.create("https://random.test/a/b/d/c")).isPresent());
             }
+        }
+    }
+
+    @Test
+    void testProtectedResource() throws IOException {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+
+        final String token = AccessGrantTestUtils.generateIdToken(claims);
+
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant3.json")) {
+            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
+            final Session session = AccessGrantSession.ofAccessGrant(OpenIdSession.ofIdToken(token), grant);
+            final Request req = Request.newBuilder(URI.create("https://storage.example/protected-resource")).build();
+            final Authenticator auth = new OpenIdAuthenticationProvider().getAuthenticator(Challenge.of("Bearer"));
+
+            final Optional<Credential> credential = session.authenticate(auth, req, Collections.emptySet())
+                .toCompletableFuture().join();
+
+            assertTrue(credential.isPresent());
+            assertTrue(session.fromCache(req).isPresent());
+            session.reset();
+            assertFalse(session.fromCache(req).isPresent());
         }
     }
 

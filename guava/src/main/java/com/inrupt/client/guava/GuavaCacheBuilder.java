@@ -50,7 +50,7 @@ public class GuavaCacheBuilder implements CacheBuilderService {
      * @return a cache suitable for use in the Inrupt Client libraries
      */
     public static <T, U> ClientCache<T, U> ofCache(final Cache<T, U> cache) {
-        return new GuavaCache<T, U>(cache);
+        return new GuavaCache<>(cache);
     }
 }
 

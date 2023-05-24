@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.auth.Authenticator;
+import com.inrupt.client.auth.Challenge;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.auth.Session;
@@ -158,9 +159,14 @@ class OpenIdSessionTest {
         final Optional<URI> principal = session.getPrincipal();
         assertEquals(Optional.of(URI.create(WEBID)), principal);
         assertFalse(session.fromCache(null).isPresent());
-        final Optional<Credential> credential = session.authenticate(null, Collections.emptySet())
+        final Authenticator auth = new OpenIdAuthenticationProvider().getAuthenticator(Challenge.of("Bearer"));
+        final Request req = Request.newBuilder(URI.create("https://storage.example")).build();
+        final Optional<Credential> credential = session.authenticate(auth, req, Collections.emptySet())
             .toCompletableFuture().join();
         assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
+        assertTrue(session.fromCache(req).isPresent());
+        session.reset();
+        assertFalse(session.fromCache(req).isPresent());
     }
 
     @Test

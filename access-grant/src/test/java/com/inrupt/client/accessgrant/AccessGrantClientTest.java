@@ -101,10 +101,10 @@ class AccessGrantClientTest {
         assertEquals(uri, grant.getIdentifier());
         assertEquals(baseUri, grant.getIssuer());
 
-        final AccessGrantClient.VerificationResponse response = client.verify(grant).toCompletableFuture().join();
-        assertTrue(response.checks.contains("expirationDate"));
-        assertTrue(response.warnings.isEmpty());
-        assertTrue(response.errors.isEmpty());
+        final AccessCredentialVerification response = client.verify(grant).toCompletableFuture().join();
+        assertTrue(response.getChecks().contains("expirationDate"));
+        assertTrue(response.getWarnings().isEmpty());
+        assertTrue(response.getErrors().isEmpty());
 
         // Revoke
         assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
@@ -144,10 +144,10 @@ class AccessGrantClientTest {
         assertEquals(uri, grant.getIdentifier());
         assertEquals(baseUri, grant.getIssuer());
 
-        final AccessGrantClient.VerificationResponse response = client.verify(grant).toCompletableFuture().join();
-        assertTrue(response.checks.contains("expirationDate"));
-        assertTrue(response.warnings.isEmpty());
-        assertTrue(response.errors.isEmpty());
+        final AccessCredentialVerification response = client.verify(grant).toCompletableFuture().join();
+        assertTrue(response.getChecks().contains("expirationDate"));
+        assertTrue(response.getWarnings().isEmpty());
+        assertTrue(response.getErrors().isEmpty());
 
         // Revoke
         assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
@@ -197,10 +197,10 @@ class AccessGrantClientTest {
         assertEquals(uri, request.getIdentifier());
         assertEquals(baseUri, request.getIssuer());
 
-        final AccessGrantClient.VerificationResponse response = client.verify(request).toCompletableFuture().join();
-        assertTrue(response.checks.contains("expirationDate"));
-        assertTrue(response.warnings.isEmpty());
-        assertTrue(response.errors.isEmpty());
+        final AccessCredentialVerification response = client.verify(request).toCompletableFuture().join();
+        assertTrue(response.getChecks().contains("expirationDate"));
+        assertTrue(response.getWarnings().isEmpty());
+        assertTrue(response.getErrors().isEmpty());
 
         // Revoke
         final CompletionException err1 = assertThrows(CompletionException.class, () ->
