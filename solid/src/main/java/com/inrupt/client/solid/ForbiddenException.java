@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP forbidden (403) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.403">RFC 9110 (15.5.4.) 403 Forbidden</a>
  */
 public class ForbiddenException extends SolidClientException {
     private static final long serialVersionUID = 3299286274724874244L;
