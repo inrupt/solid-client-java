@@ -289,7 +289,7 @@ public class AccessGrantClient {
      * @param credential the credential to verify
      * @return the next stage of completion containing the verification result
      */
-    public CompletionStage<VerificationResponse> verify(final AccessCredential credential) {
+    public CompletionStage<AccessCredentialVerification> verify(final AccessCredential credential) {
         return v1Metadata().thenCompose(metadata -> {
 
             final Map<String, Object> presentation = new HashMap<>();
@@ -312,7 +312,9 @@ public class AccessGrantClient {
                     try (final InputStream input = res.body()) {
                         final int status = res.statusCode();
                         if (isSuccess(status)) {
-                            return processVerificationResult(input);
+                            final VerificationResponseData data = jsonService.fromJson(input,
+                                    VerificationResponseData.class);
+                            return new AccessCredentialVerification(data.checks, data.warnings, data.errors);
                         }
                         throw new AccessGrantException("Unable to perform Access Grant verify: HTTP error " + status,
                                 status);
@@ -542,10 +544,6 @@ public class AccessGrantClient {
             }
         }
         throw new AccessGrantException("Invalid Access Grant: missing supported type");
-    }
-
-    VerificationResponse processVerificationResult(final InputStream input) throws IOException {
-        return jsonService.fromJson(input, VerificationResponse.class);
     }
 
     <T extends AccessCredential> List<T> processQueryResponse(final InputStream input, final Set<String> validTypes,
@@ -778,9 +776,9 @@ public class AccessGrantClient {
     }
 
     /**
-     * A data objects for verification responses.
+     * A data object for verification responses.
      */
-    public static class VerificationResponse {
+    static class VerificationResponseData {
         /**
          * The verification checks that were performed.
          */
