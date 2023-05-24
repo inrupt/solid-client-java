@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -64,9 +65,12 @@ public class ReactiveAuthorization {
         final ServiceLoader<AuthenticationProvider> loader = ServiceLoader.load(AuthenticationProvider.class,
                 ReactiveAuthorization.class.getClassLoader());
 
+        final Set<String> prohibited = getProhibitedSchemes();
         for (final AuthenticationProvider provider : loader) {
             for (final String scheme : provider.getSchemes()) {
-                registry.put(scheme, provider);
+                if (!prohibited.contains(scheme)) {
+                    registry.put(scheme, provider);
+                }
             }
         }
     }
@@ -116,6 +120,13 @@ public class ReactiveAuthorization {
             return true;
         }
         return session.supportedSchemes().contains(scheme);
+    }
+
+    static Set<String> getProhibitedSchemes() {
+        final Set<String> prohibited = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        prohibited.add("Basic");
+        prohibited.add("Digest");
+        return prohibited;
     }
 }
 
