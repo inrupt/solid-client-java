@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 /**
- * An Access Request abstraction, for use with interacting with Solid resources.
+ * An Access Request abstraction, for use when interacting with Solid resources.
  */
 public class AccessRequest implements AccessCredential {
 
@@ -67,10 +67,10 @@ public class AccessRequest implements AccessCredential {
     /**
      * Read a verifiable presentation as an AccessRequest.
      *
-     * @param grant the serialized form of an Access Request
+     * @param serialization the serialized form of an Access Request
      */
-    protected AccessRequest(final String grant) throws IOException {
-        try (final InputStream in = new ByteArrayInputStream(grant.getBytes())) {
+    protected AccessRequest(final String serialization) throws IOException {
+        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
@@ -83,7 +83,7 @@ public class AccessRequest implements AccessCredential {
             final Map vc = vcs.get(0);
 
             if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
-                this.credential = grant;
+                this.credential = serialization;
                 this.issuer = asUri(vc.get("issuer")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid issuer field"));
                 this.identifier = asUri(vc.get("id")).orElseThrow(() ->
@@ -123,14 +123,14 @@ public class AccessRequest implements AccessCredential {
     /**
      * Create an AccessRequest object from a serialized form.
      *
-     * @param serialization the serialized access grant
-     * @return a parsed access grant
+     * @param serialization the serialized access request
+     * @return a parsed access request
      */
     public static AccessRequest of(final String serialization) {
         try {
             return new AccessRequest(serialization);
         } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access grant", ex);
+            throw new IllegalArgumentException("Unable to read access request", ex);
         }
     }
 
@@ -138,13 +138,13 @@ public class AccessRequest implements AccessCredential {
      * Create an AccessRequest object from a serialized form.
      *
      * @param serialization the access request
-     * @return a parsed access grant
+     * @return a parsed access request
      */
     public static AccessRequest of(final InputStream serialization) {
         try {
             return of(IOUtils.toString(serialization, UTF_8));
         } catch (final IOException ex) {
-            throw new IllegalArgumentException("Unable to read access grant", ex);
+            throw new IllegalArgumentException("Unable to read access request", ex);
         }
     }
 

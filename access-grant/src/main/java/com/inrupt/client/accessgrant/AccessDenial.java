@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 /**
- * An Access Grant abstraction, for use with interacting with Solid resources.
+ * An Access Denial abstraction, for use when interacting with Solid resources.
  */
 public class AccessDenial implements AccessCredential {
 
@@ -67,10 +67,10 @@ public class AccessDenial implements AccessCredential {
     /**
      * Read a verifiable presentation as an AccessDenial.
      *
-     * @param grant the Access Denial serialized as a verifiable presentation
+     * @param serialization the Access Denial serialized as a verifiable presentation
      */
-    protected AccessDenial(final String grant) throws IOException {
-        try (final InputStream in = new ByteArrayInputStream(grant.getBytes())) {
+    protected AccessDenial(final String serialization) throws IOException {
+        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
@@ -83,7 +83,7 @@ public class AccessDenial implements AccessCredential {
             final Map vc = vcs.get(0);
 
             if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
-                this.credential = grant;
+                this.credential = serialization;
                 this.issuer = asUri(vc.get("issuer")).orElseThrow(() ->
                         new IllegalArgumentException("Missing or invalid issuer field"));
                 this.identifier = asUri(vc.get("id")).orElseThrow(() ->
@@ -139,8 +139,8 @@ public class AccessDenial implements AccessCredential {
     /**
      * Create an AccessDenial object from a serialized form.
      *
-     * @param serialization the serialized access grant
-     * @return a parsed access grant
+     * @param serialization the serialized access denial
+     * @return a parsed access denial
      */
     public static AccessDenial of(final InputStream serialization) {
         try {
