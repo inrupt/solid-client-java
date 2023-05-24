@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP gone (410) response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.410">RFC 9110 (15.5.11.) 410 Gone</a>
  */
 public class GoneException extends SolidClientException {
     private static final long serialVersionUID = -6892345582498100242L;
