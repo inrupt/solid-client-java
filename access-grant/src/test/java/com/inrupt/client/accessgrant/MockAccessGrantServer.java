@@ -276,6 +276,17 @@ class MockAccessGrantServer {
         wireMockServer.stubFor(post(urlEqualTo("/derive"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("SolidAccessDenial"))
+                    .withRequestBody(containing(
+                            "\"https://storage.example/ef9c4b90-0459-408d-bfa9-1c61d46e1eaf/\""))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/query_response6.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/derive"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
                     .withRequestBody(containing("SolidAccessRequest"))
                     .withRequestBody(containing(
                             "\"https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/\""))

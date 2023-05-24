@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
    AccessGrantClient client = new AccessGrantClient(issuer).session(session);
 
    URI resource = URI.create("https://storage.example/data/resource");
-   client.query(SOLID_ACCESS_GRANT, null, resource, null)
+   client.query(null, resource, null, AccessGrant.class)
        .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
        .thenAccept(cl -> {
@@ -382,6 +382,9 @@ public class AccessGrantClient {
         } else if (AccessRequest.class.isAssignableFrom(clazz)) {
             type = ACCESS_REQUEST;
             supportedTypes = ACCESS_REQUEST_TYPES;
+        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
+            type = ACCESS_DENIAL;
+            supportedTypes = ACCESS_DENIAL_TYPES;
         } else {
             throw new AccessGrantException("Unsupported type " + clazz + " in query request");
         }
@@ -603,6 +606,8 @@ public class AccessGrantClient {
                                 grants.add((T) AccessGrant.of(new String(serialize(presentation), UTF_8)));
                             } else if (AccessRequest.class.equals(clazz)) {
                                 grants.add((T) AccessRequest.of(new String(serialize(presentation), UTF_8)));
+                            } else if (AccessDenial.class.equals(clazz)) {
+                                grants.add((T) AccessDenial.of(new String(serialize(presentation), UTF_8)));
                             }
                         }
                     }));
@@ -672,7 +677,7 @@ public class AccessGrantClient {
 
         final Map<String, Object> consent = new HashMap<>();
         if (agent != null) {
-            if (isAccessGrant(type)) {
+            if (isAccessGrant(type) || isAccessDenial(type)) {
                 consent.put(IS_PROVIDED_TO_PERSON, agent);
             } else if (isAccessRequest(type)) {
                 consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
@@ -687,7 +692,7 @@ public class AccessGrantClient {
 
         final Map<String, Object> subject = new HashMap<>();
         if (!consent.isEmpty()) {
-            if (isAccessGrant(type)) {
+            if (isAccessGrant(type) || isAccessDenial(type)) {
                 subject.put("providedConsent", consent);
             } else if (isAccessRequest(type)) {
                 subject.put("hasConsent", consent);
@@ -844,7 +849,10 @@ public class AccessGrantClient {
 
     static boolean isAccessRequest(final URI type) {
         return "SolidAccessRequest".equals(type.toString()) || ACCESS_REQUEST.equals(type);
+    }
 
+    static boolean isAccessDenial(final URI type) {
+        return "SolidAccessDenial".equals(type.toString()) || ACCESS_DENIAL.equals(type);
     }
 
     /**
