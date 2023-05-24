@@ -33,6 +33,9 @@ import java.util.Objects;
  */
 public class GuavaCache<T, U> implements ClientCache<T, U> {
 
+    private static final String KEY_NOT_NULL = "cache key may not be null!";
+    private static final String VALUE_NOT_NULL = "cache value may not be null!";
+
     private final Cache<T, U> cache;
 
     /**
@@ -41,25 +44,25 @@ public class GuavaCache<T, U> implements ClientCache<T, U> {
      * @param cache the guava cache
      */
     public GuavaCache(final Cache<T, U> cache) {
-        this.cache = Objects.requireNonNull(cache, "cache may not be null!");
+        this.cache = Objects.requireNonNull(cache, KEY_NOT_NULL);
     }
 
     @Override
     public U get(final T key) {
-        Objects.requireNonNull(key, "cache key may not be null!");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
         return cache.getIfPresent(key);
     }
 
     @Override
     public void put(final T key, final U value) {
-        Objects.requireNonNull(key, "cache key may not be null!");
-        Objects.requireNonNull(value, "cache value may not be null!");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
+        Objects.requireNonNull(value, VALUE_NOT_NULL);
         cache.put(key, value);
     }
 
     @Override
     public void invalidate(final T key) {
-        Objects.requireNonNull(key, "cache key may not be null!");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
         cache.invalidate(key);
     }
 
