@@ -25,7 +25,9 @@ import com.inrupt.client.Headers;
 import java.net.URI;
 
 /**
- * A runtime exception for use with SolidClient HTTP operations.
+ * A runtime exception that represents an HTTP conflict (409) response..
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.409">RFC 9110 (15.5.10.) 409 Conflict</a>
  */
 public class ConflictException extends SolidClientException {
     private static final long serialVersionUID = -203198307847520748L;
