@@ -36,10 +36,7 @@ import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidClientException;
-import com.inrupt.client.solid.SolidNonRDFSource;
-import com.inrupt.client.solid.SolidRDFSource;
-import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
@@ -240,7 +237,7 @@ public class AccessGrantScenarios {
 
         //unauthorized request test
         final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();
-        final SolidClientException err = assertThrows(SolidClientException.class,
+        final var err = assertThrows(UnauthorizedException.class,
                 () -> client.read(sharedTextFileURI, SolidNonRDFSource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
         final Request reqRead =

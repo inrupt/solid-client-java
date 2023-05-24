@@ -243,7 +243,10 @@ class SolidClientTest {
 
     @ParameterizedTest
     @MethodSource
-    void testExceptionalResources(final URI uri, final int expectedStatusCode) {
+    <T extends SolidClientException> void testExceptionalResources(
+            final URI uri,
+            final int expectedStatusCode,
+            final Class<T> clazz) {
 
         final CompletableFuture<Recipe> future =
             client.read(uri, Recipe.class)
@@ -251,6 +254,7 @@ class SolidClientTest {
         final CompletionException err = assertThrows(CompletionException.class, () ->
             future.join());
         assertTrue(err.getCause() instanceof SolidClientException);
+        assertInstanceOf(clazz, err.getCause());
         final SolidClientException ex = (SolidClientException) err.getCause();
         assertEquals(expectedStatusCode, ex.getStatusCode());
         assertEquals(uri, ex.getUri());
@@ -261,10 +265,13 @@ class SolidClientTest {
     private static Stream<Arguments> testExceptionalResources() {
         return Stream.of(
                 Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401),
+                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401,
+                        UnauthorizedException.class),
                 Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403),
+                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403,
+                        ForbiddenException.class),
                 Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/missing"), 404));
+                    URI.create(config.get("solid_resource_uri") + "/missing"), 404,
+                        NotFoundException.class));
     }
 }
