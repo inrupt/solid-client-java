@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/** A base class for access credentials. **/
 public class AccessCredential {
 
     protected static final String TYPE = "type";
@@ -106,10 +107,7 @@ public class AccessCredential {
      * @return the expiration time
      */
     public Instant getExpiration() {
-        if (expiration != null) {
-            return expiration;
-        }
-        return Instant.MAX;
+        return expiration != null ? expiration : Instant.MAX;
     }
 
     /**
@@ -175,9 +173,7 @@ public class AccessCredential {
         return credential;
     }
 
-    /**
-     * Server-managed credential data.
-     */
+    /** Server-managed credential data. */
     public static class CredentialMetadata {
         private final URI issuer;
         private final URI creator;
@@ -249,9 +245,7 @@ public class AccessCredential {
         }
     }
 
-    /**
-     *  User-managed credential data.
-     */
+    /**  User-managed credential data. */
     public static class CredentialData {
         private final Set<String> purposes;
         private final Set<String> modes;
