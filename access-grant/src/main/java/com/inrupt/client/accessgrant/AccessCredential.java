@@ -315,7 +315,7 @@ public class AccessCredential {
                     statusTypes.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
                         asRevocationList2020(credentialStatus))).orElse(null);
 
-        final Map subject = asMap(data.get("credentialSubject")).orElseThrow(() ->
+        final Map<String, Object> subject = asMap(data.get("credentialSubject")).orElseThrow(() ->
                 new IllegalArgumentException("Missing or invalid credentialSubject field"));
 
         final URI creator = asUri(subject.get("id")).orElseThrow(() ->
@@ -324,8 +324,8 @@ public class AccessCredential {
         return new CredentialMetadata(issuer, creator, types, expiration, status);
     }
 
-    static Map extractConsent(final Map data, final String property) {
-        final Map subject = asMap(data.get("credentialSubject")).orElseThrow(() ->
+    static Map<String, Object> extractConsent(final Map data, final String property) {
+        final Map<String, Object> subject = asMap(data.get("credentialSubject")).orElseThrow(() ->
                 new IllegalArgumentException("Missing or invalid credentialSubject field"));
         return asMap(subject.get(property)).orElseThrow(() ->
                 // Unsupported structure
