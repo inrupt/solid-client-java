@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp install javadoc:javadoc -Pci -pl -integration/uma,-integration/openid
+        run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid
 
       - name: Prod Integration tests
         if: ${{ github.actor != 'dependabot[bot]' }}
@@ -43,6 +43,26 @@ jobs:
           INRUPT_TEST_PUBLIC_RESOURCE_PATH: ${{ secrets.INRUPT_DEV_PUBLIC_RESOURCE_PATH }}
           INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_DEV_CLIENT_ID }}
           INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_DEV_CLIENT_SECRET }}
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11 ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+
+      - name: Build the code with Maven
+        run: mvn -B -ntp verify -Pwebsite javadoc:javadoc
 
   dependencies:
     name: Dependency Check
