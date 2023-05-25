@@ -52,7 +52,10 @@ public class AccessGrant extends AccessCredential {
     /**
      * Read a verifiable presentation as an AccessGrant.
      *
-     * @param grant the Access Grant serialized as a verifiable presentation
+     * @param identifier the credential identifier
+     * @param credential the serialized form of an Access Grant
+     * @param data the user-managed data associated with the credential
+     * @param metadata the server-managed data associated with the credential
      */
     protected AccessGrant(final URI identifier, final String credential, final CredentialData data,
             final CredentialMetadata metadata) {

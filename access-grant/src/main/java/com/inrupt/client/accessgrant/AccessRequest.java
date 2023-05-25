@@ -51,7 +51,10 @@ public class AccessRequest extends AccessCredential {
     /**
      * Read a verifiable presentation as an AccessRequest.
      *
-     * @param serialization the serialized form of an Access Request
+     * @param identifier the credential identifier
+     * @param credential the serialized form of an Access Request
+     * @param data the user-managed data associated with the credential
+     * @param metadata the server-managed data associated with the credential
      */
     protected AccessRequest(final URI identifier, final String credential, final CredentialData data,
             final CredentialMetadata metadata) {

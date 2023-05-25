@@ -52,7 +52,10 @@ public class AccessDenial extends AccessCredential {
     /**
      * Read a verifiable presentation as an AccessDenial.
      *
-     * @param serialization the Access Denial serialized as a verifiable presentation
+     * @param identifier the credential identifier
+     * @param credential the serialized form of an Access Denial
+     * @param data the user-managed data associated with the credential
+     * @param metadata the server-managed data associated with the credential
      */
     protected AccessDenial(final URI identifier, final String credential, final CredentialData data,
             final CredentialMetadata metadata) {
