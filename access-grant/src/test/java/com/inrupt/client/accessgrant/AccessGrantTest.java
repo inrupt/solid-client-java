@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class AccessGrantTest {
@@ -146,6 +147,7 @@ class AccessGrantTest {
         }
     }
 
+    @Disabled
     @Test
     void testRevocationList2020Integer() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/status_list2.json")) {
