@@ -104,9 +104,9 @@ public class AccessGrantScenarios {
     private static final String GRANT_MODE_READ = "Read";
     private static final String GRANT_MODE_APPEND = "Append";
     private static final String GRANT_MODE_WRITE = "Write";
-    private static final Set<String> PURPOSES = new HashSet<>(Arrays.asList(
-            "https://some.purpose/not-a-nefarious-one/i-promise",
-            "https://some.other.purpose/"));
+    private static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(
+            URI.create("https://some.purpose/not-a-nefarious-one/i-promise"),
+            URI.create("https://some.other.purpose/")));
     private static final String GRANT_EXPIRATION = "2024-04-03T12:00:00Z";
 
     private static URI testContainerURI;
@@ -233,7 +233,7 @@ public class AccessGrantScenarios {
         final URI uri = URIBuilder.newBuilder(URI.create(VC_PROVIDER)).path(grant.getIdentifier().toString()).build();
         final AccessGrant grantFromVcProvider = accessGrantClient.fetch(uri, AccessGrant.class)
             .toCompletableFuture().join();
-        assertEquals(grant.getPurpose(), grantFromVcProvider.getPurpose());
+        assertEquals(grant.getPurposes(), grantFromVcProvider.getPurposes());
 
         //unauthorized request test
         final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();

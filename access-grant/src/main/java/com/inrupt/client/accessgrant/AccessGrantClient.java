@@ -181,7 +181,7 @@ public class AccessGrantClient {
      * @return the next stage of completion containing the resulting access request
      */
     public CompletionStage<AccessRequest> requestAccess(final URI agent, final Set<URI> resources,
-            final Set<String> modes, final Set<String> purposes, final Instant expiration) {
+            final Set<String> modes, final Set<URI> purposes, final Instant expiration) {
         Objects.requireNonNull(resources, "Resources may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
         return v1Metadata().thenCompose(metadata -> {
@@ -290,12 +290,20 @@ public class AccessGrantClient {
         Objects.requireNonNull(type, "Access Grant type may not be null!");
         Objects.requireNonNull(resources, "Resources may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
+        final Set<URI> uriPurposes = new HashSet<>();
+        for (final String p : purposes) {
+            try {
+                uriPurposes.add(URI.create(p));
+            } catch (final IllegalArgumentException ex) {
+                LOGGER.debug("Ignoring non-URI purpose: {}", ex.getMessage());
+            }
+        }
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data;
             if (ACCESS_GRANT.equals(type)) {
-                data = buildAccessGrantv1(agent, resources, modes, expiration, purposes);
+                data = buildAccessGrantv1(agent, resources, modes, expiration, uriPurposes);
             } else if (ACCESS_REQUEST.equals(type)) {
-                data = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
+                data = buildAccessRequestv1(agent, resources, modes, expiration, uriPurposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
             }
@@ -747,7 +755,7 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessDenialv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Instant expiration, final Set<String> purposes) {
+            final Instant expiration, final Set<URI> purposes) {
         Objects.requireNonNull(agent, "Access denial agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
@@ -774,7 +782,7 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Instant expiration, final Set<String> purposes) {
+            final Instant expiration, final Set<URI> purposes) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
@@ -801,7 +809,7 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Instant expiration, final Set<String> purposes) {
+            final Instant expiration, final Set<URI> purposes) {
         final Map<String, Object> consent = new HashMap<>();
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
         consent.put(MODE, modes);

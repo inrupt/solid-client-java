@@ -58,7 +58,7 @@ class AccessGrantTest {
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
                     grant.getIdentifier());
             assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurpose());
-            assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurposes());
+            assertEquals(Collections.singleton(URI.create("https://purpose.example/Purpose1")), grant.getPurposes());
             assertEquals(Collections.singleton(
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
@@ -91,7 +91,7 @@ class AccessGrantTest {
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
                     grant.getIdentifier());
             assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurpose());
-            assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurposes());
+            assertEquals(Collections.singleton(URI.create("https://purpose.example/Purpose1")), grant.getPurposes());
             assertEquals(Collections.singleton(
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());

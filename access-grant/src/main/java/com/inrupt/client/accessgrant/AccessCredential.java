@@ -40,8 +40,8 @@ public class AccessCredential {
     private final URI issuer;
     private final URI identifier;
     private final Set<String> types;
-    private final Set<String> purposes;
     private final Set<String> modes;
+    private final Set<URI> purposes;
     private final Set<URI> resources;
     private final URI recipient;
     private final URI creator;
@@ -133,7 +133,7 @@ public class AccessCredential {
      *
      * @return the purposes
      */
-    public Set<String> getPurposes() {
+    public Set<URI> getPurposes() {
         return purposes;
     }
 
@@ -247,8 +247,8 @@ public class AccessCredential {
 
     /**  User-managed credential data. */
     public static class CredentialData {
-        private final Set<String> purposes;
         private final Set<String> modes;
+        private final Set<URI> purposes;
         private final Set<URI> resources;
         private final URI recipient;
 
@@ -261,7 +261,7 @@ public class AccessCredential {
          * @param recipient the recipient for this credential, may be {@code null}
          */
         public CredentialData(final Set<URI> resources, final Set<String> modes,
-                final Set<String> purposes, final URI recipient) {
+                final Set<URI> purposes, final URI recipient) {
             this.modes = Objects.requireNonNull(modes, "modes may not be null!");
             this.purposes = Objects.requireNonNull(purposes, "purposes may not be null!");
             this.resources = Objects.requireNonNull(resources, "resources may not be null!");
@@ -273,7 +273,7 @@ public class AccessCredential {
          *
          * @return the purpose definitions
          */
-        public Set<String> getPurposes() {
+        public Set<URI> getPurposes() {
             return purposes;
         }
 

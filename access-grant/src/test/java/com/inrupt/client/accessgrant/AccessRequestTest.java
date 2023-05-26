@@ -55,7 +55,7 @@ class AccessRequestTest {
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), request.getExpiration());
             assertEquals(URI.create("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab"),
                     request.getIdentifier());
-            assertEquals(Collections.singleton("https://purpose.test/Purpose1"), request.getPurposes());
+            assertEquals(Collections.singleton(URI.create("https://purpose.test/Purpose1")), request.getPurposes());
             assertEquals(Collections.singleton(
                         URI.create("https://storage.test/data/")),
                     request.getResources());
@@ -85,7 +85,7 @@ class AccessRequestTest {
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), request.getExpiration());
             assertEquals(URI.create("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab"),
                     request.getIdentifier());
-            assertEquals(Collections.singleton("https://purpose.test/Purpose1"), request.getPurposes());
+            assertEquals(Collections.singleton(URI.create("https://purpose.test/Purpose1")), request.getPurposes());
             assertEquals(Collections.singleton(
                         URI.create("https://storage.test/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     request.getResources());

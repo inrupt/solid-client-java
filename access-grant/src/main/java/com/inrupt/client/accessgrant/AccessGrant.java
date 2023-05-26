@@ -122,7 +122,7 @@ public class AccessGrant extends AccessCredential {
      */
     @Deprecated
     public Set<String> getPurpose() {
-        return getPurposes();
+        return getPurposes().stream().map(URI::toString).collect(Collectors.toSet());
     }
 
     /**
@@ -196,7 +196,8 @@ public class AccessGrant extends AccessCredential {
                 final Set<String> modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 final Set<URI> resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
-                final Set<String> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
+                final Set<URI> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet)
+                    .stream().map(URI::create).collect(Collectors.toSet());
                 final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient);
 
                 return new AccessGrant(identifier, serialization, credentialData, credentialMetadata);

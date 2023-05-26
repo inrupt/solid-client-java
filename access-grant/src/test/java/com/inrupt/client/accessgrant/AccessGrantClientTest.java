@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -307,7 +308,7 @@ class AccessGrantClientTest {
         assertEquals(expiration, grant.getExpiration());
         assertEquals(baseUri, grant.getIssuer());
         assertEquals(purposes, grant.getPurpose());
-        assertEquals(purposes, grant.getPurposes());
+        assertEquals(purposes, grant.getPurposes().stream().map(URI::toString).collect(Collectors.toSet()));
         assertEquals(resources, grant.getResources());
     }
 
@@ -324,7 +325,7 @@ class AccessGrantClientTest {
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
         final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+        final Set<URI> purposes = Collections.singleton(URI.create("https://purpose.test/Purpose1"));
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final AccessRequest request = client.requestAccess(agent, resources, modes, purposes, expiration)
@@ -344,7 +345,7 @@ class AccessGrantClientTest {
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
         final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+        final Set<URI> purposes = Collections.singleton(URI.create("https://purpose.test/Purpose1"));
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
 
@@ -367,7 +368,7 @@ class AccessGrantClientTest {
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
         final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+        final Set<URI> purposes = Collections.singleton(URI.create("https://purpose.test/Purpose1"));
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final AccessRequest request = client.requestAccess(agent, resources, modes, purposes, expiration)
@@ -397,7 +398,7 @@ class AccessGrantClientTest {
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-09-12T12:00:00Z");
         final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+        final Set<URI> purposes = Collections.singleton(URI.create("https://purpose.test/Purpose1"));
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final AccessRequest request = client.requestAccess(agent, resources, modes, purposes, expiration)
@@ -432,7 +433,7 @@ class AccessGrantClientTest {
         final URI agent = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
         final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
+        final Set<URI> purposes = Collections.singleton(URI.create("https://purpose.test/Purpose1"));
 
         final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
         final AccessRequest request = client.requestAccess(agent, resources, modes, purposes, expiration)
