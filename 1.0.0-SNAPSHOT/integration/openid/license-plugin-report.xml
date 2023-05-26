@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1685096670384">
+<licensePluginReport goal="CHECK" timestamp="1685096982029">
     <module artifactId="inrupt-client-integration-openid-tests" groupId="com.inrupt.client" version="1.0.0-SNAPSHOT"/>
     <files>
         <file path="src/test/java/com/inrupt/client/integration/openid/OpenIdAuthenticationScenariosTest.java" result="PRESENT"/>
