@@ -53,7 +53,6 @@ import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class AccessGrantClientTest {
@@ -87,7 +86,6 @@ class AccessGrantClientTest {
         assertNotEquals(client, client.session(Session.anonymous()));
     }
 
-    @Disabled
     @Test
     void testFetch1() {
         final Map<String, Object> claims = new HashMap<>();
@@ -131,7 +129,6 @@ class AccessGrantClientTest {
         assertTrue(err.getCause() instanceof AccessGrantException);
     }
 
-    @Disabled
     @Test
     void testFetchDeprecated() {
         final Map<String, Object> claims = new HashMap<>();
@@ -185,7 +182,6 @@ class AccessGrantClientTest {
         assertTrue(err2.getCause() instanceof AccessGrantException);
     }
 
-    @Disabled
     @Test
     void testFetch5() {
         final Map<String, Object> claims = new HashMap<>();
@@ -482,7 +478,6 @@ class AccessGrantClientTest {
         assertTrue(err.getCause() instanceof AccessGrantException);
     }
 
-    @Disabled
     @Test
     void testQueryDeprecatedGrant() {
         final Map<String, Object> claims = new HashMap<>();
@@ -499,7 +494,6 @@ class AccessGrantClientTest {
         assertEquals(1, grants.size());
     }
 
-    @Disabled
     @Test
     void testQueryGrant() {
         final Map<String, Object> claims = new HashMap<>();
@@ -549,7 +543,6 @@ class AccessGrantClientTest {
         assertEquals(1, requests.size());
     }
 
-    @Disabled
     @Test
     void testQueryRequest() {
         final Map<String, Object> claims = new HashMap<>();

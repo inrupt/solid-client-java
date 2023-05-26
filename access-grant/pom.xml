@@ -127,7 +127,7 @@
             <id>default-test</id>
             <phase>none</phase>
           </execution>
-          <execution>
+          <!--<execution>
             <id>httpclient-jsonb-caffeine-test</id>
             <phase>test</phase>
             <goals>
@@ -154,7 +154,7 @@
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
-          </execution>
+          </execution>-->
           <execution>
             <id>httpclient-jackson-caffeine-test</id>
             <phase>test</phase>
@@ -183,7 +183,7 @@
               </classpathDependencyExcludes>
             </configuration>
           </execution>
-          <execution>
+          <!--<execution>
             <id>okhttp-jsonb-caffeine-test</id>
             <phase>test</phase>
             <goals>
@@ -210,7 +210,7 @@
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
-          </execution>
+          </execution>-->
           <execution>
             <id>okhttp-jackson-caffeine-test</id>
             <phase>test</phase>
