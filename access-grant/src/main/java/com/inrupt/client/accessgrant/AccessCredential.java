@@ -29,9 +29,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** A base class for access credentials. **/
 public class AccessCredential {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(AccessCredential.class);
 
     protected static final String TYPE = "type";
     protected static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
@@ -131,6 +137,8 @@ public class AccessCredential {
     /**
      * Get the collection of purposes associated with the access credential.
      *
+     * @implNote as of Beta3, this method returns a set of URIs. Any non-URI purpose values encountered
+     *           during access credential parsing will be discarded.
      * @return the purposes
      */
     public Set<URI> getPurposes() {
@@ -330,5 +338,14 @@ public class AccessCredential {
         return asMap(subject.get(property)).orElseThrow(() ->
                 // Unsupported structure
                 new IllegalArgumentException("Invalid Access Request: missing consent clause"));
+    }
+
+    static Stream<URI> filterUris(final String uri) {
+        try {
+            return Stream.of(URI.create(uri));
+        } catch (final IllegalArgumentException ex) {
+            LOGGER.debug("Ignoring non-URI purpose: {}", ex.getMessage());
+        }
+        return Stream.empty();
     }
 }

@@ -130,7 +130,7 @@ public class AccessDenial extends AccessCredential {
                 final Set<URI> resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
                 final Set<URI> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet)
-                    .stream().map(URI::create).collect(Collectors.toSet());
+                    .stream().flatMap(AccessCredential::filterUris).collect(Collectors.toSet());
                 final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient);
 
                 return new AccessDenial(identifier, serialization, credentialData, credentialMetadata);
