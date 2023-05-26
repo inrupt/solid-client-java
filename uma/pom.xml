@@ -63,7 +63,19 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-caffeine</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-httpclient</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-okhttp</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -73,6 +85,18 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-jsonb</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
+      <version>${yasson.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -80,10 +104,124 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-          </systemPropertyVariables>
-        </configuration>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <phase>none</phase>
+          </execution>
+          <!--<execution>
+            <id>httpclient-jsonb-caffeine-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-guava</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>httpclient-jsonb-guava-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>-->
+          <execution>
+            <id>httpclient-jackson-caffeine-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-guava</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>httpclient-jackson-guava-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <!--<execution>
+            <id>okhttp-jsonb-caffeine-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-guava</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>okhttp-jsonb-guava-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>-->
+          <execution>
+            <id>okhttp-jackson-caffeine-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-guava</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>okhttp-jackson-guava-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
