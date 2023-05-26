@@ -29,9 +29,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** A base class for access credentials. **/
 public class AccessCredential {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(AccessCredential.class);
 
     protected static final String TYPE = "type";
     protected static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
@@ -40,8 +46,8 @@ public class AccessCredential {
     private final URI issuer;
     private final URI identifier;
     private final Set<String> types;
-    private final Set<String> purposes;
     private final Set<String> modes;
+    private final Set<URI> purposes;
     private final Set<URI> resources;
     private final URI recipient;
     private final URI creator;
@@ -131,9 +137,11 @@ public class AccessCredential {
     /**
      * Get the collection of purposes associated with the access credential.
      *
+     * @implNote as of Beta3, this method returns a set of URIs. Any non-URI purpose values encountered
+     *           during access credential parsing will be discarded.
      * @return the purposes
      */
-    public Set<String> getPurposes() {
+    public Set<URI> getPurposes() {
         return purposes;
     }
 
@@ -247,8 +255,8 @@ public class AccessCredential {
 
     /**  User-managed credential data. */
     public static class CredentialData {
-        private final Set<String> purposes;
         private final Set<String> modes;
+        private final Set<URI> purposes;
         private final Set<URI> resources;
         private final URI recipient;
 
@@ -261,7 +269,7 @@ public class AccessCredential {
          * @param recipient the recipient for this credential, may be {@code null}
          */
         public CredentialData(final Set<URI> resources, final Set<String> modes,
-                final Set<String> purposes, final URI recipient) {
+                final Set<URI> purposes, final URI recipient) {
             this.modes = Objects.requireNonNull(modes, "modes may not be null!");
             this.purposes = Objects.requireNonNull(purposes, "purposes may not be null!");
             this.resources = Objects.requireNonNull(resources, "resources may not be null!");
@@ -273,7 +281,7 @@ public class AccessCredential {
          *
          * @return the purpose definitions
          */
-        public Set<String> getPurposes() {
+        public Set<URI> getPurposes() {
             return purposes;
         }
 
@@ -330,5 +338,14 @@ public class AccessCredential {
         return asMap(subject.get(property)).orElseThrow(() ->
                 // Unsupported structure
                 new IllegalArgumentException("Invalid Access Request: missing consent clause"));
+    }
+
+    static Stream<URI> filterUris(final String uri) {
+        try {
+            return Stream.of(URI.create(uri));
+        } catch (final IllegalArgumentException ex) {
+            LOGGER.debug("Ignoring non-URI purpose: {}", ex.getMessage());
+        }
+        return Stream.empty();
     }
 }

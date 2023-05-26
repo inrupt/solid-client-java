@@ -123,7 +123,8 @@ public class AccessRequest extends AccessCredential {
                 final Set<String> modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 final Set<URI> resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
-                final Set<String> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
+                final Set<URI> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet)
+                    .stream().flatMap(AccessCredential::filterUris).collect(Collectors.toSet());
                 final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient);
 
                 return new AccessRequest(identifier, serialization, credentialData, credentialMetadata);
