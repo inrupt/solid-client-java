@@ -128,7 +128,7 @@ public final class AccessGrantSession implements Session {
                 if (isAncestor(entry.getKey(), uri)) {
                     final AccessGrant grant = entry.getValue();
                     return Optional.of(new Credential("", grant.getIssuer(), Base64.getUrlEncoder().withoutPadding()
-                                    .encodeToString(grant.getRawGrant().getBytes(UTF_8)),
+                                    .encodeToString(grant.serialize().getBytes(UTF_8)),
                                 grant.getExpiration(), session.getPrincipal().orElse(null), null));
                 }
             }
