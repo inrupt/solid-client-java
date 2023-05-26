@@ -30,7 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,81 +44,22 @@ import org.apache.commons.io.IOUtils;
 /**
  * An Access Denial abstraction, for use when interacting with Solid resources.
  */
-public class AccessDenial implements AccessCredential {
+public class AccessDenial extends AccessCredential {
 
-    private static final String TYPE = "type";
-    private static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
     private static final Set<String> supportedTypes = getSupportedTypes();
     private static final JsonService jsonService = ServiceProvider.getJsonService();
-
-    private final String credential;
-    private final URI issuer;
-    private final URI identifier;
-    private final Set<String> types;
-    private final Set<String> purposes;
-    private final Set<String> modes;
-    private final Set<URI> resources;
-    private final URI recipient;
-    private final URI creator;
-    private final Instant expiration;
-    private final Status status;
 
     /**
      * Read a verifiable presentation as an AccessDenial.
      *
-     * @param serialization the Access Denial serialized as a verifiable presentation
+     * @param identifier the credential identifier
+     * @param credential the serialized form of an Access Denial
+     * @param data the user-managed data associated with the credential
+     * @param metadata the server-managed data associated with the credential
      */
-    protected AccessDenial(final String serialization) throws IOException {
-        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
-            // TODO process as JSON-LD
-            final Map<String, Object> data = jsonService.fromJson(in,
-                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
-
-            final List<Map> vcs = getCredentialsFromPresentation(data, supportedTypes);
-            if (vcs.size() != 1) {
-                throw new IllegalArgumentException(
-                        "Invalid Access Denial: ambiguous number of verifiable credentials");
-            }
-            final Map vc = vcs.get(0);
-
-            if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
-                this.credential = serialization;
-                this.issuer = asUri(vc.get("issuer")).orElseThrow(() ->
-                        new IllegalArgumentException("Missing or invalid issuer field"));
-                this.identifier = asUri(vc.get("id")).orElseThrow(() ->
-                        new IllegalArgumentException("Missing or invalid id field"));
-
-                this.types = asSet(vc.get(TYPE)).orElseGet(Collections::emptySet);
-                this.expiration = asInstant(vc.get("expirationDate")).orElse(Instant.MAX);
-
-                final Map subject = asMap(vc.get("credentialSubject")).orElseThrow(() ->
-                        new IllegalArgumentException("Missing or invalid credentialSubject field"));
-
-                this.creator = asUri(subject.get("id")).orElseThrow(() ->
-                        new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
-
-                // V1 Access Denial, using gConsent
-                final Map consent = asMap(subject.get("providedConsent")).orElseThrow(() ->
-                        // Unsupported structure
-                        new IllegalArgumentException("Invalid Access Denial: missing consent clause"));
-
-                final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
-                final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
-                final Optional<URI> other = asUri(consent.get("isProvidedTo"));
-
-                this.recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
-                this.modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
-                this.resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
-                    .stream().map(URI::create).collect(Collectors.toSet());
-                this.purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
-                this.status = asMap(vc.get("credentialStatus")).flatMap(credentialStatus ->
-                        asSet(credentialStatus.get(TYPE)).filter(statusTypes ->
-                            statusTypes.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
-                                asRevocationList2020(credentialStatus))).orElse(null);
-            } else {
-                throw new IllegalArgumentException("Invalid Access Denial: missing VerifiablePresentation type");
-            }
-        }
+    protected AccessDenial(final URI identifier, final String credential, final CredentialData data,
+            final CredentialMetadata metadata) {
+        super(identifier, credential, data, metadata);
     }
 
     /**
@@ -130,7 +70,7 @@ public class AccessDenial implements AccessCredential {
      */
     public static AccessDenial of(final String serialization) {
         try {
-            return new AccessDenial(serialization);
+            return parse(serialization);
         } catch (final IOException ex) {
             throw new IllegalArgumentException("Unable to read access denial", ex);
         }
@@ -150,65 +90,52 @@ public class AccessDenial implements AccessCredential {
         }
     }
 
-    @Override
-    public Set<String> getTypes() {
-        return types;
-    }
-
-    @Override
-    public Set<String> getModes() {
-        return modes;
-    }
-
-    @Override
-    public Optional<Status> getStatus() {
-        return Optional.ofNullable(status);
-    }
-
-    @Override
-    public Instant getExpiration() {
-        return expiration;
-    }
-
-    @Override
-    public URI getIssuer() {
-        return issuer;
-    }
-
-    @Override
-    public URI getIdentifier() {
-        return identifier;
-    }
-
-    @Override
-    public Set<String> getPurposes() {
-        return purposes;
-    }
-
-    @Override
-    public Set<URI> getResources() {
-        return resources;
-    }
-
-    @Override
-    public URI getCreator() {
-        return creator;
-    }
-
-    @Override
-    public Optional<URI> getRecipient() {
-        return Optional.ofNullable(recipient);
-    }
-
-    @Override
-    public String serialize() {
-        return credential;
-    }
-
     static Set<String> getSupportedTypes() {
         final Set<String> types = new HashSet<>();
         types.add("SolidAccessDenial");
         types.add("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
         return Collections.unmodifiableSet(types);
+    }
+
+    static AccessDenial parse(final String serialization) throws IOException {
+        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
+            // TODO process as JSON-LD
+            final Map<String, Object> data = jsonService.fromJson(in,
+                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+
+            final List<Map> vcs = getCredentialsFromPresentation(data, supportedTypes);
+            if (vcs.size() != 1) {
+                throw new IllegalArgumentException(
+                        "Invalid Access Denial: ambiguous number of verifiable credentials");
+            }
+            final Map vc = vcs.get(0);
+
+            if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
+                final URI identifier = asUri(vc.get("id")).orElseThrow(() ->
+                        new IllegalArgumentException("Missing or invalid id field"));
+
+                // Extract metadata
+                final CredentialMetadata credentialMetadata = extractMetadata(vc);
+
+
+                // Extract V1 Access Denial data, using gConsent
+                final Map consent = extractConsent(vc, "providedConsent");
+
+                final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
+                final Optional<URI> controller = asUri(consent.get("isProvidedToController"));
+                final Optional<URI> other = asUri(consent.get("isProvidedTo"));
+
+                final URI recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                final Set<String> modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
+                final Set<URI> resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
+                    .stream().map(URI::create).collect(Collectors.toSet());
+                final Set<String> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet);
+                final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient);
+
+                return new AccessDenial(identifier, serialization, credentialData, credentialMetadata);
+            } else {
+                throw new IllegalArgumentException("Invalid Access Denial: missing VerifiablePresentation type");
+            }
+        }
     }
 }

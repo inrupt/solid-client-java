@@ -561,6 +561,23 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryDenial() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final List<AccessDenial> grants = client.query(null,
+                URI.create("https://storage.example/ef9c4b90-0459-408d-bfa9-1c61d46e1eaf/e/f/g"), "Read",
+                AccessDenial.class)
+                    .toCompletableFuture().join();
+        assertEquals(1, grants.size());
+    }
+
+    @Test
     void testQueryInvalidType() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
