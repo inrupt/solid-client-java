@@ -171,12 +171,12 @@ public class AccessGrant extends AccessCredential {
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
 
-            final List<Map> vcs = getCredentialsFromPresentation(data, supportedTypes);
+            final List<Map<String, Object>> vcs = getCredentialsFromPresentation(data, supportedTypes);
             if (vcs.size() != 1) {
                 throw new IllegalArgumentException(
                         "Invalid Access Grant: ambiguous number of verifiable credentials");
             }
-            final Map vc = vcs.get(0);
+            final Map<String, Object> vc = vcs.get(0);
 
             if (asSet(data.get(TYPE)).orElseGet(Collections::emptySet).contains("VerifiablePresentation")) {
                 final URI identifier = asUri(vc.get("id")).orElseThrow(() ->
@@ -186,7 +186,7 @@ public class AccessGrant extends AccessCredential {
                 final CredentialMetadata credentialMetadata = extractMetadata(vc);
 
                 // Extract V1 Access Grant data, using gConsent
-                final Map consent = extractConsent(vc, "providedConsent");
+                final Map<String, Object> consent = extractConsent(vc, "providedConsent");
 
                 final Optional<URI> person = asUri(consent.get("isProvidedToPerson"));
                 final Optional<URI> controller = asUri(consent.get("isProvidedToController"));

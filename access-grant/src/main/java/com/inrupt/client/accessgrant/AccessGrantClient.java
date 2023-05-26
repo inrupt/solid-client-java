@@ -97,6 +97,10 @@ public class AccessGrantClient {
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
     private static final String MODE = "mode";
+    private static final String PROVIDED_CONSENT = "providedConsent";
+    private static final String FOR_PURPOSE = "forPurpose";
+    private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String CREDENTIAL = "credential";
     private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
     private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
     private static final URI ACCESS_DENIAL = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
@@ -592,26 +596,24 @@ public class AccessGrantClient {
         final Map<String, Object> data = jsonService.fromJson(input,
                 new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
         final List<T> grants = new ArrayList<>();
-        if (data.get(VERIFIABLE_CREDENTIAL) instanceof Collection) {
-            for (final Object item : (Collection) data.get(VERIFIABLE_CREDENTIAL)) {
-                Utils.asMap(item).ifPresent(credential ->
-                    Utils.asSet(credential.get(TYPE)).ifPresent(types -> {
-                        types.retainAll(validTypes);
-                        if (!types.isEmpty()) {
-                            final Map<String, Object> presentation = new HashMap<>();
-                            presentation.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI));
-                            presentation.put(TYPE, Arrays.asList("VerifiablePresentation"));
-                            presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(credential));
-                            if (AccessGrant.class.equals(clazz)) {
-                                grants.add((T) AccessGrant.of(new String(serialize(presentation), UTF_8)));
-                            } else if (AccessRequest.class.equals(clazz)) {
-                                grants.add((T) AccessRequest.of(new String(serialize(presentation), UTF_8)));
-                            } else if (AccessDenial.class.equals(clazz)) {
-                                grants.add((T) AccessDenial.of(new String(serialize(presentation), UTF_8)));
-                            }
+        for (final Object item : getCredentials(data)) {
+            Utils.asMap(item).ifPresent(credential ->
+                Utils.asSet(credential.get(TYPE)).ifPresent(types -> {
+                    types.retainAll(validTypes);
+                    if (!types.isEmpty()) {
+                        final Map<String, Object> presentation = new HashMap<>();
+                        presentation.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI));
+                        presentation.put(TYPE, Arrays.asList("VerifiablePresentation"));
+                        presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(credential));
+                        if (AccessGrant.class.equals(clazz)) {
+                            grants.add((T) AccessGrant.of(new String(serialize(presentation), UTF_8)));
+                        } else if (AccessRequest.class.equals(clazz)) {
+                            grants.add((T) AccessRequest.of(new String(serialize(presentation), UTF_8)));
+                        } else if (AccessDenial.class.equals(clazz)) {
+                            grants.add((T) AccessDenial.of(new String(serialize(presentation), UTF_8)));
                         }
-                    }));
-            }
+                    }
+                }));
         }
 
         return grants;
@@ -661,6 +663,14 @@ public class AccessGrantClient {
         }
     }
 
+    static Collection<Object> getCredentials(final Map<String, Object> data) {
+        final Object credential = data.get(VERIFIABLE_CREDENTIAL);
+        if (credential instanceof Collection) {
+            return (Collection) credential;
+        }
+        return Collections.emptyList();
+    }
+
     static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI agent, final URI resource,
             final String mode) {
         final List<Map<String, Object>> queries = new ArrayList<>();
@@ -693,7 +703,7 @@ public class AccessGrantClient {
         final Map<String, Object> subject = new HashMap<>();
         if (!consent.isEmpty()) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
-                subject.put("providedConsent", consent);
+                subject.put(PROVIDED_CONSENT, consent);
             } else if (isAccessRequest(type)) {
                 subject.put("hasConsent", consent);
             }
@@ -745,21 +755,21 @@ public class AccessGrantClient {
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO_PERSON, agent);
         if (!purposes.isEmpty()) {
-            consent.put("forPurpose", purposes);
+            consent.put(FOR_PURPOSE, purposes);
         }
 
         final Map<String, Object> subject = new HashMap<>();
-        subject.put("providedConsent", consent);
+        subject.put(PROVIDED_CONSENT, consent);
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         if (expiration != null) {
-            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
+            credential.put(EXPIRATION_DATE, expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
-        data.put("credential", credential);
+        data.put(CREDENTIAL, credential);
         return data;
     }
 
@@ -772,21 +782,21 @@ public class AccessGrantClient {
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO_PERSON, agent);
         if (!purposes.isEmpty()) {
-            consent.put("forPurpose", purposes);
+            consent.put(FOR_PURPOSE, purposes);
         }
 
         final Map<String, Object> subject = new HashMap<>();
-        subject.put("providedConsent", consent);
+        subject.put(PROVIDED_CONSENT, consent);
 
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         if (expiration != null) {
-            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
+            credential.put(EXPIRATION_DATE, expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
-        data.put("credential", credential);
+        data.put(CREDENTIAL, credential);
         return data;
     }
 
@@ -800,7 +810,7 @@ public class AccessGrantClient {
             consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
         }
         if (!purposes.isEmpty()) {
-            consent.put("forPurpose", purposes);
+            consent.put(FOR_PURPOSE, purposes);
         }
 
         final Map<String, Object> subject = new HashMap<>();
@@ -809,12 +819,12 @@ public class AccessGrantClient {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         if (expiration != null) {
-            credential.put("expirationDate", expiration.truncatedTo(ChronoUnit.SECONDS).toString());
+            credential.put(EXPIRATION_DATE, expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
-        data.put("credential", credential);
+        data.put(CREDENTIAL, credential);
         return data;
     }
 

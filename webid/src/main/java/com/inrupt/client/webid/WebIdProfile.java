@@ -68,7 +68,7 @@ public class WebIdProfile extends RDFSource {
      * @return the {@code rdf:type} values
      * @deprecated use the {@link #getTypes} method
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
     public Set<URI> getType() {
         return getTypes();
     }
@@ -88,7 +88,7 @@ public class WebIdProfile extends RDFSource {
      * @return the {@code solid:oidcIssuer} values
      * @deprecated use the {@link #getOidcIssuers} method
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
     public Set<URI> getOidcIssuer() {
         return getOidcIssuers();
     }
@@ -108,7 +108,7 @@ public class WebIdProfile extends RDFSource {
      * @return the {@code rdfs:seeAlso} values
      * @deprecated use the {@link #getRelatedResources} method
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
     public Set<URI> getSeeAlso() {
         return getRelatedResources();
     }
@@ -128,7 +128,7 @@ public class WebIdProfile extends RDFSource {
      * @return the {@code pim:storage} values
      * @deprecated use the {@link #getStorages} method
      */
-    @Deprecated
+    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
     public Set<URI> getStorage() {
         return getStorages();
     }

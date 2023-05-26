@@ -36,7 +36,7 @@ final class Utils {
     private static final String TYPE = "type";
     private static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
 
-    public static Status asRevocationList2020(final Map credentialStatus) {
+    public static Status asRevocationList2020(final Map<String, Object> credentialStatus) {
         try {
             int idx = -1;
             final Object index = credentialStatus.get("revocationListIndex");
@@ -72,9 +72,11 @@ final class Utils {
         return Optional.empty();
     }
 
-    public static Optional<Map> asMap(final Object value) {
+    public static Optional<Map<String, Object>> asMap(final Object value) {
         if (value instanceof Map) {
-            return Optional.of((Map) value);
+            @SuppressWarnings("unchecked")
+            final Map<String, Object> v = (Map<String, Object>) value;
+            return Optional.of(v);
         }
         return Optional.empty();
     }
@@ -96,13 +98,14 @@ final class Utils {
         return Optional.empty();
     }
 
-    public static List<Map> getCredentialsFromPresentation(final Map<String, Object> data,
+    public static List<Map<String, Object>> getCredentialsFromPresentation(final Map<String, Object> data,
             final Set<String> supportedTypes) {
-        final List<Map> credentials = new ArrayList<>();
+        final List<Map<String, Object>> credentials = new ArrayList<>();
         if (data.get("verifiableCredential") instanceof Collection) {
             for (final Object item : (Collection) data.get("verifiableCredential")) {
                 if (item instanceof Map) {
-                    final Map vc = (Map) item;
+                    @SuppressWarnings("unchecked")
+                    final Map vc = (Map<String, Object>) item;
                     if (asSet(vc.get(TYPE)).filter(types ->
                                 types.stream().anyMatch(supportedTypes::contains)).isPresent()) {
                         credentials.add(vc);
@@ -112,7 +115,6 @@ final class Utils {
         }
         return credentials;
     }
-
 
     private Utils() {
         // prevent instantiation
