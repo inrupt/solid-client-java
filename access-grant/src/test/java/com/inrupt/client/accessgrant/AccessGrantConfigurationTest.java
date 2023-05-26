@@ -42,7 +42,8 @@ class AccessGrantConfigurationTest {
     void testInvalid() {
         final URI issuer = URI.create("https://access.test");
         final AccessGrantConfiguration config = new AccessGrantConfiguration(issuer);
-        assertThrows(IllegalArgumentException.class, () -> config.setSchema(URI.create("https://example.com/")));
+        final URI uri = URI.create("https://example.com/");
+        assertThrows(IllegalArgumentException.class, () -> config.setSchema(uri));
         assertThrows(IllegalArgumentException.class, () -> config.setSchema(null));
     }
 

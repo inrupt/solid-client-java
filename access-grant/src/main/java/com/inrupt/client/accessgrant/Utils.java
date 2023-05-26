@@ -105,7 +105,7 @@ final class Utils {
             for (final Object item : (Collection) data.get("verifiableCredential")) {
                 if (item instanceof Map) {
                     @SuppressWarnings("unchecked")
-                    final Map vc = (Map<String, Object>) item;
+                    final Map<String, Object> vc = (Map<String, Object>) item;
                     if (asSet(vc.get(TYPE)).filter(types ->
                                 types.stream().anyMatch(supportedTypes::contains)).isPresent()) {
                         credentials.add(vc);
