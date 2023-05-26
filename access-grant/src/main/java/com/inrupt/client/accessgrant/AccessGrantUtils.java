@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.accessgrant;
 
+import static com.inrupt.client.vocabulary.RDF.type;
+
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACP;
@@ -47,13 +49,16 @@ public final class AccessGrantUtils {
 
     public static Set<Triple> accessControlPolicyTriples(final URI acl, final URI... modes) {
         final Set<Triple> triples = new HashSet<>();
+        final IRI a = asIRI(type);
 
         // Matcher
         final IRI matcher = asIRI(URIBuilder.newBuilder(acl).fragment(UUID.randomUUID().toString()).build());
+        triples.add(rdf.createTriple(matcher, a, asIRI(ACP.Matcher)));
         triples.add(rdf.createTriple(matcher, asIRI(ACP.vc), SOLID_ACCESS_GRANT));
 
         // Policy
         final IRI policy = asIRI(URIBuilder.newBuilder(acl).fragment(UUID.randomUUID().toString()).build());
+        triples.add(rdf.createTriple(policy, a, asIRI(ACP.Policy)));
         triples.add(rdf.createTriple(policy, asIRI(ACP.allOf), matcher));
         for (final URI mode : modes ) {
             triples.add(rdf.createTriple(policy, asIRI(ACP.allow), asIRI(mode)));
@@ -61,10 +66,14 @@ public final class AccessGrantUtils {
 
         // Access Control
         final IRI accessControl = asIRI(URIBuilder.newBuilder(acl).fragment(UUID.randomUUID().toString()).build());
+        triples.add(rdf.createTriple(accessControl, a, asIRI(ACP.AccessControl)));
         triples.add(rdf.createTriple(accessControl, asIRI(ACP.apply), policy));
 
-        triples.add(rdf.createTriple(asIRI(acl), asIRI(ACP.accessControl), accessControl));
-        triples.add(rdf.createTriple(asIRI(acl), asIRI(ACP.memberAccessControl), accessControl));
+        // Access Control Resource
+        final IRI subject = asIRI(acl);
+        triples.add(rdf.createTriple(subject, a, asIRI(ACP.AccessControlResource)));
+        triples.add(rdf.createTriple(subject, asIRI(ACP.accessControl), accessControl));
+        triples.add(rdf.createTriple(subject, asIRI(ACP.memberAccessControl), accessControl));
         return triples;
     }
 
