@@ -92,7 +92,7 @@ public class AccessGrantClient {
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CREDENTIAL_SUBJECT = "credentialSubject";
-    private static final String IS_PROVIDED_TO_PERSON = "isProvidedToPerson";
+    private static final String IS_PROVIDED_TO = "isProvidedTo";
     private static final String IS_CONSENT_FOR_DATA_SUBJECT = "isConsentForDataSubject";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
@@ -696,7 +696,7 @@ public class AccessGrantClient {
         final Map<String, Object> consent = new HashMap<>();
         if (agent != null) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
-                consent.put(IS_PROVIDED_TO_PERSON, agent);
+                consent.put(IS_PROVIDED_TO, agent);
             } else if (isAccessRequest(type)) {
                 consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
             }
@@ -761,7 +761,7 @@ public class AccessGrantClient {
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRefused");
         consent.put(FOR_PERSONAL_DATA, resources);
-        consent.put(IS_PROVIDED_TO_PERSON, agent);
+        consent.put(IS_PROVIDED_TO, agent);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
@@ -788,7 +788,7 @@ public class AccessGrantClient {
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
         consent.put(FOR_PERSONAL_DATA, resources);
-        consent.put(IS_PROVIDED_TO_PERSON, agent);
+        consent.put(IS_PROVIDED_TO, agent);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }

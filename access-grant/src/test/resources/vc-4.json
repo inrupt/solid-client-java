@@ -19,7 +19,7 @@
         "providedConsent":{
             "mode":["Read","Append"],
             "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
-            "isProvidedToPerson":"https://id.test/agent",
+            "isProvidedTo":"https://id.test/agent",
             "forPurpose":["https://purpose.test/Purpose1"],
             "forPersonalData":["https://storage.test/data/"]}},
     "proof":{
