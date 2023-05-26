@@ -305,7 +305,7 @@ public class AccessCredential {
         }
     }
 
-    static CredentialMetadata extractMetadata(final Map data) {
+    static CredentialMetadata extractMetadata(final Map<String, Object> data) {
         final URI issuer = asUri(data.get("issuer")).orElseThrow(() ->
                 new IllegalArgumentException("Missing or invalid issuer field"));
         final Set<String> types = asSet(data.get(TYPE)).orElseGet(Collections::emptySet);
@@ -324,7 +324,7 @@ public class AccessCredential {
         return new CredentialMetadata(issuer, creator, types, expiration, status);
     }
 
-    static Map<String, Object> extractConsent(final Map data, final String property) {
+    static Map<String, Object> extractConsent(final Map<String, Object> data, final String property) {
         final Map<String, Object> subject = asMap(data.get("credentialSubject")).orElseThrow(() ->
                 new IllegalArgumentException("Missing or invalid credentialSubject field"));
         return asMap(subject.get(property)).orElseThrow(() ->
