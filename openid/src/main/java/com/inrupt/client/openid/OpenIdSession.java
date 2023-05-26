@@ -239,12 +239,12 @@ public final class OpenIdSession implements Session {
     @Override
     public CompletionStage<Optional<Credential>> authenticate(final Authenticator auth,
             final Request request, final Set<String> algorithms) {
-        final Optional<Credential> credential = getCredential(ID_TOKEN, null);
-        if (credential.isPresent() && request != null) {
+        final Optional<Credential> cred = getCredential(ID_TOKEN, null);
+        if (cred.isPresent() && request != null) {
             LOGGER.debug("Setting cache entry for request: {}", request.uri());
             requestCache.put(request.uri(), Boolean.TRUE);
         }
-        return CompletableFuture.completedFuture(credential);
+        return CompletableFuture.completedFuture(cred);
     }
 
     /* deprecated */
