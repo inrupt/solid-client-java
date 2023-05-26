@@ -33,6 +33,7 @@ import java.util.Objects;
  */
 public class GuavaCache<T, U> implements ClientCache<T, U> {
 
+    private static final String CACHE_NOT_NULL = "cache may not be null!";
     private static final String KEY_NOT_NULL = "cache key may not be null!";
     private static final String VALUE_NOT_NULL = "cache value may not be null!";
 
@@ -44,7 +45,7 @@ public class GuavaCache<T, U> implements ClientCache<T, U> {
      * @param cache the guava cache
      */
     public GuavaCache(final Cache<T, U> cache) {
-        this.cache = Objects.requireNonNull(cache, KEY_NOT_NULL);
+        this.cache = Objects.requireNonNull(cache, CACHE_NOT_NULL);
     }
 
     @Override

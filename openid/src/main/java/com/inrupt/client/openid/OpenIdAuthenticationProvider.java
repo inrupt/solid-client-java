@@ -27,7 +27,6 @@ import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.AuthenticationProvider;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
@@ -111,13 +110,8 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         @Override
         public CompletionStage<Credential> authenticate(final Session session, final Request request,
                 final Set<String> algorithms) {
-            final Optional<CompletionStage<Credential>> token = session
-                .getCredential(OpenIdSession.ID_TOKEN, request.uri())
-                .map(CompletableFuture::completedFuture);
-            return token
-                .orElseGet(() -> session.authenticate(request, algorithms)
-                    .thenApply(credential -> credential
-                        .orElseThrow(() -> new OpenIdException("Unable to perform OpenID authentication"))));
+            return CompletableFuture.completedFuture(session
+                    .getCredential(OpenIdSession.ID_TOKEN, request.uri()).orElse(null));
         }
     }
 }
