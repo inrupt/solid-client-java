@@ -17,7 +17,7 @@
             "providedConsent":{
                 "mode":["Read"],
                 "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
-                "isProvidedToPerson":"https://id.example/grantee",
+                "isProvidedTo":"https://id.example/grantee",
                 "forPurpose":["https://purpose.example/Purpose1"],
                 "forPersonalData":["https://storage.example/protected-resource"]}},
         "proof":{

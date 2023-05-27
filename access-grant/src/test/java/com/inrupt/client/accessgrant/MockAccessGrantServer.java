@@ -309,7 +309,7 @@ class MockAccessGrantServer {
         wireMockServer.stubFor(post(urlEqualTo("/derive"))
                     .atPriority(2)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
-                    .withRequestBody(containing("\"isProvidedToPerson\":\"https://id.test/user\""))
+                    .withRequestBody(containing("\"isProvidedTo\":\"https://id.test/user\""))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")

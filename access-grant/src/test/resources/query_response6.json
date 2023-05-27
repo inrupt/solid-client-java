@@ -20,7 +20,7 @@
         "providedConsent":{
             "mode":["Read"],
             "hasStatus":"https://w3id.org/GConsent#ConsentStatusRefused",
-            "isProvidedToPerson":"https://id.example/grantee",
+            "isProvidedTo":"https://id.example/grantee",
             "forPurpose":["https://purpose.example/Purpose1"],
             "forPersonalData":["https://storage.example/ef9c4b90-0459-408d-bfa9-1c61d46e1eaf/"]}},
     "proof":{
