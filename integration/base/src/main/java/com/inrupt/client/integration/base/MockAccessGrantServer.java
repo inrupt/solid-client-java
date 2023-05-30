@@ -94,6 +94,7 @@ class MockAccessGrantServer {
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                     .atPriority(1)
                     .withRequestBody(containing("\"Read\""))
+                    .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
                     .withRequestBody(containing("\"" + this.webId + "\""))
                     .withRequestBody(containing("\"" + this.sharedFile + "\""))
                     .willReturn(aResponse()

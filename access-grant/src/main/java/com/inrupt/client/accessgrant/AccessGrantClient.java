@@ -72,7 +72,8 @@ import org.slf4j.LoggerFactory;
    AccessGrantClient client = new AccessGrantClient(issuer).session(session);
 
    URI resource = URI.create("https://storage.example/data/resource");
-   client.query(null, resource, null, AccessGrant.class)
+   URI purpose = URI.create("https://purpose.example/1");
+   client.query(null, resource, purpose, "Read", AccessGrant.class)
        .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
        .thenAccept(cl -> {
@@ -378,12 +379,13 @@ public class AccessGrantClient {
      * @param <T> the AccessCredential type
      * @param agent the agent identifier, may be {@code null}
      * @param resource the resource identifier, may be {@code null}
+     * @param purpose the access purpose, may be {@code null}
      * @param mode the access mode, may be {@code null}
      * @param clazz the AccessCredential type, either {@link AccessGrant} or {@link AccessRequest}
      * @return the next stage of completion, including the matched Access Grants
      */
     public <T extends AccessCredential> CompletionStage<List<T>> query(final URI agent, final URI resource,
-            final String mode, final Class<T> clazz) {
+            final URI purpose, final String mode, final Class<T> clazz) {
         Objects.requireNonNull(clazz, "The clazz parameter must not be null!");
 
         final URI type;
@@ -403,7 +405,7 @@ public class AccessGrantClient {
 
         return v1Metadata().thenCompose(metadata -> {
             final List<CompletableFuture<List<T>>> futures = buildQuery(config.getIssuer(), type,
-                    agent, resource, mode).stream()
+                    agent, resource, purpose, mode).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -449,7 +451,7 @@ public class AccessGrantClient {
         Objects.requireNonNull(type, "The type parameter must not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final List<CompletableFuture<List<AccessGrant>>> futures = buildQuery(config.getIssuer(), type,
-                    agent, resource, mode).stream()
+                    agent, resource, null, mode).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -680,14 +682,14 @@ public class AccessGrantClient {
     }
 
     static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI agent, final URI resource,
-            final String mode) {
+            final URI purpose, final String mode) {
         final List<Map<String, Object>> queries = new ArrayList<>();
-        buildQuery(queries, issuer, type, agent, resource, mode);
+        buildQuery(queries, issuer, type, agent, resource, purpose, mode);
         return queries;
     }
 
     static void buildQuery(final List<Map<String, Object>> queries, final URI issuer, final URI type, final URI agent,
-            final URI resource, final String mode) {
+            final URI resource, final URI purpose, final String mode) {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("issuer", issuer);
@@ -703,6 +705,9 @@ public class AccessGrantClient {
         }
         if (resource != null) {
             consent.put(FOR_PERSONAL_DATA, resource);
+        }
+        if (purpose != null) {
+            consent.put(FOR_PURPOSE, purpose);
         }
         if (mode != null) {
             consent.put(MODE, mode);
@@ -726,7 +731,7 @@ public class AccessGrantClient {
         // Recurse
         final URI parent = getParent(resource);
         if (parent != null) {
-            buildQuery(queries, issuer, type, agent, parent, mode);
+            buildQuery(queries, issuer, type, agent, parent, purpose, mode);
         }
     }
 

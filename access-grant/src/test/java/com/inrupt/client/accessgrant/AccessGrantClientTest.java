@@ -509,7 +509,7 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessGrant> grants = client.query(null,
-                URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c"), "Read",
+                URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c"), null, "Read",
                 AccessGrant.class)
                     .toCompletableFuture().join();
         assertEquals(1, grants.size());
@@ -526,7 +526,7 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessGrant> grants = client.query(URI.create("https://id.test/user"),
-                null, "Read", AccessGrant.class)
+                null, null, "Read", AccessGrant.class)
                     .toCompletableFuture().join();
         assertEquals(1, grants.size());
     }
@@ -542,7 +542,7 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessRequest> requests = client.query(URI.create("https://id.test/user"),
-                null, "Read", AccessRequest.class)
+                null, null, "Read", AccessRequest.class)
                     .toCompletableFuture().join();
         assertEquals(1, requests.size());
     }
@@ -558,7 +558,7 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessRequest> requests = client.query(null,
-                URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c"), "Read",
+                URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c"), null, "Read",
                 AccessRequest.class)
                     .toCompletableFuture().join();
         assertEquals(1, requests.size());
@@ -575,7 +575,7 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final List<AccessDenial> grants = client.query(null,
-                URI.create("https://storage.example/ef9c4b90-0459-408d-bfa9-1c61d46e1eaf/e/f/g"), "Read",
+                URI.create("https://storage.example/ef9c4b90-0459-408d-bfa9-1c61d46e1eaf/e/f/g"), null, "Read",
                 AccessDenial.class)
                     .toCompletableFuture().join();
         assertEquals(1, grants.size());
@@ -592,14 +592,14 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
         final URI uri = URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c");
-        assertThrows(AccessGrantException.class, () -> client.query(null, uri, "Read", AccessCredential.class));
+        assertThrows(AccessGrantException.class, () -> client.query(null, uri, null, "Read", AccessCredential.class));
     }
 
 
     @Test
     void testQueryInvalidAuth() {
         final CompletionException err = assertThrows(CompletionException.class,
-                agClient.query(URI.create("SolidAccessGrant"), (URI) null, (URI) null, null)
+                agClient.query(URI.create("SolidAccessGrant"), null, null, null)
                         .toCompletableFuture()::join);
 
         assertInstanceOf(AccessGrantException.class, err.getCause());
