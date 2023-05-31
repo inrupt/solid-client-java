@@ -20,7 +20,9 @@
             "mode":["Read"],
             "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
             "isProvidedToPerson":"{{webId}}",
-            "forPurpose":["https://purpose.example/1", "https://purpose.example/2"],
+            "forPurpose":[
+                "https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f",
+                "https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03"],
             "forPersonalData":["{{sharedFile}}"]}},
     "proof":{
         "created":"2022-08-25T20:34:05.236Z",
