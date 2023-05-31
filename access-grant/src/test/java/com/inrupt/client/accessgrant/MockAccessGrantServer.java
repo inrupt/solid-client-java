@@ -256,6 +256,7 @@ class MockAccessGrantServer {
         wireMockServer.stubFor(post(urlEqualTo("/status"))
                     .atPriority(1)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .withRequestBody(containing("\"status\":\"1\""))
                     .withRequestBody(containing("\"" + wireMockServer.baseUrl() + "/access-grant-1\""))
                     .willReturn(aResponse()
                         .withStatus(204)));
