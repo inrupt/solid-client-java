@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /** A base class for access credentials. **/
 public class AccessCredential {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AccessCredential.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessCredential.class);
 
     protected static final String TYPE = "type";
     protected static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";

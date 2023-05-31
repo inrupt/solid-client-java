@@ -35,7 +35,7 @@ jobs:
           INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_PROD_CLIENT_SECRET }}
 
       - name: Dev Integration tests
-        if: ${{ github.actor != 'dependabot[bot]' && matrix.java-version == 11 }}
+        if: ${{ github.actor != 'dependabot[bot]' && matrix.java == 11 }}
         continue-on-error: true
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
         env:
