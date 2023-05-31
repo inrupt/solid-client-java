@@ -576,8 +576,7 @@ public class AccessGrantClient {
             });
     }
 
-
-
+    @SuppressWarnings("unchecked")
     <T extends AccessCredential> T processVerifiableCredential(final InputStream input, final Set<String> validTypes,
             final Class<T> clazz) throws IOException {
         final Map<String, Object> data = jsonService.fromJson(input,
@@ -601,6 +600,7 @@ public class AccessGrantClient {
         throw new AccessGrantException("Invalid Access Grant: missing supported type");
     }
 
+    @SuppressWarnings("unchecked")
     <T extends AccessCredential> List<T> processQueryResponse(final InputStream input, final Set<String> validTypes,
             final Class<T> clazz) throws IOException {
         final Map<String, Object> data = jsonService.fromJson(input,
@@ -676,7 +676,9 @@ public class AccessGrantClient {
     static Collection<Object> getCredentials(final Map<String, Object> data) {
         final Object credential = data.get(VERIFIABLE_CREDENTIAL);
         if (credential instanceof Collection) {
-            return (Collection) credential;
+            @SuppressWarnings("unchecked")
+            final Collection<Object> coll = (Collection<Object>) credential;
+            return coll;
         }
         return Collections.emptyList();
     }

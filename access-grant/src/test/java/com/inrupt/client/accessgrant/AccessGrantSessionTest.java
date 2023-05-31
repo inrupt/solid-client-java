@@ -90,7 +90,7 @@ class AccessGrantSessionTest {
         final String token = AccessGrantTestUtils.generateIdToken(claims);
 
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
-            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
+            final AccessGrant grant = AccessGrant.of(resource);
             final Session session = AccessGrantSession.ofAccessGrant(OpenIdSession.ofIdToken(token), grant);
             assertEquals(Optional.of(URI.create(WEBID)), session.getPrincipal());
             assertFalse(grant.getResources().isEmpty());
@@ -120,7 +120,7 @@ class AccessGrantSessionTest {
         final String token = AccessGrantTestUtils.generateIdToken(claims);
 
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant3.json")) {
-            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
+            final AccessGrant grant = AccessGrant.of(resource);
             final Session session = AccessGrantSession.ofAccessGrant(OpenIdSession.ofIdToken(token), grant);
             final Request req = Request.newBuilder(URI.create("https://storage.example/protected-resource")).build();
             final Authenticator auth = new OpenIdAuthenticationProvider().getAuthenticator(Challenge.of("Bearer"));
