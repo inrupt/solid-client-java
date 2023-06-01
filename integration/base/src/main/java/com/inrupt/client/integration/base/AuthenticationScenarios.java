@@ -203,7 +203,7 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPublicNode Authenticated fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest(final Session session) {
-        LOGGER.info("Integration Test - AuAuthenticatedth fetch of public resource");
+        LOGGER.info("Integration Test - Authenticated fetch of public resource");
         //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
         try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null)) {

@@ -391,13 +391,13 @@ public class AccessGrantClient {
         final URI type;
         final Set<String> supportedTypes;
         if (AccessGrant.class.isAssignableFrom(clazz)) {
-            type = ACCESS_GRANT;
+            type = URI.create("SolidAccessGrant");
             supportedTypes = ACCESS_GRANT_TYPES;
         } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-            type = ACCESS_REQUEST;
+            type = URI.create("SolidAccessRequest");
             supportedTypes = ACCESS_REQUEST_TYPES;
         } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-            type = ACCESS_DENIAL;
+            type = URI.create("SolidAccessDenial");
             supportedTypes = ACCESS_DENIAL_TYPES;
         } else {
             throw new AccessGrantException("Unsupported type " + clazz + " in query request");
