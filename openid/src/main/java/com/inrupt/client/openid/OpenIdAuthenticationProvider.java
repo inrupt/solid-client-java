@@ -58,6 +58,7 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
         this.priorityLevel = priority;
     }
 
+    /* deprecated */
     @Override
     public String getScheme() {
         return BEARER;

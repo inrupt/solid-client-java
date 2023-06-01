@@ -75,7 +75,7 @@ public class SolidStorage {
         return jwt.claim("webid").map(String.class::cast).map(URI::create).map(webid -> {
             final var session = client.session(OpenIdSession.ofIdToken(jwt.getRawToken()));
             return session.read(webid, WebIdProfile.class)
-                .thenCompose(profile -> profile.getStorage().stream().findFirst().map(storage ->
+                .thenCompose(profile -> profile.getStorages().stream().findFirst().map(storage ->
                             session.read(storage, SolidContainer.class).thenApply(container -> {
                                 try (container) {
                                     final var resources = container.getResources().stream()
