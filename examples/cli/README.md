@@ -14,7 +14,7 @@ Also make sure you have install cleaned the entire project beforehand, to make s
 And then you can run the example with:
 
 ```
-cd example/cli
+cd examples/cli
 #make sure you are using java 17
 ../../mvnw clean compile
 ../../mvnw quarkus:dev -pl .
