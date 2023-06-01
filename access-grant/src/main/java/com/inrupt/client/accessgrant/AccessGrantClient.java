@@ -490,7 +490,7 @@ public class AccessGrantClient {
 
             final Map<String, Object> credentialStatus = new HashMap<>();
             credentialStatus.put(TYPE, status.getType());
-            credentialStatus.put("status", Integer.toString(status.getIndex()));
+            credentialStatus.put("status", "1");
 
             final Map<String, Object> data = new HashMap<>();
             data.put("credentialId", credential.getIdentifier());
