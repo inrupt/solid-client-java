@@ -29,19 +29,23 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
 
 class MockAccessGrantServer {
 
-    private final WireMockServer wireMockServer;
-    private String webId;
-    private String sharedFile;
-    private final String DERIVE = "/derive";
+    private static final String DERIVE = "/derive";
 
-    public MockAccessGrantServer(final String webId, final String sharedFile) {
-        this.webId = webId;
-        this.sharedFile = sharedFile;
+    private final WireMockServer wireMockServer;
+    private final String webId;
+    private final String sharedFile;
+    private final String sharedResource;
+
+    public MockAccessGrantServer(final URI webId, final URI sharedFile, final URI sharedResource) {
+        this.webId = webId.toString();
+        this.sharedFile = sharedFile.toString();
+        this.sharedResource = sharedResource.toString();
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     }
 
@@ -52,14 +56,14 @@ class MockAccessGrantServer {
                     .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                     .withBody(getResource("/vc-configuration.json", wireMockServer.baseUrl()))));
 
-        wireMockServer.stubFor(get(urlPathMatching(".+:(\\d*)/vc-grant"))
+        wireMockServer.stubFor(get(urlPathEqualTo("/vc-grant"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
                             this.webId, this.sharedFile))));
 
-        wireMockServer.stubFor(get(urlPathMatching(".+:(\\d*)/vc-request"))
+        wireMockServer.stubFor(get(urlPathEqualTo("/vc-request"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
@@ -71,6 +75,27 @@ class MockAccessGrantServer {
                         .withStatus(204)));
 
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .atPriority(2)
+                    .withRequestBody(containing("hasConsent"))
+                    .withRequestBody(containing(this.sharedResource))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedResource))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .atPriority(2)
+                    .withRequestBody(containing("providedConsent"))
+                    .withRequestBody(containing(this.sharedResource))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedResource))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .atPriority(1)
                     .withRequestBody(containing("hasConsent"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
@@ -79,6 +104,7 @@ class MockAccessGrantServer {
                             this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                    .atPriority(1)
                     .withRequestBody(containing("providedConsent"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
@@ -95,6 +121,17 @@ class MockAccessGrantServer {
                     .atPriority(1)
                     .withRequestBody(containing("\"Read\""))
                     .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
+                    .withRequestBody(containing("\"" + this.webId + "\""))
+                    .withRequestBody(containing("\"" + this.sharedResource + "\""))
+                    .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
+                            this.webId, this.sharedResource))));
+
+        wireMockServer.stubFor(post(urlEqualTo(DERIVE))
+                    .atPriority(1)
+                    .withRequestBody(containing("\"Read\""))
                     .withRequestBody(containing("\"" + this.webId + "\""))
                     .withRequestBody(containing("\"" + this.sharedFile + "\""))
                     .willReturn(aResponse()
@@ -113,7 +150,7 @@ class MockAccessGrantServer {
 
     }
 
-    private String getResource(final String path) {
+    private static String getResource(final String path) {
         try (final InputStream res = MockAccessGrantServer.class.getResourceAsStream(path)) {
             return new String(IOUtils.toByteArray(res), UTF_8);
         } catch (final IOException ex) {
@@ -121,11 +158,12 @@ class MockAccessGrantServer {
         }
     }
 
-    private String getResource(final String path, final String baseUrl) {
+    private static String getResource(final String path, final String baseUrl) {
         return getResource(path).replace("{{baseUrl}}", baseUrl);
     }
 
-    private String getResource(final String path, final String baseUrl, final String webId, final String sharedFile) {
+    private static String getResource(final String path, final String baseUrl, final String webId,
+            final String sharedFile) {
         return getResource(path).replace("{{baseUrl}}", baseUrl)
             .replace("{{webId}}", webId)
             .replace("{{sharedFile}}", sharedFile);

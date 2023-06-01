@@ -345,7 +345,7 @@ public final class OpenIdSession implements Session {
 
             // Required by OpenID Connect
             builder.setRequireExpirationTime();
-            builder.setExpectedIssuers(true, null);
+            builder.setExpectedIssuers(true, (String[]) null);
             builder.setRequireSubject();
             builder.setRequireIssuedAt();
 

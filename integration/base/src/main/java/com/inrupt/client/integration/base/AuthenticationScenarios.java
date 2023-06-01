@@ -117,8 +117,8 @@ public class AuthenticationScenarios {
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClient();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
-            issuer = profile.getOidcIssuer().iterator().next().toString();
-            podUrl = profile.getStorage().iterator().next().toString();
+            issuer = profile.getOidcIssuers().iterator().next().toString();
+            podUrl = profile.getStorages().iterator().next().toString();
         }
         if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
             podUrl += Utils.FOLDER_SEPARATOR;
@@ -203,7 +203,7 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName(":authenticatedPublicNode Authenticated fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest(final Session session) {
-        LOGGER.info("Integration Test - AuAuthenticatedth fetch of public resource");
+        LOGGER.info("Integration Test - Authenticated fetch of public resource");
         //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
         try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null)) {

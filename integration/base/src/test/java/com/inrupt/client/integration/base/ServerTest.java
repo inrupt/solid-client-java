@@ -90,8 +90,8 @@ class ServerTest {
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClient();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
-            issuer = profile.getOidcIssuer().iterator().next().toString();
-            podUrl = profile.getStorage().iterator().next().toString();
+            issuer = profile.getOidcIssuers().iterator().next().toString();
+            podUrl = profile.getStorages().iterator().next().toString();
         }
     }
 

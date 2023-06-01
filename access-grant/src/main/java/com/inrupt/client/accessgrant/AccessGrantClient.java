@@ -391,13 +391,13 @@ public class AccessGrantClient {
         final URI type;
         final Set<String> supportedTypes;
         if (AccessGrant.class.isAssignableFrom(clazz)) {
-            type = ACCESS_GRANT;
+            type = URI.create("SolidAccessGrant");
             supportedTypes = ACCESS_GRANT_TYPES;
         } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-            type = ACCESS_REQUEST;
+            type = URI.create("SolidAccessRequest");
             supportedTypes = ACCESS_REQUEST_TYPES;
         } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-            type = ACCESS_DENIAL;
+            type = URI.create("SolidAccessDenial");
             supportedTypes = ACCESS_DENIAL_TYPES;
         } else {
             throw new AccessGrantException("Unsupported type " + clazz + " in query request");
@@ -576,8 +576,7 @@ public class AccessGrantClient {
             });
     }
 
-
-
+    @SuppressWarnings("unchecked")
     <T extends AccessCredential> T processVerifiableCredential(final InputStream input, final Set<String> validTypes,
             final Class<T> clazz) throws IOException {
         final Map<String, Object> data = jsonService.fromJson(input,
@@ -601,6 +600,7 @@ public class AccessGrantClient {
         throw new AccessGrantException("Invalid Access Grant: missing supported type");
     }
 
+    @SuppressWarnings("unchecked")
     <T extends AccessCredential> List<T> processQueryResponse(final InputStream input, final Set<String> validTypes,
             final Class<T> clazz) throws IOException {
         final Map<String, Object> data = jsonService.fromJson(input,
@@ -676,7 +676,9 @@ public class AccessGrantClient {
     static Collection<Object> getCredentials(final Map<String, Object> data) {
         final Object credential = data.get(VERIFIABLE_CREDENTIAL);
         if (credential instanceof Collection) {
-            return (Collection) credential;
+            @SuppressWarnings("unchecked")
+            final Collection<Object> coll = (Collection<Object>) credential;
+            return coll;
         }
         return Collections.emptyList();
     }
