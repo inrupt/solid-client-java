@@ -109,7 +109,7 @@ public class DomainModulesResource {
         State.WEBID = URI.create(webidUrl);
         //find storage from WebID using domain-specific webID solid concept
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
-            final var storages = sameProfile.getStorage();
+            final var storages = sameProfile.getStorages();
             if (!storages.isEmpty()) {
                 podUrl = storages.iterator().next().toString();
             }
@@ -253,7 +253,7 @@ public class DomainModulesResource {
         LOGGER.info("Integration Test - find pod storage from webID");
 
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
-            assertFalse(sameProfile.getStorage().isEmpty());
+            assertFalse(sameProfile.getStorages().isEmpty());
         }
 
         final var missingWebId = URIBuilder.newBuilder(URI.create(webidUrl)).path(UUID.randomUUID().toString()).build();

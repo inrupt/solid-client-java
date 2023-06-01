@@ -145,8 +145,8 @@ public class AccessGrantScenarios {
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
-            issuer = profile.getOidcIssuer().iterator().next().toString();
-            podUrl = profile.getStorage().iterator().next().toString();
+            issuer = profile.getOidcIssuers().iterator().next().toString();
+            podUrl = profile.getStorages().iterator().next().toString();
         }
         if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
             podUrl += Utils.FOLDER_SEPARATOR;

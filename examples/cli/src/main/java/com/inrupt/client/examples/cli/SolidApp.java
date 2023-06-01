@@ -82,7 +82,7 @@ public class SolidApp implements QuarkusApplication {
                 printWriter.format("WebID: %s", webid);
                 printWriter.println();
                 try (final var profile = client.read(webid, WebIdProfile.class)) {
-                    profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                    profile.getStorages().stream().findFirst().ifPresent(storage -> {
                         printWriter.format("Storage %s ", storage);
                         printWriter.println();
                         try (final var container = client.read(storage, SolidContainer.class)) {
