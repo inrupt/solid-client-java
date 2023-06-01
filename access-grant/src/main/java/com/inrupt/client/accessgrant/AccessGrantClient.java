@@ -65,7 +65,6 @@ import org.slf4j.LoggerFactory;
  * {@link Session} object, typically an OpenID-based session:
  *
  * <pre>{@code
-   URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
    URI issuer = URI.create("https://issuer.example");
    Session openid = OpenIdSession.ofIdToken(idToken);
 
@@ -73,7 +72,7 @@ import org.slf4j.LoggerFactory;
 
    URI resource = URI.create("https://storage.example/data/resource");
    URI purpose = URI.create("https://purpose.example/1");
-   client.query(null, resource, purpose, "Read", AccessGrant.class)
+   client.query(resource, null, openid.getPrincipal().orElse(null), purpose, "Read", AccessGrant.class)
        .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
        .thenAccept(cl -> {
@@ -89,6 +88,7 @@ public class AccessGrantClient {
     private static final String VC_CONTEXT_URI = "https://www.w3.org/2018/credentials/v1";
     private static final String INRUPT_CONTEXT_URI = "https://schema.inrupt.com/credentials/v1.jsonld";
     private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
+    private static final String SOLID_VC_NAMESPACE = "http://www.w3.org/ns/solid/vc#";
     private static final String TYPE = "type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -102,9 +102,12 @@ public class AccessGrantClient {
     private static final String FOR_PURPOSE = "forPurpose";
     private static final String EXPIRATION_DATE = "expirationDate";
     private static final String CREDENTIAL = "credential";
-    private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
-    private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
-    private static final URI ACCESS_DENIAL = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
+    private static final String SOLID_ACCESS_GRANT = "SolidAccessGrant";
+    private static final String SOLID_ACCESS_REQUEST = "SolidAccessRequest";
+    private static final String SOLID_ACCESS_DENIAL = "SolidAccessDenial";
+    private static final URI FQ_ACCESS_GRANT = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_GRANT);
+    private static final URI FQ_ACCESS_REQUEST = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_REQUEST);
+    private static final URI FQ_ACCESS_DENIAL = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_DENIAL);
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
     private static final Set<String> ACCESS_REQUEST_TYPES = getAccessRequestTypes();
     private static final Set<String> ACCESS_DENIAL_TYPES = getAccessDenialTypes();
@@ -301,9 +304,9 @@ public class AccessGrantClient {
         }
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data;
-            if (ACCESS_GRANT.equals(type)) {
+            if (FQ_ACCESS_GRANT.equals(type)) {
                 data = buildAccessGrantv1(agent, resources, modes, expiration, uriPurposes);
-            } else if (ACCESS_REQUEST.equals(type)) {
+            } else if (FQ_ACCESS_REQUEST.equals(type)) {
                 data = buildAccessRequestv1(agent, resources, modes, expiration, uriPurposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
@@ -392,13 +395,13 @@ public class AccessGrantClient {
         final URI type;
         final Set<String> supportedTypes;
         if (AccessGrant.class.isAssignableFrom(clazz)) {
-            type = URI.create("SolidAccessGrant");
+            type = URI.create(SOLID_ACCESS_GRANT);
             supportedTypes = ACCESS_GRANT_TYPES;
         } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-            type = URI.create("SolidAccessRequest");
+            type = URI.create(SOLID_ACCESS_REQUEST);
             supportedTypes = ACCESS_REQUEST_TYPES;
         } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-            type = URI.create("SolidAccessDenial");
+            type = URI.create(SOLID_ACCESS_DENIAL);
             supportedTypes = ACCESS_DENIAL_TYPES;
         } else {
             throw new AccessGrantException("Unsupported type " + clazz + " in query request");
@@ -855,35 +858,35 @@ public class AccessGrantClient {
 
     static Set<String> getAccessRequestTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessRequest");
-        types.add(ACCESS_REQUEST.toString());
+        types.add(SOLID_ACCESS_REQUEST);
+        types.add(FQ_ACCESS_REQUEST.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static Set<String> getAccessGrantTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessGrant");
-        types.add(ACCESS_GRANT.toString());
+        types.add(SOLID_ACCESS_GRANT);
+        types.add(FQ_ACCESS_GRANT.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static Set<String> getAccessDenialTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessDenial");
-        types.add(ACCESS_DENIAL.toString());
+        types.add(SOLID_ACCESS_DENIAL);
+        types.add(FQ_ACCESS_DENIAL.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static boolean isAccessGrant(final URI type) {
-        return "SolidAccessGrant".equals(type.toString()) || ACCESS_GRANT.equals(type);
+        return SOLID_ACCESS_GRANT.equals(type.toString()) || FQ_ACCESS_GRANT.equals(type);
     }
 
     static boolean isAccessRequest(final URI type) {
-        return "SolidAccessRequest".equals(type.toString()) || ACCESS_REQUEST.equals(type);
+        return SOLID_ACCESS_REQUEST.equals(type.toString()) || FQ_ACCESS_REQUEST.equals(type);
     }
 
     static boolean isAccessDenial(final URI type) {
-        return "SolidAccessDenial".equals(type.toString()) || ACCESS_DENIAL.equals(type);
+        return SOLID_ACCESS_DENIAL.equals(type.toString()) || FQ_ACCESS_DENIAL.equals(type);
     }
 
     /**
