@@ -332,7 +332,10 @@ public class SolidClient {
         }
 
         /**
-         * Set a collection of headers to be used with each request.
+         * Set a collection of headers to be used with each high-level client request.
+         *
+         * <p>Note that any headers set here will not be automatically added to any
+         * requests performed by the {@link SolidClient#send} method.
          *
          * @param headers the headers
          * @return this builder
