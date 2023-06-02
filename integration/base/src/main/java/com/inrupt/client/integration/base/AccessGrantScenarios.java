@@ -323,8 +323,8 @@ public class AccessGrantScenarios {
         final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //query for all grants issued by the user
-        final List<AccessRequest> grants = accessGrantClient.query(URI.create(webidUrl),
-                sharedResource, PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
+        final List<AccessRequest> grants = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
+                PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         // result is 4 because we retrieve the grants for each path
         // sharedTextFileURI =
@@ -332,8 +332,8 @@ public class AccessGrantScenarios {
         assertEquals(1, grants.size());
 
         //query for all grants issued by a random user
-        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create("https://someuser.test"),
-                sharedResource, PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
+        final List<AccessRequest> randomGrants = accessGrantClient.query(sharedResource, null,
+                URI.create("https://someuser.test"), PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(0, randomGrants.size());
     }
@@ -347,14 +347,14 @@ public class AccessGrantScenarios {
         final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //query for all grants of a dedicated resource
-        final List<AccessRequest> requests = accessGrantClient.query(URI.create(webidUrl),
-                sharedResource, PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
+        final List<AccessRequest> requests = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
+                PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(1, requests.size());
 
         //query for all grants of a random resource
-        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create(webidUrl),
-                URI.create("https://somerandom.test"), PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
+        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create("https://somerandom.test"),
+                null, URI.create(webidUrl), PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(0, randomGrants.size());
     }
@@ -368,14 +368,14 @@ public class AccessGrantScenarios {
         final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(VC_PROVIDER)).session(session);
 
         //query for all grants with a dedicated purpose
-        final List<AccessRequest> requests = accessGrantClient.query(URI.create(webidUrl),
-                sharedResource, PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
+        final List<AccessRequest> requests = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
+                PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
             .toCompletableFuture().join();
         assertEquals(1, requests.size());
 
         //query for all grants of dedicated purpose combinations
-        final List<AccessGrant> randomGrants = accessGrantClient.query(URI.create(webidUrl),
-                sharedResource, PURPOSE1, GRANT_MODE_WRITE, AccessGrant.class)
+        final List<AccessGrant> randomGrants = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
+                PURPOSE1, GRANT_MODE_WRITE, AccessGrant.class)
             .toCompletableFuture().join();
         assertEquals(0, randomGrants.size()); //our grant is actually a Read
     }

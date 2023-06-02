@@ -65,7 +65,6 @@ import org.slf4j.LoggerFactory;
  * {@link Session} object, typically an OpenID-based session:
  *
  * <pre>{@code
-   URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
    URI issuer = URI.create("https://issuer.example");
    Session openid = OpenIdSession.ofIdToken(idToken);
 
@@ -73,7 +72,7 @@ import org.slf4j.LoggerFactory;
 
    URI resource = URI.create("https://storage.example/data/resource");
    URI purpose = URI.create("https://purpose.example/1");
-   client.query(null, resource, purpose, "Read", AccessGrant.class)
+   client.query(resource, null, openid.getPrincipal().orElse(null), purpose, "Read", AccessGrant.class)
        .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
        .thenAccept(cl -> {
@@ -89,6 +88,7 @@ public class AccessGrantClient {
     private static final String VC_CONTEXT_URI = "https://www.w3.org/2018/credentials/v1";
     private static final String INRUPT_CONTEXT_URI = "https://schema.inrupt.com/credentials/v1.jsonld";
     private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
+    private static final String SOLID_VC_NAMESPACE = "http://www.w3.org/ns/solid/vc#";
     private static final String TYPE = "type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -102,9 +102,12 @@ public class AccessGrantClient {
     private static final String FOR_PURPOSE = "forPurpose";
     private static final String EXPIRATION_DATE = "expirationDate";
     private static final String CREDENTIAL = "credential";
-    private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
-    private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
-    private static final URI ACCESS_DENIAL = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
+    private static final String SOLID_ACCESS_GRANT = "SolidAccessGrant";
+    private static final String SOLID_ACCESS_REQUEST = "SolidAccessRequest";
+    private static final String SOLID_ACCESS_DENIAL = "SolidAccessDenial";
+    private static final URI FQ_ACCESS_GRANT = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_GRANT);
+    private static final URI FQ_ACCESS_REQUEST = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_REQUEST);
+    private static final URI FQ_ACCESS_DENIAL = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_DENIAL);
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
     private static final Set<String> ACCESS_REQUEST_TYPES = getAccessRequestTypes();
     private static final Set<String> ACCESS_DENIAL_TYPES = getAccessDenialTypes();
@@ -301,9 +304,9 @@ public class AccessGrantClient {
         }
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data;
-            if (ACCESS_GRANT.equals(type)) {
+            if (FQ_ACCESS_GRANT.equals(type)) {
                 data = buildAccessGrantv1(agent, resources, modes, expiration, uriPurposes);
-            } else if (ACCESS_REQUEST.equals(type)) {
+            } else if (FQ_ACCESS_REQUEST.equals(type)) {
                 data = buildAccessRequestv1(agent, resources, modes, expiration, uriPurposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
@@ -377,27 +380,28 @@ public class AccessGrantClient {
      * Perform an Access Grant query.
      *
      * @param <T> the AccessCredential type
-     * @param agent the agent identifier, may be {@code null}
      * @param resource the resource identifier, may be {@code null}
+     * @param creator the identifier for the agent who created the credential, may be {@code null}
+     * @param recipient the identifier for the agent who is the recipient for the credential, may be {@code null}
      * @param purpose the access purpose, may be {@code null}
      * @param mode the access mode, may be {@code null}
      * @param clazz the AccessCredential type, either {@link AccessGrant} or {@link AccessRequest}
-     * @return the next stage of completion, including the matched Access Grants
+     * @return the next stage of completion, including the matched Access Credentials
      */
-    public <T extends AccessCredential> CompletionStage<List<T>> query(final URI agent, final URI resource,
-            final URI purpose, final String mode, final Class<T> clazz) {
+    public <T extends AccessCredential> CompletionStage<List<T>> query(final URI resource, final URI creator,
+            final URI recipient, final URI purpose, final String mode, final Class<T> clazz) {
         Objects.requireNonNull(clazz, "The clazz parameter must not be null!");
 
         final URI type;
         final Set<String> supportedTypes;
         if (AccessGrant.class.isAssignableFrom(clazz)) {
-            type = URI.create("SolidAccessGrant");
+            type = URI.create(SOLID_ACCESS_GRANT);
             supportedTypes = ACCESS_GRANT_TYPES;
         } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-            type = URI.create("SolidAccessRequest");
+            type = URI.create(SOLID_ACCESS_REQUEST);
             supportedTypes = ACCESS_REQUEST_TYPES;
         } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-            type = URI.create("SolidAccessDenial");
+            type = URI.create(SOLID_ACCESS_DENIAL);
             supportedTypes = ACCESS_DENIAL_TYPES;
         } else {
             throw new AccessGrantException("Unsupported type " + clazz + " in query request");
@@ -405,7 +409,7 @@ public class AccessGrantClient {
 
         return v1Metadata().thenCompose(metadata -> {
             final List<CompletableFuture<List<T>>> futures = buildQuery(config.getIssuer(), type,
-                    agent, resource, purpose, mode).stream()
+                    resource, creator, recipient, purpose, mode).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -451,7 +455,7 @@ public class AccessGrantClient {
         Objects.requireNonNull(type, "The type parameter must not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final List<CompletableFuture<List<AccessGrant>>> futures = buildQuery(config.getIssuer(), type,
-                    agent, resource, null, mode).stream()
+                    resource, null, agent, null, mode).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -683,26 +687,26 @@ public class AccessGrantClient {
         return Collections.emptyList();
     }
 
-    static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI agent, final URI resource,
-            final URI purpose, final String mode) {
+    static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI resource, final URI creator,
+            final URI recipient, final URI purpose, final String mode) {
         final List<Map<String, Object>> queries = new ArrayList<>();
-        buildQuery(queries, issuer, type, agent, resource, purpose, mode);
+        buildQuery(queries, issuer, type, resource, creator, recipient, purpose, mode);
         return queries;
     }
 
-    static void buildQuery(final List<Map<String, Object>> queries, final URI issuer, final URI type, final URI agent,
-            final URI resource, final URI purpose, final String mode) {
+    static void buildQuery(final List<Map<String, Object>> queries, final URI issuer, final URI type,
+            final URI resource, final URI creator, final URI recipient, final URI purpose, final String mode) {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("issuer", issuer);
         credential.put(TYPE, Arrays.asList(type));
 
         final Map<String, Object> consent = new HashMap<>();
-        if (agent != null) {
+        if (recipient != null) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
-                consent.put(IS_PROVIDED_TO, agent);
+                consent.put(IS_PROVIDED_TO, recipient);
             } else if (isAccessRequest(type)) {
-                consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
+                consent.put(IS_CONSENT_FOR_DATA_SUBJECT, recipient);
             }
         }
         if (resource != null) {
@@ -716,12 +720,17 @@ public class AccessGrantClient {
         }
 
         final Map<String, Object> subject = new HashMap<>();
+        if (creator != null) {
+            subject.put("id", creator);
+        }
         if (!consent.isEmpty()) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
                 subject.put(PROVIDED_CONSENT, consent);
             } else if (isAccessRequest(type)) {
                 subject.put("hasConsent", consent);
             }
+            credential.put(CREDENTIAL_SUBJECT, subject);
+        } else if (!subject.isEmpty()) {
             credential.put(CREDENTIAL_SUBJECT, subject);
         }
 
@@ -733,7 +742,7 @@ public class AccessGrantClient {
         // Recurse
         final URI parent = getParent(resource);
         if (parent != null) {
-            buildQuery(queries, issuer, type, agent, parent, purpose, mode);
+            buildQuery(queries, issuer, type, parent, creator, recipient, purpose, mode);
         }
     }
 
@@ -849,35 +858,35 @@ public class AccessGrantClient {
 
     static Set<String> getAccessRequestTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessRequest");
-        types.add(ACCESS_REQUEST.toString());
+        types.add(SOLID_ACCESS_REQUEST);
+        types.add(FQ_ACCESS_REQUEST.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static Set<String> getAccessGrantTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessGrant");
-        types.add(ACCESS_GRANT.toString());
+        types.add(SOLID_ACCESS_GRANT);
+        types.add(FQ_ACCESS_GRANT.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static Set<String> getAccessDenialTypes() {
         final Set<String> types = new HashSet<>();
-        types.add("SolidAccessDenial");
-        types.add(ACCESS_DENIAL.toString());
+        types.add(SOLID_ACCESS_DENIAL);
+        types.add(FQ_ACCESS_DENIAL.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static boolean isAccessGrant(final URI type) {
-        return "SolidAccessGrant".equals(type.toString()) || ACCESS_GRANT.equals(type);
+        return SOLID_ACCESS_GRANT.equals(type.toString()) || FQ_ACCESS_GRANT.equals(type);
     }
 
     static boolean isAccessRequest(final URI type) {
-        return "SolidAccessRequest".equals(type.toString()) || ACCESS_REQUEST.equals(type);
+        return SOLID_ACCESS_REQUEST.equals(type.toString()) || FQ_ACCESS_REQUEST.equals(type);
     }
 
     static boolean isAccessDenial(final URI type) {
-        return "SolidAccessDenial".equals(type.toString()) || ACCESS_DENIAL.equals(type);
+        return SOLID_ACCESS_DENIAL.equals(type.toString()) || FQ_ACCESS_DENIAL.equals(type);
     }
 
     /**
