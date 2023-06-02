@@ -701,28 +701,12 @@ public class AccessGrantClient {
         credential.put("issuer", issuer);
         credential.put(TYPE, Arrays.asList(type));
 
-        final Map<String, Object> consent = new HashMap<>();
-        if (recipient != null) {
-            if (isAccessGrant(type) || isAccessDenial(type)) {
-                consent.put(IS_PROVIDED_TO, recipient);
-            } else if (isAccessRequest(type)) {
-                consent.put(IS_CONSENT_FOR_DATA_SUBJECT, recipient);
-            }
-        }
-        if (resource != null) {
-            consent.put(FOR_PERSONAL_DATA, resource);
-        }
-        if (purpose != null) {
-            consent.put(FOR_PURPOSE, purpose);
-        }
-        if (mode != null) {
-            consent.put(MODE, mode);
-        }
-
         final Map<String, Object> subject = new HashMap<>();
         if (creator != null) {
             subject.put("id", creator);
         }
+
+        final Map<String, Object> consent = buildConsent(type, resource, recipient, purpose, mode);
         if (!consent.isEmpty()) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
                 subject.put(PROVIDED_CONSENT, consent);
@@ -744,6 +728,28 @@ public class AccessGrantClient {
         if (parent != null) {
             buildQuery(queries, issuer, type, parent, creator, recipient, purpose, mode);
         }
+    }
+
+    static Map<String, Object> buildConsent(final URI type, final URI resource, final URI recipient, final URI purpose,
+            final String mode) {
+        final Map<String, Object> consent = new HashMap<>();
+        if (recipient != null) {
+            if (isAccessGrant(type) || isAccessDenial(type)) {
+                consent.put(IS_PROVIDED_TO, recipient);
+            } else if (isAccessRequest(type)) {
+                consent.put(IS_CONSENT_FOR_DATA_SUBJECT, recipient);
+            }
+        }
+        if (resource != null) {
+            consent.put(FOR_PERSONAL_DATA, resource);
+        }
+        if (purpose != null) {
+            consent.put(FOR_PURPOSE, purpose);
+        }
+        if (mode != null) {
+            consent.put(MODE, mode);
+        }
+        return consent;
     }
 
     static URI getParent(final URI resource) {
