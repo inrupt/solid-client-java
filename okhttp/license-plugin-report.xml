@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1680803929820">
-    <module artifactId="inrupt-client-okhttp" groupId="com.inrupt.client" version="1.0.0.Beta2"/>
+<licensePluginReport goal="CHECK" timestamp="1686161755323">
+    <module artifactId="inrupt-client-okhttp" groupId="com.inrupt.client" version="1.0.0.Beta3"/>
     <files>
         <file path="src/main/java/com/inrupt/client/okhttp/OkHttpResponse.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/okhttp/OkHttpResponseInfo.java" result="PRESENT"/>

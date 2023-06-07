@@ -1,7 +1,9 @@
 com.inrupt.client
 com.inrupt.client.accessgrant
 com.inrupt.client.auth
+com.inrupt.client.caffeine
 com.inrupt.client.core
+com.inrupt.client.guava
 com.inrupt.client.httpclient
 com.inrupt.client.integration.base
 com.inrupt.client.jackson

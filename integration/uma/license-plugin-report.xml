@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1680804147477">
-    <module artifactId="inrupt-client-integration-uma-tests" groupId="com.inrupt.client" version="1.0.0.Beta2"/>
+<licensePluginReport goal="CHECK" timestamp="1686161765268">
+    <module artifactId="inrupt-client-integration-uma-tests" groupId="com.inrupt.client" version="1.0.0.Beta3"/>
     <files>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaAccessGrantScenarioTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaAuthenticationScenariosTest.java" result="PRESENT"/>
