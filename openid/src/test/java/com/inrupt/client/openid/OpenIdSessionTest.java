@@ -42,6 +42,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -160,13 +161,23 @@ class OpenIdSessionTest {
         assertEquals(Optional.of(URI.create(WEBID)), principal);
         assertFalse(session.fromCache(null).isPresent());
         final Authenticator auth = new OpenIdAuthenticationProvider().getAuthenticator(Challenge.of("Bearer"));
-        final Request req = Request.newBuilder(URI.create("https://storage.example")).build();
+        final Request req = Request.newBuilder(URI.create("https://storage.example/")).build();
         final Optional<Credential> credential = session.authenticate(auth, req, Collections.emptySet())
             .toCompletableFuture().join();
         assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
         assertTrue(session.fromCache(req).isPresent());
+        final List<String> uris = Arrays.asList("https://storage.example/?k=v",
+                "https://storage.example/#hash", "https://storage.example/?q=1&k=2#hash");
+        for (final String uri : uris) {
+            final Request r = Request.newBuilder(URI.create(uri)).build();
+            assertTrue(session.fromCache(r).isPresent());
+        }
         session.reset();
         assertFalse(session.fromCache(req).isPresent());
+        for (final String uri : uris) {
+            final Request r = Request.newBuilder(URI.create(uri)).build();
+            assertFalse(session.fromCache(r).isPresent());
+        }
     }
 
     @Test

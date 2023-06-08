@@ -35,9 +35,11 @@ import com.inrupt.client.util.URIBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -130,8 +132,20 @@ class AccessGrantSessionTest {
 
             assertTrue(credential.isPresent());
             assertTrue(session.fromCache(req).isPresent());
+            final List<String> uris = Arrays.asList("https://storage.example/protected-resource?k=v",
+                    "https://storage.example/protected-resource#hash",
+                    "https://storage.example/protected-resource?q=1&k=2#hash");
+            for (final String uri : uris) {
+                final Request r = Request.newBuilder(URI.create(uri)).build();
+                assertTrue(session.fromCache(r).isPresent());
+            }
+
             session.reset();
             assertFalse(session.fromCache(req).isPresent());
+            for (final String uri : uris) {
+                final Request r = Request.newBuilder(URI.create(uri)).build();
+                assertFalse(session.fromCache(r).isPresent());
+            }
         }
     }
 

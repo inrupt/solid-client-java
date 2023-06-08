@@ -152,7 +152,7 @@ public final class AccessGrantSession implements Session {
         return authenticator.authenticate(this, request, algorithms)
             .thenApply(credential -> {
                 if (credential != null) {
-                    tokenCache.put(request.uri(), credential);
+                    tokenCache.put(cacheKey(request.uri()), credential);
                 }
                 return Optional.ofNullable(credential);
             });
@@ -171,7 +171,7 @@ public final class AccessGrantSession implements Session {
 
     @Override
     public Optional<Credential> fromCache(final Request request) {
-        final Credential cachedToken = tokenCache.get(request.uri());
+        final Credential cachedToken = tokenCache.get(cacheKey(request.uri()));
         if (cachedToken != null && cachedToken.getExpiration().isAfter(Instant.now())) {
             return Optional.of(cachedToken);
         }
@@ -180,5 +180,12 @@ public final class AccessGrantSession implements Session {
 
     static boolean isAncestor(final URI parent, final URI resource) {
         return !parent.relativize(resource).isAbsolute();
+    }
+
+    static URI cacheKey(final URI uri) {
+        if (uri.getQuery() != null || uri.getFragment() != null) {
+            return URI.create(uri.getScheme() + "://" + uri.getHost() + uri.getPath());
+        }
+        return uri;
     }
 }
