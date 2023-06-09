@@ -28,7 +28,7 @@ public class SolidApp {
 
         session.getPrincipal().ifPresent(webid -> {
             try (final var profile = client.read(webid, WebIdProfile.class)) {
-                profile.getStorage().stream().findFirst().ifPresent(storage -> {
+                profile.getStorages().stream().findFirst().ifPresent(storage -> {
                     try (final var container = client.read(storage, SolidContainer.class)) {
                         container.getResources().forEach(resource -> resources.add(resource.getIdentifier()));
                     }
