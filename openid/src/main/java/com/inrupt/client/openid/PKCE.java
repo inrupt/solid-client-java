@@ -36,6 +36,8 @@ import java.util.Objects;
  */
 public final class PKCE {
 
+    private static final BigInteger PADDING = BigInteger.valueOf(2).pow(256);
+
     /**
      * Create a PKCE challenge value using the S256 algorithm.
      *
@@ -73,7 +75,7 @@ public final class PKCE {
      * @return the Base64URL-encoded verifier
      */
     static String createVerifier() {
-        final byte[] rand = new BigInteger(32 * 8, new SecureRandom()).toByteArray();
+        final byte[] rand = PADDING.add(new BigInteger(32 * 8, new SecureRandom())).toByteArray();
         return Base64.getUrlEncoder().withoutPadding().encodeToString(rand);
     }
 

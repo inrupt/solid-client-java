@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.openid;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,16 +29,16 @@ class PKCETest {
 
     @Test
     void createChallengeTest() {
-        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").getBytes(UTF_8).length <= 128);
-        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createChallenge("", "SHA-256").getBytes(UTF_8).length <= 128);
+        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").length() >= 43);
+        assertTrue(PKCE.createChallenge("🐶🐶🐶", "SHA-256").length() <= 128);
+        assertTrue(PKCE.createChallenge("", "SHA-256").length() >= 43);
+        assertTrue(PKCE.createChallenge("", "SHA-256").length() <= 128);
         assertThrows(NullPointerException.class, () -> PKCE.createChallenge(null, "SHA-256"));
     }
 
     @Test
     void createVerifierTest() {
-        assertTrue(PKCE.createVerifier().getBytes(UTF_8).length >= 43);
-        assertTrue(PKCE.createVerifier().getBytes(UTF_8).length <= 128);
+        assertTrue(PKCE.createVerifier().length() >= 43);
+        assertTrue(PKCE.createVerifier().length() <= 128);
     }
 }
