@@ -183,8 +183,8 @@ public final class AccessGrantSession implements Session {
     }
 
     static URI cacheKey(final URI uri) {
-        if (uri.getQuery() != null || uri.getFragment() != null) {
-            return URI.create(uri.getScheme() + "://" + uri.getHost() + uri.getPath());
+        if (uri.getFragment() != null) {
+            return URI.create(uri.getScheme() + ":" + uri.getSchemeSpecificPart());
         }
         return uri;
     }

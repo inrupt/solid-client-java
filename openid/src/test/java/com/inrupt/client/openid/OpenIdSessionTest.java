@@ -166,15 +166,30 @@ class OpenIdSessionTest {
             .toCompletableFuture().join();
         assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
         assertTrue(session.fromCache(req).isPresent());
-        final List<String> uris = Arrays.asList("https://storage.example/?k=v",
-                "https://storage.example/#hash", "https://storage.example/?q=1&k=2#hash");
-        for (final String uri : uris) {
+
+        final List<String> hashUris = Arrays.asList("https://storage.example/#hash1",
+                "https://storage.example/#hash2",
+                "https://storage.example/#hash3");
+        for (final String uri : hashUris) {
             final Request r = Request.newBuilder(URI.create(uri)).build();
             assertTrue(session.fromCache(r).isPresent());
         }
+        final List<String> queryUris = Arrays.asList("https://storage.example/?q=1",
+                "https://storage.example/?a=b",
+                "https://storage.example/?foo=bar&q=1");
+        for (final String uri : queryUris) {
+            final Request r = Request.newBuilder(URI.create(uri)).build();
+            assertFalse(session.fromCache(r).isPresent());
+        }
+
         session.reset();
+
         assertFalse(session.fromCache(req).isPresent());
-        for (final String uri : uris) {
+        for (final String uri : hashUris) {
+            final Request r = Request.newBuilder(URI.create(uri)).build();
+            assertFalse(session.fromCache(r).isPresent());
+        }
+        for (final String uri : queryUris) {
             final Request r = Request.newBuilder(URI.create(uri)).build();
             assertFalse(session.fromCache(r).isPresent());
         }

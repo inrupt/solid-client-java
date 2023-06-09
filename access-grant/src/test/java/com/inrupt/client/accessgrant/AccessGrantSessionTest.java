@@ -132,17 +132,29 @@ class AccessGrantSessionTest {
 
             assertTrue(credential.isPresent());
             assertTrue(session.fromCache(req).isPresent());
-            final List<String> uris = Arrays.asList("https://storage.example/protected-resource?k=v",
-                    "https://storage.example/protected-resource#hash",
-                    "https://storage.example/protected-resource?q=1&k=2#hash");
-            for (final String uri : uris) {
+            final List<String> hashUris = Arrays.asList("https://storage.example/protected-resource#hash1",
+                    "https://storage.example/protected-resource#hash2",
+                    "https://storage.example/protected-resource#hash3");
+            for (final String uri : hashUris) {
                 final Request r = Request.newBuilder(URI.create(uri)).build();
                 assertTrue(session.fromCache(r).isPresent());
             }
+            final List<String> queryUris = Arrays.asList("https://storage.example/protected-resource?q=1",
+                    "https://storage.example/protected-resource?a=b",
+                    "https://storage.example/protected-resource?foo=bar&q=1");
+            for (final String uri : queryUris) {
+                final Request r = Request.newBuilder(URI.create(uri)).build();
+                assertFalse(session.fromCache(r).isPresent());
+            }
 
             session.reset();
+
             assertFalse(session.fromCache(req).isPresent());
-            for (final String uri : uris) {
+            for (final String uri : hashUris) {
+                final Request r = Request.newBuilder(URI.create(uri)).build();
+                assertFalse(session.fromCache(r).isPresent());
+            }
+            for (final String uri : queryUris) {
                 final Request r = Request.newBuilder(URI.create(uri)).build();
                 assertFalse(session.fromCache(r).isPresent());
             }
