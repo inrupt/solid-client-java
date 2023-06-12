@@ -57,7 +57,9 @@ class MockUMAAuthorizationServer {
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody("{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\"}")));
+                        .withBody(
+                                "{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\",\"expires_in\":\"3600\"}"
+                        )));
     }
 
     public void start() {
