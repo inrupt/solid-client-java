@@ -224,7 +224,7 @@ public final class OpenIdSession implements Session {
     public Optional<Credential> fromCache(final Request request) {
         if (request != null) {
             final Credential cachedToken = requestCache.get(cacheKey(request.uri()));
-            if(!hasExpired(cachedToken)) {
+            if (!hasExpired(cachedToken)) {
                 LOGGER.debug("Using cached token for request: {}", request.uri());
                 return Optional.of(cachedToken);
             }
