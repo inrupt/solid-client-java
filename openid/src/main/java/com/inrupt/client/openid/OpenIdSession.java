@@ -79,7 +79,7 @@ public final class OpenIdSession implements Session {
     private final AtomicReference<Credential> credential = new AtomicReference<>();
     private final ForkJoinPool executor = new ForkJoinPool(1);
     private final DPoP dpop;
-    private final ClientCache<URI, Boolean> requestCache;
+    private final ClientCache<URI, Credential> requestCache;
 
     private OpenIdSession(final String id, final DPoP dpop,
             final Supplier<CompletionStage<Credential>> authenticator) {
@@ -225,7 +225,7 @@ public final class OpenIdSession implements Session {
         final Credential c = credential.get();
         if (!hasExpired(c) && request != null && requestCache.get(cacheKey(request.uri())) != null) {
             LOGGER.debug("Using cached token for request: {}", request.uri());
-            return Optional.of(c);
+            return Optional.of(requestCache.get(cacheKey(request.uri())));
         }
         return Optional.empty();
     }
@@ -239,19 +239,25 @@ public final class OpenIdSession implements Session {
     @Override
     public CompletionStage<Optional<Credential>> authenticate(final Authenticator auth,
             final Request request, final Set<String> algorithms) {
-        final Optional<Credential> cred = getCredential(ID_TOKEN, null);
-        if (cred.isPresent() && request != null) {
-            LOGGER.debug("Setting cache entry for request: {}", request.uri());
-            requestCache.put(cacheKey(request.uri()), Boolean.TRUE);
-        }
-        return CompletableFuture.completedFuture(cred);
+        return auth.authenticate(this, request, algorithms)
+                .thenApply(credential -> {
+                    if (credential != null) {
+                        requestCache.put(request.uri(), credential);
+                    }
+                    return Optional.ofNullable(credential);
+                });
     }
 
     /* deprecated */
     @Override
     public CompletionStage<Optional<Credential>> authenticate(final Request request,
             final Set<String> algorithms) {
-        return authenticate(null, request, algorithms);
+        final Optional<Credential> cred = getCredential(ID_TOKEN, null);
+        if (cred.isPresent() && request != null) {
+            LOGGER.debug("Setting cache entry for request: {}", request.uri());
+            requestCache.put(request.uri(), cred.get());
+        }
+        return CompletableFuture.completedFuture(cred);
     }
 
     boolean hasExpired(final Credential credential) {
