@@ -223,10 +223,10 @@ public final class OpenIdSession implements Session {
     @Override
     public Optional<Credential> fromCache(final Request request) {
         if (request != null) {
-            final Credential cachedCredential = requestCache.get(cacheKey(request.uri()));
-            if(!hasExpired(cachedCredential)) {
+            final Credential cachedToken = requestCache.get(cacheKey(request.uri()));
+            if(!hasExpired(cachedToken)) {
                 LOGGER.debug("Using cached token for request: {}", request.uri());
-                return Optional.of(cachedCredential);
+                return Optional.of(cachedToken);
             }
         }
         return Optional.empty();
@@ -244,7 +244,8 @@ public final class OpenIdSession implements Session {
         return auth.authenticate(this, request, algorithms)
                 .thenApply(credential -> {
                     if (credential != null) {
-                        requestCache.put(request.uri(), credential);
+                        LOGGER.debug("Setting cache entry for request: {}", request.uri());
+                        requestCache.put(cacheKey(request.uri()), credential);
                     }
                     return Optional.ofNullable(credential);
                 });
@@ -257,7 +258,7 @@ public final class OpenIdSession implements Session {
         final Optional<Credential> cred = getCredential(ID_TOKEN, null);
         if (cred.isPresent() && request != null) {
             LOGGER.debug("Setting cache entry for request: {}", request.uri());
-            requestCache.put(request.uri(), cred.get());
+            requestCache.put(cacheKey(request.uri()), cred.get());
         }
         return CompletableFuture.completedFuture(cred);
     }
