@@ -223,7 +223,7 @@ public final class OpenIdSession implements Session {
     @Override
     public Optional<Credential> fromCache(final Request request) {
         final Credential c = credential.get();
-        if (!hasExpired(c) && request != null && requestCache.get(request.uri()) != null) {
+        if (!hasExpired(c) && request != null && requestCache.get(cacheKey(request.uri())) != null) {
             LOGGER.debug("Using cached token for request: {}", request.uri());
             return Optional.of(c);
         }
@@ -242,7 +242,7 @@ public final class OpenIdSession implements Session {
         final Optional<Credential> cred = getCredential(ID_TOKEN, null);
         if (cred.isPresent() && request != null) {
             LOGGER.debug("Setting cache entry for request: {}", request.uri());
-            requestCache.put(request.uri(), Boolean.TRUE);
+            requestCache.put(cacheKey(request.uri()), Boolean.TRUE);
         }
         return CompletableFuture.completedFuture(cred);
     }
@@ -337,6 +337,13 @@ public final class OpenIdSession implements Session {
             return Instant.MAX;
         }
         return Instant.now().plusSeconds(expiresIn);
+    }
+
+    static URI cacheKey(final URI uri) {
+        if (uri.getFragment() != null) {
+            return URI.create(uri.getScheme() + ":" + uri.getSchemeSpecificPart());
+        }
+        return uri;
     }
 
     static JwtClaims parseIdToken(final String idToken, final OpenIdConfig config) {
