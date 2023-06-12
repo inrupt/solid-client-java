@@ -20,8 +20,49 @@
  */
 package com.inrupt.client.integration.openid;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.integration.base.AuthenticationScenarios;
+import com.inrupt.client.solid.SolidRDFSource;
+import com.inrupt.client.solid.SolidSyncClient;
+
+import java.net.URI;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class OpenIdAuthenticationScenariosTest extends AuthenticationScenarios {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenIdAuthenticationScenariosTest.class);
 
+    @ParameterizedTest
+    @MethodSource("provideSessions")
+    @DisplayName(":authenticatedPrivateNode Authenticated fetch of private resource succeeds")
+    void fetchPrivateResourceAuthenticatedTest(final Session session) {
+        LOGGER.info("Integration Test - Authenticated fetch of private resource");
+        //create private resource
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
+            assertDoesNotThrow(() -> authClient.create(testResource));
+
+            assertDoesNotThrow(() -> authClient.read(privateResourceURL, SolidRDFSource.class));
+
+            // Lookup the session cache.
+            final Request dummyRequest = Request.newBuilder(privateResourceURL).build();
+            final var token = session.fromCache(dummyRequest);
+            final var credential = session.getCredential(
+                    URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken"),
+                    null
+            );
+            // If UMA authentication was successful, the token issuer will be the UMA server, while the credential (i.e. the
+            // ID Token) is issued by the OpenID provider.
+            assertEquals(token.get().getIssuer(), credential.get().getIssuer());
+
+            assertDoesNotThrow(() -> authClient.delete(testResource));
+        }
+    }
 }
