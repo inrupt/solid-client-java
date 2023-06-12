@@ -222,10 +222,12 @@ public final class OpenIdSession implements Session {
 
     @Override
     public Optional<Credential> fromCache(final Request request) {
-        final Credential c = credential.get();
-        if (!hasExpired(c) && request != null && requestCache.get(cacheKey(request.uri())) != null) {
-            LOGGER.debug("Using cached token for request: {}", request.uri());
-            return Optional.of(requestCache.get(cacheKey(request.uri())));
+        if (request != null) {
+            final Credential cachedCredential = requestCache.get(cacheKey(request.uri()));
+            if(!hasExpired(cachedCredential)) {
+                LOGGER.debug("Using cached token for request: {}", request.uri());
+                return Optional.of(cachedCredential);
+            }
         }
         return Optional.empty();
     }
