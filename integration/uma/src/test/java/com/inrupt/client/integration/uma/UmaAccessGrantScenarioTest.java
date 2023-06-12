@@ -43,7 +43,7 @@ public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    void accessGrantIssuanceLifecycleTest(final Session session) {
+    void accessGrantUmaAuthentication(final Session session) {
         LOGGER.info("Integration Test - UMA Authentication to VC endpoint");
 
         final AccessGrantClient accessGrantClient = new AccessGrantClient(

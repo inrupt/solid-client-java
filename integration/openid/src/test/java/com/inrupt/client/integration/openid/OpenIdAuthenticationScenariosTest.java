@@ -40,7 +40,7 @@ class OpenIdAuthenticationScenariosTest extends AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    void fetchPrivateResourceAuthenticatedTest(final Session session) {
+    void openIdAuthenticationTest(final Session session) {
         LOGGER.info("Integration Test - Authenticated fetch of private resource uses OpenID authenticator");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
