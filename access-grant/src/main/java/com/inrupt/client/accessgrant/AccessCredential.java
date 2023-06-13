@@ -52,6 +52,7 @@ public class AccessCredential {
     private final URI recipient;
     private final URI creator;
     private final Instant expiration;
+    private final Instant issuedAt;
     private final Status status;
 
     /**
@@ -78,6 +79,7 @@ public class AccessCredential {
         this.types = metadata.getTypes();
         this.status = metadata.getStatus();
         this.expiration = metadata.getExpiration();
+        this.issuedAt = metadata.getIssuedAt();
     }
 
     /**
@@ -114,6 +116,10 @@ public class AccessCredential {
      */
     public Instant getExpiration() {
         return expiration != null ? expiration : Instant.MAX;
+    }
+
+    public Instant getIssuedAt() {
+        return issuedAt;
     }
 
     /**
@@ -188,6 +194,7 @@ public class AccessCredential {
         private final Set<String> types;
         private final Status status;
         private final Instant expiration;
+        private final Instant issuedAt;
 
         /**
          * A collection of server-managed credential metadata.
@@ -197,12 +204,30 @@ public class AccessCredential {
          * @param types the credential types
          * @param expiration the credential expiration
          * @param status the credential status
+         * @deprecated as of Beta4, please use the 6-parameter constructor
          */
+        @Deprecated
         public CredentialMetadata(final URI issuer, final URI creator, final Set<String> types,
                 final Instant expiration, final Status status) {
+            this(issuer, creator, types, Instant.now(), expiration, status);
+        }
+
+        /**
+         * A collection of server-managed credential metadata.
+         *
+         * @param issuer the issuer
+         * @param creator the agent who created the credential
+         * @param types the credential types
+         * @param issuedAt the credential issuance date
+         * @param expiration the credential expiration date
+         * @param status the credential status
+         */
+        public CredentialMetadata(final URI issuer, final URI creator, final Set<String> types,
+                final Instant issuedAt, final Instant expiration, final Status status) {
             this.issuer = Objects.requireNonNull(issuer, "issuer may not be null!");
             this.creator = Objects.requireNonNull(creator, "creator may not be null!");
             this.types = Objects.requireNonNull(types, "types may not be null!");
+            this.issuedAt = Objects.requireNonNull(issuedAt, "issuedAt may not be null!");
             this.expiration = expiration;
             this.status = status;
         }
@@ -250,6 +275,15 @@ public class AccessCredential {
          */
         public Status getStatus() {
             return status;
+        }
+
+        /**
+         * Get the instant when the credential was issued.
+         *
+         * @return the time at which the access credentials was issued
+         */
+        public Instant getIssuedAt() {
+            return issuedAt;
         }
     }
 
@@ -318,6 +352,7 @@ public class AccessCredential {
                 new IllegalArgumentException("Missing or invalid issuer field"));
         final Set<String> types = asSet(data.get(TYPE)).orElseGet(Collections::emptySet);
         final Instant expiration = asInstant(data.get("expirationDate")).orElse(Instant.MAX);
+        final Instant issuedAt = asInstant(data.get("issuanceDate")).orElse(Instant.EPOCH);
         final Status status = asMap(data.get("credentialStatus")).flatMap(credentialStatus ->
                 asSet(credentialStatus.get(TYPE)).filter(statusTypes ->
                     statusTypes.contains(REVOCATION_LIST_2020_STATUS)).map(x ->
@@ -329,7 +364,7 @@ public class AccessCredential {
         final URI creator = asUri(subject.get("id")).orElseThrow(() ->
                 new IllegalArgumentException("Missing or invalid credentialSubject.id field"));
 
-        return new CredentialMetadata(issuer, creator, types, expiration, status);
+        return new CredentialMetadata(issuer, creator, types, issuedAt, expiration, status);
     }
 
     static Map<String, Object> extractConsent(final Map<String, Object> data, final String property) {

@@ -55,6 +55,7 @@ class AccessGrantTest {
             expectedTypes.add("SolidAccessGrant");
             assertEquals(expectedTypes, grant.getTypes());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), grant.getExpiration());
+            assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
                     grant.getIdentifier());
             assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurpose());
@@ -88,6 +89,7 @@ class AccessGrantTest {
             expectedTypes.add("SolidAccessGrant");
             assertEquals(expectedTypes, grant.getTypes());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), grant.getExpiration());
+            assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
                     grant.getIdentifier());
             assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurpose());

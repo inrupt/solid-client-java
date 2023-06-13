@@ -53,6 +53,7 @@ class AccessRequestTest {
             expectedTypes.add("SolidAccessRequest");
             assertEquals(expectedTypes, request.getTypes());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), request.getExpiration());
+            assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), request.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab"),
                     request.getIdentifier());
             assertEquals(Collections.singleton(URI.create("https://purpose.test/Purpose1")), request.getPurposes());
@@ -83,6 +84,7 @@ class AccessRequestTest {
             expectedTypes.add("SolidAccessRequest");
             assertEquals(expectedTypes, request.getTypes());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), request.getExpiration());
+            assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), request.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab"),
                     request.getIdentifier());
             assertEquals(Collections.singleton(URI.create("https://purpose.test/Purpose1")), request.getPurposes());
