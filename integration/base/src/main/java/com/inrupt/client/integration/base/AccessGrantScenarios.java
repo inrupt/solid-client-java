@@ -85,7 +85,7 @@ public class AccessGrantScenarios {
 
     private static String podUrl;
     private static String issuer;
-    private static String webidUrl;
+    protected static String webidUrl;
     private static final String MOCK_USERNAME = "someuser";
 
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
@@ -93,27 +93,27 @@ public class AccessGrantScenarios {
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
-    private static String VC_PROVIDER;
+    protected static String VC_PROVIDER;
     private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.private-resource-path", String.class)
         .orElse("private");
 
     private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
     private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
-    private static final String GRANT_MODE_READ = "Read";
+    protected static final String GRANT_MODE_READ = "Read";
     private static final String GRANT_MODE_APPEND = "Append";
     private static final String GRANT_MODE_WRITE = "Write";
     private static final URI PURPOSE1 = URI.create("https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f");
     private static final URI PURPOSE2 = URI.create("https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03");
-    private static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
-    private static final String GRANT_EXPIRATION = "2024-04-03T12:00:00Z";
+    protected static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
+    protected static final String GRANT_EXPIRATION = "2024-04-03T12:00:00Z";
 
     private static URI testContainerURI;
     private static String testRDFresourceName = "resource.ttl";
     private static URI testRDFresourceURI;
     private static String sharedTextFileName = "sharedFile.txt";
     private static String sharedResourceName = "sharedResource";
-    private static URI sharedTextFileURI;
+    protected static URI sharedTextFileURI;
     private static URI sharedResource;
     private static Session session;
 
@@ -182,7 +182,12 @@ public class AccessGrantScenarios {
             prepareACPofResource(authClient, sharedTextFileURI);
         }
 
-        accessGrantServer = new MockAccessGrantServer(State.WEBID, sharedTextFileURI, sharedResource);
+        accessGrantServer = new MockAccessGrantServer(
+                State.WEBID,
+                sharedTextFileURI,
+                sharedResource,
+                authServer.getMockServerUrl()
+        );
         accessGrantServer.start();
 
         VC_PROVIDER = config

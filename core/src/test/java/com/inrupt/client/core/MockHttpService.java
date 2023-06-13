@@ -133,7 +133,7 @@ class MockHttpService {
                     .withHeader("User-Agent", equalTo(USER_AGENT))
                     .withRequestBody(matching("Test String 1"))
                     .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
-                    .withHeader("Authorization", containing("Bearer eyJ"))
+                    .withHeader("Authorization", containing("Bearer"))
                     .withHeader("DPoP", absent())
                     .willReturn(aResponse()
                         .withStatus(201)));

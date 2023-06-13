@@ -20,8 +20,54 @@
  */
 package com.inrupt.client.integration.uma;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.inrupt.client.Request;
+import com.inrupt.client.accessgrant.AccessGrantClient;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.integration.base.AccessGrantScenarios;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UmaAccessGrantScenarioTest.class);
+
+    @ParameterizedTest
+    @MethodSource("provideSessions")
+    void accessGrantUmaAuthentication(final Session session) {
+        LOGGER.info("Integration Test - UMA Authentication to VC endpoint");
+
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(AccessGrantScenarios.VC_PROVIDER)
+        ).session(session);
+
+        // Make an authenticated request to the VC provider /issue endpoint to enforce a token is cached by the session.
+        accessGrantClient.requestAccess(URI.create(webidUrl),
+                        new HashSet<>(Arrays.asList(sharedTextFileURI)),
+                        new HashSet<>(Arrays.asList(GRANT_MODE_READ)),
+                        PURPOSES,
+                        Instant.parse(GRANT_EXPIRATION))
+                .toCompletableFuture().join();
+        // Lookup the session cache.
+        final Request dummyRequest = Request.newBuilder(
+            URI.create(AccessGrantScenarios.VC_PROVIDER).resolve("/issue")
+        ).POST(Request.BodyPublishers.ofString("Not relevant")).build();
+        final var token = session.fromCache(dummyRequest);
+        final var credential = session.getCredential(
+                URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken"),
+                null
+        );
+        // If UMA authentication was successful, the token issuer will be the UMA server, while the credential (i.e. the
+        // ID Token) is issued by the OpenID provider.
+        assertNotEquals(token.get().getIssuer(), credential.get().getIssuer());
+    }
 }

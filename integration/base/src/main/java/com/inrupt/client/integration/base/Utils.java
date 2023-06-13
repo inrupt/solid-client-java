@@ -41,16 +41,16 @@ import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 
-final class Utils {
+public final class Utils {
 
     static final String ACCEPT = "Accept";
-    static final String CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_TYPE = "Content-Type";
     static final String IF_NONE_MATCH = "If-None-Match";
     static final String TEXT_TURTLE = "text/turtle";
     static final String SPARQL_UPDATE = "application/sparql-update";
     static final String APPLICATION_JSON = "application/json";
     static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
-    static final String PLAIN_TEXT = "text/plain";
+    public static final String PLAIN_TEXT = "text/plain";
     static final String APPLICATION_OCTET = "application/octet-stream";
     static final String PATCH = "PATCH";
     static final String WILDCARD = "*";
@@ -62,7 +62,7 @@ final class Utils {
     static final int SUCCESS = 200;
     static final int CREATED = 201;
     static final int NO_CONTENT = 204;
-    static final int UNAUTHORIZED = 401;
+    public static final int UNAUTHORIZED = 401;
     static final int NOT_FOUND = 404;
     static final int NOT_ALLOWED = 405;
     static final int CONFLICT = 409;

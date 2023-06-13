@@ -72,7 +72,7 @@ public class AuthenticationScenarios {
 
     private static String testResourceName = "resource.ttl";
     private static URI publicResourceURL;
-    private static URI privateResourceURL;
+    protected static URI privateResourceURL;
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
