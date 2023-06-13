@@ -43,45 +43,45 @@ import org.jose4j.lang.UncheckedJoseException;
 
 public final class Utils {
 
-    static final String ACCEPT = "Accept";
+    public static final String ACCEPT = "Accept";
     public static final String CONTENT_TYPE = "Content-Type";
-    static final String IF_NONE_MATCH = "If-None-Match";
-    static final String TEXT_TURTLE = "text/turtle";
-    static final String SPARQL_UPDATE = "application/sparql-update";
-    static final String APPLICATION_JSON = "application/json";
-    static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
+    public static final String IF_NONE_MATCH = "If-None-Match";
+    public static final String TEXT_TURTLE = "text/turtle";
+    public static final String SPARQL_UPDATE = "application/sparql-update";
+    public static final String APPLICATION_JSON = "application/json";
+    public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
     public static final String PLAIN_TEXT = "text/plain";
-    static final String APPLICATION_OCTET = "application/octet-stream";
-    static final String PATCH = "PATCH";
-    static final String WILDCARD = "*";
-    static final String BEARER = "Bearer";
-    static final String DPOP = "DPoP";
-    static final String UMA = "UMA";
-    static final String FOLDER_SEPARATOR = "/";
+    public static final String APPLICATION_OCTET = "application/octet-stream";
+    public static final String PATCH = "PATCH";
+    public static final String WILDCARD = "*";
+    public static final String BEARER = "Bearer";
+    public static final String DPOP = "DPoP";
+    public static final String UMA = "UMA";
+    public static final String FOLDER_SEPARATOR = "/";
 
-    static final int SUCCESS = 200;
-    static final int CREATED = 201;
-    static final int NO_CONTENT = 204;
+    public static final int SUCCESS = 200;
+    public static final int CREATED = 201;
+    public static final int NO_CONTENT = 204;
     public static final int UNAUTHORIZED = 401;
-    static final int NOT_FOUND = 404;
-    static final int NOT_ALLOWED = 405;
-    static final int CONFLICT = 409;
-    static final int PRECONDITION_FAILED = 412;
-    static final int ERROR = 500;
+    public static final int NOT_FOUND = 404;
+    public static final int NOT_ALLOWED = 405;
+    public static final int CONFLICT = 409;
+    public static final int PRECONDITION_FAILED = 412;
+    public static final int ERROR = 500;
 
-    static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
-    static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
-    static final String VC_DISCOVERY_ENDPOINT = "/.well-known/vc-configuration";
-    static final String UMA_TOKEN_ENDPOINT = "uma/token";
-    static final String OAUTH_TOKEN_ENDPOINT = "oauth/oauth20/token";
-    static final String UMA_JWKS_ENDPOINT = "uma/jwks";
-    static final String OAUTH_JWKS_ENDPOINT = "oauth/jwks";
+    public static final String UMA_DISCOVERY_ENDPOINT = "/.well-known/uma2-configuration";
+    public static final String OPENID_DISCOVERY_ENDPOINT = "/.well-known/openid-configuration";
+    public static final String VC_DISCOVERY_ENDPOINT = "/.well-known/vc-configuration";
+    public static final String UMA_TOKEN_ENDPOINT = "uma/token";
+    public static final String OAUTH_TOKEN_ENDPOINT = "oauth/oauth20/token";
+    public static final String UMA_JWKS_ENDPOINT = "uma/jwks";
+    public static final String OAUTH_JWKS_ENDPOINT = "oauth/jwks";
 
-    static boolean isSuccessful(final int status) {
+    public static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
     }
 
-    static byte[] modifyBody(final byte[] originalBody, final String requestBody)
+    public static byte[] modifyBody(final byte[] originalBody, final String requestBody)
             throws IOException {
         try (final InputStream input = new ByteArrayInputStream(originalBody)) {
             final Model model = ModelFactory.createDefaultModel();
@@ -96,7 +96,7 @@ public final class Utils {
         }
     }
 
-    static PublicJsonWebKey getDpopKey(final String resource) {
+    public static PublicJsonWebKey getDpopKey(final String resource) {
         try (final InputStream stream = Utils.class.getResourceAsStream(resource)) {
             final String jwks = IOUtils.toString(stream, UTF_8);
             return PublicJsonWebKey.Factory.newPublicJwk(jwks);
@@ -107,11 +107,11 @@ public final class Utils {
         }
     }
 
-    static boolean isPrivateResource(final String uri) {
+    public static boolean isPrivateResource(final String uri) {
         return uri.contains(State.PRIVATE_RESOURCE_PATH);
     }
 
-    static boolean isPodRoot(final String url) {
+    public static boolean isPodRoot(final String url) {
         return "/".equals(url);
     }
 
