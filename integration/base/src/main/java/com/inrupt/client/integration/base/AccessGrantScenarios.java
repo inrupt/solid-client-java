@@ -286,6 +286,14 @@ public class AccessGrantScenarios {
         assertTrue(grantVerification.getChecks().size() > 0);
         assertEquals(revokedGrantVerification.getErrors().size(), 1);
         assertEquals(grantVerification.getWarnings().size(), 0);
+
+        // Once revoked, the Access Grant should no longer grant access to the resource. The previously issued access
+        // token may still be valid, so cache is cleared for the test.
+        accessSession.reset();
+        assertThrows(
+                UnauthorizedException.class,
+                () -> authClient.send(reqReadAgain, Response.BodyHandlers.discarding())
+        );
     }
 
     @ParameterizedTest
