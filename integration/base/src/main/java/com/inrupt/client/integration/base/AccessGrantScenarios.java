@@ -194,7 +194,9 @@ public class AccessGrantScenarios {
             .getOptionalValue("inrupt.test.access-grant.provider", String.class)
             .orElse(accessGrantServer.getMockServerUrl());
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
 
@@ -237,7 +239,9 @@ public class AccessGrantScenarios {
     void accessGrantIssuanceLifecycleTest(final Session session) {
         LOGGER.info("Integration Test - Access Grant issuance lifecycle");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
@@ -286,7 +290,9 @@ public class AccessGrantScenarios {
     void accessGrantWithRequestOverridesTest(final Session session) {
         LOGGER.info("Integration Test - Access Grant with request overrides");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_APPEND));
         final Instant expiration = Instant.now().plus(90, ChronoUnit.DAYS);
@@ -305,7 +311,9 @@ public class AccessGrantScenarios {
     void accessGrantNonRecursiveTest(final Session session) {
         LOGGER.info("Integration Test - Issue a non-recursive access grant");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
@@ -325,7 +333,9 @@ public class AccessGrantScenarios {
     void accessGrantQueryByRequestorTest(final Session session) {
         LOGGER.info("Integration Test - Lookup Access Grants by requestor");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         //query for all grants issued by the user
         final List<AccessRequest> grants = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
@@ -349,7 +359,9 @@ public class AccessGrantScenarios {
     void accessGrantQueryByResourceTest(final Session session) {
         LOGGER.info("Integration Test - Lookup Access Grants by resource");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         //query for all grants of a dedicated resource
         final List<AccessRequest> requests = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
@@ -370,7 +382,9 @@ public class AccessGrantScenarios {
     void accessGrantQueryByPurposeTest(final Session session) {
         LOGGER.info("Integration Test - Lookup Access Grants by purpose");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         //query for all grants with a dedicated purpose
         final List<AccessRequest> requests = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
@@ -399,7 +413,9 @@ public class AccessGrantScenarios {
             assertDoesNotThrow(() -> client.create(resource));
         }
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
@@ -432,7 +448,9 @@ public class AccessGrantScenarios {
         try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI)) {
             assertDoesNotThrow(() -> client.create(resource));
 
-            final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+            final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                    URI.create(ACCESS_GRANT_PROVIDER)
+            ).session(session);
 
             final Set<String> modes = new HashSet<>(Arrays.asList(
                 GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
@@ -470,7 +488,9 @@ public class AccessGrantScenarios {
     void accessGrantCreateRdfTest(final Session session) {
         LOGGER.info("Integration Test - Creating RDF using Access Grant");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
             .path("newRdf.ttl")
@@ -515,7 +535,9 @@ public class AccessGrantScenarios {
             assertDoesNotThrow(() -> client.create(testResource));
         }
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
@@ -560,7 +582,9 @@ public class AccessGrantScenarios {
             assertDoesNotThrow(() -> client.create(testResource));
         }
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
@@ -604,7 +628,9 @@ public class AccessGrantScenarios {
             .path("newFile.txt")
             .build();
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(URI.create(ACCESS_GRANT_PROVIDER)).session(session);
+        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(session);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
