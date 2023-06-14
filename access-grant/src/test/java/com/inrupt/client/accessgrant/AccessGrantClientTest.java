@@ -515,6 +515,23 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryGrantBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
+        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+            .resource(resource).mode("Read").build(AccessGrant.class);
+        final List<AccessGrant> grants = client.query(query).toCompletableFuture().join();
+        assertEquals(1, grants.size());
+    }
+
+    @Test
     void testQueryGrantAgent() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -530,6 +547,22 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryGrantAgentBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+            .recipient(URI.create("https://id.test/user")).mode("Read").build(AccessGrant.class);
+        final List<AccessGrant> grants = client.query(query).toCompletableFuture().join();
+        assertEquals(1, grants.size());
+    }
+
+    @Test
     void testQueryRequestAgent() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -541,6 +574,22 @@ class AccessGrantClientTest {
 
         final List<AccessRequest> requests = client.query(null, null, URI.create("https://id.test/user"),
                 null, "Read", AccessRequest.class).toCompletableFuture().join();
+        assertEquals(1, requests.size());
+    }
+
+    @Test
+    void testQueryRequestAgentBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final AccessCredentialQuery<AccessRequest> query = AccessCredentialQuery.newBuilder()
+            .recipient(URI.create("https://id.test/user")).mode("Read").build(AccessRequest.class);
+        final List<AccessRequest> requests = client.query(query).toCompletableFuture().join();
         assertEquals(1, requests.size());
     }
 
@@ -561,6 +610,23 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryRequestBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c");
+        final AccessCredentialQuery<AccessRequest> query = AccessCredentialQuery.newBuilder()
+            .resource(resource).mode("Read").build(AccessRequest.class);
+        final List<AccessRequest> requests = client.query(query).toCompletableFuture().join();
+        assertEquals(1, requests.size());
+    }
+
+    @Test
     void testQueryDenial() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -575,6 +641,33 @@ class AccessGrantClientTest {
             .toCompletableFuture().join();
         assertEquals(1, grants.size());
     }
+
+    @Test
+    void testQueryDenialBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/ef9c4b90-0459-408d-bfa9-1c61d46e1eaf/e/f/g");
+        final AccessCredentialQuery<AccessDenial> query = AccessCredentialQuery.newBuilder()
+            .resource(resource).mode("Read").build(AccessDenial.class);
+        final List<AccessDenial> grants = client.query(query).toCompletableFuture().join();
+        assertEquals(1, grants.size());
+    }
+
+    @Test
+    void testQueryInvalidTypeBuilder() {
+        final URI uri = URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c");
+        final AccessCredentialQuery.Builder builder = AccessCredentialQuery.newBuilder()
+            .resource(uri).mode("Read");
+
+        assertThrows(AccessGrantException.class, () -> builder.build(AccessCredential.class));
+    }
+
 
     @Test
     void testQueryInvalidType() {

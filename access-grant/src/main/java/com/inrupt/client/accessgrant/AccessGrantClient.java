@@ -390,6 +390,28 @@ public class AccessGrantClient {
      */
     public <T extends AccessCredential> CompletionStage<List<T>> query(final URI resource, final URI creator,
             final URI recipient, final URI purpose, final String mode, final Class<T> clazz) {
+
+        final Set<String> modes = mode != null ? Collections.singleton(mode) : Collections.emptySet();
+        final Set<URI> purposes = purpose != null ? Collections.singleton(purpose) : Collections.emptySet();
+
+        return query(resource, creator, recipient, purposes, modes, clazz);
+    }
+
+    /**
+     * Perform an Access Grant query.
+     *
+     * @param <T> the AccessCredential type
+     * @param query the access credential query, never {@code null}
+     * @return the next stage of completion, including the matched Access Credentials
+     */
+    public <T extends AccessCredential> CompletionStage<List<T>> query(final AccessCredentialQuery<T> query) {
+        Objects.requireNonNull(query, "The query may not be null!");
+        return query(query.getResource(), query.getCreator(), query.getRecipient(), query.getPurposes(),
+                query.getModes(), query.getAccessCredentialType());
+    }
+
+    private <T extends AccessCredential> CompletionStage<List<T>> query(final URI resource, final URI creator,
+            final URI recipient, final Set<URI> purposes, final Set<String> modes, final Class<T> clazz) {
         Objects.requireNonNull(clazz, "The clazz parameter must not be null!");
 
         final URI type;
@@ -409,7 +431,7 @@ public class AccessGrantClient {
 
         return v1Metadata().thenCompose(metadata -> {
             final List<CompletableFuture<List<T>>> futures = buildQuery(config.getIssuer(), type,
-                    resource, creator, recipient, purpose, mode).stream()
+                    resource, creator, recipient, purposes, modes).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -455,7 +477,7 @@ public class AccessGrantClient {
         Objects.requireNonNull(type, "The type parameter must not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final List<CompletableFuture<List<AccessGrant>>> futures = buildQuery(config.getIssuer(), type,
-                    resource, null, agent, null, mode).stream()
+                    resource, null, agent, Collections.emptySet(), Collections.singleton(mode)).stream()
                 .map(data -> Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
@@ -688,14 +710,15 @@ public class AccessGrantClient {
     }
 
     static List<Map<String, Object>> buildQuery(final URI issuer, final URI type, final URI resource, final URI creator,
-            final URI recipient, final URI purpose, final String mode) {
+            final URI recipient, final Set<URI> purposes, final Set<String> modes) {
         final List<Map<String, Object>> queries = new ArrayList<>();
-        buildQuery(queries, issuer, type, resource, creator, recipient, purpose, mode);
+        buildQuery(queries, issuer, type, resource, creator, recipient, purposes, modes);
         return queries;
     }
 
     static void buildQuery(final List<Map<String, Object>> queries, final URI issuer, final URI type,
-            final URI resource, final URI creator, final URI recipient, final URI purpose, final String mode) {
+            final URI resource, final URI creator, final URI recipient, final Set<URI> purposes,
+            final Set<String> modes) {
         final Map<String, Object> credential = new HashMap<>();
         credential.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI, INRUPT_CONTEXT_URI));
         credential.put("issuer", issuer);
@@ -706,7 +729,7 @@ public class AccessGrantClient {
             subject.put("id", creator);
         }
 
-        final Map<String, Object> consent = buildConsent(type, resource, recipient, purpose, mode);
+        final Map<String, Object> consent = buildConsent(type, resource, recipient, purposes, modes);
         if (!consent.isEmpty()) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
                 subject.put(PROVIDED_CONSENT, consent);
@@ -726,12 +749,12 @@ public class AccessGrantClient {
         // Recurse
         final URI parent = getParent(resource);
         if (parent != null) {
-            buildQuery(queries, issuer, type, parent, creator, recipient, purpose, mode);
+            buildQuery(queries, issuer, type, parent, creator, recipient, purposes, modes);
         }
     }
 
-    static Map<String, Object> buildConsent(final URI type, final URI resource, final URI recipient, final URI purpose,
-            final String mode) {
+    static Map<String, Object> buildConsent(final URI type, final URI resource, final URI recipient,
+            final Set<URI> purposes, final Set<String> modes) {
         final Map<String, Object> consent = new HashMap<>();
         if (recipient != null) {
             if (isAccessGrant(type) || isAccessDenial(type)) {
@@ -743,11 +766,11 @@ public class AccessGrantClient {
         if (resource != null) {
             consent.put(FOR_PERSONAL_DATA, resource);
         }
-        if (purpose != null) {
-            consent.put(FOR_PURPOSE, purpose);
+        if (!purposes.isEmpty()) {
+            consent.put(FOR_PURPOSE, purposes);
         }
-        if (mode != null) {
-            consent.put(MODE, mode);
+        if (!modes.isEmpty()) {
+            consent.put(MODE, modes);
         }
         return consent;
     }
