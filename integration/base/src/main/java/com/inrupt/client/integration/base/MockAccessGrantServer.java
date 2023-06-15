@@ -25,11 +25,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.accessgrant.AccessCredentialVerification;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.io.IOUtils;
 
@@ -37,6 +40,19 @@ class MockAccessGrantServer {
 
     private static final String DERIVE = "/derive";
     private static final String ISSUE = "/issue";
+
+    private static final String VERIFY = "/verify";
+
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+
+    private static final String SCHEME_BEARER = "Bearer";
+
+    // An identifier to enable statefulness in Wiremock, useful to manage revocation and verification.
+    private static final String SCENARIO_ACCESS_GRANT = "AccessGrant";
+    private static final String SCENARIO_STATE_ISSUED = "Issued";
+    private static final String SCENARIO_STATE_REVOKED = "Revoked";
+
+
 
     private final WireMockServer wireMockServer;
     private final String webId;
@@ -92,7 +108,7 @@ class MockAccessGrantServer {
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                     .atPriority(3)
-                    .withHeader("Authorization", containing("Bearer"))
+                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                     .withRequestBody(containing("hasConsent"))
                     .withRequestBody(containing(this.sharedResource))
                     .willReturn(aResponse()
@@ -102,8 +118,10 @@ class MockAccessGrantServer {
                             this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
+                    .inScenario(SCENARIO_ACCESS_GRANT)
+                    .willSetStateTo(SCENARIO_STATE_ISSUED)
                     .atPriority(3)
-                    .withHeader("Authorization", containing("Bearer"))
+                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                     .withRequestBody(containing("providedConsent"))
                     .withRequestBody(containing(this.sharedResource))
                     .willReturn(aResponse()
@@ -114,7 +132,7 @@ class MockAccessGrantServer {
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                     .atPriority(1)
-                    .withHeader("Authorization", containing("Bearer"))
+                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                     .withRequestBody(containing("hasConsent"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
@@ -123,16 +141,66 @@ class MockAccessGrantServer {
                             this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
+                    .inScenario(SCENARIO_ACCESS_GRANT)
+                    .willSetStateTo(SCENARIO_STATE_ISSUED)
                     .atPriority(1)
-                    .withHeader("Authorization", containing("Bearer"))
+                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                     .withRequestBody(containing("providedConsent"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
                             this.webId, this.sharedFile))));
+
+        wireMockServer.stubFor(post(urlEqualTo(ISSUE))
+                .atPriority(1)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("hasConsent"))
+                .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
+                                this.webId, this.sharedFile))));
+
+        // Require UMA authentication for the /verify endpoint
+        wireMockServer.stubFor(post(urlEqualTo(VERIFY))
+                .atPriority(2)
+                .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
+                                "UMA ticket=\"ticket-67890\", as_uri=\"" + authorisationServerUrl + "\"")));
+
+        wireMockServer.stubFor(post(urlEqualTo(VERIFY))
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .whenScenarioStateIs(SCENARIO_STATE_ISSUED)
+                .atPriority(1)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .willReturn(jsonResponse(
+                        new AccessCredentialVerification(
+                                Arrays.asList("issuanceDate", "proof", "expirationDate", "credentialStatus"),
+                                Collections.emptyList(),
+                                Collections.emptyList()),
+                        200)
+                ));
+
+        wireMockServer.stubFor(post(urlEqualTo(VERIFY))
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .whenScenarioStateIs(SCENARIO_STATE_REVOKED)
+                .atPriority(1)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("providedConsent"))
+                .willReturn(jsonResponse(
+                        new AccessCredentialVerification(
+                                Arrays.asList("issuanceDate", "proof", "expirationDate", "credentialStatus"),
+                                Collections.emptyList(),
+                                Arrays.asList("credentialStatus validation has failed: credential has been revoked")),
+                        200)
+                )
+        );
 
         wireMockServer.stubFor(post(urlEqualTo("/status"))
+                    .inScenario(SCENARIO_ACCESS_GRANT)
+                    .willSetStateTo(SCENARIO_STATE_REVOKED)
                     .withRequestBody(containing("\"RevocationList2020Status\""))
                     .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));

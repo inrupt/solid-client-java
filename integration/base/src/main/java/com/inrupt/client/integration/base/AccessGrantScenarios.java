@@ -252,6 +252,10 @@ public class AccessGrantScenarios {
             .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
+        final var grantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        assertTrue(grantVerification.getChecks().size() > 0);
+        assertEquals(grantVerification.getErrors().size(), 0);
+        assertEquals(grantVerification.getWarnings().size(), 0);
 
         final AccessGrant grantFromVcProvider = accessGrantClient.fetch(grant.getIdentifier(), AccessGrant.class)
             .toCompletableFuture().join();
@@ -282,6 +286,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
 
         //6. call verify endpoint to check the grant is not valid
+        final var revokedGrantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        assertTrue(grantVerification.getChecks().size() > 0);
+        assertEquals(revokedGrantVerification.getErrors().size(), 1);
+        assertEquals(grantVerification.getWarnings().size(), 0);
     }
 
     @ParameterizedTest
@@ -303,6 +311,10 @@ public class AccessGrantScenarios {
             .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
+        final var grantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        assertTrue(grantVerification.getChecks().size() > 0);
+        assertEquals(grantVerification.getErrors().size(), 0);
+        assertEquals(grantVerification.getWarnings().size(), 0);
     }
 
     @ParameterizedTest
@@ -323,7 +335,15 @@ public class AccessGrantScenarios {
         final AccessGrant grant = accessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         //Steps
+
         //1. call verify endpoint to verify grant
+        final var grantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        assertTrue(grantVerification.getChecks().size() > 0);
+        assertEquals(grantVerification.getErrors().size(), 0);
+        assertEquals(grantVerification.getWarnings().size(), 0);
+
+        //2. use the grant to access the target container.
+        //3. try using the grant to access a child resource.
     }
 
     // Query access grant related tests
