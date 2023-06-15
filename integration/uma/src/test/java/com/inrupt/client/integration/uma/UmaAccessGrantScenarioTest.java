@@ -47,7 +47,7 @@ public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
         LOGGER.info("Integration Test - UMA Authentication to VC endpoint");
 
         final AccessGrantClient accessGrantClient = new AccessGrantClient(
-                URI.create(AccessGrantScenarios.VC_PROVIDER)
+                URI.create(AccessGrantScenarios.ACCESS_GRANT_PROVIDER)
         ).session(session);
 
         // Make an authenticated request to the VC provider /issue endpoint to enforce a token is cached by the session.
@@ -59,7 +59,7 @@ public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
                 .toCompletableFuture().join();
         // Lookup the session cache.
         final Request dummyRequest = Request.newBuilder(
-            URI.create(AccessGrantScenarios.VC_PROVIDER).resolve("/issue")
+            URI.create(AccessGrantScenarios.ACCESS_GRANT_PROVIDER).resolve("/issue")
         ).POST(Request.BodyPublishers.ofString("Not relevant")).build();
         final var token = session.fromCache(dummyRequest);
         final var credential = session.getCredential(
