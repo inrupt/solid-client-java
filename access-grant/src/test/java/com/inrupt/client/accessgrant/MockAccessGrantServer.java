@@ -339,6 +339,15 @@ class MockAccessGrantServer {
                         .withBody(getResource("/query_response5.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(post(urlEqualTo("/derive"))
+                .atPriority(2)
+                .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                .withRequestBody(containing("\"id\":\"https://id.test/user\""))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/query_response4.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(post(urlEqualTo("/derive"))
                     .atPriority(2)
                     .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
                     .withRequestBody(containing("\"https://storage.example/"))

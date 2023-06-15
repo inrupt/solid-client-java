@@ -532,7 +532,7 @@ class AccessGrantClientTest {
     }
 
     @Test
-    void testQueryGrantAgent() {
+    void testQueryGrantRecipient() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
@@ -547,7 +547,7 @@ class AccessGrantClientTest {
     }
 
     @Test
-    void testQueryGrantAgentBuilder() {
+    void testQueryGrantCreator() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
@@ -555,10 +555,10 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-
-        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-            .recipient(URI.create("https://id.test/user")).mode("Read").build(AccessGrant.class);
-        final List<AccessGrant> grants = client.query(query).toCompletableFuture().join();
+        // A query is always done with the agent making the query as the creator.
+        final List<AccessGrant> grants = client.query(
+                null, URI.create("https://id.test/user"), null, null, "Read", AccessGrant.class
+        ).toCompletableFuture().join();
         assertEquals(1, grants.size());
     }
 
