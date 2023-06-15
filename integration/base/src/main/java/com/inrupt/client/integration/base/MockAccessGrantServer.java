@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.io.IOUtils;
 
@@ -176,9 +177,9 @@ class MockAccessGrantServer {
                 .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                 .willReturn(jsonResponse(
                         new AccessCredentialVerification(
-                                List.of("issuanceDate", "proof", "expirationDate", "credentialStatus"),
-                                List.of(),
-                                List.of()),
+                                Arrays.asList("issuanceDate", "proof", "expirationDate", "credentialStatus"),
+                                Collections.emptyList(),
+                                Collections.emptyList()),
                         200)
                 ));
 
@@ -190,9 +191,9 @@ class MockAccessGrantServer {
                 .withRequestBody(containing("providedConsent"))
                 .willReturn(jsonResponse(
                         new AccessCredentialVerification(
-                                List.of("issuanceDate", "proof", "expirationDate", "credentialStatus"),
-                                List.of(),
-                                List.of("credentialStatus validation has failed: credential has been revoked")),
+                                Arrays.asList("issuanceDate", "proof", "expirationDate", "credentialStatus"),
+                                Collections.emptyList(),
+                                Arrays.asList("credentialStatus validation has failed: credential has been revoked")),
                         200)
                 )
         );
