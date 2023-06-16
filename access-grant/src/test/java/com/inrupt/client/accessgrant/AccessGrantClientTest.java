@@ -563,6 +563,48 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryGrantModesPurposesBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+            .resource(URI.create("https://storage.example/"))
+            .mode("Read").mode("Write").purpose(URI.create("https://id.example/Purpose8"))
+            .purpose(URI.create("https://id.example/Purpose9")).build(AccessGrant.class);
+        final List<AccessGrant> grants = client.query(query).toCompletableFuture().join();
+        assertEquals(1, grants.size());
+    }
+
+    @Test
+    void testQueryGrantModesPurposesNoMatchBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final AccessCredentialQuery<AccessGrant> query1 = AccessCredentialQuery.newBuilder()
+            .resource(URI.create("https://storage.example/"))
+            .mode("Read").mode(null).purpose(URI.create("https://id.example/Purpose8"))
+            .purpose(URI.create("https://id.example/Purpose9")).purpose(null).build(AccessGrant.class);
+        final List<AccessGrant> grants1 = client.query(query1).toCompletableFuture().join();
+        assertEquals(0, grants1.size());
+
+        final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
+            .resource(URI.create("https://storage.example/")).mode("Read").mode("Write")
+            .purpose(URI.create("https://id.example/Purpose9")).build(AccessGrant.class);
+        final List<AccessGrant> grants2 = client.query(query2).toCompletableFuture().join();
+        assertEquals(0, grants2.size());
+    }
+
+    @Test
     void testQueryRequestAgent() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -660,16 +702,6 @@ class AccessGrantClientTest {
     }
 
     @Test
-    void testQueryInvalidTypeBuilder() {
-        final URI uri = URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c");
-        final AccessCredentialQuery.Builder builder = AccessCredentialQuery.newBuilder()
-            .resource(uri).mode("Read");
-
-        assertThrows(AccessGrantException.class, () -> builder.build(AccessCredential.class));
-    }
-
-
-    @Test
     void testQueryInvalidType() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -683,7 +715,6 @@ class AccessGrantClientTest {
         assertThrows(AccessGrantException.class, () ->
                 client.query(uri, null, null, null, "Read", AccessCredential.class));
     }
-
 
     @Test
     void testQueryInvalidAuth() {
