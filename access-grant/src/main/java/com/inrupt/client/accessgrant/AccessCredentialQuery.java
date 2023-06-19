@@ -36,7 +36,6 @@ public class AccessCredentialQuery<T extends AccessCredential> {
     private static final URI SOLID_ACCESS_REQUEST = URI.create("SolidAccessRequest");
     private static final URI SOLID_ACCESS_DENIAL = URI.create("SolidAccessDenial");
 
-    private final URI type;
     private final Set<URI> purposes;
     private final Set<String> modes;
     private final URI resource;
@@ -57,31 +56,11 @@ public class AccessCredentialQuery<T extends AccessCredential> {
     AccessCredentialQuery(final URI resource, final URI creator, final URI recipient,
             final Set<URI> purposes, final Set<String> modes, final Class<T> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "The clazz parameter must not be null!");
-
-        if (AccessGrant.class.isAssignableFrom(clazz)) {
-            this.type = SOLID_ACCESS_GRANT;
-        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-            this.type = SOLID_ACCESS_REQUEST;
-        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-            this.type = SOLID_ACCESS_DENIAL;
-        } else {
-            throw new AccessGrantException("Unsupported type " + clazz + " in query request");
-        }
-
         this.resource = resource;
         this.creator = creator;
         this.recipient = recipient;
         this.purposes = purposes;
         this.modes = modes;
-    }
-
-    /**
-     * Get the access credential type value.
-     *
-     * @return the type, never {@code null}
-     */
-    public URI getType() {
-        return type;
     }
 
     /**

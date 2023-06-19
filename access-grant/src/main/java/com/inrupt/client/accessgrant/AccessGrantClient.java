@@ -177,19 +177,20 @@ public class AccessGrantClient {
     /**
      * Issue an access request.
      *
-     * @param agent the agent to whom the access request is made; i.e., the agent controlling access to the resources
+     * @param recipient the agent to whom the access request is made;
+     *                  i.e., the agent controlling access to the resources
      * @param resources the resources to which this credential applies
      * @param modes the access modes for this credential
      * @param purposes the purposes of this credential
      * @param expiration the expiration time of this credential
      * @return the next stage of completion containing the resulting access request
      */
-    public CompletionStage<AccessRequest> requestAccess(final URI agent, final Set<URI> resources,
+    public CompletionStage<AccessRequest> requestAccess(final URI recipient, final Set<URI> resources,
             final Set<String> modes, final Set<URI> purposes, final Instant expiration) {
         Objects.requireNonNull(resources, "Resources may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
         return v1Metadata().thenCompose(metadata -> {
-            final Map<String, Object> data = buildAccessRequestv1(agent, resources, modes, expiration, purposes);
+            final Map<String, Object> data = buildAccessRequestv1(recipient, resources, modes, expiration, purposes);
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -280,7 +281,7 @@ public class AccessGrantClient {
      * Issue an access grant or request.
      *
      * @param type the credential type
-     * @param agent the receiving agent for this credential
+     * @param recipient the receiving agent for this credential
      * @param resources the resources to which this credential applies
      * @param modes the access modes for this credential
      * @param purposes the purposes of this credential
@@ -289,7 +290,7 @@ public class AccessGrantClient {
      * @deprecated as of Beta3, please use the {@link #requestAccess} or {@link #grantAccess} methods
      */
     @Deprecated
-    public CompletionStage<AccessGrant> issue(final URI type, final URI agent, final Set<URI> resources,
+    public CompletionStage<AccessGrant> issue(final URI type, final URI recipient, final Set<URI> resources,
             final Set<String> modes, final Set<String> purposes, final Instant expiration) {
         Objects.requireNonNull(type, "Access Grant type may not be null!");
         Objects.requireNonNull(resources, "Resources may not be null!");
@@ -305,9 +306,9 @@ public class AccessGrantClient {
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data;
             if (FQ_ACCESS_GRANT.equals(type)) {
-                data = buildAccessGrantv1(agent, resources, modes, expiration, uriPurposes);
+                data = buildAccessGrantv1(recipient, resources, modes, expiration, uriPurposes);
             } else if (FQ_ACCESS_REQUEST.equals(type)) {
-                data = buildAccessRequestv1(agent, resources, modes, expiration, uriPurposes);
+                data = buildAccessRequestv1(recipient, resources, modes, expiration, uriPurposes);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
             }
