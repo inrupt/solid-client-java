@@ -543,7 +543,9 @@ public class AccessGrantClient {
      *
      * @param credential the access credential
      * @return the next stage of completion
+     * @deprecated as of Beta4
      */
+    @Deprecated
     public CompletionStage<Void> delete(final AccessCredential credential) {
         final Request req = Request.newBuilder(credential.getIdentifier()).DELETE().build();
         return client.send(req, Response.BodyHandlers.discarding())
