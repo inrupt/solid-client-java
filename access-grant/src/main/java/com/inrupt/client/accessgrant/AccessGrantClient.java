@@ -925,7 +925,7 @@ public class AccessGrantClient {
     /**
      * A data object for verification responses.
      */
-    static class VerificationResponseData {
+    public static class VerificationResponseData {
         /**
          * The verification checks that were performed.
          */
