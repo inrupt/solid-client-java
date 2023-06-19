@@ -188,6 +188,34 @@
               </classpathDependencyExcludes>
             </configuration>
           </execution>
+          <execution>
+            <id>httpclient-jsonb-caffeine-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-guava</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>httpclient-jsonb-guava-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-caffeine</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
