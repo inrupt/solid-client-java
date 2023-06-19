@@ -47,7 +47,7 @@ class MockAccessGrantServer {
 
     private static final String SCHEME_BEARER = "Bearer";
 
-    // An identifier to enable tastefulness in Wiremock, useful to manage revocation and verification.
+    // An identifier to enable statefulness in Wiremock, useful to manage revocation and verification.
     private static final String SCENARIO_ACCESS_GRANT = "AccessGrant";
     private static final String SCENARIO_STATE_ISSUED = "Issued";
     private static final String SCENARIO_STATE_REVOKED = "Revoked";
@@ -209,21 +209,18 @@ class MockAccessGrantServer {
                     .atPriority(1)
                     .withRequestBody(containing("\"Read\""))
                     .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
-                    //.withRequestBody(containing("\"" + this.webId + "\""))
-                    //.withRequestBody(containing("\"" + this.sharedResource + "\""))
+                    .withRequestBody(containing("\"" + this.sharedResource + "\""))
                     .withRequestBody(containing("SolidAccessGrant"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
+                        .withBody(getResource("/query_response_grant.json", wireMockServer.baseUrl(),
                             this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                     .atPriority(1)
                     .withRequestBody(containing("\"" + this.webId + "\""))
-                    .withRequestBody(containing("\"" + this.sharedResource + "\""))
-                    .withRequestBody(containing("SolidAccessGrant"))
-                    //.withRequestBody(containing("\"" + this.sharedFile + "\""))
+                    .withRequestBody(containing("SolidAccessRequest"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)

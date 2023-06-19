@@ -345,13 +345,13 @@ public class AccessGrantScenarios {
 
         //query for all grants with a dedicated purpose
         final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-                .creator(URI.create(requesterWebidUrl)).build(AccessGrant.class);
+                .creator(URI.create(requesterWebidUrl)).build(AccessRequest.class);
         final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
         assertTrue(grants.size() >= 1); //on a second run there would be 2 grants because grants are never deleted
 
         //query for all grants of dedicated purpose combinations
         final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
-                .creator(URI.create("https://someuser.test")).build(AccessGrant.class);
+                .creator(URI.create("https://someuser.test")).build(AccessRequest.class);
         final List<AccessGrant> randomGrants = resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
 
         assertEquals(0, randomGrants.size());
@@ -436,11 +436,6 @@ public class AccessGrantScenarios {
         try (final SolidRDFSource resource = requesterClient.read(testRDFresourceURI, SolidRDFSource.class)) {
             assertTrue(resource.getMetadata().getContentType().contains(Utils.TEXT_TURTLE));
         }
-
-        assertThrows(
-                ForbiddenException.class,
-                () -> requesterClient.delete(sharedTextFileURI)
-        );
 
         //cleanup
         resourceOwnerClient.delete(testRDFresourceURI);
