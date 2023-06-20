@@ -34,6 +34,9 @@ jobs:
           INRUPT_ACCESS_ACCESS_GRANT_PROVIDER: ${{ secrets.INRUPT_PROD_ACCESS_GRANT_PROVIDER }}
           INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_PROD_CLIENT_ID }}
           INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_PROD_CLIENT_SECRET }}
+          INRUPT_TEST_REQUESTER_WEBID: ${{ secrets.INRUPT_PROD_REQUESTER_WEBID }}
+          INRUPT_TEST_REQUESTER_CLIENT_ID: ${{ secrets.INRUPT_PROD_REQUESTER_CLIENT_ID }}
+          INRUPT_TEST_REQUESTER_CLIENT_SECRET: ${{ secrets.INRUPT_PROD_REQUESTER_CLIENT_SECRET }}
 
       - name: Dev Integration tests
         if: ${{ github.actor != 'dependabot[bot]' && matrix.java == 11 }}
@@ -45,6 +48,9 @@ jobs:
           INRUPT_ACCESS_ACCESS_GRANT_PROVIDER: ${{ secrets.INRUPT_DEV_ACCESS_GRANT_PROVIDER }}
           INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_DEV_CLIENT_ID }}
           INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_DEV_CLIENT_SECRET }}
+          INRUPT_TEST_REQUESTER_WEBID: ${{ secrets.INRUPT_DEV_REQUESTER_WEBID }}
+          INRUPT_TEST_REQUESTER_CLIENT_ID: ${{ secrets.INRUPT_DEV_REQUESTER_CLIENT_ID }}
+          INRUPT_TEST_REQUESTER_CLIENT_SECRET: ${{ secrets.INRUPT_DEV_REQUESTER_CLIENT_SECRET }}
 
   documentation:
     name: Documentation Check
