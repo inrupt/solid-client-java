@@ -183,8 +183,6 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
                         final TokenRequest req = new TokenRequest(ticket, null, null, claimToken,
                                 Collections.emptyList());
                         LOGGER.debug("Pushing ID Token claims to token endpoint: {}", metadata.tokenEndpoint);
-                        LOGGER.debug("----- Request is: {}",
-                                req);
                         return umaClient.token(metadata.tokenEndpoint, req, claimHandler::getToken)
                             .thenCompose(token -> {
                                 // TODO this logic should be replaced with proper token negotiation
@@ -201,15 +199,12 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
                                                 claimToken2, Collections.emptyList());
                                         LOGGER.debug("Pushing Access Grant claims to token endpoint: {}",
                                                 metadata.tokenEndpoint);
-                                        LOGGER.debug("----- Elevated request is: {}",
-                                                req2);
                                         return umaClient.token(metadata.tokenEndpoint, req2, claimHandler::getToken)
                                             .thenApply(token2 -> new Credential(token2.tokenType, as,
                                                         token2.accessToken, Instant.now().plusSeconds(token2.expiresIn),
                                                         principal, jkt));
                                     }
                                 }
-                                System.out.println("---Access token " + token.accessToken);
                                 return CompletableFuture.completedFuture(new Credential(token.tokenType, as,
                                             token.accessToken, Instant.now().plusSeconds(token.expiresIn),
                                             principal, jkt));

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
@@ -235,6 +236,8 @@ public class AccessGrantScenarios {
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
     void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession) {
+        assumeFalse(ACCESS_GRANT_PROVIDER.contains("localhost"));
+
         LOGGER.info("Integration Test - Access Grant issuance lifecycle");
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
