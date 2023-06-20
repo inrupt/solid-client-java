@@ -183,7 +183,7 @@ public class AccessGrantScenarios {
             final SolidSyncClient authClient = client.session(resourceOwnerSession);
             assertDoesNotThrow(() -> authClient.create(testResource));
 
-            prepareACPofResource(authClient, sharedTextFileURI, SolidNonRDFSource.class);
+            prepareAcpOfResource(authClient, sharedTextFileURI, SolidNonRDFSource.class);
         }
 
         requesterWebidUrl = config
@@ -213,10 +213,10 @@ public class AccessGrantScenarios {
     @AfterAll
     static void teardown() {
          //cleanup pod
-        requesterSession = OpenIdSession.ofClientCredentials(
+        resourceOwnerSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
-            REQUESTER_CLIENT_ID,
-            REQUESTER_CLIENT_SECRET,
+            RESOURCE_OWNER_CLIENT_ID,
+            RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
         final SolidSyncClient client = SolidSyncClient.getClientBuilder()
             .build().session(requesterSession);
@@ -236,6 +236,8 @@ public class AccessGrantScenarios {
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
     void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession) {
+        //test is NOT run locally, AccessGrantServerMock needs to be aware of grant statuses.
+        //We do not do this for now.
         assumeFalse(ACCESS_GRANT_PROVIDER.contains("localhost"));
 
         LOGGER.info("Integration Test - Access Grant issuance lifecycle");
@@ -419,7 +421,7 @@ public class AccessGrantScenarios {
         try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI, null, null)) {
             assertDoesNotThrow(() -> resourceOwnerClient.create(resource));
 
-            prepareACPofResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
+            prepareAcpOfResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
         }
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
@@ -462,7 +464,7 @@ public class AccessGrantScenarios {
         try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI)) {
             assertDoesNotThrow(() -> resourceOwnerClient.create(resource));
 
-            prepareACPofResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
+            prepareAcpOfResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
 
             final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                     URI.create(ACCESS_GRANT_PROVIDER)
@@ -516,7 +518,7 @@ public class AccessGrantScenarios {
         final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
                 .build().session(resourceOwnerSession);
 
-        prepareACPofResource(resourceOwnerClient, URI.create(testContainerURI.toString() + "/"), SolidRDFSource.class);
+        prepareAcpOfResource(resourceOwnerClient, URI.create(testContainerURI.toString() + "/"), SolidRDFSource.class);
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
             URI.create(ACCESS_GRANT_PROVIDER)
@@ -566,7 +568,7 @@ public class AccessGrantScenarios {
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
             assertDoesNotThrow(() -> resourceOwnerClient.create(testResource));
 
-            prepareACPofResource(resourceOwnerClient, newTestFileURI, SolidNonRDFSource.class);
+            prepareAcpOfResource(resourceOwnerClient, newTestFileURI, SolidNonRDFSource.class);
         }
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
@@ -616,7 +618,7 @@ public class AccessGrantScenarios {
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
             assertDoesNotThrow(() -> resourceOwnerClient.create(testResource));
 
-            prepareACPofResource(resourceOwnerClient, newTestFileURI, SolidNonRDFSource.class);
+            prepareAcpOfResource(resourceOwnerClient, newTestFileURI, SolidNonRDFSource.class);
         }
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
@@ -674,7 +676,7 @@ public class AccessGrantScenarios {
         final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
                 .build().session(resourceOwnerSession);
 
-        prepareACPofResource(resourceOwnerClient, URI.create(testContainerURI.toString() + "/"), SolidRDFSource.class);
+        prepareAcpOfResource(resourceOwnerClient, URI.create(testContainerURI.toString() + "/"), SolidRDFSource.class);
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
@@ -706,7 +708,7 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    private static <T extends SolidResource> void prepareACPofResource(final SolidSyncClient authClient,
+    private static <T extends SolidResource> void prepareAcpOfResource(final SolidSyncClient authClient,
                                                                        final URI resourceURI,
                                                                        final Class<T> clazz) {
 
