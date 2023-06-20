@@ -31,8 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 
@@ -52,14 +51,14 @@ class MockAccessGrantServer {
     private static final String SCENARIO_STATE_ISSUED = "Issued";
     private static final String SCENARIO_STATE_REVOKED = "Revoked";
 
-
-
     private final WireMockServer wireMockServer;
     private final String webId;
     private final String sharedFile;
     private final String sharedResource;
 
     private final String authorisationServerUrl;
+
+    private Map grantStatus;
 
     public MockAccessGrantServer(
             final URI webId,
@@ -71,32 +70,35 @@ class MockAccessGrantServer {
         this.sharedFile = sharedFile.toString();
         this.sharedResource = sharedResource.toString();
         this.authorisationServerUrl = authorisationServerUrl;
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        this.grantStatus = new HashMap<String, String>();
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort()
+                .extensions(new AccessGrantServerIssueTransformer(grantStatus))
+                .extensions(new AccessGrantServerRevokeTransformer(grantStatus)));
     }
 
     private void setupMocks() {
         wireMockServer.stubFor(get(urlEqualTo(Utils.VC_DISCOVERY_ENDPOINT))
                 .willReturn(aResponse()
-                    .withStatus(Utils.SUCCESS)
-                    .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                    .withBody(getResource("/vc-configuration.json", wireMockServer.baseUrl()))));
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-configuration.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(get(urlPathEqualTo("/vc-grant"))
-                    .willReturn(aResponse()
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(get(urlPathEqualTo("/vc-request"))
-                    .willReturn(aResponse()
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(delete(urlPathMatching("/vc-grant"))
-                    .willReturn(aResponse()
+                .willReturn(aResponse()
                         .withStatus(204)));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
@@ -118,39 +120,38 @@ class MockAccessGrantServer {
                             this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .inScenario(SCENARIO_ACCESS_GRANT)
-                    .willSetStateTo(SCENARIO_STATE_ISSUED)
-                    .atPriority(3)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("providedConsent"))
-                    .withRequestBody(containing(this.sharedResource))
-                    .willReturn(aResponse()
-                        .withStatus(Utils.SUCCESS)
-                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedResource))));
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .willSetStateTo(SCENARIO_STATE_ISSUED)
+                .atPriority(3)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("providedConsent"))
+                .withRequestBody(containing(this.sharedResource))
+                .willReturn(aResponse()
+                        .withTransformers("Access Grant Server Issue")
+                        .withTransformerParameter("x", 1)
+                        .withTransformerParameter("grant", getResource("/vc-grant.json", wireMockServer.baseUrl(),
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .atPriority(1)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("hasConsent"))
-                    .willReturn(aResponse()
+                .atPriority(1)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("hasConsent"))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .inScenario(SCENARIO_ACCESS_GRANT)
-                    .willSetStateTo(SCENARIO_STATE_ISSUED)
-                    .atPriority(1)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("providedConsent"))
-                    .willReturn(aResponse()
-                        .withStatus(Utils.SUCCESS)
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .willSetStateTo(SCENARIO_STATE_ISSUED)
+                .atPriority(1)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("providedConsent"))
+                .willReturn(aResponse()
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .atPriority(1)
@@ -199,41 +200,43 @@ class MockAccessGrantServer {
         );
 
         wireMockServer.stubFor(post(urlEqualTo("/status"))
-                    .inScenario(SCENARIO_ACCESS_GRANT)
-                    .willSetStateTo(SCENARIO_STATE_REVOKED)
-                    .withRequestBody(containing("\"RevocationList2020Status\""))
-                    .willReturn(aResponse()
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .willSetStateTo(SCENARIO_STATE_REVOKED)
+                .withRequestBody(containing("\"RevocationList2020Status\""))
+                .willReturn(aResponse()
+                        .withTransformers("Access Grant Server Revoke")
+                        .withTransformerParameter("grant", grantStatus)
                         .withStatus(Utils.NO_CONTENT)));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
-                    .atPriority(1)
-                    .withRequestBody(containing("\"Read\""))
-                    .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
-                    .withRequestBody(containing("\"" + this.sharedResource + "\""))
-                    .withRequestBody(containing("SolidAccessGrant"))
-                    .willReturn(aResponse()
+                .atPriority(1)
+                .withRequestBody(containing("\"Read\""))
+                .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
+                .withRequestBody(containing("\"" + this.sharedResource + "\""))
+                .withRequestBody(containing("SolidAccessGrant"))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response_grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedResource))));
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
-                    .atPriority(1)
-                    .withRequestBody(containing("\"" + this.webId + "\""))
-                    .withRequestBody(containing("SolidAccessRequest"))
-                    .willReturn(aResponse()
+                .atPriority(1)
+                .withRequestBody(containing("\"" + this.webId + "\""))
+                .withRequestBody(containing("SolidAccessRequest"))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedResource))));
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
-                    .atPriority(2)
-                    .willReturn(aResponse()
+                .atPriority(2)
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response_empty.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
     }
 
@@ -250,10 +253,10 @@ class MockAccessGrantServer {
     }
 
     private static String getResource(final String path, final String baseUrl, final String webId,
-            final String sharedFile) {
+                                    final String sharedFile) {
         return getResource(path).replace("{{baseUrl}}", baseUrl)
-            .replace("{{webId}}", webId)
-            .replace("{{sharedFile}}", sharedFile);
+                .replace("{{webId}}", webId)
+                .replace("{{sharedFile}}", sharedFile);
     }
 
     public void start() {

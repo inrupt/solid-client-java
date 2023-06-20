@@ -87,11 +87,13 @@ public class AccessGrantScenarios {
     private static final String MOCK_REQUESTER_USERNAME = "requester";
 
     private static final String REQUESTER_CLIENT_ID = config.getValue("inrupt.test.requester.client-id", String.class);
-    private static final String REQUESTER_CLIENT_SECRET = config.getValue("inrupt.test.requester.client-secret", String.class);
+    private static final String REQUESTER_CLIENT_SECRET =
+        config.getValue("inrupt.test.requester.client-secret", String.class);
 
     private static final String RESOURCE_OWNER_CLIENT_ID =
         config.getValue("inrupt.test.client-id", String.class);
-    private static final String RESOURCE_OWNER_CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
+    private static final String RESOURCE_OWNER_CLIENT_SECRET =
+        config.getValue("inrupt.test.client-secret", String.class);
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
@@ -257,8 +259,9 @@ public class AccessGrantScenarios {
         assertEquals(grantVerification.getErrors().size(), 0);
         assertEquals(grantVerification.getWarnings().size(), 0);
 
-        final AccessGrant grantFromVcProvider = resourceOwnerAccessGrantClient.fetch(grant.getIdentifier(), AccessGrant.class)
-            .toCompletableFuture().join();
+        final AccessGrant grantFromVcProvider =
+            resourceOwnerAccessGrantClient.fetch(grant.getIdentifier(), AccessGrant.class)
+                .toCompletableFuture().join();
         assertEquals(grant.getPurposes(), grantFromVcProvider.getPurposes());
 
         //unauthorized request test
@@ -352,7 +355,8 @@ public class AccessGrantScenarios {
         //query for all grants of dedicated purpose combinations
         final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
                 .creator(URI.create("https://someuser.test")).build(AccessRequest.class);
-        final List<AccessGrant> randomGrants = resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
+        final List<AccessGrant> randomGrants =
+            resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
 
         assertEquals(0, randomGrants.size());
 
@@ -391,7 +395,8 @@ public class AccessGrantScenarios {
         //query for all grants of dedicated purpose combinations
         final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
                 .resource(sharedResource).purpose(PURPOSE1).mode(GRANT_MODE_WRITE).build(AccessGrant.class);
-        final List<AccessGrant> randomGrants = resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
+        final List<AccessGrant> randomGrants =
+            resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
         assertEquals(0, randomGrants.size()); //our grant is actually a READ
 
         //cleanup
@@ -519,7 +524,7 @@ public class AccessGrantScenarios {
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        
+
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
             URI.create(ACCESS_GRANT_PROVIDER)
         ).session(resourceOwnerSession);
@@ -541,10 +546,12 @@ public class AccessGrantScenarios {
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantGetNonRdf Fetching non-RDF using Access Grant")
-    void accessGrantGetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession) throws IOException {
+    void accessGrantGetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
         LOGGER.info("Integration Test - Fetching non-RDF using Access Grant");
 
-        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient =
+            SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
             .path("newFile.txt")
@@ -589,10 +596,12 @@ public class AccessGrantScenarios {
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantSetNonRdf Overwriting non-RDF using Access Grant")
-    void accessGrantSetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession) throws IOException {
+    void accessGrantSetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
         LOGGER.info("Integration Test - Overwriting non-RDF using Access Grant");
 
-        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient =
+            SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
             .path("newFile.txt")
@@ -651,7 +660,8 @@ public class AccessGrantScenarios {
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantCreateNonRdf Creating non-RDF using Access Grant")
-    void accessGrantCreateNonRdfTest(final Session resourceOwnerSession, final Session requesterSession) throws IOException {
+    void accessGrantCreateNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
         LOGGER.info("Integration Test - Creating non-RDF using Access Grant");
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
@@ -672,7 +682,7 @@ public class AccessGrantScenarios {
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        
+
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
             URI.create(ACCESS_GRANT_PROVIDER)
         ).session(resourceOwnerSession);
