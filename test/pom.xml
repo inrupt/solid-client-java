@@ -44,11 +44,6 @@
       <scope>provided</scope>
       <exclusions>
         <exclusion>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </exclusion>
-    <!-- transitive dependency via wiremock -->
-        <exclusion>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </exclusion>
