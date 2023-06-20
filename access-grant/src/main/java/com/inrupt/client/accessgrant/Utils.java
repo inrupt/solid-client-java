@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.accessgrant;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ final class Utils {
                 idx = Integer.parseInt((String) index);
             } else if (index instanceof Integer) {
                 idx = (Integer) index;
+            } else if (index instanceof BigDecimal) {
+                idx = ((BigDecimal) index).intValue();
             }
 
             final Object id = credentialStatus.get("id");
