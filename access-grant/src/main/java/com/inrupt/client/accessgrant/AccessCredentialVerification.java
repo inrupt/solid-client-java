@@ -89,8 +89,8 @@ public class AccessCredentialVerification {
      * @param checks a list of any verification checks performed, never {@code null}
      */
     public void setChecks(final List<String> checks) {
-        this.checks = checks;
-        makeImmutable(this.checks);
+        this.checks = makeImmutable(checks);
+
     }
 
     /**
@@ -99,8 +99,7 @@ public class AccessCredentialVerification {
      * @param warnings a list of any verification warnings, never {@code null}
      */
     public void setWarnings(final List<String> warnings) {
-        this.warnings = warnings;
-        makeImmutable(this.warnings);
+        this.warnings = makeImmutable(warnings);
     }
 
     /**
@@ -109,8 +108,7 @@ public class AccessCredentialVerification {
      * @param errors a list of any verification errors, never {@code null}
      */
     public void setErrors(final List<String> errors) {
-        this.errors = errors;
-        makeImmutable(this.errors);
+        this.errors = makeImmutable(errors);
     }
 
     static List<String> makeImmutable(final List<String> list) {
