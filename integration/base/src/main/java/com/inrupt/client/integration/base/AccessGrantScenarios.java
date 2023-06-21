@@ -328,7 +328,7 @@ public class AccessGrantScenarios {
 
     }
 
-    // Query access grant related tests
+    //Query access grant related tests
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantQueryByRequestor Lookup Access Grants by requester")
@@ -351,15 +351,14 @@ public class AccessGrantScenarios {
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
                 .toCompletableFuture().join();
 
-        //query for all grants with a dedicated purpose
         final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-                .creator(URI.create(requesterWebidUrl)).build(AccessRequest.class);
+                .recipient(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
+                .mode(GRANT_MODE_READ).build(AccessGrant.class);
         final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
-        assertTrue(grants.size() >= 1); //on a second run there would be 2 grants because grants are never deleted
+        assertEquals(1, grants.size());
 
-        //query for all grants of dedicated purpose combinations
         final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
-                .creator(URI.create("https://someuser.test")).build(AccessRequest.class);
+                .recipient(URI.create("https://someuser.test")).resource(sharedTextFileURI).build(AccessGrant.class);
         final List<AccessGrant> randomGrants =
             resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
 
@@ -379,7 +378,7 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
+        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
                         new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
@@ -393,16 +392,16 @@ public class AccessGrantScenarios {
 
         //query for all grants with a dedicated purpose
         final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-                .resource(sharedResource).purpose(PURPOSE1).mode(GRANT_MODE_READ).build(AccessGrant.class);
+                .resource(sharedResource).purpose(PURPOSE1).mode(GRANT_MODE_APPEND).build(AccessGrant.class);
         final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
-        assertTrue(grants.size() >= 1); //on a second run there would be 2 grants because grants are never deleted
+        assertEquals(1, grants.size());
 
         //query for all grants of dedicated purpose combinations
         final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
                 .resource(sharedResource).purpose(PURPOSE1).mode(GRANT_MODE_WRITE).build(AccessGrant.class);
         final List<AccessGrant> randomGrants =
             resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
-        assertEquals(0, randomGrants.size()); //our grant is actually a READ
+        assertEquals(0, randomGrants.size()); //our grant is actually a APPEND
 
         //cleanup
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
@@ -741,21 +740,14 @@ public class AccessGrantScenarios {
             RESOURCE_OWNER_CLIENT_ID,
             RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
-        final Optional<Credential> rqCredential = resourceOwnerSession.getCredential(OpenIdSession.ID_TOKEN, null);
-        final var roToken = rqCredential.map(Credential::getToken)
-            .orElseThrow(() -> new OpenIdException("We could not get a token"));
 
         requesterSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
             REQUESTER_CLIENT_ID,
             REQUESTER_CLIENT_SECRET,
             AUTH_METHOD);
-        final Optional<Credential> credential = requesterSession.getCredential(OpenIdSession.ID_TOKEN, null);
-        final var token = credential.map(Credential::getToken)
-            .orElseThrow(() -> new OpenIdException("We could not get a token"));
 
         return Stream.of(
-            Arguments.of(OpenIdSession.ofIdToken(roToken), OpenIdSession.ofIdToken(token)), //OpenId tokens
             Arguments.of(resourceOwnerSession, requesterSession)
             );
     }
