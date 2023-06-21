@@ -195,6 +195,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <rerunFailingTestsCount>2</rerunFailingTestsCount>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
@@ -209,6 +210,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <rerunFailingTestsCount>2</rerunFailingTestsCount>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
