@@ -689,7 +689,6 @@ public class AccessGrantScenarios {
         ).session(resourceOwnerSession);
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
-        System.out.println("---GRANT is: " + grant.serialize());
 
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
         final SolidSyncClient requesterAuthClient = SolidSyncClient.getClient().session(newSession);
