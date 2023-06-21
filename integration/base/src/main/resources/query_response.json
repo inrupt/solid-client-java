@@ -5,10 +5,10 @@
       "https://w3id.org/security/suites/ed25519-2020/v1",
       "https://w3id.org/vc-revocation-list-2020/v1",
       "https://schema.inrupt.com/credentials/v1.jsonld"],
-    "id":"{{baseUrl}}/access-grant-1",
+    "id":"{{baseUrl}}/vc-grant",
     "type":["VerifiableCredential","SolidAccessGrant"],
     "issuer":"{{baseUrl}}",
-    "expirationDate":"2022-08-27T12:00:00Z",
+    "expirationDate":"2024-08-27T12:00:00Z",
     "issuanceDate":"2022-08-25T20:34:05.153Z",
     "credentialStatus":{
       "id":"https://accessgrant.example/status/CVAM#2832",
@@ -16,13 +16,13 @@
       "revocationListIndex":"2832",
       "type":"RevocationList2020Status"},
     "credentialSubject":{
-      "id":"https://id.example/grantor",
+      "id":"{{webId}}",
       "providedConsent":{
-        "mode":["Read"],
+        "mode":["Read","Append"],
         "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
-        "isProvidedTo":"https://id.example/grantee",
+        "isProvidedTo":"{{webId}}",
         "forPurpose":["https://purpose.example/Purpose1"],
-        "forPersonalData":["https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/"]}},
+        "forPersonalData":["{{sharedFile}}"]}},
     "proof":{
       "created":"2022-08-25T20:34:05.236Z",
       "proofPurpose":"assertionMethod",
