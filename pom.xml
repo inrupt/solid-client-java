@@ -33,7 +33,7 @@
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <rdf4j.version>4.3.1</rdf4j.version>
+    <rdf4j.version>4.3.2</rdf4j.version>
     <slf4j.version>2.0.7</slf4j.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>0.4.0</inrupt.rdf.wrapping.version>
@@ -51,8 +51,8 @@
     <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
     <license.plugin.version>4.2</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
-    <owasp.plugin.version>8.2.1</owasp.plugin.version>
-    <projectinfo.plugin.version>3.4.4</projectinfo.plugin.version>
+    <owasp.plugin.version>8.3.1</owasp.plugin.version>
+    <projectinfo.plugin.version>3.4.5</projectinfo.plugin.version>
     <pmd.plugin.version>3.21.0</pmd.plugin.version>
     <site.plugin.version>3.12.1</site.plugin.version>
     <release.plugin.version>3.0.1</release.plugin.version>
