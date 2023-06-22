@@ -43,15 +43,15 @@ public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    void accessGrantUmaAuthentication(final Session session) {
+    void accessGrantUmaAuthentication(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - UMA Authentication to VC endpoint");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(AccessGrantScenarios.ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         // Make an authenticated request to the VC provider /issue endpoint to enforce a token is cached by the session.
-        accessGrantClient.requestAccess(URI.create(webidUrl),
+        requesterAccessGrantClient.requestAccess(URI.create(webidUrl),
                         new HashSet<>(Arrays.asList(sharedTextFileURI)),
                         new HashSet<>(Arrays.asList(GRANT_MODE_READ)),
                         PURPOSES,
@@ -61,8 +61,8 @@ public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
         final Request dummyRequest = Request.newBuilder(
             URI.create(AccessGrantScenarios.ACCESS_GRANT_PROVIDER).resolve("/issue")
         ).POST(Request.BodyPublishers.ofString("Not relevant")).build();
-        final var token = session.fromCache(dummyRequest);
-        final var credential = session.getCredential(
+        final var token = requesterSession.fromCache(dummyRequest);
+        final var credential = requesterSession.getCredential(
                 URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken"),
                 null
         );
