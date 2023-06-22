@@ -52,8 +52,6 @@ class MockAccessGrantServer {
     private static final String SCENARIO_STATE_ISSUED = "Issued";
     private static final String SCENARIO_STATE_REVOKED = "Revoked";
 
-
-
     private final WireMockServer wireMockServer;
     private final String webId;
     private final String sharedFile;
@@ -207,10 +205,10 @@ class MockAccessGrantServer {
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                     .atPriority(1)
-                    .withRequestBody(containing("\"Read\""))
+                    .withRequestBody(containing("\"Append\""))
                     .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
-                    .withRequestBody(containing("\"" + this.webId + "\""))
                     .withRequestBody(containing("\"" + this.sharedResource + "\""))
+                    .withRequestBody(containing("SolidAccessGrant"))
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
@@ -218,23 +216,22 @@ class MockAccessGrantServer {
                             this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
-                    .atPriority(1)
-                    .withRequestBody(containing("\"Read\""))
-                    .withRequestBody(containing("\"" + this.webId + "\""))
-                    .withRequestBody(containing("\"" + this.sharedFile + "\""))
-                    .willReturn(aResponse()
+                .atPriority(1)
+                .withRequestBody(containing("\"Read\""))
+                .withRequestBody(containing("\"" + this.sharedResource + "\""))
+                .withRequestBody(containing("SolidAccessGrant"))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                     .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/query_response_empty.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                        .withBody(getResource("/query_response_empty.json"))));
 
     }
 
