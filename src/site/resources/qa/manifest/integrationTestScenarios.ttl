@@ -156,7 +156,6 @@
 :vcTestSuite dcterms:hasPart
   :accessGrantLifecycle,
   :accessGrantOverride,
-  :accessGrantNonRecursive,
   :accessGrantNoACRchange,
   :accessGrantQueryByRequestor,
   :accessGrantQueryByResource,
@@ -181,13 +180,6 @@
   dcterms:title "Access Grant with request overrides"@en;
   dcterms:description "An authenticated requestor issues an access request, and the authenticated resource owner overrides the grant duration approving it."@en;
   td:expectedResults "A valid Access Grant with the overridden duration is issued."@en;
-  td:reviewStatus td:approved.
-
-:accessGrantNonRecursive a td:TestCase ;
-  inrupt:appliesTo <https://dev-next.inrupt.com/>, <https://start.inrupt.com>;;
-  dcterms:title "Issue a non-recursive access grant"@en;
-  dcterms:description "An authenticated requestor can issue a non-recursive access grant."@en;
-  td:expectedResults "A valid Access Grant with a non-recursive ability is issued."@en;
   td:reviewStatus td:approved.
 
 :accessGrantNoACRchange a td:TestCase ;

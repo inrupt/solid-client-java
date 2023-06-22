@@ -24,17 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.accessgrant.AccessGrant;
-import com.inrupt.client.accessgrant.AccessGrantClient;
-import com.inrupt.client.accessgrant.AccessGrantSession;
-import com.inrupt.client.accessgrant.AccessGrantUtils;
-import com.inrupt.client.accessgrant.AccessRequest;
-import com.inrupt.client.auth.Credential;
+import com.inrupt.client.accessgrant.*;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
@@ -52,7 +47,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -86,20 +80,27 @@ public class AccessGrantScenarios {
     private static String podUrl;
     private static String issuer;
     protected static String webidUrl;
-    private static final String MOCK_USERNAME = "someuser";
+    protected static String requesterWebidUrl;
+    private static final String MOCK_RESOURCE_OWNER_USERNAME = "someuser";
+    private static final String MOCK_REQUESTER_USERNAME = "requester";
 
-    private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
-    private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
+    private static final String REQUESTER_CLIENT_ID = config.getValue("inrupt.test.requester.client-id", String.class);
+    private static final String REQUESTER_CLIENT_SECRET =
+        config.getValue("inrupt.test.requester.client-secret", String.class);
+
+    private static final String RESOURCE_OWNER_CLIENT_ID =
+        config.getValue("inrupt.test.client-id", String.class);
+    private static final String RESOURCE_OWNER_CLIENT_SECRET =
+        config.getValue("inrupt.test.client-secret", String.class);
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
+
     protected static String ACCESS_GRANT_PROVIDER;
     private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.private-resource-path", String.class)
         .orElse("private");
 
-    private static final URI ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
-    private static final URI ACCESS_REQUEST = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
     protected static final String GRANT_MODE_READ = "Read";
     private static final String GRANT_MODE_APPEND = "Append";
     private static final String GRANT_MODE_WRITE = "Write";
@@ -112,10 +113,10 @@ public class AccessGrantScenarios {
     private static String testRDFresourceName = "resource.ttl";
     private static URI testRDFresourceURI;
     private static String sharedTextFileName = "sharedFile.txt";
-    private static String sharedResourceName = "sharedResource";
     protected static URI sharedTextFileURI;
     private static URI sharedResource;
-    private static Session session;
+    private static Session requesterSession;
+    private static Session resourceOwnerSession;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -125,19 +126,19 @@ public class AccessGrantScenarios {
         mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
         mockHttpServer.start();
 
-        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+        identityProviderServer = new MockOpenIDProvider(MOCK_RESOURCE_OWNER_USERNAME);
         identityProviderServer.start();
 
         webIdService = new MockWebIdService(
             mockHttpServer.getMockServerUrl(),
             identityProviderServer.getMockServerUrl(),
-            MOCK_USERNAME);
+            MOCK_RESOURCE_OWNER_USERNAME);
         webIdService.start();
 
         webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)
             .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_USERNAME)
+                .path(MOCK_RESOURCE_OWNER_USERNAME)
                 .build()
                 .toString());
 
@@ -161,29 +162,36 @@ public class AccessGrantScenarios {
             .path(sharedTextFileName)
             .build();
         sharedResource = URIBuilder.newBuilder(URI.create(testContainerURI.toString()))
-            .path(sharedResourceName).build();
+            .path(sharedTextFileName).build();
 
         testRDFresourceURI = URIBuilder.newBuilder(testContainerURI)
             .path(testRDFresourceName)
             .build();
 
-        session = OpenIdSession.ofClientCredentials(
+        resourceOwnerSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
-            CLIENT_ID,
-            CLIENT_SECRET,
+            RESOURCE_OWNER_CLIENT_ID,
+            RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
 
         //create test file in test container
         try (final InputStream is = new ByteArrayInputStream(StandardCharsets.UTF_8.encode("Test text").array())) {
             final SolidNonRDFSource testResource = new SolidNonRDFSource(sharedTextFileURI, Utils.PLAIN_TEXT, is, null);
-            final SolidSyncClient authClient = client.session(session);
+            final SolidSyncClient authClient = client.session(resourceOwnerSession);
             assertDoesNotThrow(() -> authClient.create(testResource));
 
-            prepareACPofResource(authClient, sharedTextFileURI);
+            prepareAcpOfResource(authClient, sharedTextFileURI, SolidNonRDFSource.class);
         }
 
+        requesterWebidUrl = config
+            .getOptionalValue("inrupt.test.requester.webid", String.class)
+            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                .path(MOCK_REQUESTER_USERNAME)
+                .build()
+                .toString());
+
         accessGrantServer = new MockAccessGrantServer(
-                State.WEBID,
+                URI.create(requesterWebidUrl),
                 sharedTextFileURI,
                 sharedResource,
                 authServer.getMockServerUrl()
@@ -194,18 +202,6 @@ public class AccessGrantScenarios {
             .getOptionalValue("inrupt.test.access-grant.provider", String.class)
             .orElse(accessGrantServer.getMockServerUrl());
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
-                URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_APPEND));
-        final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
-            new HashSet<>(Arrays.asList(sharedResource)), modes, PURPOSES, expiration)
-            .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
-            .toCompletableFuture().join();
-
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", podUrl);
         LOGGER.info("Integration Test Access Grant server: [{}]", ACCESS_GRANT_PROVIDER);
@@ -214,13 +210,13 @@ public class AccessGrantScenarios {
     @AfterAll
     static void teardown() {
          //cleanup pod
-        session = OpenIdSession.ofClientCredentials(
+        resourceOwnerSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
-            CLIENT_ID,
-            CLIENT_SECRET,
+            RESOURCE_OWNER_CLIENT_ID,
+            RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
         final SolidSyncClient client = SolidSyncClient.getClientBuilder()
-            .build().session(session);
+            .build().session(requesterSession);
         client.send(Request.newBuilder(sharedTextFileURI).DELETE().build(), Response.BodyHandlers.discarding());
         client.send(Request.newBuilder(testRDFresourceURI).DELETE().build(), Response.BodyHandlers.discarding());
         client.send(Request.newBuilder(sharedTextFileURI.resolve(".")).DELETE().build(),
@@ -236,252 +232,255 @@ public class AccessGrantScenarios {
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
-    void accessGrantIssuanceLifecycleTest(final Session session) {
+    void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession) {
+        //test is NOT run locally, AccessGrantServerMock needs to be aware of grant statuses.
+        //We do not do this for now.
+        assumeFalse(ACCESS_GRANT_PROVIDER.contains("localhost"));
+
         LOGGER.info("Integration Test - Access Grant issuance lifecycle");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
-        final var grantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        final var grantVerification = resourceOwnerAccessGrantClient.verify(grant).toCompletableFuture().join();
         assertTrue(grantVerification.getChecks().size() > 0);
         assertEquals(grantVerification.getErrors().size(), 0);
         assertEquals(grantVerification.getWarnings().size(), 0);
 
-        final AccessGrant grantFromVcProvider = accessGrantClient.fetch(grant.getIdentifier(), AccessGrant.class)
-            .toCompletableFuture().join();
+        final AccessGrant grantFromVcProvider =
+            resourceOwnerAccessGrantClient.fetch(grant.getIdentifier(), AccessGrant.class)
+                .toCompletableFuture().join();
         assertEquals(grant.getPurposes(), grantFromVcProvider.getPurposes());
 
         //unauthorized request test
-        final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();
+        final SolidSyncClient requesterClient = SolidSyncClient.getClientBuilder().build();
         final var err = assertThrows(UnauthorizedException.class,
-                () -> client.read(sharedTextFileURI, SolidNonRDFSource.class));
+                () -> requesterClient.read(sharedTextFileURI, SolidNonRDFSource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
-        final Request reqRead =
-                Request.newBuilder(sharedTextFileURI).header(Utils.CONTENT_TYPE, Utils.PLAIN_TEXT)
-                        .GET().build();
-        assertDoesNotThrow(() -> client.send(reqRead, Response.BodyHandlers.discarding()));
 
         //authorized request test
-        final Session accessSession = AccessGrantSession.ofAccessGrant(session, grant);
-        final SolidSyncClient authClient = client.session(accessSession);
+        final Session accessSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+        final SolidSyncClient requesterAuthClient = requesterClient.session(accessSession);
 
-        try (final SolidNonRDFSource resource = authClient.read(sharedTextFileURI, SolidNonRDFSource.class)) {
-            assertTrue(resource.getMetadata().getContentType().contains(Utils.PLAIN_TEXT));
-        }
-        final Request reqReadAgain =
-                Request.newBuilder(sharedTextFileURI).header(Utils.CONTENT_TYPE, Utils.PLAIN_TEXT)
-                        .GET().build();
-        assertDoesNotThrow(() -> authClient.send(reqReadAgain, Response.BodyHandlers.discarding()));
+        assertDoesNotThrow(() -> requesterAuthClient.read(sharedTextFileURI, SolidNonRDFSource.class));
 
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
 
         //6. call verify endpoint to check the grant is not valid
-        final var revokedGrantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        final var revokedGrantVerification = resourceOwnerAccessGrantClient.verify(grant).toCompletableFuture().join();
         assertTrue(grantVerification.getChecks().size() > 0);
         assertEquals(revokedGrantVerification.getErrors().size(), 1);
         assertEquals(grantVerification.getWarnings().size(), 0);
+
+        // Once revoked, the Access Grant should no longer grant access to the resource. The previously issued access
+        // token may still be valid, so cache is cleared for the test.
+        accessSession.reset();
+        assertThrows(
+                UnauthorizedException.class,
+                () -> requesterAuthClient.read(sharedTextFileURI, SolidNonRDFSource.class)
+        );
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantOverride Access Grant with request overrides")
-    void accessGrantWithRequestOverridesTest(final Session session) {
+    void accessGrantWithRequestOverridesTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Access Grant with request overrides");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_APPEND));
         final Instant expiration = Instant.now().plus(90, ChronoUnit.DAYS);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
-        final var grantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
+        final var grantVerification = resourceOwnerAccessGrantClient.verify(grant).toCompletableFuture().join();
         assertTrue(grantVerification.getChecks().size() > 0);
         assertEquals(grantVerification.getErrors().size(), 0);
         assertEquals(grantVerification.getWarnings().size(), 0);
+
     }
 
+    //Query access grant related tests
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantNonRecursive Issue a non-recursive access grant")
-    void accessGrantNonRecursiveTest(final Session session) {
-        LOGGER.info("Integration Test - Issue a non-recursive access grant");
+    @DisplayName(":accessGrantQueryByRequestor Lookup Access Grants by requester")
+    void accessGrantQueryByRequesterTest(final Session resourceOwnerSession, final Session requesterSession) {
+        LOGGER.info("Integration Test - Lookup Access Grants by requester");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
-            new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
-            .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
-            .toCompletableFuture().join();
-        //Steps
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
+                        new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+                .toCompletableFuture().join();
 
-        //1. call verify endpoint to verify grant
-        final var grantVerification = accessGrantClient.verify(grant).toCompletableFuture().join();
-        assertTrue(grantVerification.getChecks().size() > 0);
-        assertEquals(grantVerification.getErrors().size(), 0);
-        assertEquals(grantVerification.getWarnings().size(), 0);
-
-        //2. use the grant to access the target container.
-        //3. try using the grant to access a child resource.
-    }
-
-    // Query access grant related tests
-    @ParameterizedTest
-    @MethodSource("provideSessions")
-    @DisplayName(":accessGrantQueryByRequestor Lookup Access Grants by requestor")
-    void accessGrantQueryByRequestorTest(final Session session) {
-        LOGGER.info("Integration Test - Lookup Access Grants by requestor");
-
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
+                .toCompletableFuture().join();
 
-        //query for all grants issued by the user
-        final List<AccessRequest> grants = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
-                PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
-            .toCompletableFuture().join();
-        // result is 4 because we retrieve the grants for each path
-        // sharedTextFileURI =
-        // http://localhost:57577/private/accessgrant-test-2c82772f-7c0a-4e39-9466-abf9756b59c7/sharedFile.txt
+        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+                .recipient(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
+                .mode(GRANT_MODE_READ).build(AccessGrant.class);
+        final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
         assertEquals(1, grants.size());
 
-        //query for all grants issued by a random user
-        final List<AccessRequest> randomGrants = accessGrantClient.query(sharedResource, null,
-                URI.create("https://someuser.test"), PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
-            .toCompletableFuture().join();
+        final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
+                .recipient(URI.create("https://someuser.test")).resource(sharedTextFileURI).build(AccessGrant.class);
+        final List<AccessGrant> randomGrants =
+            resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
+
         assertEquals(0, randomGrants.size());
+
+        //cleanup
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantQueryByResource Lookup Access Grants by resource")
-    void accessGrantQueryByResourceTest(final Session session) {
-        LOGGER.info("Integration Test - Lookup Access Grants by resource");
-
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
-                URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
-
-        //query for all grants of a dedicated resource
-        final List<AccessRequest> requests = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
-                PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
-            .toCompletableFuture().join();
-        assertEquals(1, requests.size());
-
-        //query for all grants of a random resource
-        final List<AccessRequest> randomGrants = accessGrantClient.query(URI.create("https://somerandom.test"),
-                null, URI.create(webidUrl), PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
-            .toCompletableFuture().join();
-        assertEquals(0, randomGrants.size());
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideSessions")
-    @DisplayName(":accessGrantQueryByPurpose Lookup Access Grants by purpose")
-    void accessGrantQueryByPurposeTest(final Session session) {
+    @DisplayName(":accessGrantQueryByPurpose Lookup Access Grants by purpose of a dedicated resource")
+    void accessGrantQueryByPurposeTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Lookup Access Grants by purpose");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
+
+        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_APPEND));
+        final Instant expiration = Instant.parse(GRANT_EXPIRATION);
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
+                        new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+                .toCompletableFuture().join();
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
+                .toCompletableFuture().join();
 
         //query for all grants with a dedicated purpose
-        final List<AccessRequest> requests = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
-                PURPOSE1, GRANT_MODE_READ, AccessRequest.class)
-            .toCompletableFuture().join();
-        assertEquals(1, requests.size());
+        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+                .resource(sharedResource).purpose(PURPOSE1).mode(GRANT_MODE_APPEND).build(AccessGrant.class);
+        final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
+        assertEquals(1, grants.size());
 
         //query for all grants of dedicated purpose combinations
-        final List<AccessGrant> randomGrants = accessGrantClient.query(sharedResource, null, URI.create(webidUrl),
-                PURPOSE1, GRANT_MODE_WRITE, AccessGrant.class)
-            .toCompletableFuture().join();
-        assertEquals(0, randomGrants.size()); //our grant is actually a Read
+        final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
+                .resource(sharedResource).purpose(PURPOSE1).mode(GRANT_MODE_WRITE).build(AccessGrant.class);
+        final List<AccessGrant> randomGrants =
+            resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
+        assertEquals(0, randomGrants.size()); //our grant is actually a APPEND
+
+        //cleanup
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     //Interacting with resource related tests
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantGetRdf Fetching RDF using Access Grant")
-    void accessGrantGetRdfTest(final Session session) {
+    void accessGrantGetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Fetching RDF using Access Grant");
 
-        final SolidSyncClient client = SolidSyncClient.getClientBuilder()
-            .build().session(session);
+        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
+            .build().session(resourceOwnerSession);
 
         try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI, null, null)) {
-            assertDoesNotThrow(() -> client.create(resource));
+            assertDoesNotThrow(() -> resourceOwnerClient.create(resource));
+
+            prepareAcpOfResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
         }
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
-        final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
-        final SolidSyncClient newClient = SolidSyncClient.getClientBuilder()
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+        final SolidSyncClient requesterClient = SolidSyncClient.getClientBuilder()
             .build().session(newSession);
 
-        try (final SolidRDFSource resource = newClient.read(testRDFresourceURI, SolidRDFSource.class)) {
+        try (final SolidRDFSource resource = requesterClient.read(testRDFresourceURI, SolidRDFSource.class)) {
             assertTrue(resource.getMetadata().getContentType().contains(Utils.TEXT_TURTLE));
         }
 
-        newClient.delete(testRDFresourceURI);
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+        //cleanup
+        resourceOwnerClient.delete(testRDFresourceURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantSetRdf Appending RDF using Access Grant")
-    void accessGrantSetRdfTest(final Session session) {
+    void accessGrantSetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Appending RDF using Access Grant");
 
-        final SolidSyncClient client = SolidSyncClient.getClientBuilder()
-            .build().session(session);
+        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
+            .build().session(resourceOwnerSession);
 
         try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI)) {
-            assertDoesNotThrow(() -> client.create(resource));
+            assertDoesNotThrow(() -> resourceOwnerClient.create(resource));
 
-            final AccessGrantClient accessGrantClient = new AccessGrantClient(
+            prepareAcpOfResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
+
+            final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                     URI.create(ACCESS_GRANT_PROVIDER)
-            ).session(session);
+            ).session(requesterSession);
 
             final Set<String> modes = new HashSet<>(Arrays.asList(
                 GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
             final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-            final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+            final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
                 new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
                 .toCompletableFuture().join();
-            final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+            final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+            ).session(resourceOwnerSession);
+            final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
                 .toCompletableFuture().join();
-            final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
-            final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
+
+            final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+            final SolidSyncClient requesterAuthClient = SolidSyncClient.getClientBuilder()
                 .build().session(newSession);
 
             final String newResourceName = testRDFresourceURI.toString();
@@ -494,37 +493,46 @@ public class AccessGrantScenarios {
 
             resource.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
-            assertDoesNotThrow(() -> authClient.update(resource));
+            assertDoesNotThrow(() -> requesterAuthClient.update(resource));
 
-            authClient.delete(testRDFresourceURI);
-
-            assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+            //cleanup
+            resourceOwnerClient.delete(testRDFresourceURI);
+            assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
         }
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantCreateRdf Creating RDF using Access Grant")
-    void accessGrantCreateRdfTest(final Session session) {
+    void accessGrantCreateRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Creating RDF using Access Grant");
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
-                URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
-
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
-            .path("newRdf.ttl")
-            .build();
+                .path("newRdf.ttl")
+                .build();
+
+        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
+                .build().session(resourceOwnerSession);
+
+        prepareAcpOfResource(resourceOwnerClient, URI.create(testContainerURI.toString() + "/"), SolidRDFSource.class);
+
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
 
-        final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
             .build().session(newSession);
 
@@ -532,17 +540,19 @@ public class AccessGrantScenarios {
             assertDoesNotThrow(() -> authClient.create(resource));
         }
 
-        authClient.delete(newTestFileURI);
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+        resourceOwnerClient.delete(newTestFileURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantGetNonRdf Fetching non-RDF using Access Grant")
-    void accessGrantGetNonRdfTest(final Session session) throws IOException {
+    void accessGrantGetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
         LOGGER.info("Integration Test - Fetching non-RDF using Access Grant");
 
-        final SolidSyncClient client = SolidSyncClient.getClientBuilder().build().session(session);
+        final SolidSyncClient resourceOwnerClient =
+            SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
             .path("newFile.txt")
@@ -552,21 +562,27 @@ public class AccessGrantScenarios {
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
-            assertDoesNotThrow(() -> client.create(testResource));
+            assertDoesNotThrow(() -> resourceOwnerClient.create(testResource));
+
+            prepareAcpOfResource(resourceOwnerClient, newTestFileURI, SolidNonRDFSource.class);
         }
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
-        final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
             .build().session(newSession);
 
@@ -574,22 +590,19 @@ public class AccessGrantScenarios {
             assertTrue(resource.getMetadata().getContentType().contains(Utils.PLAIN_TEXT));
         }
 
-        final Request reqCreate =
-                Request.newBuilder(newTestFileURI).header(Utils.CONTENT_TYPE, Utils.PLAIN_TEXT)
-                        .GET().build();
-        assertDoesNotThrow(() -> authClient.send(reqCreate, Response.BodyHandlers.discarding()));
-
-        authClient.delete(newTestFileURI);
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+        resourceOwnerClient.delete(newTestFileURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantSetNonRdf Overwriting non-RDF using Access Grant")
-    void accessGrantSetNonRdfTest(final Session session) throws IOException {
+    void accessGrantSetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
         LOGGER.info("Integration Test - Overwriting non-RDF using Access Grant");
 
-        final SolidSyncClient client = SolidSyncClient.getClientBuilder().build().session(session);
+        final SolidSyncClient resourceOwnerClient =
+            SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
             .path("newFile.txt")
@@ -599,30 +612,37 @@ public class AccessGrantScenarios {
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
-            assertDoesNotThrow(() -> client.create(testResource));
+            assertDoesNotThrow(() -> resourceOwnerClient.create(testResource));
+
+            prepareAcpOfResource(resourceOwnerClient, newTestFileURI, SolidNonRDFSource.class);
         }
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
-        final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
-        final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
+
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClientBuilder()
             .build().session(newSession);
 
-        try (final SolidNonRDFSource resource = authClient.read(newTestFileURI, SolidNonRDFSource.class)) {
+        try (final SolidNonRDFSource resource = requesterAuthClient.read(newTestFileURI, SolidNonRDFSource.class)) {
             try (final InputStream newis = new ByteArrayInputStream(
                 StandardCharsets.UTF_8.encode("Test text").array())) {
                 final SolidNonRDFSource testResource =
                     new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, newis, resource.getMetadata());
-                assertDoesNotThrow(() -> authClient.update(testResource));
+                assertDoesNotThrow(() -> requesterAuthClient.update(testResource));
             }
         }
 
@@ -631,74 +651,101 @@ public class AccessGrantScenarios {
             final Request reqCreate =
                 Request.newBuilder(newTestFileURI).header(Utils.CONTENT_TYPE, Utils.PLAIN_TEXT)
                     .PUT(Request.BodyPublishers.ofInputStream(newis)).build();
-            assertDoesNotThrow(() -> authClient.send(reqCreate, Response.BodyHandlers.discarding()));
+            assertDoesNotThrow(() -> requesterAuthClient.send(reqCreate, Response.BodyHandlers.discarding()));
         }
 
-        authClient.delete(newTestFileURI);
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+        resourceOwnerClient.delete(newTestFileURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(":accessGrantCreateNonRdf Creating non-RDF using Access Grant")
-    void accessGrantCreateNonRdfTest(final Session session) throws IOException {
+    void accessGrantCreateNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
         LOGGER.info("Integration Test - Creating non-RDF using Access Grant");
 
         final URI newTestFileURI = URIBuilder.newBuilder(testContainerURI)
             .path("newFile.txt")
             .build();
 
-        final AccessGrantClient accessGrantClient = new AccessGrantClient(
+        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
+                .build().session(resourceOwnerSession);
+
+        prepareAcpOfResource(resourceOwnerClient, URI.create(testContainerURI.toString() + "/"), SolidRDFSource.class);
+
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-        ).session(session);
+        ).session(requesterSession);
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = accessGrantClient.requestAccess(URI.create(webidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
             new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
-        final AccessGrant grant = accessGrantClient.grantAccess(request)
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
-        final Session newSession = AccessGrantSession.ofAccessGrant(session, grant);
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(newSession);
+
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClient().session(newSession);
 
         try (final InputStream is = new ByteArrayInputStream(
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
                 new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
-            assertDoesNotThrow(() -> authClient.create(testResource));
+            assertDoesNotThrow(() -> requesterAuthClient.create(testResource));
         }
 
-        authClient.delete(newTestFileURI);
-        assertDoesNotThrow(accessGrantClient.revoke(grant).toCompletableFuture()::join);
+        resourceOwnerClient.delete(newTestFileURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    private static void prepareACPofResource(final SolidSyncClient authClient, final URI resourceURI) {
+    private static <T extends SolidResource> void prepareAcpOfResource(final SolidSyncClient authClient,
+                                                                       final URI resourceURI,
+                                                                       final Class<T> clazz) {
 
-        // find the acl Link in the header of the resource
-        try (final SolidNonRDFSource resource = authClient.read(resourceURI, SolidNonRDFSource.class)) {
-            resource.getMetadata().getAcl().ifPresent(acl -> {
-                try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                    AccessGrantUtils.accessControlPolicyTriples(acl, ACL.Read, ACL.Write)
-                        .forEach(acr.getGraph()::add);
-                    authClient.update(acr);
-                }
-            });
+        SolidResource resource = null;
+        try {
+            if (SolidNonRDFSource.class.isAssignableFrom(clazz)) {
+                resource = authClient.read(resourceURI, SolidNonRDFSource.class);
+            } else if (SolidRDFSource.class.isAssignableFrom(clazz)) {
+                resource = authClient.read(resourceURI, SolidRDFSource.class);
+            }
+            if (resource != null) {
+                // find the acl Link in the header of the resource
+                resource.getMetadata().getAcl().ifPresent(acl -> {
+                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                        AccessGrantUtils.accessControlPolicyTriples(acl, ACL.Read, ACL.Write)
+                                .forEach(acr.getGraph()::add);
+                        authClient.update(acr);
+                    }
+                });
+                resource.close();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
-        session = OpenIdSession.ofClientCredentials(
+        resourceOwnerSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
-            CLIENT_ID,
-            CLIENT_SECRET,
+            RESOURCE_OWNER_CLIENT_ID,
+            RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
-        final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN, null);
-        final var token = credential.map(Credential::getToken)
-            .orElseThrow(() -> new OpenIdException("We could not get a token"));
+
+        requesterSession = OpenIdSession.ofClientCredentials(
+            URI.create(issuer), //Client credentials
+            REQUESTER_CLIENT_ID,
+            REQUESTER_CLIENT_SECRET,
+            AUTH_METHOD);
+
         return Stream.of(
-            Arguments.of(OpenIdSession.ofIdToken(token)), //OpenId token
-            Arguments.of(session)
+            Arguments.of(resourceOwnerSession, requesterSession)
             );
     }
 }
