@@ -36,7 +36,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,7 @@ public class JsonbService implements JsonService {
 
     static class LowerCamelCase implements PropertyNamingStrategy {
         @Override
-        public String translateName(String s) {
+        public String translateName(final String s) {
             final var wordBreaks = IntStream.range(0, s.length())
                     // Only keep indexes of upper case letters.
                     .filter(i -> Character.isUpperCase(s.charAt(i)))
@@ -96,7 +95,7 @@ public class JsonbService implements JsonService {
                     .collect(Collectors.toList());
             // Insert _ in reverse order so that it's not necessary to keep track of the offset.
             Collections.reverse(wordBreaks);
-            StringBuilder result = new StringBuilder(s.toLowerCase());
+            final StringBuilder result = new StringBuilder(s.toLowerCase());
             for (Integer breakIdx: wordBreaks) {
                 result.insert(breakIdx, "_");
             }
