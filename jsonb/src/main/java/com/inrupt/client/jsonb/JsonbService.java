@@ -92,9 +92,14 @@ public class JsonbService implements JsonService {
                     // Only keep indexes of upper case letters.
                     .filter(i -> Character.isUpperCase(s.charAt(i)))
                     .boxed()
-                    .collect(Collectors.toList());
-            // Insert _ in reverse order so that it's not necessary to keep track of the offset.
-            Collections.reverse(wordBreaks);
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toList(),
+                            // Insert _ in reverse order so that it's not necessary to keep track of the offset.
+                            l -> {
+                                Collections.reverse(l);
+                                return l;
+                            }
+                    ));
             final StringBuilder result = new StringBuilder(s.toLowerCase());
             for (Integer breakIdx: wordBreaks) {
                 result.insert(breakIdx, "_");
