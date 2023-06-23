@@ -33,11 +33,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link JsonService} using the JakartaEE JSON Bind API.
  */
 public class JsonbService implements JsonService {
+
+    static final Logger LOGGER = LoggerFactory.getLogger(JsonbService.class);
 
     private final Jsonb jsonb;
 
@@ -46,7 +54,7 @@ public class JsonbService implements JsonService {
      */
     public JsonbService() {
         final JsonbConfig config = new JsonbConfig();
-        config.withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);
+        config.withPropertyNamingStrategy(new LowerCamelCase());
         this.jsonb = JsonbBuilder.create(config);
     }
 
@@ -74,6 +82,29 @@ public class JsonbService implements JsonService {
             return jsonb.fromJson(input, type);
         } catch (final JsonbException | JsonException ex) {
             throw new IOException("Error parsing JSON", ex);
+        }
+    }
+
+    static class LowerCamelCase implements PropertyNamingStrategy {
+        @Override
+        public String translateName(final String s) {
+            final var wordBreaks = IntStream.range(0, s.length())
+                    // Only keep indexes of upper case letters.
+                    .filter(i -> Character.isUpperCase(s.charAt(i)))
+                    .boxed()
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toList(),
+                            // Insert _ in reverse order so that it's not necessary to keep track of the offset.
+                            l -> {
+                                Collections.reverse(l);
+                                return l;
+                            }
+                    ));
+            final StringBuilder result = new StringBuilder(s.toLowerCase());
+            for (Integer breakIdx: wordBreaks) {
+                result.insert(breakIdx, "_");
+            }
+            return result.toString();
         }
     }
 }
