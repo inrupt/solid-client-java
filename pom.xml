@@ -24,7 +24,7 @@
     <caffeine.version>3.1.6</caffeine.version>
     <commons.codec.version>1.15</commons.codec.version>
     <commons.cli.version>1.5.0</commons.cli.version>
-    <commons.io.version>2.12.0</commons.io.version>
+    <commons.io.version>2.13.0</commons.io.version>
     <commons.rdf.version>0.5.0</commons.rdf.version>
     <guava.version>32.0.1-jre</guava.version>
     <jackson.version>2.15.2</jackson.version>
