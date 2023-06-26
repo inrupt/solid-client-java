@@ -22,10 +22,12 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.Client;
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
@@ -65,6 +67,7 @@ public class DomainModulesResource {
     private static MockWebIdService webIdService;
     private static String podUrl;
     private static String webidUrl;
+    private static String issuer;
     private static final String MOCK_USERNAME = "someuser";
 
     private static final Config config = ConfigProvider.getConfig();
@@ -79,6 +82,11 @@ public class DomainModulesResource {
     private static final String PUBLIC_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.public-resource-path", String.class)
         .orElse("");
+    private static final String AUTH_METHOD = config
+            .getOptionalValue("inrupt.test.auth-method", String.class)
+            .orElse("client_secret_basic");
+    private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
+    private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
 
     private static String testContainer = "resource/";
     private static URI testContainerURI;
@@ -110,6 +118,7 @@ public class DomainModulesResource {
         //find storage from WebID using domain-specific webID solid concept
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             final var storages = sameProfile.getStorages();
+            issuer = sameProfile.getOidcIssuers().iterator().next().toString();
             if (!storages.isEmpty()) {
                 podUrl = storages.iterator().next().toString();
             }
@@ -267,17 +276,25 @@ public class DomainModulesResource {
     void ldpNavigationTest() {
         LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+
         //returns: testContainer + "UUID1/UUID2/UUID3/"
         final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
 
-        final String podRoot = podRoot(leafPath);
+        final String podRoot = podRoot(authClient, leafPath);
 
         //cleanup
-        recursiveDeleteLDPcontainers(leafPath);
+        recursiveDeleteLDPcontainers(authClient, leafPath);
         assertFalse(podRoot.isEmpty());
     }
 
-    private String podRoot(final String leafPath) {
+    private String podRoot(final SolidSyncClient client, final String leafPath) {
         String tempURL = leafPath;
         final URI storage = URI.create(PIM.getNamespace() + "Storage");
         while (tempURL.chars().filter(ch -> ch == '/').count() >= 3) {
@@ -297,7 +314,7 @@ public class DomainModulesResource {
         return "";
     }
 
-    private void recursiveDeleteLDPcontainers(final String leafPath) {
+    private void recursiveDeleteLDPcontainers(final SolidSyncClient client, final String leafPath) {
         String tempURL = leafPath;
         final String notToDeletePath = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH).build().toString();
