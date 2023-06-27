@@ -27,17 +27,17 @@ import java.util.Set;
  * A class representing an UMA discovery document.
  */
 public interface UmaMetadata {
-    public static final String DPOP_SIGNING_ALG_VALUES_SUPPORTED = "dpop_signing_alg_values_supported";
-    public static final String GRANT_TYPES_SUPPORTED = "grant_types_supported";
-    public static final String ISSUER = "issuer";
-    public static final String JWKS_URI = "jwks_uri";
-    public static final String TOKEN_ENDPOINT = "token_endpoint";
-    public static final String UMA_PROFILES_SUPPORTED = "uma_profiles_supported";
+    String DPOP_SIGNING_ALG_VALUES_SUPPORTED = "dpop_signing_alg_values_supported";
+    String GRANT_TYPES_SUPPORTED = "grant_types_supported";
+    String ISSUER = "issuer";
+    String JWKS_URI = "jwks_uri";
+    String TOKEN_ENDPOINT = "token_endpoint";
+    String UMA_PROFILES_SUPPORTED = "uma_profiles_supported";
 
-    public Set<String> getDpopSigningAlgValuesSupported();
-    public Set<String> getGrantTypesSupported();
-    public URI getIssuer();
-    public URI getJwksUri();
-    public URI getTokenEndpoint();
-    public Set<URI> getUmaProfilesSupported();
+    Set<String> getDpopSigningAlgValuesSupported();
+    Set<String> getGrantTypesSupported();
+    URI getIssuer();
+    URI getJwksUri();
+    URI getTokenEndpoint();
+    Set<URI> getUmaProfilesSupported();
 }

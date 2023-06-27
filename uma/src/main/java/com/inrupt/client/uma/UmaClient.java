@@ -76,7 +76,7 @@ public class UmaClient {
     private static final String NEED_INFO = "need_info";
     private static final String REQUEST_DENIED = "request_denied";
 
-    private final ClientCache<URI, Metadata> metadataCache;
+    private final ClientCache<URI, UmaMetadata> metadataCache;
     private final HttpService httpClient;
     private final JsonService jsonService;
     private final int maxIterations;
@@ -112,7 +112,8 @@ public class UmaClient {
     public UmaClient(final HttpService httpClient, final ClientCache<URI, Metadata> metadataCache,
             final int maxIterations) {
         this.httpClient = Objects.requireNonNull(httpClient, "httpClient may not be null!");
-        this.metadataCache = Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
+        Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
+        this.metadataCache = new CacheAdapter(metadataCache);
         this.maxIterations = maxIterations;
         this.jsonService = ServiceProvider.getJsonService();
     }
@@ -125,9 +126,11 @@ public class UmaClient {
      */
     public CompletionStage<Metadata> metadata(final URI authorizationServer) {
         final URI uri = getMetadataUrl(authorizationServer);
-        final Metadata m = metadataCache.get(uri);
+        final UmaMetadata m = metadataCache.get(uri);
         if (m != null) {
-            return CompletableFuture.completedFuture(m);
+            // TODO: This should only require the UmaMetadata interface, but that isn't possible because both overloaded
+            //  methods would have the same erasure, resulting in an ambiguity.
+            return CompletableFuture.completedFuture(Metadata.fromUmaMetadata(m));
         }
 
         final Request req = Request.newBuilder(uri).header(ACCEPT, JSON).build();
@@ -276,5 +279,34 @@ public class UmaClient {
 
     private URI getMetadataUrl(final URI authorizationServer) {
         return URIBuilder.newBuilder(authorizationServer).path(".well-known/uma2-configuration").build();
+    }
+
+    private static class CacheAdapter implements ClientCache<URI, UmaMetadata> {
+
+        private ClientCache<URI, Metadata> wrappedCache;
+
+        public CacheAdapter(final ClientCache<URI, Metadata> wrappedCache) {
+            this.wrappedCache = wrappedCache;
+        }
+
+        @Override
+        public UmaMetadata get(final URI key) {
+            return wrappedCache.get(key);
+        }
+
+        @Override
+        public void put(final URI key, final UmaMetadata value) {
+            wrappedCache.put(key, Metadata.fromUmaMetadata(value));
+        }
+
+        @Override
+        public void invalidate(final URI key) {
+            wrappedCache.invalidate(key);
+        }
+
+        @Override
+        public void invalidateAll() {
+            wrappedCache.invalidateAll();
+        }
     }
 }

@@ -21,10 +21,7 @@
 package com.inrupt.client.uma;
 
 import com.inrupt.client.Request;
-import com.inrupt.client.auth.Authenticator;
-import com.inrupt.client.auth.Challenge;
-import com.inrupt.client.auth.Credential;
-import com.inrupt.client.auth.Session;
+import com.inrupt.client.auth.*;
 import com.inrupt.client.spi.AuthenticationProvider;
 
 import java.net.URI;
@@ -172,7 +169,7 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
             final String ticket = challenge.getParameter(TICKET);
 
             return umaClient.metadata(as)
-                .thenCompose(metadata -> {
+                .thenCompose((UmaMetadata metadata) -> {
                     if (supportsProfile(metadata, ID_TOKEN)) {
                         // Pre-emptively push ID Token claims if supported
                         final Optional<Credential> credential = session.getCredential(ID_TOKEN, request.uri());
@@ -182,8 +179,8 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
 
                         final TokenRequest req = new TokenRequest(ticket, null, null, claimToken,
                                 Collections.emptyList());
-                        LOGGER.debug("Pushing ID Token claims to token endpoint: {}", metadata.tokenEndpoint);
-                        return umaClient.token(metadata.tokenEndpoint, req, claimHandler::getToken)
+                        LOGGER.debug("Pushing ID Token claims to token endpoint: {}", metadata.getTokenEndpoint());
+                        return umaClient.token(metadata.getTokenEndpoint(), req, claimHandler::getToken)
                             .thenCompose(token -> {
                                 // TODO this logic should be replaced with proper token negotiation
                                 final URI principal = credential.flatMap(Credential::getPrincipal).orElse(null);
@@ -198,8 +195,9 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
                                         final TokenRequest req2 = new TokenRequest(ticket, null, token.accessToken,
                                                 claimToken2, Collections.emptyList());
                                         LOGGER.debug("Pushing Access Grant claims to token endpoint: {}",
-                                                metadata.tokenEndpoint);
-                                        return umaClient.token(metadata.tokenEndpoint, req2, claimHandler::getToken)
+                                                metadata.getTokenEndpoint());
+                                        return umaClient
+                                            .token(metadata.getTokenEndpoint(), req2, claimHandler::getToken)
                                             .thenApply(token2 -> new Credential(token2.tokenType, as,
                                                         token2.accessToken, Instant.now().plusSeconds(token2.expiresIn),
                                                         principal, jkt));
@@ -215,8 +213,8 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    static boolean supportsProfile(final Metadata metadata, final URI profile) {
-        return metadata.umaProfilesSupported != null && metadata.umaProfilesSupported.contains(profile);
+    static boolean supportsProfile(final UmaMetadata metadata, final URI profile) {
+        return metadata.getUmaProfilesSupported() != null && metadata.getUmaProfilesSupported().contains(profile);
     }
 
     static boolean insufficientScope(final TokenResponse token) {

@@ -25,9 +25,6 @@ import com.inrupt.client.auth.UmaMetadata;
 import java.net.URI;
 import java.util.Set;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 public class UmaMetadataJsonb implements UmaMetadata {
     private final Set<String> dpopSigningAlgValuesSupported;
     private final Set<String> grantTypesSupported;
@@ -35,15 +32,13 @@ public class UmaMetadataJsonb implements UmaMetadata {
     private final URI jwksUri;
     private final URI tokenEndpoint;
     private final Set<URI> umaProfilesSupported;
-
-    @JsonbCreator
     public UmaMetadataJsonb(
-            @JsonbProperty("dpop_signing_alg_values_supported") Set<String> dpopSigningAlgValuesSupported,
-            @JsonbProperty("grant_types_supported") Set<String> grantTypesSupported,
-            @JsonbProperty("issuer") URI issuer,
-            @JsonbProperty("jwks_uri") URI jwksUri,
-            @JsonbProperty("token_endpoint") URI tokenEndpoint,
-            @JsonbProperty("uma_profiles_supported") Set<URI> umaProfilesSupported
+            final Set<String> dpopSigningAlgValuesSupported,
+            final Set<String> grantTypesSupported,
+            final URI issuer,
+            final URI jwksUri,
+            final URI tokenEndpoint,
+            final Set<URI> umaProfilesSupported
     ) {
         this.dpopSigningAlgValuesSupported = dpopSigningAlgValuesSupported;
         this.grantTypesSupported = grantTypesSupported;

@@ -22,14 +22,14 @@ package com.inrupt.client.jsonb;
 
 import com.inrupt.client.auth.UmaMetadata;
 
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
 import jakarta.json.bind.adapter.JsonbAdapter;
-
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 
 public class UmaAdapter implements JsonbAdapter<UmaMetadata, JsonObject> {
     @Override
@@ -97,7 +97,7 @@ public class UmaAdapter implements JsonbAdapter<UmaMetadata, JsonObject> {
             adapted.getJsonArray(UmaMetadata.UMA_PROFILES_SUPPORTED)
                     .forEach(value -> umaProfilesSupported.add(URI.create(((JsonString) value).getString())));
         }
-        return new UmaMetadataJsonb(
+        return new DefaultUmaMetadata(
                 dpopSigningAlgValuesSupported,
                 grantTypesSupported,
                 issuer,
