@@ -23,6 +23,8 @@ package com.inrupt.client.jackson;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.inrupt.client.auth.UmaMetadata;
 import com.inrupt.client.spi.JsonService;
 
 import java.io.IOException;
@@ -45,6 +47,9 @@ public class JacksonService implements JsonService {
         mapper.findAndRegisterModules();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        final SimpleModule umaDeserializer = new SimpleModule();
+        umaDeserializer.addDeserializer(UmaMetadata.class, new UmaDeserializer(UmaMetadata.class));
+        mapper.registerModule(umaDeserializer);
     }
 
     @Override
