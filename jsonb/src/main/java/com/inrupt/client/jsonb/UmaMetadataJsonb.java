@@ -18,25 +18,40 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.uma;
+package com.inrupt.client.jsonb;
 
 import com.inrupt.client.auth.UmaMetadata;
 
 import java.net.URI;
 import java.util.Set;
 
-/**
- * A class representing an UMA discovery document.
- * @deprecated Prefer the com.inrupt.client.auth.UmaMetadata interface.
- */
-public class Metadata implements UmaMetadata {
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
-    public Set<String> dpopSigningAlgValuesSupported;
-    public Set<String> grantTypesSupported;
-    public URI issuer;
-    public URI jwksUri;
-    public URI tokenEndpoint;
-    public Set<URI> umaProfilesSupported;
+public class UmaMetadataJsonb implements UmaMetadata {
+    private final Set<String> dpopSigningAlgValuesSupported;
+    private final Set<String> grantTypesSupported;
+    private final URI issuer;
+    private final URI jwksUri;
+    private final URI tokenEndpoint;
+    private final Set<URI> umaProfilesSupported;
+
+    @JsonbCreator
+    public UmaMetadataJsonb(
+            @JsonbProperty("dpop_signing_alg_values_supported") Set<String> dpopSigningAlgValuesSupported,
+            @JsonbProperty("grant_types_supported") Set<String> grantTypesSupported,
+            @JsonbProperty("issuer") URI issuer,
+            @JsonbProperty("jwks_uri") URI jwksUri,
+            @JsonbProperty("token_endpoint") URI tokenEndpoint,
+            @JsonbProperty("uma_profiles_supported") Set<URI> umaProfilesSupported
+    ) {
+        this.dpopSigningAlgValuesSupported = dpopSigningAlgValuesSupported;
+        this.grantTypesSupported = grantTypesSupported;
+        this.issuer = issuer;
+        this.jwksUri = jwksUri;
+        this.tokenEndpoint = tokenEndpoint;
+        this.umaProfilesSupported = umaProfilesSupported;
+    }
 
     @Override
     public Set<String> getDpopSigningAlgValuesSupported() {
@@ -66,16 +81,5 @@ public class Metadata implements UmaMetadata {
     @Override
     public Set<URI> getUmaProfilesSupported() {
         return umaProfilesSupported;
-    }
-
-    public static Metadata fromUmaMetadata(UmaMetadata metadata) {
-        final var result = new Metadata();
-        result.dpopSigningAlgValuesSupported = metadata.getDpopSigningAlgValuesSupported();
-        result.grantTypesSupported = metadata.getGrantTypesSupported();
-        result.issuer = metadata.getIssuer();
-        result.jwksUri = metadata.getJwksUri();
-        result.tokenEndpoint = metadata.getTokenEndpoint();
-        result.umaProfilesSupported = metadata.getUmaProfilesSupported();
-        return result;
     }
 }

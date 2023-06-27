@@ -23,6 +23,7 @@ package com.inrupt.client.uma;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.inrupt.client.*;
+import com.inrupt.client.auth.UmaMetadata;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -115,7 +116,6 @@ public class UmaClient {
         this.maxIterations = maxIterations;
         this.jsonService = ServiceProvider.getJsonService();
     }
-
 
     /**
      * Fetch the UMA metadata resource.
@@ -261,7 +261,9 @@ public class UmaClient {
     private Metadata processMetadataResponse(final URI uri, final Response<InputStream> response) {
         if (response.statusCode() == SUCCESS) {
             try {
-                final Metadata metadata = jsonService.fromJson(response.body(), Metadata.class);
+                final Metadata metadata = Metadata.fromUmaMetadata(
+                        jsonService.fromJson(response.body(), UmaMetadata.class)
+                );
                 metadataCache.put(uri, metadata);
                 return metadata;
 
