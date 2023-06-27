@@ -149,7 +149,8 @@ public class CoreModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:coreModulesLayerRdfSourceCrud CRUD on RDF resource")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/coreModulesLayerRdfSourceCrud " +
+            "CRUD on RDF resource")
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
@@ -252,7 +253,8 @@ public class CoreModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:coreModulesLayerContainerCrud create and remove Containers")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/coreModulesLayerContainerCrud" +
+            " create and remove Containers")
     void containerCreateDeleteTest() {
         LOGGER.info("Integration Test - create and remove Containers");
 
@@ -301,7 +303,7 @@ public class CoreModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:coreModulesLayerNonRdfSourceCrud " +
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/coreModulesLayerNonRdfSourceCrud " +
         "can create, delete, and differentiate between RDF and non-RDF Resources")
     void nonRdfTest() {
         LOGGER.info("Integration Test - create, delete, and differentiate between RDF and non-RDF Resources");
@@ -334,7 +336,7 @@ public class CoreModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:coreModulesLayerBlankNodeSupport " +
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/coreModulesLayerBlankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
         LOGGER.info("Integration Test - update statements containing Blank Nodes " +
