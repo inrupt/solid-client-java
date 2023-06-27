@@ -25,6 +25,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.Request;
 import com.inrupt.client.accessgrant.AccessCredentialVerification;
 
 import java.io.IOException;
@@ -38,6 +39,9 @@ import org.apache.commons.io.IOUtils;
 
 class MockAccessGrantServer {
 
+    private final String USER_AGENT_HEADER = "User-Agent";
+    private static final String USER_AGENT = "InruptJavaClient/" + Request.class
+            .getPackage().getImplementationVersion();
     private static final String DERIVE = "/derive";
     private static final String ISSUE = "/issue";
 
@@ -74,84 +78,94 @@ class MockAccessGrantServer {
 
     private void setupMocks() {
         wireMockServer.stubFor(get(urlEqualTo(Utils.VC_DISCOVERY_ENDPOINT))
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .willReturn(aResponse()
-                    .withStatus(Utils.SUCCESS)
-                    .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                    .withBody(getResource("/vc-configuration.json", wireMockServer.baseUrl()))));
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-configuration.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(get(urlPathEqualTo("/vc-grant"))
-                    .willReturn(aResponse()
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(get(urlPathEqualTo("/vc-request"))
-                    .willReturn(aResponse()
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(delete(urlPathMatching("/vc-grant"))
-                    .willReturn(aResponse()
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
                         .withStatus(204)));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .atPriority(2)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
                                 "UMA ticket=\"ticket-67890\", as_uri=\"" + authorisationServerUrl + "\"")));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .atPriority(3)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("hasConsent"))
-                    .withRequestBody(containing(this.sharedResource))
-                    .willReturn(aResponse()
+                .atPriority(3)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("hasConsent"))
+                .withRequestBody(containing(this.sharedResource))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedResource))));
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .inScenario(SCENARIO_ACCESS_GRANT)
-                    .willSetStateTo(SCENARIO_STATE_ISSUED)
-                    .atPriority(3)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("providedConsent"))
-                    .withRequestBody(containing(this.sharedResource))
-                    .willReturn(aResponse()
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .willSetStateTo(SCENARIO_STATE_ISSUED)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .atPriority(3)
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("providedConsent"))
+                .withRequestBody(containing(this.sharedResource))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedResource))));
-
-        wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .atPriority(1)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("hasConsent"))
-                    .willReturn(aResponse()
-                        .withStatus(Utils.SUCCESS)
-                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
-
-        wireMockServer.stubFor(post(urlEqualTo(ISSUE))
-                    .inScenario(SCENARIO_ACCESS_GRANT)
-                    .willSetStateTo(SCENARIO_STATE_ISSUED)
-                    .atPriority(1)
-                    .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
-                    .withRequestBody(containing("providedConsent"))
-                    .willReturn(aResponse()
-                        .withStatus(Utils.SUCCESS)
-                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
-                        .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedFile))));
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("hasConsent"))
+                .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
+                                this.webId, this.sharedFile))));
+
+        wireMockServer.stubFor(post(urlEqualTo(ISSUE))
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .willSetStateTo(SCENARIO_STATE_ISSUED)
+                .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
+                .withRequestBody(containing("providedConsent"))
+                .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
+                                this.webId, this.sharedFile))));
+
+        wireMockServer.stubFor(post(urlEqualTo(ISSUE))
+                .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                 .withRequestBody(containing("hasConsent"))
                 .willReturn(aResponse()
@@ -163,6 +177,7 @@ class MockAccessGrantServer {
         // Require UMA authentication for the /verify endpoint
         wireMockServer.stubFor(post(urlEqualTo(VERIFY))
                 .atPriority(2)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .willReturn(aResponse()
                         .withStatus(401)
                         .withHeader("WWW-Authenticate", "Bearer, DPoP algs=\"ES256\", " +
@@ -172,6 +187,7 @@ class MockAccessGrantServer {
                 .inScenario(SCENARIO_ACCESS_GRANT)
                 .whenScenarioStateIs(SCENARIO_STATE_ISSUED)
                 .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                 .willReturn(jsonResponse(
                         new AccessCredentialVerification(
@@ -185,6 +201,7 @@ class MockAccessGrantServer {
                 .inScenario(SCENARIO_ACCESS_GRANT)
                 .whenScenarioStateIs(SCENARIO_STATE_REVOKED)
                 .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .withHeader(HEADER_AUTHORIZATION, containing(SCHEME_BEARER))
                 .withRequestBody(containing("providedConsent"))
                 .willReturn(jsonResponse(
@@ -197,26 +214,29 @@ class MockAccessGrantServer {
         );
 
         wireMockServer.stubFor(post(urlEqualTo("/status"))
-                    .inScenario(SCENARIO_ACCESS_GRANT)
-                    .willSetStateTo(SCENARIO_STATE_REVOKED)
-                    .withRequestBody(containing("\"RevocationList2020Status\""))
-                    .willReturn(aResponse()
+                .inScenario(SCENARIO_ACCESS_GRANT)
+                .willSetStateTo(SCENARIO_STATE_REVOKED)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .withRequestBody(containing("\"RevocationList2020Status\""))
+                .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
-                    .atPriority(1)
-                    .withRequestBody(containing("\"Append\""))
-                    .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
-                    .withRequestBody(containing("\"" + this.sharedResource + "\""))
-                    .withRequestBody(containing("SolidAccessGrant"))
-                    .willReturn(aResponse()
+                .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .withRequestBody(containing("\"Append\""))
+                .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
+                .withRequestBody(containing("\"" + this.sharedResource + "\""))
+                .withRequestBody(containing("SolidAccessGrant"))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
-                            this.webId, this.sharedResource))));
+                                this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                 .atPriority(1)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .withRequestBody(containing("\"Read\""))
                 .withRequestBody(containing("\"" + this.sharedResource + "\""))
                 .withRequestBody(containing("SolidAccessGrant"))
@@ -227,8 +247,9 @@ class MockAccessGrantServer {
                                 this.webId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
-                    .atPriority(2)
-                    .willReturn(aResponse()
+                .atPriority(2)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response_empty.json"))));
@@ -248,10 +269,10 @@ class MockAccessGrantServer {
     }
 
     private static String getResource(final String path, final String baseUrl, final String webId,
-            final String sharedFile) {
+                                      final String sharedFile) {
         return getResource(path).replace("{{baseUrl}}", baseUrl)
-            .replace("{{webId}}", webId)
-            .replace("{{sharedFile}}", sharedFile);
+                .replace("{{webId}}", webId)
+                .replace("{{sharedFile}}", sharedFile);
     }
 
     public void start() {

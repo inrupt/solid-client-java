@@ -231,7 +231,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantLifecycle Access Grant issuance lifecycle")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantLifecycle " +
+            "Access Grant issuance lifecycle")
     void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession) {
         //test is NOT run locally, AccessGrantServerMock needs to be aware of grant statuses.
         //We do not do this for now.
@@ -297,7 +298,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantOverride Access Grant with request overrides")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantOverride " +
+            "Access Grant with request overrides")
     void accessGrantWithRequestOverridesTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Access Grant with request overrides");
 
@@ -328,7 +330,8 @@ public class AccessGrantScenarios {
     //Query access grant related tests
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantQueryByRequestor Lookup Access Grants by requester")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantQueryByRequestor " +
+            "Lookup Access Grants by requester")
     void accessGrantQueryByRequesterTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Lookup Access Grants by requester");
 
@@ -367,7 +370,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantQueryByPurpose Lookup Access Grants by purpose of a dedicated resource")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantQueryByPurpose " +
+            "Lookup Access Grants by purpose of a dedicated resource")
     void accessGrantQueryByPurposeTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Lookup Access Grants by purpose");
 
@@ -407,7 +411,8 @@ public class AccessGrantScenarios {
     //Interacting with resource related tests
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantGetRdf Fetching RDF using Access Grant")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantGetRdf " +
+            "Fetching RDF using Access Grant")
     void accessGrantGetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Fetching RDF using Access Grant");
 
@@ -450,7 +455,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantSetRdf Appending RDF using Access Grant")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantSetRdf " +
+            "Appending RDF using Access Grant")
     void accessGrantSetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Appending RDF using Access Grant");
 
@@ -503,7 +509,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantCreateRdf Creating RDF using Access Grant")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantCreateRdf " +
+            "Creating RDF using Access Grant")
     void accessGrantCreateRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
         LOGGER.info("Integration Test - Creating RDF using Access Grant");
 
@@ -546,7 +553,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantGetNonRdf Fetching non-RDF using Access Grant")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantGetNonRdf " +
+            "Fetching non-RDF using Access Grant")
     void accessGrantGetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
             throws IOException {
         LOGGER.info("Integration Test - Fetching non-RDF using Access Grant");
@@ -596,7 +604,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantSetNonRdf Overwriting non-RDF using Access Grant")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantSetNonRdf " +
+            "Overwriting non-RDF using Access Grant")
     void accessGrantSetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
             throws IOException {
         LOGGER.info("Integration Test - Overwriting non-RDF using Access Grant");
@@ -660,7 +669,8 @@ public class AccessGrantScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":accessGrantCreateNonRdf Creating non-RDF using Access Grant")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantCreateNonRdf " +
+            "Creating non-RDF using Access Grant")
     void accessGrantCreateNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
             throws IOException {
         LOGGER.info("Integration Test - Creating non-RDF using Access Grant");
@@ -707,7 +717,6 @@ public class AccessGrantScenarios {
     private static <T extends SolidResource> void prepareAcpOfResource(final SolidSyncClient authClient,
                                                                        final URI resourceURI,
                                                                        final Class<T> clazz) {
-
         SolidResource resource = null;
         try {
             if (SolidNonRDFSource.class.isAssignableFrom(clazz)) {
@@ -733,13 +742,13 @@ public class AccessGrantScenarios {
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
         resourceOwnerSession = OpenIdSession.ofClientCredentials(
-            URI.create(issuer), //Client credentials
+            URI.create(issuer),
             RESOURCE_OWNER_CLIENT_ID,
             RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
 
         requesterSession = OpenIdSession.ofClientCredentials(
-            URI.create(issuer), //Client credentials
+            URI.create(issuer),
             REQUESTER_CLIENT_ID,
             REQUESTER_CLIENT_SECRET,
             AUTH_METHOD);

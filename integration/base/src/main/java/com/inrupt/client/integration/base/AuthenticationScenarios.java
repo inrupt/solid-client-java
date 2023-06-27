@@ -167,7 +167,8 @@ public class AuthenticationScenarios {
     }
 
     @Test
-    @DisplayName(":unauthenticatedPublicNode Unauthenticated fetch of public resource succeeds")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/unauthenticatedPublicNode " +
+            "Unauthenticated fetch of public resource succeeds")
     void fetchPublicResourceUnauthenticatedTest() {
         LOGGER.info("Integration Test - Unauthenticated fetch of public resource");
         //create a public resource
@@ -181,7 +182,8 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":unauthenticatedPrivateNode Unauthenticated fetch of a private resource fails")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/unauthenticatedPrivateNode" +
+            " Unauthenticated fetch of a private resource fails")
     void fetchPrivateResourceUnauthenticatedTest(final Session session) {
         LOGGER.info("Integration Test - Unauthenticated fetch of a private resource");
         //create private resource
@@ -201,7 +203,8 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPublicNode Authenticated fetch of public resource succeeds")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedPublicNode " +
+            "Authenticated fetch of public resource succeeds")
     void fetchPublicResourceAuthenticatedTest(final Session session) {
         LOGGER.info("Integration Test - Authenticated fetch of public resource");
         //create public resource
@@ -218,7 +221,8 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPrivateNode Authenticated fetch of private resource succeeds")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedPrivateNode " +
+            "Authenticated fetch of private resource succeeds")
     void fetchPrivateResourceAuthenticatedTest(final Session session) {
         LOGGER.info("Integration Test - Authenticated fetch of private resource");
         //create private resource
@@ -234,7 +238,8 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedPrivateNodeAfterLogin Unauthenticated, then auth fetch of private resource")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedPrivateNodeAfterLogin " +
+            "Unauthenticated, then auth fetch of private resource")
     void fetchPrivateResourceUnauthAuthTest(final Session session) {
         LOGGER.info("Integration Test - Unauthenticated, then auth fetch of private resource");
         //create private resource
@@ -256,7 +261,8 @@ public class AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(":authenticatedMultisessionNode Multiple sessions authenticated in parallel")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedMultisessionNode " +
+            "Multiple sessions authenticated in parallel")
     void multiSessionTest(final Session session) {
         LOGGER.info("Integration Test - Multiple sessions authenticated in parallel");
         //create private resource

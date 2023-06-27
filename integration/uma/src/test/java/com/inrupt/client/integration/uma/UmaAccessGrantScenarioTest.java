@@ -37,7 +37,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
+class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UmaAccessGrantScenarioTest.class);
 

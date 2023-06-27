@@ -151,7 +151,8 @@ public class DomainModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:baseRdfSourceCrud CRUD on RDF resource")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/baseRdfSourceCrud " +
+            "CRUD on RDF resource")
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
@@ -189,7 +190,8 @@ public class DomainModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:baseContainerCrud create and remove Containers")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/baseContainerCrud " +
+            "create and remove Containers")
     void containerCreateDeleteTest() {
         LOGGER.info("Integration Test - create and remove Containers");
 
@@ -202,7 +204,7 @@ public class DomainModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:blankNodeSupport " +
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/blankNodeSupport " +
         "can update statements containing Blank Nodes in different instances of the same model")
     void blankNodesTest() {
         LOGGER.info("Integration Test - update statements containing Blank Nodes in " +
@@ -256,7 +258,8 @@ public class DomainModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:podStorageFinding find pod storage from webID")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/podStorageFinding " +
+            "find pod storage from webID")
     void findStorageTest() {
         LOGGER.info("Integration Test - find pod storage from webID");
 
@@ -271,7 +274,8 @@ public class DomainModulesResource {
     }
 
     @Test
-    @DisplayName("./solid-client-java:ldpNavigation from a leaf container navigate until finding the root")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/ldpNavigation " +
+            "from a leaf container navigate until finding the root")
     void ldpNavigationTest() {
         LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
