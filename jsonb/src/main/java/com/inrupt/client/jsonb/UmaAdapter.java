@@ -22,14 +22,14 @@ package com.inrupt.client.jsonb;
 
 import com.inrupt.client.auth.UmaMetadata;
 
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
 import jakarta.json.bind.adapter.JsonbAdapter;
+
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UmaAdapter implements JsonbAdapter<UmaMetadata, JsonObject> {
     @Override
@@ -70,12 +70,12 @@ public class UmaAdapter implements JsonbAdapter<UmaMetadata, JsonObject> {
 
     @Override
     public UmaMetadata adaptFromJson(final JsonObject adapted) throws Exception {
-        Set<String> dpopSigningAlgValuesSupported = new HashSet<>();
+        final Set<String> dpopSigningAlgValuesSupported = new HashSet<>();
         if (adapted.containsKey(UmaMetadata.DPOP_SIGNING_ALG_VALUES_SUPPORTED)) {
             adapted.getJsonArray(UmaMetadata.DPOP_SIGNING_ALG_VALUES_SUPPORTED)
                     .forEach(value -> dpopSigningAlgValuesSupported.add(((JsonString) value).getString()));
         }
-        Set<String> grantTypesSupported = new HashSet<>();
+        final Set<String> grantTypesSupported = new HashSet<>();
         if (adapted.containsKey(UmaMetadata.GRANT_TYPES_SUPPORTED)) {
             adapted.getJsonArray(UmaMetadata.GRANT_TYPES_SUPPORTED)
                     .forEach(value -> grantTypesSupported.add(((JsonString) value).getString()));
@@ -92,7 +92,7 @@ public class UmaAdapter implements JsonbAdapter<UmaMetadata, JsonObject> {
         if (adapted.containsKey(UmaMetadata.TOKEN_ENDPOINT)) {
             tokenEndpoint = URI.create(adapted.getString(UmaMetadata.TOKEN_ENDPOINT));
         }
-        Set<URI> umaProfilesSupported = new HashSet<>();
+        final Set<URI> umaProfilesSupported = new HashSet<>();
         if (adapted.containsKey(UmaMetadata.UMA_PROFILES_SUPPORTED)) {
             adapted.getJsonArray(UmaMetadata.UMA_PROFILES_SUPPORTED)
                     .forEach(value -> umaProfilesSupported.add(URI.create(((JsonString) value).getString())));
