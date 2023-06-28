@@ -69,7 +69,7 @@ public class Metadata implements UmaMetadata {
     }
 
     public static Metadata fromUmaMetadata(final UmaMetadata metadata) {
-        final var result = new Metadata();
+        final Metadata result = new Metadata();
         result.dpopSigningAlgValuesSupported = metadata.getDpopSigningAlgValuesSupported();
         result.grantTypesSupported = metadata.getGrantTypesSupported();
         result.issuer = metadata.getIssuer();
