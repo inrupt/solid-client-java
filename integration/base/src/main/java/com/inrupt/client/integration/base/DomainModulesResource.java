@@ -30,7 +30,6 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -76,6 +75,9 @@ public class DomainModulesResource {
 
     private static IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
 
+    private static final String PRIVATE_RESOURCE_PATH = config
+        .getOptionalValue("inrupt.test.private-resource-path", String.class)
+        .orElse("private");
     private static final String PUBLIC_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.public-resource-path", String.class)
         .orElse("");
@@ -86,11 +88,7 @@ public class DomainModulesResource {
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
 
     private static String testContainer = "resource/";
-    private static final String FOLDER_SEPARATOR = "/";
     private static URI testContainerURI;
-    private static URI publicContainerURI;
-
-    private static SolidSyncClient authClient;
 
     @BeforeAll
     static void setup() {
@@ -109,6 +107,8 @@ public class DomainModulesResource {
             MOCK_USERNAME);
         webIdService.start();
 
+        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
+
         webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
@@ -122,7 +122,6 @@ public class DomainModulesResource {
                 podUrl = storages.iterator().next().toString();
             }
         }
-        createAuthenticatedClient();
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path("test-" + UUID.randomUUID())
@@ -133,11 +132,6 @@ public class DomainModulesResource {
                 .path("test-" + UUID.randomUUID())
                 .path(testContainer)
                 .build();
-
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + FOLDER_SEPARATOR).build();
-            createContainer(publicContainerURI);
-            prepareACR(publicContainerURI);
         }
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -149,10 +143,6 @@ public class DomainModulesResource {
         client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
         client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
                 Response.BodyHandlers.discarding());
-        if (publicContainerURI != null) {
-            authClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding());
-        }
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -289,23 +279,31 @@ public class DomainModulesResource {
     void ldpNavigationTest() {
         LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+
         //returns: testContainer + "UUID1/UUID2/UUID3/"
         final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
 
-        final String podRoot = podRoot(leafPath);
+        final String podRoot = podRoot(authClient, leafPath);
 
         //cleanup
-        recursiveDeleteLDPcontainers(leafPath);
+        recursiveDeleteLDPcontainers(authClient, leafPath);
         assertFalse(podRoot.isEmpty());
     }
 
-    private String podRoot(final String leafPath) {
+    private String podRoot(final SolidSyncClient client, final String leafPath) {
         String tempURL = leafPath;
         final URI storage = URI.create(PIM.getNamespace() + "Storage");
         while (tempURL.chars().filter(ch -> ch == '/').count() >= 3) {
             final Request req = Request.newBuilder(URI.create(tempURL)).GET().build();
             final Response<SolidRDFSource> headerResponse =
-                    authClient.send(req, SolidResourceHandlers.ofSolidRDFSource());
+                    client.send(req, SolidResourceHandlers.ofSolidRDFSource());
             final var headers = headerResponse.headers();
             final var isRoot = headers.allValues("Link").stream()
                 .flatMap(l -> Headers.Link.parse(l).stream())
@@ -314,20 +312,20 @@ public class DomainModulesResource {
                 return tempURL;
             }
             tempURL = tempURL.substring(0, tempURL.length() - 1 ); //eliminate the last /
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR) + 1);
+            tempURL = tempURL.substring(0, tempURL.lastIndexOf("/") + 1);
         }
         return "";
     }
 
-    private void recursiveDeleteLDPcontainers(final String leafPath) {
+    private void recursiveDeleteLDPcontainers(final SolidSyncClient client, final String leafPath) {
         String tempURL = leafPath;
         final String notToDeletePath = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH).build().toString();
-        while (!(tempURL.equals(notToDeletePath)) && !(tempURL.equals(notToDeletePath + FOLDER_SEPARATOR))) {
+        while (!(tempURL.equals(notToDeletePath)) && !(tempURL.equals(notToDeletePath + "/"))) {
             final var url = new SolidRDFSource(URI.create(tempURL),null, null);
-            authClient.delete(url);
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR));
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR) + 1);
+            client.delete(url);
+            tempURL = tempURL.substring(0, tempURL.lastIndexOf("/"));
+            tempURL = tempURL.substring(0, tempURL.lastIndexOf("/") + 1);
         }
     }
 
@@ -340,43 +338,5 @@ public class DomainModulesResource {
         final var resource = new SolidRDFSource(URI.create(newURL));
         client.create(resource);
         return newURL;
-    }
-
-    private static void createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
-
-        authClient = SolidSyncClient.getClient().session(session);
-    }
-
-    private static void createContainer(final URI publicContainerURI) {
-        final var requestCreate = Request.newBuilder(publicContainerURI)
-                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
-                .PUT(Request.BodyPublishers.noBody())
-                .build();
-        final var resCreate =
-                authClient.send(requestCreate, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
-    }
-
-    private static void prepareACR(final URI publicContainerURI) {
-        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
-            if (resource != null) {
-                // find the acl Link in the header of the resource
-                resource.getMetadata().getAcl().ifPresent(acl -> {
-                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

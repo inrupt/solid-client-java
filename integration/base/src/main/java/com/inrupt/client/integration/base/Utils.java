@@ -20,29 +20,16 @@
  */
 package com.inrupt.client.integration.base;
 
-import static com.inrupt.client.vocabulary.RDF.type;
 import static java.nio.charset.StandardCharsets.UTF_8;
-
-import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.ACL;
-import com.inrupt.client.vocabulary.ACP;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.api.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
@@ -90,9 +77,6 @@ public final class Utils {
     public static final String UMA_JWKS_ENDPOINT = "uma/jwks";
     public static final String OAUTH_JWKS_ENDPOINT = "oauth/jwks";
 
-    private static final RDF rdf = RDFFactory.getInstance();
-    private static final IRI PUBLIC_AGENT = rdf.createIRI("http://www.w3.org/ns/solid/acp#PublicAgent");
-
     public static boolean isSuccessful(final int status) {
         return Arrays.asList(SUCCESS, NO_CONTENT, CREATED).contains(status);
     }
@@ -129,41 +113,6 @@ public final class Utils {
 
     public static boolean isPodRoot(final String url) {
         return "/".equals(url);
-    }
-
-
-    private static IRI asIRI(final URI uri) {
-        return rdf.createIRI(uri.toString());
-    }
-
-    public static Set<Triple> publicAgentPolicyTriples(final URI acl) {
-        final Set<Triple> triples = new HashSet<>();
-        final IRI a = asIRI(type);
-
-        // Matcher
-        final IRI matcher = asIRI(URIBuilder.newBuilder(acl).fragment(UUID.randomUUID().toString()).build());
-        triples.add(rdf.createTriple(matcher, a, asIRI(ACP.Matcher)));
-        triples.add(rdf.createTriple(matcher, asIRI(URI.create("http://www.w3.org/ns/solid/acp#agent")), PUBLIC_AGENT));
-
-        // Policy
-        final IRI policy = asIRI(URIBuilder.newBuilder(acl).fragment(UUID.randomUUID().toString()).build());
-        triples.add(rdf.createTriple(policy, a, asIRI(ACP.Policy)));
-        triples.add(rdf.createTriple(policy, asIRI(ACP.allOf), matcher));
-        triples.add(rdf.createTriple(policy, asIRI(ACP.allow), asIRI(ACL.Read)));
-        triples.add(rdf.createTriple(policy, asIRI(ACP.allow), asIRI(ACL.Write)));
-        triples.add(rdf.createTriple(policy, asIRI(ACP.allow), asIRI(ACL.Append)));
-
-        // Access Control
-        final IRI accessControl = asIRI(URIBuilder.newBuilder(acl).fragment(UUID.randomUUID().toString()).build());
-        triples.add(rdf.createTriple(accessControl, a, asIRI(ACP.AccessControl)));
-        triples.add(rdf.createTriple(accessControl, asIRI(ACP.apply), policy));
-
-        // Access Control Resource
-        final IRI subject = asIRI(acl);
-        triples.add(rdf.createTriple(subject, a, asIRI(ACP.AccessControlResource)));
-        triples.add(rdf.createTriple(subject, asIRI(ACP.accessControl), accessControl));
-        triples.add(rdf.createTriple(subject, asIRI(ACP.memberAccessControl), accessControl));
-        return triples;
     }
 
     private Utils() {

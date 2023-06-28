@@ -20,18 +20,21 @@
  */
 package com.inrupt.client.integration.base;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.*;
+import com.inrupt.client.solid.SolidClientException;
+import com.inrupt.client.solid.SolidRDFSource;
+import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.solid.UnauthorizedException;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -68,12 +71,8 @@ public class AuthenticationScenarios {
     private static final String MOCK_USERNAME = "someuser";
 
     private static String testResourceName = "resource.ttl";
-    private static URI publicTestContainerURI;
-    private static URI publicResourceURI;
-    private static URI publicContainerURI;
-    private static URI privateTestContainerURI;
-    protected static URI privateResourceURI;
-    private static URI privateContainerURI;
+    private static URI publicResourceURL;
+    protected static URI privateResourceURL;
     private static final Config config = ConfigProvider.getConfig();
 
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
@@ -87,7 +86,7 @@ public class AuthenticationScenarios {
     private static final String PUBLIC_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.public-resource-path", String.class)
         .orElse("");
-    private static SolidSyncClient authClient;
+    private static Session session;
 
     @BeforeAll
     static void setup() {
@@ -124,41 +123,23 @@ public class AuthenticationScenarios {
         if (!podUrl.endsWith(Utils.FOLDER_SEPARATOR)) {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
-
-        createAuthenticatedClient();
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path("test-" + UUID.randomUUID())
-                    .build();
-
-        } else {
-            publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
+            publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
                 .path("test-" + UUID.randomUUID())
-                .build();
-
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + "/").build();
-
-            createContainer(publicContainerURI);
-            prepareACR(publicContainerURI);
-        }
-
-        publicResourceURI = URIBuilder.newBuilder(publicTestContainerURI)
                 .path(testResourceName)
                 .build();
-
-        privateTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(State.PRIVATE_RESOURCE_PATH)
+        } else {
+            publicResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(PUBLIC_RESOURCE_PATH)
                 .path("test-" + UUID.randomUUID())
+                .path(testResourceName)
                 .build();
-
-        privateResourceURI = URIBuilder.newBuilder(privateTestContainerURI)
+        }
+        privateResourceURL = URIBuilder.newBuilder(URI.create(podUrl))
+            .path(State.PRIVATE_RESOURCE_PATH)
+            .path("test-" + UUID.randomUUID())
             .path(testResourceName)
             .build();
-
-        privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PRIVATE_RESOURCE_PATH + "/").build();
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -166,25 +147,18 @@ public class AuthenticationScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        final var reqDeletePrivateResource = Request.newBuilder(privateTestContainerURI).DELETE().build();
-        authClient.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
+        final SolidSyncClient client = SolidSyncClient.getClient().session(session);
+        final var reqDeletePrivateResource = Request.newBuilder(privateResourceURL).DELETE().build();
+        client.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
 
-        final var reqDeletePrivateParent = Request.newBuilder(privateTestContainerURI.resolve("..")).DELETE().build();
-        authClient.send(reqDeletePrivateParent, Response.BodyHandlers.discarding());
+        final var reqDeletePrivateParent = Request.newBuilder(privateResourceURL.resolve(".")).DELETE().build();
+        client.send(reqDeletePrivateParent, Response.BodyHandlers.discarding());
 
-        final var reqDeletePrivateContainer = Request.newBuilder(privateContainerURI).DELETE().build();
-        authClient.send(reqDeletePrivateContainer, Response.BodyHandlers.discarding());
+        final var reqDeletePublic = Request.newBuilder(publicResourceURL).DELETE().build();
+        client.send(reqDeletePublic, Response.BodyHandlers.discarding());
 
-        final var reqDeletePublic = Request.newBuilder(publicTestContainerURI).DELETE().build();
-        authClient.send(reqDeletePublic, Response.BodyHandlers.discarding());
-
-        final var reqDeletePublicParent = Request.newBuilder(publicTestContainerURI.resolve("..")).DELETE().build();
-        authClient.send(reqDeletePublicParent, Response.BodyHandlers.discarding());
-
-        if (publicContainerURI != null) {
-            final var reqDeletePublicContainer = Request.newBuilder(publicContainerURI).DELETE().build();
-            authClient.send(reqDeletePublicContainer, Response.BodyHandlers.discarding());
-        }
+        final var reqDeletePublicParent = Request.newBuilder(publicResourceURL.resolve(".")).DELETE().build();
+        client.send(reqDeletePublicParent, Response.BodyHandlers.discarding());
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -198,10 +172,10 @@ public class AuthenticationScenarios {
     void fetchPublicResourceUnauthenticatedTest() {
         LOGGER.info("Integration Test - Unauthenticated fetch of public resource");
         //create a public resource
-        try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null)) {
             final SolidSyncClient client = SolidSyncClient.getClient();
             assertDoesNotThrow(() -> client.create(testResource));
-            assertDoesNotThrow(() -> client.read(publicResourceURI, SolidRDFSource.class));
+            assertDoesNotThrow(() -> client.read(publicResourceURL, SolidRDFSource.class));
             assertDoesNotThrow(() -> client.delete(testResource));
         }
     }
@@ -215,12 +189,12 @@ public class AuthenticationScenarios {
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
-        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
             final SolidSyncClient client = SolidSyncClient.getClient();
             final var err = assertThrows(UnauthorizedException.class,
-                    () -> client.read(privateResourceURI, SolidRDFSource.class));
+                    () -> client.read(privateResourceURL, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
             assertDoesNotThrow(() -> authClient.delete(testResource));
@@ -235,11 +209,11 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test - Authenticated fetch of public resource");
         //create public resource
         final SolidSyncClient client = SolidSyncClient.getClient();
-        try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURL, null, null)) {
             assertDoesNotThrow(() -> client.create(testResource));
 
             final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-            assertDoesNotThrow(() -> authClient.read(publicResourceURI, SolidRDFSource.class));
+            assertDoesNotThrow(() -> authClient.read(publicResourceURL, SolidRDFSource.class));
 
             assertDoesNotThrow(() -> client.delete(testResource));
         }
@@ -253,10 +227,10 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test - Authenticated fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
-            assertDoesNotThrow(() -> authClient.read(privateResourceURI, SolidRDFSource.class));
+            assertDoesNotThrow(() -> authClient.read(privateResourceURL, SolidRDFSource.class));
 
             assertDoesNotThrow(() -> authClient.delete(testResource));
         }
@@ -270,16 +244,16 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test - Unauthenticated, then auth fetch of private resource");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
             final SolidSyncClient client = SolidSyncClient.getClient();
             final var err = assertThrows(UnauthorizedException.class,
-                    () -> client.read(privateResourceURI, SolidRDFSource.class));
+                    () -> client.read(privateResourceURL, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
             final SolidSyncClient authClient2 = client.session(session);
-            assertDoesNotThrow(() -> authClient2.read(privateResourceURI, SolidRDFSource.class));
+            assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
 
             assertDoesNotThrow(() -> authClient2.delete(testResource));
         }
@@ -292,7 +266,7 @@ public class AuthenticationScenarios {
     void multiSessionTest(final Session session) {
         LOGGER.info("Integration Test - Multiple sessions authenticated in parallel");
         //create private resource
-        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURL, null, null)) {
             final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);
             assertDoesNotThrow(() -> authClient1.create(testResource));
 
@@ -308,11 +282,11 @@ public class AuthenticationScenarios {
 
                 //read the other resource created with the other client
                 assertDoesNotThrow(() -> authClient1.read(privateResourceURL2, SolidRDFSource.class));
-                assertDoesNotThrow(() -> authClient2.read(privateResourceURI, SolidRDFSource.class));
+                assertDoesNotThrow(() -> authClient2.read(privateResourceURL, SolidRDFSource.class));
 
                 final SolidSyncClient client = SolidSyncClient.getClient();
                 final var err = assertThrows(UnauthorizedException.class,
-                        () -> client.read(privateResourceURI, SolidRDFSource.class));
+                        () -> client.read(privateResourceURL, SolidRDFSource.class));
                 assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
 
                 //delete both resources with whichever client
@@ -323,7 +297,7 @@ public class AuthenticationScenarios {
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
-        final Session session = OpenIdSession.ofClientCredentials(
+        session = OpenIdSession.ofClientCredentials(
             URI.create(issuer), //Client credentials
             CLIENT_ID,
             CLIENT_SECRET,
@@ -334,43 +308,5 @@ public class AuthenticationScenarios {
         return Stream.of(
             Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
             Arguments.of(session)));
-    }
-
-    private static void createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
-
-        authClient = SolidSyncClient.getClient().session(session);
-    }
-
-    private static void createContainer(final URI publicContainerURI) {
-        final var requestCreate = Request.newBuilder(publicContainerURI)
-                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
-                .PUT(Request.BodyPublishers.noBody())
-                .build();
-        final var resCreate =
-                authClient.send(requestCreate, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
-    }
-
-    private static void prepareACR(final URI publicContainerURI) {
-        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
-            if (resource != null) {
-                // find the acl Link in the header of the resource
-                resource.getMetadata().getAcl().ifPresent(acl -> {
-                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

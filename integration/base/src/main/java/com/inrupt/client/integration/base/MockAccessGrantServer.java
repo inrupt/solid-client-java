@@ -58,16 +58,19 @@ class MockAccessGrantServer {
 
     private final WireMockServer wireMockServer;
     private final String webId;
+    private final String sharedFile;
     private final String sharedResource;
 
     private final String authorisationServerUrl;
 
     public MockAccessGrantServer(
             final URI webId,
+            final URI sharedFile,
             final URI sharedResource,
             final String authorisationServerUrl
     ) {
         this.webId = webId.toString();
+        this.sharedFile = sharedFile.toString();
         this.sharedResource = sharedResource.toString();
         this.authorisationServerUrl = authorisationServerUrl;
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
@@ -87,7 +90,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(get(urlPathEqualTo("/vc-request"))
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
@@ -95,7 +98,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(delete(urlPathMatching("/vc-grant"))
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
@@ -145,7 +148,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .inScenario(SCENARIO_ACCESS_GRANT)
@@ -158,7 +161,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.webId, this.sharedFile))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .atPriority(1)
@@ -169,7 +172,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.webId, this.sharedFile))));
 
         // Require UMA authentication for the /verify endpoint
         wireMockServer.stubFor(post(urlEqualTo(VERIFY))
