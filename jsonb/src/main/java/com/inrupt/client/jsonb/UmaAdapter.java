@@ -97,7 +97,7 @@ public class UmaAdapter implements JsonbAdapter<UmaMetadata, JsonObject> {
             adapted.getJsonArray(UmaMetadata.UMA_PROFILES_SUPPORTED)
                     .forEach(value -> umaProfilesSupported.add(URI.create(((JsonString) value).getString())));
         }
-        return new DefaultUmaMetadata(
+        return new UmaMetadataJsonb(
                 dpopSigningAlgValuesSupported,
                 grantTypesSupported,
                 issuer,
