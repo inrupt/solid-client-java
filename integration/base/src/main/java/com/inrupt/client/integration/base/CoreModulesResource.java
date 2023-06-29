@@ -32,12 +32,12 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
-import com.inrupt.client.solid.SolidRDFSource;
-import com.inrupt.client.solid.SolidResourceHandlers;
-import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.openid.OpenIdSession;
+import com.inrupt.client.solid.*;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.vocabulary.Solid;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -75,17 +75,25 @@ public class CoreModulesResource {
 
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
     private static String podUrl;
+    private static String issuer;
     private static final String MOCK_USERNAME = "someuser";
-
-    private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.private-resource-path", String.class)
-        .orElse("private");
+    private static final String TYPE = "type";
+    private static final String LINK = "Link";
     private static final String PUBLIC_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.public-resource-path", String.class)
         .orElse("");
 
     private static String testContainer = "resource/";
     private static URI testContainerURI;
+    private static URI publicContainerURI;
+
+    private static SolidSyncClient authClient;
+    private static final String AUTH_METHOD = config
+            .getOptionalValue("inrupt.test.auth-method", String.class)
+            .orElse("client_secret_basic");
+    private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
+    private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
+
 
     @BeforeAll
     static void setup() {
@@ -104,8 +112,6 @@ public class CoreModulesResource {
             MOCK_USERNAME);
         webIdService.start();
 
-        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-
         final String webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
@@ -114,6 +120,10 @@ public class CoreModulesResource {
         //find storage from WebID using only core module
         final Request requestRdf = Request.newBuilder(URI.create(webidUrl)).GET().build();
         final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
+        final var issuers = responseRdf.body()
+                .listObjectsOfProperty(createProperty(Solid.oidcIssuer.toString()))
+                .toList();
+        issuer = issuers.get(0).toString();
         final var storages = responseRdf.body()
                 .listObjectsOfProperty(createProperty(PIM.storage.toString()))
                 .toList();
@@ -130,6 +140,12 @@ public class CoreModulesResource {
                 .path("test-" + UUID.randomUUID())
                 .path(testContainer)
                 .build();
+
+            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                    .path(PUBLIC_RESOURCE_PATH + "/").build();
+            createAuthenticatedClient();
+            createContainer(publicContainerURI);
+            prepareACR(publicContainerURI);
         }
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -141,6 +157,10 @@ public class CoreModulesResource {
         client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
         client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
                 Response.BodyHandlers.discarding());
+        if (publicContainerURI != null) {
+            authClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
+                    Response.BodyHandlers.discarding());
+        }
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -161,7 +181,7 @@ public class CoreModulesResource {
         final var requestCreateIfNotExist = Request.newBuilder(URI.create(newResourceName))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .header(Utils.IF_NONE_MATCH, Utils.WILDCARD)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
+                .header(LINK, Headers.Link.of(LDP.RDFSource, TYPE).toString())
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
         final var resCreateIfNotExist =
@@ -265,7 +285,7 @@ public class CoreModulesResource {
         final Request req = Request.newBuilder(URI.create(containerName))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .header(Utils.IF_NONE_MATCH, Utils.WILDCARD)
-                .header("Link", Headers.Link.of(LDP.BasicContainer, "type").toString())
+                .header(LINK, Headers.Link.of(LDP.BasicContainer, TYPE).toString())
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
 
@@ -277,7 +297,7 @@ public class CoreModulesResource {
         final Request reqPost = Request.newBuilder(URI.create(containerName))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .header(Utils.IF_NONE_MATCH, Utils.WILDCARD)
-                .header("Link", Headers.Link.of(LDP.BasicContainer, "type").toString())
+                .header(LINK, Headers.Link.of(LDP.BasicContainer, TYPE).toString())
                 .header("Slug", container2Name)
                 .POST(Request.BodyPublishers.noBody())
                 .build();
@@ -351,7 +371,7 @@ public class CoreModulesResource {
         final Request requestCreateIfNotExist = Request.newBuilder(URI.create(newResourceName))
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .header(Utils.IF_NONE_MATCH, Utils.WILDCARD)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
+                .header(LINK, Headers.Link.of(LDP.RDFSource, TYPE).toString())
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
         final Response<Void> resp =
@@ -450,5 +470,42 @@ public class CoreModulesResource {
         return sparql;
     }
 
+    private static void createAuthenticatedClient() {
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+
+        authClient = SolidSyncClient.getClient().session(session);
+    }
+
+    private static void createContainer(final URI publicContainerURI) {
+        final var requestCreate = Request.newBuilder(publicContainerURI)
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header(LINK, Headers.Link.of(LDP.RDFSource, TYPE).toString())
+                .PUT(Request.BodyPublishers.noBody())
+                .build();
+        final var resCreate =
+                authClient.send(requestCreate, Response.BodyHandlers.discarding());
+        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
+    }
+
+    private static void prepareACR(final URI publicContainerURI) {
+        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
+            if (resource != null) {
+                // find the acl Link in the header of the resource
+                resource.getMetadata().getAcl().ifPresent(acl -> {
+                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                        Utils.publicAgentPolicyTriples(acl)
+                                .forEach(acr.getGraph()::add);
+                        authClient.update(acr);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
