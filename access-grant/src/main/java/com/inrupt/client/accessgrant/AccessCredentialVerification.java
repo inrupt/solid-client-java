@@ -50,9 +50,9 @@ public class AccessCredentialVerification {
      */
     public AccessCredentialVerification(final List<String> checks, final List<String> warnings,
             final List<String> errors) {
-        this.checks = makeImmutable(checks);
-        this.warnings = makeImmutable(warnings);
-        this.errors = makeImmutable(errors);
+        this.checks = checks;
+        this.warnings = warnings;
+        this.errors = errors;
     }
 
     /**
@@ -88,10 +88,7 @@ public class AccessCredentialVerification {
      *
      * @param checks a list of any verification checks performed, never {@code null}
      */
-    public void setChecks(final List<String> checks) {
-        this.checks = makeImmutable(checks);
-
-    }
+    public void setChecks(final List<String> checks) { this.checks = checks; }
 
     /**
      * Initialize the verification warnings that were discovered. This can only be called once, as the warnings list is
@@ -99,7 +96,7 @@ public class AccessCredentialVerification {
      * @param warnings a list of any verification warnings, never {@code null}
      */
     public void setWarnings(final List<String> warnings) {
-        this.warnings = makeImmutable(warnings);
+        this.warnings = warnings;
     }
 
     /**
@@ -108,14 +105,7 @@ public class AccessCredentialVerification {
      * @param errors a list of any verification errors, never {@code null}
      */
     public void setErrors(final List<String> errors) {
-        this.errors = makeImmutable(errors);
-    }
-
-    static List<String> makeImmutable(final List<String> list) {
-        if (list != null) {
-            return Collections.unmodifiableList(list);
-        }
-        return Collections.emptyList();
+        this.errors = errors;
     }
 }
 
