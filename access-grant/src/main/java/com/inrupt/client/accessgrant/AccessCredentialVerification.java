@@ -88,7 +88,9 @@ public class AccessCredentialVerification {
      *
      * @param checks a list of any verification checks performed, never {@code null}
      */
-    public void setChecks(final List<String> checks) { this.checks = checks; }
+    public void setChecks(final List<String> checks) {
+        this.checks = checks;
+    }
 
     /**
      * Initialize the verification warnings that were discovered. This can only be called once, as the warnings list is
