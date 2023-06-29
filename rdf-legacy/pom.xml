@@ -123,6 +123,10 @@
             <groupId>net.minidev</groupId>
             <artifactId>accessors-smart</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>

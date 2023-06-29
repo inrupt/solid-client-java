@@ -43,12 +43,16 @@
       <version>${wiremock.version}</version>
       <scope>provided</scope>
       <exclusions>
+    <!-- transitive dependency via wiremock -->
+    <!-- when wiremock is updated beyond 2.35, this can be removed -->
         <exclusion>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </exclusion>
-    <!-- transitive dependency via wiremock -->
-    <!-- when wiremock is updated beyond 2.35, this can be removed -->
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
