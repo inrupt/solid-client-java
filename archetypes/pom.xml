@@ -14,23 +14,7 @@
   </description>
   <packaging>pom</packaging>
 
-  <properties>
-    <archetype.plugin.version>3.2.1</archetype.plugin.version>
-  </properties>
-
   <modules>
     <module>java</module>
   </modules>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-archetype-plugin</artifactId>
-          <version>${archetype.plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 </project>
