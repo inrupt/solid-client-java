@@ -28,9 +28,18 @@ import java.util.List;
  */
 public class AccessCredentialVerification {
 
-    private final List<String> checks;
-    private final List<String> warnings;
-    private final List<String> errors;
+    private List<String> checks;
+    private List<String> warnings;
+    private List<String> errors;
+
+    /**
+     * Create an empty verification response.
+     */
+    public AccessCredentialVerification() {
+        this.checks = Collections.emptyList();
+        this.warnings = Collections.emptyList();
+        this.errors = Collections.emptyList();
+    }
 
     /**
      * Create a verification response.
@@ -41,9 +50,9 @@ public class AccessCredentialVerification {
      */
     public AccessCredentialVerification(final List<String> checks, final List<String> warnings,
             final List<String> errors) {
-        this.checks = makeImmutable(checks);
-        this.warnings = makeImmutable(warnings);
-        this.errors = makeImmutable(errors);
+        this.checks = checks;
+        this.warnings = warnings;
+        this.errors = errors;
     }
 
     /**
@@ -73,11 +82,32 @@ public class AccessCredentialVerification {
         return errors;
     }
 
-    static List<String> makeImmutable(final List<String> list) {
-        if (list != null) {
-            return Collections.unmodifiableList(list);
-        }
-        return Collections.emptyList();
+    /**
+     * Initialize the verification checks that were performed. This can only be called once, as the checks list is
+     * made unmodifiable.
+     *
+     * @param checks a list of any verification checks performed, never {@code null}
+     */
+    public void setChecks(final List<String> checks) {
+        this.checks = checks;
+    }
+
+    /**
+     * Initialize the verification warnings that were discovered. This can only be called once, as the warnings list is
+     * made unmodifiable.
+     * @param warnings a list of any verification warnings, never {@code null}
+     */
+    public void setWarnings(final List<String> warnings) {
+        this.warnings = warnings;
+    }
+
+    /**
+     * Initialize the verification errors that were discovered. This can only be called once, as the errors list is
+     * made unmodifiable.
+     * @param errors a list of any verification errors, never {@code null}
+     */
+    public void setErrors(final List<String> errors) {
+        this.errors = errors;
     }
 }
 

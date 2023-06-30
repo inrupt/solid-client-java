@@ -363,9 +363,8 @@ public class AccessGrantClient {
                     try (final InputStream input = res.body()) {
                         final int status = res.statusCode();
                         if (isSuccess(status)) {
-                            final VerificationResponseData data = jsonService.fromJson(input,
-                                    VerificationResponseData.class);
-                            return new AccessCredentialVerification(data.checks, data.warnings, data.errors);
+                            return jsonService.fromJson(input,
+                                    AccessCredentialVerification.class);
                         }
                         throw new AccessGrantException("Unable to perform Access Grant verify: HTTP error " + status,
                                 status);
@@ -920,25 +919,5 @@ public class AccessGrantClient {
 
     static boolean isAccessDenial(final URI type) {
         return SOLID_ACCESS_DENIAL.equals(type.toString()) || FQ_ACCESS_DENIAL.equals(type);
-    }
-
-    /**
-     * A data object for verification responses.
-     */
-    static class VerificationResponseData {
-        /**
-         * The verification checks that were performed.
-         */
-        public List<String> checks;
-
-        /**
-         * The verification warnings that were discovered.
-         */
-        public List<String> warnings;
-
-        /**
-         * The verification errors that were discovered.
-         */
-        public List<String> errors;
     }
 }

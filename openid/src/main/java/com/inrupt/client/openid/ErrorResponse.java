@@ -20,7 +20,8 @@
  */
 package com.inrupt.client.openid;
 
-class ErrorResponse {
+public class ErrorResponse {
+
     public String error;
     public String errorDescription;
 }
