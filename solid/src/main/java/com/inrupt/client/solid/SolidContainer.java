@@ -45,6 +45,25 @@ public class SolidContainer extends SolidRDFSource {
      * Create a new SolidContainer.
      *
      * @param identifier the container's unique identifier
+     */
+    public SolidContainer(final URI identifier) {
+        this(identifier, null);
+    }
+
+    /**
+     * Create a new SolidContainer.
+     *
+     * @param identifier the container's unique identifier
+     * @param dataset the dataset for this container, may be {@code null}
+     */
+    public SolidContainer(final URI identifier, final Dataset dataset) {
+        this(identifier, dataset, null);
+    }
+
+    /**
+     * Create a new SolidContainer.
+     *
+     * @param identifier the container's unique identifier
      * @param dataset the dataset for this container, may be {@code null}
      * @param metadata the container's metadata, may be {@code null}
      */
