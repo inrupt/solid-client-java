@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.solid;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.ClientProvider;
@@ -28,7 +29,9 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -211,6 +214,15 @@ class SolidClientTest {
                 assertDoesNotThrow(client.delete(b.getIdentifier()).toCompletableFuture()::join);
             }
         }).toCompletableFuture().join();
+    }
+
+    @Test
+    void testBinaryCreate() throws IOException {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
+        final InputStream entity = new ByteArrayInputStream("This is a plain text document.".getBytes(UTF_8));
+
+        final SolidNonRDFSource binary = new SolidNonRDFSource(uri, "text/plain", entity);
+        assertDoesNotThrow(client.create(binary).toCompletableFuture()::join);
     }
 
     @Test

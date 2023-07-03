@@ -173,7 +173,7 @@ class SolidRDFSourceTest {
     @Test
     void testEmptyContainerBuilder() {
         final URI id = URI.create("https://resource.example/");
-        try (final SolidContainer res = new SolidContainer(id, null, null)) {
+        try (final SolidContainer res = new SolidContainer(id)) {
             assertFalse(res.getMetadata().getStorage().isPresent());
             assertFalse(res.getMetadata().getAcl().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());
