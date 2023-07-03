@@ -20,10 +20,7 @@
  */
 package com.inrupt.client.integration.base;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.inrupt.client.Headers;
@@ -193,6 +190,7 @@ public class AccessGrantScenarios {
                 .toString());
 
         accessGrantServer = new MockAccessGrantServer(
+                URI.create(webidUrl),
                 URI.create(requesterWebidUrl),
                 sharedTextFileURI,
                 authServer.getMockServerUrl()
@@ -363,6 +361,68 @@ public class AccessGrantScenarios {
             resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
 
         assertEquals(0, randomGrants.size());
+
+        //cleanup
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideSessions")
+    @DisplayName("Given a grant id, approve it")
+    void accessGrantGrantAccessByIdTest(final Session resourceOwnerSession, final Session requesterSession) {
+        LOGGER.info("Integration Test - Grant access by id");
+
+        //setup test
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(requesterSession);
+
+        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
+        final Instant expiration = Instant.parse(GRANT_EXPIRATION);
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(webidUrl),
+                        new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+                .toCompletableFuture().join();
+
+        final var grantId = request.getIdentifier();
+
+        //requester has access to see their own access requests
+        final AccessRequest fetchedAccessRequest =
+                requesterAccessGrantClient.fetch(
+                        grantId,
+                        AccessRequest.class).toCompletableFuture().join();
+
+        assertEquals(grantId, fetchedAccessRequest.getIdentifier());
+
+        //switching to owner
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+
+        //the owner SHOULD see an access request from requester
+        //because it is a request concerning the owner's resource
+        final AccessRequest fetchedAccessRequest1 = resourceOwnerAccessGrantClient.fetch(
+                        grantId,
+                        AccessRequest.class).toCompletableFuture().join();
+        assertEquals(grantId, fetchedAccessRequest1.getIdentifier());
+
+        //owner grants the request
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
+                .toCompletableFuture().join();
+
+        //owner can see the access grants just granted
+        final AccessGrant accessGrant =
+                resourceOwnerAccessGrantClient.fetch(
+                        grant.getIdentifier(),
+                        AccessGrant.class).toCompletableFuture().join();
+
+        //check that the approved grant is the same we find when querying for all grants
+        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+                .recipient(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
+                .mode(GRANT_MODE_READ).build(AccessGrant.class);
+        final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
+        assertEquals(1, grants.size());
+        assertEquals(grant.getIdentifier(), grants.get(0).getIdentifier());
+        assertEquals(accessGrant.getIdentifier(), grants.get(0).getIdentifier());
 
         //cleanup
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
