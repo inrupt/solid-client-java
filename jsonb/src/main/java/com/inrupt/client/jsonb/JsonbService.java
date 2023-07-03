@@ -49,7 +49,7 @@ public class JsonbService implements JsonService {
      */
     public JsonbService() {
         final JsonbConfig config = new JsonbConfig();
-        config.withPropertyNamingStrategy(new LowerCamelCase());
+        config.withPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE_WITH_DASHES);
         this.jsonb = JsonbBuilder.create(config);
     }
 
