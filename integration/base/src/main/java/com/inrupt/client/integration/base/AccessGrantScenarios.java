@@ -379,7 +379,7 @@ public class AccessGrantScenarios {
 
         final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(webidUrl),
                         new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
                 .toCompletableFuture().join();
 
