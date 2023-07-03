@@ -38,6 +38,17 @@ public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
      * @param identifier the resource identifier
      * @param contentType the content type
      * @param entity the entity
+     */
+    public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity) {
+        this(identifier, contentType, entity, null);
+    }
+
+    /**
+     * Create a non-RDF-bearing Solid Resource.
+     *
+     * @param identifier the resource identifier
+     * @param contentType the content type
+     * @param entity the entity
      * @param metadata the metadata, may be {@code null}
      */
     public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,
