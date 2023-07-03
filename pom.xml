@@ -39,9 +39,13 @@
     <inrupt.rdf.wrapping.version>0.4.0</inrupt.rdf.wrapping.version>
 
     <!-- plugins -->
+    <antrun.plugin.version>3.1.0</antrun.plugin.version>
+    <archetype.plugin.version>3.2.1</archetype.plugin.version>
+    <assembly.plugin.version>3.6.0</assembly.plugin.version>
     <checkstyle.plugin.version>3.3.0</checkstyle.plugin.version>
     <clean.plugin.version>3.2.0</clean.plugin.version>
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
+    <dependency.plugin.version>3.6.0</dependency.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
     <exec.plugin.version>3.1.0</exec.plugin.version>
     <install.plugin.version>3.1.1</install.plugin.version>
@@ -139,8 +143,28 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-archetype-plugin</artifactId>
+          <version>${archetype.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>${deploy.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${antrun.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${assembly.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${dependency.plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
