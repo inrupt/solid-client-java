@@ -16,11 +16,11 @@
       "revocationListIndex":"2832",
       "type":"RevocationList2020Status"},
     "credentialSubject":{
-      "id":"{{webId}}",
+      "id":"{{ownerWebId}}",
       "providedConsent":{
         "mode":["Read","Append"],
         "hasStatus":"https://w3id.org/GConsent#ConsentStatusExplicitlyGiven",
-        "isProvidedTo":"{{webId}}",
+        "isProvidedTo":"{{requesterWebId}}",
         "forPurpose":["https://purpose.example/Purpose1"],
         "forPersonalData":["{{sharedFile}}"]}},
     "proof":{
