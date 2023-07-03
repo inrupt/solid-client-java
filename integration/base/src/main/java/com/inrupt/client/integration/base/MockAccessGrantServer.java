@@ -57,17 +57,20 @@ class MockAccessGrantServer {
     private static final String SCENARIO_STATE_REVOKED = "Revoked";
 
     private final WireMockServer wireMockServer;
-    private final String webId;
+    private final String ownerWebId;
+    private final String requesterWebId;
     private final String sharedResource;
 
     private final String authorisationServerUrl;
 
     public MockAccessGrantServer(
-            final URI webId,
+            final URI ownerWebId,
+            final URI requesterWebId,
             final URI sharedResource,
             final String authorisationServerUrl
     ) {
-        this.webId = webId.toString();
+        this.ownerWebId = ownerWebId.toString();
+        this.requesterWebId = requesterWebId.toString();
         this.sharedResource = sharedResource.toString();
         this.authorisationServerUrl = authorisationServerUrl;
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
@@ -87,7 +90,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(get(urlPathEqualTo("/vc-request"))
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
@@ -95,7 +98,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(delete(urlPathMatching("/vc-grant"))
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
@@ -120,7 +123,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .inScenario(SCENARIO_ACCESS_GRANT)
@@ -134,7 +137,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .atPriority(1)
@@ -145,7 +148,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .inScenario(SCENARIO_ACCESS_GRANT)
@@ -158,7 +161,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-grant.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(ISSUE))
                 .atPriority(1)
@@ -169,7 +172,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/vc-request.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         // Require UMA authentication for the /verify endpoint
         wireMockServer.stubFor(post(urlEqualTo(VERIFY))
@@ -229,7 +232,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                 .atPriority(1)
@@ -241,7 +244,7 @@ class MockAccessGrantServer {
                         .withStatus(Utils.SUCCESS)
                         .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
                         .withBody(getResource("/query_response.json", wireMockServer.baseUrl(),
-                                this.webId, this.sharedResource))));
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                 .atPriority(2)
@@ -265,10 +268,11 @@ class MockAccessGrantServer {
         return getResource(path).replace("{{baseUrl}}", baseUrl);
     }
 
-    private static String getResource(final String path, final String baseUrl, final String webId,
-                                      final String sharedFile) {
+    private static String getResource(final String path, final String baseUrl, final String requesterWebId,
+                                      final String ownerWebId, final String sharedFile) {
         return getResource(path).replace("{{baseUrl}}", baseUrl)
-                .replace("{{webId}}", webId)
+                .replace("{{requesterWebId}}", requesterWebId)
+                .replace("{{ownerWebId}}", ownerWebId)
                 .replace("{{sharedFile}}", sharedFile);
     }
 

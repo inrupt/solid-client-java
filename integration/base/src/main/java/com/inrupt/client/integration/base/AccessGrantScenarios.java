@@ -190,6 +190,7 @@ public class AccessGrantScenarios {
                 .toString());
 
         accessGrantServer = new MockAccessGrantServer(
+                URI.create(webidUrl),
                 URI.create(requesterWebidUrl),
                 sharedTextFileURI,
                 authServer.getMockServerUrl()
@@ -397,7 +398,7 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(resourceOwnerSession);
 
-        //the owner SHOULD see an access request from requestor
+        //the owner SHOULD see an access request from requester
         //because it is a request concerning the owner's resource
         final AccessRequest fetchedAccessRequest1 = resourceOwnerAccessGrantClient.fetch(
                         grantId,
