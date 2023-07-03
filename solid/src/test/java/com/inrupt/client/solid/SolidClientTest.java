@@ -28,6 +28,7 @@ import com.inrupt.client.Headers;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
+import com.inrupt.client.util.URIBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.RDF;
@@ -212,6 +214,22 @@ class SolidClientTest {
                 assertDoesNotThrow(client.create(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b.getIdentifier()).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
+    void testSolidContainer() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/container/");
+        final Set<URI> expected = new HashSet<>();
+        expected.add(URIBuilder.newBuilder(uri).path("newContainer/").build());
+        expected.add(URIBuilder.newBuilder(uri).path("test.txt").build());
+        expected.add(URIBuilder.newBuilder(uri).path("test2.txt").build());
+
+        client.read(uri, SolidContainer.class).thenAccept(container -> {
+            try (final SolidContainer c = container) {
+                assertEquals(expected,
+                        c.getResources().stream().map(SolidResource::getIdentifier).collect(Collectors.toSet()));
             }
         }).toCompletableFuture().join();
     }

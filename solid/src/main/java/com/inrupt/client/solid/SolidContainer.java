@@ -77,15 +77,33 @@ public class SolidContainer extends SolidRDFSource {
      * @return the contained resources
      */
     public Set<SolidResource> getResources() {
-        final Node node = new Node(rdf.createIRI(getIdentifier().toString()), getGraph());
-        try (final Stream<Node.TypedNode> stream = node.getResources()) {
-            return stream.map(child -> {
-                final Metadata.Builder builder = Metadata.newBuilder();
-                getMetadata().getStorage().ifPresent(builder::storage);
-                child.getTypes().forEach(builder::type);
-                return new SolidResourceReference(URI.create(child.getIRIString()), builder.build());
-            }).collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+        final String container = getIdentifier().toString();
+        // As defined by the Solid Protocol, containers always end with a slash.
+        if (container.endsWith("/")) {
+            final Node node = new Node(rdf.createIRI(getIdentifier().toString()), getGraph());
+            try (final Stream<Node.TypedNode> stream = node.getResources()) {
+                return stream.flatMap(child -> {
+                    final URI childLocation = URI.create(child.getIRIString()).normalize();
+                    // Solid containment is based on URI path hierarchy,
+                    // so all child resources must start with the URL of the parent
+                    if (childLocation.toString().startsWith(container)) {
+                        final String relativePath = childLocation.toString().substring(container.length());
+                        final String normalizedPath = relativePath.endsWith("/") ?
+                            relativePath.substring(0, relativePath.length() - 1) : relativePath;
+                        // Solid containment occurs via direct decent,
+                        // so any recursively contained resources must not be included
+                        if (!normalizedPath.isEmpty() && !normalizedPath.contains("/")) {
+                            final Metadata.Builder builder = Metadata.newBuilder();
+                            getMetadata().getStorage().ifPresent(builder::storage);
+                            child.getTypes().forEach(builder::type);
+                            return Stream.of(new SolidResourceReference(childLocation, builder.build()));
+                        }
+                    }
+                    return Stream.empty();
+                }).collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+            }
         }
+        return Collections.emptySet();
     }
 
     /**
