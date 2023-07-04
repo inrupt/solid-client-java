@@ -25,9 +25,6 @@ jobs:
       - name: Build the code with Maven
         run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid
 
-      - name: Run all JUnit tests with the full surefire config
-        run: mvn -B -ntp test -Pci -pl -integration/uma,-integration/openid
-
       - name: Prod Integration tests
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
