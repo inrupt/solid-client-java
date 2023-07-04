@@ -87,7 +87,7 @@ public class CoreModulesResource {
     private static URI testContainerURI;
     private static URI publicContainerURI;
 
-    private static SolidClient authClient;
+    private static SolidClient localAuthClient;
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
@@ -143,8 +143,14 @@ public class CoreModulesResource {
 
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                     .path(PUBLIC_RESOURCE_PATH + "/").build();
-            createAuthenticatedClient();
-            createPublicContainer(publicContainerURI);
+            final Session session = OpenIdSession.ofClientCredentials(
+                    URI.create(issuer), //Client credentials
+                    CLIENT_ID,
+                    CLIENT_SECRET,
+                    AUTH_METHOD);
+
+            localAuthClient = SolidClient.getClient().session(session);
+            Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -157,7 +163,7 @@ public class CoreModulesResource {
         client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
                 Response.BodyHandlers.discarding());
         if (publicContainerURI != null) {
-            authClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
+            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
                     Response.BodyHandlers.discarding()).toCompletableFuture().join();
         }
 
@@ -469,28 +475,5 @@ public class CoreModulesResource {
         return sparql;
     }
 
-    private static void createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
-
-        authClient = SolidClient.getClient().session(session);
-    }
-
-    private static void createPublicContainer(final URI publicContainerURI) {
-        try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
-            authClient.create(newContainer).thenAccept(container ->
-                container.getMetadata().getAcl().ifPresent(acl ->
-                    authClient.read(acl, SolidRDFSource.class).thenAccept(acr -> {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
-                    })
-                )
-            ).toCompletableFuture().join();
-        }
-    }
 }
 
