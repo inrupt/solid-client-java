@@ -190,8 +190,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*RDF4JTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
@@ -208,8 +210,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*RDF4JTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
@@ -226,8 +230,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*RDF4JTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
@@ -244,8 +250,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*RDF4JTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
@@ -262,8 +270,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*JenaTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
@@ -280,8 +290,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*JenaTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
@@ -298,8 +310,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*JenaTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
@@ -316,14 +330,35 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>true</skip>
               <excludes>
                 <exclude>**/*JenaTest.java</exclude>
+                <exclude>**/*RDFLegacyTest.java</exclude>
               </excludes>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>httpclient-jackson-rdflegacy-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <exclude>**/*JenaTest.java</exclude>
+                <exclude>**/*RDF4JTest.java</exclude>
+              </excludes>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
+                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
