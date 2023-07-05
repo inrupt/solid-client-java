@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.ClientProvider;
 import com.inrupt.client.Headers;
+import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
@@ -163,7 +164,7 @@ class SolidClientTest {
 
     @Test
     void testGetContainer() throws IOException, InterruptedException {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/playlists/");
 
         client.read(uri, SolidContainer.class).thenAccept(container -> {
             try (final SolidContainer c = container) {
@@ -219,19 +220,28 @@ class SolidClientTest {
     }
 
     @Test
-    void testSolidContainer() {
+    void testSolidContainerWithInvalidData() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/container/");
+        final CompletionException err = assertThrows(CompletionException.class,
+                client.read(uri, SolidContainer.class).toCompletableFuture()::join);
+        assertInstanceOf(DataMappingException.class, err.getCause());
+    }
+
+    @Test
+    void testLowLevelSolidContainer() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/container/");
+
         final Set<URI> expected = new HashSet<>();
         expected.add(URIBuilder.newBuilder(uri).path("newContainer/").build());
         expected.add(URIBuilder.newBuilder(uri).path("test.txt").build());
         expected.add(URIBuilder.newBuilder(uri).path("test2.txt").build());
 
-        client.read(uri, SolidContainer.class).thenAccept(container -> {
-            try (final SolidContainer c = container) {
-                assertEquals(expected,
-                        c.getResources().stream().map(SolidResource::getIdentifier).collect(Collectors.toSet()));
-            }
-        }).toCompletableFuture().join();
+        client.send(Request.newBuilder(uri).build(), SolidResourceHandlers.ofSolidContainer())
+            .thenAccept(response -> {
+                final SolidContainer container = response.body();
+                assertEquals(expected, container.getResources().stream()
+                        .map(SolidResource::getIdentifier).collect(Collectors.toSet()));
+            }).toCompletableFuture().join();
     }
 
     @Test
