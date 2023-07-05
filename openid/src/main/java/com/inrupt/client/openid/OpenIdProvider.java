@@ -123,10 +123,6 @@ public class OpenIdProvider {
                     if (httpStatus >= 200 && httpStatus < 300) {
                         final Metadata discovery = jsonService.fromJson(res.body(), Metadata.class);
                         metadataCache.put(uri, discovery);
-                        System.out.println("---- Metadata is:------");
-                        System.out.println(discovery.issuer);
-                        System.out.println(discovery.grantTypesSupported);
-                        System.out.println(discovery.authorizationEndpoint);
                         return discovery;
                     }
                     throw new OpenIdException(
