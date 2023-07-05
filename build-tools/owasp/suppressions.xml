@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+  <!-- False positive matches of non-dependencies. These do not need monthly review. -->
   <suppress>
     <notes><![CDATA[
         This suppresses a false positive CPE match
@@ -9,18 +10,13 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-        The client libraries do not use Jackson with the UNWRAP_SINGLE_VALUE_ARRAYS feature enabled
+        Payara is not a dependency of ESS
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-    <cve>CVE-2022-42003</cve>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.microprofile\.config/microprofile\-config\-api@.*$</packageUrl>
+    <cpe>cpe:/a:payara:payara</cpe>
   </suppress>
-  <suppress>
-    <notes><![CDATA[
-        The client libraries are not vulnerable to this deserialization bug in Jackson
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-    <cve>CVE-2022-42004</cve>
-  </suppress>
+
+  <!-- Suppressed vulnerabilities. These need monthly review. -->
   <suppress>
     <notes><![CDATA[
         CWE-121 Stack-based Buffer Overflow,
@@ -28,19 +24,5 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
     <cve>CVE-2023-35116</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-        Payara is not a dependency of ESS
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.microprofile\.config/microprofile\-config\-api@.*$</packageUrl>
-    <cpe>cpe:/a:payara:payara</cpe>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-        This vulnerability does not affect the client code
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/io\.netty/netty\-.*@.*$</packageUrl>
-    <cve>CVE-2022-41881</cve>
   </suppress>
 </suppressions>
