@@ -62,9 +62,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Core modules based test class for resource integration scenarios.
  */
-public class CoreModulesResource {
+public class CoreModulesResourceJena {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreModulesResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreModulesResourceJena.class);
 
     private static MockSolidServer mockHttpServer;
     private static MockOpenIDProvider identityProviderServer;
