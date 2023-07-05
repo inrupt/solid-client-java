@@ -158,7 +158,7 @@ public class AccessGrantScenarios {
         authResourceOwnerClient = createAuthenticatedClient();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
         Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
-        Utils.createContainer(authResourceOwnerClient, privateContainerURI);
+        //Utils.createContainer(authResourceOwnerClient, privateContainerURI);
 
         testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(State.PRIVATE_RESOURCE_PATH)
@@ -527,44 +527,46 @@ public class AccessGrantScenarios {
             assertDoesNotThrow(() -> resourceOwnerClient.create(resource));
 
             prepareAcpOfResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
+        }
 
-            final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
-                    URI.create(ACCESS_GRANT_PROVIDER)
-            ).session(requesterSession);
-
-            final Set<String> modes = new HashSet<>(Arrays.asList(
-                GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
-            final Instant expiration = Instant.parse(GRANT_EXPIRATION);
-            final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-                new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
-                .toCompletableFuture().join();
-
-            final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
-            ).session(resourceOwnerSession);
-            final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
-                .toCompletableFuture().join();
+        ).session(requesterSession);
 
-            final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-            final SolidSyncClient requesterAuthClient = SolidSyncClient.getClientBuilder()
-                .build().session(newSession);
+        final Set<String> modes = new HashSet<>(Arrays.asList(
+            GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Instant expiration = Instant.parse(GRANT_EXPIRATION);
+        final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
+            new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
+            .toCompletableFuture().join();
 
-            final String newResourceName = testRDFresourceURI.toString();
-            final String newPredicateName = "https://example.example/predicate";
-            final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
+            .toCompletableFuture().join();
 
-            final IRI newResourceNode = rdf.createIRI(newResourceName);
-            final IRI newPredicateNode = rdf.createIRI(newPredicateName);
-            final Literal object = rdf.createLiteral("true", booleanType);
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClientBuilder()
+            .build().session(newSession);
 
+        final String newResourceName = testRDFresourceURI.toString();
+        final String newPredicateName = "https://example.example/predicate";
+        final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
+
+        final IRI newResourceNode = rdf.createIRI(newResourceName);
+        final IRI newPredicateNode = rdf.createIRI(newPredicateName);
+        final Literal object = rdf.createLiteral("true", booleanType);
+
+        try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI)) {
             resource.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
 
             assertDoesNotThrow(() -> requesterAuthClient.update(resource));
-
-            //cleanup
-            resourceOwnerClient.delete(testRDFresourceURI);
-            assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
         }
+
+        //cleanup
+        resourceOwnerClient.delete(testRDFresourceURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
     @ParameterizedTest
