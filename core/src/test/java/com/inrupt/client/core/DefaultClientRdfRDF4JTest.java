@@ -143,7 +143,7 @@ class DefaultClientRdfRDF4JTest {
     @Test
     void testOfModelPublisherBearer() {
         final Model model = new ModelBuilder()
-                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.iri("object"))
+                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.literal("object"))
                 .build();
 
         final Request request = Request.newBuilder()
@@ -192,7 +192,7 @@ class DefaultClientRdfRDF4JTest {
     @Test
     void testOfModelPublisher() {
         final Model model = new ModelBuilder()
-                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.iri("object"))
+                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.literal("object"))
                 .build();
 
         final Request request = Request.newBuilder()
@@ -213,7 +213,7 @@ class DefaultClientRdfRDF4JTest {
     @Test
     void testOfModelPublisherSession() throws IOException, InterruptedException {
         final Model model = new ModelBuilder()
-                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.iri("object"))
+                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.literal("object"))
                 .build();
 
         final Map<String, Object> claims = new HashMap<>();
@@ -242,7 +242,7 @@ class DefaultClientRdfRDF4JTest {
     @Test
     void testPutRDF() throws Exception {
         final Model model = new ModelBuilder()
-                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.iri("object"))
+                .add(Values.iri("http://example.test/s"), Values.iri("http://example.test/p"), Values.literal("object"))
                 .build();
 
         final Request request = Request.newBuilder()
