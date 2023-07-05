@@ -23,9 +23,6 @@ package com.inrupt.client.integration.base;
 import static com.inrupt.client.vocabulary.RDF.type;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.inrupt.client.solid.SolidClient;
-import com.inrupt.client.solid.SolidContainer;
-import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
@@ -167,20 +164,6 @@ public final class Utils {
         triples.add(rdf.createTriple(subject, asIRI(ACP.accessControl), accessControl));
         triples.add(rdf.createTriple(subject, asIRI(ACP.memberAccessControl), accessControl));
         return triples;
-    }
-
-    public static void createPublicContainer(final SolidClient authClient, final URI publicContainerURI) {
-        try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
-            authClient.create(newContainer).thenAccept(container ->
-                    container.getMetadata().getAcl().ifPresent(acl ->
-                            authClient.read(acl, SolidRDFSource.class).thenAccept(acr -> {
-                                Utils.publicAgentPolicyTriples(acl)
-                                        .forEach(acr.getGraph()::add);
-                                authClient.update(acr);
-                            })
-                    )
-            ).toCompletableFuture().join();
-        }
     }
 
     private Utils() {

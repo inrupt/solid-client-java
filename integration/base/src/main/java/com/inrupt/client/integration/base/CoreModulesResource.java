@@ -87,7 +87,7 @@ public class CoreModulesResource {
     private static URI testContainerURI;
     private static URI publicContainerURI;
 
-    private static SolidClient localAuthClient;
+    private static SolidSyncClient authClient;
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
@@ -143,14 +143,9 @@ public class CoreModulesResource {
 
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                     .path(PUBLIC_RESOURCE_PATH + "/").build();
-            final Session session = OpenIdSession.ofClientCredentials(
-                    URI.create(issuer), //Client credentials
-                    CLIENT_ID,
-                    CLIENT_SECRET,
-                    AUTH_METHOD);
-
-            localAuthClient = SolidClient.getClient().session(session);
-            Utils.createPublicContainer(localAuthClient, publicContainerURI);
+            createAuthenticatedClient();
+            createContainer(publicContainerURI);
+            prepareACR(publicContainerURI);
         }
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -163,8 +158,8 @@ public class CoreModulesResource {
         client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
                 Response.BodyHandlers.discarding());
         if (publicContainerURI != null) {
-            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding()).toCompletableFuture().join();
+            authClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
+                    Response.BodyHandlers.discarding());
         }
 
         mockHttpServer.stop();
@@ -475,5 +470,42 @@ public class CoreModulesResource {
         return sparql;
     }
 
+    private static void createAuthenticatedClient() {
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+
+        authClient = SolidSyncClient.getClient().session(session);
+    }
+
+    private static void createContainer(final URI publicContainerURI) {
+        final var requestCreate = Request.newBuilder(publicContainerURI)
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header(LINK, Headers.Link.of(LDP.RDFSource, TYPE).toString())
+                .PUT(Request.BodyPublishers.noBody())
+                .build();
+        final var resCreate =
+                authClient.send(requestCreate, Response.BodyHandlers.discarding());
+        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
+    }
+
+    private static void prepareACR(final URI publicContainerURI) {
+        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
+            if (resource != null) {
+                // find the acl Link in the header of the resource
+                resource.getMetadata().getAcl().ifPresent(acl -> {
+                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                        Utils.publicAgentPolicyTriples(acl)
+                                .forEach(acr.getGraph()::add);
+                        authClient.update(acr);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
