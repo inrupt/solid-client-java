@@ -131,13 +131,13 @@ public class AuthenticationScenarios {
 
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path("test-" + UUID.randomUUID())
+                    .path("auth-test-" + UUID.randomUUID())
                     .build();
 
         } else {
             publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
+                .path("auth-test-" + UUID.randomUUID())
                 .build();
 
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
@@ -154,7 +154,7 @@ public class AuthenticationScenarios {
 
         privateTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(State.PRIVATE_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
+                .path("auth-test-" + UUID.randomUUID())
                 .build();
 
         privateResourceURI = URIBuilder.newBuilder(privateTestContainerURI)

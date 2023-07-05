@@ -208,13 +208,13 @@ public final class Utils {
             try (final SolidContainer container = client.read(containerURI, SolidContainer.class)) {
                 container.getResources().forEach(value -> cleanContainerContent(client, value.getIdentifier()));
                 client.delete(container);
-                LOGGER.info("deleted: " + container.getIdentifier());
+                LOGGER.debug("deleted: " + container.getIdentifier());
             } catch (NotFoundException ex) {
                 //since it is only a cleanup we do not care if it fails
             }
         } else {
             client.delete(containerURI);
-            LOGGER.info("deleted: " + containerURI);
+            LOGGER.debug("deleted: " + containerURI);
         }
     }
 

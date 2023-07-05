@@ -131,12 +131,12 @@ public class DomainModulesResource {
 
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path("test-" + UUID.randomUUID())
+                .path("domain-test-" + UUID.randomUUID())
                 .path(testContainer).build();
         } else {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PUBLIC_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
+                .path("domain-test-" + UUID.randomUUID())
                 .path(testContainer)
                 .build();
 

@@ -158,7 +158,6 @@ public class AccessGrantScenarios {
         authResourceOwnerClient = createAuthenticatedClient();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
         Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
-        //Utils.createContainer(authResourceOwnerClient, privateContainerURI);
 
         testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(State.PRIVATE_RESOURCE_PATH)
