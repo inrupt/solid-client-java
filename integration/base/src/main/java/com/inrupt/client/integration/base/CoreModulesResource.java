@@ -87,7 +87,7 @@ public class CoreModulesResource {
     private static URI testContainerURI;
     private static URI publicContainerURI;
 
-    private static SolidClient localAuthClient;
+    private static SolidSyncClient localAuthClient;
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
@@ -149,7 +149,11 @@ public class CoreModulesResource {
                     CLIENT_SECRET,
                     AUTH_METHOD);
 
-            localAuthClient = SolidClient.getClient().session(session);
+            localAuthClient = SolidSyncClient.getClient().session(session);
+            //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
+                    Response.BodyHandlers.discarding());
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -159,12 +163,15 @@ public class CoreModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
-                Response.BodyHandlers.discarding());
+        if (testContainerURI != null) {
+            client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
+            client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
+                    Response.BodyHandlers.discarding());
+        }
         if (publicContainerURI != null) {
+            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
             localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding()).toCompletableFuture().join();
+                    Response.BodyHandlers.discarding());
         }
 
         mockHttpServer.stop();

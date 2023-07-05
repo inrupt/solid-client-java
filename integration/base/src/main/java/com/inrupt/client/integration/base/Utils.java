@@ -22,14 +22,20 @@ package com.inrupt.client.integration.base;
 
 import static com.inrupt.client.vocabulary.RDF.type;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.Headers;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.solid.NotFoundException;
 import com.inrupt.client.solid.SolidContainer;
 import com.inrupt.client.solid.SolidRDFSource;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
 import com.inrupt.client.vocabulary.ACP;
+import com.inrupt.client.vocabulary.LDP;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -56,9 +62,12 @@ import org.apache.jena.update.UpdateRequest;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Utils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
     public static final String ACCEPT = "Accept";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String IF_NONE_MATCH = "If-None-Match";
@@ -169,17 +178,46 @@ public final class Utils {
         return triples;
     }
 
-    public static void createPublicContainer(final SolidClient authClient, final URI publicContainerURI) {
+    public static void createPublicContainer(final SolidSyncClient authClient, final URI publicContainerURI) {
         try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
-            authClient.create(newContainer).thenAccept(container ->
-                    container.getMetadata().getAcl().ifPresent(acl ->
-                            authClient.read(acl, SolidRDFSource.class).thenAccept(acr -> {
-                                Utils.publicAgentPolicyTriples(acl)
-                                        .forEach(acr.getGraph()::add);
-                                authClient.update(acr);
-                            })
-                    )
-            ).toCompletableFuture().join();
+            try (final SolidContainer container = authClient.create(newContainer)) {
+                container.getMetadata().getAcl().ifPresent(acl -> {
+                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                        Utils.publicAgentPolicyTriples(acl)
+                                .forEach(acr.getGraph()::add);
+                        authClient.update(acr);
+                    }
+                });
+            }
+        }
+    }
+
+    public static void createContainer(final SolidSyncClient authClient, final URI containerURI) {
+        final var requestCreate = Request.newBuilder(containerURI)
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
+                .PUT(Request.BodyPublishers.noBody())
+                .build();
+        final var resCreate =
+                authClient.send(requestCreate, Response.BodyHandlers.discarding());
+        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
+    }
+
+    static void cleanContainerContent(final SolidSyncClient client, final URI containerURI) {
+        if (containerURI != null && containerURI.toString().endsWith("/")) {
+            try (final SolidContainer container = client.read(containerURI, SolidContainer.class)) {
+                if (container.getResources().size() == 0) {
+                    client.delete(container);
+                    LOGGER.info("deleted: " + container.getIdentifier());
+                } else {
+                    container.getResources().forEach(value -> cleanContainerContent(client, value.getIdentifier()));
+                }
+            } catch (NotFoundException ex) {
+                //since it is only a cleanup we do not care if it fails
+            }
+        } else {
+            client.delete(containerURI);
+            LOGGER.info("deleted: " + containerURI);
         }
     }
 

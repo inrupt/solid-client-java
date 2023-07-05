@@ -22,7 +22,6 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
@@ -31,7 +30,6 @@ import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -87,7 +85,7 @@ public class AuthenticationScenarios {
     private static final String PUBLIC_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.public-resource-path", String.class)
         .orElse("");
-    private static SolidClient localAuthClient;
+    private static SolidSyncClient localAuthClient;
 
     @BeforeAll
     static void setup() {
@@ -131,7 +129,7 @@ public class AuthenticationScenarios {
                 CLIENT_SECRET,
                 AUTH_METHOD);
 
-        localAuthClient = SolidClient.getClient().session(session);
+        localAuthClient = SolidSyncClient.getClient().session(session);
 
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
@@ -147,7 +145,9 @@ public class AuthenticationScenarios {
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                     .path(PUBLIC_RESOURCE_PATH + "/").build();
 
-
+            //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            localAuthClient.delete(publicContainerURI);
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -166,6 +166,11 @@ public class AuthenticationScenarios {
 
         privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PRIVATE_RESOURCE_PATH + "/").build();
+        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+        Utils.cleanContainerContent(localAuthClient, privateContainerURI);
+        localAuthClient.send(Request.newBuilder(privateContainerURI).DELETE().build(),
+                Response.BodyHandlers.discarding());
+        Utils.createContainer(localAuthClient, privateContainerURI);
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -173,26 +178,16 @@ public class AuthenticationScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        final var reqDeletePrivateResource = Request.newBuilder(privateTestContainerURI).DELETE().build();
-        localAuthClient.send(reqDeletePrivateResource, Response.BodyHandlers.discarding()).toCompletableFuture().join();
-
-        final var reqDeletePrivateParent = Request.newBuilder(privateTestContainerURI.resolve("..")).DELETE().build();
-        localAuthClient.send(reqDeletePrivateParent, Response.BodyHandlers.discarding()).toCompletableFuture().join();
-
-        final var reqDeletePrivateContainer = Request.newBuilder(privateContainerURI).DELETE().build();
-        localAuthClient.send(reqDeletePrivateContainer, Response.BodyHandlers.discarding())
-                .toCompletableFuture().join();
-
-        final var reqDeletePublic = Request.newBuilder(publicTestContainerURI).DELETE().build();
-        localAuthClient.send(reqDeletePublic, Response.BodyHandlers.discarding()).toCompletableFuture().join();
-
-        final var reqDeletePublicParent = Request.newBuilder(publicTestContainerURI.resolve("..")).DELETE().build();
-        localAuthClient.send(reqDeletePublicParent, Response.BodyHandlers.discarding()).toCompletableFuture().join();
-
-        if (publicContainerURI != null) {
-            final var reqDeletePublicContainer = Request.newBuilder(publicContainerURI).DELETE().build();
-            localAuthClient.send(reqDeletePublicContainer, Response.BodyHandlers.discarding())
-                    .toCompletableFuture().join();
+        if (publicTestContainerURI != null) {
+            localAuthClient.delete(publicTestContainerURI);
+        }
+        if (PUBLIC_RESOURCE_PATH != null) {
+            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            localAuthClient.delete(publicContainerURI);
+        }
+        if (privateContainerURI != null) {
+            Utils.cleanContainerContent(localAuthClient, privateContainerURI);
+            localAuthClient.delete(privateContainerURI);
         }
 
         mockHttpServer.stop();

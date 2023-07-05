@@ -89,7 +89,7 @@ public class DomainModulesResource {
     private static URI testContainerURI;
     private static URI publicContainerURI;
 
-    private static SolidClient localAuthClient;
+    private static SolidSyncClient localAuthClient;
 
     @BeforeAll
     static void setup() {
@@ -127,7 +127,7 @@ public class DomainModulesResource {
                 CLIENT_SECRET,
                 AUTH_METHOD);
 
-        localAuthClient = SolidClient.getClient().session(session);
+        localAuthClient = SolidSyncClient.getClient().session(session);
 
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
@@ -142,7 +142,10 @@ public class DomainModulesResource {
 
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                     .path(PUBLIC_RESOURCE_PATH + FOLDER_SEPARATOR).build();
-
+            //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
+                    Response.BodyHandlers.discarding());
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -152,12 +155,13 @@ public class DomainModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
-                Response.BodyHandlers.discarding());
+        if (testContainerURI != null) {
+            client.delete(testContainerURI);
+            client.delete(testContainerURI.resolve(".."));
+        }
         if (publicContainerURI != null) {
-            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding()).toCompletableFuture().join();
+            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            localAuthClient.delete(publicContainerURI);
         }
 
         mockHttpServer.stop();
@@ -311,8 +315,7 @@ public class DomainModulesResource {
         while (tempURL.chars().filter(ch -> ch == '/').count() >= 3) {
             final Request req = Request.newBuilder(URI.create(tempURL)).GET().build();
             final Response<SolidRDFSource> headerResponse =
-                    localAuthClient.send(req, SolidResourceHandlers.ofSolidRDFSource())
-                            .toCompletableFuture().join();
+                    localAuthClient.send(req, SolidResourceHandlers.ofSolidRDFSource());
             final var headers = headerResponse.headers();
             final var isRoot = headers.allValues("Link").stream()
                 .flatMap(l -> Headers.Link.parse(l).stream())
