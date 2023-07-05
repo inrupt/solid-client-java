@@ -22,8 +22,6 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
@@ -147,7 +145,6 @@ public class AuthenticationScenarios {
 
             //if a tests fails it can be that the cleanup was not properly done, so we do it here too
             Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-            localAuthClient.delete(publicContainerURI);
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -168,8 +165,6 @@ public class AuthenticationScenarios {
                 .path(PRIVATE_RESOURCE_PATH + "/").build();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
         Utils.cleanContainerContent(localAuthClient, privateContainerURI);
-        localAuthClient.send(Request.newBuilder(privateContainerURI).DELETE().build(),
-                Response.BodyHandlers.discarding());
         Utils.createContainer(localAuthClient, privateContainerURI);
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
@@ -183,11 +178,9 @@ public class AuthenticationScenarios {
         }
         if (PUBLIC_RESOURCE_PATH != null) {
             Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-            localAuthClient.delete(publicContainerURI);
         }
         if (privateContainerURI != null) {
             Utils.cleanContainerContent(localAuthClient, privateContainerURI);
-            localAuthClient.delete(privateContainerURI);
         }
 
         mockHttpServer.stop();

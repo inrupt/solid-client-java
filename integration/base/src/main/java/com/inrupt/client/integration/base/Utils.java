@@ -206,12 +206,9 @@ public final class Utils {
     static void cleanContainerContent(final SolidSyncClient client, final URI containerURI) {
         if (containerURI != null && containerURI.toString().endsWith("/")) {
             try (final SolidContainer container = client.read(containerURI, SolidContainer.class)) {
-                if (container.getResources().size() == 0) {
-                    client.delete(container);
-                    LOGGER.info("deleted: " + container.getIdentifier());
-                } else {
-                    container.getResources().forEach(value -> cleanContainerContent(client, value.getIdentifier()));
-                }
+                container.getResources().forEach(value -> cleanContainerContent(client, value.getIdentifier()));
+                client.delete(container);
+                LOGGER.info("deleted: " + container.getIdentifier());
             } catch (NotFoundException ex) {
                 //since it is only a cleanup we do not care if it fails
             }

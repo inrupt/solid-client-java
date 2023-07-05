@@ -158,7 +158,6 @@ public class AccessGrantScenarios {
         authResourceOwnerClient = createAuthenticatedClient();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
         Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
-        client.send(Request.newBuilder(privateContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
         Utils.createContainer(authResourceOwnerClient, privateContainerURI);
 
         testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
@@ -219,7 +218,6 @@ public class AccessGrantScenarios {
         }
         if (privateContainerURI != null) {
             Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
-            authResourceOwnerClient.delete(privateContainerURI);
         }
 
         mockHttpServer.stop();

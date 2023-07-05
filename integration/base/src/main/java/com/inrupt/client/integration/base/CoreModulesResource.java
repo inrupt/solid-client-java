@@ -152,8 +152,6 @@ public class CoreModulesResource {
             localAuthClient = SolidSyncClient.getClient().session(session);
             //if a tests fails it can be that the cleanup was not properly done, so we do it here too
             Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding());
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -170,8 +168,6 @@ public class CoreModulesResource {
         }
         if (publicContainerURI != null) {
             Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding());
         }
 
         mockHttpServer.stop();

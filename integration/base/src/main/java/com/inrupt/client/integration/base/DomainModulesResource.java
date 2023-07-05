@@ -161,7 +161,6 @@ public class DomainModulesResource {
         }
         if (publicContainerURI != null) {
             Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-            localAuthClient.delete(publicContainerURI);
         }
 
         mockHttpServer.stop();
