@@ -196,14 +196,21 @@ public final class Utils {
     }
 
     public static void createContainer(final SolidSyncClient authClient, final URI containerURI) {
-        final var requestCreate = Request.newBuilder(containerURI)
-                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
-                .PUT(Request.BodyPublishers.noBody())
+        final var headReq = Request.newBuilder(containerURI)
+                .HEAD()
                 .build();
-        final var resCreate =
-                authClient.send(requestCreate, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
+        final var resCheckIfExists =
+                authClient.send(headReq, Response.BodyHandlers.discarding());
+        if (!Utils.isSuccessful(resCheckIfExists.statusCode())) {
+            final var requestCreate = Request.newBuilder(containerURI)
+                    .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                    .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
+                    .PUT(Request.BodyPublishers.noBody())
+                    .build();
+            final var resCreate =
+                    authClient.send(requestCreate, Response.BodyHandlers.discarding());
+            assertTrue(Utils.isSuccessful(resCreate.statusCode()));
+        }
     }
 
     static void cleanContainerContent(final SolidSyncClient client, final URI containerURI) {
