@@ -144,7 +144,7 @@ public class AuthenticationScenarios {
                     .path(PUBLIC_RESOURCE_PATH + "/").build();
 
             //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -164,7 +164,7 @@ public class AuthenticationScenarios {
         privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(PRIVATE_RESOURCE_PATH + "/").build();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.cleanContainerContent(localAuthClient, privateContainerURI);
+        Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
         Utils.createContainer(localAuthClient, privateContainerURI);
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
@@ -178,10 +178,10 @@ public class AuthenticationScenarios {
                 localAuthClient.delete(publicTestContainerURI);
             }
             if (PUBLIC_RESOURCE_PATH != null) {
-                Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+                Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
             }
             if (privateContainerURI != null) {
-                Utils.cleanContainerContent(localAuthClient, privateContainerURI);
+                Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
             }
         } catch (SolidClientException ignored) {
             //do nothing because we are only cleaning up

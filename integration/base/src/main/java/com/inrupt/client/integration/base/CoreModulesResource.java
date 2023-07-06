@@ -130,6 +130,12 @@ public class CoreModulesResource {
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
         }
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+        localAuthClient = SolidSyncClient.getClient().session(session);
         if (PUBLIC_RESOURCE_PATH.isEmpty()) {
             testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path("core-test-" + UUID.randomUUID())
@@ -143,15 +149,9 @@ public class CoreModulesResource {
 
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                     .path(PUBLIC_RESOURCE_PATH + "/").build();
-            final Session session = OpenIdSession.ofClientCredentials(
-                    URI.create(issuer), //Client credentials
-                    CLIENT_ID,
-                    CLIENT_SECRET,
-                    AUTH_METHOD);
 
-            localAuthClient = SolidSyncClient.getClient().session(session);
             //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -163,12 +163,10 @@ public class CoreModulesResource {
         //cleanup pod
         try {
             if (testContainerURI != null) {
-                client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-                client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
-                        Response.BodyHandlers.discarding());
+                Utils.deleteContentsRecursively(localAuthClient, testContainerURI);
             }
             if (publicContainerURI != null) {
-                Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+                Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
             }
         } catch (SolidClientException ignored) {
             //do nothing because we are only cleaning up
@@ -198,7 +196,6 @@ public class CoreModulesResource {
                 .build();
         final var resCreateIfNotExist =
                 client.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreateIfNotExist.statusCode()));
 
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();

@@ -157,7 +157,7 @@ public class AccessGrantScenarios {
 
         authResourceOwnerClient = createAuthenticatedClient();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
+        Utils.deleteContentsRecursively(authResourceOwnerClient, privateContainerURI);
 
         testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(State.PRIVATE_RESOURCE_PATH)
@@ -217,7 +217,7 @@ public class AccessGrantScenarios {
                 authResourceOwnerClient.delete(testContainerURI);
             }
             if (privateContainerURI != null) {
-                Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
+                Utils.deleteContentsRecursively(authResourceOwnerClient, privateContainerURI);
             }
         }  catch (SolidClientException ignored) {
             //do nothing because we are only cleaning up

@@ -40,10 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.rdf.api.IRI;
@@ -217,24 +215,49 @@ public final class Utils {
         }
     }
 
-    static void cleanContainerContent(final SolidSyncClient client, final URI containerURI) {
-        if (containerURI != null && containerURI.toString().endsWith("/")) {
-            try (final SolidContainer container = client.read(containerURI, SolidContainer.class)) {
-                container.getResources().forEach(value -> cleanContainerContent(client, value.getIdentifier()));
-                client.delete(container);
-                LOGGER.debug("deleted: " + container.getIdentifier());
-            } catch (NotFoundException ex) {
-                //since it is only a cleanup we do not care if it fails
-            }
-        } else {
-            if (exists(client, containerURI)) {
+    static void deleteContentsRecursively(final SolidSyncClient client, final URI url) {
+        if (exists(client, url)) {
+            deleteRecursive(client, url, new AtomicInteger(0));
+        }
+    }
+
+    static void deleteRecursive(final SolidSyncClient client, final URI url, final AtomicInteger depth) {
+        if (url != null) {
+            if (url.toString().endsWith("/")) {
+                if (depth != null) {
+                    depth.incrementAndGet();
+                }
+                // get all members
+                final List<URI> members = new ArrayList<>();
+                try (final SolidContainer container = client.read(url, SolidContainer.class)) {
+                    container.getResources().forEach(value -> members.add(value.getIdentifier()));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to get container members: {}", e.toString());
+                    // server may have overwritten a container as a resource so attempt to delete it
+                    client.delete(url);
+                }
+
+                // delete members via this method
+                LOGGER.debug("DELETING MEMBERS {}", members);
                 try {
-                    client.delete(containerURI);
-                    LOGGER.debug("deleted: " + containerURI);
+                    members.forEach(u -> deleteRecursive(client, u, depth));
                 } catch (SolidClientException ex) {
-                    //since it is only a cleanup we do not care if it fails
+                    LOGGER.error("Failed to delete resources", ex);
+                }
+
+                if (depth != null) {
+                    depth.decrementAndGet();
                 }
             }
+            deleteResource(client, url, depth);
+        }
+    }
+
+    static void deleteResource(final SolidSyncClient client, final URI url, final AtomicInteger depth) {
+        // delete the resource unless depth counting to avoid this
+        if (depth == null || depth.get() > 0) {
+            client.delete(url);
+            LOGGER.debug("DELETE RESOURCE {}", url);
         }
     }
 

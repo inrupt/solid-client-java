@@ -143,7 +143,7 @@ public class DomainModulesResource {
             publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                     .path(PUBLIC_RESOURCE_PATH + FOLDER_SEPARATOR).build();
             //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
@@ -159,7 +159,7 @@ public class DomainModulesResource {
                 client.delete(testContainerURI.resolve(".."));
             }
             if (publicContainerURI != null) {
-                Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+                Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
             }
         } catch (SolidClientException ignored) {
             //do nothing because we are only cleaning up
