@@ -31,7 +31,6 @@ import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
-import com.inrupt.client.vocabulary.Solid;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
