@@ -134,7 +134,7 @@ class SolidSyncClientTest {
 
     @Test
     void testGetContainer() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/playlists/");
 
         try (final SolidContainer container = client.read(uri, SolidContainer.class)) {
             assertEquals(uri, container.getIdentifier());
@@ -154,6 +154,12 @@ class SolidSyncClientTest {
             assertDoesNotThrow(() -> client.delete(container));
             assertDoesNotThrow(() -> client.delete(container.getIdentifier()));
         }
+    }
+
+    @Test
+    void testGetContainerDataMappingError() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/playlist");
+        assertThrows(DataMappingException.class, () -> client.read(uri, SolidContainer.class));
     }
 
     @Test
