@@ -118,6 +118,11 @@ public class AccessCredential {
         return expiration != null ? expiration : Instant.MAX;
     }
 
+    /**
+     * Get the issuance date for the credential.
+     *
+     * @return the issuance date
+     */
     public Instant getIssuedAt() {
         return issuedAt;
     }
