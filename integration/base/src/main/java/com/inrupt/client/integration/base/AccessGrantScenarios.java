@@ -209,14 +209,18 @@ public class AccessGrantScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        if (sharedTextFileURI != null) {
-            authResourceOwnerClient.delete(sharedTextFileURI);
-        }
-        if (testContainerURI != null) {
-            authResourceOwnerClient.delete(testContainerURI);
-        }
-        if (privateContainerURI != null) {
-            Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
+        try {
+            if (sharedTextFileURI != null) {
+                authResourceOwnerClient.delete(sharedTextFileURI);
+            }
+            if (testContainerURI != null) {
+                authResourceOwnerClient.delete(testContainerURI);
+            }
+            if (privateContainerURI != null) {
+                Utils.cleanContainerContent(authResourceOwnerClient, privateContainerURI);
+            }
+        }  catch (SolidClientException ex) {
+            //do nothing because we are only cleaning up
         }
 
         mockHttpServer.stop();

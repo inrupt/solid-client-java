@@ -31,6 +31,7 @@ import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
+import com.inrupt.client.vocabulary.Solid;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -155,12 +156,16 @@ public class DomainModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        if (testContainerURI != null) {
-            client.delete(testContainerURI);
-            client.delete(testContainerURI.resolve(".."));
-        }
-        if (publicContainerURI != null) {
-            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+        try {
+            if (testContainerURI != null) {
+                client.delete(testContainerURI);
+                client.delete(testContainerURI.resolve(".."));
+            }
+            if (publicContainerURI != null) {
+                Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            }
+        } catch (SolidClientException ex) {
+            //do nothing because we are only cleaning up
         }
 
         mockHttpServer.stop();

@@ -161,13 +161,17 @@ public class CoreModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        if (testContainerURI != null) {
-            client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-            client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
-                    Response.BodyHandlers.discarding());
-        }
-        if (publicContainerURI != null) {
-            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+        try {
+            if (testContainerURI != null) {
+                client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
+                client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
+                        Response.BodyHandlers.discarding());
+            }
+            if (publicContainerURI != null) {
+                Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            }
+        } catch (SolidClientException ex) {
+            //do nothing because we are only cleaning up
         }
 
         mockHttpServer.stop();

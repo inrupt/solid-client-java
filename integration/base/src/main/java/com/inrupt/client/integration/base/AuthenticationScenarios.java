@@ -173,14 +173,18 @@ public class AuthenticationScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        if (publicTestContainerURI != null) {
-            localAuthClient.delete(publicTestContainerURI);
-        }
-        if (PUBLIC_RESOURCE_PATH != null) {
-            Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-        }
-        if (privateContainerURI != null) {
-            Utils.cleanContainerContent(localAuthClient, privateContainerURI);
+        try {
+            if (publicTestContainerURI != null) {
+                localAuthClient.delete(publicTestContainerURI);
+            }
+            if (PUBLIC_RESOURCE_PATH != null) {
+                Utils.cleanContainerContent(localAuthClient, publicContainerURI);
+            }
+            if (privateContainerURI != null) {
+                Utils.cleanContainerContent(localAuthClient, privateContainerURI);
+            }
+        } catch (SolidClientException ex) {
+            //do nothing because we are only cleaning up
         }
 
         mockHttpServer.stop();
