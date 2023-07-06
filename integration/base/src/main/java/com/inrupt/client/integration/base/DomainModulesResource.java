@@ -145,8 +145,6 @@ public class DomainModulesResource {
                     .path(PUBLIC_RESOURCE_PATH + FOLDER_SEPARATOR).build();
             //if a tests fails it can be that the cleanup was not properly done, so we do it here too
             Utils.cleanContainerContent(localAuthClient, publicContainerURI);
-            localAuthClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding());
             Utils.createPublicContainer(localAuthClient, publicContainerURI);
         }
 
