@@ -174,21 +174,23 @@ public final class Utils {
     }
 
     public static void createPublicContainer(final SolidSyncClient authClient, final URI publicContainerURI) {
-        try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
-            try (final SolidContainer container = authClient.create(newContainer)) {
-                container.getMetadata().getAcl().ifPresent(acl -> {
-                    int i = 0; // in case we cannot read the acl, we try 2 times before giving up
-                    while (i <= 1) {
-                        try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                            Utils.publicAgentPolicyTriples(acl)
-                                    .forEach(acr.getGraph()::add);
-                            authClient.update(acr);
-                            i = 2;
-                        } catch (SolidClientException ignored) {
-                            i++;
+        if (!exists(authClient, publicContainerURI)) {
+            try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
+                try (final SolidContainer container = authClient.create(newContainer)) {
+                    container.getMetadata().getAcl().ifPresent(acl -> {
+                        int i = 0; // in case we cannot read the acl, we try 2 times before giving up
+                        while (i <= 1) {
+                            try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                                Utils.publicAgentPolicyTriples(acl)
+                                        .forEach(acr.getGraph()::add);
+                                authClient.update(acr);
+                                i = 2;
+                            } catch (SolidClientException ignored) {
+                                i++;
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
     }
