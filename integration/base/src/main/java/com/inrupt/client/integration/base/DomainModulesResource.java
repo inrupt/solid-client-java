@@ -161,7 +161,7 @@ public class DomainModulesResource {
             if (publicContainerURI != null) {
                 Utils.cleanContainerContent(localAuthClient, publicContainerURI);
             }
-        } catch (SolidClientException ex) {
+        } catch (SolidClientException ignored) {
             //do nothing because we are only cleaning up
         }
 

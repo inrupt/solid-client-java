@@ -27,10 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.solid.NotFoundException;
-import com.inrupt.client.solid.SolidContainer;
-import com.inrupt.client.solid.SolidRDFSource;
-import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
@@ -182,10 +179,16 @@ public final class Utils {
         try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
             try (final SolidContainer container = authClient.create(newContainer)) {
                 container.getMetadata().getAcl().ifPresent(acl -> {
-                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
+                    int i = 0; // in case we cannot read the acl, we try 2 times before giving up
+                    while (i <= 1) {
+                        try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                            Utils.publicAgentPolicyTriples(acl)
+                                    .forEach(acr.getGraph()::add);
+                            authClient.update(acr);
+                            i = 2;
+                        } catch (SolidClientException ignored) {
+                            i++;
+                        }
                     }
                 });
             }

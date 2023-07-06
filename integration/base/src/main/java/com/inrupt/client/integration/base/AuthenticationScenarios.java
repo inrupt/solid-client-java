@@ -183,7 +183,7 @@ public class AuthenticationScenarios {
             if (privateContainerURI != null) {
                 Utils.cleanContainerContent(localAuthClient, privateContainerURI);
             }
-        } catch (SolidClientException ex) {
+        } catch (SolidClientException ignored) {
             //do nothing because we are only cleaning up
         }
 
