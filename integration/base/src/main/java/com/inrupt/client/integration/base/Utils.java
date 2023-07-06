@@ -195,13 +195,17 @@ public final class Utils {
         }
     }
 
-    public static void createContainer(final SolidSyncClient authClient, final URI containerURI) {
+    public static boolean exists(final SolidSyncClient authClient, final URI containerURI) {
         final var headReq = Request.newBuilder(containerURI)
                 .HEAD()
                 .build();
         final var resCheckIfExists =
                 authClient.send(headReq, Response.BodyHandlers.discarding());
-        if (!Utils.isSuccessful(resCheckIfExists.statusCode())) {
+        return Utils.isSuccessful(resCheckIfExists.statusCode());
+    }
+
+    public static void createContainer(final SolidSyncClient authClient, final URI containerURI) {
+        if (!exists(authClient, containerURI)) {
             final var requestCreate = Request.newBuilder(containerURI)
                     .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                     .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
@@ -223,8 +227,14 @@ public final class Utils {
                 //since it is only a cleanup we do not care if it fails
             }
         } else {
-            client.delete(containerURI);
-            LOGGER.debug("deleted: " + containerURI);
+            if (exists(client, containerURI)) {
+                try {
+                    client.delete(containerURI);
+                    LOGGER.debug("deleted: " + containerURI);
+                } catch (SolidClientException ex) {
+                    //since it is only a cleanup we do not care if it fails
+                }
+            }
         }
     }
 
