@@ -70,24 +70,20 @@ public class CoreModulesResource {
     private static MockOpenIDProvider identityProviderServer;
     private static MockUMAAuthorizationServer authServer;
     private static MockWebIdService webIdService;
-
     private static final Config config = ConfigProvider.getConfig();
-
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
     private static String podUrl;
-    private static String issuer;
     private static final String MOCK_USERNAME = "someuser";
     private static final String TYPE = "type";
     private static final String LINK = "Link";
-    private static final String PUBLIC_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.public-resource-path", String.class)
-        .orElse("");
-
-    private static String testContainer = "resource/";
     private static URI testContainerURI;
     private static URI publicContainerURI;
 
     private static SolidSyncClient localAuthClient;
+    //this is important for the Mock setup
+    private static final String PRIVATE_RESOURCE_PATH = config
+            .getOptionalValue("inrupt.test.private-resource-path", String.class)
+            .orElse("private");
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
@@ -117,13 +113,14 @@ public class CoreModulesResource {
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
+        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH; //needed in the Mocks
         //find storage from WebID using only core module
         final Request requestRdf = Request.newBuilder(URI.create(webidUrl)).GET().build();
         final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());
         final var issuers = responseRdf.body()
                 .listObjectsOfProperty(createProperty(Solid.oidcIssuer.toString()))
                 .toList();
-        issuer = issuers.get(0).toString();
+        final String issuer = issuers.get(0).toString();
         final var storages = responseRdf.body()
                 .listObjectsOfProperty(createProperty(PIM.storage.toString()))
                 .toList();
@@ -136,24 +133,14 @@ public class CoreModulesResource {
                 CLIENT_SECRET,
                 AUTH_METHOD);
         localAuthClient = SolidSyncClient.getClient().session(session);
-        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path("core-test-" + UUID.randomUUID())
-                .path(testContainer).build();
-        } else {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
-                .path("core-test-" + UUID.randomUUID())
-                .path(testContainer)
+
+        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("public-core-test-" + UUID.randomUUID() + "/")
                 .build();
 
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + "/").build();
-
-            //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-            Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
-            Utils.createPublicContainer(localAuthClient, publicContainerURI);
-        }
+        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
+        Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
@@ -161,16 +148,7 @@ public class CoreModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        try {
-            if (testContainerURI != null) {
-                Utils.deleteContentsRecursively(localAuthClient, testContainerURI);
-            }
-            if (publicContainerURI != null) {
-                Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
-            }
-        } catch (SolidClientException ignored) {
-            //do nothing because we are only cleaning up
-        }
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -184,7 +162,7 @@ public class CoreModulesResource {
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-core1";
         final String newPredicateName = "https://example.example/predicate";
 
         //create
@@ -287,7 +265,7 @@ public class CoreModulesResource {
     void containerCreateDeleteTest() {
         LOGGER.info("Integration Test - create and remove Containers");
 
-        final String containerName = testContainerURI + "newContainer/";
+        final String containerName = publicContainerURI + "newContainer-" + UUID.randomUUID() + "/";
         final String container2Name = "newContainer2";
 
         //create a Container
@@ -338,7 +316,7 @@ public class CoreModulesResource {
         LOGGER.info("Integration Test - create, delete, and differentiate between RDF and non-RDF Resources");
 
         final String fileName = "myFile.txt";
-        final String fileURL = testContainerURI + fileName;
+        final String fileURL = publicContainerURI + fileName;
 
         //create non RDF resource
         final Request reqCreate =
@@ -371,7 +349,7 @@ public class CoreModulesResource {
         LOGGER.info("Integration Test - update statements containing Blank Nodes " +
             "in different instances of the same model");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-core2";
         final String predicate = "https://example.example/predicate";
         final String predicateForBlank = "https://example.example/predicateForBlank";
 

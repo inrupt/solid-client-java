@@ -106,6 +106,15 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
             return res.build();
         }
 
+        if (request.getMethod().isOneOf(RequestMethod.HEAD)) {
+            if (this.storage.containsKey(request.getUrl())) {
+                res.withStatus(Utils.SUCCESS);
+            } else {
+                res.withStatus(Utils.NOT_FOUND);
+            }
+            res.build();
+        }
+
         if (request.getMethod().isOneOf(RequestMethod.PUT)) {
             final boolean exists = this.storage.containsKey(request.getUrl());
             if (!Utils.WILDCARD.equals(request.getHeader(Utils.IF_NONE_MATCH)) || !exists) {

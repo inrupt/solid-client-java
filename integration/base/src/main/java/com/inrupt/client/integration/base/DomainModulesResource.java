@@ -66,7 +66,6 @@ public class DomainModulesResource {
     private static MockWebIdService webIdService;
     private static String podUrl;
     private static String webidUrl;
-    private static String issuer;
     private static final String MOCK_USERNAME = "someuser";
 
     private static final Config config = ConfigProvider.getConfig();
@@ -74,19 +73,16 @@ public class DomainModulesResource {
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
-
-    private static final String PUBLIC_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.public-resource-path", String.class)
-        .orElse("");
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
-
-    private static String testContainer = "resource/";
+    //this is important for the Mock setup
+    private static final String PRIVATE_RESOURCE_PATH = config
+            .getOptionalValue("inrupt.test.private-resource-path", String.class)
+            .orElse("private");
     private static final String FOLDER_SEPARATOR = "/";
-    private static URI testContainerURI;
     private static URI publicContainerURI;
 
     private static SolidSyncClient localAuthClient;
@@ -113,39 +109,33 @@ public class DomainModulesResource {
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
+        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH; //needed in the Mocks
         //find storage from WebID using domain-specific webID solid concept
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             final var storages = sameProfile.getStorages();
-            issuer = sameProfile.getOidcIssuers().iterator().next().toString();
+            final String issuer = sameProfile.getOidcIssuers().iterator().next().toString();
             if (!storages.isEmpty()) {
                 podUrl = storages.iterator().next().toString();
             }
+
+            final Session session = OpenIdSession.ofClientCredentials(
+                    URI.create(issuer), //Client credentials
+                    CLIENT_ID,
+                    CLIENT_SECRET,
+                    AUTH_METHOD);
+
+            localAuthClient = SolidSyncClient.getClient().session(session);
+        } catch (SolidClientException ex) {
+            LOGGER.error("problems reading the webId");
         }
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
 
-        localAuthClient = SolidSyncClient.getClient().session(session);
-
-        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path("domain-test-" + UUID.randomUUID())
-                .path(testContainer).build();
-        } else {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
-                .path("domain-test-" + UUID.randomUUID())
-                .path(testContainer)
+        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
                 .build();
 
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + FOLDER_SEPARATOR).build();
-            //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-            Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
-            Utils.createPublicContainer(localAuthClient, publicContainerURI);
-        }
+        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
+        Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
@@ -153,17 +143,7 @@ public class DomainModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        try {
-            if (testContainerURI != null) {
-                client.delete(testContainerURI);
-                client.delete(testContainerURI.resolve(".."));
-            }
-            if (publicContainerURI != null) {
-                Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
-            }
-        } catch (SolidClientException ignored) {
-            //do nothing because we are only cleaning up
-        }
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -177,7 +157,7 @@ public class DomainModulesResource {
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-domain1";
         final String newPredicateName = "https://example.example/predicate";
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
@@ -204,9 +184,9 @@ public class DomainModulesResource {
                 try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
-                    assertDoesNotThrow(() -> client.delete(updatedResource));
                 }
             }
+            assertDoesNotThrow(() -> client.delete(URI.create(newResourceName)));
         }
     }
 
@@ -216,7 +196,7 @@ public class DomainModulesResource {
     void containerCreateDeleteTest() {
         LOGGER.info("Integration Test - create and remove Containers");
 
-        final String containerURL = testContainerURI + "newContainer/";
+        final String containerURL = publicContainerURI + "newContainer-" + UUID.randomUUID() + "/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(() -> client.create(newContainer));
@@ -231,7 +211,7 @@ public class DomainModulesResource {
         LOGGER.info("Integration Test - update statements containing Blank Nodes in " +
             "different instances of the same model");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-domain2";
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 
@@ -272,9 +252,9 @@ public class DomainModulesResource {
                 try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
-                    assertDoesNotThrow(() -> client.delete(updatedResource));
                 }
             }
+            assertDoesNotThrow(() -> client.delete(URI.create(newResourceName)));
         }
     }
 
@@ -301,12 +281,10 @@ public class DomainModulesResource {
         LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
         //returns: testContainer + "UUID1/UUID2/UUID3/"
-        final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
+        final var leafPath = getNestedContainer(publicContainerURI.toString(), 1);
 
         final String podRoot = podRoot(leafPath);
 
-        //cleanup
-        recursiveDeleteLDPcontainers(leafPath);
         assertFalse(podRoot.isEmpty());
     }
 
@@ -328,18 +306,6 @@ public class DomainModulesResource {
             tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR) + 1);
         }
         return "";
-    }
-
-    private void recursiveDeleteLDPcontainers(final String leafPath) {
-        String tempURL = leafPath;
-        final String notToDeletePath = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH).build().toString();
-        while (!(tempURL.equals(notToDeletePath)) && !(tempURL.equals(notToDeletePath + FOLDER_SEPARATOR))) {
-            final var url = new SolidRDFSource(URI.create(tempURL),null, null);
-            localAuthClient.delete(url);
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR));
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR) + 1);
-        }
     }
 
     private String getNestedContainer(final String path, final int depth) {

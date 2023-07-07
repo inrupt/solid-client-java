@@ -190,6 +190,8 @@ public final class Utils {
                             }
                         }
                     });
+                } catch (SolidClientException ex) {
+                    LOGGER.debug(ex.getStatusCode() + " " + ex.getCause() + " " + ex.getMessage());
                 }
             }
         }
