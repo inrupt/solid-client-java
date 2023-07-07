@@ -64,10 +64,8 @@ public class AuthenticationScenarios {
     private static final String MOCK_USERNAME = "someuser";
 
     private static String testResourceName = "resource.ttl";
-    private static URI publicTestContainerURI;
     private static URI publicResourceURI;
     private static URI publicContainerURI;
-    private static URI privateTestContainerURI;
     protected static URI privateResourceURI;
     private static URI privateContainerURI;
     private static final Config config = ConfigProvider.getConfig();
@@ -80,9 +78,6 @@ public class AuthenticationScenarios {
     private static final String PRIVATE_RESOURCE_PATH = config
         .getOptionalValue("inrupt.test.private-resource-path", String.class)
         .orElse("private");
-    private static final String PUBLIC_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.public-resource-path", String.class)
-        .orElse("");
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
@@ -129,40 +124,25 @@ public class AuthenticationScenarios {
 
         localAuthClient = SolidSyncClient.getClient().session(session);
 
-        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path("auth-test-" + UUID.randomUUID())
+        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                    .path("public-auth-test-" + UUID.randomUUID() + "/")
                     .build();
-
-        } else {
-            publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
-                .path("auth-test-" + UUID.randomUUID())
-                .build();
-
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + "/").build();
-
-            //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-            Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
-            Utils.createPublicContainer(localAuthClient, publicContainerURI);
-        }
-
-        publicResourceURI = URIBuilder.newBuilder(publicTestContainerURI)
+        publicResourceURI = URIBuilder.newBuilder(publicContainerURI)
                 .path(testResourceName)
                 .build();
 
-        privateTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(State.PRIVATE_RESOURCE_PATH)
-                .path("auth-test-" + UUID.randomUUID())
+        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
+        Utils.createPublicContainer(localAuthClient, publicContainerURI);
+
+        privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(State.PRIVATE_RESOURCE_PATH + "-auth-test-" + UUID.randomUUID() + "/")
                 .build();
 
-        privateResourceURI = URIBuilder.newBuilder(privateTestContainerURI)
+        privateResourceURI = URIBuilder.newBuilder(privateContainerURI)
             .path(testResourceName)
             .build();
 
-        privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PRIVATE_RESOURCE_PATH + "/").build();
         //if a tests fails it can be that the cleanup was not properly done, so we do it here too
         Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
         Utils.createContainer(localAuthClient, privateContainerURI);
@@ -173,19 +153,8 @@ public class AuthenticationScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        try {
-            if (publicTestContainerURI != null) {
-                localAuthClient.delete(publicTestContainerURI);
-            }
-            if (PUBLIC_RESOURCE_PATH != null) {
-                Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
-            }
-            if (privateContainerURI != null) {
-                Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
-            }
-        } catch (SolidClientException ignored) {
-            //do nothing because we are only cleaning up
-        }
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
+        Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -298,8 +267,7 @@ public class AuthenticationScenarios {
             assertDoesNotThrow(() -> authClient1.create(testResource));
 
             //create another private resource with another client
-            final URI privateResourceURL2 = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(State.PRIVATE_RESOURCE_PATH)
+            final URI privateResourceURL2 = URIBuilder.newBuilder(privateContainerURI)
                 .path("resource2.ttl")
                 .build();
             try (final SolidRDFSource testResource2 = new SolidRDFSource(privateResourceURL2, null, null)) {
