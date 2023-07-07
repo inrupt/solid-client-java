@@ -39,12 +39,12 @@
       <version>${yasson.version}</version>
       <scope>test</scope>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.inrupt.client</groupId>-->
-<!--      <artifactId>inrupt-client-rdf4j</artifactId>-->
-<!--      <version>${project.version}</version>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-rdf4j</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-rdf-legacy</artifactId>
@@ -101,7 +101,6 @@
                 <goal>test</goal>
               </goals>
               <configuration>
-                <skip>true</skip>
                 <excludes>
                   <exclude>**/*JenaTest.java</exclude>
                 </excludes>
@@ -120,7 +119,6 @@
                 <goal>test</goal>
               </goals>
               <configuration>
-                <skip>true</skip>
                 <excludes>
                   <exclude>**/*JenaTest.java</exclude>
                 </excludes>
