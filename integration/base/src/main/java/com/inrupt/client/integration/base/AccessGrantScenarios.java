@@ -94,10 +94,6 @@ public class AccessGrantScenarios {
         .orElse("client_secret_basic");
 
     protected static String ACCESS_GRANT_PROVIDER;
-    private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.private-resource-path", String.class)
-        .orElse("private");
-
     protected static final String GRANT_MODE_READ = "Read";
     private static final String GRANT_MODE_APPEND = "Append";
     private static final String GRANT_MODE_WRITE = "Write";
@@ -137,7 +133,6 @@ public class AccessGrantScenarios {
                 .build()
                 .toString());
 
-        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {

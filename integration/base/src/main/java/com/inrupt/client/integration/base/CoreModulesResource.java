@@ -76,14 +76,9 @@ public class CoreModulesResource {
     private static final String MOCK_USERNAME = "someuser";
     private static final String TYPE = "type";
     private static final String LINK = "Link";
-    private static URI testContainerURI;
     private static URI publicContainerURI;
 
     private static SolidSyncClient localAuthClient;
-    //this is important for the Mock setup
-    private static final String PRIVATE_RESOURCE_PATH = config
-            .getOptionalValue("inrupt.test.private-resource-path", String.class)
-            .orElse("private");
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
@@ -113,7 +108,6 @@ public class CoreModulesResource {
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
-        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH; //needed in the Mocks
         //find storage from WebID using only core module
         final Request requestRdf = Request.newBuilder(URI.create(webidUrl)).GET().build();
         final var responseRdf = client.send(requestRdf, JenaBodyHandlers.ofModel());

@@ -75,9 +75,6 @@ public class AuthenticationScenarios {
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
-    private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.private-resource-path", String.class)
-        .orElse("private");
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
@@ -96,8 +93,6 @@ public class AuthenticationScenarios {
             identityProviderServer.getMockServerUrl(),
             MOCK_USERNAME);
         webIdService.start();
-
-        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
 
         webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)

@@ -78,10 +78,6 @@ public class DomainModulesResource {
             .orElse("client_secret_basic");
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
-    //this is important for the Mock setup
-    private static final String PRIVATE_RESOURCE_PATH = config
-            .getOptionalValue("inrupt.test.private-resource-path", String.class)
-            .orElse("private");
     private static final String FOLDER_SEPARATOR = "/";
     private static URI publicContainerURI;
 
@@ -109,7 +105,6 @@ public class DomainModulesResource {
             .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
 
         State.WEBID = URI.create(webidUrl);
-        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH; //needed in the Mocks
         //find storage from WebID using domain-specific webID solid concept
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             final var storages = sameProfile.getStorages();
