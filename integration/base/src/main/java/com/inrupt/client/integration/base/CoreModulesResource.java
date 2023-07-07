@@ -138,8 +138,6 @@ public class CoreModulesResource {
                 .path("public-core-test-" + UUID.randomUUID() + "/")
                 .build();
 
-        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
         Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());

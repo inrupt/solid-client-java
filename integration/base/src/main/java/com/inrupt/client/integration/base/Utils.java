@@ -178,20 +178,16 @@ public final class Utils {
             try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
                 try (final SolidContainer container = authClient.create(newContainer)) {
                     container.getMetadata().getAcl().ifPresent(acl -> {
-                        int i = 0; // in case we cannot read the acl, we try 2 times before giving up
-                        while (i <= 1) {
-                            try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                                Utils.publicAgentPolicyTriples(acl)
-                                        .forEach(acr.getGraph()::add);
-                                authClient.update(acr);
-                                i = 2;
-                            } catch (SolidClientException ignored) {
-                                i++;
-                            }
+                        try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                            Utils.publicAgentPolicyTriples(acl)
+                                    .forEach(acr.getGraph()::add);
+                            authClient.update(acr);
+                        } catch (SolidClientException ignored) {
+                            LOGGER.error("Integration tests - Problem reading and modifying the acl");
                         }
                     });
                 } catch (SolidClientException ex) {
-                    LOGGER.debug(ex.getStatusCode() + " " + ex.getCause() + " " + ex.getMessage());
+                    LOGGER.error(ex.getStatusCode() + " " + ex.getCause() + " " + ex.getMessage());
                 }
             }
         }

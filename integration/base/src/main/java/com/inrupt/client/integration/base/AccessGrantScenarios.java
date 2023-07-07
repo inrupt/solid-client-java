@@ -153,8 +153,6 @@ public class AccessGrantScenarios {
                 .path(State.PRIVATE_RESOURCE_PATH + "-access-test-" + UUID.randomUUID() + "/")
                 .build();
 
-        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.deleteContentsRecursively(authResourceOwnerClient, privateContainerURI);
         Utils.createContainer(authResourceOwnerClient, privateContainerURI);
         prepareAcpOfResource(authResourceOwnerClient, privateContainerURI, SolidRDFSource.class);
 

@@ -133,8 +133,6 @@ public class DomainModulesResource {
                 .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
                 .build();
 
-        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
         Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());

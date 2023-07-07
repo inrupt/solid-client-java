@@ -131,8 +131,6 @@ public class AuthenticationScenarios {
                 .path(testResourceName)
                 .build();
 
-        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
         Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
@@ -143,8 +141,6 @@ public class AuthenticationScenarios {
             .path(testResourceName)
             .build();
 
-        //if a tests fails it can be that the cleanup was not properly done, so we do it here too
-        Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
         Utils.createContainer(localAuthClient, privateContainerURI);
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
