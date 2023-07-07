@@ -136,6 +136,11 @@ public class AccessRequest extends AccessCredential {
         }
     }
 
+    /**
+     * A collection of parameters used for creating access requests.
+     *
+     * <p>See, in particular, the {@link AccessGrantClient.requestAccess(RequestParameters)} method.
+     */
     public static class RequestParameters {
 
         private final URI recipient;
@@ -145,6 +150,7 @@ public class AccessRequest extends AccessCredential {
         private final Instant expiration;
         private final Instant issuedAt;
 
+        /* package private */
         RequestParameters(final URI recipient, final Set<URI> resources,
                 final Set<String> modes, final Set<URI> purposes, final Instant expiration, final Instant issuedAt) {
             this.recipient = recipient;
@@ -155,26 +161,62 @@ public class AccessRequest extends AccessCredential {
             this.issuedAt = issuedAt;
         }
 
+        /**
+         * Get the recipient used with an access request operation.
+         *
+         * <p>Note: the recipient will typically be the resource owner
+         *
+         * @return the recipient's identifier
+         */
         public URI getRecipient() {
             return recipient;
         }
 
+        /**
+         * Get the resources used with an access request operation.
+         *
+         * @return the resource idnetifiers
+         */
         public Set<URI> getResources() {
             return resources;
         }
 
+        /**
+         * Get the access modes used with an access request operation.
+         *
+         * @return the access modes
+         */
         public Set<String> getModes() {
             return modes;
         }
 
+        /**
+         * Get the purpose identifiers used with an access request operation.
+         *
+         * @return the purpose identifiers
+         */
         public Set<URI> getPurposes() {
             return purposes;
         }
 
+        /**
+         * Get the requested expiration date used with an access request operation.
+         *
+         * <p>Note: an access grant server may select a different expiration date
+         *
+         * @return the requested expiration date
+         */
         public Instant getExpiration() {
             return expiration;
         }
 
+        /**
+         * Get the requested issuance date used with an access request operation.
+         *
+         * <p>Note: an access grant server may select a different issuance date
+         *
+         * @return the requested issuance date
+         */
         public Instant getIssuedAt() {
             return issuedAt;
         }
