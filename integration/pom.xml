@@ -64,6 +64,12 @@
               <id>default-test</id>
               <phase>none</phase>
             </execution>
+            <!-- The rdf-legacy module is an older version of RDF4J specifically targeting Android development. It isn't
+            intended to provide the same RDF-native development experience as the more recent RDF4J and Jena clients, and
+            aims at providing support for native objects binding in an Android context. For this reason, it isn't included
+            in the unit test coverage of the other modules in a more general context. In addition, it cannot be tested
+            using the same approach as the other modules, it being overwritten by the more up-to-date rdf4j-client if
+            both are present in the classpath before surefire performs exclusions. -->
             <execution>
               <id>okhttp-jackson-jena-test</id>
               <phase>test</phase>
