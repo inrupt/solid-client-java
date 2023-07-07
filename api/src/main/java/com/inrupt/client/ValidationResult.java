@@ -38,8 +38,18 @@ public class ValidationResult {
      * @param messages the messages from validation method
      */
     public ValidationResult(final boolean valid, final String... messages) {
+        this(valid, Arrays.asList(messages));
+    }
+
+    /**
+     * Create a ValidationResult object.
+     *
+     * @param valid the result from validation
+     * @param messages the messages from validation method
+     */
+    public ValidationResult(final boolean valid, final List<String> messages) {
         this.valid = valid;
-        this.result = Arrays.asList(messages);
+        this.result = messages;
     }
 
     /**
