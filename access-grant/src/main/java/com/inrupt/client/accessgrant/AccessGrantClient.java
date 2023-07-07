@@ -107,6 +107,7 @@ public class AccessGrantClient {
     private static final String PROVIDED_CONSENT = "providedConsent";
     private static final String FOR_PURPOSE = "forPurpose";
     private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String ISSUANCE_DATE = "issuanceDate";
     private static final String CREDENTIAL = "credential";
     private static final String SOLID_ACCESS_GRANT = "SolidAccessGrant";
     private static final String SOLID_ACCESS_REQUEST = "SolidAccessRequest";
@@ -183,6 +184,17 @@ public class AccessGrantClient {
     /**
      * Issue an access request.
      *
+     * @param request the parameters for the access request
+     * @return the next stage of completion containing the resulting access request
+     */
+    public CompletionStage<AccessRequest> requestAccess(final AccessRequest.RequestParameters request) {
+        return requestAccess(request.getRecipient(), request.getResources(),
+                request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt());
+    }
+
+    /**
+     * Issue an access request.
+     *
      * @param recipient the agent controlling access to the resources
      * @param resources the resources to which this credential applies
      * @param modes the access modes for this credential
@@ -192,10 +204,16 @@ public class AccessGrantClient {
      */
     public CompletionStage<AccessRequest> requestAccess(final URI recipient, final Set<URI> resources,
             final Set<String> modes, final Set<URI> purposes, final Instant expiration) {
+        return requestAccess(recipient, resources, modes, purposes, expiration, null);
+    }
+
+    private CompletionStage<AccessRequest> requestAccess(final URI recipient, final Set<URI> resources,
+            final Set<String> modes, final Set<URI> purposes, final Instant expiration, final Instant issuance) {
         Objects.requireNonNull(resources, "Resources may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
         return v1Metadata().thenCompose(metadata -> {
-            final Map<String, Object> data = buildAccessRequestv1(recipient, resources, modes, expiration, purposes);
+            final Map<String, Object> data = buildAccessRequestv1(recipient, resources, modes, purposes, expiration,
+                    issuance);
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -228,7 +246,7 @@ public class AccessGrantClient {
         Objects.requireNonNull(request, "Request may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data = buildAccessGrantv1(request.getCreator(), request.getResources(),
-                    request.getModes(), request.getExpiration(), request.getPurposes());
+                    request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt());
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
@@ -260,7 +278,7 @@ public class AccessGrantClient {
         Objects.requireNonNull(request, "Request may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data = buildAccessDenialv1(request.getCreator(), request.getResources(),
-                    request.getModes(), request.getExpiration(), request.getPurposes());
+                    request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt());
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
@@ -311,9 +329,9 @@ public class AccessGrantClient {
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data;
             if (FQ_ACCESS_GRANT.equals(type)) {
-                data = buildAccessGrantv1(recipient, resources, modes, expiration, uriPurposes);
+                data = buildAccessGrantv1(recipient, resources, modes, uriPurposes, expiration, null);
             } else if (FQ_ACCESS_REQUEST.equals(type)) {
-                data = buildAccessRequestv1(recipient, resources, modes, expiration, uriPurposes);
+                data = buildAccessRequestv1(recipient, resources, modes, uriPurposes, expiration, null);
             } else {
                 throw new AccessGrantException("Unsupported grant type: " + type);
             }
@@ -809,7 +827,7 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessDenialv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Instant expiration, final Set<URI> purposes) {
+            final Set<URI> purposes, final Instant expiration, final Instant issuance) {
         Objects.requireNonNull(agent, "Access denial agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
@@ -828,6 +846,9 @@ public class AccessGrantClient {
         if (expiration != null) {
             credential.put(EXPIRATION_DATE, expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
+        if (issuance != null) {
+            credential.put(ISSUANCE_DATE, issuance.truncatedTo(ChronoUnit.SECONDS).toString());
+        }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
@@ -836,7 +857,7 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Instant expiration, final Set<URI> purposes) {
+            final Set<URI> purposes, final Instant expiration, final Instant issuance) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
@@ -855,6 +876,9 @@ public class AccessGrantClient {
         if (expiration != null) {
             credential.put(EXPIRATION_DATE, expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
+        if (issuance != null) {
+            credential.put(ISSUANCE_DATE, issuance.truncatedTo(ChronoUnit.SECONDS).toString());
+        }
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();
@@ -863,7 +887,7 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Instant expiration, final Set<URI> purposes) {
+            final Set<URI> purposes, final Instant expiration, final Instant issuance) {
         final Map<String, Object> consent = new HashMap<>();
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
         consent.put(MODE, modes);
@@ -883,6 +907,10 @@ public class AccessGrantClient {
         if (expiration != null) {
             credential.put(EXPIRATION_DATE, expiration.truncatedTo(ChronoUnit.SECONDS).toString());
         }
+        if (issuance != null) {
+            credential.put(ISSUANCE_DATE, issuance.truncatedTo(ChronoUnit.SECONDS).toString());
+        }
+
         credential.put(CREDENTIAL_SUBJECT, subject);
 
         final Map<String, Object> data = new HashMap<>();

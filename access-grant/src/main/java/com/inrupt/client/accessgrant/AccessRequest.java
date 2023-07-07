@@ -30,6 +30,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,6 +132,126 @@ public class AccessRequest extends AccessCredential {
                 return new AccessRequest(identifier, serialization, credentialData, credentialMetadata);
             } else {
                 throw new IllegalArgumentException("Invalid Access Request: missing VerifiablePresentation type");
+            }
+        }
+    }
+
+    public static class RequestParameters {
+
+        private final URI recipient;
+        private final Set<URI> resources;
+        private final Set<String> modes;
+        private final Set<URI> purposes;
+        private final Instant expiration;
+        private final Instant issuedAt;
+
+        RequestParameters(final URI recipient, final Set<URI> resources,
+                final Set<String> modes, final Set<URI> purposes, final Instant expiration, final Instant issuedAt) {
+            this.recipient = recipient;
+            this.resources = resources;
+            this.modes = modes;
+            this.purposes = purposes;
+            this.expiration = expiration;
+            this.issuedAt = issuedAt;
+        }
+
+        public URI getRecipient() {
+            return recipient;
+        }
+
+        public Set<URI> getResources() {
+            return resources;
+        }
+
+        public Set<String> getModes() {
+            return modes;
+        }
+
+        public Set<URI> getPurposes() {
+            return purposes;
+        }
+
+        public Instant getExpiration() {
+            return expiration;
+        }
+
+        public Instant getIssuedAt() {
+            return issuedAt;
+        }
+
+        public static class Builder {
+
+            private final Set<URI> builderResources = new HashSet<>();
+            private final Set<String> builderModes = new HashSet<>();
+            private final Set<URI> builderPurposes = new HashSet<>();
+            private URI builderRecipient;
+            private Instant builderExpiration;
+            private Instant builderIssuedAt;
+
+            Builder() {
+                // Prevent external instantiation
+            }
+
+            public Builder recipient(final URI recipient) {
+                builderRecipient = recipient;
+                return this;
+            }
+
+            public Builder resource(final URI resource) {
+                builderResources.add(resource);
+                return this;
+            }
+
+            public Builder resources(final Collection<URI> resources) {
+                if (resources != null) {
+                    builderResources.addAll(resources);
+                } else {
+                    builderResources.clear();
+                }
+                return this;
+            }
+
+            public Builder mode(final String mode) {
+                builderModes.add(mode);
+                return this;
+            }
+
+            public Builder modes(final Collection<String> modes) {
+                if (modes != null) {
+                    builderModes.addAll(modes);
+                } else {
+                    builderModes.clear();
+                }
+                return this;
+            }
+
+            public Builder purpose(final URI purpose) {
+                builderPurposes.add(purpose);
+                return this;
+            }
+
+            public Builder purposes(final Collection<URI> purposes) {
+                if (purposes != null) {
+                    builderPurposes.addAll(purposes);
+                } else {
+                    builderPurposes.clear();
+                }
+                return this;
+            }
+
+            public Builder expiration(final Instant expiration) {
+                builderExpiration = expiration;
+                return this;
+            }
+
+            public Builder issuedAt(final Instant issuedAt) {
+                builderIssuedAt = issuedAt;
+                return this;
+            }
+
+            public RequestParameters build() {
+                return new RequestParameters(builderRecipient, builderResources, builderModes, builderPurposes,
+                        builderExpiration, builderIssuedAt);
             }
         }
     }
