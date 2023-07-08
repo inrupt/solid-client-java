@@ -139,7 +139,7 @@ public class AccessRequest extends AccessCredential {
     /**
      * A collection of parameters used for creating access requests.
      *
-     * <p>See, in particular, the {@link AccessGrantClient.requestAccess(RequestParameters)} method.
+     * <p>See, in particular, the {@link AccessGrantClient#requestAccess(RequestParameters)} method.
      */
     public static class RequestParameters {
 
@@ -221,6 +221,9 @@ public class AccessRequest extends AccessCredential {
             return issuedAt;
         }
 
+        /**
+         * A class for building access request parameters.
+         */
         public static class Builder {
 
             private final Set<URI> builderResources = new HashSet<>();
@@ -230,20 +233,43 @@ public class AccessRequest extends AccessCredential {
             private Instant builderExpiration;
             private Instant builderIssuedAt;
 
+            /* package-private */
             Builder() {
                 // Prevent external instantiation
             }
 
+            /**
+             * Set a recipient for the access request operation.
+             *
+             * <p>Note: this will typically be the identifier of resource owner
+             *
+             * @param recipient the recipient identifier, may be {@code null}
+             * @return this builder
+             */
             public Builder recipient(final URI recipient) {
                 builderRecipient = recipient;
                 return this;
             }
 
+            /**
+             * Set a single resource for the access request operation.
+             *
+             * @param resource the resource identifier, not {@code null}
+             * @return this builder
+             */
             public Builder resource(final URI resource) {
                 builderResources.add(resource);
                 return this;
             }
 
+            /**
+             * Set multiple resources for the access request operation.
+             *
+             * <p>Note: A null value will clear all existing resource values
+             *
+             * @param resources the resource identifiers, may be {@code null}
+             * @return this builder
+             */
             public Builder resources(final Collection<URI> resources) {
                 if (resources != null) {
                     builderResources.addAll(resources);
@@ -253,11 +279,25 @@ public class AccessRequest extends AccessCredential {
                 return this;
             }
 
+            /**
+             * Set a single access mode for the access request operation.
+             *
+             * @param mode the access mode, not {@code null}
+             * @return this builder
+             */
             public Builder mode(final String mode) {
                 builderModes.add(mode);
                 return this;
             }
 
+            /**
+             * Set multiple access modes for the access request operation.
+             *
+             * <p>Note: A null value will clear all existing mode values
+             *
+             * @param modes the access modes, may be {@code null}
+             * @return this builder
+             */
             public Builder modes(final Collection<String> modes) {
                 if (modes != null) {
                     builderModes.addAll(modes);
@@ -267,11 +307,25 @@ public class AccessRequest extends AccessCredential {
                 return this;
             }
 
+            /**
+             * Set a single purpose for the access request operation.
+             *
+             * @param purpose the purpose identifier, not {@code null}
+             * @return this builder
+             */
             public Builder purpose(final URI purpose) {
                 builderPurposes.add(purpose);
                 return this;
             }
 
+            /**
+             * Set multiple purposes for the access request operation.
+             *
+             * <p>Note: A null value will clear all existing purpose values
+             *
+             * @param purposes the purpose identifiers, may be {@code null}
+             * @return this builder
+             */
             public Builder purposes(final Collection<URI> purposes) {
                 if (purposes != null) {
                     builderPurposes.addAll(purposes);
@@ -281,16 +335,37 @@ public class AccessRequest extends AccessCredential {
                 return this;
             }
 
+            /**
+             * Set a preferred expiration time for the access request operation.
+             *
+             * <p>Note: an access grant server may select a different expiration value
+             *
+             * @param expiration the expiration time, may be {@code null}.
+             * @return this builder
+             */
             public Builder expiration(final Instant expiration) {
                 builderExpiration = expiration;
                 return this;
             }
 
+            /**
+             * Set a preferred issuance time for the access request operation, likely at a time in the future.
+             *
+             * <p>Note: an access grant server may select a different issuance value
+             *
+             * @param issuedAt the issuance time, may be {@code null}.
+             * @return this builder
+             */
             public Builder issuedAt(final Instant issuedAt) {
                 builderIssuedAt = issuedAt;
                 return this;
             }
 
+            /**
+             * Build the {@link RequestParameters} object.
+             *
+             * @return the access request parameters
+             */
             public RequestParameters build() {
                 return new RequestParameters(builderRecipient, builderResources, builderModes, builderPurposes,
                         builderExpiration, builderIssuedAt);
