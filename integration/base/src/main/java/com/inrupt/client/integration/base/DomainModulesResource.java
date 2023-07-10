@@ -30,7 +30,6 @@ import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
@@ -67,7 +66,6 @@ public class DomainModulesResource {
     private static MockWebIdService webIdService;
     private static String podUrl;
     private static String webidUrl;
-    private static String issuer;
     private static final String MOCK_USERNAME = "someuser";
 
     private static final Config config = ConfigProvider.getConfig();
@@ -75,22 +73,15 @@ public class DomainModulesResource {
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
-
-    private static final String PUBLIC_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.public-resource-path", String.class)
-        .orElse("");
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
-
-    private static String testContainer = "resource/";
     private static final String FOLDER_SEPARATOR = "/";
-    private static URI testContainerURI;
     private static URI publicContainerURI;
 
-    private static SolidSyncClient authClient;
+    private static SolidSyncClient localAuthClient;
 
     @BeforeAll
     static void setup() {
@@ -117,28 +108,27 @@ public class DomainModulesResource {
         //find storage from WebID using domain-specific webID solid concept
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             final var storages = sameProfile.getStorages();
-            issuer = sameProfile.getOidcIssuers().iterator().next().toString();
+            final String issuer = sameProfile.getOidcIssuers().iterator().next().toString();
             if (!storages.isEmpty()) {
                 podUrl = storages.iterator().next().toString();
             }
+
+            final Session session = OpenIdSession.ofClientCredentials(
+                    URI.create(issuer), //Client credentials
+                    CLIENT_ID,
+                    CLIENT_SECRET,
+                    AUTH_METHOD);
+
+            localAuthClient = SolidSyncClient.getClient().session(session);
+        } catch (SolidClientException ex) {
+            LOGGER.error("problems reading the webId");
         }
-        createAuthenticatedClient();
-        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path("test-" + UUID.randomUUID())
-                .path(testContainer).build();
-        } else {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
-                .path(testContainer)
+
+        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
                 .build();
 
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + FOLDER_SEPARATOR).build();
-            createContainer(publicContainerURI);
-            prepareACR(publicContainerURI);
-        }
+        Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
@@ -146,13 +136,7 @@ public class DomainModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
-                Response.BodyHandlers.discarding());
-        if (publicContainerURI != null) {
-            authClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding());
-        }
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -166,7 +150,7 @@ public class DomainModulesResource {
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-domain1";
         final String newPredicateName = "https://example.example/predicate";
 
         final IRI newResourceNode = rdf.createIRI(newResourceName);
@@ -193,9 +177,9 @@ public class DomainModulesResource {
                 try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
-                    assertDoesNotThrow(() -> client.delete(updatedResource));
                 }
             }
+            assertDoesNotThrow(() -> client.delete(URI.create(newResourceName)));
         }
     }
 
@@ -205,7 +189,7 @@ public class DomainModulesResource {
     void containerCreateDeleteTest() {
         LOGGER.info("Integration Test - create and remove Containers");
 
-        final String containerURL = testContainerURI + "newContainer/";
+        final String containerURL = publicContainerURI + "newContainer-" + UUID.randomUUID() + "/";
 
         final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
         assertDoesNotThrow(() -> client.create(newContainer));
@@ -220,7 +204,7 @@ public class DomainModulesResource {
         LOGGER.info("Integration Test - update statements containing Blank Nodes in " +
             "different instances of the same model");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-domain2";
         final String predicateName = "https://example.example/predicate";
         final String predicateForBlankName = "https://example.example/predicateForBlank";
 
@@ -261,9 +245,9 @@ public class DomainModulesResource {
                 try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
                     newDataset, null)) {
                     assertDoesNotThrow(() -> client.update(updatedResource));
-                    assertDoesNotThrow(() -> client.delete(updatedResource));
                 }
             }
+            assertDoesNotThrow(() -> client.delete(URI.create(newResourceName)));
         }
     }
 
@@ -290,12 +274,10 @@ public class DomainModulesResource {
         LOGGER.info("Integration Test - from a leaf container navigate until finding the root");
 
         //returns: testContainer + "UUID1/UUID2/UUID3/"
-        final var leafPath = getNestedContainer(testContainerURI.toString(), 1);
+        final var leafPath = getNestedContainer(publicContainerURI.toString(), 1);
 
         final String podRoot = podRoot(leafPath);
 
-        //cleanup
-        recursiveDeleteLDPcontainers(leafPath);
         assertFalse(podRoot.isEmpty());
     }
 
@@ -305,7 +287,7 @@ public class DomainModulesResource {
         while (tempURL.chars().filter(ch -> ch == '/').count() >= 3) {
             final Request req = Request.newBuilder(URI.create(tempURL)).GET().build();
             final Response<SolidRDFSource> headerResponse =
-                    authClient.send(req, SolidResourceHandlers.ofSolidRDFSource());
+                    localAuthClient.send(req, SolidResourceHandlers.ofSolidRDFSource());
             final var headers = headerResponse.headers();
             final var isRoot = headers.allValues("Link").stream()
                 .flatMap(l -> Headers.Link.parse(l).stream())
@@ -319,18 +301,6 @@ public class DomainModulesResource {
         return "";
     }
 
-    private void recursiveDeleteLDPcontainers(final String leafPath) {
-        String tempURL = leafPath;
-        final String notToDeletePath = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH).build().toString();
-        while (!(tempURL.equals(notToDeletePath)) && !(tempURL.equals(notToDeletePath + FOLDER_SEPARATOR))) {
-            final var url = new SolidRDFSource(URI.create(tempURL),null, null);
-            authClient.delete(url);
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR));
-            tempURL = tempURL.substring(0, tempURL.lastIndexOf(FOLDER_SEPARATOR) + 1);
-        }
-    }
-
     private String getNestedContainer(final String path, final int depth) {
         final URIBuilder tempURL = URIBuilder.newBuilder(URI.create(path));
         for (int i = 0; i < depth; i++) {
@@ -340,43 +310,5 @@ public class DomainModulesResource {
         final var resource = new SolidRDFSource(URI.create(newURL));
         client.create(resource);
         return newURL;
-    }
-
-    private static void createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
-
-        authClient = SolidSyncClient.getClient().session(session);
-    }
-
-    private static void createContainer(final URI publicContainerURI) {
-        final var requestCreate = Request.newBuilder(publicContainerURI)
-                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
-                .PUT(Request.BodyPublishers.noBody())
-                .build();
-        final var resCreate =
-                authClient.send(requestCreate, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
-    }
-
-    private static void prepareACR(final URI publicContainerURI) {
-        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
-            if (resource != null) {
-                // find the acl Link in the header of the resource
-                resource.getMetadata().getAcl().ifPresent(acl -> {
-                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

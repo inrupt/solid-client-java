@@ -30,8 +30,6 @@ All the possible value are listed next:
 * `inrupt.test.client-secret` // mandatory
 * `inrupt.test.auth-method` // default is `client_secret_basic`
 * `inrupt.test.webid`
-* `inrupt.test.public-resource-path` // default is no dedicated container, everything gets created on the storage root
-* `inrupt.test.private-resource-path` // default is a container named `private`
 * `inrupt.test.access-grant.provider`
 * `inrupt.test.requester.webid`
 * `inrupt.test.requester.client-id` // mandatory
@@ -45,7 +43,6 @@ Optional fields are:
 * `inrupt.test.webid` is needed only if we want to run the integration tests on a live service. Otherwise, this property needs to be left out because it will be populated by the Mocked services with a mock username called `someuser`.
 * `inrupt.test.requester.webid` is only needed in the access grants test scenarios and can be also left empty because the Mocked services will create a username called `requester`.
 * `inrupt.test.auth-method` refers to the [client authentication](https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) method and has a default value of `client_secret_basic`. This value is used when this property is not provided.
-* `inrupt.test.public-resource-path` & `inrupt.test.private-resource-path` are properties used to fine grain the containers we use for testing.
 
 ## The embedded Mock Solid Server
 
@@ -58,7 +55,7 @@ The Mock Solid Server is actually a collection of services which try to mock, as
   * provide a token on its token endpoint (found under `oauth/oauth20/token`);
   * provide a jwks on its jwks endpoint (found under `oauth/jwks`).
 
-* `MockSolidServer` - mocks the storage service of a Pod provider. It mocks the behavior of private and public resources by looking if the resource path contains the `inrupt.test.private-resource-path`. And it mocks, according to Solid Protocol methods like GET, PUT, POST and PATCH.
+* `MockSolidServer` - mocks the storage service of a Pod provider. It mocks the behavior of private and public resources by looking if the resource path contains the `State.PRIVATE_RESOURCE_PATH` which is set to `private`. And it mocks, according to Solid Protocol methods like GET, PUT, POST, HEAD and PATCH.
 
 * `MockUMAAuthorizationServer` - mocks the authorization service, in our case a UMA service. UMA authorization is the default, hard-coded, in the Mocked services. This can be seen in any request on a private resource in the MockSolidServer. When not authorized, the Solid Server will respond with a WWW-Authenticate header which contains a UMA ticket.
 

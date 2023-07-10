@@ -25,7 +25,7 @@ import java.net.URI;
 final class State {
 
     static URI WEBID;
-    static String PRIVATE_RESOURCE_PATH;
+    static String PRIVATE_RESOURCE_PATH = "private";
     static final String AZP = "https://localhost:8080";
 
     private State() {

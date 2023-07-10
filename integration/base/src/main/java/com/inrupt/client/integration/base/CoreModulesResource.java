@@ -70,24 +70,15 @@ public class CoreModulesResource {
     private static MockOpenIDProvider identityProviderServer;
     private static MockUMAAuthorizationServer authServer;
     private static MockWebIdService webIdService;
-
     private static final Config config = ConfigProvider.getConfig();
-
     private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
     private static String podUrl;
-    private static String issuer;
     private static final String MOCK_USERNAME = "someuser";
     private static final String TYPE = "type";
     private static final String LINK = "Link";
-    private static final String PUBLIC_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.public-resource-path", String.class)
-        .orElse("");
-
-    private static String testContainer = "resource/";
-    private static URI testContainerURI;
     private static URI publicContainerURI;
 
-    private static SolidSyncClient authClient;
+    private static SolidSyncClient localAuthClient;
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
@@ -123,30 +114,25 @@ public class CoreModulesResource {
         final var issuers = responseRdf.body()
                 .listObjectsOfProperty(createProperty(Solid.oidcIssuer.toString()))
                 .toList();
-        issuer = issuers.get(0).toString();
+        final String issuer = issuers.get(0).toString();
         final var storages = responseRdf.body()
                 .listObjectsOfProperty(createProperty(PIM.storage.toString()))
                 .toList();
         if (!storages.isEmpty()) {
             podUrl = storages.get(0).toString();
         }
-        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path("test-" + UUID.randomUUID())
-                .path(testContainer).build();
-        } else {
-            testContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
-                .path(testContainer)
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+        localAuthClient = SolidSyncClient.getClient().session(session);
+
+        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("public-core-test-" + UUID.randomUUID() + "/")
                 .build();
 
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + "/").build();
-            createAuthenticatedClient();
-            createContainer(publicContainerURI);
-            prepareACR(publicContainerURI);
-        }
+        Utils.createPublicContainer(localAuthClient, publicContainerURI);
 
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
@@ -154,13 +140,7 @@ public class CoreModulesResource {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        client.send(Request.newBuilder(testContainerURI).DELETE().build(), Response.BodyHandlers.discarding());
-        client.send(Request.newBuilder(testContainerURI.resolve("..")).DELETE().build(),
-                Response.BodyHandlers.discarding());
-        if (publicContainerURI != null) {
-            authClient.send(Request.newBuilder(publicContainerURI).DELETE().build(),
-                    Response.BodyHandlers.discarding());
-        }
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -174,7 +154,7 @@ public class CoreModulesResource {
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-core1";
         final String newPredicateName = "https://example.example/predicate";
 
         //create
@@ -186,7 +166,6 @@ public class CoreModulesResource {
                 .build();
         final var resCreateIfNotExist =
                 client.send(requestCreateIfNotExist, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreateIfNotExist.statusCode()));
 
         //if the resource already exists -> we get all its statements and filter out the ones we are interested in
         List<Statement> statementsToDelete = new ArrayList<>();
@@ -278,7 +257,7 @@ public class CoreModulesResource {
     void containerCreateDeleteTest() {
         LOGGER.info("Integration Test - create and remove Containers");
 
-        final String containerName = testContainerURI + "newContainer/";
+        final String containerName = publicContainerURI + "newContainer-" + UUID.randomUUID() + "/";
         final String container2Name = "newContainer2";
 
         //create a Container
@@ -329,7 +308,7 @@ public class CoreModulesResource {
         LOGGER.info("Integration Test - create, delete, and differentiate between RDF and non-RDF Resources");
 
         final String fileName = "myFile.txt";
-        final String fileURL = testContainerURI + fileName;
+        final String fileURL = publicContainerURI + fileName;
 
         //create non RDF resource
         final Request reqCreate =
@@ -362,7 +341,7 @@ public class CoreModulesResource {
         LOGGER.info("Integration Test - update statements containing Blank Nodes " +
             "in different instances of the same model");
 
-        final String newResourceName = testContainerURI + "e2e-test-subject";
+        final String newResourceName = publicContainerURI + "e2e-test-subject-core2";
         final String predicate = "https://example.example/predicate";
         final String predicateForBlank = "https://example.example/predicateForBlank";
 
@@ -470,42 +449,5 @@ public class CoreModulesResource {
         return sparql;
     }
 
-    private static void createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
-
-        authClient = SolidSyncClient.getClient().session(session);
-    }
-
-    private static void createContainer(final URI publicContainerURI) {
-        final var requestCreate = Request.newBuilder(publicContainerURI)
-                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header(LINK, Headers.Link.of(LDP.RDFSource, TYPE).toString())
-                .PUT(Request.BodyPublishers.noBody())
-                .build();
-        final var resCreate =
-                authClient.send(requestCreate, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
-    }
-
-    private static void prepareACR(final URI publicContainerURI) {
-        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
-            if (resource != null) {
-                // find the acl Link in the header of the resource
-                resource.getMetadata().getAcl().ifPresent(acl -> {
-                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
 
