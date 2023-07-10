@@ -343,7 +343,8 @@ public class AccessGrantClient {
      * Verify an access grant or request.
      *
      * @param credential the credential to verify
-     * @return the next stage of completion containing the verification result
+     * @return the next stage of completion containing the verification result in the form of a
+     * {@link AccessCredentialVerification}
      */
     public CompletionStage<AccessCredentialVerification> verify(final AccessCredential credential) {
         return v1Metadata().thenCompose(metadata -> {
