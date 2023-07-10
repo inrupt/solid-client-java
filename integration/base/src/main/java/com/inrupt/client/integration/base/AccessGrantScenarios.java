@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -110,7 +112,9 @@ public class AccessGrantScenarios {
     private static SolidSyncClient authResourceOwnerClient;
 
     @BeforeAll
-    static void setup() throws IOException {
+    static void setup() throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        Utils.activateTrustAllCertificates();
+
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 

@@ -34,6 +34,8 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -84,7 +86,9 @@ public class DomainModulesResource {
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+        Utils.activateTrustAllCertificates();
+
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 

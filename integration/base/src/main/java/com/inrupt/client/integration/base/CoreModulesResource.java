@@ -30,23 +30,18 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.jena.JenaBodyHandlers;
 import com.inrupt.client.jena.JenaBodyPublishers;
-import com.inrupt.client.okhttp.OkHttpService;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidResourceHandlers;
 import com.inrupt.client.solid.SolidSyncClient;
-import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.Solid;
 
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -65,9 +60,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.*;
-import okhttp3.OkHttpClient;
 
 /**
  * Core modules based test class for resource integration scenarios.
@@ -98,48 +90,8 @@ public class CoreModulesResource {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
-        // setup trust all certificates for when using live servers
-        final TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(final X509Certificate[] chain,
-                                               final String authType) {
-                }
 
-                @Override
-                public void checkServerTrusted(final X509Certificate[] chain,
-                                               final String authType) {
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[]{};
-                }
-            }
-        };
-
-        final SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, trustAllCerts, new SecureRandom());
-        LOGGER.info("Identified client type is: " + ServiceProvider.getHttpService());
-
-        if (ServiceProvider.getHttpService().toString().contains("okhttp")) {
-
-            final OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
-            newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
-            newBuilder.hostnameVerifier((hostname, session) -> true);
-
-            OkHttpService.ofOkHttpClient(newBuilder.build());
-            LOGGER.info("Set a OKHttp client which trusts all certificates.");
-        }
-
-        if (ServiceProvider.getHttpService().toString().contains("httpclient")) {
-            final HttpClient httpClient = HttpClient
-                    .newBuilder()
-                    .sslContext(sslContext)
-                    .build();
-
-            LOGGER.info("Set a HttpClient client which trusts all certificates.");
-        }
+        Utils.activateTrustAllCertificates();
 
         client = SolidSyncClient.getClient().session(Session.anonymous());
         authServer = new MockUMAAuthorizationServer();

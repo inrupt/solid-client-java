@@ -31,6 +31,8 @@ import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -78,7 +80,9 @@ public class AuthenticationScenarios {
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+        Utils.activateTrustAllCertificates();
+
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 
