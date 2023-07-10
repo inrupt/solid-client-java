@@ -94,6 +94,36 @@
                 </classpathDependencyExcludes>
               </configuration>
             </execution>
+            <execution>
+              <id>httpclient-jackson-jena-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <classpathDependencyExcludes>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
+                </classpathDependencyExcludes>
+              </configuration>
+            </execution>
+            <execution>
+              <id>httpclient-jsonb-jena-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <classpathDependencyExcludes>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
+                </classpathDependencyExcludes>
+              </configuration>
+            </execution>
           </executions>
         </plugin>
       </plugins>
