@@ -341,6 +341,40 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testIssueRequestBuilder() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI recipient = URI.create("https://id.test/agent");
+        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
+        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
+        final Set<URI> purposes = Collections.singleton(URI.create("https://purpose.test/Purpose1"));
+
+        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
+        final AccessRequest.RequestParameters params = AccessRequest.RequestParameters.newBuilder()
+            .recipient(recipient)
+            .resources(resources)
+            .modes(modes)
+            .purposes(purposes)
+            .expiration(expiration)
+            .issuedAt(Instant.now()).build();
+        final AccessRequest request = client.requestAccess(params).toCompletableFuture().join();
+
+        assertTrue(request.getTypes().contains("SolidAccessRequest"));
+        assertEquals(Optional.of(recipient), request.getRecipient());
+        assertEquals(modes, request.getModes());
+        assertEquals(expiration, request.getExpiration());
+        assertEquals(baseUri, request.getIssuer());
+        assertEquals(purposes, request.getPurposes());
+        assertEquals(resources, request.getResources());
+    }
+
+    @Test
     void testRequestAccessNoAuth() {
         final URI recipient = URI.create("https://id.test/agent");
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");

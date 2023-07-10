@@ -222,6 +222,15 @@ public class AccessRequest extends AccessCredential {
         }
 
         /**
+         * Create a new {@link RequestParameters} builder.
+         *
+         * @return the new builder
+         */
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        /**
          * A class for building access request parameters.
          */
         public static class Builder {
