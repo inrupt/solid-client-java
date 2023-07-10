@@ -22,11 +22,17 @@ package com.inrupt.client.integration.base;
 
 import static com.inrupt.client.vocabulary.RDF.type;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.inrupt.client.Headers;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
+import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
 import com.inrupt.client.vocabulary.ACP;
+import com.inrupt.client.vocabulary.LDP;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,10 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.rdf.api.IRI;
@@ -53,9 +57,12 @@ import org.apache.jena.update.UpdateRequest;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Utils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
     public static final String ACCEPT = "Accept";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String IF_NONE_MATCH = "If-None-Match";
@@ -164,6 +171,94 @@ public final class Utils {
         triples.add(rdf.createTriple(subject, asIRI(ACP.accessControl), accessControl));
         triples.add(rdf.createTriple(subject, asIRI(ACP.memberAccessControl), accessControl));
         return triples;
+    }
+
+    public static void createPublicContainer(final SolidSyncClient authClient, final URI publicContainerURI) {
+        if (!exists(authClient, publicContainerURI)) {
+            try (SolidContainer newContainer = new SolidContainer(publicContainerURI)) {
+                try (final SolidContainer container = authClient.create(newContainer)) {
+                    container.getMetadata().getAcl().ifPresent(acl -> {
+                        try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
+                            Utils.publicAgentPolicyTriples(acl)
+                                    .forEach(acr.getGraph()::add);
+                            authClient.update(acr);
+                        } catch (SolidClientException ignored) {
+                            LOGGER.error("Integration tests - Problem reading and modifying the acl");
+                        }
+                    });
+                } catch (SolidClientException ex) {
+                    LOGGER.error(ex.getStatusCode() + " " + ex.getCause() + " " + ex.getMessage());
+                }
+            }
+        }
+    }
+
+    public static boolean exists(final SolidSyncClient authClient, final URI containerURI) {
+        final var headReq = Request.newBuilder(containerURI)
+                .HEAD()
+                .build();
+        final var resCheckIfExists =
+                authClient.send(headReq, Response.BodyHandlers.discarding());
+        return Utils.isSuccessful(resCheckIfExists.statusCode());
+    }
+
+    public static void createContainer(final SolidSyncClient authClient, final URI containerURI) {
+        if (!exists(authClient, containerURI)) {
+            final var requestCreate = Request.newBuilder(containerURI)
+                    .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+                    .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
+                    .PUT(Request.BodyPublishers.noBody())
+                    .build();
+            final var resCreate =
+                    authClient.send(requestCreate, Response.BodyHandlers.discarding());
+            assertTrue(Utils.isSuccessful(resCreate.statusCode()));
+        }
+    }
+
+    static void deleteContentsRecursively(final SolidSyncClient client, final URI url) {
+        if (exists(client, url)) {
+            deleteRecursive(client, url, new AtomicInteger(0));
+        }
+    }
+
+    static void deleteRecursive(final SolidSyncClient client, final URI url, final AtomicInteger depth) {
+        if (url != null) {
+            if (url.toString().endsWith("/")) {
+                if (depth != null) {
+                    depth.incrementAndGet();
+                }
+                // get all members
+                final List<URI> members = new ArrayList<>();
+                try (final SolidContainer container = client.read(url, SolidContainer.class)) {
+                    container.getResources().forEach(value -> members.add(value.getIdentifier()));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to get container members: {}", e.toString());
+                    // server may have overwritten a container as a resource so attempt to delete it
+                    client.delete(url);
+                }
+
+                // delete members via this method
+                LOGGER.debug("DELETING MEMBERS {}", members);
+                try {
+                    members.forEach(u -> deleteRecursive(client, u, depth));
+                } catch (SolidClientException ex) {
+                    LOGGER.error("Failed to delete resources", ex);
+                }
+
+                if (depth != null) {
+                    depth.decrementAndGet();
+                }
+            }
+            deleteResource(client, url, depth);
+        }
+    }
+
+    static void deleteResource(final SolidSyncClient client, final URI url, final AtomicInteger depth) {
+        // delete the resource unless depth counting to avoid this
+        if (depth == null || depth.get() > 0) {
+            client.delete(url);
+            LOGGER.debug("DELETE RESOURCE {}", url);
+        }
     }
 
     private Utils() {

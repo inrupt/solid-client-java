@@ -22,16 +22,12 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Headers;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -68,10 +64,8 @@ public class AuthenticationScenarios {
     private static final String MOCK_USERNAME = "someuser";
 
     private static String testResourceName = "resource.ttl";
-    private static URI publicTestContainerURI;
     private static URI publicResourceURI;
     private static URI publicContainerURI;
-    private static URI privateTestContainerURI;
     protected static URI privateResourceURI;
     private static URI privateContainerURI;
     private static final Config config = ConfigProvider.getConfig();
@@ -81,13 +75,7 @@ public class AuthenticationScenarios {
     private static final String AUTH_METHOD = config
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
-    private static final String PRIVATE_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.private-resource-path", String.class)
-        .orElse("private");
-    private static final String PUBLIC_RESOURCE_PATH = config
-        .getOptionalValue("inrupt.test.public-resource-path", String.class)
-        .orElse("");
-    private static SolidSyncClient authClient;
+    private static SolidSyncClient localAuthClient;
 
     @BeforeAll
     static void setup() {
@@ -106,8 +94,6 @@ public class AuthenticationScenarios {
             MOCK_USERNAME);
         webIdService.start();
 
-        State.PRIVATE_RESOURCE_PATH = PRIVATE_RESOURCE_PATH;
-
         webidUrl = config
             .getOptionalValue("inrupt.test.webid", String.class)
             .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
@@ -125,40 +111,32 @@ public class AuthenticationScenarios {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
 
-        createAuthenticatedClient();
-        if (PUBLIC_RESOURCE_PATH.isEmpty()) {
-            publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path("test-" + UUID.randomUUID())
+        final Session session = OpenIdSession.ofClientCredentials(
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
+
+        localAuthClient = SolidSyncClient.getClient().session(session);
+
+        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                    .path("public-auth-test-" + UUID.randomUUID() + "/")
                     .build();
-
-        } else {
-            publicTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PUBLIC_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
-                .build();
-
-            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path(PUBLIC_RESOURCE_PATH + "/").build();
-
-            createContainer(publicContainerURI);
-            prepareACR(publicContainerURI);
-        }
-
-        publicResourceURI = URIBuilder.newBuilder(publicTestContainerURI)
+        publicResourceURI = URIBuilder.newBuilder(publicContainerURI)
                 .path(testResourceName)
                 .build();
 
-        privateTestContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(State.PRIVATE_RESOURCE_PATH)
-                .path("test-" + UUID.randomUUID())
+        Utils.createPublicContainer(localAuthClient, publicContainerURI);
+
+        privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(State.PRIVATE_RESOURCE_PATH + "-auth-test-" + UUID.randomUUID() + "/")
                 .build();
 
-        privateResourceURI = URIBuilder.newBuilder(privateTestContainerURI)
+        privateResourceURI = URIBuilder.newBuilder(privateContainerURI)
             .path(testResourceName)
             .build();
 
-        privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(PRIVATE_RESOURCE_PATH + "/").build();
+        Utils.createContainer(localAuthClient, privateContainerURI);
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
@@ -166,25 +144,8 @@ public class AuthenticationScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        final var reqDeletePrivateResource = Request.newBuilder(privateTestContainerURI).DELETE().build();
-        authClient.send(reqDeletePrivateResource, Response.BodyHandlers.discarding());
-
-        final var reqDeletePrivateParent = Request.newBuilder(privateTestContainerURI.resolve("..")).DELETE().build();
-        authClient.send(reqDeletePrivateParent, Response.BodyHandlers.discarding());
-
-        final var reqDeletePrivateContainer = Request.newBuilder(privateContainerURI).DELETE().build();
-        authClient.send(reqDeletePrivateContainer, Response.BodyHandlers.discarding());
-
-        final var reqDeletePublic = Request.newBuilder(publicTestContainerURI).DELETE().build();
-        authClient.send(reqDeletePublic, Response.BodyHandlers.discarding());
-
-        final var reqDeletePublicParent = Request.newBuilder(publicTestContainerURI.resolve("..")).DELETE().build();
-        authClient.send(reqDeletePublicParent, Response.BodyHandlers.discarding());
-
-        if (publicContainerURI != null) {
-            final var reqDeletePublicContainer = Request.newBuilder(publicContainerURI).DELETE().build();
-            authClient.send(reqDeletePublicContainer, Response.BodyHandlers.discarding());
-        }
+        Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
+        Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
 
         mockHttpServer.stop();
         identityProviderServer.stop();
@@ -297,8 +258,7 @@ public class AuthenticationScenarios {
             assertDoesNotThrow(() -> authClient1.create(testResource));
 
             //create another private resource with another client
-            final URI privateResourceURL2 = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(State.PRIVATE_RESOURCE_PATH)
+            final URI privateResourceURL2 = URIBuilder.newBuilder(privateContainerURI)
                 .path("resource2.ttl")
                 .build();
             try (final SolidRDFSource testResource2 = new SolidRDFSource(privateResourceURL2, null, null)) {
@@ -334,43 +294,5 @@ public class AuthenticationScenarios {
         return Stream.of(
             Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
             Arguments.of(session)));
-    }
-
-    private static void createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                CLIENT_ID,
-                CLIENT_SECRET,
-                AUTH_METHOD);
-
-        authClient = SolidSyncClient.getClient().session(session);
-    }
-
-    private static void createContainer(final URI publicContainerURI) {
-        final var requestCreate = Request.newBuilder(publicContainerURI)
-                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header("Link", Headers.Link.of(LDP.RDFSource, "type").toString())
-                .PUT(Request.BodyPublishers.noBody())
-                .build();
-        final var resCreate =
-                authClient.send(requestCreate, Response.BodyHandlers.discarding());
-        assertTrue(Utils.isSuccessful(resCreate.statusCode()));
-    }
-
-    private static void prepareACR(final URI publicContainerURI) {
-        try (SolidResource resource = authClient.read(publicContainerURI, SolidRDFSource.class)) {
-            if (resource != null) {
-                // find the acl Link in the header of the resource
-                resource.getMetadata().getAcl().ifPresent(acl -> {
-                    try (final SolidRDFSource acr = authClient.read(acl, SolidRDFSource.class)) {
-                        Utils.publicAgentPolicyTriples(acl)
-                                .forEach(acr.getGraph()::add);
-                        authClient.update(acr);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
