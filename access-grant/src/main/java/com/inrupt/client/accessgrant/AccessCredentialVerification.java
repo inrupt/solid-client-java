@@ -25,6 +25,9 @@ import java.util.List;
 
 /**
  * The response from a verification operation.
+ * The response contains a list of performed checks, a list of errors and warning that might have occurred.
+ *
+ * @see <a href="https://docs.inrupt.com/ess/latest/services/service-access-grant-verifier/">Access Grant Service</a>
  */
 public class AccessCredentialVerification {
 
