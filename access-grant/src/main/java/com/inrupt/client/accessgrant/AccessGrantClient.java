@@ -72,7 +72,13 @@ import org.slf4j.LoggerFactory;
 
    URI resource = URI.create("https://storage.example/data/resource");
    URI purpose = URI.create("https://purpose.example/1");
-   client.query(resource, null, openid.getPrincipal().orElse(null), purpose, "Read", AccessGrant.class)
+   AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+        .resource(resource)
+        .mode("Read")
+        .purpose(purpose)
+        .build(AccessGrant.class);
+
+   client.query(query)
        .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
        .thenAccept(cl -> {
@@ -376,7 +382,7 @@ public class AccessGrantClient {
     }
 
     /**
-     * Perform an Access Grant query.
+     * Perform an Access Credentials query and returns 0 to N matching access credentials.
      *
      * @param <T> the AccessCredential type
      * @param resource the resource identifier, may be {@code null}
@@ -397,7 +403,7 @@ public class AccessGrantClient {
     }
 
     /**
-     * Perform an Access Grant query.
+     * Perform an Access Credentials query and returns 0 to N matching access credentials.
      *
      * @param <T> the AccessCredential type
      * @param query the access credential query, never {@code null}
@@ -457,7 +463,7 @@ public class AccessGrantClient {
     }
 
     /**
-     * Perform an Access Grant query.
+     * Perform an Access Grant query and returns 0 to N matching Access Grants.
      *
      * <p>The {@code type} parameter must be an absolute URI. For Access Requests,
      * the URI is {@code http://www.w3.org/ns/solid/vc#SolidAccessRequest}. For Access Grants, the URI
@@ -559,7 +565,7 @@ public class AccessGrantClient {
     }
 
     /**
-     * Fetch an access credential.
+     * Fetch an access credential by identifier. Return at most one access credential or throws an exception.
      *
      * @param identifier the access credential identifier
      * @return the next stage of completion, containing the access credential
@@ -571,7 +577,7 @@ public class AccessGrantClient {
     }
 
     /**
-     * Fetch an access credential.
+     * Fetch an access credential by identifier. Return at most one access credential or throws an exception.
      *
      * @param <T> the credential type
      * @param identifier the access credential identifier
