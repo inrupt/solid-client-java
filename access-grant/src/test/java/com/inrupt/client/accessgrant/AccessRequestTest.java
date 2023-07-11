@@ -43,6 +43,65 @@ class AccessRequestTest {
     private static final JsonService jsonService = ServiceProvider.getJsonService();
 
     @Test
+    void testBuilderWithNulls() {
+        final URI uri1 = URI.create("https://example.com/resource1");
+        final URI uri2 = URI.create("https://example.com/resource2");
+        final URI uri3 = URI.create("https://example.com/resource3");
+        final URI uri4 = URI.create("https://example.com/resource4");
+        final AccessRequest.RequestParameters params = AccessRequest.RequestParameters.newBuilder()
+            .resource(uri1).resource(uri2)
+            .mode("Read").mode("Append")
+            .purpose(uri3).purpose(uri4)
+            .recipient(null)
+            .modes(null)
+            .resources(null)
+            .purposes(null).build();
+
+        assertTrue(params.getPurposes().isEmpty());
+        assertTrue(params.getResources().isEmpty());
+        assertTrue(params.getModes().isEmpty());
+        assertNull(params.getRecipient());
+        assertNull(params.getExpiration());
+        assertNull(params.getIssuedAt());
+    }
+
+    @Test
+    void testBuilderWithCollections() {
+        final URI uri1 = URI.create("https://example.com/resource1");
+        final URI uri2 = URI.create("https://example.com/resource2");
+        final URI uri3 = URI.create("https://example.com/resource3");
+        final URI uri4 = URI.create("https://example.com/resource4");
+        final AccessRequest.RequestParameters params = AccessRequest.RequestParameters.newBuilder()
+            .resource(uri1)
+            .mode("Read")
+            .purpose(uri3)
+            .recipient(uri2)
+            .modes(Collections.singleton("Append"))
+            .resources(Collections.singleton(uri2))
+            .purposes(Collections.singleton(uri4)).build();
+
+        final Set<URI> expectedPurposes = new HashSet<>();
+        expectedPurposes.add(uri3);
+        expectedPurposes.add(uri4);
+        assertEquals(expectedPurposes, params.getPurposes());
+
+        final Set<URI> expectedResources = new HashSet<>();
+        expectedResources.add(uri1);
+        expectedResources.add(uri2);
+        assertEquals(expectedResources, params.getResources());
+
+        final Set<String> expectedModes = new HashSet<>();
+        expectedModes.add("Read");
+        expectedModes.add("Append");
+        assertEquals(expectedModes, params.getModes());
+
+        assertEquals(uri2, params.getRecipient());
+        assertNull(params.getExpiration());
+        assertNull(params.getIssuedAt());
+    }
+
+
+    @Test
     void testReadAccessRequest() throws IOException {
         try (final InputStream resource = AccessRequestTest.class.getResourceAsStream("/access_request1.json")) {
             final AccessRequest request = AccessRequest.of(resource);
