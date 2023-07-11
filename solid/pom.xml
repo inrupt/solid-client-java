@@ -87,12 +87,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-rdf-legacy</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4j.version}</version>
@@ -120,7 +114,6 @@
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
@@ -134,7 +127,6 @@
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>

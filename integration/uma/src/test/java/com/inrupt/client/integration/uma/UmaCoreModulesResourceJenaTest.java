@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.integration.uma;
 
-import com.inrupt.client.integration.base.CoreModulesResource;
+import com.inrupt.client.integration.base.CoreModulesResourceJena;
 
-class UmaCoreModulesResourceTest extends CoreModulesResource {
+class UmaCoreModulesResourceJenaTest extends CoreModulesResourceJena {
 
 }
