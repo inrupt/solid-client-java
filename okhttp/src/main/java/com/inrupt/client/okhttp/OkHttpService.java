@@ -88,6 +88,8 @@ public class OkHttpService implements HttpService {
                 try (final okhttp3.Response r = res) {
                     final Response.ResponseInfo info = new OkHttpResponseInfo(r);
                     future.complete(new OkHttpResponse<>(res.request().url().uri(), info, handler.apply(info)));
+                } catch (final RuntimeException ex) {
+                    future.completeExceptionally(ex);
                 }
             }
 
