@@ -309,7 +309,7 @@ public final class Utils {
 
             final OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
             newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
-            newBuilder.hostnameVerifier((hostname, session) -> true);
+            newBuilder.hostnameVerifier((hostname, session) -> false);
 
             LOGGER.info("Set a OKHttp client which trusts all certificates.");
             return SolidSyncClient.getClientBuilder()
