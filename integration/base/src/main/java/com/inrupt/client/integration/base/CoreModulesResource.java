@@ -91,9 +91,8 @@ public class CoreModulesResource {
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
 
-        Utils.activateTrustAllCertificates();
+        client = Utils.customSolidClient().session(Session.anonymous());
 
-        client = SolidSyncClient.getClient().session(Session.anonymous());
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 
@@ -132,7 +131,7 @@ public class CoreModulesResource {
                 CLIENT_ID,
                 CLIENT_SECRET,
                 AUTH_METHOD);
-        localAuthClient = SolidSyncClient.getClient().session(session);
+        localAuthClient = Utils.customSolidClient().session(session);
 
         publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path("public-core-test-" + UUID.randomUUID() + "/")

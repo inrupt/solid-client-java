@@ -72,7 +72,7 @@ public class DomainModulesResource {
 
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
-    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+    private static SolidSyncClient client;
 
     private static IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
     private static final String AUTH_METHOD = config
@@ -87,7 +87,7 @@ public class DomainModulesResource {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
-        Utils.activateTrustAllCertificates();
+        client = Utils.customSolidClient().session(Session.anonymous());
 
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
@@ -123,7 +123,7 @@ public class DomainModulesResource {
                     CLIENT_SECRET,
                     AUTH_METHOD);
 
-            localAuthClient = SolidSyncClient.getClient().session(session);
+            localAuthClient = Utils.customSolidClient().session(session);
         } catch (SolidClientException ex) {
             LOGGER.error("problems reading the webId");
         }
