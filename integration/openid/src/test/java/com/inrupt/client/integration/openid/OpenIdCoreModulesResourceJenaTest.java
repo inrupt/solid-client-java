@@ -20,8 +20,8 @@
  */
 package com.inrupt.client.integration.openid;
 
-import com.inrupt.client.integration.base.CoreModulesResource;
+import com.inrupt.client.integration.base.CoreModulesResourceJena;
 
-class OpenIdCoreModulesResourceTest extends CoreModulesResource {
+class OpenIdCoreModulesResourceJenaTest extends CoreModulesResourceJena {
 
 }
