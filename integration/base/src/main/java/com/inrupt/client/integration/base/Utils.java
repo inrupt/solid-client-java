@@ -75,7 +75,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
-
 import okhttp3.OkHttpClient;
 
 public final class Utils {
@@ -309,14 +308,10 @@ public final class Utils {
             final OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
             newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
             //newBuilder.hostnameVerifier((hostname, session) -> true);
-            HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    LOGGER.info("Trust Host :" + hostname);
-                    return true;
-                }
-            };
-            newBuilder.hostnameVerifier(hostnameVerifier);
+            newBuilder.hostnameVerifier((hostname, session) -> {
+                LOGGER.info("Trust Host :" + hostname);
+                return true;
+            });
 
             LOGGER.info("Set a OKHttp client which trusts all certificates.");
             return SolidSyncClient.getClientBuilder()
