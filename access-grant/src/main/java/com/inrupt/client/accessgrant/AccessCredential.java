@@ -207,22 +207,6 @@ public class AccessCredential {
          * @param issuer the issuer
          * @param creator the agent who created the credential
          * @param types the credential types
-         * @param expiration the credential expiration
-         * @param status the credential status
-         * @deprecated as of Beta4, please use the 6-parameter constructor
-         */
-        @Deprecated
-        public CredentialMetadata(final URI issuer, final URI creator, final Set<String> types,
-                final Instant expiration, final Status status) {
-            this(issuer, creator, types, Instant.now(), expiration, status);
-        }
-
-        /**
-         * A collection of server-managed credential metadata.
-         *
-         * @param issuer the issuer
-         * @param creator the agent who created the credential
-         * @param types the credential types
          * @param issuedAt the credential issuance date
          * @param expiration the credential expiration date
          * @param status the credential status

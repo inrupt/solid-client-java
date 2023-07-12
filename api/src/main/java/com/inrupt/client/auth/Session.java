@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -101,17 +100,6 @@ public interface Session {
     /**
      * Fetch an authentication token from session values.
      *
-     * @param request the HTTP request
-     * @param algorithms the supported DPoP algorithms
-     * @return the next stage of completion, containing an access token, if present
-     * @deprecated as of Beta3, this method is no longer used
-     */
-    @Deprecated
-    CompletionStage<Optional<Credential>> authenticate(Request request, Set<String> algorithms);
-
-    /**
-     * Fetch an authentication token from session values.
-     *
      * @param authenticator the authenticator in use
      * @param request the HTTP request
      * @param algorithms the supported DPoP algorithms
@@ -173,13 +161,6 @@ public interface Session {
             public CompletionStage<Optional<Credential>> authenticate(final Authenticator authenticator,
                     final Request request, final Set<String> algorithms) {
                 return authenticator.authenticate(this, request, algorithms).thenApply(Optional::ofNullable);
-            }
-
-            /* deprecated */
-            @Override
-            public CompletionStage<Optional<Credential>> authenticate(final Request request,
-                    final Set<String> algorithms) {
-                return CompletableFuture.completedFuture(Optional.empty());
             }
         };
     }

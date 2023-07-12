@@ -58,20 +58,6 @@ public class Metadata {
      * {@code rdf:type} data explicitly set on a resource.
      *
      * @return the type values for a resource
-     * @deprecated as of Beta3, please use the {@link #getTypes} method
-     */
-    @Deprecated
-    public Set<URI> getType() {
-        return getTypes();
-    }
-
-    /**
-     * The Solid Resource types.
-     *
-     * <p>This data typically comes from HTTP Link headers and may be different than
-     * {@code rdf:type} data explicitly set on a resource.
-     *
-     * @return the type values for a resource
      */
     public Set<URI> getTypes() {
         return types;
@@ -150,18 +136,6 @@ public class Metadata {
      */
     public String getContentType() {
         return contentType;
-    }
-
-    /**
-     * Create a new Metadata object.
-     *
-     * @param storage the Solid storage in which this resource is managed
-     * @param contentType the content type of the respective Solid resource
-     * @deprecated as of Beta3, please use the 3-parameter constructor
-     */
-    @Deprecated
-    protected Metadata(final URI storage, final String contentType) {
-        this(storage, null, contentType);
     }
 
     /**

@@ -20,7 +20,6 @@
  */
 package com.inrupt.client.accessgrant;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.spi.JsonService;
@@ -37,7 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 class AccessGrantTest {
@@ -58,14 +56,11 @@ class AccessGrantTest {
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
                     grant.getIdentifier());
-            assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurpose());
             assertEquals(Collections.singleton(URI.create("https://purpose.example/Purpose1")), grant.getPurposes());
             assertEquals(Collections.singleton(
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
-            assertEquals(URI.create("https://id.example/grantor"), grant.getGrantor());
             assertEquals(URI.create("https://id.example/grantor"), grant.getCreator());
-            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getGrantee());
             assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getRecipient());
             final Optional<Status> status = grant.getStatus();
             assertTrue(status.isPresent());
@@ -92,47 +87,14 @@ class AccessGrantTest {
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
                     grant.getIdentifier());
-            assertEquals(Collections.singleton("https://purpose.example/Purpose1"), grant.getPurpose());
             assertEquals(Collections.singleton(URI.create("https://purpose.example/Purpose1")), grant.getPurposes());
             assertEquals(Collections.singleton(
                         URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
                     grant.getResources());
-            assertEquals(URI.create("https://id.example/grantor"), grant.getGrantor());
             assertEquals(URI.create("https://id.example/grantor"), grant.getCreator());
-            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getGrantee());
             assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getRecipient());
             final Optional<Status> status = grant.getStatus();
             assertFalse(status.isPresent());
-        }
-    }
-
-    @Test
-    void testRawAccessGrant() throws IOException {
-        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
-            final String raw = IOUtils.toString(resource, UTF_8);
-            final AccessGrant grant = AccessGrant.of(raw);
-
-            assertEquals(raw, grant.serialize());
-            assertEquals(grant.serialize(), grant.getRawGrant());
-        }
-    }
-
-    @Test
-    void testDeprecatedParsingMethod() throws IOException {
-        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant1.json")) {
-            final String raw = IOUtils.toString(resource, UTF_8);
-            final AccessGrant grant = AccessGrant.ofAccessGrant(raw);
-
-            assertEquals(raw, grant.serialize());
-            assertEquals(grant.serialize(), grant.getRawGrant());
-        }
-    }
-
-    @Test
-    void testDeprecatedParsingMethod2() throws IOException {
-        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant2.json")) {
-            final AccessGrant grant = AccessGrant.ofAccessGrant(resource);
-            assertEquals(Collections.singleton("Read"), grant.getModes());
         }
     }
 
