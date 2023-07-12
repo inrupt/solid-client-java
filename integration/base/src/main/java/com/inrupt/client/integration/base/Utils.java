@@ -33,7 +33,10 @@ import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.ReactiveAuthorization;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.okhttp.OkHttpService;
-import com.inrupt.client.solid.*;
+import com.inrupt.client.solid.SolidClientException;
+import com.inrupt.client.solid.SolidContainer;
+import com.inrupt.client.solid.SolidRDFSource;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.ServiceProvider;
@@ -42,11 +45,7 @@ import com.inrupt.client.vocabulary.ACL;
 import com.inrupt.client.vocabulary.ACP;
 import com.inrupt.client.vocabulary.LDP;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -74,7 +73,9 @@ import org.jose4j.lang.UncheckedJoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import okhttp3.OkHttpClient;
 
 public final class Utils {

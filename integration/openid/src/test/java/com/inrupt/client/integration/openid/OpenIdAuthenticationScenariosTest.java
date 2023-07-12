@@ -29,6 +29,8 @@ import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidSyncClient;
 
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -40,10 +42,10 @@ class OpenIdAuthenticationScenariosTest extends AuthenticationScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    void openIdAuthenticationTest(final Session session) {
+    void openIdAuthenticationTest(final Session session) throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Authenticated fetch of private resource uses OpenID authenticator");
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+        final SolidSyncClient authClient = OpenIdUtils.customSolidClient().session(session);
         try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
