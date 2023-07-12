@@ -6,10 +6,10 @@
         <br/><br/>
             <p>You are logged in as <code>{profile.identifier}</code>.</p>
 
-            {#if profile.storage.size > 0}
+            {#if profile.storages.size > 0}
             <h3>Solid Storage</h3>
             <ul style= "list-style-type: '\1F4ED'";>
-            {#for pod in profile.storage}
+            {#for pod in profile.storages}
               <li>&rsaquo; {pod}</li>
             {/for}
             </ul>

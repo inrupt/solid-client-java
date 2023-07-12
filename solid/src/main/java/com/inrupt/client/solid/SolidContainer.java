@@ -121,17 +121,6 @@ public class SolidContainer extends SolidRDFSource {
         return new ValidationResult(false, messages);
     }
 
-    /**
-     * Retrieve the resources contained in this SolidContainer.
-     *
-     * @deprecated As of Beta2, replaced by the {@link #getResources()} method.
-     * @return the contained resources
-     */
-    @Deprecated
-    public Stream<SolidResource> getContainedResources() {
-        return getResources().stream();
-    }
-
     static String normalize(final IRI iri) {
         return normalize(URI.create(iri.getIRIString()));
     }

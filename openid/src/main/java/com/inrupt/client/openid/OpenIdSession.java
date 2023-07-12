@@ -251,18 +251,6 @@ public final class OpenIdSession implements Session {
                 });
     }
 
-    /* deprecated */
-    @Override
-    public CompletionStage<Optional<Credential>> authenticate(final Request request,
-            final Set<String> algorithms) {
-        final Optional<Credential> cred = getCredential(ID_TOKEN, null);
-        if (cred.isPresent() && request != null) {
-            LOGGER.debug("Setting cache entry for request: {}", request.uri());
-            requestCache.put(cacheKey(request.uri()), cred.get());
-        }
-        return CompletableFuture.completedFuture(cred);
-    }
-
     boolean hasExpired(final Credential credential) {
         if (credential != null) {
             return credential.getExpiration().isBefore(Instant.now());

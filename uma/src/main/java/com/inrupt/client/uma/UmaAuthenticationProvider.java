@@ -95,12 +95,6 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
         this.claimHandler = new NeedInfoHandler();
     }
 
-    /* deprecated */
-    @Override
-    public String getScheme() {
-        return UMA;
-    }
-
     @Override
     public Set<String> getSchemes() {
         return supportedSchemes;

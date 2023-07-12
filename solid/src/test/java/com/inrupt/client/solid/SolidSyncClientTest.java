@@ -145,10 +145,6 @@ class SolidSyncClientTest {
                 assertEquals(2, stream.count());
             }
 
-            @SuppressWarnings("deprecation")
-            final long count = container.getContainedResources().count();
-            assertEquals(0, count);
-
             assertDoesNotThrow(() -> client.update(container));
             assertDoesNotThrow(() -> client.create(container));
             assertDoesNotThrow(() -> client.delete(container));

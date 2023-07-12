@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import org.junit.jupiter.api.Test;
@@ -94,13 +93,5 @@ class ReactiveAuthorizationTest {
                 final Request request, final Set<String> algorithms) {
             return authenticator.authenticate(this, request, algorithms).thenApply(Optional::ofNullable);
         }
-
-        /* deprecated */
-        @Override
-        public CompletionStage<Optional<Credential>> authenticate(final Request request,
-                final Set<String> algorithms) {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
     }
-
 }

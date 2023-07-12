@@ -34,15 +34,6 @@ import java.util.Set;
 public interface AuthenticationProvider {
 
     /**
-     * Return the authorization scheme, such as Bearer or DPoP.
-     *
-     * @return the authorization scheme
-     * @deprecated as of Beta3, please use the {@link #getSchemes()} method
-     */
-    @Deprecated
-    String getScheme();
-
-    /**
      * Return the set of supported authorization schemes, such as Bearer or DPoP.
      *
      * @return the authorization schemes
