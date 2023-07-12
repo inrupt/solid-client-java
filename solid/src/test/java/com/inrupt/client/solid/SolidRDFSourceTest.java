@@ -75,7 +75,6 @@ class SolidRDFSourceTest {
 
         try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
-            assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
             assertTrue(resource.getMetadata().getTypes().contains(LDP.BasicContainer));
             assertEquals(Optional.of(URI.create("http://acl.example/solid/")),
                     resource.getMetadata().getAcl());
@@ -116,7 +115,6 @@ class SolidRDFSourceTest {
 
         try (final SolidRDFSource resource = response.body()) {
             assertEquals(uri, resource.getIdentifier());
-            assertTrue(resource.getMetadata().getType().contains(LDP.BasicContainer));
             assertTrue(resource.getMetadata().getTypes().contains(LDP.BasicContainer));
             assertEquals(Optional.of(URI.create("http://acl.example/")),
                     resource.getMetadata().getAcl());
@@ -143,10 +141,6 @@ class SolidRDFSourceTest {
         try (final SolidContainer container = response.body()) {
             assertEquals(resource, container.getIdentifier());
             assertEquals(3, container.getResources().size());
-
-            @SuppressWarnings("deprecation")
-            final long count = container.getContainedResources().count();
-            assertEquals(3, count);
 
             final Set<URI> uris = new HashSet<>();
             uris.add(URIBuilder.newBuilder(resource).path("test.txt").build());

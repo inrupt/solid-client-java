@@ -209,7 +209,9 @@ class OpenIdSessionTest {
         final Optional<URI> principal = session.getPrincipal();
         assertEquals(Optional.of(URI.create(WEBID)), principal);
         assertFalse(session.fromCache(null).isPresent());
-        final Optional<Credential> credential = session.authenticate(null, Collections.emptySet())
+        final Authenticator auth = new OpenIdAuthenticationProvider().getAuthenticator(Challenge.of("Bearer"));
+        final Request req = Request.newBuilder(URI.create("https://storage.example/")).build();
+        final Optional<Credential> credential = session.authenticate(auth, req, Collections.emptySet())
             .toCompletableFuture().join();
         assertEquals(Optional.of(URI.create(WEBID)), credential.flatMap(Credential::getPrincipal));
     }

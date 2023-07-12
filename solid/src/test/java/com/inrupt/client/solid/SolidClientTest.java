@@ -174,10 +174,6 @@ class SolidClientTest {
                 assertEquals(2, c.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
 
-                @SuppressWarnings("deprecation")
-                final long count = c.getContainedResources().count();
-                assertEquals(0, count);
-
                 assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.create(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(c).toCompletableFuture()::join);

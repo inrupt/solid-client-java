@@ -64,19 +64,6 @@ class WebIdProfileTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    void testGetProfileSlashDeprecatedMethods() {
-        final URI uri = URI.create(baseUrl + "/webId");
-        try (final WebIdProfile profile = client.read(uri, WebIdProfile.class)) {
-            assertEquals(uri, profile.getIdentifier());
-            assertTrue(profile.getType().contains(AGENT));
-            assertTrue(profile.getSeeAlso().contains(SEE_ALSO));
-            assertTrue(profile.getOidcIssuer().contains(ISSUER));
-            assertTrue(profile.getStorage().contains(STORAGE));
-        }
-    }
-
-    @Test
     void testGetProfileHash() {
         final URI uri = URI.create(baseUrl + "/webIdHash#me");
         try (final WebIdProfile profile = client.read(uri, WebIdProfile.class)) {

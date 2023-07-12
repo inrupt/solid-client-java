@@ -38,11 +38,6 @@ public class BasicAuthProvider implements AuthenticationProvider {
     private static final String BASIC = "Basic";
 
     @Override
-    public String getScheme() {
-        return BASIC;
-    }
-
-    @Override
     public Set<String> getSchemes() {
         return Collections.singleton(BASIC);
     }
