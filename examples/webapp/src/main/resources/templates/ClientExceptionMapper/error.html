@@ -1,0 +1,12 @@
+{#include master}
+  {#body}
+  <h3>Error</h3>
+  <p><strong>{message}</strong></p>
+  <ul>
+    {#for item in errors}
+      <li>{item}</li>
+    {/for}
+  </ul>
+  {/body}
+{/include}
+
