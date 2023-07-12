@@ -296,7 +296,7 @@ public final class Utils {
 
                 @Override
                 public X509Certificate[] getAcceptedIssuers() {
-                    return null;
+                    return new X509Certificate[]{};
                 }
             }
         };
