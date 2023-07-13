@@ -18,9 +18,9 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client.integration.uma;
+package com.inrupt.client.performance.uma;
 
-import com.inrupt.client.integration.base.PerformanceTest;
+import com.inrupt.client.performance.base.GetResourcesWithGrantCachingTokenScenario;
 
-public class UmaPerformanceTest extends PerformanceTest {
+public class UmaGetResourcesWithGrantCachingTokenTest extends GetResourcesWithGrantCachingTokenScenario {
 }

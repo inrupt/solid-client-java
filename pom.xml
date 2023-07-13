@@ -111,6 +111,7 @@
     <module>vocabulary</module>
     <module>runtime</module>
     <module>integration</module>
+    <module>performance</module>
     <module>reports</module>
     <module>archetypes</module>
     <module>gradle</module>
