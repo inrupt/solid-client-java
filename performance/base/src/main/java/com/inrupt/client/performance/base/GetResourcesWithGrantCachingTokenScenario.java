@@ -184,7 +184,8 @@ public class GetResourcesWithGrantCachingTokenScenario {
     @DisplayName("Measure GET time of resources with grant access and cached token")
     void measureGetOfResources(final Session resourceOwnerSession, final Session requesterSession) {
 
-        LOGGER.info("Performance Test - Measure GET time of resources with grant access with cached token (after 2nd run)");
+        LOGGER.info("Performance Test - Measure GET time of resources with grant access with cached token " +
+                "(after 2nd run)");
 
         createResources(authResourceOwnerClient, privateContainerURI);
 
