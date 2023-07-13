@@ -30,7 +30,7 @@ import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFSyntax;
 import org.apache.jena.commonsrdf.JenaCommonsRDF;
-import org.apache.jena.graph.Factory;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotException;
@@ -92,7 +92,7 @@ public class JenaService implements RdfService {
     public Graph toGraph(final RDFSyntax syntax, final InputStream input, final String baseUri) throws IOException {
         final var lang = JenaCommonsRDF.toJena(syntax).orElseThrow(() ->
                 new IllegalArgumentException(UNSUPPORTED_SYNTAX + syntax.title()));
-        final var graph = Factory.createDefaultGraph();
+        final var graph = GraphMemFactory.createDefaultGraph();
         try {
             RDFDataMgr.read(graph, input, baseUri, lang);
         } catch (final RiotException ex) {
