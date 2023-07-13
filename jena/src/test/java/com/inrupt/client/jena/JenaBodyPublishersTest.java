@@ -32,8 +32,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
@@ -121,7 +121,7 @@ class JenaBodyPublishersTest {
 
     @Test
     void testOfGraphPublisher() throws IOException, InterruptedException {
-        graph = Factory.createDefaultGraph();
+        graph = GraphMemFactory.createDefaultGraph();
 
         graph.add(JenaTestModel.S_NODE, JenaTestModel.P_NODE, JenaTestModel.O_NODE);
         graph.add(JenaTestModel.S1_NODE, JenaTestModel.P1_NODE, JenaTestModel.O1_NODE);

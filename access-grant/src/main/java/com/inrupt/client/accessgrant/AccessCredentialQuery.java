@@ -32,10 +32,6 @@ import java.util.Set;
  */
 public class AccessCredentialQuery<T extends AccessCredential> {
 
-    private static final URI SOLID_ACCESS_GRANT = URI.create("SolidAccessGrant");
-    private static final URI SOLID_ACCESS_REQUEST = URI.create("SolidAccessRequest");
-    private static final URI SOLID_ACCESS_DENIAL = URI.create("SolidAccessDenial");
-
     private final Set<URI> purposes;
     private final Set<String> modes;
     private final URI resource;
@@ -199,7 +195,7 @@ public class AccessCredentialQuery<T extends AccessCredential> {
          * @param clazz the credential type
          * @return the query object
          */
-        public <T extends AccessCredential> AccessCredentialQuery build(final Class<T> clazz) {
+        public <T extends AccessCredential> AccessCredentialQuery<T> build(final Class<T> clazz) {
             return new AccessCredentialQuery<T>(builderResource, builderCreator, builderRecipient, purposes, modes,
                     clazz);
         }

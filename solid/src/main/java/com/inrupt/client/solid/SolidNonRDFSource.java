@@ -66,6 +66,7 @@ public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
      *
      * @return the metadata
      */
+    @Override
     public Metadata getMetadata() {
         return metadata;
     }
