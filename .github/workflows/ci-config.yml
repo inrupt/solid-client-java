@@ -52,7 +52,24 @@ jobs:
           INRUPT_TEST_REQUESTER_CLIENT_ID: ${{ secrets.INRUPT_DEV_REQUESTER_CLIENT_ID }}
           INRUPT_TEST_REQUESTER_CLIENT_SECRET: ${{ secrets.INRUPT_DEV_REQUESTER_CLIENT_SECRET }}
 
-      - name: Local performance tests
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 17 ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+
+      - name: Localhost performance tests
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: mvn -B -ntp verify -Pci -pl performance/uma
 
