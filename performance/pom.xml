@@ -28,6 +28,12 @@
     </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-okhttp</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-jsonb</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -56,6 +62,48 @@
             <execution>
               <id>default-test</id>
               <phase>none</phase>
+            </execution>
+            <execution>
+              <id>httpclient-jsonb-rdf4j-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <classpathDependencyExcludes>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
+                </classpathDependencyExcludes>
+              </configuration>
+            </execution>
+            <execution>
+              <id>httpclient-jsonb-jena-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <classpathDependencyExcludes>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
+                </classpathDependencyExcludes>
+              </configuration>
+            </execution>
+            <execution>
+              <id>httpclient-jackson-jena-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <classpathDependencyExcludes>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
+                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
+                </classpathDependencyExcludes>
+              </configuration>
             </execution>
             <execution>
               <id>okhttp-jackson-jena-test</id>
