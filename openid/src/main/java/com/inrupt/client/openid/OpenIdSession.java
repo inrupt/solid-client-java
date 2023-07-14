@@ -242,7 +242,7 @@ public final class OpenIdSession implements Session {
     public CompletionStage<Optional<Credential>> authenticate(final Authenticator auth,
             final Request request, final Set<String> algorithms) {
         return auth.authenticate(this, request, algorithms)
-                .thenApply(cred-> {
+                .thenApply(cred -> {
                     if (cred != null) {
                         LOGGER.debug("Setting cache entry for request: {}", request.uri());
                         requestCache.put(cacheKey(request.uri()), cred);
