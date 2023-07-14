@@ -67,12 +67,9 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
 
-      - name: Build the code with Maven
-        run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid,-performance/uma
-
       - name: Localhost performance tests
         if: ${{ github.actor != 'dependabot[bot]' }}
-        run: mvn -B -ntp verify -Pci -pl performance/uma
+        run: mvn -B -ntp verify -Pci -pl performance/uma -am
 
   documentation:
     name: Documentation Check
