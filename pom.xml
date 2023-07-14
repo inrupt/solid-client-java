@@ -6,7 +6,7 @@
   <artifactId>inrupt-client</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>Inrupt Java Client Libraries</name>
-  <url>https://inrupt.github.io/solid-client-java/</url>
+  <url>https://docs.inrupt.com/developer-tools/java/client-libraries/</url>
   <description>
     Inrupt Java Client Libraries for use with Solid.
   </description>
