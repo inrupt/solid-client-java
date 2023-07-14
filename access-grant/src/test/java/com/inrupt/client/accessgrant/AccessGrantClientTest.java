@@ -44,7 +44,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -110,9 +109,6 @@ class AccessGrantClientTest {
 
         // Revoke
         assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
-
-        // Delete
-        assertDoesNotThrow(client.delete(grant).toCompletableFuture()::join);
     }
 
     @Test
@@ -129,33 +125,6 @@ class AccessGrantClientTest {
             .toCompletableFuture();
         final CompletionException err = assertThrows(CompletionException.class, future::join);
         assertInstanceOf(AccessGrantException.class, err.getCause());
-    }
-
-    @Test
-    void testFetchDeprecated() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-        final String token = generateIdToken(claims);
-        final URI uri = URIBuilder.newBuilder(baseUri).path("access-grant-1").build();
-        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-        final AccessGrant grant = client.fetch(uri).toCompletableFuture().join();
-
-        assertEquals(uri, grant.getIdentifier());
-        assertEquals(baseUri, grant.getIssuer());
-
-        final AccessCredentialVerification response = client.verify(grant).toCompletableFuture().join();
-        assertTrue(response.getChecks().contains("expirationDate"));
-        assertTrue(response.getWarnings().isEmpty());
-        assertTrue(response.getErrors().isEmpty());
-
-        // Revoke
-        assertDoesNotThrow(client.revoke(grant).toCompletableFuture()::join);
-
-        // Delete
-        assertDoesNotThrow(client.delete(grant).toCompletableFuture()::join);
     }
 
     @Test
@@ -177,11 +146,6 @@ class AccessGrantClientTest {
         final CompletionException err1 = assertThrows(CompletionException.class,
                 client.revoke(grant).toCompletableFuture()::join);
         assertInstanceOf(AccessGrantException.class, err1.getCause());
-
-        // Delete
-        final CompletionException err2 = assertThrows(CompletionException.class,
-                client.delete(grant).toCompletableFuture()::join);
-        assertInstanceOf(AccessGrantException.class, err2.getCause());
     }
 
     @Test
@@ -208,9 +172,6 @@ class AccessGrantClientTest {
         final CompletableFuture<Void> future = client.revoke(request).toCompletableFuture();
         final CompletionException err1 = assertThrows(CompletionException.class, future::join);
         assertInstanceOf(AccessGrantException.class, err1.getCause());
-
-        // Delete
-        assertDoesNotThrow(client.delete(request).toCompletableFuture()::join);
     }
 
 
@@ -238,9 +199,6 @@ class AccessGrantClientTest {
         final CompletableFuture<Void> future2 = client.revoke(grant).toCompletableFuture();
         final CompletionException err1 = assertThrows(CompletionException.class, future2::join);
         assertInstanceOf(AccessGrantException.class, err1.getCause());
-
-        // Delete
-        assertDoesNotThrow(client.delete(grant).toCompletableFuture()::join);
     }
 
     @Test
@@ -264,52 +222,6 @@ class AccessGrantClientTest {
                 agClient.fetch(uri, AccessRequest.class).toCompletableFuture()::join);
 
         assertInstanceOf(AccessGrantException.class, err.getCause());
-    }
-
-    @Test
-    void testFetchNotFound() {
-        final URI uri = URIBuilder.newBuilder(baseUri).path("not-found").build();
-        final CompletionException err1 = assertThrows(CompletionException.class,
-                agClient.fetch(uri, AccessRequest.class).toCompletableFuture()::join);
-
-        assertInstanceOf(AccessGrantException.class, err1.getCause());
-
-        final URI recipient = URI.create("https://id.test/agent");
-
-        final CompletionException err2 = assertThrows(CompletionException.class,
-                agClient.issue(ACCESS_GRANT, recipient, Collections.emptySet(), Collections.emptySet(),
-                    Collections.emptySet(), Instant.now()).toCompletableFuture()::join);
-        assertInstanceOf(AccessGrantException.class, err2.getCause());
-    }
-
-    @Test
-    void testIssueGrantDeprecated() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-        final String token = generateIdToken(claims);
-        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-
-        final URI recipient = URI.create("https://id.test/agent");
-        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
-        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
-
-        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final AccessGrant grant = client.issue(ACCESS_GRANT, recipient, resources, modes, purposes, expiration)
-            .toCompletableFuture().join();
-
-        assertTrue(grant.getTypes().contains("SolidAccessGrant"));
-        assertEquals(Optional.of(recipient), grant.getGrantee());
-        assertEquals(Optional.of(recipient), grant.getRecipient());
-        assertEquals(modes, grant.getModes());
-        assertEquals(expiration, grant.getExpiration());
-        assertEquals(baseUri, grant.getIssuer());
-        assertEquals(purposes, grant.getPurpose());
-        assertEquals(purposes, grant.getPurposes().stream().map(URI::toString).collect(Collectors.toSet()));
-        assertEquals(resources, grant.getResources());
     }
 
     @Test
@@ -476,60 +388,6 @@ class AccessGrantClientTest {
         final CompletableFuture<AccessGrant> future = agClient.grantAccess(request).toCompletableFuture();
         final CompletionException err = assertThrows(CompletionException.class, future::join);
         assertInstanceOf(AccessGrantException.class, err.getCause());
-    }
-
-    @Test
-    void testIssueNoAuth() {
-        final URI recipient = URI.create("https://id.test/agent");
-        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
-        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
-
-        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-
-        final CompletableFuture<AccessGrant> future = agClient.issue(ACCESS_GRANT, recipient, resources, modes,
-                purposes, expiration).toCompletableFuture();
-        final CompletionException err = assertThrows(CompletionException.class, future::join);
-        assertInstanceOf(AccessGrantException.class, err.getCause());
-    }
-
-    @Test
-    void testIssueOther() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-        final String token = generateIdToken(claims);
-        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-
-        final URI recipient = URI.create("https://id.test/agent");
-        final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
-        final Set<String> modes = new HashSet<>(Arrays.asList("Read", "Append"));
-        final Set<String> purposes = Collections.singleton("https://purpose.test/Purpose1");
-
-        final Set<URI> resources = Collections.singleton(URI.create("https://storage.test/data/"));
-        final URI type = URI.create("https://vc.test/Type");
-        final CompletableFuture<AccessGrant> future = client.issue(type, recipient, resources,
-                modes, purposes, expiration).toCompletableFuture();
-        final CompletionException err = assertThrows(CompletionException.class, future::join);
-        assertInstanceOf(AccessGrantException.class, err.getCause());
-    }
-
-    @Test
-    void testQueryDeprecatedGrant() {
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("webid", WEBID);
-        claims.put("sub", SUB);
-        claims.put("iss", ISS);
-        claims.put("azp", AZP);
-        final String token = generateIdToken(claims);
-        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-
-        final List<AccessGrant> grants = client.query(URI.create("SolidAccessGrant"), null,
-                URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c"), "Read")
-                    .toCompletableFuture().join();
-        assertEquals(1, grants.size());
     }
 
     @Test
@@ -748,16 +606,6 @@ class AccessGrantClientTest {
         final URI uri = URI.create("https://storage.example/f1759e6d-4dda-4401-be61-d90d070a5474/a/b/c");
         assertThrows(AccessGrantException.class, () ->
                 client.query(uri, null, null, null, "Read", AccessCredential.class));
-    }
-
-
-    @Test
-    void testQueryInvalidAuth() {
-        final CompletionException err = assertThrows(CompletionException.class,
-                agClient.query(URI.create("SolidAccessGrant"), null, null, null)
-                        .toCompletableFuture()::join);
-
-        assertInstanceOf(AccessGrantException.class, err.getCause());
     }
 
     @Test

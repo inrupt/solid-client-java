@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 import org.apache.jena.atlas.web.ContentType;
-import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
@@ -73,7 +73,7 @@ public final class JenaBodyHandlers {
         return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                    final var graph = Factory.createDefaultGraph();
+                    final var graph = GraphMemFactory.createDefaultGraph();
                     RDFDataMgr.read(graph, input, responseInfo.uri().toString(), lang);
                     return graph;
                 } catch (final IOException ex) {
@@ -81,7 +81,7 @@ public final class JenaBodyHandlers {
                             "An I/O error occurred while data was read from the InputStream into a Graph", ex);
                 }
             })
-            .orElseGet(Factory::createDefaultGraph);
+            .orElseGet(GraphMemFactory::createDefaultGraph);
     }
 
     /**

@@ -66,31 +66,9 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the RDF type values.
      *
      * @return the {@code rdf:type} values
-     * @deprecated use the {@link #getTypes} method
-     */
-    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
-    public Set<URI> getType() {
-        return getTypes();
-    }
-
-    /**
-     * Retrieve the RDF type values.
-     *
-     * @return the {@code rdf:type} values
      */
     public Set<URI> getTypes() {
         return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getType();
-    }
-
-    /**
-     * Retrieve the list of OIDC issuers.
-     *
-     * @return the {@code solid:oidcIssuer} values
-     * @deprecated use the {@link #getOidcIssuers} method
-     */
-    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
-    public Set<URI> getOidcIssuer() {
-        return getOidcIssuers();
     }
 
     /**
@@ -106,31 +84,9 @@ public class WebIdProfile extends RDFSource {
      * Retrieve the list of related profile resources.
      *
      * @return the {@code rdfs:seeAlso} values
-     * @deprecated use the {@link #getRelatedResources} method
-     */
-    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
-    public Set<URI> getSeeAlso() {
-        return getRelatedResources();
-    }
-
-    /**
-     * Retrieve the list of related profile resources.
-     *
-     * @return the {@code rdfs:seeAlso} values
      */
     public Set<URI> getRelatedResources() {
         return new Node(rdf.createIRI(getIdentifier().toString()), getGraph()).getSeeAlso();
-    }
-
-    /**
-     * Retrieve the list of storage locations.
-     *
-     * @return the {@code pim:storage} values
-     * @deprecated use the {@link #getStorages} method
-     */
-    @Deprecated(since = "1.0.0.Beta3", forRemoval = true)
-    public Set<URI> getStorage() {
-        return getStorages();
     }
 
     /**

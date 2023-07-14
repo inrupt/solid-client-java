@@ -63,30 +63,6 @@ public class AccessGrant extends AccessCredential {
     }
 
     /**
-     * Create an AccessGrant object from a VerifiablePresentation.
-     *
-     * @param accessGrant the access grant
-     * @return a parsed access grant
-     * @deprecated As of Beta3, please use the {@link AccessGrant#of} method
-     */
-    @Deprecated
-    public static AccessGrant ofAccessGrant(final String accessGrant) {
-        return of(accessGrant);
-    }
-
-    /**
-     * Create an AccessGrant object from a VerifiablePresentation.
-     *
-     * @param accessGrant the access grant
-     * @return a parsed access grant
-     * @deprecated As of Beta3, please use the {@link AccessGrant#of} method
-     */
-    @Deprecated
-    public static AccessGrant ofAccessGrant(final InputStream accessGrant) {
-        return of(accessGrant);
-    }
-
-    /**
      * Create an AccessGrant object from a serialized form.
      *
      * @param serialization the serialized access grant
@@ -112,50 +88,6 @@ public class AccessGrant extends AccessCredential {
         } catch (final IOException ex) {
             throw new IllegalArgumentException("Unable to read access grant", ex);
         }
-    }
-
-    /**
-     * Get the purposes of the access grant.
-     *
-     * @return the access grant purposes
-     * @deprecated as of Beta3, please use the {@link #getPurposes()} method
-     */
-    @Deprecated
-    public Set<String> getPurpose() {
-        return getPurposes().stream().map(URI::toString).collect(Collectors.toSet());
-    }
-
-    /**
-     * Get the agent to whom access is granted.
-     *
-     * @return the agent that was granted access
-     * @deprecated As of Beta3, please use {@link #getRecipient}
-     */
-    @Deprecated
-    public Optional<URI> getGrantee() {
-        return getRecipient();
-    }
-
-    /**
-     * Get the agent who granted access.
-     *
-     * @return the agent granting access
-     * @deprecated As of Beta3, please use {@link #getCreator}
-     */
-    @Deprecated
-    public URI getGrantor() {
-        return getCreator();
-    }
-
-    /**
-     * Get the raw access grant.
-     *
-     * @return the access grant
-     * @deprecated as of Beta3, please use the {@link #serialize} method
-     */
-    @Deprecated
-    public String getRawGrant() {
-        return serialize();
     }
 
     static Set<String> getSupportedTypes() {

@@ -42,7 +42,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -156,17 +155,6 @@ public final class AccessGrantSession implements Session {
                 }
                 return Optional.ofNullable(credential);
             });
-    }
-
-    /* deprecated */
-    @Override
-    public CompletionStage<Optional<Credential>> authenticate(final Request request,
-            final Set<String> algorithms) {
-        final Optional<Credential> grant = getCredential(VERIFIABLE_CREDENTIAL, request.uri());
-        if (grant.isPresent()) {
-            return CompletableFuture.completedFuture(grant);
-        }
-        return session.authenticate(request, algorithms);
     }
 
     @Override

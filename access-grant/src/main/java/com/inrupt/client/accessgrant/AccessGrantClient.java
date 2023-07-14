@@ -301,63 +301,6 @@ public class AccessGrantClient {
     }
 
     /**
-     * Issue an access grant or request.
-     *
-     * @param type the credential type
-     * @param recipient the receiving agent for this credential
-     * @param resources the resources to which this credential applies
-     * @param modes the access modes for this credential
-     * @param purposes the purposes of this credential
-     * @param expiration the expiration time of this credential
-     * @return the next stage of completion containing the resulting credential
-     * @deprecated as of Beta3, please use the {@link #requestAccess} or {@link #grantAccess} methods
-     */
-    @Deprecated
-    public CompletionStage<AccessGrant> issue(final URI type, final URI recipient, final Set<URI> resources,
-            final Set<String> modes, final Set<String> purposes, final Instant expiration) {
-        Objects.requireNonNull(type, "Access Grant type may not be null!");
-        Objects.requireNonNull(resources, "Resources may not be null!");
-        Objects.requireNonNull(modes, "Access modes may not be null!");
-        final Set<URI> uriPurposes = new HashSet<>();
-        for (final String p : purposes) {
-            try {
-                uriPurposes.add(URI.create(p));
-            } catch (final IllegalArgumentException ex) {
-                LOGGER.debug("Ignoring non-URI purpose: {}", ex.getMessage());
-            }
-        }
-        return v1Metadata().thenCompose(metadata -> {
-            final Map<String, Object> data;
-            if (FQ_ACCESS_GRANT.equals(type)) {
-                data = buildAccessGrantv1(recipient, resources, modes, uriPurposes, expiration, null);
-            } else if (FQ_ACCESS_REQUEST.equals(type)) {
-                data = buildAccessRequestv1(recipient, resources, modes, uriPurposes, expiration, null);
-            } else {
-                throw new AccessGrantException("Unsupported grant type: " + type);
-            }
-
-            final Request req = Request.newBuilder(metadata.issueEndpoint)
-                .header(CONTENT_TYPE, APPLICATION_JSON)
-                .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
-
-            return client.send(req, Response.BodyHandlers.ofInputStream())
-                .thenApply(res -> {
-                    try (final InputStream input = res.body()) {
-                        final int status = res.statusCode();
-                        if (isSuccess(status)) {
-                            return processVerifiableCredential(input, ACCESS_GRANT_TYPES, AccessGrant.class);
-                        }
-                        throw new AccessGrantException("Unable to issue Access Grant: HTTP error " + status,
-                                status);
-                    } catch (final IOException ex) {
-                        throw new AccessGrantException(
-                                "Unexpected I/O exception while processing Access Grant", ex);
-                    }
-                });
-        });
-    }
-
-    /**
      * Verify an access grant or request.
      *
      * @param credential the credential to verify
@@ -482,52 +425,6 @@ public class AccessGrantClient {
     }
 
     /**
-     * Perform an Access Grant query and returns 0 to N matching Access Grants.
-     *
-     * <p>The {@code type} parameter must be an absolute URI. For Access Requests,
-     * the URI is {@code http://www.w3.org/ns/solid/vc#SolidAccessRequest}. For Access Grants, the URI
-     * is {@code http://www.w3.org/ns/solid/vc#SolidAccessGrant}. Other URIs may be defined in the future.
-     *
-     * @param type the Access Grant type
-     * @param agent the agent identifier, may be {@code null}
-     * @param resource the resource identifier, may be {@code null}
-     * @param mode the access mode, may be {@code null}
-     * @return the next stage of completion, including the matched Access Grants
-     * @deprecated as of Beta3, please use the alternative {@link #query} method
-     */
-    @Deprecated
-    public CompletionStage<List<AccessGrant>> query(final URI type, final URI agent, final URI resource,
-            final String mode) {
-        Objects.requireNonNull(type, "The type parameter must not be null!");
-        return v1Metadata().thenCompose(metadata -> {
-            final List<CompletableFuture<List<AccessGrant>>> futures = buildQuery(config.getIssuer(), type,
-                    resource, null, agent, Collections.emptySet(), Collections.singleton(mode)).stream()
-                .map(data -> Request.newBuilder(metadata.queryEndpoint)
-                        .header(CONTENT_TYPE, APPLICATION_JSON)
-                        .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
-                .map(req -> client.send(req, Response.BodyHandlers.ofInputStream())
-                        .thenApply(res -> {
-                            try (final InputStream input = res.body()) {
-                                final int status = res.statusCode();
-                                if (isSuccess(status)) {
-                                    return processQueryResponse(input, ACCESS_GRANT_TYPES, AccessGrant.class);
-                                }
-                                throw new AccessGrantException("Unable to perform Access Grant query: HTTP error " +
-                                        status, status);
-                            } catch (final IOException ex) {
-                                throw new AccessGrantException(
-                                        "Unexpected I/O exception while processing Access Grant query", ex);
-                            }
-                        }).toCompletableFuture())
-                .collect(Collectors.toList());
-
-            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenApply(x -> futures.stream().map(CompletableFuture::join).flatMap(List::stream)
-                        .collect(Collectors.toList()));
-        });
-    }
-
-    /**
      * Revoke an access credential.
      *
      * @param credential the access credential
@@ -560,39 +457,6 @@ public class AccessGrantClient {
                     }
                 });
         });
-    }
-
-    /**
-     * Delete an access credential.
-     *
-     * @param credential the access credential
-     * @return the next stage of completion
-     * @deprecated as of Beta4
-     */
-
-    @Deprecated
-    public CompletionStage<Void> delete(final AccessCredential credential) {
-        final Request req = Request.newBuilder(credential.getIdentifier()).DELETE().build();
-        return client.send(req, Response.BodyHandlers.discarding())
-            .thenAccept(res -> {
-                final int status = res.statusCode();
-                if (!isSuccess(status)) {
-                    throw new AccessGrantException("Unable to delete Access Credential: " + credential.getIdentifier(),
-                            status);
-                }
-            });
-    }
-
-    /**
-     * Fetch an access credential by identifier. Return at most one access credential or throws an exception.
-     *
-     * @param identifier the access credential identifier
-     * @return the next stage of completion, containing the access credential
-     * @deprecated as of Beta3, please use the {@link #fetch(URI, Class)} method
-     */
-    @Deprecated
-    public CompletionStage<AccessGrant> fetch(final URI identifier) {
-        return fetch(identifier, AccessGrant.class);
     }
 
     /**
