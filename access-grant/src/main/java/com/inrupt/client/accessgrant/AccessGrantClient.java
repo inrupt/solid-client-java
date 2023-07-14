@@ -168,6 +168,7 @@ public class AccessGrantClient {
         this.config = Objects.requireNonNull(config, "config may not be null!");
         this.metadataCache = Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
         this.jsonService = ServiceProvider.getJsonService();
+        LOGGER.debug("Initializing Access Grant client with issuer: {}", config.getIssuer());
     }
 
     /**
