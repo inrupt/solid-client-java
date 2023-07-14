@@ -23,14 +23,13 @@ jobs:
           cache: 'maven'
 
       - name: Build the code with Maven
-        run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid
+        run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid,-performance/uma
 
       - name: Prod Integration tests
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
         env:
           INRUPT_TEST_WEBID: ${{ secrets.INRUPT_PROD_WEBID }}
-          INRUPT_TEST_PUBLIC_RESOURCE_PATH: ${{ secrets.INRUPT_PROD_PUBLIC_RESOURCE_PATH }}
           INRUPT_TEST_ACCESS_GRANT_PROVIDER: ${{ secrets.INRUPT_PROD_ACCESS_GRANT_PROVIDER }}
           INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_PROD_CLIENT_ID }}
           INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_PROD_CLIENT_SECRET }}
@@ -44,13 +43,33 @@ jobs:
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
         env:
           INRUPT_TEST_WEBID: ${{ secrets.INRUPT_DEV_WEBID }}
-          INRUPT_TEST_PUBLIC_RESOURCE_PATH: ${{ secrets.INRUPT_DEV_PUBLIC_RESOURCE_PATH }}
           INRUPT_TEST_ACCESS_GRANT_PROVIDER: ${{ secrets.INRUPT_DEV_ACCESS_GRANT_PROVIDER }}
           INRUPT_TEST_CLIENT_ID: ${{ secrets.INRUPT_DEV_CLIENT_ID }}
           INRUPT_TEST_CLIENT_SECRET: ${{ secrets.INRUPT_DEV_CLIENT_SECRET }}
           INRUPT_TEST_REQUESTER_WEBID: ${{ secrets.INRUPT_DEV_REQUESTER_WEBID }}
           INRUPT_TEST_REQUESTER_CLIENT_ID: ${{ secrets.INRUPT_DEV_REQUESTER_CLIENT_ID }}
           INRUPT_TEST_REQUESTER_CLIENT_SECRET: ${{ secrets.INRUPT_DEV_REQUESTER_CLIENT_SECRET }}
+
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 17 ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+
+      - name: Localhost performance tests
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        run: mvn -B -ntp verify -Pci -pl performance/uma -am
 
   documentation:
     name: Documentation Check
