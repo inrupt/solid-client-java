@@ -1,5 +1,5 @@
 Client Options
-    
+
     An application can obtain a client for interacting with Solid data in several ways. This guide will help you decide how your application will retrieve, configure and use a client.
 
 * What you will need
@@ -133,7 +133,7 @@ public class ClientSample {
 
       * <<<Response.BodyHandlers.ofInputStream()>>> This handler maps the HTTP response to an <<<InputStream>>>. This may be useful for custom processing of the response body.
 
-      * <<<Response.BodyHandlers.ofString()>>> This handler maps the HTTP response to a <<<String>>>. This may be useful for small text-oriented responses, though one should generally prefer the <<<InputStream>>>-based API.
+      * <<<Response.BodyHandlers.ofString()>>> This handler maps the HTTP response to a <<<String>>>. This may be useful for small text-oriented responses, though the <<<InputStream>>>-based API is generally preferred.
 
 
     When working with RDF resources, there are Jena and RDF4J handlers that will map HTTP responses directly to a Jena or RDF4J Model. These handlers are useful in cases where applications are already using an RDF framework. <<<JenaBodyHandlers.ofModel()>>> or <<<RDF4JBodyHandlers.ofModel()>>> would be used in these cases.

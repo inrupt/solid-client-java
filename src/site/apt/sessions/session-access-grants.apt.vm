@@ -3,17 +3,17 @@ Access Grants
     {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}} provide an alternative way to give access to your Solid resources. The Inrupt Java Client Libraries
     provide tooling for working with Access Grants.
 
-    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources one wants to access must have an {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}access control policy (ACP) that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example such as a {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
+    To use {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/}Access Grants}}, the resources you want to access must have an {{{https://docs.inrupt.com/ess/latest/security/access-requests-grants/#access-grants-acp}access control policy (ACP) that enables the use of access grants}} and the Authorization Service must be able to exchange an access grant for a token (for example such as a {{{https://docs.inrupt.com/ess/latest/services/service-uma/}UMA Service}}).
 
 * ACP that enables the use of Access Grants
 
-    One needs to edit the ACP of the resource the access grant will be used for. 
-    
+    One needs to edit the ACP of the resource the access grant will be used for.
+
 ** Manually adding triples to ACP
-    
+
     This can be done manually by using a resource management interface such as {{{https://podpro.dev/} Pod Pro}}.
 
-    The next example contains a new access control that matches <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write access to a Solid Container and its contents. 
+    The next example contains a new access control that matches <<<http://www.w3.org/ns/solid/vc#SolidAccessGrant>>>> and allows Read and Write access to a Solid Container and its contents.
 
 +---
 prefix acp: <http://www.w3.org/ns/solid/acp#>
@@ -119,7 +119,7 @@ if (acrLink != null) {
         //adding the new access control to the ACP
         resource.add(rdf.createQuad(resourceACRiri, resourceACRiri, acpAccessControl, newAccessControl));
         authClient.update(resource);
-    
+
     }
 }
 +---
