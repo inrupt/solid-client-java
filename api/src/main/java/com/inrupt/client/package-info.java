@@ -25,13 +25,13 @@
  * some of the higher-level modules.
  *
  * <p>Working with an HTTP client is easier by implementing the {@link Client}. Then, to make use of the HTTP client,
- * which previously was loaded on the classpath, one can call the {@link ClientProvider}.
+ * which previously was loaded on the classpath, you can call the {@link ClientProvider}.
  *
  * <p>{@link Request} and {@link Response} classes help with interacting with an HTTP client. And {@link Headers}
  * helps parsing header values, including those often used with Solid, such as {@link Headers.Link}
  * or {@link Headers.WacAllow}.
  *
- * <p>Further, to work with HTTP resources as RDF-based resources, one can make use of the {@link Resource}
+ * <p>Further, to work with HTTP resources as RDF-based resources, you can make use of the {@link Resource}
  * class.
  * {@link ValidationResult} can be of use when validation of the Solid resource is needed.
  *

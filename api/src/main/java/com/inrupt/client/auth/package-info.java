@@ -20,32 +20,32 @@
  */
 /**
  * <h2>Authentication and Authorization classes for the Inrupt Java Client Libraries.</h2>
- * 
+ *
  * <h3>The Session interface</h3>
- * 
+ *
  * <p>In the libraries we make use of the {@link Session} interface to share authentication and
  * authorization information when working with HTTP clients.
- * 
- * <p>The anonymous session, in comparison, does not keep a cache of access tokens.
- * 
+ *
+ * <p>The anonymous session, by contrast, does not keep a cache of access tokens.
+ *
 * <pre>{@code
     SolidClient client = SolidClient.getClient().session(Session.anonymous());
  * }</pre>
- * 
- * <p>The session is also used in the authentication/authorization modules and help create a dedicated session
+ *
+ * <p>The session is also used in the authentication/authorization modules and helps create a dedicated session
  * for each implementation. Some examples:
- * 
+ *
  * <pre>{@code
     Session openidSession = OpenIdSession.ofIdToken(token);
     Session openidSessionWithConfig = OpenIdSession.ofIdToken(token, config);
     Session accessGrantSession = AccessGrantSession.ofAccessGrant(openidSession, accessGrant);
  * }</pre>
- * 
+ *
  * <h3>HTTP challenges</h3>
- * 
+ *
  * <p>As part of the HTTP Challenge and Response authentication framework, the {@link Challenge} class represents a
  * challenge object as represented in a WWW-Authenticate Response Header. An example code is shown next.
- * 
+ *
  * <pre>{@code
     List<Challenge> challenges = WwwAuthenticate.parse(response.headers()
                                 .firstValue("WWW-Authenticate").get()).getChallenges();
@@ -55,11 +55,11 @@
         + challenges.get(0).getParameter("realm"));
     System.out.println("Authorization server: " + challenges.get(0).getParameter("as_uri");
  * }</pre>
- * 
+ *
  * <h3>Client credentials</h3>
- * 
+ *
  * <p>We make use of the {@link Credential} class when working with OIDC ID Tokens. Example code is presented next.
- * 
+ *
  * <pre>{@code
     Credential token = new Credential("Bearer", URI.create(ISS), this.token,
         Instant.now().plusSeconds(3600), URI.create(WEBID), null);
@@ -70,11 +70,11 @@
     Session session = OpenIdSession.ofIdToken(token, config);
     System.out.println("The token is an OpenID token " + session.getCredential(OpenIdSession.ID_TOKEN).isPresent());
  * }</pre>
- * 
+ *
  * <h3>Authentication</h3>
- * 
- * <p>The {@link Authenticator} is the interface to call if one wants to develop an own authentication logic.
- * 
+ *
+ * <p>The {@link Authenticator} is the interface to call if you want to develop your own authentication logic.
+ *
  * <pre>{@code
     class TestAuthenticator implements Authenticator {
         {@literal @}Override
@@ -94,12 +94,12 @@
         }
     }
  * }</pre>
- * 
- * <p>If one want to make use of DPoP, the {@link DPoP} interface makes available the basic
- * methods for generating a proof or creating a DPoP manager for example.
- * 
+ *
+ * <p>If you want to make use of DPoP, the {@link DPoP} interface makes available the basic
+ * methods for generating a proof or creating a DPoP manager, for example.
+ *
  * <p>{@link ReactiveAuthorization} is the class which will negotiate for a token based on the WWW-Authenticate header
  * and the Authenticator loaded on the classpath.
- * 
+ *
  */
 package com.inrupt.client.auth;

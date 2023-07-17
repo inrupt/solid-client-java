@@ -24,11 +24,11 @@
  *
  * <h3>Solid Client</h3>
  *
- * <p>This Solid domain-specific module contains two dedicated Solid clients one can make use of:
+ * <p>This Solid domain-specific module contains two dedicated Solid clients you can make use of:
  * {@link SolidClient} which works asynchronously and {@link SolidSyncClient} which works synchronously.
- * 
+ *
  * <p>One can instantiate a Solid client in different ways, depending on the use case:
- * 
+ *
  * <p>A simple direct way is with the following line:
  * <pre>{@code
     SolidClient client = SolidClient.getClient();
@@ -44,9 +44,9 @@
     SolidClient client = SolidClient.getClientBuilder().client(classPathClient).build();
     }
  * </pre>
- * 
+ *
  * <p>The Solid client can be used to perform CRUD operations on Solid resources.
- * 
+ *
  * <p>In this example, the client reads a Solid resource as a {@code Playlist} object.
  * <pre>{@code
     var playlist = client.read(uri, Playlist.class);
@@ -82,7 +82,7 @@
 * <pre>{@code
     client.delete(uri).toCompletableFuture().join(); }
  * </pre>
- * 
+ *
  * <h3>Solid RDFSource and Solid Container</h3>
  *
  * <p>This module also contains a BodyHandler which consumes the response body

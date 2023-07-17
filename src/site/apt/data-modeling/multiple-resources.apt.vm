@@ -4,13 +4,13 @@ Data Modeling for multiple Solid Resources
 
 * How to complete
 
-    The solution involves working with domain-specific type such as <<<SolidContainer>>> and <<<SolidResource>>>. 
+    The solution involves working with domain-specific type such as <<<SolidContainer>>> and <<<SolidResource>>>.
 
 * Working with Solid Containers
 
-    Given a Solid Container, we assume that all Solid RDF Resources contained in the container are Books. One Book per Solid Resource. 
+    Given a Solid Container, we assume that all Solid RDF Resources contained in the container are Books. One Book per Solid Resource.
 
-    For modeling a single Book one can use a <<<SolidResource>>> or a wrapper class as (describe on the {{{./one-resource.html}one Solid Resource}} page).
+    For modeling a single Book you can use a <<<SolidResource>>> or a wrapper class as (describe on the {{{./one-resource.html}one Solid Resource}} page).
 
 +---
 import com.inrupt.client.auth.Session;
@@ -48,7 +48,7 @@ public class MyApplication {
                 }
             });
         }
-        
+
     }
 }
 +---

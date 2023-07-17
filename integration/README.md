@@ -21,7 +21,7 @@ They can be found in the `./base/src/main/resources/META-INF/microprofile-config
 
 ## Running the tests on a live Solid server
 
-To set up a server, one needs to add more configurations to the `./base/src/main/resources/META-INF/microprofile-config.properties` file.
+To set up a server, you needs to add more configurations to the `./base/src/main/resources/META-INF/microprofile-config.properties` file.
 
 Let's take a look at the possible configuration values in the properties file.
 All the possible value are listed next:
