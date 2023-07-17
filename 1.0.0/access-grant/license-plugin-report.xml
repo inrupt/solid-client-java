@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1689614599547">
+    <module artifactId="inrupt-client-accessgrant" groupId="com.inrupt.client" version="1.0.0"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessCredential.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessCredentialQuery.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessCredentialVerification.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessDenial.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrant.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantClient.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantConfiguration.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantSession.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessGrantUtils.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/AccessRequest.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/Metadata.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/Status.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/Utils.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/accessgrant/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessGrantClientTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessGrantConfigurationTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessGrantExceptionTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessGrantSessionTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessGrantTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessGrantTestUtils.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/AccessRequestTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/accessgrant/MockAccessGrantServer.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

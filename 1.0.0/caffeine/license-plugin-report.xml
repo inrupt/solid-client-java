@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1689614589124">
+    <module artifactId="inrupt-client-caffeine" groupId="com.inrupt.client" version="1.0.0"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/caffeine/CaffeineCache.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/caffeine/CaffeineCacheBuilder.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/caffeine/CaffeineCacheTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

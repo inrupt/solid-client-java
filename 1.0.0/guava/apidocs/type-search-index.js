@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.guava","l":"GuavaCache"},{"p":"com.inrupt.client.guava","l":"GuavaCacheBuilder"}]
