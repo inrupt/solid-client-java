@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.inrupt.client</groupId>
     <artifactId>inrupt-client-performance-tests</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>inrupt-client-performance-uma-tests</artifactId>
