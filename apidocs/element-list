@@ -12,6 +12,7 @@ com.inrupt.client.jsonb
 com.inrupt.client.okhttp
 com.inrupt.client.openid
 com.inrupt.client.parser
+com.inrupt.client.performance.base
 com.inrupt.client.rdf.legacy
 com.inrupt.client.rdf4j
 com.inrupt.client.solid
