@@ -1,0 +1,22 @@
+#banner img {
+  width: 200px;
+}
+
+table.bodyTable tr.a {
+  background-color: #ddd;
+}
+
+table.bodyTable tr.b {
+  background-color: #eee;
+}
+
+div.sidebar-nav {
+    display: none;
+}
+
+a.externalLink,
+a.externalLink[href^=http],
+a.externalLink[href^=https] {
+    background: none;
+    padding-right: 0px;
+}
