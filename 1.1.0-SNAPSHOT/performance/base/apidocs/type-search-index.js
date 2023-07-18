@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.performance.base","l":"GetResourcesWithGrantCachingTokenScenario"},{"p":"com.inrupt.client.performance.base","l":"GetResourcesWithGrantScenario"},{"p":"com.inrupt.client.performance.base","l":"Utils"}]
