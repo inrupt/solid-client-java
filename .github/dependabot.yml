@@ -15,3 +15,31 @@ updates:
     schedule:
       interval: "weekly"
 
+# 1.0 Maintenance
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.0"
+    labels:
+      - "backport"
+      - "1.0"
+
+  - package-ecosystem: "gradle"
+    directory: "/gradle/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.0"
+    labels:
+      - "backport"
+      - "1.0"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.0"
+    labels:
+      - "backport"
+      - "1.0"
+

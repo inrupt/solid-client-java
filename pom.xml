@@ -4,7 +4,7 @@
 
   <groupId>com.inrupt.client</groupId>
   <artifactId>inrupt-client</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <name>Inrupt Java Client Libraries</name>
   <url>https://docs.inrupt.com/developer-tools/java/client-libraries/</url>
   <description>
