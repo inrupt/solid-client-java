@@ -248,7 +248,6 @@
               <configuration>
                 <rules>
                   <banDuplicatePomDependencyVersions/>
-                  <reactorModuleConvergence/>
                   <requirePluginVersions/>
                   <banCircularDependencies/>
                 </rules>
