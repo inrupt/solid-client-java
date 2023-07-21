@@ -47,6 +47,7 @@
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
     <dependency.plugin.version>3.6.0</dependency.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
+    <enforcer.plugin.version>3.3.0</enforcer.plugin.version>
     <exec.plugin.version>3.1.0</exec.plugin.version>
     <install.plugin.version>3.1.1</install.plugin.version>
     <gpg.plugin.version>3.1.0</gpg.plugin.version>
@@ -236,6 +237,34 @@
               <phase>site</phase>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${enforcer.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>enforce</id>
+              <configuration>
+                <rules>
+                  <banDuplicatePomDependencyVersions/>
+                  <reactorModuleConvergence/>
+                  <requirePluginVersions/>
+                  <banCircularDependencies/>
+                </rules>
+              </configuration>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>extra-enforcer-rules</artifactId>
+              <version>1.7.0</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -478,6 +507,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
