@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.inrupt.client</groupId>
@@ -47,6 +47,7 @@
     <compiler.plugin.version>3.11.0</compiler.plugin.version>
     <dependency.plugin.version>3.6.0</dependency.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
+    <enforcer.plugin.version>3.3.0</enforcer.plugin.version>
     <exec.plugin.version>3.1.0</exec.plugin.version>
     <install.plugin.version>3.1.1</install.plugin.version>
     <gpg.plugin.version>3.1.0</gpg.plugin.version>
@@ -236,6 +237,33 @@
               <phase>site</phase>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${enforcer.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>enforce</id>
+              <configuration>
+                <rules>
+                  <banDuplicatePomDependencyVersions/>
+                  <requirePluginVersions/>
+                  <banCircularDependencies/>
+                </rules>
+              </configuration>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>extra-enforcer-rules</artifactId>
+              <version>1.7.0</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -478,6 +506,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -781,7 +813,7 @@
     </developer>
   </developers>
 
-  <scm>
+  <scm child.scm.url.inherit.append.path="false" child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false">
     <connection>scm:git:https://github.com/inrupt/solid-client-java.git</connection>
     <developerConnection>scm:git:git@github.com:inrupt/solid-client-java.git</developerConnection>
     <url>https://github.com/inrupt/solid-client-java</url>
