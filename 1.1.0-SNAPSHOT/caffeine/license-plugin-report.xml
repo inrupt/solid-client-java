@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1690204988042">
+<licensePluginReport goal="CHECK" timestamp="1690206605649">
     <module artifactId="inrupt-client-caffeine" groupId="com.inrupt.client" version="1.1.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/caffeine/CaffeineCache.java" result="PRESENT"/>
