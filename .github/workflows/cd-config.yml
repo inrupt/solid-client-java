@@ -13,8 +13,8 @@ jobs:
   deployment:
     name: Deploy artifacts
     runs-on: ubuntu-latest
-    permissions:
-      deployments: write
+    environment:
+      name: ${{ matrix.envName }}
     strategy:
       matrix:
         envName: ["Development", "Production"]
@@ -41,13 +41,6 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: Create GitHub deployment
-        uses: chrnorm/deployment-action@v2
-        id: deployment
-        with:
-          token: ${{ github.token }}
-          environment: ${{ matrix.envName }}
-
       - name: Build the code with Maven
         run: mvn -B -ntp install -Pci
 
@@ -58,22 +51,6 @@ jobs:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
-      - name: Update deployment status (success)
-        if: success()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: ${{ github.token }}
-          state: 'success'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-      - name: Update deployment status (failure)
-        if: failure()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: ${{ github.token }}
-          state: 'failure'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
       - name: Sonar Analysis
         if: ${{ github.actor != 'dependabot[bot]' }}
