@@ -196,7 +196,7 @@ public class AccessCredentialQuery<T extends AccessCredential> {
          * @return the query object
          */
         public <T extends AccessCredential> AccessCredentialQuery<T> build(final Class<T> clazz) {
-            return new AccessCredentialQuery<T>(builderResource, builderCreator, builderRecipient, purposes, modes,
+            return new AccessCredentialQuery<>(builderResource, builderCreator, builderRecipient, purposes, modes,
                     clazz);
         }
     }
