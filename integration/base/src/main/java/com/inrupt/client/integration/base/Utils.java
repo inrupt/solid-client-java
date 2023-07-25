@@ -296,7 +296,6 @@ public final class Utils {
 
         final SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, trustAllCerts, new SecureRandom());
-        LOGGER.info("Identified client type is: " + ServiceProvider.getHttpService());
 
         if (ServiceProvider.getHttpService().toString().contains("okhttp")) {
 
@@ -304,7 +303,6 @@ public final class Utils {
             newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
             newBuilder.hostnameVerifier((hostname, session) -> true);
 
-            LOGGER.info("Set a OKHttp client which trusts all certificates.");
             return SolidSyncClient.getClientBuilder()
                     .client(DefaultClient.newBuilder()
                             .withInstance(OkHttpService.ofOkHttpClient(newBuilder.build())).build())
