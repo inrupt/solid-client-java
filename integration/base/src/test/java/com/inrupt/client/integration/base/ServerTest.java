@@ -40,6 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -67,7 +69,7 @@ class ServerTest {
     private static final String PRIVATE_RESOURCE_PATH = "private";
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws NoSuchAlgorithmException, KeyManagementException {
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 
@@ -88,7 +90,7 @@ class ServerTest {
         webidUrl = webIdService.getMockServerUrl() + "/" + MOCK_USERNAME;
 
         State.WEBID = URI.create(webidUrl);
-        final SolidSyncClient client = SolidSyncClient.getClient();
+        final SolidSyncClient client = Utils.customSolidClient();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             issuer = profile.getOidcIssuers().iterator().next().toString();
             podUrl = profile.getStorages().iterator().next().toString();
@@ -104,9 +106,9 @@ class ServerTest {
     }
 
     @Test
-    void testAnonymousUserCRUD() {
+    void testAnonymousUserCRUD() throws NoSuchAlgorithmException, KeyManagementException {
         //create an authenticated client
-        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        final SolidSyncClient client = Utils.customSolidClient().session(Session.anonymous());
         //create a public resource
         final var resourceUri = URI.create(podUrl + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
@@ -133,9 +135,9 @@ class ServerTest {
     }
 
     @Test
-    void test412() {
+    void test412() throws NoSuchAlgorithmException, KeyManagementException {
         //create an authenticated client
-        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+        final SolidSyncClient client = Utils.customSolidClient().session(Session.anonymous());
         //create a public resource
         final var resourceUri = URI.create(podUrl + "/playlist");
         final var playlist = new Playlist(resourceUri, null, null);
@@ -163,9 +165,9 @@ class ServerTest {
     }
 
     @Test
-    void testUnauthenticatedCRUD() {
+    void testUnauthenticatedCRUD() throws NoSuchAlgorithmException, KeyManagementException {
         //create an authenticated client
-        final SolidSyncClient client = SolidSyncClient.getClient();
+        final SolidSyncClient client = Utils.customSolidClient();
         //create a private resource
         final var resourceUri =
                 URI.create(podUrl + "/" + State.PRIVATE_RESOURCE_PATH + "/playlist");
@@ -195,10 +197,10 @@ class ServerTest {
     }
 
     @Test
-    void testAuthenticatedBearerCRUD() {
+    void testAuthenticatedBearerCRUD() throws NoSuchAlgorithmException, KeyManagementException {
         //authenticate with Bearer token
         final var session = OpenIdSession.ofIdToken(setupIdToken(webidUrl, MOCK_USERNAME, issuer));
-        final SolidSyncClient client = SolidSyncClient.getClient().session(session);
+        final SolidSyncClient client = Utils.customSolidClient().session(session);
         //create a private resource
         final var resourceUri =
                 URI.create(podUrl + "/" + State.PRIVATE_RESOURCE_PATH + "/playlist");

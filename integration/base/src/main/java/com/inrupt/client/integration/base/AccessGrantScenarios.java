@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -101,7 +103,7 @@ public class AccessGrantScenarios {
     private static final URI PURPOSE2 = URI.create("https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03");
     protected static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
     protected static final String GRANT_EXPIRATION = "2024-04-03T12:00:00Z";
-    private static String sharedTextFileName = "sharedFile.txt";
+    private static final String sharedTextFileName = "sharedFile.txt";
     protected static URI sharedTextFileURI;
     private static URI privateContainerURI;
     private static Session requesterSession;
@@ -110,7 +112,7 @@ public class AccessGrantScenarios {
     private static SolidSyncClient authResourceOwnerClient;
 
     @BeforeAll
-    static void setup() throws IOException {
+    static void setup() throws IOException, NoSuchAlgorithmException, KeyManagementException {
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 
@@ -134,7 +136,7 @@ public class AccessGrantScenarios {
                 .toString());
 
         State.WEBID = URI.create(webidUrl);
-        final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();
+        final SolidSyncClient client = Utils.customSolidClient();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             issuer = profile.getOidcIssuers().iterator().next().toString();
             podUrl = profile.getStorages().iterator().next().toString();
@@ -201,7 +203,8 @@ public class AccessGrantScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantLifecycle " +
             "Access Grant issuance lifecycle")
-    void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws NoSuchAlgorithmException, KeyManagementException {
         //test is NOT run locally, AccessGrantServerMock needs to be aware of grant statuses.
         //We do not do this for now.
         assumeFalse(ACCESS_GRANT_PROVIDER.contains("localhost"));
@@ -236,7 +239,7 @@ public class AccessGrantScenarios {
         assertEquals(grant.getPurposes(), grantFromVcProvider.getPurposes());
 
         //unauthorized request test
-        final SolidSyncClient requesterClient = SolidSyncClient.getClientBuilder().build();
+        final SolidSyncClient requesterClient = Utils.customSolidClient();
         final var err = assertThrows(UnauthorizedException.class,
                 () -> requesterClient.read(sharedTextFileURI, SolidNonRDFSource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
@@ -443,11 +446,11 @@ public class AccessGrantScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantGetRdf " +
             "Fetching RDF using Access Grant")
-    void accessGrantGetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantGetRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Fetching RDF using Access Grant");
 
-        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
-            .build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient = Utils.customSolidClient().session(resourceOwnerSession);
 
         final URI testRDFresourceURI = URIBuilder.newBuilder(privateContainerURI)
                 .path("resource-accessGrantGetRdfTest.ttl")
@@ -475,8 +478,7 @@ public class AccessGrantScenarios {
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient requesterClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient requesterClient = Utils.customSolidClient().session(newSession);
 
         try (final SolidRDFSource resource = requesterClient.read(testRDFresourceURI, SolidRDFSource.class)) {
             assertTrue(resource.getMetadata().getContentType().contains(Utils.TEXT_TURTLE));
@@ -491,11 +493,11 @@ public class AccessGrantScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantSetRdf " +
             "Appending RDF using Access Grant")
-    void accessGrantSetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantSetRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Appending RDF using Access Grant");
 
-        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
-            .build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient = Utils.customSolidClient().session(resourceOwnerSession);
 
         final URI testRDFresourceURI = URIBuilder.newBuilder(privateContainerURI)
                 .path("resource-accessGrantSetRdfTest.ttl")
@@ -525,8 +527,7 @@ public class AccessGrantScenarios {
             .toCompletableFuture().join();
 
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient requesterAuthClient = Utils.customSolidClient().session(newSession);
 
         final String newResourceName = testRDFresourceURI.toString();
         final String newPredicateName = "https://example.example/predicate";
@@ -551,15 +552,15 @@ public class AccessGrantScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantCreateRdf " +
             "Creating RDF using Access Grant")
-    void accessGrantCreateRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantCreateRdfTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Creating RDF using Access Grant");
 
         final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
                 .path("newRdf-accessGrantCreateRdfTest.ttl")
                 .build();
 
-        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
-                .build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient = Utils.customSolidClient().session(resourceOwnerSession);
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
             URI.create(ACCESS_GRANT_PROVIDER)
@@ -578,8 +579,7 @@ public class AccessGrantScenarios {
             .toCompletableFuture().join();
 
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient authClient = Utils.customSolidClient().session(newSession);
 
         try (final SolidRDFSource resource = new SolidRDFSource(newTestFileURI)) {
             assertDoesNotThrow(() -> authClient.create(resource));
@@ -594,11 +594,10 @@ public class AccessGrantScenarios {
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantGetNonRdf " +
             "Fetching non-RDF using Access Grant")
     void accessGrantGetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
-            throws IOException {
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Fetching non-RDF using Access Grant");
 
-        final SolidSyncClient resourceOwnerClient =
-            SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient = Utils.customSolidClient().session(resourceOwnerSession);
 
         final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
             .path("newFile-accessGrantGetNonRdfTest.txt")
@@ -627,8 +626,7 @@ public class AccessGrantScenarios {
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient authClient = Utils.customSolidClient().session(newSession);
 
         try (final SolidNonRDFSource resource = authClient.read(newTestFileURI, SolidNonRDFSource.class)) {
             assertTrue(resource.getMetadata().getContentType().contains(Utils.PLAIN_TEXT));
@@ -643,11 +641,10 @@ public class AccessGrantScenarios {
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantSetNonRdf " +
             "Overwriting non-RDF using Access Grant")
     void accessGrantSetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
-            throws IOException {
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Overwriting non-RDF using Access Grant");
 
-        final SolidSyncClient resourceOwnerClient =
-            SolidSyncClient.getClientBuilder().build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient = Utils.customSolidClient().session(resourceOwnerSession);
 
         final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
             .path("newFile-accessGrantSetNonRdfTest.txt")
@@ -677,8 +674,7 @@ public class AccessGrantScenarios {
             .toCompletableFuture().join();
 
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient requesterAuthClient = Utils.customSolidClient().session(newSession);
 
         try (final SolidNonRDFSource resource = requesterAuthClient.read(newTestFileURI, SolidNonRDFSource.class)) {
             try (final InputStream newis = new ByteArrayInputStream(
@@ -706,15 +702,14 @@ public class AccessGrantScenarios {
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantCreateNonRdf " +
             "Creating non-RDF using Access Grant")
     void accessGrantCreateNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
-            throws IOException {
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Creating non-RDF using Access Grant");
 
         final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
             .path("newFile-accessGrantCreateNonRdfTest.txt")
             .build();
 
-        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
-                .build().session(resourceOwnerSession);
+        final SolidSyncClient resourceOwnerClient = Utils.customSolidClient().session(resourceOwnerSession);
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
                 URI.create(ACCESS_GRANT_PROVIDER)
@@ -733,7 +728,7 @@ public class AccessGrantScenarios {
             .toCompletableFuture().join();
 
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClient().session(newSession);
+        final SolidSyncClient requesterAuthClient = Utils.customSolidClient().session(newSession);
 
         try (final InputStream is = new ByteArrayInputStream(
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
@@ -790,13 +785,13 @@ public class AccessGrantScenarios {
             );
     }
 
-    private static SolidSyncClient createAuthenticatedClient() {
+    private static SolidSyncClient createAuthenticatedClient() throws NoSuchAlgorithmException, KeyManagementException {
         final Session session = OpenIdSession.ofClientCredentials(
                 URI.create(issuer), //Client credentials
                 RESOURCE_OWNER_CLIENT_ID,
                 RESOURCE_OWNER_CLIENT_SECRET,
                 AUTH_METHOD);
 
-        return SolidSyncClient.getClient().session(session);
+        return Utils.customSolidClient().session(session);
     }
 }

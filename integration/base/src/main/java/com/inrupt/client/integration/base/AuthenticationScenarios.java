@@ -1,16 +1,16 @@
 /*
  * Copyright Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -31,6 +31,8 @@ import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -73,12 +75,12 @@ public class AuthenticationScenarios {
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
     private static final String AUTH_METHOD = config
-        .getOptionalValue("inrupt.test.auth-method", String.class)
-        .orElse("client_secret_basic");
+            .getOptionalValue("inrupt.test.auth-method", String.class)
+            .orElse("client_secret_basic");
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws NoSuchAlgorithmException, KeyManagementException {
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 
@@ -89,20 +91,20 @@ public class AuthenticationScenarios {
         identityProviderServer.start();
 
         webIdService = new MockWebIdService(
-            mockHttpServer.getMockServerUrl(),
-            identityProviderServer.getMockServerUrl(),
-            MOCK_USERNAME);
+                mockHttpServer.getMockServerUrl(),
+                identityProviderServer.getMockServerUrl(),
+                MOCK_USERNAME);
         webIdService.start();
 
         webidUrl = config
-            .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_USERNAME)
-                .build()
-                .toString());
+                .getOptionalValue("inrupt.test.webid", String.class)
+                .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                        .path(MOCK_USERNAME)
+                        .build()
+                        .toString());
 
         State.WEBID = URI.create(webidUrl);
-        final SolidSyncClient client = SolidSyncClient.getClient();
+        final SolidSyncClient client = Utils.customSolidClient();
         try (final WebIdProfile profile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             issuer = profile.getOidcIssuers().iterator().next().toString();
             podUrl = profile.getStorages().iterator().next().toString();
@@ -117,11 +119,11 @@ public class AuthenticationScenarios {
                 CLIENT_SECRET,
                 AUTH_METHOD);
 
-        localAuthClient = SolidSyncClient.getClient().session(session);
+        localAuthClient = Utils.customSolidClient().session(session);
 
         publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path("public-auth-test-" + UUID.randomUUID() + "/")
-                    .build();
+                .path("public-auth-test-" + UUID.randomUUID() + "/")
+                .build();
         publicResourceURI = URIBuilder.newBuilder(publicContainerURI)
                 .path(testResourceName)
                 .build();
@@ -133,14 +135,15 @@ public class AuthenticationScenarios {
                 .build();
 
         privateResourceURI = URIBuilder.newBuilder(privateContainerURI)
-            .path(testResourceName)
-            .build();
+                .path(testResourceName)
+                .build();
 
         Utils.createContainer(localAuthClient, privateContainerURI);
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
+
     @AfterAll
     static void teardown() {
         //cleanup pod
@@ -156,11 +159,11 @@ public class AuthenticationScenarios {
     @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/unauthenticatedPublicNode " +
             "Unauthenticated fetch of public resource succeeds")
-    void fetchPublicResourceUnauthenticatedTest() {
+    void fetchPublicResourceUnauthenticatedTest() throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Unauthenticated fetch of public resource");
         //create a public resource
         try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURI, null, null)) {
-            final SolidSyncClient client = SolidSyncClient.getClient();
+            final SolidSyncClient client = Utils.customSolidClient();
             assertDoesNotThrow(() -> client.create(testResource));
             assertDoesNotThrow(() -> client.read(publicResourceURI, SolidRDFSource.class));
             assertDoesNotThrow(() -> client.delete(testResource));
@@ -171,15 +174,16 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/unauthenticatedPrivateNode" +
             " Unauthenticated fetch of a private resource fails")
-    void fetchPrivateResourceUnauthenticatedTest(final Session session) {
+    void fetchPrivateResourceUnauthenticatedTest(final Session session)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Unauthenticated fetch of a private resource");
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+        final SolidSyncClient authClient = Utils.customSolidClient().session(session);
 
         try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
-            final SolidSyncClient client = SolidSyncClient.getClient();
+            final SolidSyncClient client = Utils.customSolidClient();
             final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURI, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
@@ -192,14 +196,15 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedPublicNode " +
             "Authenticated fetch of public resource succeeds")
-    void fetchPublicResourceAuthenticatedTest(final Session session) {
+    void fetchPublicResourceAuthenticatedTest(final Session session)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Authenticated fetch of public resource");
         //create public resource
-        final SolidSyncClient client = SolidSyncClient.getClient();
+        final SolidSyncClient client = Utils.customSolidClient();
         try (final SolidRDFSource testResource = new SolidRDFSource(publicResourceURI, null, null)) {
             assertDoesNotThrow(() -> client.create(testResource));
 
-            final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+            final SolidSyncClient authClient = Utils.customSolidClient().session(session);
             assertDoesNotThrow(() -> authClient.read(publicResourceURI, SolidRDFSource.class));
 
             assertDoesNotThrow(() -> client.delete(testResource));
@@ -210,10 +215,11 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedPrivateNode " +
             "Authenticated fetch of private resource succeeds")
-    void fetchPrivateResourceAuthenticatedTest(final Session session) {
+    void fetchPrivateResourceAuthenticatedTest(final Session session)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Authenticated fetch of private resource");
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+        final SolidSyncClient authClient = Utils.customSolidClient().session(session);
         try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
@@ -227,14 +233,15 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedPrivateNodeAfterLogin " +
             "Unauthenticated, then auth fetch of private resource")
-    void fetchPrivateResourceUnauthAuthTest(final Session session) {
+    void fetchPrivateResourceUnauthAuthTest(final Session session)
+            throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Unauthenticated, then auth fetch of private resource");
         //create private resource
-        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+        final SolidSyncClient authClient = Utils.customSolidClient().session(session);
         try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
-            final SolidSyncClient client = SolidSyncClient.getClient();
+            final SolidSyncClient client = Utils.customSolidClient();
             final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURI, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
@@ -250,27 +257,27 @@ public class AuthenticationScenarios {
     @MethodSource("provideSessions")
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authenticatedMultisessionNode " +
             "Multiple sessions authenticated in parallel")
-    void multiSessionTest(final Session session) {
+    void multiSessionTest(final Session session) throws NoSuchAlgorithmException, KeyManagementException {
         LOGGER.info("Integration Test - Multiple sessions authenticated in parallel");
         //create private resource
-        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
-            final SolidSyncClient authClient1 = SolidSyncClient.getClient().session(session);
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI)) {
+            final SolidSyncClient authClient1 = Utils.customSolidClient().session(session);
             assertDoesNotThrow(() -> authClient1.create(testResource));
 
             //create another private resource with another client
             final URI privateResourceURL2 = URIBuilder.newBuilder(privateContainerURI)
-                .path("resource2.ttl")
-                .build();
-            try (final SolidRDFSource testResource2 = new SolidRDFSource(privateResourceURL2, null, null)) {
+                    .path("resource2.ttl")
+                    .build();
+            try (final SolidRDFSource testResource2 = new SolidRDFSource(privateResourceURL2)) {
                 final SolidSyncClient authClient2 =
-                        SolidSyncClient.getClient().session(session);
+                        Utils.customSolidClient().session(session);
                 assertDoesNotThrow(() -> authClient2.create(testResource2));
 
                 //read the other resource created with the other client
                 assertDoesNotThrow(() -> authClient1.read(privateResourceURL2, SolidRDFSource.class));
                 assertDoesNotThrow(() -> authClient2.read(privateResourceURI, SolidRDFSource.class));
 
-                final SolidSyncClient client = SolidSyncClient.getClient();
+                final SolidSyncClient client = Utils.customSolidClient();
                 final var err = assertThrows(UnauthorizedException.class,
                         () -> client.read(privateResourceURI, SolidRDFSource.class));
                 assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
@@ -284,15 +291,15 @@ public class AuthenticationScenarios {
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
         final Session session = OpenIdSession.ofClientCredentials(
-            URI.create(issuer), //Client credentials
-            CLIENT_ID,
-            CLIENT_SECRET,
-            AUTH_METHOD);
+                URI.create(issuer), //Client credentials
+                CLIENT_ID,
+                CLIENT_SECRET,
+                AUTH_METHOD);
         final Optional<Credential> credential = session.getCredential(OpenIdSession.ID_TOKEN, null);
         final var token = credential.map(Credential::getToken)
-            .orElseThrow(() -> new OpenIdException("We could not get a token"));
+                .orElseThrow(() -> new OpenIdException("We could not get a token"));
         return Stream.of(
-            Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
-            Arguments.of(session)));
+                Arguments.of(OpenIdSession.ofIdToken(token), //OpenId token
+                        Arguments.of(session)));
     }
 }
