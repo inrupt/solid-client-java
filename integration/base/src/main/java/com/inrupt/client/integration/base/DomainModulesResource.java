@@ -34,8 +34,6 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -72,7 +70,7 @@ public class DomainModulesResource {
 
     private static final Config config = ConfigProvider.getConfig();
     private static final RDF rdf = RDFFactory.getInstance();
-    private static SolidSyncClient client;
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
 
     private static IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
     private static final String AUTH_METHOD = config
@@ -86,7 +84,7 @@ public class DomainModulesResource {
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
-    static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+    static void setup() {
         LOGGER.info("Setup DomainModulesResource test");
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             LOGGER.info("Running DomainModulesResource on live server");
@@ -110,8 +108,6 @@ public class DomainModulesResource {
             webidUrl = webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME;
         }
 
-        client = Utils.customSolidClient().session(Session.anonymous());
-
         State.WEBID = URI.create(webidUrl);
         //find storage from WebID using domain-specific webID solid concept
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
@@ -127,7 +123,7 @@ public class DomainModulesResource {
                     CLIENT_SECRET,
                     AUTH_METHOD);
 
-            localAuthClient = Utils.customSolidClient().session(session);
+            localAuthClient = SolidSyncClient.getClient().session(session);
         } catch (SolidClientException ex) {
             LOGGER.error("problems reading the webId");
         }

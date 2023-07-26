@@ -40,8 +40,6 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.vocabulary.Solid;
 
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -73,7 +71,7 @@ public class CoreModulesResourceJena {
     private static MockUMAAuthorizationServer authServer;
     private static MockWebIdService webIdService;
     private static final Config config = ConfigProvider.getConfig();
-    private static SolidSyncClient client;
+    private static final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
     private static String podUrl;
     private static String webidUrl;
     private static final String MOCK_USERNAME = "someuser";
@@ -90,7 +88,7 @@ public class CoreModulesResourceJena {
 
 
     @BeforeAll
-    static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+    static void setup() {
         LOGGER.info("Setup CoreModulesResourceJena test");
 
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
@@ -116,10 +114,6 @@ public class CoreModulesResourceJena {
 
         }
 
-
-
-        client = Utils.customSolidClient().session(Session.anonymous());
-
         State.WEBID = URI.create(webidUrl);
         //find storage from WebID using only core module
         final Request requestRdf = Request.newBuilder(URI.create(webidUrl)).GET().build();
@@ -139,7 +133,7 @@ public class CoreModulesResourceJena {
                 CLIENT_ID,
                 CLIENT_SECRET,
                 AUTH_METHOD);
-        localAuthClient = Utils.customSolidClient().session(session);
+        localAuthClient = SolidSyncClient.getClient().session(session);
 
         publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path("public-core-test-" + UUID.randomUUID() + "/")

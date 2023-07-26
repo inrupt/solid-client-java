@@ -27,11 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
-import com.inrupt.client.core.DefaultClient;
-import com.inrupt.client.okhttp.OkHttpService;
 import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.ACL;
 import com.inrupt.client.vocabulary.ACP;
@@ -43,10 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,11 +59,6 @@ import org.jose4j.lang.JoseException;
 import org.jose4j.lang.UncheckedJoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import okhttp3.OkHttpClient;
 
 public final class Utils {
 
@@ -271,46 +259,6 @@ public final class Utils {
             client.delete(url);
             LOGGER.debug("DELETE RESOURCE {}", url);
         }
-    }
-
-    public static SolidSyncClient customSolidClient() throws NoSuchAlgorithmException, KeyManagementException {
-        // setup trust all certificates
-        final TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(final X509Certificate[] chain,
-                                               final String authType) {
-                }
-
-                @Override
-                public void checkServerTrusted(final X509Certificate[] chain,
-                                               final String authType) {
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[]{};
-                }
-            }
-        };
-
-        final SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, trustAllCerts, new SecureRandom());
-
-        if (ServiceProvider.getHttpService().toString().contains("okhttp")) {
-
-            final OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
-            newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
-            newBuilder.hostnameVerifier((hostname, session) -> true);
-
-            LOGGER.info("Working with a custom OkHttp client which trusts all certificates.");
-            return SolidSyncClient.getClientBuilder()
-                    .client(DefaultClient.newBuilder()
-                            .withInstance(OkHttpService.ofOkHttpClient(newBuilder.build())).build())
-                    .build();
-        }
-
-        return SolidSyncClient.getClient();
     }
 
     private Utils() {
