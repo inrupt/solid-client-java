@@ -117,6 +117,10 @@ public class AccessGrantScenarios {
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             LOGGER.info("Running AccessGrantScenarios on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
+            requesterWebidUrl = config.getOptionalValue("inrupt.test.requester.webid", String.class).get();
+            ACCESS_GRANT_PROVIDER = config.getOptionalValue("inrupt.test.access-grant.provider", String.class)
+                    .get();
+
         } else {
             LOGGER.info("Running AccessGrantScenarios on Mock services");
             authServer = new MockUMAAuthorizationServer();
@@ -138,6 +142,19 @@ public class AccessGrantScenarios {
                     .path(MOCK_RESOURCE_OWNER_USERNAME)
                     .build()
                     .toString();
+            requesterWebidUrl = URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                    .path(MOCK_REQUESTER_USERNAME)
+                    .build()
+                    .toString();
+
+            accessGrantServer = new MockAccessGrantServer(
+                    URI.create(webidUrl),
+                    URI.create(requesterWebidUrl),
+                    sharedTextFileURI,
+                    authServer.getMockServerUrl()
+            );
+            accessGrantServer.start();
+            ACCESS_GRANT_PROVIDER = accessGrantServer.getMockServerUrl();
         }
 
         State.WEBID = URI.create(webidUrl);
@@ -167,25 +184,6 @@ public class AccessGrantScenarios {
             assertDoesNotThrow(() -> authResourceOwnerClient.create(testResource));
             prepareAcpOfResource(authResourceOwnerClient, sharedTextFileURI, SolidNonRDFSource.class);
         }
-
-        requesterWebidUrl = config
-            .getOptionalValue("inrupt.test.requester.webid", String.class)
-            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_REQUESTER_USERNAME)
-                .build()
-                .toString());
-
-        accessGrantServer = new MockAccessGrantServer(
-                URI.create(webidUrl),
-                URI.create(requesterWebidUrl),
-                sharedTextFileURI,
-                authServer.getMockServerUrl()
-        );
-        accessGrantServer.start();
-
-        ACCESS_GRANT_PROVIDER = config
-            .getOptionalValue("inrupt.test.access-grant.provider", String.class)
-            .orElse(accessGrantServer.getMockServerUrl());
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", podUrl);
