@@ -118,9 +118,6 @@ public class AccessGrantScenarios {
             LOGGER.info("Running AccessGrantScenarios on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
             requesterWebidUrl = config.getOptionalValue("inrupt.test.requester.webid", String.class).get();
-            ACCESS_GRANT_PROVIDER = config.getOptionalValue("inrupt.test.access-grant.provider", String.class)
-                    .get();
-
         } else {
             LOGGER.info("Running AccessGrantScenarios on Mock services");
             authServer = new MockUMAAuthorizationServer();
@@ -146,15 +143,6 @@ public class AccessGrantScenarios {
                     .path(MOCK_REQUESTER_USERNAME)
                     .build()
                     .toString();
-
-            accessGrantServer = new MockAccessGrantServer(
-                    URI.create(webidUrl),
-                    URI.create(requesterWebidUrl),
-                    sharedTextFileURI,
-                    authServer.getMockServerUrl()
-            );
-            accessGrantServer.start();
-            ACCESS_GRANT_PROVIDER = accessGrantServer.getMockServerUrl();
         }
 
         State.WEBID = URI.create(webidUrl);
@@ -185,6 +173,19 @@ public class AccessGrantScenarios {
             prepareAcpOfResource(authResourceOwnerClient, sharedTextFileURI, SolidNonRDFSource.class);
         }
 
+        if (config.getOptionalValue("inrupt.test.access-grant.provider", String.class).isPresent()) {
+            ACCESS_GRANT_PROVIDER = config.getOptionalValue("inrupt.test.access-grant.provider", String.class).get();
+        } else {
+            accessGrantServer = new MockAccessGrantServer(
+                    URI.create(webidUrl),
+                    URI.create(requesterWebidUrl),
+                    sharedTextFileURI,
+                    authServer.getMockServerUrl()
+            );
+            accessGrantServer.start();
+            ACCESS_GRANT_PROVIDER = accessGrantServer.getMockServerUrl();
+        }
+
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", podUrl);
         LOGGER.info("Integration Test Access Grant server: [{}]", ACCESS_GRANT_PROVIDER);
@@ -200,6 +201,8 @@ public class AccessGrantScenarios {
             identityProviderServer.stop();
             authServer.stop();
             webIdService.stop();
+        }
+        if (config.getOptionalValue("inrupt.test.access-grant.provider", String.class).isEmpty()) {
             accessGrantServer.stop();
         }
     }
