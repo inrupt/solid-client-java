@@ -90,24 +90,26 @@ public class CoreModulesResourceJena {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
-        authServer = new MockUMAAuthorizationServer();
-        authServer.start();
+        String webidUrl;
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
+        } else {
+            authServer = new MockUMAAuthorizationServer();
+            authServer.start();
 
-        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
-        mockHttpServer.start();
+            mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+            mockHttpServer.start();
 
-        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
-        identityProviderServer.start();
+            identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+            identityProviderServer.start();
 
-        webIdService = new MockWebIdService(
-            mockHttpServer.getMockServerUrl(),
-            identityProviderServer.getMockServerUrl(),
-            MOCK_USERNAME);
-        webIdService.start();
-
-        final String webidUrl = config
-            .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME);
+            webIdService = new MockWebIdService(
+                    mockHttpServer.getMockServerUrl(),
+                    identityProviderServer.getMockServerUrl(),
+                    MOCK_USERNAME);
+            webIdService.start();
+            webidUrl = webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME;
+        }
 
         client = Utils.customSolidClient().session(Session.anonymous());
 
@@ -146,10 +148,12 @@ public class CoreModulesResourceJena {
         //cleanup pod
         Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
 
-        mockHttpServer.stop();
-        identityProviderServer.stop();
-        authServer.stop();
-        webIdService.stop();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isEmpty()) {
+            mockHttpServer.stop();
+            identityProviderServer.stop();
+            authServer.stop();
+            webIdService.stop();
+        }
     }
 
     @Test

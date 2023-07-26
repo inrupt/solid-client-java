@@ -113,27 +113,29 @@ public class AccessGrantScenarios {
 
     @BeforeAll
     static void setup() throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        authServer = new MockUMAAuthorizationServer();
-        authServer.start();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
+        } else {
+            authServer = new MockUMAAuthorizationServer();
+            authServer.start();
 
-        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
-        mockHttpServer.start();
+            mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+            mockHttpServer.start();
 
-        identityProviderServer = new MockOpenIDProvider(MOCK_RESOURCE_OWNER_USERNAME);
-        identityProviderServer.start();
+            identityProviderServer = new MockOpenIDProvider(MOCK_RESOURCE_OWNER_USERNAME);
+            identityProviderServer.start();
 
-        webIdService = new MockWebIdService(
-            mockHttpServer.getMockServerUrl(),
-            identityProviderServer.getMockServerUrl(),
-            MOCK_RESOURCE_OWNER_USERNAME);
-        webIdService.start();
+            webIdService = new MockWebIdService(
+                    mockHttpServer.getMockServerUrl(),
+                    identityProviderServer.getMockServerUrl(),
+                    MOCK_RESOURCE_OWNER_USERNAME);
+            webIdService.start();
 
-        webidUrl = config
-            .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_RESOURCE_OWNER_USERNAME)
-                .build()
-                .toString());
+            webidUrl = URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                    .path(MOCK_RESOURCE_OWNER_USERNAME)
+                    .build()
+                    .toString();
+        }
 
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = Utils.customSolidClient();
@@ -192,11 +194,13 @@ public class AccessGrantScenarios {
         //cleanup pod
         Utils.deleteContentsRecursively(authResourceOwnerClient, privateContainerURI);
 
-        mockHttpServer.stop();
-        identityProviderServer.stop();
-        authServer.stop();
-        webIdService.stop();
-        accessGrantServer.stop();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isEmpty()) {
+            mockHttpServer.stop();
+            identityProviderServer.stop();
+            authServer.stop();
+            webIdService.stop();
+            accessGrantServer.stop();
+        }
     }
 
     @ParameterizedTest

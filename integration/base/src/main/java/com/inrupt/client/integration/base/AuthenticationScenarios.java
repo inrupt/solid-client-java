@@ -81,27 +81,28 @@ public class AuthenticationScenarios {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
-        authServer = new MockUMAAuthorizationServer();
-        authServer.start();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
+        } else {
+            authServer = new MockUMAAuthorizationServer();
+            authServer.start();
 
-        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
-        mockHttpServer.start();
+            mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+            mockHttpServer.start();
 
-        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
-        identityProviderServer.start();
+            identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+            identityProviderServer.start();
 
-        webIdService = new MockWebIdService(
-                mockHttpServer.getMockServerUrl(),
-                identityProviderServer.getMockServerUrl(),
-                MOCK_USERNAME);
-        webIdService.start();
-
-        webidUrl = config
-                .getOptionalValue("inrupt.test.webid", String.class)
-                .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                        .path(MOCK_USERNAME)
-                        .build()
-                        .toString());
+            webIdService = new MockWebIdService(
+                    mockHttpServer.getMockServerUrl(),
+                    identityProviderServer.getMockServerUrl(),
+                    MOCK_USERNAME);
+            webIdService.start();
+            webidUrl = URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                    .path(MOCK_USERNAME)
+                    .build()
+                    .toString();
+        }
 
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = Utils.customSolidClient();
@@ -150,10 +151,12 @@ public class AuthenticationScenarios {
         Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
         Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
 
-        mockHttpServer.stop();
-        identityProviderServer.stop();
-        authServer.stop();
-        webIdService.stop();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isEmpty()) {
+            mockHttpServer.stop();
+            identityProviderServer.stop();
+            authServer.stop();
+            webIdService.stop();
+        }
     }
 
     @Test
