@@ -91,9 +91,13 @@ public class CoreModulesResourceJena {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+        LOGGER.info("Setup CoreModulesResourceJena test");
+
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            LOGGER.info("Running CoreModulesResourceJena on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
         } else {
+            LOGGER.info("Running CoreModulesResourceJena on Mock services");
             authServer = new MockUMAAuthorizationServer();
             authServer.start();
 
@@ -109,7 +113,10 @@ public class CoreModulesResourceJena {
                     MOCK_USERNAME);
             webIdService.start();
             webidUrl = webIdService.getMockServerUrl() + Utils.FOLDER_SEPARATOR + MOCK_USERNAME;
+
         }
+
+
 
         client = Utils.customSolidClient().session(Session.anonymous());
 

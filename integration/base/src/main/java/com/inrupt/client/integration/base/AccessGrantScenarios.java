@@ -113,9 +113,12 @@ public class AccessGrantScenarios {
 
     @BeforeAll
     static void setup() throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        LOGGER.info("Setup AccessGrantScenarios test");
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            LOGGER.info("Running AccessGrantScenarios on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
         } else {
+            LOGGER.info("Running AccessGrantScenarios on Mock services");
             authServer = new MockUMAAuthorizationServer();
             authServer.start();
 

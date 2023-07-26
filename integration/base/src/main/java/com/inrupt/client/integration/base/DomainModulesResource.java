@@ -87,9 +87,12 @@ public class DomainModulesResource {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+        LOGGER.info("Setup DomainModulesResource test");
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            LOGGER.info("Running DomainModulesResource on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
         } else {
+            LOGGER.info("Running DomainModulesResource on Mock services");
             authServer = new MockUMAAuthorizationServer();
             authServer.start();
 

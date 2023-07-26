@@ -81,9 +81,12 @@ public class AuthenticationScenarios {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
+        LOGGER.info("Setup AuthenticationScenarios test");
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            LOGGER.info("Running AuthenticationScenarios on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
         } else {
+            LOGGER.info("Running AuthenticationScenarios on Mock services");
             authServer = new MockUMAAuthorizationServer();
             authServer.start();
 
