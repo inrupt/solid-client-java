@@ -53,7 +53,9 @@ class MockOpenIDProvider {
 
     public MockOpenIDProvider(final String username) {
         this.username = username;
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        wireMockServer = new WireMockServer(WireMockConfiguration.options()
+                .httpDisabled(true)
+                .dynamicHttpsPort());
     }
 
     private void setupMocks() {
