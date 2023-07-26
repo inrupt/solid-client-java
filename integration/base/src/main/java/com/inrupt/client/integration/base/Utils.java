@@ -24,12 +24,18 @@ import static com.inrupt.client.vocabulary.RDF.type;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.inrupt.client.Client;
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
+import com.inrupt.client.auth.Challenge;
+import com.inrupt.client.auth.Credential;
+import com.inrupt.client.auth.ReactiveAuthorization;
+import com.inrupt.client.auth.Session;
 import com.inrupt.client.core.DefaultClient;
 import com.inrupt.client.okhttp.OkHttpService;
 import com.inrupt.client.solid.*;
+import com.inrupt.client.spi.HttpService;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
@@ -48,6 +54,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
@@ -303,6 +311,7 @@ public final class Utils {
             newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
             newBuilder.hostnameVerifier((hostname, session) -> true);
 
+            LOGGER.info("Working with a custom OkHttp client which trusts all certificates.");
             return SolidSyncClient.getClientBuilder()
                     .client(DefaultClient.newBuilder()
                             .withInstance(OkHttpService.ofOkHttpClient(newBuilder.build())).build())
