@@ -35,6 +35,14 @@
       <version>${slf4j.version}</version>
     </dependency>
 
+    <!-- transitive dependencies -->
+    <!-- upgraded because of CVE-2023-3635 -->
+    <dependency>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio-jvm</artifactId>
+      <version>3.4.0</version>
+    </dependency>
+
     <!-- test dependencies -->
     <dependency>
       <groupId>com.inrupt.client</groupId>
