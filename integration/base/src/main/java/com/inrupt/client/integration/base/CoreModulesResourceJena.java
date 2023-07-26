@@ -75,6 +75,7 @@ public class CoreModulesResourceJena {
     private static final Config config = ConfigProvider.getConfig();
     private static SolidSyncClient client;
     private static String podUrl;
+    private static String webidUrl;
     private static final String MOCK_USERNAME = "someuser";
     private static final String TYPE = "type";
     private static final String LINK = "Link";
@@ -90,7 +91,6 @@ public class CoreModulesResourceJena {
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException, KeyManagementException {
-        String webidUrl;
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
         } else {
