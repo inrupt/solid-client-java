@@ -20,7 +20,7 @@
     <!-- version management -->
     <commons.text.version>1.10.0</commons.text.version>
     <!-- do not advance to v4.x -->
-    <legacy.rdf4j.version>3.7.7</legacy.rdf4j.version>
+    <legacy.rdf4j.version>4.3.4</legacy.rdf4j.version>
   </properties>
 
   <dependencyManagement>
