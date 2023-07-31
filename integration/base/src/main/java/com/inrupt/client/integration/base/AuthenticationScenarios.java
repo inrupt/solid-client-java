@@ -1,16 +1,16 @@
 /*
  * Copyright Inrupt Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to use,
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
@@ -73,33 +73,37 @@ public class AuthenticationScenarios {
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
     private static final String AUTH_METHOD = config
-        .getOptionalValue("inrupt.test.auth-method", String.class)
-        .orElse("client_secret_basic");
+            .getOptionalValue("inrupt.test.auth-method", String.class)
+            .orElse("client_secret_basic");
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
     static void setup() {
-        authServer = new MockUMAAuthorizationServer();
-        authServer.start();
+        LOGGER.info("Setup AuthenticationScenarios test");
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            LOGGER.info("Running AuthenticationScenarios on live server");
+            webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
+        } else {
+            LOGGER.info("Running AuthenticationScenarios on Mock services");
+            authServer = new MockUMAAuthorizationServer();
+            authServer.start();
 
-        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
-        mockHttpServer.start();
+            mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+            mockHttpServer.start();
 
-        identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
-        identityProviderServer.start();
+            identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
+            identityProviderServer.start();
 
-        webIdService = new MockWebIdService(
-            mockHttpServer.getMockServerUrl(),
-            identityProviderServer.getMockServerUrl(),
-            MOCK_USERNAME);
-        webIdService.start();
-
-        webidUrl = config
-            .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_USERNAME)
-                .build()
-                .toString());
+            webIdService = new MockWebIdService(
+                    mockHttpServer.getMockServerUrl(),
+                    identityProviderServer.getMockServerUrl(),
+                    MOCK_USERNAME);
+            webIdService.start();
+            webidUrl = URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                    .path(MOCK_USERNAME)
+                    .build()
+                    .toString();
+        }
 
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClient();
@@ -120,8 +124,8 @@ public class AuthenticationScenarios {
         localAuthClient = SolidSyncClient.getClient().session(session);
 
         publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                    .path("public-auth-test-" + UUID.randomUUID() + "/")
-                    .build();
+                .path("public-auth-test-" + UUID.randomUUID() + "/")
+                .build();
         publicResourceURI = URIBuilder.newBuilder(publicContainerURI)
                 .path(testResourceName)
                 .build();
@@ -141,16 +145,19 @@ public class AuthenticationScenarios {
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
     }
+
     @AfterAll
     static void teardown() {
         //cleanup pod
         Utils.deleteContentsRecursively(localAuthClient, publicContainerURI);
         Utils.deleteContentsRecursively(localAuthClient, privateContainerURI);
 
-        mockHttpServer.stop();
-        identityProviderServer.stop();
-        authServer.stop();
-        webIdService.stop();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isEmpty()) {
+            mockHttpServer.stop();
+            identityProviderServer.stop();
+            authServer.stop();
+            webIdService.stop();
+        }
     }
 
     @Test
