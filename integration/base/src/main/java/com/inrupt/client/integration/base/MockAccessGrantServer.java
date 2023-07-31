@@ -73,7 +73,9 @@ class MockAccessGrantServer {
         this.requesterWebId = requesterWebId.toString();
         this.sharedResource = sharedResource.toString();
         this.authorisationServerUrl = authorisationServerUrl;
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        wireMockServer = new WireMockServer(WireMockConfiguration.options()
+                .httpDisabled(true)
+                .dynamicHttpsPort());
     }
 
     private void setupMocks() {
