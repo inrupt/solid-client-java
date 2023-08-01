@@ -101,7 +101,7 @@ public class AccessGrantScenarios {
     private static final URI PURPOSE2 = URI.create("https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03");
     protected static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
     protected static final String GRANT_EXPIRATION = "2024-04-03T12:00:00Z";
-    private static String sharedTextFileName = "sharedFile.txt";
+    private static final String sharedTextFileName = "sharedFile.txt";
     protected static URI sharedTextFileURI;
     private static URI privateContainerURI;
     private static Session requesterSession;
@@ -111,27 +111,37 @@ public class AccessGrantScenarios {
 
     @BeforeAll
     static void setup() throws IOException {
-        authServer = new MockUMAAuthorizationServer();
-        authServer.start();
+        LOGGER.info("Setup AccessGrantScenarios test");
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
+            LOGGER.info("Running AccessGrantScenarios on live server");
+            webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
+            requesterWebidUrl = config.getOptionalValue("inrupt.test.requester.webid", String.class).get();
+        } else {
+            LOGGER.info("Running AccessGrantScenarios on Mock services");
+            authServer = new MockUMAAuthorizationServer();
+            authServer.start();
 
-        mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
-        mockHttpServer.start();
+            mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
+            mockHttpServer.start();
 
-        identityProviderServer = new MockOpenIDProvider(MOCK_RESOURCE_OWNER_USERNAME);
-        identityProviderServer.start();
+            identityProviderServer = new MockOpenIDProvider(MOCK_RESOURCE_OWNER_USERNAME);
+            identityProviderServer.start();
 
-        webIdService = new MockWebIdService(
-            mockHttpServer.getMockServerUrl(),
-            identityProviderServer.getMockServerUrl(),
-            MOCK_RESOURCE_OWNER_USERNAME);
-        webIdService.start();
+            webIdService = new MockWebIdService(
+                    mockHttpServer.getMockServerUrl(),
+                    identityProviderServer.getMockServerUrl(),
+                    MOCK_RESOURCE_OWNER_USERNAME);
+            webIdService.start();
 
-        webidUrl = config
-            .getOptionalValue("inrupt.test.webid", String.class)
-            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_RESOURCE_OWNER_USERNAME)
-                .build()
-                .toString());
+            webidUrl = URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                    .path(MOCK_RESOURCE_OWNER_USERNAME)
+                    .build()
+                    .toString();
+            requesterWebidUrl = URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
+                    .path(MOCK_REQUESTER_USERNAME)
+                    .build()
+                    .toString();
+        }
 
         State.WEBID = URI.create(webidUrl);
         final SolidSyncClient client = SolidSyncClient.getClientBuilder().build();
@@ -161,24 +171,18 @@ public class AccessGrantScenarios {
             prepareAcpOfResource(authResourceOwnerClient, sharedTextFileURI, SolidNonRDFSource.class);
         }
 
-        requesterWebidUrl = config
-            .getOptionalValue("inrupt.test.requester.webid", String.class)
-            .orElse(URIBuilder.newBuilder(URI.create(webIdService.getMockServerUrl()))
-                .path(MOCK_REQUESTER_USERNAME)
-                .build()
-                .toString());
-
-        accessGrantServer = new MockAccessGrantServer(
-                URI.create(webidUrl),
-                URI.create(requesterWebidUrl),
-                sharedTextFileURI,
-                authServer.getMockServerUrl()
-        );
-        accessGrantServer.start();
-
-        ACCESS_GRANT_PROVIDER = config
-            .getOptionalValue("inrupt.test.access-grant.provider", String.class)
-            .orElse(accessGrantServer.getMockServerUrl());
+        if (config.getOptionalValue("inrupt.test.access-grant.provider", String.class).isPresent()) {
+            ACCESS_GRANT_PROVIDER = config.getOptionalValue("inrupt.test.access-grant.provider", String.class).get();
+        } else {
+            accessGrantServer = new MockAccessGrantServer(
+                    URI.create(webidUrl),
+                    URI.create(requesterWebidUrl),
+                    sharedTextFileURI,
+                    authServer.getMockServerUrl()
+            );
+            accessGrantServer.start();
+            ACCESS_GRANT_PROVIDER = accessGrantServer.getMockServerUrl();
+        }
 
         LOGGER.info("Integration Test Issuer: [{}]", issuer);
         LOGGER.info("Integration Test Pod Host: [{}]", podUrl);
@@ -190,11 +194,15 @@ public class AccessGrantScenarios {
         //cleanup pod
         Utils.deleteContentsRecursively(authResourceOwnerClient, privateContainerURI);
 
-        mockHttpServer.stop();
-        identityProviderServer.stop();
-        authServer.stop();
-        webIdService.stop();
-        accessGrantServer.stop();
+        if (config.getOptionalValue("inrupt.test.webid", String.class).isEmpty()) {
+            mockHttpServer.stop();
+            identityProviderServer.stop();
+            authServer.stop();
+            webIdService.stop();
+        }
+        if (config.getOptionalValue("inrupt.test.access-grant.provider", String.class).isEmpty()) {
+            accessGrantServer.stop();
+        }
     }
 
     @ParameterizedTest
@@ -475,8 +483,7 @@ public class AccessGrantScenarios {
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
-        final SolidSyncClient requesterClient = SolidSyncClient.getClientBuilder()
-            .build().session(newSession);
+        final SolidSyncClient requesterClient = SolidSyncClient.getClient().session(newSession);
 
         try (final SolidRDFSource resource = requesterClient.read(testRDFresourceURI, SolidRDFSource.class)) {
             assertTrue(resource.getMetadata().getContentType().contains(Utils.TEXT_TURTLE));
