@@ -21,7 +21,7 @@
 
     <!-- dependencies -->
     <antlr.version>4.13.0</antlr.version>
-    <caffeine.version>3.1.7</caffeine.version>
+    <caffeine.version>3.1.8</caffeine.version>
     <commons.codec.version>1.16.0</commons.codec.version>
     <commons.cli.version>1.5.0</commons.cli.version>
     <commons.io.version>2.13.0</commons.io.version>
