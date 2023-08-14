@@ -19,7 +19,9 @@
 
 # These containment triples should not be included in a getResources response
 <>
-    ldp:contains <https://example.com/other> , <newContainer/child> , <> , <./> .
+    ldp:contains <https://example.com/other> , <newContainer/child> , <> , <./> ,
+    <?foo> , <#bar> , <?foo#bar> , <./?foo> , <./#bar> , <./?foo#bar> ,
+    <../?foo> , <../#bar> , <../?foo#bar> , <child?foo> , <child#bar> , <child?foo#bar> .
 <https://example.test/container/>
     a ldp:BasicContainer ;
     ldp:contains <https://example.test/container/external> .
