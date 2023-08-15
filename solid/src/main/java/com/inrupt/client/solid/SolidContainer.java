@@ -83,9 +83,10 @@ public class SolidContainer extends SolidRDFSource {
      */
     public Set<SolidResource> getResources() {
         // As defined by the Solid Protocol, containers always end with a slash.
-        if (getIdentifier().getPath().endsWith("/")) {
-            final String container = normalize(getIdentifier());
-            final Node node = new Node(rdf.createIRI(getIdentifier().toString()), getGraph());
+        final URI base = getIdentifier().normalize();
+        if (isContainer(base)) {
+            final String container = normalize(base);
+            final Node node = new Node(rdf.createIRI(base.toString()), getGraph());
             try (final Stream<Node.TypedNode> stream = node.getResources()) {
                 return stream.filter(child -> verifyContainmentIri(container, child)).map(child -> {
                     final Metadata.Builder builder = Metadata.newBuilder();
@@ -102,12 +103,13 @@ public class SolidContainer extends SolidRDFSource {
     public ValidationResult validate() {
         final List<String> messages = new ArrayList<>();
         // Verify that the container URI path ends with a slash
-        if (!getIdentifier().getPath().endsWith("/")) {
+        final URI base = getIdentifier().normalize();
+        if (!isContainer(base)) {
             messages.add("Container URI does not end in a slash");
         }
 
         // Get the normalized container URI
-        final String container = normalize(getIdentifier());
+        final String container = normalize(base);
         // Verify that all ldp:contains triples align with Solid expectations
         getGraph().stream(null, rdf.createIRI(LDP.contains.toString()), null)
             .collect(Collectors.partitioningBy(verifyContainmentTriple(container)))
@@ -119,6 +121,10 @@ public class SolidContainer extends SolidRDFSource {
             return new ValidationResult(true);
         }
         return new ValidationResult(false, messages);
+    }
+
+    static boolean isContainer(final URI uri) {
+        return uri.normalize().getPath().endsWith("/");
     }
 
     static String normalize(final URI uri) {
@@ -142,29 +148,30 @@ public class SolidContainer extends SolidRDFSource {
 
     static boolean verifyContainmentIri(final String container, final IRI object) {
 
-        // 1 URI Structure Tests
+        // URI Structure Tests
+        final URI base = URI.create(container).normalize();
         final URI normalized = URI.create(object.getIRIString()).normalize();
 
-        // 1.A Query strings are not allowed in object URI
-        if (normalized.getQuery() != null) {
+        // Query strings are not allowed in subject or object URI
+        if (base.getQuery() != null || normalized.getQuery() != null) {
             return false;
         }
 
-        // 1.B URI fragments are not allowed in object URI
-        if (normalized.getFragment() != null) {
+        // URI fragments are not allowed in subject or object URI
+        if (base.getFragment() != null || normalized.getFragment() != null) {
             return false;
         }
 
-        // 2 Relative path tests
-        final URI base = URI.create(container).normalize();
+        // Base URI cannot equal the object URI
+        if (base.getScheme().equals(normalized.getScheme()) &&
+                base.getSchemeSpecificPart().equals(normalized.getSchemeSpecificPart())) {
+            return false;
+        }
+
+        // Relative path tests
         final URI relative = base.relativize(normalized);
 
-        // 2.A Base URI cannot equal the object URI
-        if (base.equals(normalized)) {
-            return false;
-        }
-
-        // 2.B Object URI must be relative to (contained in) the base URI
+        // Object URI must be relative to (contained in) the base URI
         if (relative.isAbsolute()) {
             return false;
         }
@@ -173,7 +180,7 @@ public class SolidContainer extends SolidRDFSource {
         final String normalizedPath = relativePath.endsWith("/") ?
             relativePath.substring(0, relativePath.length() - 1) : relativePath;
 
-        // 2.C Containment cannot skip intermediate nodes
+        // Containment cannot skip intermediate nodes
         if (normalizedPath.contains("/")) {
             return false;
         }

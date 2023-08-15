@@ -7,6 +7,14 @@
     a ldp:BasicContainer ;
     dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime;
     ldp:contains <newContainer/>, <test.txt>, <test2.txt> .
+<intermediate/..>
+    a ldp:BasicContainer ;
+    dct:modified "2022-11-25T10:38:12Z"^^xsd:dateTime ;
+    ldp:contains <test3> .
+<intermediate/../>
+    a ldp:BasicContainer ;
+    dct:modified "2022-11-25T10:38:47Z"^^xsd:dateTime ;
+    ldp:contains <test4> .
 <newContainer/>
     a ldp:BasicContainer ;
     dct:modified "2022-11-25T10:36:36Z"^^xsd:dateTime .
@@ -16,10 +24,16 @@
 <test2.txt>
     a pl:Resource, ldp:NonRDFSource;
     dct:modified "2022-11-25T10:37:06Z"^^xsd:dateTime .
+<test3>
+    a ldp:RDFSource ;
+    dct:modified "2022-11-25T10:37:31Z"^^xsd:dateTime .
+<test4>
+    a ldp:RDFSource ;
+    dct:modified "2022-11-25T10:39:22Z"^^xsd:dateTime .
 
 # These containment triples should not be included in a getResources response
 <>
-    ldp:contains <https://example.com/other> , <newContainer/child> , <> , <./> ,
+    ldp:contains <https://example.com/other> , <newContainer/child> , <newContainer%2Fchild2> ,  <> , <./> ,
     <?foo> , <#bar> , <?foo#bar> , <./?foo> , <./#bar> , <./?foo#bar> ,
     <../?foo> , <../#bar> , <../?foo#bar> , <child?foo> , <child#bar> , <child?foo#bar> .
 <https://example.test/container/>
