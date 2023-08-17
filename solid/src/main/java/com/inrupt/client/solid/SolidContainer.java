@@ -82,10 +82,11 @@ public class SolidContainer extends SolidRDFSource {
      * @return the contained resources
      */
     public Set<SolidResource> getResources() {
-        final String container = normalize(getIdentifier());
         // As defined by the Solid Protocol, containers always end with a slash.
-        if (container.endsWith("/")) {
-            final Node node = new Node(rdf.createIRI(getIdentifier().toString()), getGraph());
+        final URI base = getIdentifier().normalize();
+        if (isContainer(base)) {
+            final String container = normalize(base);
+            final Node node = new Node(rdf.createIRI(base.toString()), getGraph());
             try (final Stream<Node.TypedNode> stream = node.getResources()) {
                 return stream.filter(child -> verifyContainmentIri(container, child)).map(child -> {
                     final Metadata.Builder builder = Metadata.newBuilder();
@@ -100,14 +101,15 @@ public class SolidContainer extends SolidRDFSource {
 
     @Override
     public ValidationResult validate() {
-        // Get the normalized container URI
-        final String container = normalize(getIdentifier());
         final List<String> messages = new ArrayList<>();
         // Verify that the container URI path ends with a slash
-        if (!container.endsWith("/")) {
+        final URI base = getIdentifier().normalize();
+        if (!isContainer(base)) {
             messages.add("Container URI does not end in a slash");
         }
 
+        // Get the normalized container URI
+        final String container = normalize(base);
         // Verify that all ldp:contains triples align with Solid expectations
         getGraph().stream(null, rdf.createIRI(LDP.contains.toString()), null)
             .collect(Collectors.partitioningBy(verifyContainmentTriple(container)))
@@ -121,8 +123,8 @@ public class SolidContainer extends SolidRDFSource {
         return new ValidationResult(false, messages);
     }
 
-    static String normalize(final IRI iri) {
-        return normalize(URI.create(iri.getIRIString()));
+    static boolean isContainer(final URI uri) {
+        return uri.normalize().getPath().endsWith("/");
     }
 
     static String normalize(final URI uri) {
@@ -145,22 +147,44 @@ public class SolidContainer extends SolidRDFSource {
     }
 
     static boolean verifyContainmentIri(final String container, final IRI object) {
-        if (!object.getIRIString().startsWith(container)) {
-            // Out-of-domain containment triple object
+
+        // URI Structure Tests
+        final URI base = URI.create(container).normalize();
+        final URI normalized = URI.create(object.getIRIString()).normalize();
+
+        // Query strings are not allowed in subject or object URI
+        if (base.getQuery() != null || normalized.getQuery() != null) {
             return false;
-        } else {
-            final String relativePath = object.getIRIString().substring(container.length());
-            final String normalizedPath = relativePath.endsWith("/") ?
-                relativePath.substring(0, relativePath.length() - 1) : relativePath;
-            if (normalizedPath.isEmpty()) {
-                // Containment triple subject and object cannot be the same
-                return false;
-            }
-            if (normalizedPath.contains("/")) {
-                // Containment cannot skip intermediate nodes
-                return false;
-            }
         }
+
+        // URI fragments are not allowed in subject or object URI
+        if (base.getFragment() != null || normalized.getFragment() != null) {
+            return false;
+        }
+
+        // Base URI cannot equal the object URI
+        if (base.getScheme().equals(normalized.getScheme()) &&
+                base.getSchemeSpecificPart().equals(normalized.getSchemeSpecificPart())) {
+            return false;
+        }
+
+        // Relative path tests
+        final URI relative = base.relativize(normalized);
+
+        // Object URI must be relative to (contained in) the base URI
+        if (relative.isAbsolute()) {
+            return false;
+        }
+
+        final String relativePath = relative.getPath();
+        final String normalizedPath = relativePath.endsWith("/") ?
+            relativePath.substring(0, relativePath.length() - 1) : relativePath;
+
+        // Containment cannot skip intermediate nodes
+        if (normalizedPath.contains("/")) {
+            return false;
+        }
+
         return true;
     }
 
