@@ -195,6 +195,25 @@ class SolidRDFSourceTest {
     }
 
     @Test
+    void testNonContainer() {
+        final URI resource = URI.create(config.get("solid_resource_uri") + "/recipe");
+        final Request request = Request.newBuilder()
+            .uri(resource)
+            .header("Accept", "text/turtle")
+            .GET()
+            .build();
+
+        final Response<SolidContainer> response = client.send(request, SolidResourceHandlers.ofSolidContainer())
+            .toCompletableFuture().join();
+
+        try (final SolidContainer container = response.body()) {
+            assertEquals(resource, container.getIdentifier());
+            assertTrue(container.getResources().isEmpty());
+            assertFalse(container.validate().isValid());
+        }
+    }
+
+    @Test
     void testInvalidRdf() {
         final URI resource = URI.create(config.get("solid_resource_uri") + "/nonRDF");
         final Request request = Request.newBuilder()
