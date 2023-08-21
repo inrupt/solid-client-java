@@ -231,6 +231,8 @@ class SolidClientTest {
         expected.add(URIBuilder.newBuilder(uri).path("newContainer/").build());
         expected.add(URIBuilder.newBuilder(uri).path("test.txt").build());
         expected.add(URIBuilder.newBuilder(uri).path("test2.txt").build());
+        expected.add(URIBuilder.newBuilder(uri).path("test3").build());
+        expected.add(URIBuilder.newBuilder(uri).path("test4").build());
 
         client.send(Request.newBuilder(uri).build(), SolidResourceHandlers.ofSolidContainer())
             .thenAccept(response -> {
