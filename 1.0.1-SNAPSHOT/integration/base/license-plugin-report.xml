@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1689689461437">
+<licensePluginReport goal="CHECK" timestamp="1692690207395">
     <module artifactId="inrupt-client-integration-base-tests" groupId="com.inrupt.client" version="1.0.1-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/integration/base/AccessGrantScenarios.java" result="PRESENT"/>
@@ -11,7 +11,6 @@
         <file path="src/main/java/com/inrupt/client/integration/base/MockSolidServer.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/integration/base/MockUMAAuthorizationServer.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/integration/base/MockWebIdService.java" result="PRESENT"/>
-        <file path="src/main/java/com/inrupt/client/integration/base/PerformanceTest.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/integration/base/SolidServerTransformer.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/integration/base/State.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/integration/base/Utils.java" result="PRESENT"/>
