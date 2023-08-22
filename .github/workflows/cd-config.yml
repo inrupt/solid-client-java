@@ -3,11 +3,9 @@ name: Solid Java Client CD
 on:
   push:
     branches:
-      - main
+      - 1.0
     tags:
-      - inrupt-client-[0-9]+.[0-9]+.[0-9]+
-      - inrupt-client-[0-9]+.[0-9]+.[0-9]+.Alpha[0-9]+
-      - inrupt-client-[0-9]+.[0-9]+.[0-9]+.Beta[0-9]+
+      - inrupt-client-1.0.[0-9]+
 
 jobs:
   deployment:
