@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1689614599590">
-    <module artifactId="inrupt-client-examples-parent" groupId="com.inrupt.client" version="1.0.0"/>
+<licensePluginReport goal="CHECK" timestamp="1693403119762">
+    <module artifactId="inrupt-client-examples-parent" groupId="com.inrupt.client" version="1.0.1"/>
     <files>
         <file path="cli/src/main/java/com/inrupt/client/examples/cli/AppConfig.java" result="PRESENT"/>
         <file path="cli/src/main/java/com/inrupt/client/examples/cli/SolidApp.java" result="PRESENT"/>

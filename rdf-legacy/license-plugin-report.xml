@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1689614601817">
-    <module artifactId="inrupt-client-rdf-legacy" groupId="com.inrupt.client" version="1.0.0"/>
+<licensePluginReport goal="CHECK" timestamp="1693403121223">
+    <module artifactId="inrupt-client-rdf-legacy" groupId="com.inrupt.client" version="1.0.1"/>
     <files>
         <file path="src/main/java/com/inrupt/client/rdf/legacy/RDFLegacyService.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/rdf/legacy/package-info.java" result="PRESENT"/>

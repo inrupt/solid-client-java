@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1689614605802">
-    <module artifactId="inrupt-client-performance-uma-tests" groupId="com.inrupt.client" version="1.0.0"/>
+<licensePluginReport goal="CHECK" timestamp="1693403124706">
+    <module artifactId="inrupt-client-performance-uma-tests" groupId="com.inrupt.client" version="1.0.1"/>
     <files>
         <file path="src/test/java/com/inrupt/client/performance/uma/UmaGetResourcesWithGrantCachingTokenTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/performance/uma/UmaGetResourcesWithGrantTest.java" result="PRESENT"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1689614584040">
-    <module artifactId="inrupt-client-api" groupId="com.inrupt.client" version="1.0.0"/>
+<licensePluginReport goal="CHECK" timestamp="1693403109518">
+    <module artifactId="inrupt-client-api" groupId="com.inrupt.client" version="1.0.1"/>
     <files>
         <file path="src/main/java/com/inrupt/client/ByteBufferPublisher.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Client.java" result="PRESENT"/>
