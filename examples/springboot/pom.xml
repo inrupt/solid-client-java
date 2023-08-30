@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.inrupt.client</groupId>
     <artifactId>inrupt-client-examples-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
 
   <artifactId>inrupt-client-examples-springboot</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   <name>Inrupt Java Client Libraries - Spring Boot Example</name>
   <description>
     Sample Spring Boot application.

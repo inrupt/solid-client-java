@@ -4,7 +4,7 @@
 
   <groupId>com.inrupt.client</groupId>
   <artifactId>inrupt-client</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   <name>Inrupt Java Client Libraries</name>
   <url>https://docs.inrupt.com/developer-tools/java/client-libraries/</url>
   <description>
@@ -785,7 +785,7 @@
     <connection>scm:git:https://github.com/inrupt/solid-client-java.git</connection>
     <developerConnection>scm:git:git@github.com:inrupt/solid-client-java.git</developerConnection>
     <url>https://github.com/inrupt/solid-client-java</url>
-    <tag>HEAD</tag>
+    <tag>inrupt-client-1.0.1</tag>
   </scm>
 
   <licenses>
