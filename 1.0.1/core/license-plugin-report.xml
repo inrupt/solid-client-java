@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1693403119155">
+    <module artifactId="inrupt-client-core" groupId="com.inrupt.client" version="1.0.1"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/core/AuthenticationException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/core/DefaultClient.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/core/DefaultClientProviderResolver.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/core/DefaultDpopService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/core/DefaultHeaderParser.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/core/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/DPoPManagerTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/DefaultClientNonRdfTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/DefaultClientRdfJenaTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/DefaultClientRdfRDF4JTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/LinkTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/MockHttpService.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/WacAllowTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/core/WwwAuthenticateTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

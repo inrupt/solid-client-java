@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.caffeine","l":"CaffeineCache"},{"p":"com.inrupt.client.caffeine","l":"CaffeineCacheBuilder"}]

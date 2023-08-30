@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1693403118347">
+    <module artifactId="inrupt-client-rdf4j" groupId="com.inrupt.client" version="1.0.1"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/rdf4j/RDF4JBodyHandlers.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/rdf4j/RDF4JBodyPublishers.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/rdf4j/RDF4JService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/rdf4j/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/rdf4j/RDF4JBodyHandlersTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/rdf4j/RDF4JBodyPublishersTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/rdf4j/RDF4JServiceTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/rdf4j/RDF4JTestModel.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

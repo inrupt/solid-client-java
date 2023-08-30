@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1693403119762">
+    <module artifactId="inrupt-client-examples-parent" groupId="com.inrupt.client" version="1.0.1"/>
+    <files>
+        <file path="cli/src/main/java/com/inrupt/client/examples/cli/AppConfig.java" result="PRESENT"/>
+        <file path="cli/src/main/java/com/inrupt/client/examples/cli/SolidApp.java" result="PRESENT"/>
+        <file path="cli/src/main/java/com/inrupt/client/examples/cli/package-info.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/Application.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/ApplicationStartController.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/AuthenticationException.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/AuthorizationException.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/SecurityConfiguration.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/model/Book.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/model/BookLibrary.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/model/Vocabulary.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/model/WebIdOwner.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/service/BookLibraryService.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/service/IBookLibraryService.java" result="PRESENT"/>
+        <file path="springboot/src/main/java/com/inrupt/client/examples/springboot/service/UserService.java" result="PRESENT"/>
+        <file path="webapp/src/main/java/com/inrupt/client/examples/webapp/ClientExceptionMapper.java" result="PRESENT"/>
+        <file path="webapp/src/main/java/com/inrupt/client/examples/webapp/SolidStorage.java" result="PRESENT"/>
+        <file path="webapp/src/main/java/com/inrupt/client/examples/webapp/package-info.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
