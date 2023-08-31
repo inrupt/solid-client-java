@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.inrupt.client</groupId>
         <artifactId>inrupt-client-performance-tests</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.2-SNAPSHOT</version>
     </parent>
     <artifactId>inrupt-client-performance-base-tests</artifactId>
     <name>Inrupt Java Client Libraries - Performance Base Tests</name>
