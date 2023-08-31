@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1693468356917">
+    <module artifactId="inrupt-client-integration-customokhttp" groupId="com.inrupt.client" version="1.0.2-SNAPSHOT"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/integration/customokhttp/CustomOkHttpResponse.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/customokhttp/CustomOkHttpResponseInfo.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/customokhttp/CustomOkHttpService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/customokhttp/package-info.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
