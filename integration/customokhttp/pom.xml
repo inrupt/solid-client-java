@@ -35,14 +35,6 @@
       <version>${slf4j.version}</version>
     </dependency>
 
-    <!-- patch CVE-2023-2976 guava-31.x.x in wiremock 2.35.0 -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- transitive dependencies -->
     <!-- upgraded because of CVE-2023-3635 -->
     <dependency>
