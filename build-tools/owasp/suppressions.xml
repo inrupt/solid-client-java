@@ -15,4 +15,6 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.microprofile\.config/microprofile\-config\-api@.*$</packageUrl>
     <cpe>cpe:/a:payara:payara</cpe>
   </suppress>
+
+  <!-- Suppressed vulnerabilities. These need monthly review. -->
 </suppressions>
