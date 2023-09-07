@@ -15,14 +15,4 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.microprofile\.config/microprofile\-config\-api@.*$</packageUrl>
     <cpe>cpe:/a:payara:payara</cpe>
   </suppress>
-
-  <!-- Suppressed vulnerabilities. These need monthly review. -->
-  <suppress>
-    <notes><![CDATA[
-        CWE-121 Stack-based Buffer Overflow,
-        ** DISPUTED ** NOTE: the vendor's perspective is that the product is not intended for use with untrusted input.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-    <cve>CVE-2023-35116</cve>
-  </suppress>
 </suppressions>
