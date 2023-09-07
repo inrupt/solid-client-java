@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.inrupt.client</groupId>
     <artifactId>inrupt-client-examples-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>inrupt-client-examples-webapp</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>Inrupt Java Client Libraries - Quarkus Example</name>
   <description>
     Sample web application.
@@ -19,7 +19,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
 
-    <quarkus.version>3.3.0</quarkus.version>
+    <quarkus.version>3.3.1</quarkus.version>
   </properties>
 
   <dependencyManagement>

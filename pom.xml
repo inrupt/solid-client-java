@@ -4,7 +4,7 @@
 
   <groupId>com.inrupt.client</groupId>
   <artifactId>inrupt-client</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>Inrupt Java Client Libraries</name>
   <url>https://docs.inrupt.com/developer-tools/java/client-libraries/</url>
   <description>
@@ -33,8 +33,8 @@
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <rdf4j.version>4.3.5</rdf4j.version>
-    <slf4j.version>2.0.7</slf4j.version>
+    <rdf4j.version>4.3.6</rdf4j.version>
+    <slf4j.version>2.0.9</slf4j.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>1.0.0</inrupt.rdf.wrapping.version>
 
