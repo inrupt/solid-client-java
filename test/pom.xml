@@ -38,30 +38,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
       <version>${wiremock.version}</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <!-- patch CVE-2023-2976 guava-31.x.x in wiremock 2.35.0 -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- transitive dependency via wiremock -->
-    <!-- when wiremock is updated beyond 2.35, this can be removed -->
-    <dependency>
-      <groupId>net.minidev</groupId>
-      <artifactId>json-smart</artifactId>
-      <version>2.5.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

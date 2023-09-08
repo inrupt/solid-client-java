@@ -74,7 +74,7 @@
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.0</junit.version>
     <yasson.version>3.0.3</yasson.version>
-    <wiremock.version>2.35.0</wiremock.version>
+    <wiremock.version>3.0.3</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
@@ -133,6 +133,16 @@
       <url>${project.baseUri}</url>
     </site>
   </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <pluginManagement>
