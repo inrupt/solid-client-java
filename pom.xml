@@ -53,7 +53,7 @@
     <gpg.plugin.version>3.1.0</gpg.plugin.version>
     <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
     <jar.plugin.version>3.3.0</jar.plugin.version>
-    <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
+    <javadoc.plugin.version>3.6.0</javadoc.plugin.version>
     <license.plugin.version>4.2</license.plugin.version>
     <nexus.plugin.version>1.6.13</nexus.plugin.version>
     <owasp.plugin.version>8.4.0</owasp.plugin.version>
@@ -75,7 +75,7 @@
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.0</junit.version>
     <yasson.version>3.0.3</yasson.version>
-    <wiremock.version>3.0.4</wiremock.version>
+    <wiremock.version>3.1.0</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
