@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1695051643494">
+<licensePluginReport goal="CHECK" timestamp="1696258622964">
     <module artifactId="inrupt-client-core" groupId="com.inrupt.client" version="1.0.2-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/core/AuthenticationException.java" result="PRESENT"/>
