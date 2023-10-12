@@ -38,6 +38,10 @@ class MockSolidServer {
     }
 
     private void setupMocks() {
+        wireMockServer.stubFor(head(anyUrl())
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)));
         wireMockServer.stubFor(get(anyUrl())
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .willReturn(aResponse()
