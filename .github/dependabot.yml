@@ -4,6 +4,24 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+
+  - package-ecosystem: "maven"
+    directory: "/rdf4j/"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+
+  - package-ecosystem: "maven"
+    directory: "/rdf-legacy/"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+        versions:
+          - "3.x"
 
   - package-ecosystem: "gradle"
     directory: "/gradle/"
@@ -21,6 +39,32 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "1.0"
+    ignore:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+    labels:
+      - "backport"
+      - "1.0"
+
+  - package-ecosystem: "maven"
+    directory: "/rdf4j/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.0"
+    allow:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+    labels:
+      - "backport"
+      - "1.0"
+
+  - package-ecosystem: "maven"
+    directory: "/rdf-legacy/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.0"
+    allow:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+        versions:
+          - "3.x"
     labels:
       - "backport"
       - "1.0"

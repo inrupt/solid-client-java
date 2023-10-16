@@ -33,7 +33,6 @@
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.11.0</okhttp.version>
-    <rdf4j.version>4.3.6</rdf4j.version>
     <slf4j.version>2.0.9</slf4j.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>1.0.0</inrupt.rdf.wrapping.version>
