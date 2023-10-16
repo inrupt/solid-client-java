@@ -161,9 +161,9 @@ public class DomainModulesResource {
         final Literal objectTrue = rdf.createLiteral("true", booleanType);
         final Literal objectFalse = rdf.createLiteral("false", booleanType);
 
-        // Populate data for this ressource
+        // Populate data for this resource
         final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(null, subject, predicate, objectTrue));
+        dataset.add(null, subject, predicate, objectTrue);
 
         // Create a new resource
         final URI resourceUri = URI.create(resourceName);
@@ -176,7 +176,7 @@ public class DomainModulesResource {
 
             // Adjust the contents of the underlying dataset
             resource.clear();
-            resource.add(rdf.createQuad(null, subject, predicate, objectFalse));
+            resource.add(null, subject, predicate, objectFalse);
 
             // Update the resource
             assertDoesNotThrow(() -> client.update(resource));
@@ -227,23 +227,23 @@ public class DomainModulesResource {
         final Literal objectTrue = rdf.createLiteral("true", booleanType);
         final Literal objectFalse = rdf.createLiteral("false", booleanType);
 
-        // Populate data for this ressource
+        // Populate data for this resource
         final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(null, subject, predicate1, objectTrue));
-        dataset.add(rdf.createQuad(null, subject, predicate2, objectBlank));
+        dataset.getGraph().add(subject, predicate1, objectTrue);
+        dataset.getGraph().add(subject, predicate2, objectBlank);
 
         // Create a new resource
         final URI resourceUri = URI.create(resourceName);
         try (final SolidRDFSource resource = client.create(new SolidRDFSource(resourceUri, dataset))) {
             // Assert that the returned resource contains the expected data
             assertEquals(resourceUri, resource.getIdentifier());
-            assertEquals(2, resource.size());
-            assertTrue(resource.contains(null, subject, predicate1, objectTrue));
-            assertTrue(resource.contains(null, subject, predicate2, null));
+            assertEquals(2, resource.getGraph().size());
+            assertTrue(resource.getGraph().contains(subject, predicate1, objectTrue));
+            assertTrue(resource.getGraph().contains(subject, predicate2, null));
 
             // Adjust the contents of the underlying dataset
-            resource.remove(null, subject, predicate1, null);
-            resource.add(rdf.createQuad(null, subject, predicate1, objectFalse));
+            resource.getGraph().remove(subject, predicate1, null);
+            resource.getGraph().add(subject, predicate1, objectFalse);
 
             // Update the resource
             assertDoesNotThrow(() -> client.update(resource));
@@ -253,9 +253,9 @@ public class DomainModulesResource {
         try (final SolidRDFSource resource = client.read(resourceUri, SolidRDFSource.class)) {
             // Assert that the returned resource contains the expected data
             assertEquals(resourceUri, resource.getIdentifier());
-            assertEquals(2, resource.size());
-            assertTrue(resource.contains(null, subject, predicate1, objectFalse));
-            assertTrue(resource.contains(null, subject, predicate2, null));
+            assertEquals(2, resource.getGraph().size());
+            assertTrue(resource.getGraph().contains(subject, predicate1, objectFalse));
+            assertTrue(resource.getGraph().contains(subject, predicate2, null));
         }
 
         assertDoesNotThrow(() -> client.delete(resourceUri));
