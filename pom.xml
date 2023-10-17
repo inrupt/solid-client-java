@@ -114,7 +114,6 @@
     <module>performance</module>
     <module>reports</module>
     <module>archetypes</module>
-    <module>gradle</module>
   </modules>
 
   <distributionManagement>
