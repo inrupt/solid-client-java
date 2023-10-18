@@ -114,7 +114,6 @@
     <module>performance</module>
     <module>reports</module>
     <module>archetypes</module>
-    <module>gradle</module>
   </modules>
 
   <distributionManagement>
@@ -801,6 +800,15 @@
         <checkstyle.skip>true</checkstyle.skip>
         <archetype.test.skip>true</archetype.test.skip>
       </properties>
+    </profile>
+    <profile>
+      <id>java-21</id>
+      <activation>
+        <jdk>[11,21)</jdk>
+      </activation>
+      <modules>
+        <module>gradle</module>
+      </modules>
     </profile>
   </profiles>
 
