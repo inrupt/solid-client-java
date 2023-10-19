@@ -34,15 +34,12 @@ import com.inrupt.client.vocabulary.PIM;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -156,37 +153,45 @@ public class DomainModulesResource {
     void crudRdfTest() {
         LOGGER.info("Integration Test - CRUD on RDF resource");
 
-        final String newResourceName = publicContainerURI + "e2e-test-subject-domain1";
-        final String newPredicateName = "https://example.example/predicate";
+        final String resourceName = publicContainerURI + "e2e-test-subject-domain1";
+        final String predicateName = "https://example.example/predicate";
 
-        final IRI newResourceNode = rdf.createIRI(newResourceName);
-        final IRI newPredicateNode = rdf.createIRI(newPredicateName);
-        final Literal object = rdf.createLiteral("true", booleanType);
+        final IRI subject = rdf.createIRI(resourceName);
+        final IRI predicate = rdf.createIRI(predicateName);
+        final Literal objectTrue = rdf.createLiteral("true", booleanType);
+        final Literal objectFalse = rdf.createLiteral("false", booleanType);
 
+        // Populate data for this resource
         final Dataset dataset = rdf.createDataset();
-        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
+        dataset.add(null, subject, predicate, objectTrue);
 
-        try (final SolidRDFSource newResource = new SolidRDFSource(URI.create(newResourceName), dataset, null)) {
-            assertDoesNotThrow(() -> client.create(newResource));
+        // Create a new resource
+        final URI resourceUri = URI.create(resourceName);
+        try (final SolidRDFSource resource = client.create(new SolidRDFSource(resourceUri, dataset))) {
 
-            try (final SolidRDFSource resource = client.read(URI.create(newResourceName), SolidRDFSource.class)) {
-                assertEquals(newResource.getIdentifier(), resource.getIdentifier());
-                assertEquals(1, resource.size());
+            // Assert that the returned resource contains the expected data
+            assertEquals(resourceUri, resource.getIdentifier());
+            assertEquals(1, resource.size());
+            assertTrue(resource.contains(null, subject, predicate, objectTrue));
 
-                final Literal newObject = rdf.createLiteral("false", booleanType);
-                final Dataset newDataset = rdf.createDataset();
-                try (final var stream = resource.stream(null, newResourceNode, null, null)) {
-                    stream.map(quad ->
-                            rdf.createQuad(quad.getSubject(), quad.getSubject(), quad.getPredicate(), newObject))
-                        .forEach(newDataset::add);
-                }
-                try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
-                    newDataset, null)) {
-                    assertDoesNotThrow(() -> client.update(updatedResource));
-                }
-            }
-            assertDoesNotThrow(() -> client.delete(URI.create(newResourceName)));
+            // Adjust the contents of the underlying dataset
+            resource.clear();
+            resource.add(null, subject, predicate, objectFalse);
+
+            // Update the resource
+            assertDoesNotThrow(() -> client.update(resource));
         }
+
+        // Re-fetch the resource, ensuring that that it has been updated
+        try (final SolidRDFSource resource = client.read(resourceUri, SolidRDFSource.class)) {
+            // Assert that the returned resource contains the expected data
+            assertEquals(resourceUri, resource.getIdentifier());
+            assertEquals(1, resource.size());
+            assertTrue(resource.contains(null, subject, predicate, objectFalse));
+        }
+
+        // Delete the resource
+        assertDoesNotThrow(() -> client.delete(resourceUri));
     }
 
     @Test
@@ -210,51 +215,50 @@ public class DomainModulesResource {
         LOGGER.info("Integration Test - update statements containing Blank Nodes in " +
             "different instances of the same model");
 
-        final String newResourceName = publicContainerURI + "e2e-test-subject-domain2";
-        final String predicateName = "https://example.example/predicate";
-        final String predicateForBlankName = "https://example.example/predicateForBlank";
+        final String resourceName = publicContainerURI + "e2e-test-subject-domain2";
+        final String predicate1Name = "https://example.example/predicate";
+        final String predicate2Name = "https://example.example/predicateForBlank";
 
+
+        final IRI subject = rdf.createIRI(resourceName);
+        final IRI predicate1 = rdf.createIRI(predicate1Name);
+        final IRI predicate2 = rdf.createIRI(predicate2Name);
+        final BlankNode objectBlank = rdf.createBlankNode("blank");
+        final Literal objectTrue = rdf.createLiteral("true", booleanType);
+        final Literal objectFalse = rdf.createLiteral("false", booleanType);
+
+        // Populate data for this resource
         final Dataset dataset = rdf.createDataset();
+        dataset.getGraph().add(subject, predicate1, objectTrue);
+        dataset.getGraph().add(subject, predicate2, objectBlank);
 
-        final IRI newResourceNode = rdf.createIRI(newResourceName);
-        final IRI newPredicateNode = rdf.createIRI(predicateName);
-        final Literal object = rdf.createLiteral("true", booleanType);
-        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, object));
+        // Create a new resource
+        final URI resourceUri = URI.create(resourceName);
+        try (final SolidRDFSource resource = client.create(new SolidRDFSource(resourceUri, dataset))) {
+            // Assert that the returned resource contains the expected data
+            assertEquals(resourceUri, resource.getIdentifier());
+            assertEquals(2, resource.getGraph().size());
+            assertTrue(resource.getGraph().contains(subject, predicate1, objectTrue));
+            assertTrue(resource.getGraph().contains(subject, predicate2, null));
 
-        final IRI newBNPredicateNode = rdf.createIRI(predicateForBlankName);
-        final BlankNode bn = rdf.createBlankNode("blank");
-        dataset.add(rdf.createQuad(newResourceNode, newResourceNode, newBNPredicateNode, bn));
+            // Adjust the contents of the underlying dataset
+            resource.getGraph().remove(subject, predicate1, null);
+            resource.getGraph().add(subject, predicate1, objectFalse);
 
-        try (final SolidRDFSource newResource = new SolidRDFSource(URI.create(newResourceName), dataset, null)) {
-            assertDoesNotThrow(() -> client.create(newResource));
-
-            try (final SolidRDFSource resource = client.read(URI.create(newResourceName), SolidRDFSource.class)) {
-                assertEquals(URI.create(newResourceName), resource.getIdentifier());
-                assertEquals(2, resource.size());
-
-                final Literal newObject = rdf.createLiteral("false", booleanType);
-                final Dataset newDataset = rdf.createDataset();
-
-                final List<Quad> allQuads = new ArrayList<>();
-                try (final var stream = resource.stream()) {
-                    stream.forEach(allQuads::add);
-                }
-                try (final var stream = resource.stream(null, newResourceNode, newPredicateNode, null)) {
-                    stream.forEach(allQuads::remove);
-                }
-
-                final Quad toAddQuad = rdf.createQuad(newResourceNode, newResourceNode, newPredicateNode, newObject);
-
-                allQuads.add(toAddQuad);
-                allQuads.forEach(newDataset::add);
-
-                try (final SolidRDFSource updatedResource = new SolidRDFSource(URI.create(newResourceName),
-                    newDataset, null)) {
-                    assertDoesNotThrow(() -> client.update(updatedResource));
-                }
-            }
-            assertDoesNotThrow(() -> client.delete(URI.create(newResourceName)));
+            // Update the resource
+            assertDoesNotThrow(() -> client.update(resource));
         }
+
+        // Re-fetch the resource, ensuring that that it has been updated
+        try (final SolidRDFSource resource = client.read(resourceUri, SolidRDFSource.class)) {
+            // Assert that the returned resource contains the expected data
+            assertEquals(resourceUri, resource.getIdentifier());
+            assertEquals(2, resource.getGraph().size());
+            assertTrue(resource.getGraph().contains(subject, predicate1, objectFalse));
+            assertTrue(resource.getGraph().contains(subject, predicate2, null));
+        }
+
+        assertDoesNotThrow(() -> client.delete(resourceUri));
     }
 
     @Test
