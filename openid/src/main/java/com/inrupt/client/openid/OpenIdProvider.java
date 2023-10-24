@@ -211,6 +211,13 @@ public class OpenIdProvider {
     }
 
     private Request tokenRequest(final Metadata metadata, final TokenRequest request) {
+        if (request.getIssuer() != null) {
+            if (!request.getIssuer().equals(metadata.issuer)) {
+                throw new OpenIdException("Issuer mismatch. " +
+                        "Please verify that the designated OpenID issuer is correct");
+            }
+        }
+
         if (!metadata.grantTypesSupported.contains(request.getGrantType())) {
             throw new OpenIdException("Grant type [" + request.getGrantType() + "] is not supported by this provider.");
         }

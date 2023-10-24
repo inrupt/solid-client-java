@@ -115,6 +115,43 @@ class OpenIdProviderTest {
     }
 
     @Test
+    void tokenIssuerMismatch() {
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
+            .code("someCode")
+            .codeVerifier("myCodeverifier")
+            .issuer(URI.create("https://issuer.test"))
+            .redirectUri(URI.create("https://example.test/redirectUri"))
+            .build(
+                "authorization_code",
+                "myClientId"
+            );
+
+        final CompletionException ex = assertThrows(CompletionException.class, openIdProvider.token(tokenReq)
+            .toCompletableFuture()::join);
+        assertTrue(ex.getCause() instanceof OpenIdException);
+        final OpenIdException cause = (OpenIdException) ex.getCause();
+        assertTrue(cause.getMessage().contains("Issuer mismatch"));
+    }
+
+    @Test
+    void tokenIssuerMatch() {
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
+            .code("someCode")
+            .codeVerifier("myCodeverifier")
+            .issuer(URI.create("http://example.test"))
+            .redirectUri(URI.create("https://example.test/redirectUri"))
+            .build(
+                "authorization_code",
+                "myClientId"
+            );
+        final TokenResponse token = openIdProvider.token(tokenReq)
+            .toCompletableFuture().join();
+        assertEquals("123456", token.accessToken);
+        assertNotNull(token.idToken);
+        assertEquals("Bearer", token.tokenType);
+    }
+
+    @Test
     void tokenNoClientSecretTest() {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
