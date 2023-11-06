@@ -22,7 +22,15 @@
         This vulnerability appears via wiremock and is used only during test execution. As such, the
         rapid reset DoS vector is not relevant.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2\-common@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2\-.*@.*$</packageUrl>
+    <vulnerabilityName>CVE-2023-44487</vulnerabilityName>
+  </suppress>
+  <suppress until="2023-11-12Z">
+    <notes><![CDATA[
+        This vulnerability appears via wiremock and is used only during test execution. As such, the
+        rapid reset DoS vector is not relevant.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*@.*$</packageUrl>
     <vulnerabilityName>CVE-2023-44487</vulnerabilityName>
   </suppress>
 </suppressions>
