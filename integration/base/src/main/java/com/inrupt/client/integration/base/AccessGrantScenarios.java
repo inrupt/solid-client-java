@@ -101,7 +101,7 @@ public class AccessGrantScenarios {
     private static final URI PURPOSE2 = URI.create("https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03");
     protected static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
     protected static final String GRANT_EXPIRATION = Instant.now().plus(1, ChronoUnit.HOURS)
-        .truncateTo(ChronoUnits.SECONDS).toString();
+        .truncatedTo(ChronoUnit.SECONDS).toString();
     private static final String sharedTextFileName = "sharedFile.txt";
     protected static URI sharedTextFileURI;
     private static URI privateContainerURI;
