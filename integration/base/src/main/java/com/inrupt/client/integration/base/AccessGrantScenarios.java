@@ -100,12 +100,11 @@ public class AccessGrantScenarios {
     private static final URI PURPOSE1 = URI.create("https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f");
     private static final URI PURPOSE2 = URI.create("https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03");
     protected static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
-    protected static final String GRANT_EXPIRATION = "2024-04-03T12:00:00Z";
+    protected static final String GRANT_EXPIRATION = Instant.now().plus(1, ChronoUnit.HOURS)
+        .truncatedTo(ChronoUnit.SECONDS).toString();
     private static final String sharedTextFileName = "sharedFile.txt";
     protected static URI sharedTextFileURI;
     private static URI privateContainerURI;
-    private static Session requesterSession;
-    private static Session resourceOwnerSession;
 
     private static SolidSyncClient authResourceOwnerClient;
 
@@ -780,13 +779,13 @@ public class AccessGrantScenarios {
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
-        resourceOwnerSession = OpenIdSession.ofClientCredentials(
+        final var resourceOwnerSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer),
             RESOURCE_OWNER_CLIENT_ID,
             RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
 
-        requesterSession = OpenIdSession.ofClientCredentials(
+        final var requesterSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer),
             REQUESTER_CLIENT_ID,
             REQUESTER_CLIENT_SECRET,
