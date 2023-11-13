@@ -29,7 +29,7 @@
     <guava.version>32.1.3-jre</guava.version>
     <jackson.version>2.15.3</jackson.version>
     <jakarta.json.version>2.1.3</jakarta.json.version>
-    <jena.version>4.9.0</jena.version>
+    <jena.version>4.10.0</jena.version>
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.12.0</okhttp.version>
