@@ -20,20 +20,12 @@
  */
 package com.inrupt.client.solid;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.URI;
 
-import org.apache.commons.rdf.api.RDFSyntax;
-
-public class InvalidType extends SolidRDFSource {
-    public InvalidType(final URI identifier) {
-        super(identifier);
-    }
-
-    @Override
-    public void serialize(final RDFSyntax syntax, final OutputStream out) throws IOException {
-        throw new IOException("Expected exception");
+public class BasicBinary extends SolidNonRDFSource {
+    public BasicBinary(final URI identifier, final String contentType, final InputStream entity) {
+        super(identifier, contentType, entity);
     }
 }
 

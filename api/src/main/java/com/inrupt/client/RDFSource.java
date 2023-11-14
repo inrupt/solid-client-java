@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.HashMap;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.RDF;
@@ -49,6 +50,7 @@ public class RDFSource extends WrapperDataset implements Resource {
 
     private final URI identifier;
     private final RDFSyntax syntax;
+    private final Headers headers;
 
     /**
      * Create a new RDF-bearing resource.
@@ -68,11 +70,39 @@ public class RDFSource extends WrapperDataset implements Resource {
      * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
      *
      * @param identifier the resource identifier
+     * @param dataset the dataset corresponding to this resource, may be {@code null}
+     * @param headers header values associated with the resource, may be {@code null}
+     */
+    protected RDFSource(final URI identifier, final Dataset dataset, final Headers headers) {
+        this(identifier, RDFSyntax.TURTLE, dataset, headers);
+    }
+
+    /**
+     * Create a new RDF-bearing resource.
+     *
+     * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
+     *
+     * @param identifier the resource identifier
      * @param syntax the original RDF syntax in use
      * @param dataset the dataset corresponding to this resource, may be {@code null}
      */
     protected RDFSource(final URI identifier, final RDFSyntax syntax, final Dataset dataset) {
+        this(identifier, syntax, dataset, null);
+    }
+
+    /**
+     * Create a new RDF-bearing resource.
+     *
+     * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
+     *
+     * @param identifier the resource identifier
+     * @param syntax the original RDF syntax in use
+     * @param dataset the dataset corresponding to this resource, may be {@code null}
+     * @param headers header values associated with the resource, may be {@code null}
+     */
+    protected RDFSource(final URI identifier, final RDFSyntax syntax, final Dataset dataset, final Headers headers) {
         super(dataset == null ? rdf.createDataset() : dataset);
+        this.headers = headers == null ? Headers.of(new HashMap<>()) : headers;
         this.identifier = identifier;
         this.syntax = syntax;
     }
@@ -85,6 +115,11 @@ public class RDFSource extends WrapperDataset implements Resource {
     @Override
     public String getContentType() {
         return syntax.mediaType();
+    }
+
+    @Override
+    public Headers getHeaders() {
+        return headers;
     }
 
     @Override

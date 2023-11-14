@@ -20,7 +20,11 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Headers;
+import com.inrupt.client.vocabulary.PIM;
+
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,6 +35,9 @@ import java.util.Set;
  * Solid Resource Metadata.
  */
 public class Metadata {
+
+    private static final URI STORAGE = URI.create(PIM.getNamespace() + "Storage");
+    private static final String CONTENT_TYPE = "Content-Type";
 
     private final URI acl;
     private final URI storage;
@@ -293,6 +300,55 @@ public class Metadata {
         Builder() {
             // Prevent external instantiation
         }
+    }
+
+    public static Metadata of(final URI identifier, final Headers headers) {
+        // Gather metadata from HTTP headers
+        final Metadata.Builder metadata = Metadata.newBuilder();
+        headers.allValues("Link").stream()
+            .flatMap(l -> Headers.Link.parse(l).stream())
+            .forEach(link -> {
+                if (link.getParameter("rel").contains("type")) {
+                    if ((link.getUri().equals(STORAGE))) {
+                        metadata.storage(identifier);
+                    }
+                    metadata.type(link.getUri());
+                } else if (link.getParameter("rel").contains("acl")) {
+                    metadata.acl(link.getUri());
+                } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
+                    metadata.storage(link.getUri());
+                }
+            });
+
+        headers.allValues("WAC-Allow").stream()
+            .map(Headers.WacAllow::parse)
+            .map(Headers.WacAllow::getAccessParams)
+            .flatMap(p -> p.entrySet().stream())
+            .forEach(metadata::wacAllow);
+
+        headers.allValues("Allow").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedMethod);
+
+        headers.allValues("Accept-Post").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedPostSyntax);
+
+        headers.allValues("Accept-Patch").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedPatchSyntax);
+
+        headers.allValues("Accept-Put").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .forEach(metadata::allowedPutSyntax);
+
+        metadata.contentType(headers.firstValue(CONTENT_TYPE).orElse("application/octet-stream"));
+
+        return metadata.build();
     }
 }
 

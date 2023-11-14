@@ -44,7 +44,7 @@ class OpenIdAuthenticationScenariosTest extends AuthenticationScenarios {
         LOGGER.info("Integration Test - Authenticated fetch of private resource uses OpenID authenticator");
         //create private resource
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
-        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI, null, null)) {
+        try (final SolidRDFSource testResource = new SolidRDFSource(privateResourceURI)) {
             assertDoesNotThrow(() -> authClient.create(testResource));
 
             assertDoesNotThrow(() -> authClient.read(privateResourceURI, SolidRDFSource.class));

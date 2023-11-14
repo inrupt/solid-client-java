@@ -155,7 +155,7 @@ class SolidRDFSourceTest {
     @Test
     void testEmptyResourceBuilder() {
         final URI id = URI.create("https://resource.example/");
-        try (final SolidRDFSource res = new SolidRDFSource(id, null, null)) {
+        try (final SolidRDFSource res = new SolidRDFSource(id)) {
             assertFalse(res.getMetadata().getStorage().isPresent());
             assertFalse(res.getMetadata().getAcl().isPresent());
             assertTrue(res.getMetadata().getAllowedPatchSyntaxes().isEmpty());

@@ -239,7 +239,7 @@ public class GetResourcesWithGrantScenario {
                 try (final InputStream is =
                              new ByteArrayInputStream(StandardCharsets.UTF_8.encode("Test text").array())) {
                     final SolidNonRDFSource testResource =
-                            new SolidNonRDFSource(resourceURI, Utils.PLAIN_TEXT, is, null);
+                            new SolidNonRDFSource(resourceURI, Utils.PLAIN_TEXT, is);
                     assertDoesNotThrow(() -> client.create(testResource));
                 } catch (IOException e) {
                     LOGGER.warn("Could not create performance test resource " + resourceURI);

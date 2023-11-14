@@ -30,6 +30,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
+import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,6 +52,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class SolidClientTest {
 
+    private static final String TEXT_PLAIN = "text/plain";
     private static final SolidMockHttpService mockHttpServer = new SolidMockHttpService();
     private static final Map<String, String> config = new HashMap<>();
     private static final RDF rdf = RDFFactory.getInstance();
@@ -84,6 +86,13 @@ class SolidClientTest {
                 assertTrue(p.getSongs().contains(song1));
                 assertTrue(p.getSongs().contains(song2));
                 assertTrue(p.validate().isValid());
+
+                assertEquals(Optional.of("user=\"read write\",public=\"read\""),
+                        p.getHeaders().firstValue("WAC-Allow"));
+                assertEquals(Optional.of("user=\"read write\",public=\"read\""),
+                        p.getHeaders().firstValue("wac-allow"));
+                assertTrue(p.getHeaders().allValues("Link")
+                        .contains("<http://storage.example/>; rel=\"" + PIM.storage + "\""));
 
                 assertDoesNotThrow(customClient.create(p).toCompletableFuture()::join);
                 assertDoesNotThrow(customClient.update(p).toCompletableFuture()::join);
@@ -184,13 +193,43 @@ class SolidClientTest {
     }
 
     @Test
+    void testGetDeprecatedBinaryFetch() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
+
+        client.read(uri, DeprecatedBinary.class).thenAccept(binary -> {
+            try (final DeprecatedBinary b = binary) {
+                assertEquals(uri, b.getIdentifier());
+                assertEquals(TEXT_PLAIN, b.getContentType());
+
+                assertTrue(b.getHeaders().asMap().isEmpty());
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
+    void testGetBinaryFetch() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
+
+        client.read(uri, BasicBinary.class).thenAccept(binary -> {
+            try (final BasicBinary b = binary) {
+                assertEquals(uri, b.getIdentifier());
+                assertEquals(TEXT_PLAIN, b.getContentType());
+
+                assertTrue(b.getHeaders().asMap().isEmpty());
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
     void testGetBinaryUpdate() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
 
         client.read(uri, SolidNonRDFSource.class).thenAccept(binary -> {
             try (final SolidNonRDFSource b = binary) {
                 assertEquals(uri, b.getIdentifier());
-                assertEquals("text/plain", b.getContentType());
+                assertEquals(TEXT_PLAIN, b.getContentType());
+
+                assertEquals(Optional.of(TEXT_PLAIN), b.getHeaders().firstValue("content-type"));
 
                 assertDoesNotThrow(client.update(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
@@ -206,7 +245,10 @@ class SolidClientTest {
         client.read(uri, SolidNonRDFSource.class).thenAccept(binary -> {
             try (final SolidNonRDFSource b = binary) {
                 assertEquals(uri, b.getIdentifier());
-                assertEquals("text/plain", b.getContentType());
+                assertEquals(TEXT_PLAIN, b.getContentType());
+
+                assertEquals(Optional.of(TEXT_PLAIN), b.getHeaders().firstValue("Content-Type"));
+                assertEquals(Optional.of(TEXT_PLAIN), b.getHeaders().firstValue("content-type"));
 
                 assertDoesNotThrow(client.create(b).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(b).toCompletableFuture()::join);
@@ -247,7 +289,7 @@ class SolidClientTest {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
         final InputStream entity = new ByteArrayInputStream("This is a plain text document.".getBytes(UTF_8));
 
-        final SolidNonRDFSource binary = new SolidNonRDFSource(uri, "text/plain", entity);
+        final SolidNonRDFSource binary = new SolidNonRDFSource(uri, TEXT_PLAIN, entity);
         assertDoesNotThrow(client.create(binary).toCompletableFuture()::join);
     }
 
@@ -272,6 +314,23 @@ class SolidClientTest {
                 assertEquals("Molasses Cookies", r.getTitle());
                 assertEquals(11, r.getIngredients().size());
                 assertEquals(7, r.getSteps().size());
+                assertEquals(Optional.of("POST, PUT, PATCH"), r.getHeaders().firstValue("allow"));
+            }
+        })
+        .toCompletableFuture().join();
+    }
+
+    @Test
+    void testGetDeprecatedType() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/recipe");
+
+        client.read(uri, DeprecatedType.class).thenAccept(recipe -> {
+            try (final DeprecatedType r = recipe) {
+                assertEquals(uri, r.getIdentifier());
+                assertEquals("Molasses Cookies", r.getTitle());
+                assertEquals(11, r.getIngredients().size());
+                assertEquals(7, r.getSteps().size());
+                assertFalse(r.getHeaders().firstValue("allow").isPresent());
             }
         })
         .toCompletableFuture().join();

@@ -165,7 +165,7 @@ public class AccessGrantScenarios {
                 .build();
         //create test file in access grant enabled container
         try (final InputStream is = new ByteArrayInputStream(StandardCharsets.UTF_8.encode("Test text").array())) {
-            final SolidNonRDFSource testResource = new SolidNonRDFSource(sharedTextFileURI, Utils.PLAIN_TEXT, is, null);
+            final SolidNonRDFSource testResource = new SolidNonRDFSource(sharedTextFileURI, Utils.PLAIN_TEXT, is);
             assertDoesNotThrow(() -> authResourceOwnerClient.create(testResource));
             prepareAcpOfResource(authResourceOwnerClient, sharedTextFileURI, SolidNonRDFSource.class);
         }
@@ -460,7 +460,7 @@ public class AccessGrantScenarios {
                 .path("resource-accessGrantGetRdfTest.ttl")
                 .build();
 
-        try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI, null, null)) {
+        try (final SolidRDFSource resource = new SolidRDFSource(testRDFresourceURI)) {
             assertDoesNotThrow(() -> resourceOwnerClient.create(resource));
 
             prepareAcpOfResource(resourceOwnerClient, testRDFresourceURI, SolidRDFSource.class);
@@ -613,7 +613,7 @@ public class AccessGrantScenarios {
         try (final InputStream is = new ByteArrayInputStream(
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
-                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
+                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is);
             assertDoesNotThrow(() -> resourceOwnerClient.create(testResource));
         }
 
@@ -662,7 +662,7 @@ public class AccessGrantScenarios {
         try (final InputStream is = new ByteArrayInputStream(
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
-                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
+                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is);
             assertDoesNotThrow(() -> resourceOwnerClient.create(testResource));
         }
 
@@ -744,7 +744,7 @@ public class AccessGrantScenarios {
         try (final InputStream is = new ByteArrayInputStream(
             StandardCharsets.UTF_8.encode("Test test test text").array())) {
             final SolidNonRDFSource testResource =
-                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is, null);
+                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is);
             assertDoesNotThrow(() -> requesterAuthClient.create(testResource));
         }
 

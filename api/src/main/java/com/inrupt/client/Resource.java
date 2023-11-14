@@ -46,6 +46,13 @@ public interface Resource extends AutoCloseable {
     String getContentType();
 
     /**
+     * The resource headers.
+     *
+     * @return the resource headers
+     */
+    Headers getHeaders();
+
+    /**
      * The resource entity.
      *
      * @return the resource entity
