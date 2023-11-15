@@ -113,6 +113,7 @@
     <module>webid</module>
     <module>vocabulary</module>
     <module>runtime</module>
+    <module>spring</module>
     <module>integration</module>
     <module>performance</module>
     <module>reports</module>
@@ -811,15 +812,6 @@
       </activation>
       <modules>
         <module>gradle</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>java-17</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <modules>
-        <module>spring</module>
       </modules>
     </profile>
   </profiles>
