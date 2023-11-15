@@ -108,7 +108,6 @@
     <module>rdf4j</module>
     <module>rdf-legacy</module>
     <module>solid</module>
-    <module>spring</module>
     <module>test</module>
     <module>uma</module>
     <module>webid</module>
@@ -812,6 +811,15 @@
       </activation>
       <modules>
         <module>gradle</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>java-17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <modules>
+        <module>spring</module>
       </modules>
     </profile>
   </profiles>
