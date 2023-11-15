@@ -89,7 +89,7 @@
 
   <profiles>
     <profile>
-      <id>java-17</id>
+      <id>java-11</id>
       <activation>
         <jdk>[,17)</jdk>
       </activation>
