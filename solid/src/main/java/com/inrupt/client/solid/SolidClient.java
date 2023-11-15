@@ -138,14 +138,12 @@ public class SolidClient {
                 } else {
                     final String contentType = response.headers().firstValue(CONTENT_TYPE)
                         .orElse("application/octet-stream");
-                    final Metadata metadata = SolidResourceHandlers.buildMetadata(response.uri(),
-                            response.headers());
                     try {
                         // Check that this is an RDFSoure
                         if (RDFSource.class.isAssignableFrom(clazz)) {
                             final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
                                     identifier.toString()).orElse(null);
-                            final T obj = construct(identifier, clazz, dataset, metadata);
+                            final T obj = construct(identifier, clazz, dataset, response.headers());
                             final ValidationResult res = RDFSource.class.cast(obj).validate();
                             if (!res.isValid()) {
                                 throw new DataMappingException(
@@ -156,7 +154,7 @@ public class SolidClient {
                         // Otherwise, create a non-RDF-bearing resource
                         } else {
                             return construct(identifier, clazz, contentType,
-                                    new ByteArrayInputStream(response.body()), metadata);
+                                    new ByteArrayInputStream(response.body()), response.headers());
                         }
                     } catch (final ReflectiveOperationException ex) {
                         throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
@@ -388,30 +386,54 @@ public class SolidClient {
     }
 
     static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
-            final Dataset dataset, final Metadata metadata) throws ReflectiveOperationException {
+            final Dataset dataset, final Headers headers) throws ReflectiveOperationException {
+        // First try an arity-3 ctor with headers
         try {
-            // First try an arity-3 ctor
+            return clazz.getConstructor(URI.class, Dataset.class, Headers.class)
+                .newInstance(identifier, dataset, headers);
+        } catch (final NoSuchMethodException ex) {
+            // no-op
+        }
+
+        // Next, try an arity-3 ctor with metadata
+        // TODO: this construct is deprecated and can be removed in a future version
+        try {
+            final Metadata metadata = Metadata.of(identifier, headers);
             return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)
                         .newInstance(identifier, dataset, metadata);
         } catch (final NoSuchMethodException ex) {
-            // Fall back to an arity-2 ctor
-            return clazz.getConstructor(URI.class, Dataset.class)
-                        .newInstance(identifier, dataset);
+            // no-op
         }
+
+        // Fall back to an arity-2 ctor
+        return clazz.getConstructor(URI.class, Dataset.class)
+                    .newInstance(identifier, dataset);
     }
 
     static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
-            final String contentType, final InputStream entity, final Metadata metadata)
+            final String contentType, final InputStream entity, final Headers headers)
             throws ReflectiveOperationException {
+        // First try an arity-4 ctor with headers
         try {
-            // First try an arity-4 ctor
+            return clazz.getConstructor(URI.class, String.class, InputStream.class, Headers.class)
+                .newInstance(identifier, contentType, entity, headers);
+        } catch (final NoSuchMethodException ex) {
+            // no-op
+        }
+
+        // Next try an arity-4 ctor with metadata
+        // TODO: this construct is deprecated and can be removed in a future version
+        try {
+            final Metadata metadata = Metadata.of(identifier, headers);
             return clazz.getConstructor(URI.class, String.class, InputStream.class, Metadata.class)
                 .newInstance(identifier, contentType, entity, metadata);
         } catch (final NoSuchMethodException ex) {
-            // Fall back to an arity-3 ctor
-            return clazz.getConstructor(URI.class, String.class, InputStream.class)
-                .newInstance(identifier, contentType, entity);
+            // no-op
         }
+
+        // Fall back to an arity-3 ctor
+        return clazz.getConstructor(URI.class, String.class, InputStream.class)
+            .newInstance(identifier, contentType, entity);
     }
 
     static void decorateHeaders(final Request.Builder builder, final Headers headers) {

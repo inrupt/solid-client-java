@@ -20,8 +20,6 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Headers;
-import com.inrupt.client.ValidationResult;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -34,18 +32,20 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 
-public class Playlist extends SolidRDFSource {
+public class DeprecatedType extends SolidRDFSource {
 
     private final IRI dcTitle;
-    private final IRI exSong;
+    private final IRI exIngredient;
+    private final IRI exStep;
     private final Node subject;
 
-    public Playlist(final URI identifier, final Dataset dataset, final Headers headers) {
-        super(identifier, dataset, headers);
+    public DeprecatedType(final URI identifier, final Dataset dataset, final Metadata metadata) {
+        super(identifier, dataset, metadata);
 
         this.subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
         this.dcTitle = rdf.createIRI("http://purl.org/dc/terms/title");
-        this.exSong = rdf.createIRI("https://example.com/song");
+        this.exStep = rdf.createIRI("https://example.com/step");
+        this.exIngredient = rdf.createIRI("https://example.com/ingredient");
     }
 
     public String getTitle() {
@@ -56,17 +56,12 @@ public class Playlist extends SolidRDFSource {
         subject.setTitle(value);
     }
 
-    public Set<URI> getSongs() {
-        return subject.getSongs();
+    public Set<String> getIngredients() {
+        return subject.getIngredients();
     }
 
-    @Override
-    public ValidationResult validate() {
-        //EX: a playlist must contain at least one song
-        if (getSongs().isEmpty()) {
-            return new ValidationResult(false, "A playlist must contain at least one song.");
-        }
-        return new ValidationResult(true);
+    public Set<String> getSteps() {
+        return subject.getSteps();
     }
 
     class Node extends WrapperIRI {
@@ -83,8 +78,12 @@ public class Playlist extends SolidRDFSource {
             overwriteNullable(dcTitle, value, TermMappings::asStringLiteral);
         }
 
-        Set<URI> getSongs() {
-            return objects(exSong, TermMappings::asIri, ValueMappings::iriAsUri);
+        Set<String> getIngredients() {
+            return objects(exIngredient, TermMappings::asStringLiteral, ValueMappings::literalAsString);
+        }
+
+        Set<String> getSteps() {
+            return objects(exStep, TermMappings::asStringLiteral, ValueMappings::literalAsString);
         }
     }
 }

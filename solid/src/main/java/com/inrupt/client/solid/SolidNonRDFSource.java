@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.NonRDFSource;
 
 import java.io.InputStream;
@@ -40,7 +41,7 @@ public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
      * @param entity the entity
      */
     public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity) {
-        this(identifier, contentType, entity, null);
+        this(identifier, contentType, entity, (Headers) null);
     }
 
     /**
@@ -50,7 +51,9 @@ public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
      * @param contentType the content type
      * @param entity the entity
      * @param metadata the metadata, may be {@code null}
+     * @deprecated use {@link #SolidNonRDFSource(URI, String, InputStream, Headers)} instead
      */
+    @Deprecated
     public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,
             final Metadata metadata) {
         super(identifier, contentType, entity);
@@ -58,6 +61,24 @@ public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
             this.metadata = Metadata.newBuilder().build();
         } else {
             this.metadata = metadata;
+        }
+    }
+
+    /**
+     * Create a non-RDF-bearing Solid Resource.
+     *
+     * @param identifier the resource identifier
+     * @param contentType the content type
+     * @param entity the entity
+     * @param headers the headers, may be {@code null}
+     */
+    public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,
+            final Headers headers) {
+        super(identifier, contentType, entity, headers);
+        if (headers == null) {
+            this.metadata = Metadata.newBuilder().build();
+        } else {
+            this.metadata = Metadata.of(identifier, headers);
         }
     }
 

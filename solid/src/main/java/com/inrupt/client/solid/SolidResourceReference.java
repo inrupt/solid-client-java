@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Headers;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,7 @@ public class SolidResourceReference implements SolidResource {
     private final InputStream entity;
     private final Metadata metadata;
     private final URI identifier;
+    private final Headers headers;
 
     /**
      * Create a reference to a Solid resource.
@@ -49,6 +52,7 @@ public class SolidResourceReference implements SolidResource {
             this.metadata = metadata;
         }
         this.entity = new ByteArrayInputStream(new byte[0]);
+        this.headers = Headers.empty();
     }
 
     @Override
@@ -64,6 +68,11 @@ public class SolidResourceReference implements SolidResource {
     @Override
     public InputStream getEntity() throws IOException {
         return entity;
+    }
+
+    @Override
+    public Headers getHeaders() {
+        return headers;
     }
 
     @Override

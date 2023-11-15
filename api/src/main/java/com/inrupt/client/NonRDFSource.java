@@ -36,6 +36,7 @@ public class NonRDFSource implements Resource {
     private final URI identifier;
     private final String contentType;
     private final InputStream entity;
+    private final Headers headers;
 
     /**
      * Create a new non-RDF-bearing resource.
@@ -47,9 +48,25 @@ public class NonRDFSource implements Resource {
      * @param entity the resource entity
      */
     protected NonRDFSource(final URI identifier, final String contentType, final InputStream entity) {
+        this(identifier, contentType, entity, null);
+    }
+
+    /**
+     * Create a new non-RDF-bearing resource.
+     *
+     * <p>Subclasses should have the same constructor signature to work with the provided object mapping mechanism.
+     *
+     * @param identifier the resource identifier
+     * @param contentType the content type of the resource
+     * @param entity the resource entity
+     * @param headers header values associated with the resource, may be {@code null}
+     */
+    protected NonRDFSource(final URI identifier, final String contentType, final InputStream entity,
+            final Headers headers) {
         this.identifier = Objects.requireNonNull(identifier, "identifier may not be null!");
         this.contentType = Objects.requireNonNull(contentType, "contentType may not be null!");
         this.entity = Objects.requireNonNull(entity, "entity may not be null!");
+        this.headers = headers == null ? Headers.empty() : headers;
     }
 
     @Override
@@ -60,6 +77,11 @@ public class NonRDFSource implements Resource {
     @Override
     public String getContentType() {
         return contentType;
+    }
+
+    @Override
+    public Headers getHeaders() {
+        return headers;
     }
 
     @Override

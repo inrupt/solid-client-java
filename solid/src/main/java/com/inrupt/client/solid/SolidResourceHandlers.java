@@ -20,17 +20,13 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.Headers;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
-import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.rdf.api.Dataset;
@@ -41,7 +37,6 @@ import org.apache.commons.rdf.api.RDFSyntax;
  */
 public final class SolidResourceHandlers {
 
-    private static final URI STORAGE = URI.create(PIM.getNamespace() + "Storage");
     private static final RdfService service = ServiceProvider.getRdfService();
     private static final String CONTENT_TYPE = "Content-Type";
 
@@ -52,7 +47,7 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidRDFSource> ofSolidRDFSource() {
         return responseInfo -> {
-            final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
+            final Metadata metadata = Metadata.of(responseInfo.uri(), responseInfo.headers());
 
             return responseInfo.headers().firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
@@ -69,7 +64,7 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final Metadata metadata = buildMetadata(responseInfo.uri(), responseInfo.headers());
+            final Metadata metadata = Metadata.of(responseInfo.uri(), responseInfo.headers());
 
             return responseInfo.headers().firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
@@ -88,55 +83,6 @@ public final class SolidResourceHandlers {
                     throw new SolidResourceException("Error parsing Solid Container as RDF", ex);
                 }
             });
-    }
-
-    static Metadata buildMetadata(final URI uri, final Headers headers) {
-        // Gather metadata from HTTP headers
-        final Metadata.Builder metadata = Metadata.newBuilder();
-        headers.allValues("Link").stream()
-            .flatMap(l -> Headers.Link.parse(l).stream())
-            .forEach(link -> {
-                if (link.getParameter("rel").contains("type")) {
-                    if ((link.getUri().equals(STORAGE))) {
-                        metadata.storage(uri);
-                    }
-                    metadata.type(link.getUri());
-                } else if (link.getParameter("rel").contains("acl")) {
-                    metadata.acl(link.getUri());
-                } else if (link.getParameter("rel").contains(PIM.storage.toString())) {
-                    metadata.storage(link.getUri());
-                }
-            });
-
-        headers.allValues("WAC-Allow").stream()
-            .map(Headers.WacAllow::parse)
-            .map(Headers.WacAllow::getAccessParams)
-            .flatMap(p -> p.entrySet().stream())
-            .forEach(metadata::wacAllow);
-
-        headers.allValues("Allow").stream()
-            .flatMap(s -> Arrays.stream(s.split(",")))
-            .map(String::trim)
-            .forEach(metadata::allowedMethod);
-
-        headers.allValues("Accept-Post").stream()
-            .flatMap(s -> Arrays.stream(s.split(",")))
-            .map(String::trim)
-            .forEach(metadata::allowedPostSyntax);
-
-        headers.allValues("Accept-Patch").stream()
-            .flatMap(s -> Arrays.stream(s.split(",")))
-            .map(String::trim)
-            .forEach(metadata::allowedPatchSyntax);
-
-        headers.allValues("Accept-Put").stream()
-            .flatMap(s -> Arrays.stream(s.split(",")))
-            .map(String::trim)
-            .forEach(metadata::allowedPutSyntax);
-
-        metadata.contentType(headers.firstValue(CONTENT_TYPE).orElse("application/octet-stream"));
-
-        return metadata.build();
     }
 
     private SolidResourceHandlers() {

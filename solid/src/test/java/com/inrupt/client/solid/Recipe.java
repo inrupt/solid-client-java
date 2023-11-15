@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.RDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
@@ -40,8 +41,8 @@ public class Recipe extends RDFSource {
     private final IRI exStep;
     private final Node subject;
 
-    public Recipe(final URI identifier, final Dataset dataset) {
-        super(identifier, dataset);
+    public Recipe(final URI identifier, final Dataset dataset, final Headers headers) {
+        super(identifier, dataset, headers);
 
         this.subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
         this.dcTitle = rdf.createIRI("http://purl.org/dc/terms/title");
