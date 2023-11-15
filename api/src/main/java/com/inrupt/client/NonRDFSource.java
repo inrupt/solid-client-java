@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -67,7 +66,7 @@ public class NonRDFSource implements Resource {
         this.identifier = Objects.requireNonNull(identifier, "identifier may not be null!");
         this.contentType = Objects.requireNonNull(contentType, "contentType may not be null!");
         this.entity = Objects.requireNonNull(entity, "entity may not be null!");
-        this.headers = headers == null ? Headers.of(new HashMap<>()) : headers;
+        this.headers = headers == null ? Headers.empty() : headers;
     }
 
     @Override

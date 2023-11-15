@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.HashMap;
 
 /**
  * A reference to a Solid Resource without any corresponding data.
@@ -53,7 +52,7 @@ public class SolidResourceReference implements SolidResource {
             this.metadata = metadata;
         }
         this.entity = new ByteArrayInputStream(new byte[0]);
-        this.headers = Headers.of(new HashMap<>());
+        this.headers = Headers.empty();
     }
 
     @Override

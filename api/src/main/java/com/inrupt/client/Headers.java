@@ -90,6 +90,15 @@ public final class Headers {
         return new Headers(Objects.requireNonNull(headers));
     }
 
+    /**
+     * Create an empty headers object.
+     *
+     * @return the new Headers object
+     */
+    public static Headers empty() {
+        return new Headers(new HashMap<>());
+    }
+
     private Headers(final Map<String, List<String>> headers) {
         this.data.putAll(headers);
     }

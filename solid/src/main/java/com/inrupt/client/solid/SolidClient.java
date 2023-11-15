@@ -413,7 +413,7 @@ public class SolidClient {
     static <T extends Resource> T construct(final URI identifier, final Class<T> clazz,
             final String contentType, final InputStream entity, final Headers headers)
             throws ReflectiveOperationException {
-        // First try an arity-3 ctor with headers
+        // First try an arity-4 ctor with headers
         try {
             return clazz.getConstructor(URI.class, String.class, InputStream.class, Headers.class)
                 .newInstance(identifier, contentType, entity, headers);
@@ -421,7 +421,7 @@ public class SolidClient {
             // no-op
         }
 
-        // Next try an arity-3 ctor with metadata
+        // Next try an arity-4 ctor with metadata
         // TODO: this construct is deprecated and can be removed in a future version
         try {
             final Metadata metadata = Metadata.of(identifier, headers);

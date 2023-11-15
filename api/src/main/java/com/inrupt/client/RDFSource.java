@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.HashMap;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.RDF;
@@ -102,7 +101,7 @@ public class RDFSource extends WrapperDataset implements Resource {
      */
     protected RDFSource(final URI identifier, final RDFSyntax syntax, final Dataset dataset, final Headers headers) {
         super(dataset == null ? rdf.createDataset() : dataset);
-        this.headers = headers == null ? Headers.of(new HashMap<>()) : headers;
+        this.headers = headers == null ? Headers.empty() : headers;
         this.identifier = identifier;
         this.syntax = syntax;
     }
