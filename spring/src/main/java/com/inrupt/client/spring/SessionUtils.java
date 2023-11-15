@@ -30,10 +30,13 @@ import java.util.function.Function;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+/**
+ * A utility class for converting Spring constructs into session objects for use with the Java Client libraries.
+ */
 public final class SessionUtils {
 
     /**
-     * Convert a Spring {@link OAuth2User} to a {@link Session} object.
+     * Convert a Spring OAuth2User to a {@link Session} object.
      *
      * <p>This method uses the {@link OpenIdSession} library to create a Session
      *
@@ -45,7 +48,7 @@ public final class SessionUtils {
     }
 
     /**
-     * Convert a Spring {@link OAuth2User} to a {@link Session} object.
+     * Convert a Spring OAuth2User to a {@link Session} object.
      *
      * @param user the Spring user object
      * @param mapping a mapping function for creating a Session from an ID token

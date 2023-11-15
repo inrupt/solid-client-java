@@ -48,7 +48,7 @@ class SessionUtilsTest {
 
     @Test
     void testSession() {
-        final var token = generateIdToken("user", ISSUER, WEBID);
+        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().plusSeconds(30));
         final var oauthUser = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
         final var session = SessionUtils.asSession(oauthUser, OpenIdSession::ofIdToken);
         assertTrue(session.isPresent());
@@ -57,8 +57,16 @@ class SessionUtilsTest {
     }
 
     @Test
+    void testExpiredSession() {
+        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().minusSeconds(30));
+        final var oauthUser = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
+        final var session = SessionUtils.asSession(oauthUser, OpenIdSession::ofIdToken);
+        assertFalse(session.isPresent());
+    }
+
+    @Test
     void testAnonymousSession() {
-        final var token = generateIdToken("user", ISSUER, WEBID);
+        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().plusSeconds(30));
         final var oauthUser = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
         final var session = SessionUtils.asSession(oauthUser, t -> Session.anonymous());
         assertTrue(session.isPresent());
@@ -68,7 +76,7 @@ class SessionUtilsTest {
 
     @Test
     void testSessionNoMapper() {
-        final var token = generateIdToken("user", ISSUER, WEBID);
+        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().plusSeconds(30));
         final var oauthUser = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
         final var session = SessionUtils.asSession(oauthUser);
         assertTrue(session.isPresent());
@@ -76,18 +84,21 @@ class SessionUtilsTest {
             assertEquals(Optional.of(URI.create(WEBID)), s.getPrincipal()));
     }
 
-    static OidcIdToken generateIdToken(final String sub, final String issuer, final String webid) {
+    static OidcIdToken generateIdToken(final String sub, final String issuer, final String webid, final Instant exp) {
         try {
             final var jwk = PublicJsonWebKey.Factory
                    .newPublicJwk(ResourceUtils.readResource("testKey.json"));
+            final var issued = Instant.now().isBefore(exp) ? Instant.now() : exp.minusSeconds(30);
             final var token = Jwt.claims()
                     .subject(sub)
                     .issuer(issuer)
+                    .issuedAt(issued)
+                    .expiresAt(exp)
                     .claim("webid", webid)
                     .audience("solid").jws()
                     .keyId("E1amq-dXv6METCuD2iRwAQ").sign(jwk.getPrivateKey());
             return OidcIdToken.withTokenValue(token).expiresAt(Instant.now().plusSeconds(100)).subject(sub)
-                .issuer(issuer).claim("webid", webid).build();
+                .issuer(issuer).issuedAt(issued).expiresAt(exp).claim("webid", webid).build();
         } catch (final IOException | JoseException ex) {
             throw new UncheckedJoseException("Could not build token", ex);
         }
