@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 public final class SessionUtils {
 
     /**
-     * Convert a Spring OAuth2User to a {@link Session} object.
+     * Convert a Spring {@link OAuth2User} to a {@link Session} object.
      *
      * <p>This method uses the {@link OpenIdSession} library to create a Session
      *
@@ -48,7 +48,7 @@ public final class SessionUtils {
     }
 
     /**
-     * Convert a Spring OAuth2User to a {@link Session} object.
+     * Convert a Spring {@link OAuth2User} to a {@link Session} object.
      *
      * @param user the Spring user object
      * @param mapping a mapping function for creating a Session from an ID token
