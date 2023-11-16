@@ -117,7 +117,7 @@ public final class Request {
 
     Request(final URI uri, final String method, final Map<String, List<String>> headers,
             final BodyPublisher publisher, final Duration timeout) {
-        this.requestUri = Objects.requireNonNull(uri, "Request URI may not be null!");
+        this.requestUri = Objects.requireNonNull(uri, "Request URI may not be null!").normalize();
         this.requestMethod = Objects.requireNonNull(method, "Request method may not be null!");
         this.requestHeaders = Headers.of(Objects.requireNonNull(headers, "Request headers may not be null!"));
         this.requestTimeout = timeout;

@@ -130,10 +130,11 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.ofByteArray())
+        final Request request = builder.build();
+        return client.send(request, Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= ERROR_STATUS) {
-                    throw SolidClientException.handle("Unable to read resource at " + identifier, identifier,
+                    throw SolidClientException.handle("Unable to read resource at " + request.uri(), request.uri(),
                             response.statusCode(), response.headers(), new String(response.body()));
                 } else {
                     final String contentType = response.headers().firstValue(CONTENT_TYPE)
@@ -142,8 +143,8 @@ public class SolidClient {
                         // Check that this is an RDFSoure
                         if (RDFSource.class.isAssignableFrom(clazz)) {
                             final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
-                                    identifier.toString()).orElse(null);
-                            final T obj = construct(identifier, clazz, dataset, response.headers());
+                                    request.uri().toString()).orElse(null);
+                            final T obj = construct(request.uri(), clazz, dataset, response.headers());
                             final ValidationResult res = RDFSource.class.cast(obj).validate();
                             if (!res.isValid()) {
                                 throw new DataMappingException(
@@ -153,7 +154,7 @@ public class SolidClient {
                             return obj;
                         // Otherwise, create a non-RDF-bearing resource
                         } else {
-                            return construct(identifier, clazz, contentType,
+                            return construct(request.uri(), clazz, contentType,
                                     new ByteArrayInputStream(response.body()), response.headers());
                         }
                     } catch (final ReflectiveOperationException ex) {
