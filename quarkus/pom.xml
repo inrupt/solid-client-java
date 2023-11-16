@@ -44,6 +44,7 @@
     <dependency>
       <groupId>org.eclipse.microprofile.jwt</groupId>
       <artifactId>microprofile-jwt-auth-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- test dependencies -->
