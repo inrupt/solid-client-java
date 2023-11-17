@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.inrupt.client.httpclient","l":"HttpClientService"}]
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.inrupt.client.httpclient","l":"HttpClientService"}];updateSearchResults();

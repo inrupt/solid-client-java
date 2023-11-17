@@ -3,6 +3,11 @@ com.inrupt.client.accessgrant
 com.inrupt.client.auth
 com.inrupt.client.caffeine
 com.inrupt.client.core
+com.inrupt.client.examples.cli
+com.inrupt.client.examples.springboot
+com.inrupt.client.examples.springboot.model
+com.inrupt.client.examples.springboot.service
+com.inrupt.client.examples.webapp
 com.inrupt.client.guava
 com.inrupt.client.httpclient
 com.inrupt.client.integration.base
@@ -18,6 +23,7 @@ com.inrupt.client.rdf.legacy
 com.inrupt.client.rdf4j
 com.inrupt.client.solid
 com.inrupt.client.spi
+com.inrupt.client.spring
 com.inrupt.client.test
 com.inrupt.client.uma
 com.inrupt.client.util
