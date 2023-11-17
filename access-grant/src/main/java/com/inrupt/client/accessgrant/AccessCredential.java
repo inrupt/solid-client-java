@@ -64,7 +64,7 @@ public class AccessCredential {
      */
     protected AccessCredential(final URI identifier, final String credential,
             final CredentialData data, final CredentialMetadata metadata) {
-        this.identifier = Objects.requireNonNull(identifier, "identifier may not be null");
+        this.identifier = Objects.requireNonNull(identifier, "identifier may not be null").normalize();
         this.credential = Objects.requireNonNull(credential, "credential may not be null!");
         Objects.requireNonNull(data, "credential data may not be null!");
         Objects.requireNonNull(metadata, "credential metadata may not be null!");

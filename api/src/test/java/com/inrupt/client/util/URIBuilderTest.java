@@ -142,4 +142,13 @@ class URIBuilderTest {
 
         assertEquals(expected, URIBuilder.newBuilder(uri).path(null).path("").path("/data/").build());
     }
+
+    @Test
+    void testNormalized() {
+        final URI uri = URI.create("https://storage.example/container1/../container2/");
+        final URI expected = URI.create("https://storage.example/container2/");
+
+        assertNotEquals(expected, uri);
+        assertEquals(expected, URIBuilder.newBuilder(uri).build());
+    }
 }
