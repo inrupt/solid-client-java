@@ -35,6 +35,7 @@
     <okhttp.version>4.12.0</okhttp.version>
     <quarkus.version>3.5.0</quarkus.version>
     <slf4j.version>2.0.9</slf4j.version>
+    <spring.security.version>6.1.5</spring.security.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>1.0.0</inrupt.rdf.wrapping.version>
 
@@ -74,6 +75,8 @@
     <equalsverifier.version>3.15.3</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.1</junit.version>
+    <smallrye.jwt.version>4.3.1</smallrye.jwt.version>
+    <smallrye.config.version>3.4.1</smallrye.config.version>
     <yasson.version>3.0.3</yasson.version>
     <wiremock.version>3.2.0</wiremock.version>
 
@@ -112,6 +115,7 @@
     <module>webid</module>
     <module>vocabulary</module>
     <module>runtime</module>
+    <module>spring</module>
     <module>integration</module>
     <module>performance</module>
     <module>reports</module>
