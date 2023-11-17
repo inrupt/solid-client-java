@@ -23,7 +23,6 @@ package com.inrupt.client.quarkus;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -51,10 +50,7 @@ public final class SessionUtils {
      * @return the session, if present and unexpired
      */
     public static Optional<Session> asSession(final JsonWebToken jwt, final Function<String, Session> mapping) {
-        if (Instant.now().isBefore(Instant.ofEpochSecond(jwt.getExpirationTime()))) {
-            return Optional.ofNullable(mapping.apply(jwt.getRawToken()));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(mapping.apply(jwt.getRawToken()));
     }
 
     private SessionUtils() {

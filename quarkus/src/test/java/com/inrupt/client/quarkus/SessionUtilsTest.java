@@ -50,7 +50,7 @@ class SessionUtilsTest {
 
     @Test
     void testSession() {
-        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().plusSeconds(30));
+        final var token = generateIdToken("user", ISSUER, WEBID);
         final var session = SessionUtils.asSession(token, OpenIdSession::ofIdToken);
         assertTrue(session.isPresent());
         session.ifPresent(s ->
@@ -58,15 +58,8 @@ class SessionUtilsTest {
     }
 
     @Test
-    void testExpiredSession() {
-        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().minusSeconds(30));
-        final var session = SessionUtils.asSession(token, OpenIdSession::ofIdToken);
-        assertFalse(session.isPresent());
-    }
-
-    @Test
     void testAnonymousSession() {
-        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().plusSeconds(30));
+        final var token = generateIdToken("user", ISSUER, WEBID);
         final var session = SessionUtils.asSession(token, t -> Session.anonymous());
         assertTrue(session.isPresent());
         session.ifPresent(s ->
@@ -75,14 +68,14 @@ class SessionUtilsTest {
 
     @Test
     void testSessionNoMapper() {
-        final var token = generateIdToken("user", ISSUER, WEBID, Instant.now().plusSeconds(30));
+        final var token = generateIdToken("user", ISSUER, WEBID);
         final var session = SessionUtils.asSession(token);
         assertTrue(session.isPresent());
         session.ifPresent(s ->
             assertEquals(Optional.of(URI.create(WEBID)), s.getPrincipal()));
     }
 
-    static JsonWebToken generateIdToken(final String sub, final String issuer, final String webid, final Instant exp) {
+    static JsonWebToken generateIdToken(final String sub, final String issuer, final String webid) {
         try {
             final var jwk = PublicJsonWebKey.Factory
                    .newPublicJwk(ResourceUtils.readResource("testKey.json"));
@@ -91,13 +84,11 @@ class SessionUtilsTest {
             authContext.setSignatureAlgorithm(SignatureAlgorithm.ES256);
             final var parser = new DefaultJWTParser(authContext);
 
-            final var issued = Instant.now().isBefore(exp) ? Instant.now() : exp.minusSeconds(30);
             final var token = Jwt.claims()
                     .subject(sub)
                     .issuer(issuer)
                     .claim("webid", webid)
-                    .issuedAt(issued)
-                    .expiresAt(exp)
+                    .expiresAt(Instant.now().plusSeconds(100))
                     .audience("solid").jws()
                     .keyId("76GJ30ywXmKAxKdhJ1yPLA").sign(jwk.getPrivateKey());
             return parser.parse(token);
