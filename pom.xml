@@ -33,6 +33,7 @@
     <jose4j.version>0.9.3</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.12.0</okhttp.version>
+    <quarkus.version>3.5.0</quarkus.version>
     <slf4j.version>2.0.9</slf4j.version>
     <spring.security.version>6.1.5</spring.security.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
@@ -105,6 +106,7 @@
     <module>okhttp</module>
     <module>openid</module>
     <module>parser</module>
+    <module>quarkus</module>
     <module>rdf4j</module>
     <module>rdf-legacy</module>
     <module>solid</module>
