@@ -111,7 +111,7 @@ public final class URIBuilder {
             schemeSpecificPart.append(String.join("&", queryParams));
         }
         try {
-            return new URI(scheme, schemeSpecificPart.toString(), uriFragment);
+            return new URI(scheme, schemeSpecificPart.toString(), uriFragment).normalize();
         } catch (final URISyntaxException ex) {
             throw new IllegalArgumentException("Invalid URI value", ex);
         }

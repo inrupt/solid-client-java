@@ -63,7 +63,7 @@ public class NonRDFSource implements Resource {
      */
     protected NonRDFSource(final URI identifier, final String contentType, final InputStream entity,
             final Headers headers) {
-        this.identifier = Objects.requireNonNull(identifier, "identifier may not be null!");
+        this.identifier = Objects.requireNonNull(identifier, "identifier may not be null!").normalize();
         this.contentType = Objects.requireNonNull(contentType, "contentType may not be null!");
         this.entity = Objects.requireNonNull(entity, "entity may not be null!");
         this.headers = headers == null ? Headers.empty() : headers;
