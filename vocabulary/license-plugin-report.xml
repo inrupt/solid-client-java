@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1693403109811">
-    <module artifactId="inrupt-client-vocabulary" groupId="com.inrupt.client" version="1.0.1"/>
+<licensePluginReport goal="CHECK" timestamp="1701290534807">
+    <module artifactId="inrupt-client-vocabulary" groupId="com.inrupt.client" version="1.1.0"/>
     <files>
         <file path="src/main/java/com/inrupt/client/vocabulary/ACL.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/vocabulary/ACP.java" result="PRESENT"/>

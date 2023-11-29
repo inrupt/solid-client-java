@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.inrupt.client"},{"l":"com.inrupt.client.auth"},{"l":"com.inrupt.client.spi"},{"l":"com.inrupt.client.util"}]
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.inrupt.client"},{"l":"com.inrupt.client.auth"},{"l":"com.inrupt.client.spi"},{"l":"com.inrupt.client.util"}];updateSearchResults();
