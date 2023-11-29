@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701290567031">
+    <module artifactId="inrupt-client-integration-openid-tests" groupId="com.inrupt.client" version="1.1.0"/>
+    <files>
+        <file path="src/test/java/com/inrupt/client/integration/openid/OpenIdAuthenticationScenariosTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/integration/openid/OpenIdCoreModulesResourceJenaTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/integration/openid/OpenIdDomainModulesResourceTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

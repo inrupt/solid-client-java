@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701290561966">
+    <module artifactId="inrupt-client-examples-webapp" groupId="com.inrupt.client" version="1.1.0"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/examples/webapp/ClientExceptionMapper.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/examples/webapp/SolidStorage.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/examples/webapp/package-info.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

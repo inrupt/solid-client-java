@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701290541216">
+    <module artifactId="inrupt-client-jena" groupId="com.inrupt.client" version="1.1.0"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/jena/JenaBodyHandlers.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/jena/JenaBodyPublishers.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/jena/JenaService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/jena/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/jena/JenaBodyHandlersTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/jena/JenaBodyPublishersTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/jena/JenaServiceTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/jena/JenaTestModel.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
