@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701358097145">
+    <module artifactId="inrupt-client-openid" groupId="com.inrupt.client" version="1.1.1-SNAPSHOT"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/openid/AuthorizationRequest.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/EndSessionRequest.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/ErrorResponse.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/Metadata.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/OpenIdAuthenticationProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/OpenIdConfig.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/OpenIdException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/OpenIdProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/OpenIdSession.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/PKCE.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/TokenRequest.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/TokenResponse.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/openid/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/openid/OpenIdMockHttpService.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/openid/OpenIdProviderTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/openid/OpenIdSessionTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/openid/OpenIdTestUtils.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/openid/PKCETest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/openid/TestDpopService.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

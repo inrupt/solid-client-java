@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701358113304">
+    <module artifactId="inrupt-client-integration-base-tests" groupId="com.inrupt.client" version="1.1.1-SNAPSHOT"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/integration/base/AccessGrantScenarios.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/AuthenticationScenarios.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/CoreModulesResourceJena.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/DomainModulesResource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/MockAccessGrantServer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/MockOpenIDProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/MockSolidServer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/MockUMAAuthorizationServer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/MockWebIdService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/SolidServerTransformer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/State.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/Utils.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/integration/base/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/integration/base/Playlist.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/integration/base/ServerTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

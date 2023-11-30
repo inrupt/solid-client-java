@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701358094477">
+    <module artifactId="inrupt-client-test" groupId="com.inrupt.client" version="1.1.1-SNAPSHOT"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/test/HttpMockService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/test/HttpServices.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/test/JsonServices.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/test/RdfMockService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/test/RdfServices.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/test/RdfTestModel.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/test/package-info.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
