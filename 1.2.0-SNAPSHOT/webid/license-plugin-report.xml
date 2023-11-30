@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701341028311">
+    <module artifactId="inrupt-client-webid" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/webid/WebIdException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/webid/WebIdProfile.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/webid/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/webid/WebIdMockHttpService.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/webid/WebIdProfileTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

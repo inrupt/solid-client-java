@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1701341024276">
+    <module artifactId="inrupt-client-uma" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/uma/ClaimGatheringHandler.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/ClaimToken.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/ErrorResponse.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/InvalidGrantException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/InvalidScopeException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/Metadata.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/NeedInfo.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/RequestDeniedException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/RequiredClaims.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/TokenRequest.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/TokenResponse.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/UmaAuthenticationProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/UmaClient.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/UmaException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/uma/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/uma/MockAuthorizationServer.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/uma/UmaClientTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
