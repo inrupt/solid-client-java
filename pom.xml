@@ -628,7 +628,6 @@
               ./build-tools/owasp/suppressions.xml
           </suppressionFile>
           <nvdApiKey>${nvd.api.key}</nvdApiKey>
-          <knownExploitedEnabled>false</knownExploitedEnabled>
         </configuration>
       </plugin>
     </plugins>
