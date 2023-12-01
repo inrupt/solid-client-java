@@ -35,7 +35,8 @@
     <okhttp.version>4.12.0</okhttp.version>
     <quarkus.version>3.6.0</quarkus.version>
     <slf4j.version>2.0.9</slf4j.version>
-    <spring.security.version>6.1.5</spring.security.version>
+    <!-- pinning to Spring 5.x for Java 11 support -->
+    <spring.security.version>5.8.8</spring.security.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
     <inrupt.rdf.wrapping.version>1.0.0</inrupt.rdf.wrapping.version>
 
