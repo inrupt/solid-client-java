@@ -183,6 +183,13 @@ class SolidClientTest {
                 assertEquals(2, c.stream(Optional.empty(), rdf.createIRI(uri.toString()),
                             rdf.createIRI("https://example.com/song"), null).count());
 
+                assertEquals(Optional.of("user=\"read write\",public=\"read\""),
+                        c.getHeaders().firstValue("WAC-Allow"));
+                assertEquals(Optional.of("user=\"read write\",public=\"read\""),
+                        c.getHeaders().firstValue("wac-allow"));
+                assertTrue(c.getHeaders().allValues("Link")
+                        .contains("<http://storage.example/>; rel=\"" + PIM.storage + "\""));
+
                 assertDoesNotThrow(client.update(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.create(c).toCompletableFuture()::join);
                 assertDoesNotThrow(client.delete(c).toCompletableFuture()::join);
@@ -378,7 +385,7 @@ class SolidClientTest {
     ) {
         final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
         final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
-        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"), null, null);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
 
         final SolidClientException exception = assertThrows(
                 clazz,
