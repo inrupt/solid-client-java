@@ -137,7 +137,7 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - Request and response headers match for a successful authenticated request");
 
         final Headers applicationHeaders = Headers.of(
-                Map.of("somecid", List.of("a6d87d0e-2454-4501-8110-ecc082aa975f"))
+                Map.of("someblabla", List.of("a6d87d0e-2454-4501-8110-ecc082aa975f"))
         );
 
         final SolidClient authClient = SolidClient.getClientBuilder()
