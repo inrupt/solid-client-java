@@ -182,7 +182,7 @@ public class DomainModulesResource {
             assertDoesNotThrow(() -> client.update(resource));
         }
 
-        // Re-fetch the resource, ensuring that that it has been updated
+        // Re-fetch the resource, ensuring that it has been updated
         try (final SolidRDFSource resource = client.read(resourceUri, SolidRDFSource.class)) {
             // Assert that the returned resource contains the expected data
             assertEquals(resourceUri, resource.getIdentifier());
