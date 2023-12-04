@@ -121,14 +121,14 @@ public class ApplicationRequestMetadataScenarios {
         }
 
         publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
-                .build();
+            .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
+            .build();
 
         Utils.createPublicContainer(authenticatedClient, publicContainerURI);
 
         privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-                .path(State.PRIVATE_RESOURCE_PATH + "-auth-test-" + UUID.randomUUID() + "/")
-                .build();
+            .path(State.PRIVATE_RESOURCE_PATH + "-auth-test-" + UUID.randomUUID() + "/")
+            .build();
 
         Utils.createContainer(authenticatedClient, privateContainerURI);
 
@@ -156,12 +156,12 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - Request and response headers match for a successful authenticated request");
 
         final Headers applicationHeaders = Headers.of(
-                Map.of("someblabla", List.of("a6d87d0e-2454-4501-8110-ecc082aa975f"))
+            Map.of("someblabla", List.of("a6d87d0e-2454-4501-8110-ecc082aa975f"))
         );
 
         final SolidClient authClient = SolidClient.getClientBuilder()
-                .headers(applicationHeaders).build()
-                .session(session);
+                        .headers(applicationHeaders).build()
+                        .session(session);
 
         final String resourceName = privateContainerURI + "e2e-test-application-metadata1";
         final String predicateName = "https://example.example/predicate";
@@ -178,10 +178,10 @@ public class ApplicationRequestMetadataScenarios {
         // Create a new resource and check response
         final URI resourceUri = URI.create(resourceName);
         authClient.create(
-                new SolidRDFSource(resourceUri, dataset)).thenAccept(response -> {
+            new SolidRDFSource(resourceUri, dataset)).thenAccept(response -> {
 
             assertEquals("0d1e63a3-b635-4d50-ba7f-34b7176defdf",
-                    response.getHeaders().allValues("somecid").get(0));
+                response.getHeaders().allValues("somecid").get(0));
         });
     }
 
