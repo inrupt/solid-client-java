@@ -21,8 +21,11 @@
 package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.Request;
+import com.inrupt.client.Response;
 import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
@@ -33,6 +36,7 @@ import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
+import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -48,9 +52,7 @@ import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -146,6 +148,45 @@ public class ApplicationRequestMetadataScenarios {
 
     }
 
+    @ParameterizedTest
+    @MethodSource("provideSessions")
+    @DisplayName(" " +
+            "Request and response headers match for a successful authenticated request")
+    void requestResponseMatchOnAuthRequestLowLevelClientTest(final Session session) {
+        LOGGER.info("Integration Test - Request and response headers match for a successful authenticated request");
+
+        final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
+
+        final String resourceName = privateContainerURI + "e2e-test-application-metadata1";
+        final String predicateName = "https://example.example/predicate";
+        final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
+
+        final IRI subject = rdf.createIRI(resourceName);
+        final IRI predicate = rdf.createIRI(predicateName);
+        final Literal objectTrue = rdf.createLiteral("true", booleanType);
+
+        // Populate data for this resource
+        final Dataset dataset = rdf.createDataset();
+        dataset.add(null, subject, predicate, objectTrue);
+
+        // Create a new resource and check response
+        final URI resourceUri = URI.create(resourceName);
+
+        //create a Container
+        final Request req = Request.newBuilder(resourceUri)
+                .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
+               // .header("somecid", "a6d87d0e-2454-4501-8110-ecc082aa975f")
+                .header("somecid", "a6d87d0e-2454-4501-8110-ecc082aa975f")
+                .PUT(Request.BodyPublishers.noBody())
+                .build();
+
+        final var res = authClient.send(req, Response.BodyHandlers.discarding());
+
+        assertTrue(Utils.isSuccessful(res.statusCode()));
+        assertEquals("a6d87d0e-2454-4501-8110-ecc082aa975f", res.headers().allValues("somecid").get(0));
+    }
+
+    @Disabled
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(" " +
