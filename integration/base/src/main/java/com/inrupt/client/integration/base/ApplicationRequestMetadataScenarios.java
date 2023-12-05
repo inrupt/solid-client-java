@@ -20,8 +20,7 @@
  */
 package com.inrupt.client.integration.base;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
@@ -36,7 +35,6 @@ import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
-import com.inrupt.client.vocabulary.LDP;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
@@ -71,9 +69,12 @@ public class ApplicationRequestMetadataScenarios {
 
     private static final RDF rdf = RDFFactory.getInstance();
 
-    private static final String APPLICATION_REQUEST_METADATA_FEATURE = config
-            .getOptionalValue("inrupt.test.feature.application-request-metadata", String.class)
+    private static final String REQUEST_METADATA_FEATURE = config
+            .getOptionalValue("inrupt.test.feature.request-metadata", String.class)
             .orElse("false");
+
+    private static final String APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES = config
+            .getValue("inrupt.test.feature.request-metadata-header-that-propagates", String.class);
 
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
@@ -142,8 +143,8 @@ public class ApplicationRequestMetadataScenarios {
     static void teardown() {
        // if (featureIsActive()) {
             //cleanup pod
-            Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
-            Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
+        Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
+        Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
       //  }
 
     }
@@ -153,11 +154,12 @@ public class ApplicationRequestMetadataScenarios {
     @DisplayName(" " +
             "Request and response headers match for a successful authenticated request")
     void requestResponseMatchOnAuthRequestLowLevelClientTest(final Session session) {
-        LOGGER.info("Integration Test - Request and response headers match for a successful authenticated request");
+        LOGGER.info("Integration Test - Low level sync client - " +
+                "Request and response headers match for a successful authenticated request");
 
         final SolidSyncClient authClient = SolidSyncClient.getClient().session(session);
 
-        final String resourceName = privateContainerURI + "e2e-test-application-metadata1";
+        final String resourceName = privateContainerURI + "e2e-test-application-metadata-" + UUID.randomUUID();
         final String predicateName = "https://example.example/predicate";
         final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
 
@@ -169,42 +171,43 @@ public class ApplicationRequestMetadataScenarios {
         final Dataset dataset = rdf.createDataset();
         dataset.add(null, subject, predicate, objectTrue);
 
-        // Create a new resource and check response
         final URI resourceUri = URI.create(resourceName);
 
-        //create a Container
+        // Create a new resource and check response headers
         final Request req = Request.newBuilder(resourceUri)
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-               // .header("somecid", "a6d87d0e-2454-4501-8110-ecc082aa975f")
-                .header("somecid", "a6d87d0e-2454-4501-8110-ecc082aa975f")
+                .header(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES, "aaaaaa-2454-4501-8110-ecc082aa975f")
                 .PUT(Request.BodyPublishers.noBody())
                 .build();
 
         final var res = authClient.send(req, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(res.statusCode()));
-        assertEquals("a6d87d0e-2454-4501-8110-ecc082aa975f", res.headers().allValues("somecid").get(0));
+        assertEquals("aaaaaa-2454-4501-8110-ecc082aa975f",
+                res.headers().allValues(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES).get(0));
     }
 
-    @Disabled
     @ParameterizedTest
     @MethodSource("provideSessions")
     @DisplayName(" " +
             "Request and response headers match for a successful authenticated request")
-    void requestResponseMatchOnAuthRequestTest(final Session session) {
+    void requestResponseMatchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
        // assumeTrue(featureIsActive());
 
-        LOGGER.info("Integration Test - Request and response headers match for a successful authenticated request");
+        LOGGER.info("Integration Test - High level async client -" +
+                " Request and response headers match for a successful authenticated request");
 
         final Headers applicationHeaders = Headers.of(
-            Map.of("someblabla", List.of("a6d87d0e-2454-4501-8110-ecc082aa975f"))
+            Map.of(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES,
+                    List.of("bbbbbb-2454-4501-8110-ecc082aa975f"),
+                    "someblabla", List.of("bbbbbb-2454-4501-8110-ecc082aa975f"))
         );
 
         final SolidClient authClient = SolidClient.getClientBuilder()
                         .headers(applicationHeaders).build()
                         .session(session);
 
-        final String resourceName = privateContainerURI + "e2e-test-application-metadata1";
+        final String resourceName = privateContainerURI + "e2e-test-application-metadata-" + UUID.randomUUID();
         final String predicateName = "https://example.example/predicate";
         final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
 
@@ -216,14 +219,58 @@ public class ApplicationRequestMetadataScenarios {
         final Dataset dataset = rdf.createDataset();
         dataset.add(null, subject, predicate, objectTrue);
 
-        // Create a new resource and check response
+        // Create a new resource and check response headers
         final URI resourceUri = URI.create(resourceName);
         authClient.create(
             new SolidRDFSource(resourceUri, dataset)).thenAccept(response -> {
 
-            assertEquals("0d1e63a3-b635-4d50-ba7f-34b7176defdf",
-                response.getHeaders().allValues("somecid").get(0));
-        });
+                assertEquals("bbbbbb-2454-4501-8110-ecc082aa975f",
+                        response.getHeaders().allValues(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES).get(0));
+                assertTrue(response.getHeaders().allValues("someblabla").isEmpty());
+            });
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideSessions")
+    @DisplayName(" " +
+            "Request and response headers match for a successful authenticated request")
+    void requestResponseMatchOnAuthRequestHighLevelSyncClientTest(final Session session) {
+        // assumeTrue(featureIsActive());
+
+        LOGGER.info("Integration Test - High level sync client -" +
+                " Request and response headers match for a successful authenticated request");
+
+        final Headers applicationHeaders = Headers.of(
+                Map.of(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES,
+                        List.of("cccccc-2454-4501-8110-ecc082aa975f"),
+                        "someblabla", List.of("cccccc-2454-4501-8110-ecc082aa975f"))
+        );
+
+        final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
+                .headers(applicationHeaders).build()
+                .session(session);
+
+        final String resourceName = privateContainerURI + "e2e-test-application-metadata-" + UUID.randomUUID();
+        final String predicateName = "https://example.example/predicate";
+        final IRI booleanType = rdf.createIRI("http://www.w3.org/2001/XMLSchema#boolean");
+
+        final IRI subject = rdf.createIRI(resourceName);
+        final IRI predicate = rdf.createIRI(predicateName);
+        final Literal objectTrue = rdf.createLiteral("true", booleanType);
+
+        // Populate data for this resource
+        final Dataset dataset = rdf.createDataset();
+        dataset.add(null, subject, predicate, objectTrue);
+
+        // Create a new resource and check response headers
+        final URI resourceUri = URI.create(resourceName);
+        try ( var resource = authClient.create(
+                new SolidRDFSource(resourceUri, dataset))) {
+
+            assertEquals("cccccc-2454-4501-8110-ecc082aa975f",
+                    resource.getHeaders().allValues(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES).get(0));
+            assertTrue(resource.getHeaders().allValues("someblabla").isEmpty());
+        }
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
@@ -241,6 +288,6 @@ public class ApplicationRequestMetadataScenarios {
     }
 
     private static boolean featureIsActive() {
-        return APPLICATION_REQUEST_METADATA_FEATURE.equals("true");
+        return REQUEST_METADATA_FEATURE.equals("true");
     }
 }
