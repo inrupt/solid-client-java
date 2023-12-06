@@ -21,6 +21,7 @@
 package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
@@ -38,16 +39,14 @@ import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
+import org.apache.http.Header;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.*;
@@ -69,12 +68,13 @@ public class ApplicationRequestMetadataScenarios {
 
     private static final RDF rdf = RDFFactory.getInstance();
 
+    //feature is deactivated by default
     private static final String REQUEST_METADATA_FEATURE = config
-            .getOptionalValue("inrupt.test.feature.request-metadata", String.class)
+            .getOptionalValue("inrupt.test.request-metadata.feature", String.class)
             .orElse("false");
 
-    private static final String APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES = config
-            .getValue("inrupt.test.feature.request-metadata-header-that-propagates", String.class);
+    private static final String[] REQUEST_METADATA_HEADERS_THAT_PROPAGATE = config
+            .getValue("inrupt.test.request-metadata-headers-that-propagate", String[].class);
 
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
@@ -92,10 +92,10 @@ public class ApplicationRequestMetadataScenarios {
 
     @BeforeAll
     static void setup() {
-       /* if (!featureIsActive()) {
+        if (!featureIsActive()) {
             LOGGER.info("ApplicationRequestMetadataScenarios are skipped, feature not active");
             return;
-        }*/
+        }
         LOGGER.info("Setup ApplicationRequestMetadataScenarios test");
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             LOGGER.info("Running ApplicationRequestMetadataScenarios on live server");
@@ -141,12 +141,11 @@ public class ApplicationRequestMetadataScenarios {
 
     @AfterAll
     static void teardown() {
-       // if (featureIsActive()) {
+        if (featureIsActive()) {
             //cleanup pod
-        Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
-        Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
-      //  }
-
+            Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
+            Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
+        }
     }
 
     @ParameterizedTest
@@ -154,6 +153,8 @@ public class ApplicationRequestMetadataScenarios {
     @DisplayName(" " +
             "Request and response headers match for a successful authenticated request")
     void requestResponseMatchOnAuthRequestLowLevelClientTest(final Session session) {
+        assumeTrue(featureIsActive());
+
         LOGGER.info("Integration Test - Low level sync client - " +
                 "Request and response headers match for a successful authenticated request");
 
@@ -173,18 +174,27 @@ public class ApplicationRequestMetadataScenarios {
 
         final URI resourceUri = URI.create(resourceName);
 
+        var headers = fillHeaders("aaaaaa");
+
         // Create a new resource and check response headers
-        final Request req = Request.newBuilder(resourceUri)
+        Request.Builder reqBuilder = Request.newBuilder(resourceUri)
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
-                .header(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES, "aaaaaa-2454-4501-8110-ecc082aa975f")
-                .PUT(Request.BodyPublishers.noBody())
-                .build();
+                .PUT(Request.BodyPublishers.noBody());
+
+        //fill the configured headers
+        headers.forEach((key,value) -> {
+            reqBuilder.header(key, value.get(0));
+        });
+
+        final var req = reqBuilder.build();
 
         final var res = authClient.send(req, Response.BodyHandlers.discarding());
 
         assertTrue(Utils.isSuccessful(res.statusCode()));
-        assertEquals("aaaaaa-2454-4501-8110-ecc082aa975f",
-                res.headers().allValues(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES).get(0));
+
+        for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
+            assertEquals(headers.get(value), res.headers().allValues(value));
+        }
     }
 
     @ParameterizedTest
@@ -192,19 +202,16 @@ public class ApplicationRequestMetadataScenarios {
     @DisplayName(" " +
             "Request and response headers match for a successful authenticated request")
     void requestResponseMatchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
-       // assumeTrue(featureIsActive());
+        assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - High level async client -" +
                 " Request and response headers match for a successful authenticated request");
 
-        final Headers applicationHeaders = Headers.of(
-            Map.of(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES,
-                    List.of("bbbbbb-2454-4501-8110-ecc082aa975f"),
-                    "someblabla", List.of("bbbbbb-2454-4501-8110-ecc082aa975f"))
-        );
+        var headers = fillHeaders("bbbbbb");
+        headers.put("someblabla", List.of("bbbbbb-2454-4501-8110-ecc082aa975f"));
 
         final SolidClient authClient = SolidClient.getClientBuilder()
-                        .headers(applicationHeaders).build()
+                        .headers(Headers.of(headers)).build()
                         .session(session);
 
         final String resourceName = privateContainerURI + "e2e-test-application-metadata-" + UUID.randomUUID();
@@ -221,13 +228,12 @@ public class ApplicationRequestMetadataScenarios {
 
         // Create a new resource and check response headers
         final URI resourceUri = URI.create(resourceName);
-        authClient.create(
-            new SolidRDFSource(resourceUri, dataset)).thenAccept(response -> {
-
-                assertEquals("bbbbbb-2454-4501-8110-ecc082aa975f",
-                        response.getHeaders().allValues(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES).get(0));
-                assertTrue(response.getHeaders().allValues("someblabla").isEmpty());
-            });
+        authClient.create(new SolidRDFSource(resourceUri, dataset)).thenAccept(response -> {
+            for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
+                assertEquals(headers.get(value), response.getHeaders().allValues(value));
+            }
+            assertTrue(response.getHeaders().allValues("someblabla").isEmpty());
+        });
     }
 
     @ParameterizedTest
@@ -235,19 +241,16 @@ public class ApplicationRequestMetadataScenarios {
     @DisplayName(" " +
             "Request and response headers match for a successful authenticated request")
     void requestResponseMatchOnAuthRequestHighLevelSyncClientTest(final Session session) {
-        // assumeTrue(featureIsActive());
+        assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a successful authenticated request");
 
-        final Headers applicationHeaders = Headers.of(
-                Map.of(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES,
-                        List.of("cccccc-2454-4501-8110-ecc082aa975f"),
-                        "someblabla", List.of("cccccc-2454-4501-8110-ecc082aa975f"))
-        );
+        var headers = fillHeaders("ccccc");
+        headers.put("someblabla", List.of("ccccc-2454-4501-8110-ecc082aa975f"));
 
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
-                .headers(applicationHeaders).build()
+                .headers(Headers.of(headers)).build()
                 .session(session);
 
         final String resourceName = privateContainerURI + "e2e-test-application-metadata-" + UUID.randomUUID();
@@ -264,11 +267,10 @@ public class ApplicationRequestMetadataScenarios {
 
         // Create a new resource and check response headers
         final URI resourceUri = URI.create(resourceName);
-        try ( var resource = authClient.create(
-                new SolidRDFSource(resourceUri, dataset))) {
-
-            assertEquals("cccccc-2454-4501-8110-ecc082aa975f",
-                    resource.getHeaders().allValues(APPLICATION_REQUEST_METADATA_HEADER_THAT_PROPAGATES).get(0));
+        try ( var resource = authClient.create(new SolidRDFSource(resourceUri, dataset))) {
+            for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
+                assertEquals(headers.get(value), resource.getHeaders().allValues(value));
+            }
             assertTrue(resource.getHeaders().allValues("someblabla").isEmpty());
         }
     }
@@ -289,5 +291,13 @@ public class ApplicationRequestMetadataScenarios {
 
     private static boolean featureIsActive() {
         return REQUEST_METADATA_FEATURE.equals("true");
+    }
+
+    private Map<String, List<String>> fillHeaders(final String headerValue) {
+        var headers = new HashMap<String, List<String>>();
+        for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
+            headers.put(value, List.of(headerValue + "-" + UUID.randomUUID()));
+        }
+        return headers;
     }
 }
