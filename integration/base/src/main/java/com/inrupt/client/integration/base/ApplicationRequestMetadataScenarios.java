@@ -91,10 +91,6 @@ public class ApplicationRequestMetadataScenarios {
 
     @BeforeAll
     static void setup() {
-        if (!featureIsActive()) {
-            LOGGER.info("ApplicationRequestMetadataScenarios are skipped, feature not active");
-            return;
-        }
         LOGGER.info("Setup ApplicationRequestMetadataScenarios test");
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             LOGGER.info("Running ApplicationRequestMetadataScenarios on live server");
@@ -134,17 +130,17 @@ public class ApplicationRequestMetadataScenarios {
 
         Utils.createContainer(authenticatedClient, privateContainerURI);
 
-
         LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
+        if (!featureIsActive()) {
+            LOGGER.info("ApplicationRequestMetadataScenarios are skipped, feature not active");
+        }
     }
 
     @AfterAll
     static void teardown() {
-        if (featureIsActive()) {
-            //cleanup pod
-            Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
-            Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
-        }
+        //cleanup pod
+        Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
+        Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
     }
 
     @ParameterizedTest
