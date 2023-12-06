@@ -202,7 +202,7 @@ public class DomainModulesResource {
 
         final String containerURL = publicContainerURI + "newContainer-" + UUID.randomUUID() + "/";
 
-        final SolidContainer newContainer = new SolidContainer(URI.create(containerURL), null, null);
+        final SolidContainer newContainer = new SolidContainer(URI.create(containerURL));
         assertDoesNotThrow(() -> client.create(newContainer));
 
         assertDoesNotThrow(() -> client.delete(newContainer));
