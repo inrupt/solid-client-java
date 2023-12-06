@@ -38,6 +38,7 @@ jobs:
           INRUPT_TEST_REQUESTER_CLIENT_ID: ${{ secrets.INRUPT_PROD_REQUESTER_CLIENT_ID }}
           INRUPT_TEST_REQUESTER_CLIENT_SECRET: ${{ secrets.INRUPT_PROD_REQUESTER_CLIENT_SECRET }}
           INRUPT_TEST_REQUEST_METADATA_FEATURE: false
+          INRUPT_TEST_REQUEST_METADATA_HEADERS_THAT_PROPAGATE:
 
       - name: Dev Integration tests
         if: ${{ github.actor != 'dependabot[bot]' && matrix.java == 11 }}
