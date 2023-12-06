@@ -46,7 +46,6 @@ import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
-import org.apache.http.Header;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.*;
@@ -174,10 +173,10 @@ public class ApplicationRequestMetadataScenarios {
 
         final URI resourceUri = URI.create(resourceName);
 
-        var headers = fillHeaders("aaaaaa");
+        final var headers = fillHeaders("aaaaaa");
 
         // Create a new resource and check response headers
-        Request.Builder reqBuilder = Request.newBuilder(resourceUri)
+        final Request.Builder reqBuilder = Request.newBuilder(resourceUri)
                 .header(Utils.CONTENT_TYPE, Utils.TEXT_TURTLE)
                 .PUT(Request.BodyPublishers.noBody());
 
@@ -207,7 +206,7 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - High level async client -" +
                 " Request and response headers match for a successful authenticated request");
 
-        var headers = fillHeaders("bbbbbb");
+        final var headers = fillHeaders("bbbbbb");
         headers.put("someblabla", List.of("bbbbbb-2454-4501-8110-ecc082aa975f"));
 
         final SolidClient authClient = SolidClient.getClientBuilder()
@@ -246,7 +245,7 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a successful authenticated request");
 
-        var headers = fillHeaders("ccccc");
+        final var headers = fillHeaders("ccccc");
         headers.put("someblabla", List.of("ccccc-2454-4501-8110-ecc082aa975f"));
 
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
@@ -294,7 +293,7 @@ public class ApplicationRequestMetadataScenarios {
     }
 
     private Map<String, List<String>> fillHeaders(final String headerValue) {
-        var headers = new HashMap<String, List<String>>();
+        final var headers = new HashMap<String, List<String>>();
         for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
             headers.put(value, List.of(headerValue + "-" + UUID.randomUUID()));
         }
