@@ -290,8 +290,8 @@ public class ApplicationRequestMetadataScenarios {
 
     private Map<String, List<String>> fillHeaders(final String headerValue) {
         final var headers = new HashMap<String, List<String>>();
-        for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
-            headers.put(value, List.of(headerValue + "-" + UUID.randomUUID()));
+        for (String header: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
+            headers.put(header, List.of(headerValue + "-" + UUID.randomUUID()));
         }
         return headers;
     }
