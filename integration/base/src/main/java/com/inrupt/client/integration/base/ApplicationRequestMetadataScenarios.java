@@ -263,8 +263,8 @@ public class ApplicationRequestMetadataScenarios {
         // Create a new resource and check response headers
         final URI resourceUri = URI.create(resourceName);
         try ( var resource = authClient.create(new SolidRDFSource(resourceUri, dataset))) {
-            for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
-                assertEquals(headers.get(value), resource.getHeaders().allValues(value));
+            for (String header: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
+                assertEquals(headers.get(header), resource.getHeaders().allValues(header));
             }
             assertTrue(resource.getHeaders().allValues("someblabla").isEmpty());
         }
