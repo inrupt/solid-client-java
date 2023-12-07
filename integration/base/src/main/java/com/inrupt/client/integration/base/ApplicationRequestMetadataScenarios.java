@@ -73,7 +73,8 @@ public class ApplicationRequestMetadataScenarios {
             .orElse("false");
 
     private static final String[] REQUEST_METADATA_HEADERS_THAT_PROPAGATE = config
-            .getValue("inrupt.test.request-metadata-headers-that-propagate", String[].class);
+            .getOptionalValue("inrupt.test.request-metadata-headers-that-propagate", String[].class)
+            .orElse(new String[]{""});
 
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
@@ -145,9 +146,8 @@ public class ApplicationRequestMetadataScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(" " +
-            "Request and response headers match for a successful authenticated request")
-    void requestResponseMatchOnAuthRequestLowLevelClientTest(final Session session) {
+    @DisplayName("Request and response headers match for a successful authenticated request")
+    void matchOnAuthRequestSyncLowLevelClientTest(final Session session) {
         assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - Low level sync client - " +
@@ -194,16 +194,15 @@ public class ApplicationRequestMetadataScenarios {
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(" " +
-            "Request and response headers match for a successful authenticated request")
-    void requestResponseMatchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
+    @DisplayName("Request and response headers match for a successful authenticated request")
+    void matchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
         assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - High level async client -" +
                 " Request and response headers match for a successful authenticated request");
 
         final var headers = fillHeaders("bbbbbb");
-        headers.put("someblabla", List.of("bbbbbb-2454-4501-8110-ecc082aa975f"));
+        headers.put("someheader", List.of("bbbbbb-2454-4501-8110-ecc082aa975f"));
 
         final SolidClient authClient = SolidClient.getClientBuilder()
                         .headers(Headers.of(headers)).build()
@@ -227,22 +226,21 @@ public class ApplicationRequestMetadataScenarios {
             for (String value: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
                 assertEquals(headers.get(value), response.getHeaders().allValues(value));
             }
-            assertTrue(response.getHeaders().allValues("someblabla").isEmpty());
+            assertTrue(response.getHeaders().allValues("someheader").isEmpty());
         });
     }
 
     @ParameterizedTest
     @MethodSource("provideSessions")
-    @DisplayName(" " +
-            "Request and response headers match for a successful authenticated request")
-    void requestResponseMatchOnAuthRequestHighLevelSyncClientTest(final Session session) {
+    @DisplayName("Request and response headers match for a successful authenticated request")
+    void matchOnAuthRequestSyncHighLevelClientTest(final Session session) {
         assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a successful authenticated request");
 
         final var headers = fillHeaders("ccccc");
-        headers.put("someblabla", List.of("ccccc-2454-4501-8110-ecc082aa975f"));
+        headers.put("someheader", List.of("ccccc-2454-4501-8110-ecc082aa975f"));
 
         final SolidSyncClient authClient = SolidSyncClient.getClientBuilder()
                 .headers(Headers.of(headers)).build()
@@ -266,7 +264,7 @@ public class ApplicationRequestMetadataScenarios {
             for (String header: REQUEST_METADATA_HEADERS_THAT_PROPAGATE) {
                 assertEquals(headers.get(header), resource.getHeaders().allValues(header));
             }
-            assertTrue(resource.getHeaders().allValues("someblabla").isEmpty());
+            assertTrue(resource.getHeaders().allValues("someheader").isEmpty());
         }
     }
 
