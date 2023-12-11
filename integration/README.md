@@ -32,8 +32,8 @@ All the possible value are listed next:
 * `inrupt.test.webid`
 * `inrupt.test.access-grant.provider`
 * `inrupt.test.requester.webid`
-* `inrupt.test.requester.client-id` // mandatory
-* `inrupt.test.requester.client-secret` // mandatory
+* `inrupt.test.requester.client-id` // mandatory for running the AccessGrant scenarios
+* `inrupt.test.requester.client-secret` // mandatory for running the AccessGrant scenarios
 
 Mandatory fields are:
 * `inrupt.test.client-id` & `inrupt.test.client-secret` are used to signal the server that this is a registered client acting as the owner of resources.
