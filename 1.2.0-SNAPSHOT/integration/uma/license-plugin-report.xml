@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1701859378068">
+<licensePluginReport goal="CHECK" timestamp="1702310858916">
     <module artifactId="inrupt-client-integration-uma-tests" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
     <files>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaAccessGrantScenarioTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/integration/uma/UmaApplicationRequestMetadataTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaAuthenticationScenariosTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaCoreModulesResourceJenaTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/integration/uma/UmaDomainModulesResourceTest.java" result="PRESENT"/>
