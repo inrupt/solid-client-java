@@ -74,7 +74,7 @@ public class ApplicationRequestMetadataScenarios {
 
     private static final String[] REQUEST_METADATA_HEADERS_THAT_PROPAGATE = config
             .getOptionalValue("inrupt.test.request-metadata-headers-that-propagate", String[].class)
-            .orElse(new String[]{""});
+            .orElse(new String[0]);
 
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
