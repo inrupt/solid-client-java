@@ -21,7 +21,6 @@
 package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
@@ -49,6 +48,7 @@ import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -96,43 +96,42 @@ public class ApplicationRequestMetadataScenarios {
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             LOGGER.info("Running ApplicationRequestMetadataScenarios on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
-        }
 
-        State.WEBID = URI.create(webidUrl);
-        //find storage from WebID using domain-specific webID solid concept
-        final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
-        try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
-            final var storages = sameProfile.getStorages();
-            issuer = sameProfile.getOidcIssuers().iterator().next().toString();
-            if (!storages.isEmpty()) {
-                podUrl = storages.iterator().next().toString();
+            State.WEBID = URI.create(webidUrl);
+            //find storage from WebID using domain-specific webID solid concept
+            final SolidSyncClient client = SolidSyncClient.getClient().session(Session.anonymous());
+            try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
+                final var storages = sameProfile.getStorages();
+                issuer = sameProfile.getOidcIssuers().iterator().next().toString();
+                if (!storages.isEmpty()) {
+                    podUrl = storages.iterator().next().toString();
+                }
+
+                session = OpenIdSession.ofClientCredentials(
+                        URI.create(issuer), //Client credentials
+                        CLIENT_ID,
+                        CLIENT_SECRET,
+                        AUTH_METHOD);
+
+                authenticatedClient = client.session(session);
+            } catch (SolidClientException ex) {
+                LOGGER.error("problems reading the webId");
             }
 
-            session = OpenIdSession.ofClientCredentials(
-                    URI.create(issuer), //Client credentials
-                    CLIENT_ID,
-                    CLIENT_SECRET,
-                    AUTH_METHOD);
+            publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
+                .build();
 
-            authenticatedClient = client.session(session);
-        } catch (SolidClientException ex) {
-            LOGGER.error("problems reading the webId");
-        }
+            Utils.createPublicContainer(authenticatedClient, publicContainerURI);
 
-        publicContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-            .path("public-domain-test-" + UUID.randomUUID() + FOLDER_SEPARATOR)
-            .build();
+            privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
+                .path(State.PRIVATE_RESOURCE_PATH + "-auth-test-" + UUID.randomUUID() + "/")
+                .build();
 
-        Utils.createPublicContainer(authenticatedClient, publicContainerURI);
+            Utils.createContainer(authenticatedClient, privateContainerURI);
 
-        privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
-            .path(State.PRIVATE_RESOURCE_PATH + "-auth-test-" + UUID.randomUUID() + "/")
-            .build();
-
-        Utils.createContainer(authenticatedClient, privateContainerURI);
-
-        LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
-        if (!featureIsActive()) {
+            LOGGER.info("Integration Test Pod Host: [{}]", URI.create(podUrl).getHost());
+        } else {
             LOGGER.info("ApplicationRequestMetadataScenarios are skipped, feature not active");
         }
     }
@@ -140,15 +139,19 @@ public class ApplicationRequestMetadataScenarios {
     @AfterAll
     static void teardown() {
         //cleanup pod
-        Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
-        Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
+        if (publicContainerURI != null) {
+            Utils.deleteContentsRecursively(authenticatedClient, publicContainerURI);
+        }
+        if (privateContainerURI != null) {
+            Utils.deleteContentsRecursively(authenticatedClient, privateContainerURI);
+        }
     }
 
     @ParameterizedTest
+    @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
     @DisplayName("Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestSyncLowLevelClientTest(final Session session) {
-        assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - Low level sync client - " +
                 "Request and response headers match for a successful authenticated request");
@@ -193,10 +196,10 @@ public class ApplicationRequestMetadataScenarios {
     }
 
     @ParameterizedTest
+    @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
     @DisplayName("Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
-        assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - High level async client -" +
                 " Request and response headers match for a successful authenticated request");
@@ -231,10 +234,10 @@ public class ApplicationRequestMetadataScenarios {
     }
 
     @ParameterizedTest
+    @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
     @DisplayName("Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestSyncHighLevelClientTest(final Session session) {
-        assumeTrue(featureIsActive());
 
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a successful authenticated request");
@@ -282,7 +285,7 @@ public class ApplicationRequestMetadataScenarios {
                         Arguments.of(session)));
     }
 
-    private static boolean featureIsActive() {
+    static boolean featureIsActive() {
         return REQUEST_METADATA_FEATURE.equals("true");
     }
 
