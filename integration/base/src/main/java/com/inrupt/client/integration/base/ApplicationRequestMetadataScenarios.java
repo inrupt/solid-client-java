@@ -20,6 +20,10 @@
  */
 package com.inrupt.client.integration.base;
 
+import static com.inrupt.client.integration.base.Utils.TEXT_TURTLE;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Headers;
@@ -29,14 +33,12 @@ import com.inrupt.client.auth.Credential;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdException;
 import com.inrupt.client.openid.OpenIdSession;
-import com.inrupt.client.solid.SolidClient;
-import com.inrupt.client.solid.SolidClientException;
-import com.inrupt.client.solid.SolidRDFSource;
-import com.inrupt.client.solid.SolidSyncClient;
+import com.inrupt.client.solid.*;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.webid.WebIdProfile;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Stream;
@@ -47,6 +49,7 @@ import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -284,6 +287,17 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a successful unauthenticated request");
 
+        final var resourceUri = URI.create(publicContainerURI + UUID.randomUUID().toString());
+
+        try (final var testResource = new SolidRDFSource(resourceUri)) {
+            final var requestHeaders = fillHeaders("unAuth");
+            final var client = SolidSyncClient.getClientBuilder()
+                    .headers(Headers.of(requestHeaders)).build();
+
+            try (var response = client.create(testResource)) {
+                matchHeaders(requestHeaders, response.getHeaders());
+            }
+        }
     }
 
     @ParameterizedTest
@@ -296,6 +310,19 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a failed authenticated request");
 
+        final var resourceUri = URI.create(privateContainerURI + UUID.randomUUID().toString());
+        final var invalidPayload = new ByteArrayInputStream("invalid".getBytes(UTF_8));
+
+        try (final var testResource = new SolidNonRDFSource(resourceUri, TEXT_TURTLE, invalidPayload)) {
+            final var requestHeaders = fillHeaders("badRequest");
+            final var client = SolidSyncClient.getClientBuilder()
+                    .headers(Headers.of(requestHeaders)).build()
+                    .session(session);
+
+            final var exception = assertThrows(BadRequestException.class, ()-> client.create(testResource));
+
+            matchHeaders(requestHeaders, exception.getHeaders());
+        }
     }
 
     @ParameterizedTest
@@ -308,6 +335,33 @@ public class ApplicationRequestMetadataScenarios {
         LOGGER.info("Integration Test - High level sync client -" +
                 " Request and response headers match for a failed unauthenticated request");
 
+        final var resourceUri = URI.create(privateContainerURI + UUID.randomUUID().toString());
+
+        try (final var testResource = new SolidRDFSource(resourceUri)) {
+            final var requestHeaders = fillHeaders("authFailed");
+            final var client = SolidSyncClient.getClientBuilder()
+                    .headers(Headers.of(requestHeaders)).build();
+
+            final var exception = assertThrows(UnauthorizedException.class, ()-> client.create(testResource));
+
+            matchHeaders(requestHeaders, exception.getHeaders());
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void matchHeaders(final Map<String, List<String>> requestHeaders, final Headers responseHeaders) {
+        final var receivedHeaders = Arrays.asList(responseHeaders
+                .asMap()
+                .entrySet()
+                .toArray(Map.Entry[]::new));
+        final var expectedHeaders = requestHeaders.entrySet().stream()
+                .map(kv -> hasItem(both(
+                        hasProperty("key", equalTo(kv.getKey()))).and(
+                        hasProperty("value", equalTo(kv.getValue())))))
+                .toArray(Matcher[]::new);
+
+        assertThat(receivedHeaders, is(allOf(expectedHeaders)));
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
