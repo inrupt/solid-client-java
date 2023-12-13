@@ -253,7 +253,10 @@
   td:reviewStatus td:approved.
 
  :applicationMetadataRequestSuite dcterms:hasPart
-    :authClientCreateResourceWithHeaders;
+    :authClientCreateResourceWithHeaders,
+    :unAuthClientCreateResourceWithHeaders,
+    :authClientCannotCreateResourceWithHeaders,
+    :unClientCannotCreateResourceWithHeaders;
     inrupt:targetEnvironment <https://docs.oracle.com/en/java/javase/11/docs/api/>.
 
  :authClientCreateResourceWithHeaders a td:TestCase ;
@@ -261,4 +264,25 @@
    dcterms:title "Request and response headers match for a successful authenticated request"@en;
    dcterms:description "An authenticated user having previously set some application request headers to create a new RDF resource can see the same headers on the response."@en;
    td:expectedResults "The RDF resource is created successfully and the response contains only the expected application headers."@en;
+   td:reviewStatus td:approved.
+
+ :unAuthClientCreateResourceWithHeaders a td:TestCase ;
+   inrupt:appliesTo <https://dev-2-2.inrupt.com/>, <https://start.inrupt.com>;
+   dcterms:title "Request and response headers match for a successful unauthenticated request"@en;
+   dcterms:description "An unauthenticated user having previously set some application request headers to create a new RDF resource can see the same headers on the response."@en;
+   td:expectedResults "The RDF resource is created successfully and the response contains only the expected application headers."@en;
+   td:reviewStatus td:approved.
+
+ :authClientCannotCreateResourceWithHeaders a td:TestCase ;
+   inrupt:appliesTo <https://dev-2-2.inrupt.com/>, <https://start.inrupt.com>;
+   dcterms:title "Request and response headers match for a failed authenticated request"@en;
+   dcterms:description "An authenticated user having previously set some application request headers to create a new RDF resource can see the same headers on the response."@en;
+   td:expectedResults "The RDF resource is not created and the response contains only the expected application headers."@en;
+   td:reviewStatus td:approved.
+
+ :unClientCannotCreateResourceWithHeaders a td:TestCase ;
+   inrupt:appliesTo <https://dev-2-2.inrupt.com/>, <https://start.inrupt.com>;
+   dcterms:title "Request and response headers match for a failed unauthenticated request"@en;
+   dcterms:description "An unauthenticated user having previously set some application request headers to create a new RDF resource can see the same headers on the response."@en;
+   td:expectedResults "The RDF resource is not created and the response contains only the expected application headers."@en;
    td:reviewStatus td:approved.
