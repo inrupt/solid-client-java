@@ -150,7 +150,7 @@ public class ApplicationRequestMetadataScenarios {
     @ParameterizedTest
     @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
-    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders" +
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders " +
             "Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestSyncLowLevelClientTest(final Session session) {
 
@@ -199,7 +199,7 @@ public class ApplicationRequestMetadataScenarios {
     @ParameterizedTest
     @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
-    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders" +
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders " +
             "Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
 
@@ -238,7 +238,7 @@ public class ApplicationRequestMetadataScenarios {
     @ParameterizedTest
     @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
-    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders" +
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders " +
             "Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestSyncHighLevelClientTest(final Session session) {
 
