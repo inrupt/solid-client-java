@@ -150,7 +150,8 @@ public class ApplicationRequestMetadataScenarios {
     @ParameterizedTest
     @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
-    @DisplayName("Request and response headers match for a successful authenticated request")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders " +
+            "Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestSyncLowLevelClientTest(final Session session) {
 
         LOGGER.info("Integration Test - Low level sync client - " +
@@ -198,7 +199,8 @@ public class ApplicationRequestMetadataScenarios {
     @ParameterizedTest
     @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
-    @DisplayName("Request and response headers match for a successful authenticated request")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders " +
+            "Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestAsyncHighLevelClientTest(final Session session) {
 
         LOGGER.info("Integration Test - High level async client -" +
@@ -236,7 +238,8 @@ public class ApplicationRequestMetadataScenarios {
     @ParameterizedTest
     @EnabledIf("featureIsActive")
     @MethodSource("provideSessions")
-    @DisplayName("Request and response headers match for a successful authenticated request")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCreateResourceWithHeaders " +
+            "Request and response headers match for a successful authenticated request")
     void matchOnAuthRequestSyncHighLevelClientTest(final Session session) {
 
         LOGGER.info("Integration Test - High level sync client -" +
@@ -269,6 +272,42 @@ public class ApplicationRequestMetadataScenarios {
             }
             assertTrue(resource.getHeaders().allValues("someheader").isEmpty());
         }
+    }
+
+    @ParameterizedTest
+    @EnabledIf("featureIsActive")
+    @MethodSource("provideSessions")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/unAuthClientCreateResourceWithHeaders " +
+            "Request and response headers match for a successful unauthenticated request")
+    void matchOnUnAuthRequestSyncHighLevelClientTest(final Session session) {
+
+        LOGGER.info("Integration Test - High level sync client -" +
+                " Request and response headers match for a successful unauthenticated request");
+
+    }
+
+    @ParameterizedTest
+    @EnabledIf("featureIsActive")
+    @MethodSource("provideSessions")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/authClientCannotCreateResourceWithHeaders " +
+            "Request and response headers match for a failed authenticated request")
+    void matchOnAuthFailedRequestSyncHighLevelClientTest(final Session session) {
+
+        LOGGER.info("Integration Test - High level sync client -" +
+                " Request and response headers match for a failed authenticated request");
+
+    }
+
+    @ParameterizedTest
+    @EnabledIf("featureIsActive")
+    @MethodSource("provideSessions")
+    @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/unClientCannotCreateResourceWithHeaders " +
+            "Request and response headers match for a failed unauthenticated request")
+    void matchOnUnAuthFailedRequestSyncHighLevelClientTest(final Session session) {
+
+        LOGGER.info("Integration Test - High level sync client -" +
+                " Request and response headers match for a failed unauthenticated request");
+
     }
 
     private static Stream<Arguments> provideSessions() throws SolidClientException {
