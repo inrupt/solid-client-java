@@ -3,7 +3,8 @@
 The integration tests contain more test scenarios:
 
 * resource CRUD related scenarios;
-* authentication & authorization scenarios.
+* authentication & authorization scenarios;
+* application metadata request scenarios.
 
 All scenarios are detailed in the [Integration test scenarios Turtle file](https://w3id.org/inrupt/qa/manifest/solid-client-java/).
 
@@ -18,6 +19,8 @@ The default setup (which comes with the project) uses an internal Mock Solid Ser
 * and the `requester.client-secret`
 
 They can be found in the `./base/src/main/resources/META-INF/microprofile-config.properties` file. Navigate to one of the concrete openid or uma tests found in this module and hit `run`.
+
+***Note***: the application metadata request scenarios are not setup to run on the Mock Solid Server.
 
 ## Running the tests on a live Solid server
 
@@ -34,6 +37,8 @@ All the possible value are listed next:
 * `inrupt.test.requester.webid`
 * `inrupt.test.requester.client-id` // mandatory for running the AccessGrant scenarios
 * `inrupt.test.requester.client-secret` // mandatory for running the AccessGrant scenarios
+* `inrupt.test.feature.request-metadata`
+* `inrupt.test.request-metadata-headers-that-propagate`
 
 Mandatory fields are:
 * `inrupt.test.client-id` & `inrupt.test.client-secret` are used to signal the server that this is a registered client acting as the owner of resources.
@@ -43,6 +48,9 @@ Optional fields are:
 * `inrupt.test.webid` is needed only if we want to run the integration tests on a live service. Otherwise, this property needs to be left out because it will be populated by the Mocked services with a mock username called `someuser`.
 * `inrupt.test.requester.webid` is only needed in the access grants test scenarios and can be also left empty because the Mocked services will create a username called `requester`.
 * `inrupt.test.auth-method` refers to the [client authentication](https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) method and has a default value of `client_secret_basic`. This value is used when this property is not provided.
+* `inrupt.test.feature.request-metadata` is a `true` or `false` config that signals if the feature is available on the server and only then runs the according scenarios. By default, this is set on `false`.
+* `inrupt.test.request-metadata-headers-that-propagate` if the above is `true`, the test scenarios need to know which headers the servers can propagate. This is a string comma separated list.  
+
 
 ## The embedded Mock Solid Server
 
