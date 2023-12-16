@@ -1,0 +1,53 @@
+name: NVD Data Workflow CD
+
+on:
+  schedule:
+    - cron: '0 5 * * 1,2,3,4,5'
+
+jobs:
+  build:
+    name: Build and collect data
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+
+    steps:
+    - name: Checkout OVP repository
+      uses: actions/checkout@v4
+      with:
+        repository: jeremylong/Open-Vulnerability-Project
+        path: ovp
+        ref: v5.1.1
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: 17
+        cache: 'gradle'
+
+    - name: Build the OVP code with Gradle
+      working-directory: ./ovp
+      run: ./gradlew build -x test
+
+    - uses: actions/checkout@v4
+      with:
+        path: data
+
+    - name: Generate Cache Name
+      shell: bash
+      run: echo "CACHE_NAME=$(date '+%y.%j')" >> $GITHUB_ENV
+
+    - name: Rename artifact
+      run: find ./ovp/vulnz/build/libs -type f -regex './ovp/vulnz/build/libs/vulnz-[0-9].[0-9].[0-9].jar' -exec mv {} ./data/vulnz.jar ';'
+
+    - name: Generate data
+      working-directory: ./data
+      run: ./vulnz.jar cve --cache --directory ./cache
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+    - name: Cache NVD data
+      uses: actions/cache@v3
+      with:
+        key: nvd-data-${{ env.CACHE_NAME }}
+        path: ./data/cache
