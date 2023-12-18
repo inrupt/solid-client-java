@@ -85,6 +85,7 @@
     <dependency-check.skip>true</dependency-check.skip>
     <archetype.test.skip>true</archetype.test.skip>
     <nvd.api.key/>
+    <nvd.api.datafeed />
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -628,6 +629,7 @@
               ./build-tools/owasp/suppressions.xml
           </suppressionFile>
           <nvdApiKey>${nvd.api.key}</nvdApiKey>
+          <nvdDatafeedUrl>${nvd.api.datafeed}</nvdDatafeedUrl>
         </configuration>
       </plugin>
     </plugins>
