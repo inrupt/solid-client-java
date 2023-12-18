@@ -3,6 +3,7 @@ name: NVD Data Workflow Schedule
 on:
   schedule:
     - cron: '0 5 * * 1,2,3,4,5'
+  workflow_dispatch: { }
 
 jobs:
   build:

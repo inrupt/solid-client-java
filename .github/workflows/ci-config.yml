@@ -124,8 +124,5 @@ jobs:
           restore-keys: nvd-data-
           path: ./data/cache
 
-      - name: Debug
-        run: find . -name cache
-
       - name: Verify dependencies
         run: mvn -B -ntp verify -Pdependencies -Dnvd.api.datafeed="file:${GITHUB_WORKSPACE}/data/cache/nvdcve-{0}.json.gz"
