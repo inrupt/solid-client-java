@@ -1,4 +1,4 @@
-name: NVD Data Workflow CD
+name: NVD Data Workflow Schedule
 
 on:
   schedule:

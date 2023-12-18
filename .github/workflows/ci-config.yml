@@ -113,5 +113,16 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
 
-      - name: Build the code with Maven
-        run: mvn -B -ntp verify -Pdependencies -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
+      - name: Generate Cache Name
+        shell: bash
+        run: echo "CACHE_NAME=$(date '+%y.%j')" >> $GITHUB_ENV
+
+      - name: Restore NVD data cache
+        uses: actions/cache@v3
+        with:
+          key: nvd-data-${{ env.CACHE_NAME }}
+          restore-keys: nvd-data-
+          path: ./data/cache
+
+      - name: Verify dependencies
+        run: mvn -B -ntp verify -Pdependencies -Dnvd.api.datafeed="file:${GITHUB_WORKSPACE}/data/cache/nvdcve-{0}.json.gz"
