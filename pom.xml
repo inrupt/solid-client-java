@@ -73,7 +73,7 @@
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.15.4</equalsverifier.version>
+    <equalsverifier.version>3.15.5</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.1</junit.version>
     <smallrye.jwt.version>4.4.0</smallrye.jwt.version>
