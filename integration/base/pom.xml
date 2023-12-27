@@ -14,7 +14,7 @@
 
     <properties>
         <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
-        <smallrye.config.version>3.4.4</smallrye.config.version>
+        <smallrye.config.version>3.5.0</smallrye.config.version>
     </properties>
 
     <dependencies>
