@@ -26,7 +26,7 @@
     <commons.cli.version>1.6.0</commons.cli.version>
     <commons.io.version>2.15.1</commons.io.version>
     <commons.rdf.version>0.5.0</commons.rdf.version>
-    <guava.version>32.1.3-jre</guava.version>
+    <guava.version>33.0.0-jre</guava.version>
     <jackson.version>2.16.1</jackson.version>
     <jakarta.json.version>2.1.3</jakarta.json.version>
     <jena.version>4.10.0</jena.version>
