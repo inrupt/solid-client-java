@@ -118,7 +118,7 @@ jobs:
         run: echo "CACHE_NAME=$(date '+%y.%j')" >> $GITHUB_ENV
 
       - name: Restore NVD data cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: nvd-data-${{ env.CACHE_NAME }}
           restore-keys: nvd-data-
