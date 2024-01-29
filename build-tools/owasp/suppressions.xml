@@ -10,6 +10,13 @@
   </suppress>
 
   <!-- Suppressed vulnerabilities. These need monthly review. -->
+  <suppress until="2024-03-01Z">
+    <notes><![CDATA[
+        This vulnerability appears when both Spring MVC AND Spring Security 6.2.1+ appear on the classpath. The JCL only uses Spring Security.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-core@.*$</packageUrl>
+    <vulnerabilityName>CVE-2024-22233</vulnerabilityName>
+  </suppress>
   <suppress until="2024-02-01Z">
     <notes><![CDATA[
         This vulnerability appears via wiremock and is used only during test execution. As such, the
