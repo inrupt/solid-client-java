@@ -768,21 +768,24 @@ public class AccessGrantScenarios {
     }
 
     private static Session createOwnerSession() {
-        final var resourceOwnerSession = OpenIdSession.ofClientCredentials(
+        final var session = OpenIdSession.ofClientCredentials(
             URI.create(issuer),
             RESOURCE_OWNER_CLIENT_ID,
             RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
-        return resourceOwnerSession;
+        // eagerly initialize
+        session.getPrincipal();
+        return session;
     }
 
     private static Session createRequesterSession() {
-        final var requesterSession = OpenIdSession.ofClientCredentials(
+        final var session = OpenIdSession.ofClientCredentials(
             URI.create(issuer),
             REQUESTER_CLIENT_ID,
             REQUESTER_CLIENT_SECRET,
             AUTH_METHOD);
-
-        return requesterSession;
+        // eagerly initialize
+        session.getPrincipal();
+        return session;
     }
 }
