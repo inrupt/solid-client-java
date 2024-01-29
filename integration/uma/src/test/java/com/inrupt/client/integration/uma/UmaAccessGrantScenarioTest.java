@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Request;
 import com.inrupt.client.accessgrant.AccessGrantClient;
-import com.inrupt.client.auth.Session;
 import com.inrupt.client.integration.base.AccessGrantScenarios;
 
 import java.net.URI;
@@ -32,8 +31,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +39,8 @@ class UmaAccessGrantScenarioTest extends AccessGrantScenarios {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UmaAccessGrantScenarioTest.class);
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
-    void accessGrantUmaAuthentication(final Session resourceOwnerSession, final Session requesterSession) {
+    @Test
+    void accessGrantUmaAuthentication() {
         LOGGER.info("Integration Test - UMA Authentication to VC endpoint");
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(

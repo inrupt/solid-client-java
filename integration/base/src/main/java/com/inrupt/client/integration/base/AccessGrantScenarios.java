@@ -46,7 +46,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
@@ -56,9 +55,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +104,8 @@ public class AccessGrantScenarios {
     private static URI privateContainerURI;
 
     private static SolidSyncClient authResourceOwnerClient;
+    protected static Session resourceOwnerSession;
+    protected static Session requesterSession;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -152,7 +151,11 @@ public class AccessGrantScenarios {
             podUrl += Utils.FOLDER_SEPARATOR;
         }
 
-        authResourceOwnerClient = createAuthenticatedClient();
+        // Create sessions
+        resourceOwnerSession = createOwnerSession();
+        requesterSession = createRequesterSession();
+
+        authResourceOwnerClient = SolidSyncClient.getClient().session(resourceOwnerSession);
         privateContainerURI = URIBuilder.newBuilder(URI.create(podUrl))
                 .path(State.PRIVATE_RESOURCE_PATH + "-access-test-" + UUID.randomUUID() + "/")
                 .build();
@@ -204,11 +207,10 @@ public class AccessGrantScenarios {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantLifecycle " +
             "Access Grant issuance lifecycle")
-    void accessGrantIssuanceLifecycleTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantIssuanceLifecycleTest() {
         //test is NOT run locally, AccessGrantServerMock needs to be aware of grant statuses.
         //We do not do this for now.
         assumeFalse(ACCESS_GRANT_PROVIDER.contains("localhost"));
@@ -271,11 +273,10 @@ public class AccessGrantScenarios {
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantOverride " +
             "Access Grant with request overrides")
-    void accessGrantWithRequestOverridesTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantWithRequestOverridesTest() {
         LOGGER.info("Integration Test - Access Grant with request overrides");
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
@@ -303,11 +304,10 @@ public class AccessGrantScenarios {
     }
 
     //Query access grant related tests
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantQueryByRequestor " +
             "Lookup Access Grants by requester")
-    void accessGrantQueryByRequesterTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantQueryByRequesterTest() {
         LOGGER.info("Integration Test - Lookup Access Grants by requester");
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
@@ -343,10 +343,9 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("Given a grant id, approve it")
-    void accessGrantGrantAccessByIdTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantGrantAccessByIdTest() {
         LOGGER.info("Integration Test - Grant access by id");
 
         //setup test
@@ -405,11 +404,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantQueryByPurpose " +
             "Lookup Access Grants by purpose of a dedicated resource")
-    void accessGrantQueryByPurposeTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantQueryByPurposeTest() {
         LOGGER.info("Integration Test - Lookup Access Grants by purpose");
 
         final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
@@ -446,11 +444,10 @@ public class AccessGrantScenarios {
     }
 
     //Interacting with resource related tests
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantGetRdf " +
             "Fetching RDF using Access Grant")
-    void accessGrantGetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantGetRdfTest() {
         LOGGER.info("Integration Test - Fetching RDF using Access Grant");
 
         final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
@@ -493,11 +490,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantSetRdf " +
             "Appending RDF using Access Grant")
-    void accessGrantSetRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantSetRdfTest() {
         LOGGER.info("Integration Test - Appending RDF using Access Grant");
 
         final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
@@ -553,11 +549,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantCreateRdf " +
             "Creating RDF using Access Grant")
-    void accessGrantCreateRdfTest(final Session resourceOwnerSession, final Session requesterSession) {
+    void accessGrantCreateRdfTest() {
         LOGGER.info("Integration Test - Creating RDF using Access Grant");
 
         final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
@@ -595,12 +590,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantGetNonRdf " +
             "Fetching non-RDF using Access Grant")
-    void accessGrantGetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
-            throws IOException {
+    void accessGrantGetNonRdfTest() throws IOException {
         LOGGER.info("Integration Test - Fetching non-RDF using Access Grant");
 
         final SolidSyncClient resourceOwnerClient =
@@ -644,12 +637,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantSetNonRdf " +
             "Overwriting non-RDF using Access Grant")
-    void accessGrantSetNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
-            throws IOException {
+    void accessGrantSetNonRdfTest() throws IOException {
         LOGGER.info("Integration Test - Overwriting non-RDF using Access Grant");
 
         final SolidSyncClient resourceOwnerClient =
@@ -707,12 +698,10 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideSessions")
+    @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/accessGrantCreateNonRdf " +
             "Creating non-RDF using Access Grant")
-    void accessGrantCreateNonRdfTest(final Session resourceOwnerSession, final Session requesterSession)
-            throws IOException {
+    void accessGrantCreateNonRdfTest() throws IOException {
         LOGGER.info("Integration Test - Creating non-RDF using Access Grant");
 
         final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
@@ -778,31 +767,22 @@ public class AccessGrantScenarios {
         }
     }
 
-    private static Stream<Arguments> provideSessions() throws SolidClientException {
+    private static Session createOwnerSession() {
         final var resourceOwnerSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer),
             RESOURCE_OWNER_CLIENT_ID,
             RESOURCE_OWNER_CLIENT_SECRET,
             AUTH_METHOD);
+        return resourceOwnerSession;
+    }
 
+    private static Session createRequesterSession() {
         final var requesterSession = OpenIdSession.ofClientCredentials(
             URI.create(issuer),
             REQUESTER_CLIENT_ID,
             REQUESTER_CLIENT_SECRET,
             AUTH_METHOD);
 
-        return Stream.of(
-            Arguments.of(resourceOwnerSession, requesterSession)
-            );
-    }
-
-    private static SolidSyncClient createAuthenticatedClient() {
-        final Session session = OpenIdSession.ofClientCredentials(
-                URI.create(issuer), //Client credentials
-                RESOURCE_OWNER_CLIENT_ID,
-                RESOURCE_OWNER_CLIENT_SECRET,
-                AUTH_METHOD);
-
-        return SolidSyncClient.getClient().session(session);
+        return requesterSession;
     }
 }
