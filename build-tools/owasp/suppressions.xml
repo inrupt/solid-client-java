@@ -14,7 +14,7 @@
     <notes><![CDATA[
         This vulnerability appears when both Spring MVC AND Spring Security 6.2.1+ appear on the classpath. The JCL only uses Spring Security.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-core@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
     <vulnerabilityName>CVE-2024-22233</vulnerabilityName>
   </suppress>
   <suppress until="2024-02-01Z">
