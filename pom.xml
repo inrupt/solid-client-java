@@ -72,7 +72,7 @@
     <awaitility.version>4.2.0</awaitility.version>
     <equalsverifier.version>3.15.6</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
-    <junit.version>5.10.1</junit.version>
+    <junit.version>5.10.2</junit.version>
     <yasson.version>3.0.3</yasson.version>
     <wiremock.version>3.3.1</wiremock.version>
 
