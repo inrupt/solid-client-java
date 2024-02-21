@@ -25,6 +25,7 @@ import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +59,7 @@ public class OkHttpService implements HttpService {
      * Create an HTTP client service with a default {@link OkHttpClient}.
      */
     public OkHttpService() {
-        this(new OkHttpClient());
+        this(new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(30)).build());
     }
 
     private OkHttpService(final OkHttpClient client) {
@@ -76,7 +77,7 @@ public class OkHttpService implements HttpService {
                 LOGGER.trace("Request Headers: {}", req.headers());
             }
         }
-        client.newCall(req).enqueue(new Callback() {
+        getClient(request).newCall(req).enqueue(new Callback() {
             @Override
             public void onResponse(final Call call, final okhttp3.Response res) throws IOException {
                 if (LOGGER.isDebugEnabled()) {
@@ -110,6 +111,14 @@ public class OkHttpService implements HttpService {
      */
     public static OkHttpService ofOkHttpClient(final OkHttpClient client) {
         return new OkHttpService(client);
+    }
+
+    OkHttpClient getClient(final Request request) {
+        if (request.timeout().isPresent()) {
+            return client.newBuilder().readTimeout(request.timeout().get())
+                .writeTimeout(request.timeout().get()).build();
+        }
+        return client;
     }
 
     static RequestBody prepareBody(final Request request, final MediaType mediaType) {

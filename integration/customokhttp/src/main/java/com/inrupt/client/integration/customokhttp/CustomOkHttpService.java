@@ -29,6 +29,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -191,6 +192,7 @@ public class CustomOkHttpService implements HttpService {
         final OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
         newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
         newBuilder.hostnameVerifier((hostname, session) -> true);
+        newBuilder.callTimeout(Duration.ofSeconds(30));
 
         return newBuilder.build();
     }
