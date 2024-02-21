@@ -60,6 +60,7 @@ class MockAccessGrantServer {
     private final String ownerWebId;
     private final String requesterWebId;
     private final String sharedResource;
+    private final URI purpose;
 
     private final String authorisationServerUrl;
 
@@ -67,12 +68,14 @@ class MockAccessGrantServer {
             final URI ownerWebId,
             final URI requesterWebId,
             final URI sharedResource,
-            final String authorisationServerUrl
+            final String authorisationServerUrl,
+            final URI purpose
     ) {
         this.ownerWebId = ownerWebId.toString();
         this.requesterWebId = requesterWebId.toString();
         this.sharedResource = sharedResource.toString();
         this.authorisationServerUrl = authorisationServerUrl;
+        this.purpose = purpose;
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
                 .httpDisabled(true)
                 .dynamicHttpsPort());
@@ -227,7 +230,7 @@ class MockAccessGrantServer {
                 .atPriority(1)
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .withRequestBody(containing("\"Append\""))
-                .withRequestBody(containing("\"https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f\""))
+                .withRequestBody(containing("\"" + purpose + "\""))
                 .withRequestBody(containing("\"" + this.sharedResource + "\""))
                 .withRequestBody(containing("SolidAccessGrant"))
                 .willReturn(aResponse()

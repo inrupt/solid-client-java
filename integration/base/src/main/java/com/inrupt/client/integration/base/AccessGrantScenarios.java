@@ -97,10 +97,10 @@ public class AccessGrantScenarios {
     protected static final String GRANT_MODE_READ = "Read";
     private static final String GRANT_MODE_APPEND = "Append";
     private static final String GRANT_MODE_WRITE = "Write";
-    private static final URI PURPOSE1 = URI.create("https://purpose.example/212efdf4-e1a4-4dcd-9d3b-d6eb92e0205f");
-    private static final URI PURPOSE2 = URI.create("https://purpose.example/de605b08-76c7-4f04-9cec-a438810b0c03");
-    protected static final Set<URI> PURPOSES = new HashSet<>(Arrays.asList(PURPOSE1, PURPOSE2));
-    protected static final String GRANT_EXPIRATION = Instant.now().plus(1, ChronoUnit.HOURS)
+    private static URI PURPOSE1;
+    private static URI PURPOSE2;
+    protected static final Set<URI> PURPOSES = new HashSet<>();
+    protected static final String GRANT_EXPIRATION = Instant.now().plus(20, ChronoUnit.MINUTES)
         .truncatedTo(ChronoUnit.SECONDS).toString();
     private static final String sharedTextFileName = "sharedFile.txt";
     protected static URI sharedTextFileURI;
@@ -111,6 +111,11 @@ public class AccessGrantScenarios {
     @BeforeAll
     static void setup() throws IOException {
         LOGGER.info("Setup AccessGrantScenarios test");
+        PURPOSE1 = URI.create("https://purpose.example/" + UUID.randomUUID());
+        PURPOSE2 = URI.create("https://purpose.example/" + UUID.randomUUID());
+        PURPOSES.clear();
+        PURPOSES.add(PURPOSE1);
+        PURPOSES.add(PURPOSE2);
         if (config.getOptionalValue("inrupt.test.webid", String.class).isPresent()) {
             LOGGER.info("Running AccessGrantScenarios on live server");
             webidUrl = config.getOptionalValue("inrupt.test.webid", String.class).get();
@@ -177,7 +182,8 @@ public class AccessGrantScenarios {
                     URI.create(webidUrl),
                     URI.create(requesterWebidUrl),
                     sharedTextFileURI,
-                    authServer.getMockServerUrl()
+                    authServer.getMockServerUrl(),
+                    PURPOSE1
             );
             accessGrantServer.start();
             ACCESS_GRANT_PROVIDER = accessGrantServer.getMockServerUrl();
