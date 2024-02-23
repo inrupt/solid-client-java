@@ -33,7 +33,7 @@
     <jose4j.version>0.9.5</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.12.0</okhttp.version>
-    <quarkus.version>3.7.2</quarkus.version>
+    <quarkus.version>3.7.3</quarkus.version>
     <slf4j.version>2.0.12</slf4j.version>
     <!-- pinning to Spring 5.x for Java 11 support -->
     <spring.security.version>5.8.8</spring.security.version>
@@ -79,7 +79,7 @@
     <smallrye.jwt.version>4.4.0</smallrye.jwt.version>
     <smallrye.config.version>3.5.4</smallrye.config.version>
     <yasson.version>3.0.3</yasson.version>
-    <wiremock.version>3.3.1</wiremock.version>
+    <wiremock.version>3.4.1</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
@@ -148,6 +148,12 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
           <version>${guava.version}</version>
+        </dependency>
+        <!-- transitive dependency update for CVE-2024-25710 -->
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+          <version>1.26.0</version>
         </dependency>
     </dependencies>
   </dependencyManagement>
