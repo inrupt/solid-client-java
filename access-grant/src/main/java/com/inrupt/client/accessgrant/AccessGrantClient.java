@@ -53,7 +53,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -397,31 +396,27 @@ public class AccessGrantClient {
             throw new AccessGrantException("Unsupported type " + clazz + " in query request");
         }
 
-        return v1Metadata().thenCompose(metadata -> {
-            final List<CompletableFuture<List<T>>> futures = buildQuery(config.getIssuer(), type,
-                    resource, creator, recipient, purposes, modes).stream()
-                .map(data -> Request.newBuilder(metadata.queryEndpoint)
+        return v1Metadata().thenApply(metadata -> {
+            final List<T> responses = new ArrayList<>();
+            for (final Map<String, Object> data :
+                    buildQuery(config.getIssuer(), type, resource, creator, recipient, purposes, modes)) {
+                final Request req = Request.newBuilder(metadata.queryEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
-                        .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build())
-                .map(req -> client.send(req, Response.BodyHandlers.ofInputStream())
-                        .thenApply(res -> {
-                            try (final InputStream input = res.body()) {
-                                final int status = res.statusCode();
-                                if (isSuccess(status)) {
-                                    return processQueryResponse(input, supportedTypes, clazz);
-                                }
-                                throw new AccessGrantException("Unable to perform Access Grant query: HTTP error " +
-                                        status, status);
-                            } catch (final IOException ex) {
-                                throw new AccessGrantException(
-                                        "Unexpected I/O exception while processing Access Grant query", ex);
-                            }
-                        }).toCompletableFuture())
-                .collect(Collectors.toList());
+                        .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
+                final Response<InputStream> response = client.send(req, Response.BodyHandlers.ofInputStream())
+                    .toCompletableFuture().join();
 
-            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenApply(x -> futures.stream().map(CompletableFuture::join).flatMap(List::stream)
-                        .collect(Collectors.toList()));
+                try (final InputStream input = response.body()) {
+                    final int status = response.statusCode();
+                    if (isSuccess(status)) {
+                        responses.addAll(processQueryResponse(input, supportedTypes, clazz));
+                    }
+                } catch (final IOException ex) {
+                    throw new AccessGrantException(
+                            "Unexpected I/O exception while processing Access Grant query", ex);
+                }
+            }
+            return responses;
         });
     }
 
