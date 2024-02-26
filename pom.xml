@@ -33,7 +33,7 @@
     <jose4j.version>0.9.5</jose4j.version>
     <json.bind.version>3.0.0</json.bind.version>
     <okhttp.version>4.12.0</okhttp.version>
-    <quarkus.version>3.7.3</quarkus.version>
+    <quarkus.version>3.8.0</quarkus.version>
     <slf4j.version>2.0.12</slf4j.version>
     <!-- pinning to Spring 5.x for Java 11 support -->
     <spring.security.version>5.8.8</spring.security.version>
@@ -50,7 +50,7 @@
     <dependency.plugin.version>3.6.1</dependency.plugin.version>
     <deploy.plugin.version>3.1.1</deploy.plugin.version>
     <enforcer.plugin.version>3.4.1</enforcer.plugin.version>
-    <exec.plugin.version>3.1.1</exec.plugin.version>
+    <exec.plugin.version>3.2.0</exec.plugin.version>
     <install.plugin.version>3.1.1</install.plugin.version>
     <gpg.plugin.version>3.1.0</gpg.plugin.version>
     <jacoco.plugin.version>0.8.11</jacoco.plugin.version>
@@ -73,13 +73,13 @@
 
     <!-- testing -->
     <awaitility.version>4.2.0</awaitility.version>
-    <equalsverifier.version>3.15.6</equalsverifier.version>
+    <equalsverifier.version>3.15.7</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.2</junit.version>
     <smallrye.jwt.version>4.4.0</smallrye.jwt.version>
     <smallrye.config.version>3.5.4</smallrye.config.version>
     <yasson.version>3.0.3</yasson.version>
-    <wiremock.version>3.4.1</wiremock.version>
+    <wiremock.version>3.4.2</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
