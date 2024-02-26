@@ -38,7 +38,7 @@
     <!-- pinning to Spring 5.x for Java 11 support -->
     <spring.security.version>5.8.8</spring.security.version>
     <inrupt.commons.rdf4j.version>0.6.0</inrupt.commons.rdf4j.version>
-    <inrupt.rdf.wrapping.version>1.1.0</inrupt.rdf.wrapping.version>
+    <inrupt.rdf.wrapping.version>1.1.1</inrupt.rdf.wrapping.version>
 
     <!-- plugins -->
     <antrun.plugin.version>3.1.0</antrun.plugin.version>
