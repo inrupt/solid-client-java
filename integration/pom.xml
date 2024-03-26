@@ -16,7 +16,6 @@
 
   <modules>
     <module>base</module>
-    <module>customokhttp</module>
     <module>openid</module>
     <module>uma</module>
   </modules>

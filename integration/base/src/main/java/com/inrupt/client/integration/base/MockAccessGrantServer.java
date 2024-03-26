@@ -77,8 +77,7 @@ class MockAccessGrantServer {
         this.authorisationServerUrl = authorisationServerUrl;
         this.purpose = purpose;
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .httpDisabled(true)
-                .dynamicHttpsPort());
+                .dynamicPort());
     }
 
     private void setupMocks() {
