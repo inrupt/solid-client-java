@@ -43,8 +43,7 @@ class MockSolidServer {
         storage.put("/", new ServerBody(new byte[0], Utils.TEXT_TURTLE)); //add root to storage
 
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .httpDisabled(true)
-                .dynamicHttpsPort()
+                .dynamicPort()
                 .extensions(new SolidServerTransformer(storage, this.asUri)));
     }
 

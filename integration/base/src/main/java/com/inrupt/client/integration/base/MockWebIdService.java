@@ -49,8 +49,7 @@ class MockWebIdService {
         this.issuerUrl = issuer;
         this.username = username;
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .httpDisabled(true)
-                .dynamicHttpsPort());
+                .dynamicPort());
     }
 
     private void setupMocks() {
