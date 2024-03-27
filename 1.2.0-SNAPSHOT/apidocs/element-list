@@ -11,7 +11,6 @@ com.inrupt.client.examples.webapp
 com.inrupt.client.guava
 com.inrupt.client.httpclient
 com.inrupt.client.integration.base
-com.inrupt.client.integration.customokhttp
 com.inrupt.client.jackson
 com.inrupt.client.jena
 com.inrupt.client.jsonb
