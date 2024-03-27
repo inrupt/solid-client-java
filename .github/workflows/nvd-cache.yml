@@ -17,7 +17,7 @@ jobs:
       with:
         repository: jeremylong/Open-Vulnerability-Project
         path: ovp
-        ref: v5.1.1
+        ref: v6.0.0
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
