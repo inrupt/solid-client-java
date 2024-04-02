@@ -592,18 +592,22 @@
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
-          <header>./build-tools/license/HEADER.txt</header>
           <mapping>
             <java>SLASHSTAR_STYLE</java>
           </mapping>
-          <excludes>
-            <exclude>**/src/main/resources/**</exclude>
-            <exclude>**/src/test/resources/**</exclude>
-          </excludes>
-          <includes>
-            <include>**/src/main/java/**</include>
-            <include>**/src/test/java/**</include>
-          </includes>
+          <licenseSets>
+            <licenseSet>
+              <header>./build-tools/license/HEADER.txt</header>
+              <excludes>
+                <exclude>**/src/main/resources/**</exclude>
+                <exclude>**/src/test/resources/**</exclude>
+              </excludes>
+              <includes>
+                <include>**/src/main/java/**</include>
+                <include>**/src/test/java/**</include>
+              </includes>
+            </licenseSet>
+          </licenseSets>
         </configuration>
         <executions>
           <execution>
