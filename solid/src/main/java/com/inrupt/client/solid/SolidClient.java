@@ -22,15 +22,10 @@ package com.inrupt.client.solid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.inrupt.client.Client;
-import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Headers;
-import com.inrupt.client.RDFSource;
-import com.inrupt.client.Request;
-import com.inrupt.client.Resource;
-import com.inrupt.client.Response;
-import com.inrupt.client.ValidationResult;
+import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,11 +59,13 @@ public class SolidClient {
     private final Client client;
     private final Headers defaultHeaders;
     private final boolean fetchAfterWrite;
+    private final JsonService jsonService;
 
     SolidClient(final Client client, final Headers headers, final boolean fetchAfterWrite) {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
         this.fetchAfterWrite = fetchAfterWrite;
+        this.jsonService = ServiceProvider.getJsonService();
     }
 
     /**
@@ -134,8 +131,13 @@ public class SolidClient {
         return client.send(request, Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= ERROR_STATUS) {
-                    throw SolidClientException.handle("Unable to read resource at " + request.uri(), request.uri(),
-                            response.statusCode(), response.headers(), new String(response.body()));
+                    throw this.fromResponse(
+                        "Unable to read resource at " + request.uri(),
+                        response.uri(),
+                        response.statusCode(),
+                        response.headers(),
+                        response.body()
+                    );
                 } else {
                     final String contentType = response.headers().firstValue(CONTENT_TYPE)
                         .orElse("application/octet-stream");
@@ -456,5 +458,38 @@ public class SolidClient {
             throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
                     " into Solid Resource", ex);
         }
+    }
+
+    private SolidClientException fromResponse(
+            String message,
+            URI uri,
+            int code,
+            Headers headers,
+            byte[] body
+    ) {
+        ProblemDetails pd;
+        if (!headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
+            pd = new ProblemDetails(
+                    null,
+                    HttpStatus.getStatusMessage(code),
+                    null,
+                    code,
+                    null
+            );
+            return SolidClientException.handle(message, pd, uri, headers, new String(body));
+        }
+        try {
+            pd = jsonService.fromJson(new ByteArrayInputStream(body),ProblemDetails.class);
+        } catch (IOException e) {
+            pd = new ProblemDetails(
+                    null,
+                    HttpStatus.getStatusMessage(code),
+                    null,
+                    code,
+                    null
+            );
+        }
+        return SolidClientException.handle(message, pd, uri, headers, new String(body));
+
     }
 }
