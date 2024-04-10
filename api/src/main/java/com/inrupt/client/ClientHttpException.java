@@ -1,13 +1,7 @@
 package com.inrupt.client;
 
-import com.inrupt.client.spi.JsonService;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-
 public class ClientHttpException extends InruptClientException {
-    private ProblemDetails problemDetails;
+    private final ProblemDetails problemDetails;
 
     /**
      * Create a ClientHttpException.
@@ -30,24 +24,5 @@ public class ClientHttpException extends InruptClientException {
 
     public ProblemDetails getProblemDetails() {
         return this.problemDetails;
-    }
-
-    private static ClientHttpException buildDefaultException(String message, int code, String status) {
-        return new ClientHttpException(
-                ProblemDetails.fromDefaultResponse(code, status),
-                message
-        );
-    }
-
-    public static ClientHttpException fromResponse(String message, int code, String status, Headers headers, InputStream body, JsonService jsonService) {
-        if (!headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
-            return buildDefaultException(message, code, status);
-        }
-        try {
-            ProblemDetails pd = jsonService.fromJson(body, ProblemDetails.class);
-            return new ClientHttpException(pd, message);
-        } catch (IOException e) {
-            return buildDefaultException(message, code, status);
-        }
     }
 }
