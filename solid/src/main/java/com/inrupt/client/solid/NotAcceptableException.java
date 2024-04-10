@@ -21,6 +21,7 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -32,7 +33,7 @@ import java.net.URI;
 public class NotAcceptableException extends SolidClientException {
     private static final long serialVersionUID = 6594993822477388733L;
 
-    public static final int STATUS_CODE = 406;
+    public static final int STATUS_CODE = HttpStatus.NOT_ACCEPTABLE;
 
     /**
      * Create a NotAcceptableException exception.

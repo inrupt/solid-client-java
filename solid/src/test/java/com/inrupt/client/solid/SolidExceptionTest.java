@@ -22,6 +22,8 @@ package com.inrupt.client.solid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.net.URI;
+
 import org.junit.jupiter.api.Test;
 
 class SolidExceptionTest {
@@ -40,5 +42,15 @@ class SolidExceptionTest {
         final SolidResourceException err = new SolidResourceException(msg, upstream);
         assertEquals(upstream, err.getCause());
         assertEquals(msg, err.getMessage());
+    }
+
+    @Test
+    void checkSolidClientException() {
+        final String msg = "Error";
+        final SolidClientException err = new SolidClientException(
+                msg, URI.create("https://example.org/request"), 123, null, "some body"
+        );
+        assertEquals(msg, err.getMessage());
+        assertEquals(123, err.getProblemDetails().getStatus());
     }
 }

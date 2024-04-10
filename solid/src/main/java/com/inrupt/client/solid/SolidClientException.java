@@ -20,22 +20,17 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers;
-import com.inrupt.client.InruptClientException;
 
 import java.net.URI;
 
 /**
  * A runtime exception for use with SolidClient HTTP operations.
  */
-public class SolidClientException extends InruptClientException {
+public class SolidClientException extends ClientHttpException {
 
     private static final long serialVersionUID = 2868432164225689934L;
-
-    private final URI uri;
-    private final int statusCode;
-    private final String body;
-    private final transient Headers headers;
 
     /**
      * Create a SolidClient exception.
@@ -48,49 +43,18 @@ public class SolidClientException extends InruptClientException {
      */
     public SolidClientException(final String message, final URI uri, final int statusCode,
             final Headers headers, final String body) {
-        super(message);
-        this.uri = uri;
-        this.statusCode = statusCode;
-        this.headers = headers;
-        this.body = body;
+        super(message, uri, statusCode, headers, body);
     }
 
     /**
-     * Retrieve the URI associated with this exception.
      *
-     * @return the uri
+     * @param message the resulting exception message
+     * @param uri the request URL
+     * @param statusCode the response status code
+     * @param headers the response {@link Headers}
+     * @param body the response body
+     * @return an appropriate exception based on the status code.
      */
-    public URI getUri() {
-        return uri;
-    }
-
-    /**
-     * Retrieve the status code associated with this exception.
-     *
-     * @return the status code
-     */
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    /**
-     * Retrieve the headers associated with this exception.
-     *
-     * @return the headers
-     */
-    public Headers getHeaders() {
-        return headers;
-    }
-
-    /**
-     * Retrieve the body associated with this exception.
-     *
-     * @return the body
-     */
-    public String getBody() {
-        return body;
-    }
-
     public static SolidClientException handle(
             final String message,
             final URI uri,
