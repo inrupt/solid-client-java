@@ -50,14 +50,4 @@ public class ProblemDetails {
     public URI getInstance() {
         return this.instance;
     };
-
-    public static ProblemDetails fromDefaultResponse(int code, String status) {
-        return new ProblemDetails(
-            URI.create(DEFAULT_TYPE),
-            status,
-            null,
-            code,
-            null
-        );
-    }
 }
