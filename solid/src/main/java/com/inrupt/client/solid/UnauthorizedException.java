@@ -21,6 +21,8 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.HttpStatus;
+import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
 
@@ -32,7 +34,7 @@ import java.net.URI;
 public class UnauthorizedException extends SolidClientException {
     private static final long serialVersionUID = -3219668517323678497L;
 
-    public static final int STATUS_CODE = 401;
+    public static final int STATUS_CODE = HttpStatus.UNAUTHORIZED;
 
     /**
      * Create an UnauthorizedException exception.
@@ -41,6 +43,7 @@ public class UnauthorizedException extends SolidClientException {
      * @param uri the uri
      * @param headers the response headers
      * @param body the body
+     * @deprecated
      */
     public UnauthorizedException(
             final String message,
@@ -48,5 +51,23 @@ public class UnauthorizedException extends SolidClientException {
             final Headers headers,
             final String body) {
         super(message, uri, STATUS_CODE, headers, body);
+    }
+
+    /**
+     * Create a UnauthorizedException exception.
+     *
+     * @param message the message
+     * @param pd the ProblemDetails instance
+     * @param uri the uri
+     * @param headers the response headers
+     * @param body the body
+     */
+    public UnauthorizedException(
+            final String message,
+            final ProblemDetails pd,
+            final URI uri,
+            final Headers headers,
+            final String body) {
+        super(message, pd, uri, headers, body);
     }
 }

@@ -21,6 +21,8 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.HttpStatus;
+import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
 
@@ -32,7 +34,7 @@ import java.net.URI;
 public class InternalServerErrorException extends SolidClientException {
     private static final long serialVersionUID = -6672490715281719330L;
 
-    public static final int STATUS_CODE = 500;
+    public static final int STATUS_CODE = HttpStatus.INTERNAL_SERVER_ERROR;
 
     /**
      * Create an InternalServerErrorException exception.
@@ -41,6 +43,7 @@ public class InternalServerErrorException extends SolidClientException {
      * @param uri the uri
      * @param headers the response headers
      * @param body the body
+     * @deprecated
      */
     public InternalServerErrorException(
             final String message,
@@ -48,5 +51,23 @@ public class InternalServerErrorException extends SolidClientException {
             final Headers headers,
             final String body) {
         super(message, uri, STATUS_CODE, headers, body);
+    }
+
+    /**
+     * Create an InternalServerErrorException exception.
+     *
+     * @param message the message
+     * @param pd the ProblemDetails instance
+     * @param uri the uri
+     * @param headers the response headers
+     * @param body the body
+     */
+    public InternalServerErrorException(
+            final String message,
+            final ProblemDetails pd,
+            final URI uri,
+            final Headers headers,
+            final String body) {
+        super(message, pd, uri, headers, body);
     }
 }
