@@ -40,13 +40,15 @@ enum HttpStatus {
     final int code;
     final String message;
 
-    HttpStatus(int code, String message) {
+    HttpStatus(final int code, final String message) {
         this.code = code;
         this.message = message;
     }
 
-    static String getStatusMessage(int statusCode) {
-        Optional<HttpStatus> knownStatus = Arrays.stream(HttpStatus.values()).filter(status -> status.code == statusCode).findFirst();
+    static String getStatusMessage(final int statusCode) {
+        final Optional<HttpStatus> knownStatus = Arrays.stream(HttpStatus.values())
+                .filter(status -> status.code == statusCode)
+                .findFirst();
         if (knownStatus.isPresent()) {
             return knownStatus.get().message;
         }

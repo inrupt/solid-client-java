@@ -22,12 +22,8 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers;
-import com.inrupt.client.InruptClientException;
 import com.inrupt.client.ProblemDetails;
-import com.inrupt.client.spi.JsonService;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 
 /**
@@ -112,6 +108,13 @@ public class SolidClientException extends ClientHttpException {
     }
 
     /**
+     *
+     * @param message the resulting exception message
+     * @param uri the request URL
+     * @param statusCode the response status code
+     * @param headers the response {@link Headers}
+     * @param body the response body
+     * @return an appropriate exception based on the status code.
      * @deprecated
      */
     public static SolidClientException handle(
@@ -150,6 +153,15 @@ public class SolidClientException extends ClientHttpException {
         }
     }
 
+    /**
+     *
+     * @param message the resulting exception message
+     * @param pd the {@link ProblemDetails} instance
+     * @param uri the request URL
+     * @param headers the response {@link Headers}
+     * @param body the response body
+     * @return an appropriate exception based on the status code.
+     */
     public static SolidClientException handle(
         final String message,
         final ProblemDetails pd,
