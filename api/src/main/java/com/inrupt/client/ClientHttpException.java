@@ -20,6 +20,10 @@
  */
 package com.inrupt.client;
 
+/**
+ * A runtime exception representing an HTTP error response carrying a structured representation of the problem. The
+ * problem description is embedded in a {@link ProblemDetails} instance.
+ */
 public class ClientHttpException extends InruptClientException {
     private final ProblemDetails problemDetails;
 

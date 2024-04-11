@@ -22,6 +22,11 @@ package com.inrupt.client;
 
 import java.net.URI;
 
+/**
+ * A data class representing a structured problem description sent by the server on error response.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457 Problem Details for HTTP APIs</a>
+ */
 public class ProblemDetails {
     public static final String MIME_TYPE = "application/problem+json";
     public static final String DEFAULT_TYPE = "about:blank";
