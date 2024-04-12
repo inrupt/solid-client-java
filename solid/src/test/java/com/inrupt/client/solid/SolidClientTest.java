@@ -28,7 +28,6 @@ import com.inrupt.client.auth.Session;
 import com.inrupt.client.jackson.JacksonService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
 
@@ -459,7 +458,7 @@ class SolidClientTest {
                         .apply(new Response<byte[]>() {
                             @Override
                             public byte[] body() {
-                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                final ByteArrayOutputStream bos = new ByteArrayOutputStream();
                                 try {
                                     jsonService.toJson(problemDetails, bos);
                                 } catch (IOException e) {
@@ -470,9 +469,9 @@ class SolidClientTest {
 
                             @Override
                             public Headers headers() {
-                                List<String> headerValues = new ArrayList<>();
+                                final List<String> headerValues = new ArrayList<>();
                                 headerValues.add("application/problem+json");
-                                Map<String, List<String>> headerMap = new HashMap<>();
+                                final Map<String, List<String>> headerMap = new HashMap<>();
                                 headerMap.put("Content-Type", headerValues);
                                 return Headers.of(headerMap);
                             }
@@ -607,7 +606,8 @@ class SolidClientTest {
                                 URI.create("https://example.org/instance")
                         )
                 ), Arguments.of(
-                        // Custom errors that do not map to a predefined Exception class default to the generic SolidClientException
+                        // Custom errors that do not map to a predefined Exception class
+                        // default to the generic SolidClientException
                         SolidClientException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -616,8 +616,9 @@ class SolidClientTest {
                                 418,
                                 URI.create("https://example.org/instance")
                         )
-                ) , Arguments.of(
-                        // Custom errors that do not map to a predefined Exception class default to the generic SolidClientException
+                ), Arguments.of(
+                        // Custom errors that do not map to a predefined Exception class
+                        // default to the generic SolidClientException
                         SolidClientException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -696,9 +697,9 @@ class SolidClientTest {
                             // Pretend we return RFC9457 content...
                             @Override
                             public Headers headers() {
-                                List<String> headerValues = new ArrayList<>();
+                                final List<String> headerValues = new ArrayList<>();
                                 headerValues.add("application/problem+json");
-                                Map<String, List<String>> headerMap = new HashMap<>();
+                                final Map<String, List<String>> headerMap = new HashMap<>();
                                 headerMap.put("Content-Type", headerValues);
                                 return Headers.of(headerMap);
                             }

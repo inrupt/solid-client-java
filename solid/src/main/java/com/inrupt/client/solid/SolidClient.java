@@ -20,8 +20,6 @@
  */
 package com.inrupt.client.solid;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.spi.JsonService;
@@ -468,11 +466,11 @@ public class SolidClient {
     }
 
     private SolidClientException exceptionFromErrorResponse(
-            String message,
-            URI uri,
-            int code,
-            Headers headers,
-            byte[] body
+            final String message,
+            final URI uri,
+            final int code,
+            final Headers headers,
+            final byte[] body
     ) {
         ProblemDetails pd;
         if (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
@@ -483,15 +481,15 @@ public class SolidClient {
             // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
             // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
             // and build the ProblemDetails from the Map values.
-            Map<String, Object> pdData = jsonService.fromJson(
+            final Map<String, Object> pdData = jsonService.fromJson(
                     new ByteArrayInputStream(body),
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
             );
-            String title = (String) pdData.get("title");
-            String details = (String) pdData.get("details");
-            URI type = URI.create((String) pdData.get("type"));
-            URI instance = URI.create((String) pdData.get("instance"));
-            int status = (int) pdData.get("status");
+            final String title = (String) pdData.get("title");
+            final String details = (String) pdData.get("details");
+            final URI type = URI.create((String) pdData.get("type"));
+            final URI instance = URI.create((String) pdData.get("instance"));
+            final int status = (int) pdData.get("status");
             pd = new ProblemDetails(type, title, details, status, instance);
         } catch (IOException e) {
             pd = new ProblemDetails( null, HttpStatus.getStatusMessage(code), null, code, null);
