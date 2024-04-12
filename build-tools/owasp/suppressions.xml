@@ -41,4 +41,11 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*@.*$</packageUrl>
     <vulnerabilityName>CVE-2023-44487</vulnerabilityName>
   </suppress>
+  <suppress until="2024-6-12Z">
+    <notes><![CDATA[
+        This vulnerability impacts the `UriComponentsBuilder` class, which we are not using.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
+    <vulnerabilityName>CVE-2024-22262</vulnerabilityName>
+  </suppress>
 </suppressions>
