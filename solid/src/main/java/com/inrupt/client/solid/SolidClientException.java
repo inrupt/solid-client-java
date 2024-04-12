@@ -23,7 +23,6 @@ package com.inrupt.client.solid;
 import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers;
 import com.inrupt.client.ProblemDetails;
-import com.inrupt.client.spi.JsonService;
 
 import java.net.URI;
 
@@ -38,8 +37,6 @@ public class SolidClientException extends ClientHttpException {
     private final int statusCode;
     private final String body;
     private final transient Headers headers;
-    private static JsonService jsonService;
-    private static boolean jsonServiceInitialized = false;
 
 
     /**
