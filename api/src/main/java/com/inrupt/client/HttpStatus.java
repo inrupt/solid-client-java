@@ -2,7 +2,7 @@ package com.inrupt.client;
 
 import java.util.Arrays;
 
-public class HttpStatus {
+public final class HttpStatus {
 
     public static final int BAD_REQUEST = 400;
     public static final int UNAUTHORIZED = 401;
@@ -17,7 +17,7 @@ public class HttpStatus {
     public static final int TOO_MANY_REQUESTS = 429;
     public static final int INTERNAL_SERVER_ERROR = 500;
 
-    static enum StatusMessages {
+    enum StatusMessages {
         BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad Request"),
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
         FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden"),
@@ -52,5 +52,10 @@ public class HttpStatus {
                     return INTERNAL_SERVER_ERROR.message;
                 });
         }
+    }
+
+    // Prevents instantiation.
+    private HttpStatus() {
+        /* no-op */
     }
 }
