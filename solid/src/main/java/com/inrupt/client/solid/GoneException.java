@@ -21,6 +21,7 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.HttpStatus;
 import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
@@ -33,7 +34,7 @@ import java.net.URI;
 public class GoneException extends SolidClientException {
     private static final long serialVersionUID = -6892345582498100242L;
 
-    public static final int STATUS_CODE = 410;
+    public static final int STATUS_CODE = HttpStatus.GONE;
 
     /**
      * Create a GoneException exception.
