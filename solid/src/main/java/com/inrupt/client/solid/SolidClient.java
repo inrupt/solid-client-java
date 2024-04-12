@@ -480,6 +480,9 @@ public class SolidClient {
             return SolidClientException.handle(message, pd, uri, headers, new String(body));
         }
         try {
+            // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
+            // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
+            // and build the ProblemDetails from the Map values.
             Map<String, Object> pdData = jsonService.fromJson(
                     new ByteArrayInputStream(body),
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
