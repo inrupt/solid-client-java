@@ -481,7 +481,9 @@ public class SolidClient {
             final byte[] body
     ) {
         ProblemDetails pd;
-        if (this.jsonService == null || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
+        if (
+                this.jsonService == null
+                || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
             pd = new ProblemDetails(null, HttpStatus.getStatusMessage(code), null, code, null);
             return SolidClientException.handle(message, pd, uri, headers, new String(body));
         }
