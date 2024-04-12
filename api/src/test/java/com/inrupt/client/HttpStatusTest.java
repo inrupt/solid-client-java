@@ -28,30 +28,36 @@ public class HttpStatusTest {
     @Test
     void checkHttpStatusSearchKnownStatus() {
         assertEquals(
-            HttpStatus.StatusMessages.getStatusMessage(HttpStatus.NOT_FOUND), HttpStatus.StatusMessages.NOT_FOUND.message
+            HttpStatus.StatusMessages.getStatusMessage(HttpStatus.NOT_FOUND),
+            HttpStatus.StatusMessages.NOT_FOUND.message
         );
     }
 
     @Test
     void checkHttpStatusSearchUnknownClientError () {
         assertEquals(
-                HttpStatus.StatusMessages.getStatusMessage(418), HttpStatus.StatusMessages.BAD_REQUEST.message
+                HttpStatus.StatusMessages.getStatusMessage(418),
+                HttpStatus.StatusMessages.BAD_REQUEST.message
         );
     }
 
     @Test
     void checkHttpStatusSearchUnknownServerError () {
         assertEquals(
-                HttpStatus.StatusMessages.getStatusMessage(555), HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.getStatusMessage(555),
+                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
         );
         assertEquals(
-                HttpStatus.StatusMessages.getStatusMessage(999), HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.getStatusMessage(999),
+                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
         );
         assertEquals(
-                HttpStatus.StatusMessages.getStatusMessage(-1), HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.getStatusMessage(-1),
+                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
         );
         assertEquals(
-                HttpStatus.StatusMessages.getStatusMessage(15), HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.getStatusMessage(15),
+                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
         );
     }
 }
