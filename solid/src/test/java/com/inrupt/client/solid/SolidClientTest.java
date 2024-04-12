@@ -680,4 +680,52 @@ class SolidClientTest {
                 Arguments.of(600, HttpStatus.INTERNAL_SERVER_ERROR.message)
         );
     }
+
+    @Test
+    void testMalformedProblemDetails() {
+        // The specific error code is irrelevant to this test.
+        final int statusCode = 400;
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
+
+        final SolidClientException exception = assertThrows(
+                BadRequestException.class,
+                () -> solidClient.handleResponse(resource, headers, "message")
+                        .apply(new Response<byte[]>() {
+                            // Pretend we return RFC9457 content...
+                            @Override
+                            public Headers headers() {
+                                List<String> headerValues = new ArrayList<>();
+                                headerValues.add("application/problem+json");
+                                Map<String, List<String>> headerMap = new HashMap<>();
+                                headerMap.put("Content-Type", headerValues);
+                                return Headers.of(headerMap);
+                            }
+
+                            // ... but actually return malformed JSON.
+                            @Override
+                            public byte[] body() {
+                                return "This isn't valid application/problem+json.".getBytes();
+                            }
+
+                            @Override
+                            public URI uri() {
+                                return null;
+                            }
+
+                            @Override
+                            public int statusCode() {
+                                return statusCode;
+                            }
+                        })
+        );
+        assertEquals(statusCode, exception.getStatusCode());
+        // On malformed response, the ProblemDetails should fall back to defaults.
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertEquals(HttpStatus.getStatusMessage(statusCode), exception.getProblemDetails().getTitle());
+        assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getDetails());
+        assertNull(exception.getProblemDetails().getInstance());
+    }
 }
