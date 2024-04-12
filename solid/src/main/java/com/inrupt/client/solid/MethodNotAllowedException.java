@@ -21,6 +21,7 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.HttpStatus;
 import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
@@ -33,7 +34,7 @@ import java.net.URI;
 public class MethodNotAllowedException extends SolidClientException {
     private static final long serialVersionUID = -9125437562813923030L;
 
-    public static final int STATUS_CODE = 405;
+    public static final int STATUS_CODE = HttpStatus.METHOD_NOT_ALLOWED;
 
     /**
      * Create a MethodNotAllowedException exception.

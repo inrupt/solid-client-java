@@ -21,6 +21,7 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.HttpStatus;
 import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
@@ -33,7 +34,7 @@ import java.net.URI;
 public class BadRequestException extends SolidClientException {
     private static final long serialVersionUID = -3379457428921025570L;
 
-    public static final int STATUS_CODE = 400;
+    public static final int STATUS_CODE = HttpStatus.BAD_REQUEST;
 
     /**
      * Create a BadRequestException exception.
