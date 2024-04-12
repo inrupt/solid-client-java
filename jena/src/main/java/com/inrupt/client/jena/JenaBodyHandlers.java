@@ -23,6 +23,8 @@ package com.inrupt.client.jena;
 import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.Response;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,6 +47,25 @@ import org.apache.jena.riot.RDFLanguages;
 public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";
+    private static JsonService jsonService;
+    private static boolean isJsonServiceInitialized = false;
+
+    private static JsonService getJsonService() {
+        if(JenaBodyHandlers.isJsonServiceInitialized) {
+            return JenaBodyHandlers.jsonService;
+        }
+        // It is acceptable for a JenaBodyHandlers instance to be in a classpath without any implementation for
+        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
+        JsonService js;
+        try {
+            js = ServiceProvider.getJsonService();
+        } catch (IllegalStateException e) {
+            js = null;
+        }
+        JenaBodyHandlers.jsonService = js;
+        JenaBodyHandlers.isJsonServiceInitialized = true;
+        return JenaBodyHandlers.jsonService;
+    }
 
     /**
      * Populate a Jena {@link Model} with an HTTP response body.
@@ -77,10 +98,13 @@ public final class JenaBodyHandlers {
             if(responseInfo.statusCode() > 300) {
                 throw new ClientHttpException(
                         ProblemDetails.fromErrorResponse(
-                                responseInfo.statusCode(),
-
-                                )
-                )
+                            responseInfo.statusCode(),
+                            responseInfo.headers(),
+                            responseInfo.body().array(),
+                            getJsonService()
+                        ),
+                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
+                );
             }
             return responseInfo.headers().firstValue(CONTENT_TYPE).map(JenaBodyHandlers::toJenaLang).map(lang -> {
                         try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
@@ -93,9 +117,7 @@ public final class JenaBodyHandlers {
                         }
                     })
                     .orElseGet(ModelFactory::createDefaultModel);
-        }
-        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
-
+        };
     }
 
     /**
