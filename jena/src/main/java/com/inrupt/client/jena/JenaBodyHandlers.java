@@ -20,7 +20,11 @@
  */
 package com.inrupt.client.jena;
 
+import com.inrupt.client.ClientHttpException;
+import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.Response;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -43,14 +47,28 @@ import org.apache.jena.riot.RDFLanguages;
 public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";
+    private static JsonService jsonService;
+    private static boolean isJsonServiceInitialized = false;
 
-    /**
-     * Populate a Jena {@link Model} with an HTTP response body.
-     *
-     * @return an HTTP body handler
-     */
-    public static Response.BodyHandler<Model> ofModel() {
-        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
+    private static JsonService getJsonService() {
+        if (JenaBodyHandlers.isJsonServiceInitialized) {
+            return JenaBodyHandlers.jsonService;
+        }
+        // It is acceptable for a JenaBodyHandlers instance to be in a classpath without any implementation for
+        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
+        JsonService js;
+        try {
+            js = ServiceProvider.getJsonService();
+        } catch (IllegalStateException e) {
+            js = null;
+        }
+        JenaBodyHandlers.jsonService = js;
+        JenaBodyHandlers.isJsonServiceInitialized = true;
+        return JenaBodyHandlers.jsonService;
+    }
+
+    private static Model responseToModel(final Response.ResponseInfo responseInfo) {
+        return responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var model = ModelFactory.createDefaultModel();
@@ -65,12 +83,39 @@ public final class JenaBodyHandlers {
     }
 
     /**
-     * Populate a Jena {@link Graph} with an HTTP response.
+     * Populate a Jena {@link Model} with an HTTP response body.
+     *
+     * @return an HTTP body handler
+     * @deprecated Use ofJenaModel instead for consistent HTTP error handling.
+     */
+    public static Response.BodyHandler<Model> ofModel() {
+        return JenaBodyHandlers::responseToModel;
+    }
+
+    /**
+     * Populate a Jena {@link Model} with an HTTP response body.
      *
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<Graph> ofGraph() {
-        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
+    public static Response.BodyHandler<Model> ofJenaModel() {
+        return responseInfo -> {
+            if (responseInfo.statusCode() >= 300) {
+                throw new ClientHttpException(
+                        ProblemDetails.fromErrorResponse(
+                            responseInfo.statusCode(),
+                            responseInfo.headers(),
+                            responseInfo.body().array(),
+                            getJsonService()
+                        ),
+                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
+                );
+            }
+            return responseToModel(responseInfo);
+        };
+    }
+
+    private static Graph responseToGraph(final Response.ResponseInfo responseInfo) {
+        return responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var graph = GraphMemFactory.createDefaultGraph();
@@ -85,23 +130,82 @@ public final class JenaBodyHandlers {
     }
 
     /**
+     * Populate a Jena {@link Graph} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     * @deprecated Use ofJenaGraph instead for consistent HTTP error handling.
+     */
+    public static Response.BodyHandler<Graph> ofGraph() {
+        return JenaBodyHandlers::responseToGraph;
+    }
+
+    /**
+     * Populate a Jena {@link Graph} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     */
+    public static Response.BodyHandler<Graph> ofJenaGraph() {
+        return responseInfo -> {
+            if (responseInfo.statusCode() > 300) {
+                throw new ClientHttpException(
+                        ProblemDetails.fromErrorResponse(
+                                responseInfo.statusCode(),
+                                responseInfo.headers(),
+                                responseInfo.body().array(),
+                                getJsonService()
+                        ),
+                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
+                );
+            }
+            return JenaBodyHandlers.responseToGraph(responseInfo);
+        };
+    }
+
+    private static Dataset responseToDataset(final Response.ResponseInfo responseInfo) {
+        return responseInfo.headers().firstValue(CONTENT_TYPE)
+                .map(JenaBodyHandlers::toJenaLang).map(lang -> {
+                    try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                        final var dataset = DatasetFactory.create();
+                        RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);
+                        return dataset;
+                    } catch (final IOException ex) {
+                        throw new UncheckedIOException(
+                                "An I/O error occurred while data was read from the InputStream into a Dataset", ex);
+                    }
+                })
+                .orElseGet(DatasetFactory::create);
+    }
+
+    /**
+     * Populate a Jena {@link Dataset} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     * @deprecated Use ofJenaDataset instead for consistent HTTP error handling.
+     */
+    public static Response.BodyHandler<Dataset> ofDataset() {
+        return JenaBodyHandlers::responseToDataset;
+    }
+
+    /**
      * Populate a Jena {@link Dataset} with an HTTP response.
      *
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<Dataset> ofDataset() {
-        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
-            .map(JenaBodyHandlers::toJenaLang).map(lang -> {
-                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                    final var dataset = DatasetFactory.create();
-                    RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);
-                    return dataset;
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(
-                            "An I/O error occurred while data was read from the InputStream into a Dataset", ex);
-                }
-            })
-            .orElseGet(DatasetFactory::create);
+    public static Response.BodyHandler<Dataset> ofJenaDataset() {
+        return responseInfo -> {
+            if (responseInfo.statusCode() > 300) {
+                throw new ClientHttpException(
+                        ProblemDetails.fromErrorResponse(
+                                responseInfo.statusCode(),
+                                responseInfo.headers(),
+                                responseInfo.body().array(),
+                                getJsonService()
+                        ),
+                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
+                );
+            }
+            return JenaBodyHandlers.responseToDataset(responseInfo);
+        };
     }
 
     static Lang toJenaLang(final String mediaType) {
