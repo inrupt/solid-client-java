@@ -20,7 +20,13 @@
  */
 package com.inrupt.client;
 
+import com.inrupt.client.spi.JsonService;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A data class representing a structured problem description sent by the server on error response.
@@ -75,4 +81,45 @@ public class ProblemDetails {
     public URI getInstance() {
         return this.instance;
     };
+
+    public static ProblemDetails fromErrorResponse(
+            final int statusCode,
+            final Headers headers,
+            final byte[] body,
+            final JsonService jsonService
+    ) {
+        if (jsonService == null
+                || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
+            return new ProblemDetails(
+                null,
+                HttpStatus.StatusMessages.getStatusMessage(statusCode),
+                null,
+                statusCode,
+                null
+            );
+        }
+        try {
+            // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
+            // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
+            // and build the ProblemDetails from the Map values.
+            final Map<String, Object> pdData = jsonService.fromJson(
+                    new ByteArrayInputStream(body),
+                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
+            );
+            final String title = (String) pdData.get("title");
+            final String details = (String) pdData.get("details");
+            final URI type = URI.create((String) pdData.get("type"));
+            final URI instance = URI.create((String) pdData.get("instance"));
+            final int status = (int) pdData.get("status");
+            return new ProblemDetails(type, title, details, status, instance);
+        } catch (IOException e) {
+            return new ProblemDetails(
+                null,
+                HttpStatus.StatusMessages.getStatusMessage(statusCode),
+                null,
+                statusCode,
+                null
+            );
+        }
+    }
 }
