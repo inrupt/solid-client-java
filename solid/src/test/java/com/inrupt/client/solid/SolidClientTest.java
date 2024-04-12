@@ -507,8 +507,7 @@ class SolidClientTest {
                                 400,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         UnauthorizedException.class,
                         new ProblemDetails(
                             URI.create("https://example.org/type"),
@@ -517,8 +516,7 @@ class SolidClientTest {
                             401,
                             URI.create("https://example.org/instance")
                     )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         ForbiddenException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -527,8 +525,7 @@ class SolidClientTest {
                                 403,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         NotFoundException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -537,8 +534,7 @@ class SolidClientTest {
                                 404,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         MethodNotAllowedException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -547,8 +543,7 @@ class SolidClientTest {
                                 405,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         NotAcceptableException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -557,8 +552,7 @@ class SolidClientTest {
                                 406,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         ConflictException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -567,8 +561,7 @@ class SolidClientTest {
                                 409,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         GoneException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -577,8 +570,7 @@ class SolidClientTest {
                                 410,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         PreconditionFailedException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -587,8 +579,7 @@ class SolidClientTest {
                                 412,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         UnsupportedMediaTypeException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -597,8 +588,7 @@ class SolidClientTest {
                                 415,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         TooManyRequestsException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -607,8 +597,7 @@ class SolidClientTest {
                                 429,
                                 URI.create("https://example.org/instance")
                         )
-                ),
-                Arguments.of(
+                ), Arguments.of(
                         InternalServerErrorException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -617,9 +606,78 @@ class SolidClientTest {
                                 500,
                                 URI.create("https://example.org/instance")
                         )
+                ), Arguments.of(
+                        // Custom errors that do not map to a predefined Exception class default to the generic SolidClientException
+                        SolidClientException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "I'm a Teapot",
+                                "Some details",
+                                418,
+                                URI.create("https://example.org/instance")
+                        )
+                ) , Arguments.of(
+                        // Custom errors that do not map to a predefined Exception class default to the generic SolidClientException
+                        SolidClientException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Custom server error",
+                                "Some details",
+                                599,
+                                URI.create("https://example.org/instance")
+                        )
                 )
-//                Arguments.of(BadRequestException.class, 418, '{"title":"I\'m A Teapot","status":418,"details":"Some details","instance":"https://example.org/instance","type":"https://example.org/type"}'),
-//                Arguments.of(InternalServerErrorException.class, 599, '{"title":"Custom Server Error","status":599,"details":"Some details","instance":"https://example.org/instance","type":"https://example.org/type"}'),
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    <T extends SolidClientException> void testLegacyCustomStatusExceptions(
+            final int statusCode,
+            final String expectedTitle
+    ) {
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
+
+        final SolidClientException exception = assertThrows(
+                SolidClientException.class,
+                () -> solidClient.handleResponse(resource, headers, "message")
+                        .apply(new Response<byte[]>() {
+                            @Override
+                            public byte[] body() {
+                                return new byte[0];
+                            }
+
+                            @Override
+                            public Headers headers() {
+                                return null;
+                            }
+
+                            @Override
+                            public URI uri() {
+                                return null;
+                            }
+
+                            @Override
+                            public int statusCode() {
+                                return statusCode;
+                            }
+                        })
+        );
+        assertEquals(statusCode, exception.getStatusCode());
+        assertEquals(expectedTitle, exception.getProblemDetails().getTitle());
+        assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getDetails());
+        assertNull(exception.getProblemDetails().getInstance());
+    }
+
+    private static Stream<Arguments> testLegacyCustomStatusExceptions() {
+        // Error codes for which the HttpStatusMessage isn't well-known should default to 400 or 500.
+        return Stream.of(
+                Arguments.of(418, HttpStatus.BAD_REQUEST.message),
+                Arguments.of(599, HttpStatus.INTERNAL_SERVER_ERROR.message),
+                Arguments.of(600, HttpStatus.INTERNAL_SERVER_ERROR.message)
         );
     }
 }

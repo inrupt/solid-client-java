@@ -475,7 +475,7 @@ public class SolidClient {
             byte[] body
     ) {
         ProblemDetails pd;
-        if (!headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
+        if (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
             pd = new ProblemDetails(null, HttpStatus.getStatusMessage(code), null, code, null);
             return SolidClientException.handle(message, pd, uri, headers, new String(body));
         }
