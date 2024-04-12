@@ -22,6 +22,8 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -52,11 +54,22 @@ public class SolidClient {
     private final Client client;
     private final Headers defaultHeaders;
     private final boolean fetchAfterWrite;
+    private JsonService jsonService;
 
     SolidClient(final Client client, final Headers headers, final boolean fetchAfterWrite) {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
         this.fetchAfterWrite = fetchAfterWrite;
+
+        // It is acceptable for a SolidClient instance to be in a classpath without any implementation for
+        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
+        JsonService js;
+        try {
+            js = ServiceProvider.getJsonService();
+        } catch (IllegalStateException e) {
+            js = null;
+        }
+        this.jsonService = js;
     }
 
     /**
@@ -122,12 +135,18 @@ public class SolidClient {
         return client.send(request, Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= ERROR_STATUS) {
-                    throw SolidClientException.fromErrorResponse(
-                        "Unable to read resource at " + request.uri(),
-                        response.uri(),
+                    final ProblemDetails pd = ProblemDetails.fromErrorResponse(
                         response.statusCode(),
                         response.headers(),
-                        response.body()
+                        response.body(),
+                        this.jsonService
+                    );
+                    throw SolidClientException.handle(
+                        "Unable to read resource at " + request.uri(),
+                        pd,
+                        response.uri(),
+                        response.headers(),
+                        new String(response.body())
                     );
                 } else {
                     final String contentType = response.headers().firstValue(CONTENT_TYPE)
@@ -277,12 +296,18 @@ public class SolidClient {
             if (isSuccess(res.statusCode())) {
                 return null;
             } else {
-                throw SolidClientException.fromErrorResponse(
-                        "Unable to delete resource",
-                        resource.getIdentifier(),
-                        res.statusCode(),
-                        res.headers(),
-                        res.body()
+                final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+                    res.statusCode(),
+                    res.headers(),
+                    res.body(),
+                    this.jsonService
+                );
+                throw SolidClientException.handle(
+                    "Unable to delete resource",
+                    pd,
+                    resource.getIdentifier(),
+                    res.headers(),
+                    new String(res.body())
                 );
             }
         });
@@ -369,12 +394,18 @@ public class SolidClient {
             final Headers headers, final String message) {
         return res -> {
             if (!isSuccess(res.statusCode())) {
-                throw SolidClientException.fromErrorResponse(
-                        message,
-                        resource.getIdentifier(),
-                        res.statusCode(),
-                        res.headers(),
-                        res.body()
+                final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+                    res.statusCode(),
+                    res.headers(),
+                    res.body(),
+                    this.jsonService
+                );
+                throw SolidClientException.handle(
+                    message,
+                    pd,
+                    resource.getIdentifier(),
+                    res.headers(),
+                    new String(res.body())
                 );
             }
 
@@ -385,7 +416,6 @@ public class SolidClient {
             @SuppressWarnings("unchecked")
             final Class<T> clazz = (Class<T>) resource.getClass();
             return read(resource.getIdentifier(), headers, clazz);
-
         };
     }
 

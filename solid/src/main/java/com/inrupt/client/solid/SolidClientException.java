@@ -24,13 +24,8 @@ import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers;
 import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A runtime exception for use with SolidClient HTTP operations.
@@ -114,62 +109,6 @@ public class SolidClientException extends ClientHttpException {
      */
     public String getBody() {
         return body;
-    }
-
-    /**
-     * It is acceptable for a SolidClient instance to be in a classpath without any implementation for
-     * JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
-     * @return a JsonService instance, null if none is available
-     */
-    private static JsonService getJsonService() {
-        if (SolidClientException.jsonServiceInitialized) {
-            return SolidClientException.jsonService;
-        }
-        JsonService js;
-        try {
-
-            js = ServiceProvider.getJsonService();
-        } catch (IllegalStateException e) {
-            js = null;
-        }
-        SolidClientException.jsonService = js;
-        SolidClientException.jsonServiceInitialized = true;
-        return SolidClientException.jsonService;
-    }
-
-    public static SolidClientException fromErrorResponse(
-            final String message,
-            final URI uri,
-            final int code,
-            final Headers headers,
-            final byte[] body
-    ) {
-        ProblemDetails pd;
-        final JsonService jsonService = getJsonService();
-        if (
-                jsonService == null
-                        || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
-            pd = new ProblemDetails(null, HttpStatus.getStatusMessage(code), null, code, null);
-            return SolidClientException.handle(message, pd, uri, headers, new String(body));
-        }
-        try {
-            // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
-            // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
-            // and build the ProblemDetails from the Map values.
-            final Map<String, Object> pdData = jsonService.fromJson(
-                    new ByteArrayInputStream(body),
-                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
-            );
-            final String title = (String) pdData.get("title");
-            final String details = (String) pdData.get("details");
-            final URI type = URI.create((String) pdData.get("type"));
-            final URI instance = URI.create((String) pdData.get("instance"));
-            final int status = (int) pdData.get("status");
-            pd = new ProblemDetails(type, title, details, status, instance);
-        } catch (IOException e) {
-            pd = new ProblemDetails( null, HttpStatus.getStatusMessage(code), null, code, null);
-        }
-        return SolidClientException.handle(message, pd, uri, headers, new String(body));
     }
 
     /**
