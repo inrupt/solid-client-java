@@ -60,11 +60,13 @@ public class SolidClient {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
         this.fetchAfterWrite = fetchAfterWrite;
+        JsonService js;
         try {
-            this.jsonService = ServiceProvider.getJsonService();
+            js = ServiceProvider.getJsonService();
         } catch (Exception e) {
-            this.jsonService = null;
+            js = null;
         }
+        this.jsonService = js;
     }
 
     /**
