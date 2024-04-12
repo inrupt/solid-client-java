@@ -31,10 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -131,7 +128,7 @@ public class SolidClient {
         return client.send(request, Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= ERROR_STATUS) {
-                    throw this.fromResponse(
+                    throw this.exceptionFromErrorResponse(
                         "Unable to read resource at " + request.uri(),
                         response.uri(),
                         response.statusCode(),
@@ -286,8 +283,13 @@ public class SolidClient {
             if (isSuccess(res.statusCode())) {
                 return null;
             } else {
-                throw SolidClientException.handle("Unable to delete resource", resource.getIdentifier(),
-                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+                throw this.exceptionFromErrorResponse(
+                        "Unable to delete resource",
+                        resource.getIdentifier(),
+                        res.statusCode(),
+                        res.headers(),
+                        res.body()
+                );
             }
         });
     }
@@ -373,8 +375,13 @@ public class SolidClient {
             final Headers headers, final String message) {
         return res -> {
             if (!isSuccess(res.statusCode())) {
-                throw SolidClientException.handle(message, resource.getIdentifier(),
-                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+                throw this.exceptionFromErrorResponse(
+                        message,
+                        resource.getIdentifier(),
+                        res.statusCode(),
+                        res.headers(),
+                        res.body()
+                );
             }
 
             if (!fetchAfterWrite) {
@@ -460,7 +467,7 @@ public class SolidClient {
         }
     }
 
-    private SolidClientException fromResponse(
+    private SolidClientException exceptionFromErrorResponse(
             String message,
             URI uri,
             int code,
@@ -469,27 +476,23 @@ public class SolidClient {
     ) {
         ProblemDetails pd;
         if (!headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
-            pd = new ProblemDetails(
-                    null,
-                    HttpStatus.getStatusMessage(code),
-                    null,
-                    code,
-                    null
-            );
+            pd = new ProblemDetails(null, HttpStatus.getStatusMessage(code), null, code, null);
             return SolidClientException.handle(message, pd, uri, headers, new String(body));
         }
         try {
-            pd = jsonService.fromJson(new ByteArrayInputStream(body),ProblemDetails.class);
-        } catch (IOException e) {
-            pd = new ProblemDetails(
-                    null,
-                    HttpStatus.getStatusMessage(code),
-                    null,
-                    code,
-                    null
+            Map<String, Object> pdData = jsonService.fromJson(
+                    new ByteArrayInputStream(body),
+                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
             );
+            String title = (String) pdData.get("title");
+            String details = (String) pdData.get("details");
+            URI type = URI.create((String) pdData.get("type"));
+            URI instance = URI.create((String) pdData.get("instance"));
+            int status = (int) pdData.get("status");
+            pd = new ProblemDetails(type, title, details, status, instance);
+        } catch (IOException e) {
+            pd = new ProblemDetails( null, HttpStatus.getStatusMessage(code), null, code, null);
         }
         return SolidClientException.handle(message, pd, uri, headers, new String(body));
-
     }
 }
