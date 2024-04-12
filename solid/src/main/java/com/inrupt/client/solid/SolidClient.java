@@ -62,7 +62,7 @@ public class SolidClient {
         this.fetchAfterWrite = fetchAfterWrite;
         JsonService js;
         try {
-            // It is acceptable for a SolidClient instance to be in a classpath without any immplementation for
+            // It is acceptable for a SolidClient instance to be in a classpath without any implementation for
             // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
             js = ServiceProvider.getJsonService();
         } catch (Exception e) {
