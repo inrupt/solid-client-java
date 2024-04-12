@@ -20,6 +20,8 @@
  */
 package com.inrupt.client.jena;
 
+import com.inrupt.client.ClientHttpException;
+import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.Response;
 
 import java.io.ByteArrayInputStream;
@@ -48,6 +50,7 @@ public final class JenaBodyHandlers {
      * Populate a Jena {@link Model} with an HTTP response body.
      *
      * @return an HTTP body handler
+     * @deprecated
      */
     public static Response.BodyHandler<Model> ofModel() {
         return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
@@ -62,6 +65,37 @@ public final class JenaBodyHandlers {
                 }
             })
             .orElseGet(ModelFactory::createDefaultModel);
+    }
+
+    /**
+     * Populate a Jena {@link Model} with an HTTP response body.
+     *
+     * @return an HTTP body handler
+     */
+    public static Response.BodyHandler<Model> ofJenaModel() {
+        return responseInfo -> {
+            if(responseInfo.statusCode() > 300) {
+                throw new ClientHttpException(
+                        ProblemDetails.fromErrorResponse(
+                                responseInfo.statusCode(),
+
+                                )
+                )
+            }
+            return responseInfo.headers().firstValue(CONTENT_TYPE).map(JenaBodyHandlers::toJenaLang).map(lang -> {
+                        try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                            final var model = ModelFactory.createDefaultModel();
+                            RDFDataMgr.read(model, input, responseInfo.uri().toString(), lang);
+                            return model;
+                        } catch (final IOException ex) {
+                            throw new UncheckedIOException(
+                                    "An I/O error occurred while data was read from the InputStream into a Model", ex);
+                        }
+                    })
+                    .orElseGet(ModelFactory::createDefaultModel);
+        }
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
+
     }
 
     /**
