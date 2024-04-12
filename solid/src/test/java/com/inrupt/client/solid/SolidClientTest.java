@@ -23,16 +23,17 @@ package com.inrupt.client.solid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Headers;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
+import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.jackson.JacksonService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.RDFFactory;
+import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -57,6 +58,7 @@ class SolidClientTest {
     private static final Map<String, String> config = new HashMap<>();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidClient client = SolidClient.getClient().session(Session.anonymous());
+    private static final JsonService jsonService = new JacksonService();
 
     @BeforeAll
     static void setup() {
@@ -379,7 +381,7 @@ class SolidClientTest {
 
     @ParameterizedTest
     @MethodSource
-    <T extends SolidClientException> void testSpecialisedExceptions(
+    <T extends SolidClientException> void testLegacySpecialisedExceptions(
             final Class<T> clazz,
             final int statusCode
     ) {
@@ -413,9 +415,17 @@ class SolidClientTest {
                         })
         );
         assertEquals(statusCode, exception.getStatusCode());
+        // The following assertions check that in absence of an RFC9457 compliant response, we properly initialize the
+        // default values for the attached Problem Details.
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        // The Problem Details title should default to the status message
+        assertEquals(HttpStatus.getStatusMessage(statusCode), exception.getProblemDetails().getTitle());
+        assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getDetails());
+        assertNull(exception.getProblemDetails().getInstance());
     }
 
-    private static Stream<Arguments> testSpecialisedExceptions() {
+    private static Stream<Arguments> testLegacySpecialisedExceptions() {
         return Stream.of(
                 Arguments.of(BadRequestException.class, 400),
                 Arguments.of(UnauthorizedException.class, 401),
@@ -430,6 +440,186 @@ class SolidClientTest {
                 Arguments.of(TooManyRequestsException.class, 429),
                 Arguments.of(InternalServerErrorException.class, 500),
                 Arguments.of(SolidClientException.class, 418)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    <T extends SolidClientException> void testRfc9457SpecialisedExceptions(
+            final Class<T> clazz,
+            final ProblemDetails problemDetails
+    ) {
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
+
+        final SolidClientException exception = assertThrows(
+                clazz,
+                () -> solidClient.handleResponse(resource, headers, "message")
+                        .apply(new Response<byte[]>() {
+                            @Override
+                            public byte[] body() {
+                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                try {
+                                    jsonService.toJson(problemDetails, bos);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                return bos.toByteArray();
+                            }
+
+                            @Override
+                            public Headers headers() {
+                                List<String> headerValues = new ArrayList<>();
+                                headerValues.add("application/problem+json");
+                                Map<String, List<String>> headerMap = new HashMap<>();
+                                headerMap.put("Content-Type", headerValues);
+                                return Headers.of(headerMap);
+                            }
+
+                            @Override
+                            public URI uri() {
+                                return null;
+                            }
+
+                            @Override
+                            public int statusCode() {
+                                return problemDetails.getStatus();
+                            }
+                        })
+        );
+        assertEquals(problemDetails.getStatus(), exception.getStatusCode());
+        assertEquals(problemDetails.getType(), exception.getProblemDetails().getType());
+        assertEquals(problemDetails.getTitle(), exception.getProblemDetails().getTitle());
+        assertEquals(problemDetails.getStatus(), exception.getProblemDetails().getStatus());
+        assertEquals(problemDetails.getDetails(), exception.getProblemDetails().getDetails());
+        assertEquals(problemDetails.getInstance(), exception.getProblemDetails().getInstance());
+    }
+
+    private static Stream<Arguments> testRfc9457SpecialisedExceptions() {
+        return Stream.of(
+                Arguments.of(
+                        BadRequestException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Bad Request",
+                                "Some details",
+                                400,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        UnauthorizedException.class,
+                        new ProblemDetails(
+                            URI.create("https://example.org/type"),
+                            "Unauthorized",
+                            "Some details",
+                            401,
+                            URI.create("https://example.org/instance")
+                    )
+                ),
+                Arguments.of(
+                        ForbiddenException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Forbidden",
+                                "Some details",
+                                403,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        NotFoundException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Not Found",
+                                "Some details",
+                                404,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        MethodNotAllowedException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Method Not Allowed",
+                                "Some details",
+                                405,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        NotAcceptableException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Not Acceptable",
+                                "Some details",
+                                406,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        ConflictException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Conflict",
+                                "Some details",
+                                409,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        GoneException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Gone",
+                                "Some details",
+                                410,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        PreconditionFailedException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Precondition Failed",
+                                "Some details",
+                                412,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        UnsupportedMediaTypeException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Unsupported Media Type",
+                                "Some details",
+                                415,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        TooManyRequestsException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Too Many Requests",
+                                "Some details",
+                                429,
+                                URI.create("https://example.org/instance")
+                        )
+                ),
+                Arguments.of(
+                        InternalServerErrorException.class,
+                        new ProblemDetails(
+                                URI.create("https://example.org/type"),
+                                "Internal Server Error",
+                                "Some details",
+                                500,
+                                URI.create("https://example.org/instance")
+                        )
+                )
+//                Arguments.of(BadRequestException.class, 418, '{"title":"I\'m A Teapot","status":418,"details":"Some details","instance":"https://example.org/instance","type":"https://example.org/type"}'),
+//                Arguments.of(InternalServerErrorException.class, 599, '{"title":"Custom Server Error","status":599,"details":"Some details","instance":"https://example.org/instance","type":"https://example.org/type"}'),
         );
     }
 }
