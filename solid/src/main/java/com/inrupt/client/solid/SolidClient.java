@@ -22,8 +22,6 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -54,21 +52,11 @@ public class SolidClient {
     private final Client client;
     private final Headers defaultHeaders;
     private final boolean fetchAfterWrite;
-    private final JsonService jsonService;
 
     SolidClient(final Client client, final Headers headers, final boolean fetchAfterWrite) {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
         this.fetchAfterWrite = fetchAfterWrite;
-        JsonService js;
-        try {
-            // It is acceptable for a SolidClient instance to be in a classpath without any implementation for
-            // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
-            js = ServiceProvider.getJsonService();
-        } catch (IllegalStateException e) {
-            js = null;
-        }
-        this.jsonService = js;
     }
 
     /**
@@ -134,7 +122,7 @@ public class SolidClient {
         return client.send(request, Response.BodyHandlers.ofByteArray())
             .thenApply(response -> {
                 if (response.statusCode() >= ERROR_STATUS) {
-                    throw this.exceptionFromErrorResponse(
+                    throw SolidClientException.fromErrorResponse(
                         "Unable to read resource at " + request.uri(),
                         response.uri(),
                         response.statusCode(),
@@ -289,7 +277,7 @@ public class SolidClient {
             if (isSuccess(res.statusCode())) {
                 return null;
             } else {
-                throw this.exceptionFromErrorResponse(
+                throw SolidClientException.fromErrorResponse(
                         "Unable to delete resource",
                         resource.getIdentifier(),
                         res.statusCode(),
@@ -381,7 +369,7 @@ public class SolidClient {
             final Headers headers, final String message) {
         return res -> {
             if (!isSuccess(res.statusCode())) {
-                throw this.exceptionFromErrorResponse(
+                throw SolidClientException.fromErrorResponse(
                         message,
                         resource.getIdentifier(),
                         res.statusCode(),
@@ -471,39 +459,5 @@ public class SolidClient {
             throw new SolidResourceException("Unable to serialize " + resource.getClass().getName() +
                     " into Solid Resource", ex);
         }
-    }
-
-    private SolidClientException exceptionFromErrorResponse(
-            final String message,
-            final URI uri,
-            final int code,
-            final Headers headers,
-            final byte[] body
-    ) {
-        ProblemDetails pd;
-        if (
-                this.jsonService == null
-                || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
-            pd = new ProblemDetails(null, HttpStatus.getStatusMessage(code), null, code, null);
-            return SolidClientException.handle(message, pd, uri, headers, new String(body));
-        }
-        try {
-            // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
-            // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
-            // and build the ProblemDetails from the Map values.
-            final Map<String, Object> pdData = this.jsonService.fromJson(
-                    new ByteArrayInputStream(body),
-                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
-            );
-            final String title = (String) pdData.get("title");
-            final String details = (String) pdData.get("details");
-            final URI type = URI.create((String) pdData.get("type"));
-            final URI instance = URI.create((String) pdData.get("instance"));
-            final int status = (int) pdData.get("status");
-            pd = new ProblemDetails(type, title, details, status, instance);
-        } catch (IOException e) {
-            pd = new ProblemDetails( null, HttpStatus.getStatusMessage(code), null, code, null);
-        }
-        return SolidClientException.handle(message, pd, uri, headers, new String(body));
     }
 }
