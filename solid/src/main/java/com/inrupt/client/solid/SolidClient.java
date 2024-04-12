@@ -60,7 +60,11 @@ public class SolidClient {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
         this.fetchAfterWrite = fetchAfterWrite;
-        this.jsonService = ServiceProvider.getJsonService();
+        try {
+            this.jsonService = ServiceProvider.getJsonService();
+        } catch (Exception e) {
+            this.jsonService = null;
+        }
     }
 
     /**
@@ -473,7 +477,7 @@ public class SolidClient {
             final byte[] body
     ) {
         ProblemDetails pd;
-        if (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE)) {
+        if (this.jsonService == null || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
             pd = new ProblemDetails(null, HttpStatus.getStatusMessage(code), null, code, null);
             return SolidClientException.handle(message, pd, uri, headers, new String(body));
         }
@@ -481,7 +485,7 @@ public class SolidClient {
             // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
             // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
             // and build the ProblemDetails from the Map values.
-            final Map<String, Object> pdData = jsonService.fromJson(
+            final Map<String, Object> pdData = this.jsonService.fromJson(
                     new ByteArrayInputStream(body),
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
             );
