@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.ProblemDetails;
 
 import java.util.Collections;
 import java.util.Map;
@@ -44,35 +45,48 @@ public class RdfMockService {
         return wireMockServer.port();
     }
 
+    private static final String CONTENT_TYPE = "Content-Type";
+
     private void setupMocks() {
 
         wireMockServer.stubFor(get(urlEqualTo("/oneTriple"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/turtle")
+                        .withHeader(CONTENT_TYPE, "text/turtle")
                         .withBody("<http://example.test/s> <http://example.test/p> <http://example.test/o> .")));
 
         wireMockServer.stubFor(post(urlEqualTo("/postOneTriple"))
                     .withRequestBody(matching(
                             ".*<http://example.test/subject>\\s+" +
                             "<http://example.test/predicate>\\s+\"object\"\\s+\\..*"))
-                    .withHeader("Content-Type", containing("text/turtle"))
+                    .withHeader(CONTENT_TYPE, containing("text/turtle"))
                     .willReturn(aResponse()
                         .withStatus(204)));
 
         wireMockServer.stubFor(get(urlEqualTo("/example"))
                     .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/turtle")
+                        .withHeader(CONTENT_TYPE, "text/turtle")
                         .withBody(getExampleTTL())));
 
         wireMockServer.stubFor(patch(urlEqualTo("/sparqlUpdate"))
-                    .withHeader("Content-Type", containing("application/sparql-update"))
+                    .withHeader(CONTENT_TYPE, containing("application/sparql-update"))
                     .withRequestBody(matching(
                             "INSERT DATA\\s+\\{\\s*<http://example.test/s1>\\s+" +
                             "<http://example.test/p1>\\s+<http://example.test/o1>\\s*\\.\\s*\\}\\s*"))
                     .willReturn(aResponse()
                         .withStatus(204)));
+
+        wireMockServer.stubFor(get(urlEqualTo("/error"))
+                .willReturn(aResponse()
+                        .withStatus(429)
+                        .withHeader(CONTENT_TYPE, ProblemDetails.MIME_TYPE)
+                        .withBody("{" +
+                                "\"title\":\"Too Many Requests\"," +
+                                "\"status\":429," +
+                                "\"details\":\"Some details\"," +
+                                "\"instance\":\"https://example.org/instance\"," +
+                                "\"type\":\"https://example.org/type\"}")));
     }
 
     private String getExampleTTL() {

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -17,7 +16,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-// Ideally, this class should be in the api module, but it creates a circular dependency with the JSON module implementation.
+// Ideally, this class should be in the api module,
+// but it creates a circular dependency with the JSON module implementation.
 public class ProblemDetailsTest {
     Headers mockProblemDetailsHeader() {
         final List<String> headerValues = new ArrayList<>();
