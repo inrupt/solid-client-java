@@ -22,6 +22,7 @@ package com.inrupt.client.rdf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -61,14 +63,14 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testOfModelHandlerAsync() throws IOException,
+    void testOfRDF4JModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final Response<Model> res = client.send(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture().join();
+        final Response<Model> res = client.send(request, RDF4JBodyHandlers.ofRDF4JModel()).toCompletableFuture().join();
 
         final int statusCode = res.statusCode();
         final Model responseBody = res.body();
@@ -84,14 +86,14 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testOfModelHandler() throws IOException,
+    void testOfRDF4JModelHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofRDF4JModel())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -106,13 +108,13 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
+    void testOfRDF4JModelHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofRDF4JModel())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -128,14 +130,36 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testOfRepositoryHandlerAsync() throws IOException,
+    void testOfRDF4JModelHandlerError() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/error"))
+                .GET()
+                .build();
+
+        final CompletionException completionException = assertThrows(
+                CompletionException.class,
+                () -> client.send(request, RDF4JBodyHandlers.ofRDF4JModel()).toCompletableFuture().join()
+        );
+
+        final ClientHttpException httpException = (ClientHttpException) completionException.getCause();
+
+        assertEquals(429, httpException.getProblemDetails().getStatus());
+        assertEquals("Too Many Requests", httpException.getProblemDetails().getTitle());
+        assertEquals("Some details", httpException.getProblemDetails().getDetails());
+        assertEquals("https://example.org/type", httpException.getProblemDetails().getType().toString());
+        assertEquals("https://example.org/instance", httpException.getProblemDetails().getInstance().toString());
+    }
+
+    @Test
+    void testOfRDF4JRepositoryHandlerAsync() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final Response<Repository> res = client.send(request, RDF4JBodyHandlers.ofRepository())
+        final Response<Repository> res = client.send(request, RDF4JBodyHandlers.ofRDF4JRepository())
             .toCompletableFuture().join();
 
         final int statusCode = res.statusCode();
@@ -155,14 +179,14 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testOfRepositoryHandler() throws IOException,
+    void testOfRDF4JRepositoryHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository())
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRDF4JRepository())
             .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 
@@ -180,13 +204,13 @@ class RDF4JBodyHandlersTest {
     }
 
     @Test
-    void testOfRepositoryHandlerWithURL() throws IOException, InterruptedException {
+    void testOfRDF4JRepositoryHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
-        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository())
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRDF4JRepository())
             .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 
@@ -201,5 +225,27 @@ class RDF4JBodyHandlersTest {
             )
             );
         }
+    }
+
+    @Test
+    void testOfRDF4JRepositoryHandlerError() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/error"))
+                .GET()
+                .build();
+
+        final CompletionException completionException = assertThrows(
+                CompletionException.class,
+                () -> client.send(request, RDF4JBodyHandlers.ofRDF4JRepository()).toCompletableFuture().join()
+        );
+
+        final ClientHttpException httpException = (ClientHttpException) completionException.getCause();
+
+        assertEquals(429, httpException.getProblemDetails().getStatus());
+        assertEquals("Too Many Requests", httpException.getProblemDetails().getTitle());
+        assertEquals("Some details", httpException.getProblemDetails().getDetails());
+        assertEquals("https://example.org/type", httpException.getProblemDetails().getType().toString());
+        assertEquals("https://example.org/instance", httpException.getProblemDetails().getInstance().toString());
     }
 }
