@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A data class representing a structured problem description sent by the server on error response.
@@ -106,12 +108,18 @@ public class ProblemDetails {
                     new ByteArrayInputStream(body),
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
             );
-            final String title = (String) pdData.get("title");
+            final String title = Optional.ofNullable((String) pdData.get("title"))
+                    .orElse(HttpStatus.StatusMessages.getStatusMessage(statusCode));
             final String details = (String) pdData.get("details");
-            final URI type = URI.create((String) pdData.get("type"));
-            final URI instance = URI.create((String) pdData.get("instance"));
-            final int status = (int) pdData.get("status");
-            return new ProblemDetails(type, title, details, status, instance);
+            final URI type = Optional.ofNullable(pdData.get("type"))
+                    .map(t -> URI.create((String) t))
+                    .orElse(null);
+            final URI instance = Optional.ofNullable(pdData.get("instance"))
+                    .map(i -> URI.create((String) i))
+                    .orElse(null);
+            // Note that the status code is disregarded from the body, and reused from the HTTP response directly,
+            // as they must be the same as per https://www.rfc-editor.org/rfc/rfc9457.html#name-status.
+            return new ProblemDetails(type, title, details, statusCode, instance);
         } catch (IOException e) {
             return new ProblemDetails(
                 null,
