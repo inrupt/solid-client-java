@@ -67,9 +67,9 @@ public final class HttpStatus {
                 .orElseGet(() -> {
                     // If the status is unknown, default to 400 for client errors and 500 for server errors
                     if (statusCode >= 400 && statusCode <= 499) {
-                        return BAD_REQUEST.message;
+                        return "Unknown Client Error";
                     }
-                    return INTERNAL_SERVER_ERROR.message;
+                    return "unknown Server Error";
                 });
         }
     }
