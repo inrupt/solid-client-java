@@ -24,6 +24,7 @@ import com.inrupt.client.spi.JsonService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,13 +51,7 @@ public class ProblemDetails {
         final int status,
         final URI instance
     ) {
-        // The `type` is not mandatory in RFC9457, so we want to set
-        // a default value here even when deserializing from JSON.
-        if (type != null) {
-            this.type = type;
-        } else {
-            this.type = URI.create(DEFAULT_TYPE);
-        }
+        this.type = type;
         this.title = title;
         this.details = details;
         this.status = status;
@@ -92,7 +87,7 @@ public class ProblemDetails {
         if (jsonService == null
                 || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
             return new ProblemDetails(
-                null,
+                URI.create(ProblemDetails.DEFAULT_TYPE),
                 HttpStatus.StatusMessages.getStatusMessage(statusCode),
                 null,
                 statusCode,
@@ -100,28 +95,26 @@ public class ProblemDetails {
             );
         }
         try {
-            // ProblemDetails doesn't have a default constructor, and we can't use JSON mapping annotations because
-            // the JSON service is an abstraction over JSON-B and Jackson, so we deserialize the JSON object in a Map
-            // and build the ProblemDetails from the Map values.
-            final Map<String, Object> pdData = jsonService.fromJson(
+            final ProblemDetailsData pdData = jsonService.fromJson(
                     new ByteArrayInputStream(body),
-                    new HashMap<String, Object>(){}.getClass().getGenericSuperclass()
+                    ProblemDetailsData.class
             );
-            final String title = Optional.ofNullable((String) pdData.get("title"))
+            final URI type = Optional.ofNullable(pdData.getType())
+                .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
+            final String title = Optional.ofNullable(pdData.getTitle())
                     .orElse(HttpStatus.StatusMessages.getStatusMessage(statusCode));
-            final String details = (String) pdData.get("details");
-            final URI type = Optional.ofNullable((String) pdData.get("type"))
-                    .map(URI::create)
-                    .orElse(null);
-            final URI instance = Optional.ofNullable((String) pdData.get("instance"))
-                    .map(URI::create)
-                    .orElse(null);
-            // Note that the status code is disregarded from the body, and reused from the HTTP response directly,
-            // as they must be the same as per https://www.rfc-editor.org/rfc/rfc9457.html#name-status.
-            return new ProblemDetails(type, title, details, statusCode, instance);
+            // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
+            final int status = Optional.of(pdData.getStatus()).filter(s -> s != 0).orElse(statusCode);
+            return new ProblemDetails(
+                    type,
+                    title,
+                    pdData.getDetails(),
+                    status,
+                    pdData.getInstance()
+            );
         } catch (IOException e) {
             return new ProblemDetails(
-                null,
+                URI.create(ProblemDetails.DEFAULT_TYPE),
                 HttpStatus.StatusMessages.getStatusMessage(statusCode),
                 null,
                 statusCode,
