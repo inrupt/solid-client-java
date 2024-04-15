@@ -47,7 +47,6 @@ public class ProblemDetailsTest {
         return Headers.of(headerMap);
     }
 
-    final JsonService jsonService = ServiceProvider.getJsonService();
     @Test
     void testEmptyProblemDetails() {
         final int statusCode = 400;
