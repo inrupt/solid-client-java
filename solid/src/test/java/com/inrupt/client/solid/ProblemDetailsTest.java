@@ -54,8 +54,7 @@ public class ProblemDetailsTest {
         final ProblemDetails pd = ProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
-                "{}".getBytes(),
-                jsonService
+                "{}".getBytes()
         );
         assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
         assertEquals(statusCode, pd.getStatus());
@@ -75,8 +74,7 @@ public class ProblemDetailsTest {
                     "\"details\":\"Some details\"," +
                     "\"instance\":\"https://example.org/instance\"," +
                     "\"type\":\"https://example.org/type\"" +
-                "}").getBytes(),
-                jsonService
+                "}").getBytes()
         );
         assertEquals("https://example.org/type", pd.getType().toString());
         assertEquals(statusCode, pd.getStatus());
@@ -98,8 +96,7 @@ public class ProblemDetailsTest {
                     "\"instance\":\"https://example.org/instance\"," +
                     "\"type\":\"https://example.org/type\"," +
                     "\"unknown\":\"Some unknown property\"" +
-                "}").getBytes(),
-                jsonService
+                "}").getBytes()
         );
         assertEquals("https://example.org/type", pd.getType().toString());
         assertEquals(statusCode, pd.getStatus());
@@ -116,8 +113,7 @@ public class ProblemDetailsTest {
                 mockProblemDetailsHeader(),
                 ("{" +
                     "\"status\":\"Some invalid status\"," +
-                "}").getBytes(),
-                jsonService
+                "}").getBytes()
         );
         assertEquals(statusCode, pd.getStatus());
     }
@@ -130,8 +126,7 @@ public class ProblemDetailsTest {
                 mockProblemDetailsHeader(),
                 ("{" +
                         "\"status\":500," +
-                "}").getBytes(),
-                jsonService
+                "}").getBytes()
         );
         assertEquals(statusCode, pd.getStatus());
     }
@@ -143,8 +138,7 @@ public class ProblemDetailsTest {
                 mockProblemDetailsHeader(),
                 ("{" +
                     "\"type\":\"Some invalid type\"," +
-                "}").getBytes(),
-                jsonService
+                "}").getBytes()
         );
         assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
     }
@@ -156,8 +150,7 @@ public class ProblemDetailsTest {
                 mockProblemDetailsHeader(),
                 ("{" +
                     "\"instance\":\"Some invalid instance\"," +
-                "}").getBytes(),
-                jsonService
+                "}").getBytes()
         );
         assertNull(pd.getInstance());
     }

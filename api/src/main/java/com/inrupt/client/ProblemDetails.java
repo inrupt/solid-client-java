@@ -21,6 +21,7 @@
 package com.inrupt.client;
 
 import com.inrupt.client.spi.JsonService;
+import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class ProblemDetails {
     private final String details;
     private final int status;
     private final URI instance;
+    private static JsonService jsonService;
 
     public ProblemDetails(
         final URI type,
@@ -81,10 +83,14 @@ public class ProblemDetails {
     public static ProblemDetails fromErrorResponse(
             final int statusCode,
             final Headers headers,
-            final byte[] body,
-            final JsonService jsonService
+            final byte[] body
     ) {
-        if (jsonService == null
+        try {
+            ProblemDetails.jsonService = ServiceProvider.getJsonService();
+        } catch (IllegalStateException e) {
+            ProblemDetails.jsonService = null;
+        }
+        if (ProblemDetails.jsonService == null
                 || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
             return new ProblemDetails(
                 URI.create(ProblemDetails.DEFAULT_TYPE),
@@ -95,7 +101,7 @@ public class ProblemDetails {
             );
         }
         try {
-            final ProblemDetailsData pdData = jsonService.fromJson(
+            final ProblemDetailsData pdData = ProblemDetails.jsonService.fromJson(
                     new ByteArrayInputStream(body),
                     ProblemDetailsData.class
             );
