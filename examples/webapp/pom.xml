@@ -19,7 +19,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
 
-    <quarkus.version>3.9.2</quarkus.version>
+    <quarkus.version>3.9.3</quarkus.version>
   </properties>
 
   <dependencyManagement>
