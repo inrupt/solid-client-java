@@ -111,7 +111,7 @@ public class ProblemDetailsTest {
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
-                    "\"status\":\"Some invalid status\"," +
+                    "\"status\":\"Some invalid status\"" +
                 "}").getBytes()
         );
         assertEquals(statusCode, pd.getStatus());
@@ -124,10 +124,10 @@ public class ProblemDetailsTest {
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
-                        "\"status\":500," +
+                        "\"status\":500" +
                 "}").getBytes()
         );
-        assertEquals(statusCode, pd.getStatus());
+        assertEquals(500, pd.getStatus());
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ProblemDetailsTest {
                 400,
                 mockProblemDetailsHeader(),
                 ("{" +
-                    "\"type\":\"Some invalid type\"," +
+                    "\"type\":\"Some invalid type\"" +
                 "}").getBytes()
         );
         assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
@@ -148,7 +148,7 @@ public class ProblemDetailsTest {
                 400,
                 mockProblemDetailsHeader(),
                 ("{" +
-                    "\"instance\":\"Some invalid instance\"," +
+                    "\"instance\":\"Some invalid instance\"" +
                 "}").getBytes()
         );
         assertNull(pd.getInstance());
