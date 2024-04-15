@@ -45,6 +45,7 @@ public class ProblemDetails {
     private final int status;
     private final URI instance;
     private static JsonService jsonService;
+    private static boolean isJsonServiceInitialized;
 
     public ProblemDetails(
         final URI type,
@@ -80,17 +81,28 @@ public class ProblemDetails {
         return this.instance;
     };
 
-    public static ProblemDetails fromErrorResponse(
-            final int statusCode,
-            final Headers headers,
-            final byte[] body
-    ) {
+    private static JsonService getJsonService() {
+        if (ProblemDetails.isJsonServiceInitialized) {
+            return ProblemDetails.jsonService;
+        }
+        // It is acceptable for a JenaBodyHandlers instance to be in a classpath without any implementation for
+        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
         try {
             ProblemDetails.jsonService = ServiceProvider.getJsonService();
         } catch (IllegalStateException e) {
             ProblemDetails.jsonService = null;
         }
-        if (ProblemDetails.jsonService == null
+        ProblemDetails.isJsonServiceInitialized = true;
+        return ProblemDetails.jsonService;
+    }
+
+    public static ProblemDetails fromErrorResponse(
+            final int statusCode,
+            final Headers headers,
+            final byte[] body
+    ) {
+        final JsonService jsonService = getJsonService();
+        if (jsonService == null
                 || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
             return new ProblemDetails(
                 URI.create(ProblemDetails.DEFAULT_TYPE),
@@ -101,7 +113,7 @@ public class ProblemDetails {
             );
         }
         try {
-            final ProblemDetailsData pdData = ProblemDetails.jsonService.fromJson(
+            final ProblemDetailsData pdData = jsonService.fromJson(
                     new ByteArrayInputStream(body),
                     ProblemDetailsData.class
             );
