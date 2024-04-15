@@ -13,7 +13,7 @@
     </description>
 
     <properties>
-        <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
+        <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
         <smallrye.config.version>3.7.1</smallrye.config.version>
     </properties>
 
