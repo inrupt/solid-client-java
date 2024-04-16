@@ -69,7 +69,7 @@ public final class HttpStatus {
                     if (statusCode >= 400 && statusCode <= 499) {
                         return "Unknown Client Error";
                     }
-                    return "unknown Server Error";
+                    return "Unknown Server Error";
                 });
         }
     }
