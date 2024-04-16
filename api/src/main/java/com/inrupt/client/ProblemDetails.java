@@ -25,10 +25,7 @@ import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**

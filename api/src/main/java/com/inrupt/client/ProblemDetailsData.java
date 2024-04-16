@@ -33,23 +33,23 @@ class ProblemDetailsData {
         return this.instance;
     };
 
-    public void setType(URI type) {
+    public void setType(final URI type) {
         this.type = type;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
-    public void setDetails(String details) {
+    public void setDetails(final String details) {
         this.details = details;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(final int status) {
         this.status = status;
     }
 
-    public void setInstance(URI instance) {
+    public void setInstance(final URI instance) {
         this.instance = instance;
     }
 }
