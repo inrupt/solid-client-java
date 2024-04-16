@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -287,7 +288,7 @@ public class SolidClient {
                     resource.getIdentifier(),
                     res.statusCode(),
                     res.headers(),
-                    new String(res.body())
+                    new String(res.body(), StandardCharsets.UTF_8)
                 );
             }
         });
