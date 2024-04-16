@@ -116,13 +116,11 @@ public class ProblemDetails {
             );
             final URI type = Optional.ofNullable(pdData.getType())
                 .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
-            final String title = Optional.ofNullable(pdData.getTitle())
-                    .orElse(HttpStatus.StatusMessages.getStatusMessage(statusCode));
             // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
             final int status = Optional.of(pdData.getStatus()).filter(s -> s != 0).orElse(statusCode);
             return new ProblemDetails(
                     type,
-                    title,
+                    pdData.getTitle(),
                     pdData.getDetails(),
                     status,
                     pdData.getInstance()
