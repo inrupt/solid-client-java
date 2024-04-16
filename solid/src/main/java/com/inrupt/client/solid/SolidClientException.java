@@ -91,7 +91,7 @@ public class SolidClientException extends ClientHttpException {
         }
     }
 
-    public static SolidClientException handle(final ClientHttpException exception){
+    public static SolidClientException handle(final ClientHttpException exception) {
         switch (exception.getStatusCode()) {
             case BadRequestException.STATUS_CODE:
                 return (BadRequestException) exception;

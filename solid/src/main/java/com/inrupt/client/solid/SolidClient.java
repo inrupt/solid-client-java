@@ -22,14 +22,11 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +124,10 @@ public class SolidClient {
         final Request request = builder.build();
         return client.send(
                 request,
-                Response.BodyHandlers.throwOnError(Response.BodyHandlers.ofByteArray(), (r) -> isSuccess(r.statusCode()))
+                Response.BodyHandlers.throwOnError(
+                    Response.BodyHandlers.ofByteArray(),
+                    (r) -> isSuccess(r.statusCode())
+                )
             ).thenApply(response -> {
                 final String contentType = response.headers().firstValue(CONTENT_TYPE)
                     .orElse("application/octet-stream");
@@ -157,7 +157,7 @@ public class SolidClient {
                 if (exception instanceof ClientHttpException) {
                     throw SolidClientException.handle((ClientHttpException) exception);
                 }
-                throw new RuntimeException("Something went wrong reading "+request.uri(), exception);
+                throw new RuntimeException("Something went wrong reading " + request.uri(), exception);
             });
     }
 
@@ -277,18 +277,18 @@ public class SolidClient {
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         return client.send(
-                builder.build(),
-                Response.BodyHandlers.throwOnError(
-                    Response.BodyHandlers.ofByteArray(),
-                    (r) -> isSuccess(r.statusCode())
-                )
-            ).exceptionally(exception -> {
+            builder.build(),
+            Response.BodyHandlers.throwOnError(
+                Response.BodyHandlers.ofByteArray(),
+                (r) -> isSuccess(r.statusCode())
+            )
+        ).exceptionally(exception -> {
             if (exception instanceof ClientHttpException) {
                 throw SolidClientException.handle((ClientHttpException) exception);
             }
-            throw new RuntimeException("Something went wrong reading "+resource.getIdentifier(), exception);
+            throw new RuntimeException("Something went wrong reading " + resource.getIdentifier(), exception);
             // FIXME I don't understand why the following is required.
-        }).thenAccept(o -> {});
+        }).thenAccept(o -> { /* no-op */ });
     }
 
     /**
