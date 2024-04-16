@@ -157,18 +157,25 @@ public interface Response<T> {
         /**
          * Throws on HTTP error, or apply the provided body handler.
          * @param handler the body handler to apply on non-error HTTP responses
+         * @param isSuccess a callback determining error cases
          * @return the body handler
          * @param <T> the type of the body handler
          */
         public static <T> Response.BodyHandler<T> throwOnError(
-                Response.BodyHandler<T> handler,
-                Function<Response.ResponseInfo, Boolean> isSuccess
+                final Response.BodyHandler<T> handler,
+                final Function<Response.ResponseInfo, Boolean> isSuccess
         ) {
             return responseinfo -> {
                 if (isSuccess.apply(responseinfo)) {
                     throw new ClientHttpException(
-                            "An HTTP error has been returned from "+responseinfo.uri()+" with status code "+responseinfo.statusCode(),
-                            responseinfo.uri(), responseinfo.statusCode(), responseinfo.headers(), new String(responseinfo.body().array(), StandardCharsets.UTF_8)
+                        "An HTTP error has been returned from "
+                            + responseinfo.uri()
+                            + " with status code "
+                            + responseinfo.statusCode(),
+                        responseinfo.uri(),
+                        responseinfo.statusCode(),
+                        responseinfo.headers(),
+                        new String(responseinfo.body().array(), StandardCharsets.UTF_8)
                     );
                 }
                 return handler.apply(responseinfo);
