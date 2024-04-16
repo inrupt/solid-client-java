@@ -37,7 +37,7 @@ public class HttpStatusTest {
     void checkHttpStatusSearchUnknownClientError () {
         assertEquals(
                 HttpStatus.StatusMessages.getStatusMessage(418),
-                HttpStatus.StatusMessages.BAD_REQUEST.message
+                HttpStatus.StatusMessages.UNKNOWN_CLIENT_ERROR
         );
     }
 
@@ -45,19 +45,19 @@ public class HttpStatusTest {
     void checkHttpStatusSearchUnknownServerError () {
         assertEquals(
                 HttpStatus.StatusMessages.getStatusMessage(555),
-                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.UNKNOWN_SERVER_ERROR
         );
         assertEquals(
                 HttpStatus.StatusMessages.getStatusMessage(999),
-                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.UNKNOWN_SERVER_ERROR
         );
         assertEquals(
                 HttpStatus.StatusMessages.getStatusMessage(-1),
-                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.UNKNOWN_SERVER_ERROR
         );
         assertEquals(
                 HttpStatus.StatusMessages.getStatusMessage(15),
-                HttpStatus.StatusMessages.INTERNAL_SERVER_ERROR.message
+                HttpStatus.StatusMessages.UNKNOWN_SERVER_ERROR
         );
     }
 }

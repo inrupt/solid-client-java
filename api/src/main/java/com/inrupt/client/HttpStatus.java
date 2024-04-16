@@ -51,6 +51,9 @@ public final class HttpStatus {
         TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "Too Many Requests"),
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
 
+        static final String UNKNOWN_CLIENT_ERROR = "Unknown Client Error";
+        static final String UNKNOWN_SERVER_ERROR = "Unknown Server Error";
+
         private final int code;
         final String message;
 
@@ -67,9 +70,9 @@ public final class HttpStatus {
                 .orElseGet(() -> {
                     // If the status is unknown, default to 400 for client errors and 500 for server errors
                     if (statusCode >= 400 && statusCode <= 499) {
-                        return "Unknown Client Error";
+                        return HttpStatus.StatusMessages.UNKNOWN_CLIENT_ERROR;
                     }
-                    return "Unknown Server Error";
+                    return HttpStatus.StatusMessages.UNKNOWN_SERVER_ERROR;
                 });
         }
     }
