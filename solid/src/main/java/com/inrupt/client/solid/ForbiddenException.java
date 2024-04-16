@@ -21,7 +21,6 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -33,7 +32,7 @@ import java.net.URI;
 public class ForbiddenException extends SolidClientException {
     private static final long serialVersionUID = 3299286274724874244L;
 
-    public static final int STATUS_CODE = HttpStatus.FORBIDDEN;
+    public static final int STATUS_CODE = 403;
 
     /**
      * Create a ForbiddenException exception.

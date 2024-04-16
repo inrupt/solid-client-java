@@ -21,7 +21,6 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -33,7 +32,7 @@ import java.net.URI;
 public class TooManyRequestsException extends SolidClientException {
     private static final long serialVersionUID = -1798491190232642824L;
 
-    public static final int STATUS_CODE = HttpStatus.TOO_MANY_REQUESTS;
+    public static final int STATUS_CODE = 429;
 
     /**
      * Create a TooManyRequestsException exception.

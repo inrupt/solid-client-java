@@ -103,7 +103,7 @@ public class ProblemDetails {
                 || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
             return new ProblemDetails(
                 URI.create(ProblemDetails.DEFAULT_TYPE),
-                HttpStatus.StatusMessages.getStatusMessage(statusCode),
+                null,
                 null,
                 statusCode,
                 null
@@ -130,7 +130,7 @@ public class ProblemDetails {
         } catch (IOException e) {
             return new ProblemDetails(
                 URI.create(ProblemDetails.DEFAULT_TYPE),
-                HttpStatus.StatusMessages.getStatusMessage(statusCode),
+                null,
                 null,
                 statusCode,
                 null

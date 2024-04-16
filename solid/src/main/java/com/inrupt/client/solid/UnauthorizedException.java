@@ -21,7 +21,6 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -33,7 +32,7 @@ import java.net.URI;
 public class UnauthorizedException extends SolidClientException {
     private static final long serialVersionUID = -3219668517323678497L;
 
-    public static final int STATUS_CODE = HttpStatus.UNAUTHORIZED;
+    public static final int STATUS_CODE = 401;
 
     /**
      * Create an UnauthorizedException exception.

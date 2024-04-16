@@ -21,7 +21,6 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -33,7 +32,7 @@ import java.net.URI;
 public class ConflictException extends SolidClientException {
     private static final long serialVersionUID = -203198307847520748L;
 
-    public static final int STATUS_CODE = HttpStatus.CONFLICT;
+    public static final int STATUS_CODE = 412;
 
     /**
      * Create a ConflictException exception.

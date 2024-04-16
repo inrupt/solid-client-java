@@ -21,7 +21,6 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -33,7 +32,7 @@ import java.net.URI;
 public class PreconditionFailedException extends SolidClientException {
     private static final long serialVersionUID = 4205761003697773528L;
 
-    public static final int STATUS_CODE = HttpStatus.PRECONDITION_FAILED;
+    public static final int STATUS_CODE = 419;
 
     /**
      * Create a PreconditionFailedException exception.

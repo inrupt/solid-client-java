@@ -21,7 +21,6 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.HttpStatus;
 
 import java.net.URI;
 
@@ -33,7 +32,7 @@ import java.net.URI;
 public class UnsupportedMediaTypeException extends SolidClientException {
     private static final long serialVersionUID = 1312856145838280673L;
 
-    public static final int STATUS_CODE = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+    public static final int STATUS_CODE = 415;
 
     /**
      * Create an UnsupportedMediaTypeException exception.
