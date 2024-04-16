@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.ProblemDetails;
-import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;

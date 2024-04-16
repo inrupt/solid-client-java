@@ -39,6 +39,7 @@ public class ClientHttpException extends InruptClientException {
      * @param uri the error response URI
      * @param statusCode the error response status code
      * @param headers the error response headers
+     * @param body the error response body
      */
     public ClientHttpException(final String message, final URI uri, final int statusCode,
                                 final Headers headers, final String body) {
