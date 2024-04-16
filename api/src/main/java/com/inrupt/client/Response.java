@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 /**
  * An HTTP Response.
@@ -159,9 +160,12 @@ public interface Response<T> {
          * @return the body handler
          * @param <T> the type of the body handler
          */
-        public static <T> Response.BodyHandler<T> throwOnError(Response.BodyHandler<T> handler) {
+        public static <T> Response.BodyHandler<T> throwOnError(
+                Response.BodyHandler<T> handler,
+                Function<Response.ResponseInfo, Boolean> isSuccess
+        ) {
             return responseinfo -> {
-                if (responseinfo.statusCode() > 399) {
+                if (isSuccess.apply(responseinfo)) {
                     throw new ClientHttpException(
                             "An HTTP error has been returned from "+responseinfo.uri()+" with status code "+responseinfo.statusCode(),
                             responseinfo.uri(), responseinfo.statusCode(), responseinfo.headers(), new String(responseinfo.body().array(), StandardCharsets.UTF_8)
