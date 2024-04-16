@@ -55,7 +55,7 @@ public class ProblemDetailsTest {
         );
         assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
         assertEquals(statusCode, pd.getStatus());
-        Assertions.assertEquals("Bad Request", pd.getTitle());
+        assertNull(pd.getTitle());
         assertNull(pd.getDetails());
         assertNull(pd.getInstance());
     }
