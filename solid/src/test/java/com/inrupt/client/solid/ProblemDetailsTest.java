@@ -151,4 +151,19 @@ public class ProblemDetailsTest {
         );
         assertNull(pd.getInstance());
     }
+
+    @Test
+    void testInvalidProblemDetails() {
+        final int statusCode = 400;
+        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+                statusCode,
+                mockProblemDetailsHeader(),
+                "Not valid application/problem+json".getBytes()
+        );
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(statusCode, pd.getStatus());
+        assertNull(pd.getTitle());
+        assertNull(pd.getDetails());
+        assertNull(pd.getInstance());
+    }
 }

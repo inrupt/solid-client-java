@@ -78,6 +78,14 @@ public class ProblemDetails {
         return this.instance;
     };
 
+    public static class ProblemDetailsData {
+        public URI type;
+        public String title;
+        public String details;
+        public int status;
+        public URI instance;
+    }
+
     private static JsonService getJsonService() {
         if (ProblemDetails.isJsonServiceInitialized) {
             return ProblemDetails.jsonService;
@@ -114,16 +122,16 @@ public class ProblemDetails {
                     new ByteArrayInputStream(body),
                     ProblemDetailsData.class
             );
-            final URI type = Optional.ofNullable(pdData.getType())
+            final URI type = Optional.ofNullable(pdData.type)
                 .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
             // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
-            final int status = Optional.of(pdData.getStatus()).filter(s -> s != 0).orElse(statusCode);
+            final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
             return new ProblemDetails(
                     type,
-                    pdData.getTitle(),
-                    pdData.getDetails(),
+                    pdData.title,
+                    pdData.details,
                     status,
-                    pdData.getInstance()
+                    pdData.instance
             );
         } catch (IOException e) {
             return new ProblemDetails(
