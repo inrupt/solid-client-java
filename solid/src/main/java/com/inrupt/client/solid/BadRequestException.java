@@ -40,23 +40,6 @@ public class BadRequestException extends SolidClientException {
      * Create a BadRequestException exception.
      *
      * @param message the message
-     * @param uri the uri
-     * @param headers the response headers
-     * @param body the body
-     * @deprecated
-     */
-    public BadRequestException(
-            final String message,
-            final URI uri,
-            final Headers headers,
-            final String body) {
-        super(message, uri, STATUS_CODE, headers, body);
-    }
-
-    /**
-     * Create a BadRequestException exception.
-     *
-     * @param message the message
      * @param pd the ProblemDetails instance
      * @param uri the uri
      * @param headers the response headers
@@ -64,10 +47,9 @@ public class BadRequestException extends SolidClientException {
      */
     public BadRequestException(
             final String message,
-            final ProblemDetails pd,
             final URI uri,
             final Headers headers,
             final String body) {
-        super(message, pd, uri, headers, body);
+        super(message, uri, HttpStatus.BAD_REQUEST, headers, body);
     }
 }

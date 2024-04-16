@@ -49,17 +49,10 @@ class SolidExceptionTest {
     @Test
     void checkSolidClientException() {
         final String msg = "Error";
-        final ProblemDetails pd = new ProblemDetails(
-                URI.create("https://example.org/problem"),
-                "Some title",
-                "Some details",
-                123,
-                URI.create("https://example.org/instance")
-        );
         final SolidClientException err = new SolidClientException(
-                msg, pd, URI.create("https://example.org/request"), null, "some body"
+                msg, URI.create("https://example.org/request"), 123, null, "some body"
         );
         assertEquals(msg, err.getMessage());
-        assertEquals(pd, err.getProblemDetails());
+        assertEquals(123, err.getProblemDetails().getStatus());
     }
 }

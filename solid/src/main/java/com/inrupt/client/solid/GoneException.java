@@ -43,7 +43,6 @@ public class GoneException extends SolidClientException {
      * @param uri the uri
      * @param headers the response headers
      * @param body the body
-     * @deprecated
      */
     public GoneException(
             final String message,
@@ -51,23 +50,5 @@ public class GoneException extends SolidClientException {
             final Headers headers,
             final String body) {
         super(message, uri, STATUS_CODE, headers, body);
-    }
-
-    /**
-     * Create a GoneException exception.
-     *
-     * @param message the message
-     * @param pd the ProblemDetails instance
-     * @param uri the uri
-     * @param headers the response headers
-     * @param body the body
-     */
-    public GoneException(
-            final String message,
-            final ProblemDetails pd,
-            final URI uri,
-            final Headers headers,
-            final String body) {
-        super(message, pd, uri, headers, body);
     }
 }
