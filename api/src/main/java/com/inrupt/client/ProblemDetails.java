@@ -36,11 +36,11 @@ import java.util.Optional;
 public class ProblemDetails {
     public static final String MIME_TYPE = "application/problem+json";
     public static final String DEFAULT_TYPE = "about:blank";
-    private final URI type;
-    private final String title;
-    private final String details;
-    private final int status;
-    private final URI instance;
+    private URI type;
+    private String title;
+    private String details;
+    private int status;
+    private URI instance;
     private static JsonService jsonService;
     private static boolean isJsonServiceInitialized;
 
@@ -78,6 +78,36 @@ public class ProblemDetails {
         return this.instance;
     };
 
+    // Default constructor required for JSON serialization, but package private.
+    ProblemDetails() {
+        /* noop */
+    }
+
+    // The setters are package-private so that the class is publicly immutable.
+    void setType(URI type) {
+        this.type = type;
+    }
+
+    // The setters are package-private so that the class is publicly immutable.
+    void setTitle(String title) {
+        this.title = title;
+    }
+
+    // The setters are package-private so that the class is publicly immutable but can be deserialized from JSON.
+    void setDetails(String details) {
+        this.details = details;
+    }
+
+    // The setters are package-private so that the class is publicly immutable but can be deserialized from JSON.
+    void setStatus(int status) {
+        this.status = status;
+    }
+
+    // The setters are package-private so that the class is publicly immutable but can be deserialized from JSON.
+    void setInstance(URI instance) {
+        this.instance = instance;
+    }
+
     private static JsonService getJsonService() {
         if (ProblemDetails.isJsonServiceInitialized) {
             return ProblemDetails.jsonService;
@@ -110,9 +140,9 @@ public class ProblemDetails {
             );
         }
         try {
-            final ProblemDetailsData pdData = jsonService.fromJson(
+            final ProblemDetails pdData = jsonService.fromJson(
                     new ByteArrayInputStream(body),
-                    ProblemDetailsData.class
+                    ProblemDetails.class
             );
             final URI type = Optional.ofNullable(pdData.getType())
                 .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
