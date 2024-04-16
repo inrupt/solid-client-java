@@ -90,8 +90,8 @@ public class ProblemDetails {
         if (ProblemDetails.isJsonServiceInitialized) {
             return ProblemDetails.jsonService;
         }
-        // It is acceptable for a JenaBodyHandlers instance to be in a classpath without any implementation for
-        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
+        // It is a legitimate use case that this is loaded in a context where no implementation of the JSON service is
+        // available. On SPI lookup failure, the ProblemDetails exceptions will fall back to default and not be parsed.
         try {
             ProblemDetails.jsonService = ServiceProvider.getJsonService();
         } catch (IllegalStateException e) {
