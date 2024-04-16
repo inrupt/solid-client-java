@@ -47,6 +47,6 @@ public class BadRequestException extends SolidClientException {
             final URI uri,
             final Headers headers,
             final String body) {
-        super(message, uri, 400, headers, body);
+        super(message, uri, STATUS_CODE, headers, body);
     }
 }
