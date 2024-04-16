@@ -125,42 +125,39 @@ public class SolidClient {
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         final Request request = builder.build();
-        return client.send(request, Response.BodyHandlers.ofByteArray())
-            .thenApply(response -> {
-                if (response.statusCode() >= ERROR_STATUS) {
-                    throw SolidClientException.handle(
-                        "Unable to read resource at " + request.uri(),
-                        response.uri(),
-                        response.statusCode(),
-                        response.headers(),
-                        new String(response.body())
-                    );
-                } else {
-                    final String contentType = response.headers().firstValue(CONTENT_TYPE)
-                        .orElse("application/octet-stream");
-                    try {
-                        // Check that this is an RDFSoure
-                        if (RDFSource.class.isAssignableFrom(clazz)) {
-                            final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
-                                    request.uri().toString()).orElse(null);
-                            final T obj = construct(request.uri(), clazz, dataset, response.headers());
-                            final ValidationResult res = RDFSource.class.cast(obj).validate();
-                            if (!res.isValid()) {
-                                throw new DataMappingException(
-                                    "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
-                                     res.getResults());
-                            }
-                            return obj;
-                        // Otherwise, create a non-RDF-bearing resource
-                        } else {
-                            return construct(request.uri(), clazz, contentType,
-                                    new ByteArrayInputStream(response.body()), response.headers());
+        return client.send(
+                request,
+                Response.BodyHandlers.throwOnError(Response.BodyHandlers.ofByteArray(), (r) -> isSuccess(r.statusCode()))
+            ).thenApply(response -> {
+                final String contentType = response.headers().firstValue(CONTENT_TYPE)
+                    .orElse("application/octet-stream");
+                try {
+                    // Check that this is an RDFSoure
+                    if (RDFSource.class.isAssignableFrom(clazz)) {
+                        final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
+                                request.uri().toString()).orElse(null);
+                        final T obj = construct(request.uri(), clazz, dataset, response.headers());
+                        final ValidationResult res = RDFSource.class.cast(obj).validate();
+                        if (!res.isValid()) {
+                            throw new DataMappingException(
+                                "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
+                                 res.getResults());
                         }
-                    } catch (final ReflectiveOperationException ex) {
-                        throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
-                                ex);
+                        return obj;
+                    // Otherwise, create a non-RDF-bearing resource
+                    } else {
+                        return construct(request.uri(), clazz, contentType,
+                                new ByteArrayInputStream(response.body()), response.headers());
                     }
+                } catch (final ReflectiveOperationException ex) {
+                    throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
+                            ex);
                 }
+            }).exceptionally(exception -> {
+                if (exception instanceof ClientHttpException) {
+                    throw SolidClientException.handle((ClientHttpException) exception);
+                }
+                throw new RuntimeException("Something went wrong reading "+request.uri(), exception);
             });
     }
 
@@ -279,19 +276,19 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenApply(res -> {
-            if (isSuccess(res.statusCode())) {
-                return null;
-            } else {
-                throw SolidClientException.handle(
-                    "Unable to delete resource",
-                    resource.getIdentifier(),
-                    res.statusCode(),
-                    res.headers(),
-                    new String(res.body(), StandardCharsets.UTF_8)
-                );
+        return client.send(
+                builder.build(),
+                Response.BodyHandlers.throwOnError(
+                    Response.BodyHandlers.ofByteArray(),
+                    (r) -> isSuccess(r.statusCode())
+                )
+            ).exceptionally(exception -> {
+            if (exception instanceof ClientHttpException) {
+                throw SolidClientException.handle((ClientHttpException) exception);
             }
-        });
+            throw new RuntimeException("Something went wrong reading "+resource.getIdentifier(), exception);
+            // FIXME I don't understand why the following is required.
+        }).thenAccept(o -> {});
     }
 
     /**

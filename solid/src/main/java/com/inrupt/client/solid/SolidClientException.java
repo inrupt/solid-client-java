@@ -90,5 +90,36 @@ public class SolidClientException extends ClientHttpException {
                 return new SolidClientException(message, uri, statusCode, headers, body);
         }
     }
+
+    public static SolidClientException handle(final ClientHttpException exception){
+        switch (exception.getStatusCode()) {
+            case BadRequestException.STATUS_CODE:
+                return (BadRequestException) exception;
+            case UnauthorizedException.STATUS_CODE:
+                return (UnauthorizedException) exception;
+            case ForbiddenException.STATUS_CODE:
+                return (ForbiddenException) exception;
+            case NotFoundException.STATUS_CODE:
+                return (NotFoundException) exception;
+            case MethodNotAllowedException.STATUS_CODE:
+                return (MethodNotAllowedException) exception;
+            case NotAcceptableException.STATUS_CODE:
+                return (NotAcceptableException) exception;
+            case ConflictException.STATUS_CODE:
+                return (ConflictException) exception;
+            case GoneException.STATUS_CODE:
+                return (GoneException) exception;
+            case PreconditionFailedException.STATUS_CODE:
+                return (PreconditionFailedException) exception;
+            case UnsupportedMediaTypeException.STATUS_CODE:
+                return (UnsupportedMediaTypeException) exception;
+            case TooManyRequestsException.STATUS_CODE:
+                return (TooManyRequestsException) exception;
+            case InternalServerErrorException.STATUS_CODE:
+                return (InternalServerErrorException) exception;
+            default:
+                return (SolidClientException) exception;
+        }
+    }
 }
 
