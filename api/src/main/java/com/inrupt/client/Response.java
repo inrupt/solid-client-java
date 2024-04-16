@@ -166,7 +166,7 @@ public interface Response<T> {
                 final Function<Response.ResponseInfo, Boolean> isSuccess
         ) {
             return responseinfo -> {
-                if (isSuccess.apply(responseinfo)) {
+                if (!isSuccess.apply(responseinfo)) {
                     throw new ClientHttpException(
                         "An HTTP error has been returned from "
                             + responseinfo.uri()
