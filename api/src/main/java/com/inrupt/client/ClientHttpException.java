@@ -20,35 +20,78 @@
  */
 package com.inrupt.client;
 
+import java.net.URI;
+
 /**
  * A runtime exception representing an HTTP error response carrying a structured representation of the problem. The
  * problem description is embedded in a {@link ProblemDetails} instance.
  */
 public class ClientHttpException extends InruptClientException {
     private final ProblemDetails problemDetails;
+    private final URI uri;
+    private final int statusCode;
+    private final String body;
+    private final transient Headers headers;
 
     /**
      * Create a ClientHttpException.
-     * @param problemDetails the {@link ProblemDetails} instance
      * @param message the exception message
+     * @param uri the error response URI
+     * @param statusCode the error response status code
+     * @param headers the error response headers
      */
-    public ClientHttpException(final ProblemDetails problemDetails, final String message) {
+    public ClientHttpException(final String message, final URI uri, final int statusCode,
+                                final Headers headers, final String body) {
         super(message);
-        this.problemDetails = problemDetails;
+        this.uri = uri;
+        this.statusCode = statusCode;
+        this.headers = headers;
+        this.body = body;
+        this.problemDetails = ProblemDetails.fromErrorResponse(statusCode, headers, body.getBytes());
     }
 
     /**
-     * Create a ClientHttpException.
-     * @param  problemDetails the {@link ProblemDetails} instance
-     * @param message the exception message
-     * @param cause a wrapped exception cause
+     * Retrieve the URI associated with this exception.
+     *
+     * @return the uri
      */
-    public ClientHttpException(final ProblemDetails problemDetails, final String message, final Exception cause) {
-        super(message, cause);
-        this.problemDetails = problemDetails;
+    public URI getUri() {
+        return uri;
     }
 
+    /**
+     * Retrieve the status code associated with this exception.
+     *
+     * @return the status code
+     */
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    /**
+     * Retrieve the headers associated with this exception.
+     *
+     * @return the headers
+     */
+    public Headers getHeaders() {
+        return headers;
+    }
+
+    /**
+     * Retrieve the body associated with this exception.
+     *
+     * @return the body
+     */
+    public String getBody() {
+        return body;
+    }
+
+    /**
+     * Retrieve the {@link ProblemDetails} instance describing the HTTP error response.
+     * @return the problem details object
+     */
     public ProblemDetails getProblemDetails() {
         return this.problemDetails;
     }
+
 }
