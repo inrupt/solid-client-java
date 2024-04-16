@@ -22,7 +22,6 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers;
-import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
 

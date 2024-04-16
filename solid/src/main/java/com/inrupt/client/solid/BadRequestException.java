@@ -22,7 +22,6 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.HttpStatus;
-import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
 
@@ -40,7 +39,6 @@ public class BadRequestException extends SolidClientException {
      * Create a BadRequestException exception.
      *
      * @param message the message
-     * @param pd the ProblemDetails instance
      * @param uri the uri
      * @param headers the response headers
      * @param body the body

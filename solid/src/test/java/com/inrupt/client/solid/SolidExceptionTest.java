@@ -22,8 +22,6 @@ package com.inrupt.client.solid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.ProblemDetails;
-
 import java.net.URI;
 
 import org.junit.jupiter.api.Test;
