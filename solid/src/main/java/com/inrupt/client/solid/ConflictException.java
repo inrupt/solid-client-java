@@ -32,7 +32,7 @@ import java.net.URI;
 public class ConflictException extends SolidClientException {
     private static final long serialVersionUID = -203198307847520748L;
 
-    public static final int STATUS_CODE = 412;
+    public static final int STATUS_CODE = 409;
 
     /**
      * Create a ConflictException exception.

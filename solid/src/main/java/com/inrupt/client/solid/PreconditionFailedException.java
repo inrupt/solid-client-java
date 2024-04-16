@@ -32,7 +32,7 @@ import java.net.URI;
 public class PreconditionFailedException extends SolidClientException {
     private static final long serialVersionUID = 4205761003697773528L;
 
-    public static final int STATUS_CODE = 419;
+    public static final int STATUS_CODE = 412;
 
     /**
      * Create a PreconditionFailedException exception.
