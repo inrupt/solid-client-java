@@ -45,24 +45,8 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public final class RDF4JBodyHandlers {
 
-    private static JsonService jsonService;
-    private static boolean isJsonServiceInitialized = false;
-
-    private static JsonService getJsonService() {
-        if (RDF4JBodyHandlers.isJsonServiceInitialized) {
-            return RDF4JBodyHandlers.jsonService;
-        }
-        // It is acceptable for a JenaBodyHandlers instance to be in a classpath without any implementation for
-        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
-        JsonService js;
-        try {
-            js = ServiceProvider.getJsonService();
-        } catch (IllegalStateException e) {
-            js = null;
-        }
-        RDF4JBodyHandlers.jsonService = js;
-        RDF4JBodyHandlers.isJsonServiceInitialized = true;
-        return RDF4JBodyHandlers.jsonService;
+    private static Boolean isSuccess(final Response.ResponseInfo responseInfo) {
+        return responseInfo.statusCode() < 300;
     }
 
     private static Model responseToModel(final Response.ResponseInfo responseInfo) {
@@ -94,20 +78,10 @@ public final class RDF4JBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Model> ofRDF4JModel() {
-        return responseInfo -> {
-            if (responseInfo.statusCode() >= 300) {
-                throw new ClientHttpException(
-                    ProblemDetails.fromErrorResponse(
-                        responseInfo.statusCode(),
-                        responseInfo.headers(),
-                        responseInfo.body().array(),
-                        getJsonService()
-                    ),
-                    "Deserializing the RDF from " + responseInfo.uri() + " failed"
-                );
-            }
-            return responseToModel(responseInfo);
-        };
+        return Response.BodyHandlers.throwOnError(
+                RDF4JBodyHandlers::responseToModel,
+                RDF4JBodyHandlers::isSuccess
+        );
     }
 
     private static Repository responseToRepository(final Response.ResponseInfo responseInfo) {
@@ -142,20 +116,10 @@ public final class RDF4JBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Repository> ofRDF4JRepository() {
-        return responseInfo -> {
-            if (responseInfo.statusCode() >= 300) {
-                throw new ClientHttpException(
-                    ProblemDetails.fromErrorResponse(
-                        responseInfo.statusCode(),
-                        responseInfo.headers(),
-                        responseInfo.body().array(),
-                        getJsonService()
-                    ),
-                    "Deserializing the RDF from " + responseInfo.uri() + " failed"
-                );
-            }
-            return responseToRepository(responseInfo);
-        };
+        return Response.BodyHandlers.throwOnError(
+                RDF4JBodyHandlers::responseToRepository,
+                RDF4JBodyHandlers::isSuccess
+        );
     }
 
     static RDFFormat toRDF4JFormat(final String mediaType) {
