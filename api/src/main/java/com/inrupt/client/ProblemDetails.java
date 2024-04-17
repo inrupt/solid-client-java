@@ -78,7 +78,10 @@ public class ProblemDetails {
         return this.instance;
     };
 
-    public static class ProblemDetailsData {
+    /**
+     * This inner class is only ever used for JSON deserialization. Please do not use in any other context.
+     */
+    public static class Data {
         public URI type;
         public String title;
         public String details;
@@ -118,9 +121,9 @@ public class ProblemDetails {
             );
         }
         try {
-            final ProblemDetailsData pdData = jsonService.fromJson(
+            final Data pdData = jsonService.fromJson(
                     new ByteArrayInputStream(body),
-                    ProblemDetailsData.class
+                    Data.class
             );
             final URI type = Optional.ofNullable(pdData.type)
                 .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
