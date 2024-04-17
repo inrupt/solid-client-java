@@ -380,72 +380,72 @@ class SolidClientTest {
 
     @ParameterizedTest
     @MethodSource
-    <T extends SolidClientException> void testLegacySpecialisedExceptions(
+    <T extends SolidClientException> void testLegacyExceptions(
             final Class<T> clazz,
-            final int statusCode,
-            final String expectedStatusMessage
+            final int statusCode
     ) {
         final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
         final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
         final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
 
         final SolidClientException exception = assertThrows(
-                clazz,
-                () -> solidClient.handleResponse(resource, headers, "message")
-                        .apply(new Response<byte[]>() {
-                            @Override
-                            public byte[] body() {
-                                return new byte[0];
-                            }
+            clazz,
+            () -> solidClient.handleResponse(resource, headers, "message")
+                .apply(new Response<byte[]>() {
+                    @Override
+                    public byte[] body() {
+                        return new byte[0];
+                    }
 
-                            @Override
-                            public Headers headers() {
-                                return null;
-                            }
+                    @Override
+                    public Headers headers() {
+                        return null;
+                    }
 
-                            @Override
-                            public URI uri() {
-                                return null;
-                            }
+                    @Override
+                    public URI uri() {
+                        return null;
+                    }
 
-                            @Override
-                            public int statusCode() {
-                                return statusCode;
-                            }
-                        })
+                    @Override
+                    public int statusCode() {
+                        return statusCode;
+                    }
+                })
         );
         assertEquals(statusCode, exception.getStatusCode());
         // The following assertions check that in absence of an RFC9457 compliant response, we properly initialize the
         // default values for the attached Problem Details.
         assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
-        // The Problem Details title should default to the status message
-        assertEquals(expectedStatusMessage, exception.getProblemDetails().getTitle());
         assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getTitle());
         assertNull(exception.getProblemDetails().getDetails());
         assertNull(exception.getProblemDetails().getInstance());
     }
 
-    private static Stream<Arguments> testLegacySpecialisedExceptions() {
+    private static Stream<Arguments> testLegacyExceptions() {
         return Stream.of(
-                Arguments.of(BadRequestException.class, 400, "Bad Request"),
-                Arguments.of(UnauthorizedException.class, 401, "Unauthorized"),
-                Arguments.of(ForbiddenException.class, 403, "Forbidden"),
-                Arguments.of(NotFoundException.class, 404, "Not Found"),
-                Arguments.of(MethodNotAllowedException.class, 405, "Method Not Allowed"),
-                Arguments.of(NotAcceptableException.class, 406, "Not Acceptable"),
-                Arguments.of(ConflictException.class, 409, "Conflict"),
-                Arguments.of(GoneException.class, 410, "Gone"),
-                Arguments.of(PreconditionFailedException.class, 412, "Precondition Failed"),
-                Arguments.of(UnsupportedMediaTypeException.class, 415, "Unsupported Media Type"),
-                Arguments.of(TooManyRequestsException.class, 429, "Too Many Requests"),
-                Arguments.of(InternalServerErrorException.class, 500, "Internal Server Error"),
-                Arguments.of(SolidClientException.class, 418, "Bad Request")
+            Arguments.of(BadRequestException.class, 400),
+            Arguments.of(UnauthorizedException.class, 401),
+            Arguments.of(ForbiddenException.class, 403),
+            Arguments.of(NotFoundException.class, 404),
+            Arguments.of(MethodNotAllowedException.class, 405),
+            Arguments.of(NotAcceptableException.class, 406),
+            Arguments.of(ConflictException.class, 409),
+            Arguments.of(GoneException.class, 410),
+            Arguments.of(PreconditionFailedException.class, 412),
+            Arguments.of(UnsupportedMediaTypeException.class, 415),
+            Arguments.of(TooManyRequestsException.class, 429),
+            Arguments.of(InternalServerErrorException.class, 500),
+            Arguments.of(SolidClientException.class, 418),
+            Arguments.of(SolidClientException.class,599),
+            Arguments.of(SolidClientException.class,600)
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    <T extends SolidClientException> void testRfc9457SpecialisedExceptions(
+    <T extends SolidClientException> void testRfc9457Exceptions(
             final Class<T> clazz,
             final ProblemDetails problemDetails
     ) {
@@ -496,7 +496,7 @@ class SolidClientTest {
         assertEquals(problemDetails.getInstance(), exception.getProblemDetails().getInstance());
     }
 
-    private static Stream<Arguments> testRfc9457SpecialisedExceptions() {
+    private static Stream<Arguments> testRfc9457Exceptions() {
         return Stream.of(
                 Arguments.of(
                         BadRequestException.class,
@@ -632,57 +632,6 @@ class SolidClientTest {
         );
     }
 
-    @ParameterizedTest
-    @MethodSource
-    <T extends SolidClientException> void testLegacyCustomStatusExceptions(
-            final int statusCode,
-            final String expectedTitle
-    ) {
-        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
-        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
-        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
-
-        final SolidClientException exception = assertThrows(
-                SolidClientException.class,
-                () -> solidClient.handleResponse(resource, headers, "message")
-                        .apply(new Response<byte[]>() {
-                            @Override
-                            public byte[] body() {
-                                return new byte[0];
-                            }
-
-                            @Override
-                            public Headers headers() {
-                                return null;
-                            }
-
-                            @Override
-                            public URI uri() {
-                                return null;
-                            }
-
-                            @Override
-                            public int statusCode() {
-                                return statusCode;
-                            }
-                        })
-        );
-        assertEquals(statusCode, exception.getStatusCode());
-        assertEquals(expectedTitle, exception.getProblemDetails().getTitle());
-        assertEquals(statusCode, exception.getProblemDetails().getStatus());
-        assertNull(exception.getProblemDetails().getDetails());
-        assertNull(exception.getProblemDetails().getInstance());
-    }
-
-    private static Stream<Arguments> testLegacyCustomStatusExceptions() {
-        // Error codes for which the HttpStatusMessage isn't well-known should default to 400 or 500.
-        return Stream.of(
-                Arguments.of(418, "Bad Request"),
-                Arguments.of(599, "Internal Server Error"),
-                Arguments.of(600, "Internal Server Error")
-        );
-    }
-
     @Test
     void testMalformedProblemDetails() {
         // The specific error code is irrelevant to this test.
@@ -725,7 +674,7 @@ class SolidClientTest {
         assertEquals(statusCode, exception.getStatusCode());
         // On malformed response, the ProblemDetails should fall back to defaults.
         assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
-        assertEquals("Bad Request", exception.getProblemDetails().getTitle());
+        assertNull(exception.getProblemDetails().getTitle());
         assertEquals(statusCode, exception.getProblemDetails().getStatus());
         assertNull(exception.getProblemDetails().getDetails());
         assertNull(exception.getProblemDetails().getInstance());
@@ -772,7 +721,7 @@ class SolidClientTest {
         assertEquals(statusCode, exception.getStatusCode());
         // On malformed response, the ProblemDetails should fall back to defaults.
         assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
-        assertEquals("Bad Request", exception.getProblemDetails().getTitle());
+        assertNull(exception.getProblemDetails().getTitle());
         assertEquals(statusCode, exception.getProblemDetails().getStatus());
         assertNull(exception.getProblemDetails().getDetails());
         assertNull(exception.getProblemDetails().getInstance());
