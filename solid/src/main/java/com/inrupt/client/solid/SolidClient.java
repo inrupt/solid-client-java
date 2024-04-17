@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,18 @@ public class SolidClient {
         this.client = Objects.requireNonNull(client, "Client may not be null!");
         this.defaultHeaders = Objects.requireNonNull(headers, "Headers may not be null!");
         this.fetchAfterWrite = fetchAfterWrite;
+    }
+
+    private static Function<Response.ResponseInfo, ClientHttpException> httpExceptionMapper(final String message) {
+        return res -> {
+            return SolidClientException.handle(
+                message,
+                res.uri(),
+                res.statusCode(),
+                res.headers(),
+                new String(res.body().array(), StandardCharsets.UTF_8)
+            );
+        };
     }
 
     /**
@@ -126,7 +139,8 @@ public class SolidClient {
                 request,
                 Response.BodyHandlers.throwOnError(
                     Response.BodyHandlers.ofByteArray(),
-                    (r) -> isSuccess(r.statusCode())
+                    (r) -> isSuccess(r.statusCode()),
+                    httpExceptionMapper("Reading resource " + request.uri() + " failed.")
                 )
             ).thenApply(response -> {
                 final String contentType = response.headers().firstValue(CONTENT_TYPE)
@@ -153,11 +167,6 @@ public class SolidClient {
                     throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
                             ex);
                 }
-            }).exceptionally(exception -> {
-                if (exception instanceof ClientHttpException) {
-                    throw SolidClientException.handle((ClientHttpException) exception);
-                }
-                throw new RuntimeException("Something went wrong reading " + request.uri(), exception);
             });
     }
 
@@ -280,15 +289,11 @@ public class SolidClient {
             builder.build(),
             Response.BodyHandlers.throwOnError(
                 Response.BodyHandlers.ofByteArray(),
-                (r) -> isSuccess(r.statusCode())
+                (r) -> isSuccess(r.statusCode()),
+                httpExceptionMapper("Deleting resource " + resource.getIdentifier() + " failed.")
             )
-        ).exceptionally(exception -> {
-            if (exception instanceof ClientHttpException) {
-                throw SolidClientException.handle((ClientHttpException) exception);
-            }
-            throw new RuntimeException("Something went wrong reading " + resource.getIdentifier(), exception);
-            // FIXME I don't understand why the following is required.
-        }).thenAccept(o -> { /* no-op */ });
+        )// FIXME I don't understand why the following is required.
+        .thenAccept(o -> { /* no-op */ });
     }
 
     /**
