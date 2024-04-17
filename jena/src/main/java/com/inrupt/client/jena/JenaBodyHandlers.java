@@ -20,11 +20,7 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.ClientHttpException;
-import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.Response;
-import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,24 +43,9 @@ import org.apache.jena.riot.RDFLanguages;
 public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";
-    private static JsonService jsonService;
-    private static boolean isJsonServiceInitialized = false;
 
-    private static JsonService getJsonService() {
-        if (JenaBodyHandlers.isJsonServiceInitialized) {
-            return JenaBodyHandlers.jsonService;
-        }
-        // It is acceptable for a JenaBodyHandlers instance to be in a classpath without any implementation for
-        // JsonService, in which case the ProblemDetails exceptions will fallback to default and not be parsed.
-        JsonService js;
-        try {
-            js = ServiceProvider.getJsonService();
-        } catch (IllegalStateException e) {
-            js = null;
-        }
-        JenaBodyHandlers.jsonService = js;
-        JenaBodyHandlers.isJsonServiceInitialized = true;
-        return JenaBodyHandlers.jsonService;
+    private static Boolean isSuccess(final Response.ResponseInfo responseInfo) {
+        return responseInfo.statusCode() < 300;
     }
 
     private static Model responseToModel(final Response.ResponseInfo responseInfo) {
@@ -98,20 +79,10 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Model> ofJenaModel() {
-        return responseInfo -> {
-            if (responseInfo.statusCode() >= 300) {
-                throw new ClientHttpException(
-                        ProblemDetails.fromErrorResponse(
-                            responseInfo.statusCode(),
-                            responseInfo.headers(),
-                            responseInfo.body().array(),
-                            getJsonService()
-                        ),
-                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
-                );
-            }
-            return responseToModel(responseInfo);
-        };
+        return Response.BodyHandlers.throwOnError(
+                JenaBodyHandlers::responseToModel,
+                JenaBodyHandlers::isSuccess
+        );
     }
 
     private static Graph responseToGraph(final Response.ResponseInfo responseInfo) {
@@ -145,20 +116,10 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Graph> ofJenaGraph() {
-        return responseInfo -> {
-            if (responseInfo.statusCode() > 300) {
-                throw new ClientHttpException(
-                        ProblemDetails.fromErrorResponse(
-                                responseInfo.statusCode(),
-                                responseInfo.headers(),
-                                responseInfo.body().array(),
-                                getJsonService()
-                        ),
-                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
-                );
-            }
-            return JenaBodyHandlers.responseToGraph(responseInfo);
-        };
+        return Response.BodyHandlers.throwOnError(
+                JenaBodyHandlers::responseToGraph,
+                JenaBodyHandlers::isSuccess
+        );
     }
 
     private static Dataset responseToDataset(final Response.ResponseInfo responseInfo) {
@@ -192,20 +153,10 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Dataset> ofJenaDataset() {
-        return responseInfo -> {
-            if (responseInfo.statusCode() > 300) {
-                throw new ClientHttpException(
-                        ProblemDetails.fromErrorResponse(
-                                responseInfo.statusCode(),
-                                responseInfo.headers(),
-                                responseInfo.body().array(),
-                                getJsonService()
-                        ),
-                        "Deserializing the RDF from " + responseInfo.uri() + " failed"
-                );
-            }
-            return JenaBodyHandlers.responseToDataset(responseInfo);
-        };
+        return Response.BodyHandlers.throwOnError(
+                JenaBodyHandlers::responseToDataset,
+                JenaBodyHandlers::isSuccess
+        );
     }
 
     static Lang toJenaLang(final String mediaType) {
