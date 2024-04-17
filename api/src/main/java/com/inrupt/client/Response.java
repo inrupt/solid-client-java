@@ -188,10 +188,7 @@ public interface Response<T> {
         ) {
             final Function<Response.ResponseInfo, ClientHttpException> defaultMapper = responseInfo ->
                 new ClientHttpException(
-                    "An HTTP error has been returned from "
-                        + responseInfo.uri()
-                        + " with status code "
-                        + responseInfo.statusCode(),
+                    "An HTTP error has been returned, with status code " + responseInfo.statusCode(),
                     responseInfo.uri(),
                     responseInfo.statusCode(),
                     responseInfo.headers(),
