@@ -41,10 +41,6 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public final class RDF4JBodyHandlers {
 
-    private static Boolean isSuccess(final Response.ResponseInfo responseInfo) {
-        return responseInfo.statusCode() < 300;
-    }
-
     private static Model responseToModel(final Response.ResponseInfo responseInfo) {
         return responseInfo.headers().firstValue("Content-Type")
                 .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
@@ -76,7 +72,7 @@ public final class RDF4JBodyHandlers {
     public static Response.BodyHandler<Model> ofRDF4JModel() {
         return Response.BodyHandlers.throwOnError(
                 RDF4JBodyHandlers::responseToModel,
-                RDF4JBodyHandlers::isSuccess
+                (r) -> Response.isSuccess(r.statusCode())
         );
     }
 
@@ -114,7 +110,7 @@ public final class RDF4JBodyHandlers {
     public static Response.BodyHandler<Repository> ofRDF4JRepository() {
         return Response.BodyHandlers.throwOnError(
                 RDF4JBodyHandlers::responseToRepository,
-                RDF4JBodyHandlers::isSuccess
+                (r) -> Response.isSuccess(r.statusCode())
         );
     }
 
