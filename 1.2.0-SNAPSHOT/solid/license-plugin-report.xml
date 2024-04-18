@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1712960064554">
+<licensePluginReport goal="CHECK" timestamp="1713441278499">
     <module artifactId="inrupt-client-solid" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/solid/BadRequestException.java" result="PRESENT"/>
@@ -32,6 +32,7 @@
         <file path="src/test/java/com/inrupt/client/solid/DeprecatedType.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/InvalidType.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/Playlist.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/ProblemDetailsTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/Recipe.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/SolidClientTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/SolidExceptionTest.java" result="PRESENT"/>

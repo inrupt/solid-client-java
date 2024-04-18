@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1712960058515">
+<licensePluginReport goal="CHECK" timestamp="1713441268900">
     <module artifactId="inrupt-client-api" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/ByteBufferPublisher.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Client.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/ClientCache.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/ClientHttpException.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/ClientProvider.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Headers.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/InruptClientException.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/NonRDFSource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/ProblemDetails.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/RDFSource.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Request.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Resource.java" result="PRESENT"/>
