@@ -44,10 +44,6 @@ public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";
 
-    private static Boolean isSuccess(final Response.ResponseInfo responseInfo) {
-        return responseInfo.statusCode() < 300;
-    }
-
     private static Model responseToModel(final Response.ResponseInfo responseInfo) {
         return responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
@@ -81,7 +77,7 @@ public final class JenaBodyHandlers {
     public static Response.BodyHandler<Model> ofJenaModel() {
         return Response.BodyHandlers.throwOnError(
                 JenaBodyHandlers::responseToModel,
-                JenaBodyHandlers::isSuccess
+                (r) -> Response.isSuccess(r.statusCode())
         );
     }
 
@@ -118,7 +114,7 @@ public final class JenaBodyHandlers {
     public static Response.BodyHandler<Graph> ofJenaGraph() {
         return Response.BodyHandlers.throwOnError(
                 JenaBodyHandlers::responseToGraph,
-                JenaBodyHandlers::isSuccess
+                (r) -> Response.isSuccess(r.statusCode())
         );
     }
 
@@ -155,7 +151,7 @@ public final class JenaBodyHandlers {
     public static Response.BodyHandler<Dataset> ofJenaDataset() {
         return Response.BodyHandlers.throwOnError(
                 JenaBodyHandlers::responseToDataset,
-                JenaBodyHandlers::isSuccess
+                (r) -> Response.isSuccess(r.statusCode())
         );
     }
 
