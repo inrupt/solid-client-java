@@ -139,7 +139,7 @@ public class SolidClient {
                 request,
                 Response.BodyHandlers.throwOnError(
                     Response.BodyHandlers.ofByteArray(),
-                    (r) -> isSuccess(r.statusCode()),
+                    (r) -> Response.isSuccess(r.statusCode()),
                     httpExceptionMapper("Reading resource " + request.uri() + " failed.")
                 )
             ).thenApply(response -> {
@@ -289,7 +289,7 @@ public class SolidClient {
             builder.build(),
             Response.BodyHandlers.throwOnError(
                 Response.BodyHandlers.ofByteArray(),
-                (r) -> isSuccess(r.statusCode()),
+                (r) -> Response.isSuccess(r.statusCode()),
                 httpExceptionMapper("Unable to delete resource.")
             )
         )
@@ -376,7 +376,7 @@ public class SolidClient {
     <T extends Resource> Function<Response<byte[]>, CompletionStage<T>> handleResponse(final T resource,
             final Headers headers, final String message) {
         return res -> {
-            if (!isSuccess(res.statusCode())) {
+            if (!Response.isSuccess(res.statusCode())) {
                 throw SolidClientException.handle(
                     message,
                     resource.getIdentifier(),
@@ -453,10 +453,6 @@ public class SolidClient {
                 builder.header(entry.getKey(), item);
             }
         }
-    }
-
-    static boolean isSuccess(final int statusCode) {
-        return statusCode >= 200 && statusCode < 300;
     }
 
     static Request.BodyPublisher cast(final Resource resource) {

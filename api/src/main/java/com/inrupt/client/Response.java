@@ -97,6 +97,10 @@ public interface Response<T> {
         ByteBuffer body();
     }
 
+    static boolean isSuccess(final int statusCode) {
+        return statusCode >= 200 && statusCode < 300;
+    }
+
     /**
      * An interface for mapping an HTTP response into a specific Java type.
      * @param <T> the body type
@@ -196,8 +200,6 @@ public interface Response<T> {
                 );
             return throwOnError(handler, isSuccess, defaultMapper);
         }
-
-
 
         private BodyHandlers() {
             // Prevent instantiation
