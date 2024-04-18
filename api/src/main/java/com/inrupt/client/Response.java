@@ -26,6 +26,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 /**
  * An HTTP Response.
@@ -151,6 +153,51 @@ public interface Response<T> {
         public static BodyHandler<Void> discarding() {
             return responseInfo -> null;
         }
+
+        /**
+         * Throws on HTTP error using the provided mapper, or apply the provided body handler.
+         * @param handler the body handler to apply on non-error HTTP responses
+         * @param isSuccess a callback determining error cases
+         * @param exceptionMapper the exception mapper
+         * @return the body handler
+         * @param <T> the type of the body handler
+         */
+        public static <T> Response.BodyHandler<T> throwOnError(
+                final Response.BodyHandler<T> handler,
+                final Function<Response.ResponseInfo, Boolean> isSuccess,
+                final Function<Response.ResponseInfo, ClientHttpException> exceptionMapper
+        ) {
+            return responseinfo -> {
+                if (!isSuccess.apply(responseinfo)) {
+                    throw exceptionMapper.apply(responseinfo);
+                }
+                return handler.apply(responseinfo);
+            };
+        }
+
+        /**
+         * Throws on HTTP error, or apply the provided body handler.
+         * @param handler the body handler to apply on non-error HTTP responses
+         * @param isSuccess a callback determining error cases
+         * @return the body handler
+         * @param <T> the type of the body handler
+         */
+        public static <T> Response.BodyHandler<T> throwOnError(
+                final Response.BodyHandler<T> handler,
+                final Function<Response.ResponseInfo, Boolean> isSuccess
+        ) {
+            final Function<Response.ResponseInfo, ClientHttpException> defaultMapper = responseInfo ->
+                new ClientHttpException(
+                    "An HTTP error has been returned, with status code " + responseInfo.statusCode(),
+                    responseInfo.uri(),
+                    responseInfo.statusCode(),
+                    responseInfo.headers(),
+                    new String(responseInfo.body().array(), StandardCharsets.UTF_8)
+                );
+            return throwOnError(handler, isSuccess, defaultMapper);
+        }
+
+
 
         private BodyHandlers() {
             // Prevent instantiation
