@@ -382,7 +382,7 @@ public class SolidClient {
                     resource.getIdentifier(),
                     res.statusCode(),
                     res.headers(),
-                    new String(res.body())
+                    new String(res.body(), StandardCharsets.UTF_8)
                 );
             }
 
