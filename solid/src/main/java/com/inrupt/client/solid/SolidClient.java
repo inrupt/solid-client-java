@@ -292,7 +292,7 @@ public class SolidClient {
                 (r) -> isSuccess(r.statusCode()),
                 httpExceptionMapper("Deleting resource " + resource.getIdentifier() + " failed.")
             )
-        )// FIXME I don't understand why the following is required.
+        )
         .thenAccept(o -> { /* no-op */ });
     }
 
