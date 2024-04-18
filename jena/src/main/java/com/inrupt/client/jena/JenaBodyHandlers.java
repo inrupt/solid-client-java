@@ -63,7 +63,7 @@ public final class JenaBodyHandlers {
      * Populate a Jena {@link Model} with an HTTP response body.
      *
      * @return an HTTP body handler
-     * @deprecated Use ofJenaModel instead for consistent HTTP error handling.
+     * @deprecated Use {@link JenaBodyHandlers#ofJenaModel()} instead for consistent HTTP error handling.
      */
     public static Response.BodyHandler<Model> ofModel() {
         return JenaBodyHandlers::responseToModel;
@@ -100,7 +100,7 @@ public final class JenaBodyHandlers {
      * Populate a Jena {@link Graph} with an HTTP response.
      *
      * @return an HTTP body handler
-     * @deprecated Use ofJenaGraph instead for consistent HTTP error handling.
+     * @deprecated Use {@link JenaBodyHandlers#ofJenaGraph} instead for consistent HTTP error handling.
      */
     public static Response.BodyHandler<Graph> ofGraph() {
         return JenaBodyHandlers::responseToGraph;
@@ -137,7 +137,7 @@ public final class JenaBodyHandlers {
      * Populate a Jena {@link Dataset} with an HTTP response.
      *
      * @return an HTTP body handler
-     * @deprecated Use ofJenaDataset instead for consistent HTTP error handling.
+     * @deprecated Use {@link JenaBodyHandlers#ofJenaDataset} instead for consistent HTTP error handling.
      */
     public static Response.BodyHandler<Dataset> ofDataset() {
         return JenaBodyHandlers::responseToDataset;
