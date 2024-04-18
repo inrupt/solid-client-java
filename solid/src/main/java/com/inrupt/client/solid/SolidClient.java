@@ -290,7 +290,7 @@ public class SolidClient {
             Response.BodyHandlers.throwOnError(
                 Response.BodyHandlers.ofByteArray(),
                 (r) -> isSuccess(r.statusCode()),
-                httpExceptionMapper("Deleting resource " + resource.getIdentifier() + " failed.")
+                httpExceptionMapper("Unable to delete resource.")
             )
         )
         .thenAccept(o -> { /* no-op */ });
