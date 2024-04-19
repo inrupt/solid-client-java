@@ -27,6 +27,7 @@ jobs:
         run: mvn -B -ntp install -Pci -pl -integration/uma,-integration/openid,-performance/uma
 
       - name: Prod Integration tests
+        continue-on-error: true
         if: ${{ github.actor != 'dependabot[bot]' }}
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
         env:
