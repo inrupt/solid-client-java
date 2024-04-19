@@ -493,76 +493,75 @@ class SolidClientTest {
     }
 
     private static ProblemDetails mockProblemDetails(final String title, final String details, final int status) {
-        return new ProblemDetails(
-                URI.create("https://example.org/type"),
-                title,
-                details,
-                status,
-                URI.create("https://example.org/instance")
+        return new ProblemDetails(URI.create("https://example.org/type"),
+            title,
+            details,
+            status,
+            URI.create("https://example.org/instance")
         );
     }
 
     private static Stream<Arguments> testRfc9457Exceptions() {
         return Stream.of(
                 arguments(
-                        BadRequestException.class,
-                        mockProblemDetails("Bad Request", "Some details", 400)
+                    BadRequestException.class,
+                    mockProblemDetails("Bad Request", "Some details", 400)
                 ),
                 arguments(
-                        UnauthorizedException.class,
-                        mockProblemDetails("Unauthorized", "Some details", 401)
+                    UnauthorizedException.class,
+                    mockProblemDetails("Unauthorized", "Some details", 401)
                 ),
                 arguments(
-                        ForbiddenException.class,
-                        mockProblemDetails("Forbidden", "Some details", 403)
+                    ForbiddenException.class,
+                    mockProblemDetails("Forbidden", "Some details", 403)
                 ),
                 arguments(
-                        NotFoundException.class,
-                        mockProblemDetails("Not Found", "Some details", 404)
+                    NotFoundException.class,
+                    mockProblemDetails("Not Found", "Some details", 404)
                 ),
                 arguments(
-                        MethodNotAllowedException.class,
-                        mockProblemDetails("Method Not Allowed", "Some details", 405)
+                    MethodNotAllowedException.class,
+                    mockProblemDetails("Method Not Allowed", "Some details", 405)
                 ),
                 arguments(
-                        NotAcceptableException.class,
-                        mockProblemDetails("Not Acceptable", "Some details", 406)
+                    NotAcceptableException.class,
+                    mockProblemDetails("Not Acceptable", "Some details", 406)
                 ),
                 arguments(
-                        ConflictException.class,
-                        mockProblemDetails("Conflict", "Some details", 409)
+                    ConflictException.class,
+                    mockProblemDetails("Conflict", "Some details", 409)
                 ),
                 arguments(
-                        GoneException.class,
-                        mockProblemDetails("Gone", "Some details", 410)
+                    GoneException.class,
+                    mockProblemDetails("Gone", "Some details", 410)
                 ),
                 arguments(
-                        PreconditionFailedException.class,
-                        mockProblemDetails("Precondition Failed", "Some details", 412)
+                    PreconditionFailedException.class,
+                    mockProblemDetails("Precondition Failed", "Some details", 412)
                 ),
                 arguments(
-                        UnsupportedMediaTypeException.class,
-                        mockProblemDetails("Unsupported Media Type", "Some details", 415)
+                    UnsupportedMediaTypeException.class,
+                    mockProblemDetails("Unsupported Media Type", "Some details", 415)
                 ),
                 arguments(
-                        TooManyRequestsException.class,
-                        mockProblemDetails("Too Many Requests", "Some details", 429)
+                    TooManyRequestsException.class,
+                    mockProblemDetails("Too Many Requests", "Some details", 429)
                 ),
                 arguments(
-                        InternalServerErrorException.class,
-                        mockProblemDetails("Internal Server Error", "Some details", 500)
+                    InternalServerErrorException.class,
+                    mockProblemDetails("Internal Server Error", "Some details", 500)
                 ),
                 arguments(
-                        // Custom errors that do not map to a predefined Exception class
-                        // default to the generic SolidClientException
-                        SolidClientException.class,
-                        mockProblemDetails("I'm a Teapot", "Some details", 418)
+                    // Custom errors that do not map to a predefined Exception class
+                    // default to the generic SolidClientException
+                    SolidClientException.class,
+                    mockProblemDetails("I'm a Teapot", "Some details", 418)
                 ),
                 arguments(
-                        // Custom errors that do not map to a predefined Exception class
-                        // default to the generic SolidClientException.
-                        SolidClientException.class,
-                        mockProblemDetails("Custom server error", "Some details", 599)
+                    // Custom errors that do not map to a predefined Exception class
+                    // default to the generic SolidClientException.
+                    SolidClientException.class,
+                    mockProblemDetails("Custom server error", "Some details", 599)
                 )
         );
     }
