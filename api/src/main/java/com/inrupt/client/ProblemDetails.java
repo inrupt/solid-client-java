@@ -52,7 +52,7 @@ public class ProblemDetails {
 
     /**
      * Build a ProblemDetails instance providing the expected fields as described in
-     * {@link <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>}.
+     * <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>.
      * @param type the problem type
      * @param title the problem title
      * @param details the problem details
