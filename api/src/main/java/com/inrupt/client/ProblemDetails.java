@@ -35,11 +35,11 @@ import java.util.Optional;
  */
 public class ProblemDetails {
     /**
-     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type
+     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type.
      */
     public static final String MIME_TYPE = "application/problem+json";
     /**
-     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type
+     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type.
      */
     public static final String DEFAULT_TYPE = "about:blank";
     private final URI type;
