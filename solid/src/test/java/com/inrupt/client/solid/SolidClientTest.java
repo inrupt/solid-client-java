@@ -368,21 +368,9 @@ class SolidClientTest {
 
     private static Stream<Arguments> testExceptionalResources() {
         return Stream.of(
-            arguments(
-                URI.create(config.get("solid_resource_uri") + "/unauthorized"),
-                401,
-                UnauthorizedException.class
-            ),
-            arguments(
-                URI.create(config.get("solid_resource_uri") + "/forbidden"),
-                403,
-                ForbiddenException.class
-            ),
-            arguments(
-                URI.create(config.get("solid_resource_uri") + "/missing"),
-                404,
-                NotFoundException.class
-            )
+            arguments(URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401, UnauthorizedException.class),
+            arguments(URI.create(config.get("solid_resource_uri") + "/forbidden"), 403, ForbiddenException.class),
+            arguments(URI.create(config.get("solid_resource_uri") + "/missing"), 404, NotFoundException.class)
         );
     }
 
@@ -504,138 +492,77 @@ class SolidClientTest {
         assertEquals(problemDetails.getInstance(), exception.getProblemDetails().getInstance());
     }
 
+    private static ProblemDetails mockProblemDetails(final String title, final String details, final int status) {
+        return new ProblemDetails(
+                URI.create("https://example.org/type"),
+                title,
+                details,
+                status,
+                URI.create("https://example.org/instance")
+        );
+    }
+
     private static Stream<Arguments> testRfc9457Exceptions() {
         return Stream.of(
                 arguments(
                         BadRequestException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Bad Request",
-                                "Some details",
-                                400,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Bad Request", "Some details", 400)
+                ),
+                arguments(
                         UnauthorizedException.class,
-                        new ProblemDetails(
-                            URI.create("https://example.org/type"),
-                            "Unauthorized",
-                            "Some details",
-                            401,
-                            URI.create("https://example.org/instance")
-                    )
-                ), arguments(
+                        mockProblemDetails("Unauthorized", "Some details", 401)
+                ),
+                arguments(
                         ForbiddenException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Forbidden",
-                                "Some details",
-                                403,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Forbidden", "Some details", 403)
+                ),
+                arguments(
                         NotFoundException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Not Found",
-                                "Some details",
-                                404,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Not Found", "Some details", 404)
+                ),
+                arguments(
                         MethodNotAllowedException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Method Not Allowed",
-                                "Some details",
-                                405,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Method Not Allowed", "Some details", 405)
+                ),
+                arguments(
                         NotAcceptableException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Not Acceptable",
-                                "Some details",
-                                406,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Not Acceptable", "Some details", 406)
+                ),
+                arguments(
                         ConflictException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Conflict",
-                                "Some details",
-                                409,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Conflict", "Some details", 409)
+                ),
+                arguments(
                         GoneException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Gone",
-                                "Some details",
-                                410,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Gone", "Some details", 410)
+                ),
+                arguments(
                         PreconditionFailedException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Precondition Failed",
-                                "Some details",
-                                412,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Precondition Failed", "Some details", 412)
+                ),
+                arguments(
                         UnsupportedMediaTypeException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Unsupported Media Type",
-                                "Some details",
-                                415,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Unsupported Media Type", "Some details", 415)
+                ),
+                arguments(
                         TooManyRequestsException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Too Many Requests",
-                                "Some details",
-                                429,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Too Many Requests", "Some details", 429)
+                ),
+                arguments(
                         InternalServerErrorException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Internal Server Error",
-                                "Some details",
-                                500,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("Internal Server Error", "Some details", 500)
+                ),
+                arguments(
                         // Custom errors that do not map to a predefined Exception class
                         // default to the generic SolidClientException
                         SolidClientException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "I'm a Teapot",
-                                "Some details",
-                                418,
-                                URI.create("https://example.org/instance")
-                        )
-                ), arguments(
+                        mockProblemDetails("I'm a Teapot", "Some details", 418)
+                ),
+                arguments(
                         // Custom errors that do not map to a predefined Exception class
                         // default to the generic SolidClientException.
                         SolidClientException.class,
-                        new ProblemDetails(
-                                URI.create("https://example.org/type"),
-                                "Custom server error",
-                                "Some details",
-                                599,
-                                URI.create("https://example.org/instance")
-                        )
+                        mockProblemDetails("Custom server error", "Some details", 599)
                 )
         );
     }
