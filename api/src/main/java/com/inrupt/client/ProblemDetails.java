@@ -35,11 +35,11 @@ import java.util.Optional;
  */
 public class ProblemDetails {
     /**
-     * {@link <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>} default MIME type
+     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type
      */
     public static final String MIME_TYPE = "application/problem+json";
     /**
-     * {@link <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>} default problem type
+     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type
      */
     public static final String DEFAULT_TYPE = "about:blank";
     private final URI type;
@@ -117,10 +117,25 @@ public class ProblemDetails {
      * This inner class is only ever used for JSON deserialization. Please do not use in any other context.
      */
     public static class Data {
+        /**
+         * The problem type.
+         */
         public URI type;
+        /**
+         * The problem title.
+         */
         public String title;
+        /**
+         * The problem details.
+         */
         public String details;
+        /**
+         * The problem status code.
+         */
         public int status;
+        /**
+         * The problem instance.
+         */
         public URI instance;
     }
 
