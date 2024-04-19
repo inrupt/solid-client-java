@@ -184,6 +184,7 @@ public final class Utils {
                             authClient.update(acr);
                         } catch (SolidClientException ignored) {
                             LOGGER.error("Integration tests - Problem reading and modifying the acl");
+                            throw new RuntimeException("Test setup failed");
                         }
                     });
                 } catch (SolidClientException ex) {
