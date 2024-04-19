@@ -22,6 +22,7 @@ package com.inrupt.client.solid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
@@ -367,15 +368,22 @@ class SolidClientTest {
 
     private static Stream<Arguments> testExceptionalResources() {
         return Stream.of(
-                Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401,
-                        UnauthorizedException.class),
-                Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403,
-                        ForbiddenException.class),
-                Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/missing"), 404,
-                        NotFoundException.class));
+            arguments(
+                URI.create(config.get("solid_resource_uri") + "/unauthorized"),
+                401,
+                UnauthorizedException.class
+            ),
+            arguments(
+                URI.create(config.get("solid_resource_uri") + "/forbidden"),
+                403,
+                ForbiddenException.class
+            ),
+            arguments(
+                URI.create(config.get("solid_resource_uri") + "/missing"),
+                404,
+                NotFoundException.class
+            )
+        );
     }
 
     @ParameterizedTest
@@ -425,21 +433,21 @@ class SolidClientTest {
 
     private static Stream<Arguments> testLegacyExceptions() {
         return Stream.of(
-            Arguments.of(BadRequestException.class, 400),
-            Arguments.of(UnauthorizedException.class, 401),
-            Arguments.of(ForbiddenException.class, 403),
-            Arguments.of(NotFoundException.class, 404),
-            Arguments.of(MethodNotAllowedException.class, 405),
-            Arguments.of(NotAcceptableException.class, 406),
-            Arguments.of(ConflictException.class, 409),
-            Arguments.of(GoneException.class, 410),
-            Arguments.of(PreconditionFailedException.class, 412),
-            Arguments.of(UnsupportedMediaTypeException.class, 415),
-            Arguments.of(TooManyRequestsException.class, 429),
-            Arguments.of(InternalServerErrorException.class, 500),
-            Arguments.of(SolidClientException.class, 418),
-            Arguments.of(SolidClientException.class,599),
-            Arguments.of(SolidClientException.class,600)
+            arguments(BadRequestException.class, 400),
+            arguments(UnauthorizedException.class, 401),
+            arguments(ForbiddenException.class, 403),
+            arguments(NotFoundException.class, 404),
+            arguments(MethodNotAllowedException.class, 405),
+            arguments(NotAcceptableException.class, 406),
+            arguments(ConflictException.class, 409),
+            arguments(GoneException.class, 410),
+            arguments(PreconditionFailedException.class, 412),
+            arguments(UnsupportedMediaTypeException.class, 415),
+            arguments(TooManyRequestsException.class, 429),
+            arguments(InternalServerErrorException.class, 500),
+            arguments(SolidClientException.class, 418),
+            arguments(SolidClientException.class,599),
+            arguments(SolidClientException.class,600)
         );
     }
 
@@ -498,7 +506,7 @@ class SolidClientTest {
 
     private static Stream<Arguments> testRfc9457Exceptions() {
         return Stream.of(
-                Arguments.of(
+                arguments(
                         BadRequestException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -507,7 +515,7 @@ class SolidClientTest {
                                 400,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         UnauthorizedException.class,
                         new ProblemDetails(
                             URI.create("https://example.org/type"),
@@ -516,7 +524,7 @@ class SolidClientTest {
                             401,
                             URI.create("https://example.org/instance")
                     )
-                ), Arguments.of(
+                ), arguments(
                         ForbiddenException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -525,7 +533,7 @@ class SolidClientTest {
                                 403,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         NotFoundException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -534,7 +542,7 @@ class SolidClientTest {
                                 404,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         MethodNotAllowedException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -543,7 +551,7 @@ class SolidClientTest {
                                 405,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         NotAcceptableException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -552,7 +560,7 @@ class SolidClientTest {
                                 406,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         ConflictException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -561,7 +569,7 @@ class SolidClientTest {
                                 409,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         GoneException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -570,7 +578,7 @@ class SolidClientTest {
                                 410,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         PreconditionFailedException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -579,7 +587,7 @@ class SolidClientTest {
                                 412,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         UnsupportedMediaTypeException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -588,7 +596,7 @@ class SolidClientTest {
                                 415,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         TooManyRequestsException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -597,7 +605,7 @@ class SolidClientTest {
                                 429,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         InternalServerErrorException.class,
                         new ProblemDetails(
                                 URI.create("https://example.org/type"),
@@ -606,7 +614,7 @@ class SolidClientTest {
                                 500,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         // Custom errors that do not map to a predefined Exception class
                         // default to the generic SolidClientException
                         SolidClientException.class,
@@ -617,7 +625,7 @@ class SolidClientTest {
                                 418,
                                 URI.create("https://example.org/instance")
                         )
-                ), Arguments.of(
+                ), arguments(
                         // Custom errors that do not map to a predefined Exception class
                         // default to the generic SolidClientException.
                         SolidClientException.class,
