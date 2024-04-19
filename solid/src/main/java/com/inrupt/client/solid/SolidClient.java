@@ -140,7 +140,7 @@ public class SolidClient {
                 Response.BodyHandlers.throwOnError(
                     Response.BodyHandlers.ofByteArray(),
                     (r) -> Response.isSuccess(r.statusCode()),
-                    httpExceptionMapper("Reading resource " + request.uri() + " failed.")
+                    httpExceptionMapper("Reading resource failed.")
                 )
             ).thenApply(response -> {
                 final String contentType = response.headers().firstValue(CONTENT_TYPE)
