@@ -10,37 +10,6 @@
   </suppress>
 
   <!-- Suppressed vulnerabilities. These need monthly review. -->
-  <suppress until="2024-03-01Z">
-    <notes><![CDATA[
-        This vulnerability appears when both Spring MVC AND Spring Security 6.2.1+ appear on the classpath. The JCL only uses Spring Security.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <vulnerabilityName>CVE-2024-22233</vulnerabilityName>
-  </suppress>
-  <suppress until="2024-02-01Z">
-    <notes><![CDATA[
-        This vulnerability appears via wiremock and is used only during test execution. As such, the
-        parse vulnerability is not relevant.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
-    <vulnerabilityName>CVE-2023-51074</vulnerabilityName>
-  </suppress>
-  <suppress until="2023-12-12Z">
-    <notes><![CDATA[
-        This vulnerability appears via wiremock and is used only during test execution. As such, the
-        rapid reset DoS vector is not relevant.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2\-.*@.*$</packageUrl>
-    <vulnerabilityName>CVE-2023-44487</vulnerabilityName>
-  </suppress>
-  <suppress until="2023-12-12Z">
-    <notes><![CDATA[
-        This vulnerability appears via wiremock and is used only during test execution. As such, the
-        rapid reset DoS vector is not relevant.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*@.*$</packageUrl>
-    <vulnerabilityName>CVE-2023-44487</vulnerabilityName>
-  </suppress>
   <suppress until="2024-06-12Z">
     <notes><![CDATA[
         This vulnerability impacts the `UriComponentsBuilder` class, which we are not using.
