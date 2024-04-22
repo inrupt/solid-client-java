@@ -63,18 +63,6 @@ public class SolidClient {
         this.fetchAfterWrite = fetchAfterWrite;
     }
 
-    private static Function<Response.ResponseInfo, ClientHttpException> httpExceptionMapper(final String message) {
-        return res -> {
-            return SolidClientException.handle(
-                message,
-                res.uri(),
-                res.statusCode(),
-                res.headers(),
-                new String(res.body().array(), StandardCharsets.UTF_8)
-            );
-        };
-    }
-
     /**
      * Create a session-scoped client.
      *
@@ -137,12 +125,18 @@ public class SolidClient {
         final Request request = builder.build();
         return client.send(
                 request,
-                Response.BodyHandlers.throwOnError(
-                    Response.BodyHandlers.ofByteArray(),
-                    (r) -> Response.isSuccess(r.statusCode()),
-                    httpExceptionMapper("Reading resource failed.")
-                )
+                Response.BodyHandlers.ofByteArray()
             ).thenApply(response -> {
+                if (!Response.isSuccess(response.statusCode())) {
+                    throw SolidClientException.handle(
+                        "Reading resource failed.",
+                        response.uri(),
+                        response.statusCode(),
+                        response.headers(),
+                        new String(response.body(), StandardCharsets.UTF_8)
+                    );
+                }
+
                 final String contentType = response.headers().firstValue(CONTENT_TYPE)
                     .orElse("application/octet-stream");
                 try {
@@ -285,15 +279,22 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
+
         return client.send(
             builder.build(),
-            Response.BodyHandlers.throwOnError(
-                Response.BodyHandlers.ofByteArray(),
-                (r) -> Response.isSuccess(r.statusCode()),
-                httpExceptionMapper("Unable to delete resource.")
-            )
-        )
-        .thenAccept(o -> { /* no-op */ });
+            Response.BodyHandlers.ofByteArray()
+        ).thenApply(response -> {
+            if (!Response.isSuccess(response.statusCode())) {
+                throw SolidClientException.handle(
+                    "Deleting resource failed.",
+                    response.uri(),
+                    response.statusCode(),
+                    response.headers(),
+                    new String(response.body(), StandardCharsets.UTF_8)
+                );
+            }
+            return null;
+        });
     }
 
     /**
