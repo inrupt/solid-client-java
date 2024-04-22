@@ -20,11 +20,13 @@
  */
 package com.inrupt.client.jena;
 
+import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.graph.Graph;
@@ -43,6 +45,18 @@ import org.apache.jena.riot.RDFLanguages;
 public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";
+
+    private static void throwOnError(final Response.ResponseInfo responseInfo) {
+        if (!Response.isSuccess(responseInfo.statusCode())) {
+            throw new ClientHttpException(
+                    "Could not map to a Jena entity.",
+                    responseInfo.uri(),
+                    responseInfo.statusCode(),
+                    responseInfo.headers(),
+                    new String(responseInfo.body().array(), StandardCharsets.UTF_8)
+            );
+        }
+    }
 
     private static Model responseToModel(final Response.ResponseInfo responseInfo) {
         return responseInfo.headers().firstValue(CONTENT_TYPE)
@@ -75,10 +89,10 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Model> ofJenaModel() {
-        return Response.BodyHandlers.throwOnError(
-                JenaBodyHandlers::responseToModel,
-                (r) -> Response.isSuccess(r.statusCode())
-        );
+        return responseInfo -> {
+            JenaBodyHandlers.throwOnError(responseInfo);
+            return JenaBodyHandlers.responseToModel(responseInfo);
+        };
     }
 
     private static Graph responseToGraph(final Response.ResponseInfo responseInfo) {
@@ -112,10 +126,10 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Graph> ofJenaGraph() {
-        return Response.BodyHandlers.throwOnError(
-                JenaBodyHandlers::responseToGraph,
-                (r) -> Response.isSuccess(r.statusCode())
-        );
+        return responseInfo -> {
+            JenaBodyHandlers.throwOnError(responseInfo);
+            return JenaBodyHandlers.responseToGraph(responseInfo);
+        };
     }
 
     private static Dataset responseToDataset(final Response.ResponseInfo responseInfo) {
@@ -149,10 +163,10 @@ public final class JenaBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Dataset> ofJenaDataset() {
-        return Response.BodyHandlers.throwOnError(
-                JenaBodyHandlers::responseToDataset,
-                (r) -> Response.isSuccess(r.statusCode())
-        );
+        return responseInfo -> {
+            JenaBodyHandlers.throwOnError(responseInfo);
+            return JenaBodyHandlers.responseToDataset(responseInfo);
+        };
     }
 
     static Lang toJenaLang(final String mediaType) {
