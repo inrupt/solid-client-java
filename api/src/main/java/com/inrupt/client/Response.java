@@ -26,8 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Function;
 
 /**
  * An HTTP Response.
