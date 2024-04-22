@@ -79,7 +79,7 @@
     <smallrye.jwt.version>4.5.0</smallrye.jwt.version>
     <smallrye.config.version>3.7.1</smallrye.config.version>
     <yasson.version>3.0.3</yasson.version>
-    <wiremock.version>3.5.2</wiremock.version>
+    <wiremock.version>3.5.3</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
