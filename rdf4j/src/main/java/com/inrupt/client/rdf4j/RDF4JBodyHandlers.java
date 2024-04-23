@@ -72,7 +72,7 @@ public final class RDF4JBodyHandlers {
      * Populate a RDF4J {@link Model} with an HTTP response.
      *
      * @return an HTTP body handler
-     * @deprecated
+     * @deprecated Use {@link RDF4JBodyHandlers#ofRDF4JModel} instead for consistent HTTP error handling.
      */
     public static Response.BodyHandler<Model> ofModel() {
         return RDF4JBodyHandlers::responseToModel;
@@ -110,7 +110,7 @@ public final class RDF4JBodyHandlers {
      * Populate a RDF4J {@link Repository} with an HTTP response.
      *
      * @return an HTTP body handler
-     * @deprecated
+     * @deprecated Use {@link RDF4JBodyHandlers#ofRDF4JRepository} instead for consistent HTTP error handling.
      */
     public static Response.BodyHandler<Repository> ofRepository() {
         return RDF4JBodyHandlers::responseToRepository;
