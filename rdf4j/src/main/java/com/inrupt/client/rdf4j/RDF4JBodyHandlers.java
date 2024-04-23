@@ -20,12 +20,14 @@
  */
 package com.inrupt.client.rdf4j;
 
+import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.DynamicModelFactory;
@@ -40,6 +42,18 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  * {@link Response.BodyHandler} implementations for use with RDF4J types.
  */
 public final class RDF4JBodyHandlers {
+
+    private static void throwOnError(final Response.ResponseInfo responseInfo) {
+        if (!Response.isSuccess(responseInfo.statusCode())) {
+            throw new ClientHttpException(
+                    "Could not map to a Jena entity.",
+                    responseInfo.uri(),
+                    responseInfo.statusCode(),
+                    responseInfo.headers(),
+                    new String(responseInfo.body().array(), StandardCharsets.UTF_8)
+            );
+        }
+    }
 
     private static Model responseToModel(final Response.ResponseInfo responseInfo) {
         return responseInfo.headers().firstValue("Content-Type")
@@ -70,10 +84,10 @@ public final class RDF4JBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Model> ofRDF4JModel() {
-        return Response.BodyHandlers.throwOnError(
-                RDF4JBodyHandlers::responseToModel,
-                (r) -> Response.isSuccess(r.statusCode())
-        );
+        return responseInfo -> {
+            RDF4JBodyHandlers.throwOnError(responseInfo);
+            return RDF4JBodyHandlers.responseToModel(responseInfo);
+        };
     }
 
     private static Repository responseToRepository(final Response.ResponseInfo responseInfo) {
@@ -108,10 +122,10 @@ public final class RDF4JBodyHandlers {
      * @return an HTTP body handler
      */
     public static Response.BodyHandler<Repository> ofRDF4JRepository() {
-        return Response.BodyHandlers.throwOnError(
-                RDF4JBodyHandlers::responseToRepository,
-                (r) -> Response.isSuccess(r.statusCode())
-        );
+        return responseInfo -> {
+            RDF4JBodyHandlers.throwOnError(responseInfo);
+            return RDF4JBodyHandlers.responseToRepository(responseInfo);
+        };
     }
 
     static RDFFormat toRDF4JFormat(final String mediaType) {
