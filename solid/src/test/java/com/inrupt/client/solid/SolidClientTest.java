@@ -22,17 +22,18 @@ package com.inrupt.client.solid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Headers;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
+import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.jackson.JacksonService;
+import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -57,6 +58,7 @@ class SolidClientTest {
     private static final Map<String, String> config = new HashMap<>();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidClient client = SolidClient.getClient().session(Session.anonymous());
+    private static final JsonService jsonService = new JacksonService();
 
     @BeforeAll
     static void setup() {
@@ -366,22 +368,82 @@ class SolidClientTest {
 
     private static Stream<Arguments> testExceptionalResources() {
         return Stream.of(
-                Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401,
-                        UnauthorizedException.class),
-                Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/forbidden"), 403,
-                        ForbiddenException.class),
-                Arguments.of(
-                    URI.create(config.get("solid_resource_uri") + "/missing"), 404,
-                        NotFoundException.class));
+            arguments(URI.create(config.get("solid_resource_uri") + "/unauthorized"), 401, UnauthorizedException.class),
+            arguments(URI.create(config.get("solid_resource_uri") + "/forbidden"), 403, ForbiddenException.class),
+            arguments(URI.create(config.get("solid_resource_uri") + "/missing"), 404, NotFoundException.class)
+        );
     }
 
     @ParameterizedTest
     @MethodSource
-    <T extends SolidClientException> void testSpecialisedExceptions(
+    <T extends SolidClientException> void testLegacyExceptions(
             final Class<T> clazz,
             final int statusCode
+    ) {
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
+
+        final SolidClientException exception = assertThrows(
+            clazz,
+            () -> solidClient.handleResponse(resource, headers, "message")
+                .apply(new Response<byte[]>() {
+                    @Override
+                    public byte[] body() {
+                        return new byte[0];
+                    }
+
+                    @Override
+                    public Headers headers() {
+                        return null;
+                    }
+
+                    @Override
+                    public URI uri() {
+                        return null;
+                    }
+
+                    @Override
+                    public int statusCode() {
+                        return statusCode;
+                    }
+                })
+        );
+        assertEquals(statusCode, exception.getStatusCode());
+        // The following assertions check that in absence of an RFC9457 compliant response, we properly initialize the
+        // default values for the attached Problem Details.
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getTitle());
+        assertNull(exception.getProblemDetails().getDetails());
+        assertNull(exception.getProblemDetails().getInstance());
+    }
+
+    private static Stream<Arguments> testLegacyExceptions() {
+        return Stream.of(
+            arguments(BadRequestException.class, 400),
+            arguments(UnauthorizedException.class, 401),
+            arguments(ForbiddenException.class, 403),
+            arguments(NotFoundException.class, 404),
+            arguments(MethodNotAllowedException.class, 405),
+            arguments(NotAcceptableException.class, 406),
+            arguments(ConflictException.class, 409),
+            arguments(GoneException.class, 410),
+            arguments(PreconditionFailedException.class, 412),
+            arguments(UnsupportedMediaTypeException.class, 415),
+            arguments(TooManyRequestsException.class, 429),
+            arguments(InternalServerErrorException.class, 500),
+            arguments(SolidClientException.class, 418),
+            arguments(SolidClientException.class,599),
+            arguments(SolidClientException.class,600)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    <T extends SolidClientException> void testRfc9457Exceptions(
+            final Class<T> clazz,
+            final ProblemDetails problemDetails
     ) {
         final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
         final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
@@ -393,12 +455,142 @@ class SolidClientTest {
                         .apply(new Response<byte[]>() {
                             @Override
                             public byte[] body() {
-                                return new byte[0];
+                                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                                    jsonService.toJson(problemDetails, bos);
+                                    return bos.toByteArray();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
 
                             @Override
                             public Headers headers() {
+                                final List<String> headerValues = new ArrayList<>();
+                                headerValues.add("application/problem+json");
+                                final Map<String, List<String>> headerMap = new HashMap<>();
+                                headerMap.put("Content-Type", headerValues);
+                                return Headers.of(headerMap);
+                            }
+
+                            @Override
+                            public URI uri() {
                                 return null;
+                            }
+
+                            @Override
+                            public int statusCode() {
+                                return problemDetails.getStatus();
+                            }
+                        })
+        );
+        assertEquals(problemDetails.getStatus(), exception.getStatusCode());
+        assertEquals(problemDetails.getType(), exception.getProblemDetails().getType());
+        assertEquals(problemDetails.getTitle(), exception.getProblemDetails().getTitle());
+        assertEquals(problemDetails.getStatus(), exception.getProblemDetails().getStatus());
+        assertEquals(problemDetails.getDetails(), exception.getProblemDetails().getDetails());
+        assertEquals(problemDetails.getInstance(), exception.getProblemDetails().getInstance());
+    }
+
+    private static ProblemDetails mockProblemDetails(final String title, final String details, final int status) {
+        return new ProblemDetails(URI.create("https://example.org/type"),
+            title,
+            details,
+            status,
+            URI.create("https://example.org/instance")
+        );
+    }
+
+    private static Stream<Arguments> testRfc9457Exceptions() {
+        return Stream.of(
+                arguments(
+                    BadRequestException.class,
+                    mockProblemDetails("Bad Request", "Some details", 400)
+                ),
+                arguments(
+                    UnauthorizedException.class,
+                    mockProblemDetails("Unauthorized", "Some details", 401)
+                ),
+                arguments(
+                    ForbiddenException.class,
+                    mockProblemDetails("Forbidden", "Some details", 403)
+                ),
+                arguments(
+                    NotFoundException.class,
+                    mockProblemDetails("Not Found", "Some details", 404)
+                ),
+                arguments(
+                    MethodNotAllowedException.class,
+                    mockProblemDetails("Method Not Allowed", "Some details", 405)
+                ),
+                arguments(
+                    NotAcceptableException.class,
+                    mockProblemDetails("Not Acceptable", "Some details", 406)
+                ),
+                arguments(
+                    ConflictException.class,
+                    mockProblemDetails("Conflict", "Some details", 409)
+                ),
+                arguments(
+                    GoneException.class,
+                    mockProblemDetails("Gone", "Some details", 410)
+                ),
+                arguments(
+                    PreconditionFailedException.class,
+                    mockProblemDetails("Precondition Failed", "Some details", 412)
+                ),
+                arguments(
+                    UnsupportedMediaTypeException.class,
+                    mockProblemDetails("Unsupported Media Type", "Some details", 415)
+                ),
+                arguments(
+                    TooManyRequestsException.class,
+                    mockProblemDetails("Too Many Requests", "Some details", 429)
+                ),
+                arguments(
+                    InternalServerErrorException.class,
+                    mockProblemDetails("Internal Server Error", "Some details", 500)
+                ),
+                arguments(
+                    // Custom errors that do not map to a predefined Exception class
+                    // default to the generic SolidClientException
+                    SolidClientException.class,
+                    mockProblemDetails("I'm a Teapot", "Some details", 418)
+                ),
+                arguments(
+                    // Custom errors that do not map to a predefined Exception class
+                    // default to the generic SolidClientException.
+                    SolidClientException.class,
+                    mockProblemDetails("Custom server error", "Some details", 599)
+                )
+        );
+    }
+
+    @Test
+    void testMalformedProblemDetails() {
+        // The specific error code is irrelevant to this test.
+        final int statusCode = 400;
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
+
+        final SolidClientException exception = assertThrows(
+                BadRequestException.class,
+                () -> solidClient.handleResponse(resource, headers, "message")
+                        .apply(new Response<byte[]>() {
+                            // Pretend we return RFC9457 content...
+                            @Override
+                            public Headers headers() {
+                                final List<String> headerValues = new ArrayList<>();
+                                headerValues.add("application/problem+json");
+                                final Map<String, List<String>> headerMap = new HashMap<>();
+                                headerMap.put("Content-Type", headerValues);
+                                return Headers.of(headerMap);
+                            }
+
+                            // ... but actually return malformed JSON.
+                            @Override
+                            public byte[] body() {
+                                return "This isn't valid application/problem+json.".getBytes();
                             }
 
                             @Override
@@ -413,23 +605,58 @@ class SolidClientTest {
                         })
         );
         assertEquals(statusCode, exception.getStatusCode());
+        // On malformed response, the ProblemDetails should fall back to defaults.
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertNull(exception.getProblemDetails().getTitle());
+        assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getDetails());
+        assertNull(exception.getProblemDetails().getInstance());
     }
 
-    private static Stream<Arguments> testSpecialisedExceptions() {
-        return Stream.of(
-                Arguments.of(BadRequestException.class, 400),
-                Arguments.of(UnauthorizedException.class, 401),
-                Arguments.of(ForbiddenException.class, 403),
-                Arguments.of(NotFoundException.class, 404),
-                Arguments.of(MethodNotAllowedException.class, 405),
-                Arguments.of(NotAcceptableException.class, 406),
-                Arguments.of(ConflictException.class, 409),
-                Arguments.of(GoneException.class, 410),
-                Arguments.of(PreconditionFailedException.class, 412),
-                Arguments.of(UnsupportedMediaTypeException.class, 415),
-                Arguments.of(TooManyRequestsException.class, 429),
-                Arguments.of(InternalServerErrorException.class, 500),
-                Arguments.of(SolidClientException.class, 418)
+    @Test
+    void testMinimalProblemDetails() {
+        // The specific error code is irrelevant to this test.
+        final int statusCode = 400;
+        final Headers headers = Headers.of(Collections.singletonMap("x-key", Arrays.asList("value")));
+        final SolidClient solidClient = new SolidClient(ClientProvider.getClient(), headers, false);
+        final SolidContainer resource = new SolidContainer(URI.create("http://example.com"));
+
+        final SolidClientException exception = assertThrows(
+                BadRequestException.class,
+                () -> solidClient.handleResponse(resource, headers, "message")
+                        .apply(new Response<byte[]>() {
+                            @Override
+                            public Headers headers() {
+                                final List<String> headerValues = new ArrayList<>();
+                                headerValues.add("application/problem+json");
+                                final Map<String, List<String>> headerMap = new HashMap<>();
+                                headerMap.put("Content-Type", headerValues);
+                                return Headers.of(headerMap);
+                            }
+
+                            // Return minimal problem details..
+                            @Override
+                            public byte[] body() {
+                                return "{\"status\":400}".getBytes();
+                            }
+
+                            @Override
+                            public URI uri() {
+                                return null;
+                            }
+
+                            @Override
+                            public int statusCode() {
+                                return statusCode;
+                            }
+                        })
         );
+        assertEquals(statusCode, exception.getStatusCode());
+        // On malformed response, the ProblemDetails should fall back to defaults.
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertNull(exception.getProblemDetails().getTitle());
+        assertEquals(statusCode, exception.getProblemDetails().getStatus());
+        assertNull(exception.getProblemDetails().getDetails());
+        assertNull(exception.getProblemDetails().getInstance());
     }
 }

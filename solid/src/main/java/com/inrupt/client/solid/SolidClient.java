@@ -20,22 +20,14 @@
  */
 package com.inrupt.client.solid;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import com.inrupt.client.Client;
-import com.inrupt.client.ClientProvider;
-import com.inrupt.client.Headers;
-import com.inrupt.client.RDFSource;
-import com.inrupt.client.Request;
-import com.inrupt.client.Resource;
-import com.inrupt.client.Response;
-import com.inrupt.client.ValidationResult;
+import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -131,36 +123,43 @@ public class SolidClient {
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
         final Request request = builder.build();
-        return client.send(request, Response.BodyHandlers.ofByteArray())
-            .thenApply(response -> {
-                if (response.statusCode() >= ERROR_STATUS) {
-                    throw SolidClientException.handle("Unable to read resource at " + request.uri(), request.uri(),
-                            response.statusCode(), response.headers(), new String(response.body()));
-                } else {
-                    final String contentType = response.headers().firstValue(CONTENT_TYPE)
-                        .orElse("application/octet-stream");
-                    try {
-                        // Check that this is an RDFSoure
-                        if (RDFSource.class.isAssignableFrom(clazz)) {
-                            final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
-                                    request.uri().toString()).orElse(null);
-                            final T obj = construct(request.uri(), clazz, dataset, response.headers());
-                            final ValidationResult res = RDFSource.class.cast(obj).validate();
-                            if (!res.isValid()) {
-                                throw new DataMappingException(
-                                    "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
-                                     res.getResults());
-                            }
-                            return obj;
-                        // Otherwise, create a non-RDF-bearing resource
-                        } else {
-                            return construct(request.uri(), clazz, contentType,
-                                    new ByteArrayInputStream(response.body()), response.headers());
+        return client.send(
+                request,
+                Response.BodyHandlers.ofByteArray()
+            ).thenApply(response -> {
+                if (!Response.isSuccess(response.statusCode())) {
+                    throw SolidClientException.handle(
+                        "Reading resource failed.",
+                        response.uri(),
+                        response.statusCode(),
+                        response.headers(),
+                        new String(response.body(), StandardCharsets.UTF_8)
+                    );
+                }
+
+                final String contentType = response.headers().firstValue(CONTENT_TYPE)
+                    .orElse("application/octet-stream");
+                try {
+                    // Check that this is an RDFSoure
+                    if (RDFSource.class.isAssignableFrom(clazz)) {
+                        final Dataset dataset = SolidResourceHandlers.buildDataset(contentType, response.body(),
+                                request.uri().toString()).orElse(null);
+                        final T obj = construct(request.uri(), clazz, dataset, response.headers());
+                        final ValidationResult res = RDFSource.class.cast(obj).validate();
+                        if (!res.isValid()) {
+                            throw new DataMappingException(
+                                "Unable to map resource into type: [" + clazz.getSimpleName() + "] ",
+                                 res.getResults());
                         }
-                    } catch (final ReflectiveOperationException ex) {
-                        throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
-                                ex);
+                        return obj;
+                    // Otherwise, create a non-RDF-bearing resource
+                    } else {
+                        return construct(request.uri(), clazz, contentType,
+                                new ByteArrayInputStream(response.body()), response.headers());
                     }
+                } catch (final ReflectiveOperationException ex) {
+                    throw new SolidResourceException("Unable to read resource into type " + clazz.getName(),
+                            ex);
                 }
             });
     }
@@ -280,13 +279,21 @@ public class SolidClient {
         defaultHeaders.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
         headers.firstValue(USER_AGENT).ifPresent(agent -> builder.setHeader(USER_AGENT, agent));
 
-        return client.send(builder.build(), Response.BodyHandlers.ofByteArray()).thenApply(res -> {
-            if (isSuccess(res.statusCode())) {
-                return null;
-            } else {
-                throw SolidClientException.handle("Unable to delete resource", resource.getIdentifier(),
-                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+
+        return client.send(
+            builder.build(),
+            Response.BodyHandlers.ofByteArray()
+        ).thenApply(response -> {
+            if (!Response.isSuccess(response.statusCode())) {
+                throw SolidClientException.handle(
+                    "Deleting resource failed.",
+                    response.uri(),
+                    response.statusCode(),
+                    response.headers(),
+                    new String(response.body(), StandardCharsets.UTF_8)
+                );
             }
+            return null;
         });
     }
 
@@ -370,9 +377,14 @@ public class SolidClient {
     <T extends Resource> Function<Response<byte[]>, CompletionStage<T>> handleResponse(final T resource,
             final Headers headers, final String message) {
         return res -> {
-            if (!isSuccess(res.statusCode())) {
-                throw SolidClientException.handle(message, resource.getIdentifier(),
-                        res.statusCode(), res.headers(), new String(res.body(), UTF_8));
+            if (!Response.isSuccess(res.statusCode())) {
+                throw SolidClientException.handle(
+                    message,
+                    resource.getIdentifier(),
+                    res.statusCode(),
+                    res.headers(),
+                    new String(res.body(), StandardCharsets.UTF_8)
+                );
             }
 
             if (!fetchAfterWrite) {
@@ -382,7 +394,6 @@ public class SolidClient {
             @SuppressWarnings("unchecked")
             final Class<T> clazz = (Class<T>) resource.getClass();
             return read(resource.getIdentifier(), headers, clazz);
-
         };
     }
 
@@ -443,10 +454,6 @@ public class SolidClient {
                 builder.header(entry.getKey(), item);
             }
         }
-    }
-
-    static boolean isSuccess(final int statusCode) {
-        return statusCode >= 200 && statusCode < 300;
     }
 
     static Request.BodyPublisher cast(final Resource resource) {

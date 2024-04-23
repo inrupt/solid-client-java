@@ -34,7 +34,13 @@ import java.util.Optional;
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457 Problem Details for HTTP APIs</a>
  */
 public class ProblemDetails {
+    /**
+     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type.
+     */
     public static final String MIME_TYPE = "application/problem+json";
+    /**
+     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type.
+     */
     public static final String DEFAULT_TYPE = "about:blank";
     private final URI type;
     private final String title;
@@ -44,6 +50,15 @@ public class ProblemDetails {
     private static JsonService jsonService;
     private static boolean isJsonServiceInitialized;
 
+    /**
+     * Build a ProblemDetails instance providing the expected fields as described in
+     * <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>.
+     * @param type the problem type
+     * @param title the problem title
+     * @param details the problem details
+     * @param status the error response status code
+     * @param instance the problem instance
+     */
     public ProblemDetails(
         final URI type,
         final String title,
@@ -58,22 +73,42 @@ public class ProblemDetails {
         this.instance = instance;
     }
 
+    /**
+     * The problem type.
+     * @return the type
+     */
     public URI getType() {
         return this.type;
     };
 
+    /**
+     * The problem title.
+     * @return the title
+     */
     public String getTitle() {
         return this.title;
     };
 
+    /**
+     * The problem details.
+     * @return the details
+     */
     public String getDetails() {
         return this.details;
     };
 
+    /**
+     * The problem status code.
+     * @return the status code
+     */
     public int getStatus() {
         return this.status;
     };
 
+    /**
+     * The problem instance.
+     * @return the instance
+     */
     public URI getInstance() {
         return this.instance;
     };
@@ -82,10 +117,25 @@ public class ProblemDetails {
      * This inner class is only ever used for JSON deserialization. Please do not use in any other context.
      */
     public static class Data {
+        /**
+         * The problem type.
+         */
         public URI type;
+        /**
+         * The problem title.
+         */
         public String title;
+        /**
+         * The problem details.
+         */
         public String details;
+        /**
+         * The problem status code.
+         */
         public int status;
+        /**
+         * The problem instance.
+         */
         public URI instance;
     }
 
@@ -104,6 +154,13 @@ public class ProblemDetails {
         return ProblemDetails.jsonService;
     }
 
+    /**
+     * Builds a {@link ProblemDetails} instance from an HTTP error response.
+     * @param statusCode the HTTP error response status code
+     * @param headers the HTTP error response headers
+     * @param body the HTTP error response body
+     * @return a {@link ProblemDetails} instance
+     */
     public static ProblemDetails fromErrorResponse(
             final int statusCode,
             final Headers headers,
