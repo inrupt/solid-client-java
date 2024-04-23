@@ -26,7 +26,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
-import com.inrupt.client.jackson.JacksonService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.spi.ServiceProvider;
