@@ -455,13 +455,12 @@ class SolidClientTest {
                         .apply(new Response<byte[]>() {
                             @Override
                             public byte[] body() {
-                                final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                                try {
+                                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()){
                                     jsonService.toJson(problemDetails, bos);
+                                    return bos.toByteArray();
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                                return bos.toByteArray();
                             }
 
                             @Override
