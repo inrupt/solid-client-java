@@ -85,6 +85,33 @@ class RDF4JBodyHandlersTest {
         );
     }
 
+    /**
+     * @deprecated covers the deprecated RDF4JBodyHandlers::ofModel function. To be removed when removing the function
+     *  from the API.
+     */
+    @Test
+    void testOfModelHandlerAsync() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
+                .GET()
+                .build();
+
+        final Response<Model> res = client.send(request, RDF4JBodyHandlers.ofModel()).toCompletableFuture().join();
+
+        final int statusCode = res.statusCode();
+        final Model responseBody = res.body();
+
+        assertEquals(200, statusCode);
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
+                null,
+                null,
+                (Resource)null)
+        );
+    }
+
     @Test
     void testOfRDF4JModelHandler() throws IOException,
             InterruptedException, ExecutionException, TimeoutException {
@@ -107,6 +134,32 @@ class RDF4JBodyHandlersTest {
         );
     }
 
+    /**
+     * @deprecated covers the deprecated RDF4JBodyHandlers::ofModel function. To be removed when removing the function
+     *  from the API.
+     */
+    @Test
+    void testOfModelHandler() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
+                .GET()
+                .build();
+
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+                .toCompletableFuture().join();
+
+        assertEquals(200, response.statusCode());
+        final Model responseBody = response.body();
+        assertEquals(1, responseBody.size());
+        assertTrue(responseBody.contains(
+                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
+                null,
+                null,
+                (Resource)null)
+        );
+    }
+
     @Test
     void testOfRDF4JModelHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
@@ -125,6 +178,32 @@ class RDF4JBodyHandlersTest {
                 SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/pim/space#preferencesFile"),
                 null,
                 (Resource)null
+                )
+        );
+    }
+
+    /**
+     * @deprecated covers the deprecated RDF4JBodyHandlers::ofModel function. To be removed when removing the function
+     *  from the API.
+     */
+    @Test
+    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
+                .GET()
+                .build();
+
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+                .toCompletableFuture().join();
+
+        assertEquals(200, response.statusCode());
+        final Model responseBody = response.body();
+        assertEquals(7, responseBody.size());
+        assertTrue(responseBody.contains(
+                        null,
+                        SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/pim/space#preferencesFile"),
+                        null,
+                        (Resource)null
                 )
         );
     }
@@ -160,7 +239,7 @@ class RDF4JBodyHandlersTest {
                 .build();
 
         final Response<Repository> res = client.send(request, RDF4JBodyHandlers.ofRDF4JRepository())
-            .toCompletableFuture().join();
+                .toCompletableFuture().join();
 
         final int statusCode = res.statusCode();
         assertEquals(200, statusCode);
@@ -168,12 +247,43 @@ class RDF4JBodyHandlersTest {
         final Repository responseBody = res.body();
         try (final RepositoryConnection conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
-                (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
-                null,
-                null,
-                false,
-                (Resource)null
-            )
+                            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
+                            null,
+                            null,
+                            false,
+                            (Resource)null
+                    )
+            );
+        }
+    }
+
+    /**
+     * @deprecated covers the deprecated RDF4JBodyHandlers::ofRepository function.
+     *   To be removed when removing the function from the API.
+     */
+    @Test
+    void testOfRepositoryHandlerAsync() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
+                .GET()
+                .build();
+
+        final Response<Repository> res = client.send(request, RDF4JBodyHandlers.ofRepository())
+                .toCompletableFuture().join();
+
+        final int statusCode = res.statusCode();
+        assertEquals(200, statusCode);
+
+        final Repository responseBody = res.body();
+        try (final RepositoryConnection conn = responseBody.getConnection()) {
+            assertTrue(conn.hasStatement(
+                            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
+                            null,
+                            null,
+                            false,
+                            (Resource)null
+                    )
             );
         }
     }
@@ -203,6 +313,35 @@ class RDF4JBodyHandlersTest {
         }
     }
 
+    /**
+     * @deprecated covers the deprecated RDF4JBodyHandlers::ofRepository function.
+     *   To be removed when removing the function from the API.
+     */
+    @Test
+    void testOfRepositoryHandler() throws IOException,
+            InterruptedException, ExecutionException, TimeoutException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
+                .GET()
+                .build();
+
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository())
+                .toCompletableFuture().join();
+        assertEquals(200, response.statusCode());
+
+        final Repository responseBody = response.body();
+        try (final RepositoryConnection conn = responseBody.getConnection()) {
+            assertTrue(conn.hasStatement(
+                            (Resource)SimpleValueFactory.getInstance().createIRI("http://example.test/s"),
+                            null,
+                            null,
+                            false,
+                            (Resource)null
+                    )
+            );
+        }
+    }
+
     @Test
     void testOfRDF4JRepositoryHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
@@ -223,6 +362,34 @@ class RDF4JBodyHandlersTest {
                 false,
                 (Resource)null
             )
+            );
+        }
+    }
+
+    /**
+     * @deprecated covers the deprecated RDF4JBodyHandlers::ofRepository function.
+     *   To be removed when removing the function from the API.
+     */
+    @Test
+    void testOfRepositoryHandlerWithURL() throws IOException, InterruptedException {
+        final Request request = Request.newBuilder()
+                .uri(URI.create(config.get("rdf_uri") + "/example"))
+                .GET()
+                .build();
+
+        final Response<Repository> response = client.send(request, RDF4JBodyHandlers.ofRepository())
+                .toCompletableFuture().join();
+        assertEquals(200, response.statusCode());
+
+        final Repository responseBody = response.body();
+        try (final RepositoryConnection conn = responseBody.getConnection()) {
+            assertTrue(conn.hasStatement(
+                            null,
+                            SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/pim/space#preferencesFile"),
+                            null,
+                            false,
+                            (Resource)null
+                    )
             );
         }
     }
