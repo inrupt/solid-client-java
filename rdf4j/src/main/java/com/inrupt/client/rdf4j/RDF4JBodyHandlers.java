@@ -20,12 +20,14 @@
  */
 package com.inrupt.client.rdf4j;
 
+import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.DynamicModelFactory;
@@ -41,22 +43,77 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
  */
 public final class RDF4JBodyHandlers {
 
+    private static void throwOnError(final Response.ResponseInfo responseInfo) {
+        if (!Response.isSuccess(responseInfo.statusCode())) {
+            throw new ClientHttpException(
+                    "An HTTP error was encountered mapping to an RDF4J entity.",
+                    responseInfo.uri(),
+                    responseInfo.statusCode(),
+                    responseInfo.headers(),
+                    new String(responseInfo.body().array(), StandardCharsets.UTF_8)
+            );
+        }
+    }
+
+    private static Model responseToModel(final Response.ResponseInfo responseInfo) {
+        return responseInfo.headers().firstValue("Content-Type")
+                .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
+                    try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array())) {
+                        return Rio.parse(stream, responseInfo.uri().toString(), format);
+                    } catch (final IOException ex) {
+                        throw new UncheckedIOException(
+                                "An I/O error occurred while data was read from the InputStream", ex);
+                    }
+                })
+                .orElseGet(() -> new DynamicModelFactory().createEmptyModel());
+    }
+
+    /**
+     * Populate a RDF4J {@link Model} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     * @deprecated Use {@link RDF4JBodyHandlers#ofRDF4JModel} instead for consistent HTTP error handling.
+     */
+    public static Response.BodyHandler<Model> ofModel() {
+        return RDF4JBodyHandlers::responseToModel;
+    }
+
     /**
      * Populate a RDF4J {@link Model} with an HTTP response.
      *
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<Model> ofModel() {
-        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
+    public static Response.BodyHandler<Model> ofRDF4JModel() {
+        return responseInfo -> {
+            RDF4JBodyHandlers.throwOnError(responseInfo);
+            return RDF4JBodyHandlers.responseToModel(responseInfo);
+        };
+    }
+
+    private static Repository responseToRepository(final Response.ResponseInfo responseInfo) {
+        return responseInfo.headers().firstValue("Content-Type")
             .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
-                try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array())) {
-                    return Rio.parse(stream, responseInfo.uri().toString(), format);
+                final Repository repository = new SailRepository(new MemoryStore());
+                try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array());
+                     final RepositoryConnection conn = repository.getConnection()) {
+                    conn.add(stream, responseInfo.uri().toString(), format);
                 } catch (final IOException ex) {
                     throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream", ex);
+                            "An I/O error occurred while data was read from the InputStream", ex);
                 }
+                return repository;
             })
-            .orElseGet(() -> new DynamicModelFactory().createEmptyModel());
+            .orElseGet(() -> new SailRepository(new MemoryStore()));
+    }
+
+    /**
+     * Populate a RDF4J {@link Repository} with an HTTP response.
+     *
+     * @return an HTTP body handler
+     * @deprecated Use {@link RDF4JBodyHandlers#ofRDF4JRepository} instead for consistent HTTP error handling.
+     */
+    public static Response.BodyHandler<Repository> ofRepository() {
+        return RDF4JBodyHandlers::responseToRepository;
     }
 
     /**
@@ -64,20 +121,11 @@ public final class RDF4JBodyHandlers {
      *
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<Repository> ofRepository() {
-        return responseInfo -> responseInfo.headers().firstValue("Content-Type")
-            .map(RDF4JBodyHandlers::toRDF4JFormat).map(format -> {
-                final Repository repository = new SailRepository(new MemoryStore());
-                try (final InputStream stream = new ByteArrayInputStream(responseInfo.body().array());
-                        final RepositoryConnection conn = repository.getConnection()) {
-                    conn.add(stream, responseInfo.uri().toString(), format);
-                } catch (final IOException ex) {
-                    throw new UncheckedIOException(
-                        "An I/O error occurred while data was read from the InputStream", ex);
-                }
-                return repository;
-            })
-            .orElseGet(() -> new SailRepository(new MemoryStore()));
+    public static Response.BodyHandler<Repository> ofRDF4JRepository() {
+        return responseInfo -> {
+            RDF4JBodyHandlers.throwOnError(responseInfo);
+            return RDF4JBodyHandlers.responseToRepository(responseInfo);
+        };
     }
 
     static RDFFormat toRDF4JFormat(final String mediaType) {
