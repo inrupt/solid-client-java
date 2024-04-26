@@ -384,12 +384,12 @@ class RDF4JBodyHandlersTest {
         final Repository responseBody = response.body();
         try (final RepositoryConnection conn = responseBody.getConnection()) {
             assertTrue(conn.hasStatement(
-                            null,
-                            SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/pim/space#preferencesFile"),
-                            null,
-                            false,
-                            (Resource)null
-                    )
+                    null,
+                    SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/pim/space#preferencesFile"),
+                    null,
+                    false,
+                    (Resource)null
+                )
             );
         }
     }
