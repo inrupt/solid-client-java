@@ -46,7 +46,7 @@ public final class RDF4JBodyHandlers {
     private static void throwOnError(final Response.ResponseInfo responseInfo) {
         if (!Response.isSuccess(responseInfo.statusCode())) {
             throw new ClientHttpException(
-                    "Could not map to an RDF4J entity.",
+                    "An HTTP error was encountered mapping to an RDF4J entity.",
                     responseInfo.uri(),
                     responseInfo.statusCode(),
                     responseInfo.headers(),

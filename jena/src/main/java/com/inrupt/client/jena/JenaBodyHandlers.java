@@ -49,7 +49,7 @@ public final class JenaBodyHandlers {
     private static void throwOnError(final Response.ResponseInfo responseInfo) {
         if (!Response.isSuccess(responseInfo.statusCode())) {
             throw new ClientHttpException(
-                    "Could not map to a Jena entity.",
+                    "An HTTP error was encountered mapping to a Jena entity.",
                     responseInfo.uri(),
                     responseInfo.statusCode(),
                     responseInfo.headers(),
