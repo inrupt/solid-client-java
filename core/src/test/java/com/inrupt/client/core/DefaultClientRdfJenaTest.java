@@ -85,7 +85,7 @@ class DefaultClientRdfJenaTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, JenaBodyHandlers.ofModel())
+        final Response<Model> response = client.send(request, JenaBodyHandlers.ofJenaModel())
             .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 

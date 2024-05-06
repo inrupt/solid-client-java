@@ -21,6 +21,7 @@
 package com.inrupt.client.core;
 
 import com.inrupt.client.Client;
+import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers.WwwAuthenticate;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
@@ -84,6 +85,16 @@ public final class DefaultClient implements Client {
             .map(token -> httpClient.send(upgradeRequest(request, token), responseBodyHandler))
             // Otherwise perform the regular HTTP authorization dance
             .orElseGet(() -> httpClient.send(request, responseBodyHandler)
+                .handle((res, err) -> {
+                    if (err instanceof ClientHttpException) {
+                        final ClientHttpException ex = (ClientHttpException) err;
+                        if (ex.getStatusCode() == UNAUTHORIZED) {
+                            return new NoBodyResponse<T>(ex.getUri(), ex.getStatusCode(), ex.getHeaders());
+                        }
+                        throw ex;
+                    }
+                    return res;
+                })
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
                         final List<Challenge> challenges = WwwAuthenticate

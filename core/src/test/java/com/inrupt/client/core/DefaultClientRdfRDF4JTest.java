@@ -86,7 +86,7 @@ class DefaultClientRdfRDF4JTest {
                 .GET()
                 .build();
 
-        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofModel())
+        final Response<Model> response = client.send(request, RDF4JBodyHandlers.ofRDF4JModel())
             .toCompletableFuture().join();
         assertEquals(200, response.statusCode());
 
