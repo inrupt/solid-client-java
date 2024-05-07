@@ -105,7 +105,6 @@ public final class DefaultClient implements Client {
                 }));
     }
 
-
     Request upgradeRequest(final Request request, final Credential token) {
         final Request.Builder builder = Request.newBuilder()
             .uri(request.uri())
