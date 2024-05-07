@@ -85,16 +85,7 @@ public final class DefaultClient implements Client {
             .map(token -> httpClient.send(upgradeRequest(request, token), responseBodyHandler))
             // Otherwise perform the regular HTTP authorization dance
             .orElseGet(() -> httpClient.send(request, responseBodyHandler)
-                .handle((res, err) -> {
-                    if (err instanceof ClientHttpException) {
-                        final ClientHttpException ex = (ClientHttpException) err;
-                        if (ex.getStatusCode() == UNAUTHORIZED) {
-                            return new NoBodyResponse<T>(ex.getUri(), ex.getStatusCode(), ex.getHeaders());
-                        }
-                        throw ex;
-                    }
-                    return res;
-                })
+                .handle((res, err) -> recover(res, err))
                 .thenCompose(res -> {
                     if (res.statusCode() == UNAUTHORIZED) {
                         final List<Challenge> challenges = WwwAuthenticate
@@ -113,6 +104,7 @@ public final class DefaultClient implements Client {
                     return CompletableFuture.completedFuture(res);
                 }));
     }
+
 
     Request upgradeRequest(final Request request, final Credential token) {
         final Request.Builder builder = Request.newBuilder()
@@ -135,6 +127,25 @@ public final class DefaultClient implements Client {
         }
 
         return builder.build();
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T, R extends Throwable> Response<T> recover(final Response<T> res, final Throwable err) throws R {
+        if (err != null) {
+            if (err instanceof ClientHttpException) {
+                final ClientHttpException ex = (ClientHttpException) err;
+                if (ex.getStatusCode() == UNAUTHORIZED) {
+                    return new NoBodyResponse<T>(ex.getUri(), ex.getStatusCode(), ex.getHeaders());
+                }
+            } else if (err.getCause() instanceof ClientHttpException) {
+                final ClientHttpException ex = (ClientHttpException) err.getCause();
+                if (ex.getStatusCode() == UNAUTHORIZED) {
+                    return new NoBodyResponse<T>(ex.getUri(), ex.getStatusCode(), ex.getHeaders());
+                }
+            }
+            throw (R) err;
+        }
+        return res;
     }
 
     public static Client.Builder newBuilder() {
