@@ -26,9 +26,9 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
+import com.inrupt.client.jackson.JacksonService;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.RDFFactory;
-import com.inrupt.client.spi.ServiceProvider;
 import com.inrupt.client.util.URIBuilder;
 import com.inrupt.client.vocabulary.PIM;
 
@@ -58,7 +58,7 @@ class SolidClientTest {
     private static final Map<String, String> config = new HashMap<>();
     private static final RDF rdf = RDFFactory.getInstance();
     private static final SolidClient client = SolidClient.getClient().session(Session.anonymous());
-    private static final JsonService jsonService = ServiceProvider.getJsonService();
+    private static final JsonService jsonService = new JacksonService();
 
     @BeforeAll
     static void setup() {
