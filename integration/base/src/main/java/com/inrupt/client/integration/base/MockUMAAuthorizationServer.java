@@ -67,6 +67,11 @@ class MockUMAAuthorizationServer {
                         .withBody(
                                 "{\"access_token\":\"token-67890\",\"token_type\":\"Bearer\",\"expires_in\":\"3600\"}"
                         )));
+        wireMockServer.stubFor(post(urlPathMatching("/" + Utils.UMA_TOKEN_ENDPOINT))
+                .withRequestBody(WireMock.notContaining("claim_token"))
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                        .withStatus(403)));
     }
 
     public void start() {
