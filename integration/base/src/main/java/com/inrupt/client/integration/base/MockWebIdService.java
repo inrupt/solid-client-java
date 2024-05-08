@@ -62,6 +62,11 @@ class MockWebIdService {
                                 wireMockServer.baseUrl() + "/" + this.username,
                                 storageUrl,
                                 issuerUrl))));
+
+        wireMockServer.stubFor(get(urlPathMatching("/([a-z]+)/([a-f0-9-]+)"))
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                        .withStatus(404)));
     }
 
     public void start() {
