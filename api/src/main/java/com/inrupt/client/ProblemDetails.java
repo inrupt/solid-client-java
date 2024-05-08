@@ -25,6 +25,7 @@ import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Optional;
 
@@ -33,7 +34,10 @@ import java.util.Optional;
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457 Problem Details for HTTP APIs</a>
  */
-public class ProblemDetails {
+public class ProblemDetails implements Serializable {
+
+    private static final long serialVersionUID = -4597170432270957765L;
+
     /**
      * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type.
      */
@@ -79,7 +83,7 @@ public class ProblemDetails {
      */
     public URI getType() {
         return this.type;
-    };
+    }
 
     /**
      * The problem title.
@@ -87,7 +91,7 @@ public class ProblemDetails {
      */
     public String getTitle() {
         return this.title;
-    };
+    }
 
     /**
      * The problem details.
@@ -95,7 +99,7 @@ public class ProblemDetails {
      */
     public String getDetails() {
         return this.details;
-    };
+    }
 
     /**
      * The problem status code.
@@ -103,7 +107,7 @@ public class ProblemDetails {
      */
     public int getStatus() {
         return this.status;
-    };
+    }
 
     /**
      * The problem instance.
@@ -111,7 +115,7 @@ public class ProblemDetails {
      */
     public URI getInstance() {
         return this.instance;
-    };
+    }
 
     /**
      * This inner class is only ever used for JSON deserialization. Please do not use in any other context.
