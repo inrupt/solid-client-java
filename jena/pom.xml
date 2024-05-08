@@ -98,7 +98,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>okhhttp-test</id>
+            <id>okhttp-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>

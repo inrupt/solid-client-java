@@ -18,14 +18,14 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.inrupt.client;
+package com.inrupt.client.solid;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import java.util.Optional;
 
@@ -34,7 +34,7 @@ import java.util.Optional;
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457 Problem Details for HTTP APIs</a>
  */
-public class ProblemDetails implements Serializable {
+public class ProblemDetails {
 
     private static final long serialVersionUID = -4597170432270957765L;
 

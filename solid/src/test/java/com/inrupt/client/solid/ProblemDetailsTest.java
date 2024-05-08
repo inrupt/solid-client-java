@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.inrupt.client.Headers;
-import com.inrupt.client.ProblemDetails;
 
 import java.util.ArrayList;
 import java.util.HashMap;

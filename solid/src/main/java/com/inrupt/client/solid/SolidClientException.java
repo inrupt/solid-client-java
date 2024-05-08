@@ -20,17 +20,22 @@
  */
 package com.inrupt.client.solid;
 
-import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Headers;
+import com.inrupt.client.InruptClientException;
 
 import java.net.URI;
 
 /**
  * A runtime exception for use with SolidClient HTTP operations.
  */
-public class SolidClientException extends ClientHttpException {
+public class SolidClientException extends InruptClientException {
 
     private static final long serialVersionUID = 2868432164225689934L;
+
+    private final URI uri;
+    private final int statusCode;
+    private final String body;
+    private final Headers headers;
 
     /**
      * Create a SolidClient exception.
@@ -43,7 +48,55 @@ public class SolidClientException extends ClientHttpException {
      */
     public SolidClientException(final String message, final URI uri, final int statusCode,
             final Headers headers, final String body) {
-        super(message, uri, statusCode, headers, body);
+        super(message);
+        this.uri = uri;
+        this.statusCode = statusCode;
+        this.headers = headers;
+        this.body = body;
+    }
+
+    /**
+     * Retrieve the URI associated with this exception.
+     *
+     * @return the uri
+     */
+    public URI getUri() {
+        return uri;
+    }
+
+    /**
+     * Retrieve the status code associated with this exception.
+     *
+     * @return the status code
+     */
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    /**
+     * Retrieve the headers associated with this exception.
+     *
+     * @return the headers
+     */
+    public Headers getHeaders() {
+        return headers;
+    }
+
+    /**
+     * Retrieve the body associated with this exception.
+     *
+     * @return the body
+     */
+    public String getBody() {
+        return body;
+    }
+
+    /**
+     * Retrieve the {@link ProblemDetails} instance describing the HTTP error response.
+     * @return the problem details object
+     */
+    public ProblemDetails getProblemDetails() {
+        return ProblemDetails.fromErrorResponse(statusCode, headers, body.getBytes());
     }
 
     /**
