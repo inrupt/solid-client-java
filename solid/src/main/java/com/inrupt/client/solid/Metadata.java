@@ -36,7 +36,6 @@ import java.util.Set;
  */
 public class Metadata {
 
-    private static final URI STORAGE = URI.create(PIM.getNamespace() + "Storage");
     private static final String CONTENT_TYPE = "Content-Type";
 
     private final URI acl;
@@ -309,7 +308,7 @@ public class Metadata {
             .flatMap(l -> Headers.Link.parse(l).stream())
             .forEach(link -> {
                 if (link.getParameter("rel").contains("type")) {
-                    if ((link.getUri().equals(STORAGE))) {
+                    if ((link.getUri().equals(PIM.Storage))) {
                         metadata.storage(identifier);
                     }
                     metadata.type(link.getUri());

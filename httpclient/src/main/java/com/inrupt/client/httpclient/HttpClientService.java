@@ -68,7 +68,7 @@ public class HttpClientService implements HttpService {
             .orElseGet(HttpRequest.BodyPublishers::noBody);
 
         builder.method(request.method(), publisher);
-        request.timeout().ifPresent(timeout -> builder.timeout(timeout));
+        request.timeout().ifPresent(builder::timeout);
 
         for (final Map.Entry<String, List<String>> entry : request.headers().asMap().entrySet()) {
             for (final String value : entry.getValue()) {
