@@ -20,13 +20,11 @@
  */
 package com.inrupt.client.jena;
 
-import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.graph.Graph;
@@ -46,20 +44,13 @@ public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";
 
-    private static void throwOnError(final Response.ResponseInfo responseInfo) {
-        if (!Response.isSuccess(responseInfo.statusCode())) {
-            throw new ClientHttpException(
-                    "Could not map to a Jena entity.",
-                    responseInfo.uri(),
-                    responseInfo.statusCode(),
-                    responseInfo.headers(),
-                    new String(responseInfo.body().array(), StandardCharsets.UTF_8)
-            );
-        }
-    }
-
-    private static Model responseToModel(final Response.ResponseInfo responseInfo) {
-        return responseInfo.headers().firstValue(CONTENT_TYPE)
+    /**
+     * Populate a Jena {@link Model} with an HTTP response body.
+     *
+     * @return an HTTP body handler
+     */
+    public static Response.BodyHandler<Model> ofModel() {
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var model = ModelFactory.createDefaultModel();
@@ -74,29 +65,12 @@ public final class JenaBodyHandlers {
     }
 
     /**
-     * Populate a Jena {@link Model} with an HTTP response body.
-     *
-     * @return an HTTP body handler
-     * @deprecated Use {@link JenaBodyHandlers#ofJenaModel()} instead for consistent HTTP error handling.
-     */
-    public static Response.BodyHandler<Model> ofModel() {
-        return JenaBodyHandlers::responseToModel;
-    }
-
-    /**
-     * Populate a Jena {@link Model} with an HTTP response body.
+     * Populate a Jena {@link Graph} with an HTTP response.
      *
      * @return an HTTP body handler
      */
-    public static Response.BodyHandler<Model> ofJenaModel() {
-        return responseInfo -> {
-            JenaBodyHandlers.throwOnError(responseInfo);
-            return JenaBodyHandlers.responseToModel(responseInfo);
-        };
-    }
-
-    private static Graph responseToGraph(final Response.ResponseInfo responseInfo) {
-        return responseInfo.headers().firstValue(CONTENT_TYPE)
+    public static Response.BodyHandler<Graph> ofGraph() {
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
             .map(JenaBodyHandlers::toJenaLang).map(lang -> {
                 try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
                     final var graph = GraphMemFactory.createDefaultGraph();
@@ -111,62 +85,23 @@ public final class JenaBodyHandlers {
     }
 
     /**
-     * Populate a Jena {@link Graph} with an HTTP response.
-     *
-     * @return an HTTP body handler
-     * @deprecated Use {@link JenaBodyHandlers#ofJenaGraph} instead for consistent HTTP error handling.
-     */
-    public static Response.BodyHandler<Graph> ofGraph() {
-        return JenaBodyHandlers::responseToGraph;
-    }
-
-    /**
-     * Populate a Jena {@link Graph} with an HTTP response.
-     *
-     * @return an HTTP body handler
-     */
-    public static Response.BodyHandler<Graph> ofJenaGraph() {
-        return responseInfo -> {
-            JenaBodyHandlers.throwOnError(responseInfo);
-            return JenaBodyHandlers.responseToGraph(responseInfo);
-        };
-    }
-
-    private static Dataset responseToDataset(final Response.ResponseInfo responseInfo) {
-        return responseInfo.headers().firstValue(CONTENT_TYPE)
-                .map(JenaBodyHandlers::toJenaLang).map(lang -> {
-                    try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
-                        final var dataset = DatasetFactory.create();
-                        RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);
-                        return dataset;
-                    } catch (final IOException ex) {
-                        throw new UncheckedIOException(
-                                "An I/O error occurred while data was read from the InputStream into a Dataset", ex);
-                    }
-                })
-                .orElseGet(DatasetFactory::create);
-    }
-
-    /**
      * Populate a Jena {@link Dataset} with an HTTP response.
      *
      * @return an HTTP body handler
-     * @deprecated Use {@link JenaBodyHandlers#ofJenaDataset} instead for consistent HTTP error handling.
      */
     public static Response.BodyHandler<Dataset> ofDataset() {
-        return JenaBodyHandlers::responseToDataset;
-    }
-
-    /**
-     * Populate a Jena {@link Dataset} with an HTTP response.
-     *
-     * @return an HTTP body handler
-     */
-    public static Response.BodyHandler<Dataset> ofJenaDataset() {
-        return responseInfo -> {
-            JenaBodyHandlers.throwOnError(responseInfo);
-            return JenaBodyHandlers.responseToDataset(responseInfo);
-        };
+        return responseInfo -> responseInfo.headers().firstValue(CONTENT_TYPE)
+            .map(JenaBodyHandlers::toJenaLang).map(lang -> {
+                try (final var input = new ByteArrayInputStream(responseInfo.body().array())) {
+                    final var dataset = DatasetFactory.create();
+                    RDFDataMgr.read(dataset, input, responseInfo.uri().toString(), lang);
+                    return dataset;
+                } catch (final IOException ex) {
+                    throw new UncheckedIOException(
+                            "An I/O error occurred while data was read from the InputStream into a Dataset", ex);
+                }
+            })
+            .orElseGet(DatasetFactory::create);
     }
 
     static Lang toJenaLang(final String mediaType) {
