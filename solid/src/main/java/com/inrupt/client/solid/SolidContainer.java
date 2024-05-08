@@ -195,11 +195,8 @@ public class SolidContainer extends SolidRDFSource {
             relativePath.substring(0, relativePath.length() - 1) : relativePath;
 
         // Containment cannot skip intermediate nodes
-        if (normalizedPath.contains("/")) {
-            return false;
-        }
-
-        return true;
+        // Return true if the normalized path does not contain '/'
+        return !normalizedPath.contains("/");
     }
 
     @SuppressWarnings("java:S2160") // Wrapper equality is correctly delegated to underlying node
