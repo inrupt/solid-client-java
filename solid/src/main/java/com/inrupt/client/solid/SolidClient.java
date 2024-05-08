@@ -51,7 +51,6 @@ public class SolidClient {
     private static final String IF_NONE_MATCH = "If-None-Match";
     private static final String TEXT_TURTLE = "text/turtle";
     private static final String WILDCARD = "*";
-    private static final int ERROR_STATUS = 400;
 
     private final Client client;
     private final Headers defaultHeaders;

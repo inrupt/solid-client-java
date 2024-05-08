@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 // Ideally, this class should be in the api module, but it creates
 // a circular dependency with the JSON module implementation.
-public class ProblemDetailsTest {
+class ProblemDetailsTest {
     Headers mockProblemDetailsHeader() {
         final List<String> headerValues = new ArrayList<>();
         headerValues.add("application/problem+json");
