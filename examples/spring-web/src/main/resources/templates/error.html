@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/solidlogo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Application Error</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <style>
+      div {
+        width: 70%;
+        margin: 10px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>Application Error (<span th:text="${status}"/>)</h1>
+      <h4 th:switch="${status}">
+        <span th:case="'404'">Page not found</span>
+        <span th:case="*">
+          Sorry, an error occurred<span th:text="${message} ? ': ${message}' : ''"/>
+        </span>
+      </h4>
+    </div>
+  </body>
+</html>
+

@@ -8,17 +8,20 @@
     <version>1.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>inrupt-client-examples-springboot</artifactId>
+  <artifactId>inrupt-client-examples-spring-web</artifactId>
   <version>1.2.0-SNAPSHOT</version>
-  <name>Inrupt Java Client Libraries - Spring Boot Example</name>
+  <name>Inrupt Java Client Libraries - SpringBoot WebApp Example</name>
   <description>
-    Sample Spring Boot application.
+    Sample SpringBoot Web Application.
   </description>
 
   <properties>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
     <springboot.version>3.2.5</springboot.version>
+    <smallrye.jwt.version>4.3.1</smallrye.jwt.version>
+    <smallrye.config.version>3.4.1</smallrye.config.version>
+    <wiremock.version>3.2.0</wiremock.version>
   </properties>
 
   <dependencyManagement>
@@ -36,57 +39,12 @@
   <dependencies>
     <dependency>
       <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-api</artifactId>
+      <artifactId>inrupt-client-runtime</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-jena</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-okhttp</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-jackson</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-caffeine</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-openid</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-uma</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-solid</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-vocabulary</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-webid</artifactId>
+      <artifactId>inrupt-client-spring</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -101,19 +59,43 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
-    <!-- for development use, such as restart app when any changes -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <optional>true</optional>
-    </dependency>
 
     <!-- transitive dependencies -->
     <!-- addresses CVE-2023-52428 via Spring Boot 3.2.x -->
     <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>9.39</version>
+        <version>9.37.3</version>
+    </dependency>
+
+    <!-- testing -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.smallrye</groupId>
+        <artifactId>smallrye-jwt-build</artifactId>
+        <version>${smallrye.jwt.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.smallrye.config</groupId>
+        <artifactId>smallrye-config</artifactId>
+        <version>${smallrye.config.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.wiremock</groupId>
+        <artifactId>wiremock-standalone</artifactId>
+        <version>${wiremock.version}</version>
+        <scope>test</scope>
     </dependency>
   </dependencies>
 
