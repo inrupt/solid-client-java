@@ -142,6 +142,7 @@ public final class OpenIdSession implements Session {
         return new OpenIdSession(id, dpop, () -> provider.token(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
+                .issuer(issuer)
                 .scopes(config.getScopes().toArray(new String[0]))
                 .build("client_credentials", clientId))
             .thenApply(response -> {
@@ -166,11 +167,13 @@ public final class OpenIdSession implements Session {
             final OpenIdConfig config) {
         final String id = UUID.randomUUID().toString();
         final DPoP dpop = DPoP.of(config.getProofKeyPairs());
-        return new OpenIdSession(id, dpop, () -> provider.token(TokenRequest.newBuilder()
+        return new OpenIdSession(id, dpop, () -> provider.metadata()
+            .thenCompose(metadata -> provider.token(TokenRequest.newBuilder()
                 .clientSecret(clientSecret)
                 .authMethod(authMethod)
                 .scopes(config.getScopes().toArray(new String[0]))
-                .build("client_credentials", clientId))
+                .issuer(metadata.issuer)
+                .build("client_credentials", clientId)))
             .thenApply(response -> {
                 final JwtClaims claims = parseIdToken(response.idToken, config);
                 return new Credential(response.tokenType, getIssuer(claims), response.idToken,

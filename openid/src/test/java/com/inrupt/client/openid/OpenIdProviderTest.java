@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.auth.DPoP;
 import com.inrupt.client.openid.TokenRequest.Builder;
+import com.inrupt.client.util.URIBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,8 +34,6 @@ import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -49,14 +48,14 @@ class OpenIdProviderTest {
 
     private static OpenIdProvider openIdProvider;
     private static final OpenIdMockHttpService mockHttpService = new OpenIdMockHttpService();
-    private static final Map<String, String> config = new HashMap<>();
     private static final DPoP dpop = DPoP.of();
 
+    private static URI issuer;
 
     @BeforeAll
     static void setup() throws NoSuchAlgorithmException {
-        config.put("openid_uri", mockHttpService.start());
-        openIdProvider = new OpenIdProvider(URI.create(config.get("openid_uri")), dpop);
+        issuer = URI.create(mockHttpService.start());
+        openIdProvider = new OpenIdProvider(issuer, dpop);
     }
 
     @AfterAll
@@ -66,15 +65,16 @@ class OpenIdProviderTest {
 
     @Test
     void metadataAsyncTest() {
-        assertEquals("http://example.test",
-                openIdProvider.metadata().toCompletableFuture().join().issuer.toString());
-        assertEquals("http://example.test/oauth/jwks",
-                openIdProvider.metadata().toCompletableFuture().join().jwksUri.toString());
+        assertEquals(issuer,
+                openIdProvider.metadata().toCompletableFuture().join().issuer);
+        assertEquals(URIBuilder.newBuilder(issuer).path("jwks").build(),
+                openIdProvider.metadata().toCompletableFuture().join().jwksUri);
     }
 
     @Test
     void unknownMetadata() {
-        final OpenIdProvider provider = new OpenIdProvider(URI.create(config.get("openid_uri") + "/not-found"), dpop);
+        final OpenIdProvider provider = new OpenIdProvider(URIBuilder.newBuilder(issuer).path("not-found").build(),
+                dpop);
         final CompletionException err = assertThrows(CompletionException.class,
                 provider.metadata().toCompletableFuture()::join);
         assertTrue(err.getCause() instanceof OpenIdException);
@@ -90,7 +90,7 @@ class OpenIdProviderTest {
                 URI.create("myRedirectUri")
             );
         assertEquals(
-            "http://example.test/auth?client_id=myClientId&redirect_uri=myRedirectUri&" +
+            issuer + "/auth?client_id=myClientId&redirect_uri=myRedirectUri&" +
             "response_type=code&code_challenge=myCodeChallenge&code_challenge_method=method",
             openIdProvider.authorize(authReq).toCompletableFuture().join().toString()
         );
@@ -119,7 +119,25 @@ class OpenIdProviderTest {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
-            .issuer(URI.create("https://issuer.test"))
+            .issuer(URI.create("https://not.an.issuer.test"))
+            .redirectUri(URI.create("https://example.test/redirectUri"))
+            .build(
+                "authorization_code",
+                "myClientId"
+            );
+
+        final CompletionException ex = assertThrows(CompletionException.class, openIdProvider.token(tokenReq)
+            .toCompletableFuture()::join);
+        assertTrue(ex.getCause() instanceof OpenIdException);
+        final OpenIdException cause = (OpenIdException) ex.getCause();
+        assertTrue(cause.getMessage().contains("Issuer mismatch"));
+    }
+
+    @Test
+    void tokenIssuerMissing() {
+        final TokenRequest tokenReq = TokenRequest.newBuilder()
+            .code("someCode")
+            .codeVerifier("myCodeverifier")
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
                 "authorization_code",
@@ -138,7 +156,7 @@ class OpenIdProviderTest {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
-            .issuer(URI.create("http://example.test"))
+            .issuer(issuer)
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
                 "authorization_code",
@@ -156,6 +174,7 @@ class OpenIdProviderTest {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
+            .issuer(issuer)
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
                 "authorization_code",
@@ -174,6 +193,7 @@ class OpenIdProviderTest {
             .code("someCode")
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
+            .issuer(issuer)
             .authMethod("client_secret_basic")
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
@@ -193,6 +213,7 @@ class OpenIdProviderTest {
             .code("someCode")
             .codeVerifier("myCodeverifier")
             .clientSecret("myClientSecret")
+            .issuer(issuer)
             .authMethod("client_secret_post")
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build(
@@ -211,6 +232,7 @@ class OpenIdProviderTest {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("someCode")
             .codeVerifier("myCodeverifier")
+            .issuer(issuer)
             .redirectUri(URI.create("https://example.test/redirectUri"))
             .build("authorization_code", "myClientId");
         final TokenResponse token = openIdProvider.token(tokenReq).toCompletableFuture().join();
@@ -224,6 +246,7 @@ class OpenIdProviderTest {
         final TokenRequest tokenReq = TokenRequest.newBuilder()
             .code("none")
             .codeVerifier("none")
+            .issuer(issuer)
             .redirectUri(URI.create("none"))
             .build("authorization_code", "none");
 
@@ -254,7 +277,7 @@ class OpenIdProviderTest {
             .build();
         final URI uri = openIdProvider.endSession(endReq).toCompletableFuture().join();
         assertEquals(
-            "http://example.test/endSession?" +
+            issuer + "/endSession?" +
             "client_id=myClientId&post_logout_redirect_uri=https://example.test/redirectUri&id_token_hint=&state=solid",
             uri.toString()
         );
