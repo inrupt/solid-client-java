@@ -75,10 +75,7 @@ class OpenIdMockHttpService {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(getMetadataJSON()
-                                    .replace(
-                                        "/oauth/oauth20/token",
-                                        wireMockServer.baseUrl() + "/oauth/oauth20/token"))));
+                        .withBody(getMetadataJSON())));
 
         wireMockServer.stubFor(post(urlPathMatching("/token"))
                     .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
