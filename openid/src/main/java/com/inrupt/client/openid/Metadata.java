@@ -112,4 +112,9 @@ public class Metadata {
      * A list of DPoP signing algorithm values supported by the given OpenID Connect provider.
      */
     public List<String> dpopSigningAlgValuesSupported;
+
+    /**
+     * Indication of whether the OpenID Connect provider supports RFC-9207.
+     */
+    public boolean authorizationResponseIssParameterSupported;
 }

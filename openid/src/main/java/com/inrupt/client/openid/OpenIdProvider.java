@@ -211,6 +211,15 @@ public class OpenIdProvider {
     }
 
     private Request tokenRequest(final Metadata metadata, final TokenRequest request) {
+        // RFC 9207 describes this behavior as a SHOULD but recognizes use cases that vary;
+        // this would be good to consider when adding broader configuration support to the libraries.
+        if (metadata.authorizationResponseIssParameterSupported) {
+            if (!Objects.equals(request.getIssuer(), metadata.issuer)) {
+                throw new OpenIdException("Issuer mismatch. " +
+                        "Please verify that the designated OpenID issuer is correct");
+            }
+        }
+
         if (!metadata.grantTypesSupported.contains(request.getGrantType())) {
             throw new OpenIdException("Grant type [" + request.getGrantType() + "] is not supported by this provider.");
         }
