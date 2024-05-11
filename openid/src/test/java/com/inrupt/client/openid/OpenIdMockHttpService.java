@@ -75,19 +75,16 @@ class OpenIdMockHttpService {
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(getMetadataJSON()
-                                    .replace(
-                                        "/oauth/oauth20/token",
-                                        wireMockServer.baseUrl() + "/oauth/oauth20/token"))));
+                        .withBody(getMetadataJSON())));
 
-        wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
+        wireMockServer.stubFor(post(urlPathMatching("/token"))
                     .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
                     .withRequestBody(containing("myCodeverifier"))
                     .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(getTokenResponseJSON())));
-        wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
+        wireMockServer.stubFor(post(urlPathMatching("/token"))
                 .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
                     .atPriority(1)
                     .withRequestBody(containing("code=none"))
@@ -96,7 +93,7 @@ class OpenIdMockHttpService {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("token-error.json")));
 
-        wireMockServer.stubFor(post(urlPathMatching("/oauth/oauth20/token"))
+        wireMockServer.stubFor(post(urlPathMatching("/token"))
                 .withHeader("Content-Type", containing("application/x-www-form-urlencoded"))
                     .atPriority(2)
                     .withRequestBody(containing("grant_type=client_credentials"))
@@ -108,7 +105,8 @@ class OpenIdMockHttpService {
 
     private String getMetadataJSON() {
         try (final InputStream res = OpenIdMockHttpService.class.getResourceAsStream("/metadata.json")) {
-            return new String(IOUtils.toByteArray(res), UTF_8);
+            return new String(IOUtils.toByteArray(res), UTF_8)
+                .replace("http://example.test", wireMockServer.baseUrl());
         } catch (final IOException ex) {
             throw new UncheckedIOException("Could not read class resource", ex);
         }
@@ -129,9 +127,6 @@ class OpenIdMockHttpService {
             "\"expires_in\": 300" +
             "}";
     }
-
-
-
 
     public String start() {
         wireMockServer.start();

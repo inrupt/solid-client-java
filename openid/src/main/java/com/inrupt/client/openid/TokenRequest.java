@@ -38,6 +38,7 @@ public final class TokenRequest {
     private final String clientSecret;
     private final String authMethod;
     private final URI redirectUri;
+    private final URI issuer;
     private final List<String> scopes;
 
     /**
@@ -56,6 +57,15 @@ public final class TokenRequest {
      */
     public List<String> getScopes() {
         return scopes;
+    }
+
+    /**
+     * Get the issuer.
+     *
+     * @return the issuer, may be {@code null}
+     */
+    public URI getIssuer() {
+        return issuer;
     }
 
     /**
@@ -123,7 +133,8 @@ public final class TokenRequest {
 
     /* package-private */
     TokenRequest(final String clientId, final String clientSecret, final URI redirectUri, final String grantType,
-            final String authMethod, final String code, final String codeVerifier, final List<String> scopes) {
+            final String authMethod, final String code, final String codeVerifier, final URI issuer,
+            final List<String> scopes) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
@@ -132,6 +143,7 @@ public final class TokenRequest {
         this.code = code;
         this.codeVerifier = codeVerifier;
         this.scopes = scopes;
+        this.issuer = issuer;
     }
 
     /**
@@ -146,6 +158,7 @@ public final class TokenRequest {
         private String builderCode;
         private String builderCodeVerifier;
         private URI builderRedirectUri;
+        private URI builderIssuer;
         private List<String> builderScopes = new ArrayList<>();
 
         /**
@@ -178,6 +191,17 @@ public final class TokenRequest {
          */
         public Builder scopes(final String... scopes) {
             Collections.addAll(builderScopes, scopes);
+            return this;
+        }
+
+        /**
+         * Set the issuer URI.
+         *
+         * @param issuer the issuer value
+         * @return this builder
+         */
+        public Builder issuer(final URI issuer) {
+            builderIssuer = issuer;
             return this;
         }
 
@@ -240,7 +264,7 @@ public final class TokenRequest {
             }
 
             return new TokenRequest(clientId, builderClientSecret, builderRedirectUri, grant, builderAuthMethod,
-                    builderCode, builderCodeVerifier, builderScopes);
+                    builderCode, builderCodeVerifier, builderIssuer, builderScopes);
         }
     }
 }
