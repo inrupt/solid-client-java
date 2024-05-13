@@ -19,9 +19,6 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
     <springboot.version>3.2.5</springboot.version>
-    <smallrye.jwt.version>4.3.1</smallrye.jwt.version>
-    <smallrye.config.version>3.4.1</smallrye.config.version>
-    <wiremock.version>3.2.0</wiremock.version>
   </properties>
 
   <dependencyManagement>
