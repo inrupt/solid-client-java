@@ -492,7 +492,7 @@ class SolidClientTest {
     }
 
     private static ProblemDetails mockProblemDetails(final String title, final String details, final int status) {
-        return new ProblemDetails(URI.create("https://example.org/type"),
+        return new SolidProblemDetails(URI.create("https://example.org/type"),
             title,
             details,
             status,

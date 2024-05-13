@@ -22,6 +22,7 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
 import com.inrupt.client.InruptClientException;
+import com.inrupt.client.ProblemDetails;
 
 import java.net.URI;
 
@@ -96,7 +97,7 @@ public class SolidClientException extends InruptClientException {
      * @return the problem details object
      */
     public ProblemDetails getProblemDetails() {
-        return ProblemDetails.fromErrorResponse(statusCode, headers, body.getBytes());
+        return SolidProblemDetails.fromErrorResponse(statusCode, headers, body.getBytes());
     }
 
     /**

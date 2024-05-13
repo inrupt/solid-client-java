@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.ProblemDetails;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 // Ideally, this class should be in the api module, but it creates
 // a circular dependency with the JSON module implementation.
-class ProblemDetailsTest {
+class SolidProblemDetailsTest {
     Headers mockProblemDetailsHeader() {
         final List<String> headerValues = new ArrayList<>();
         headerValues.add("application/problem+json");
@@ -47,7 +48,7 @@ class ProblemDetailsTest {
     @Test
     void testEmptyProblemDetails() {
         final int statusCode = 400;
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
                 "{}".getBytes()
@@ -61,7 +62,7 @@ class ProblemDetailsTest {
     @Test
     void testCompleteProblemDetails() {
         final int statusCode = 400;
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -82,7 +83,7 @@ class ProblemDetailsTest {
     @Test
     void testIgnoreUnknownProblemDetails() {
         final int statusCode = 400;
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -104,7 +105,7 @@ class ProblemDetailsTest {
     @Test
     void testInvalidStatusProblemDetails() {
         final int statusCode = 400;
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -117,7 +118,7 @@ class ProblemDetailsTest {
     @Test
     void testMismatchingStatusProblemDetails() {
         final int statusCode = 400;
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -129,7 +130,7 @@ class ProblemDetailsTest {
 
     @Test
     void testInvalidTypeProblemDetails() {
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 400,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -141,7 +142,7 @@ class ProblemDetailsTest {
 
     @Test
     void testInvalidInstanceProblemDetails() {
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 400,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -154,7 +155,7 @@ class ProblemDetailsTest {
     @Test
     void testInvalidProblemDetails() {
         final int statusCode = 400;
-        final ProblemDetails pd = ProblemDetails.fromErrorResponse(
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 statusCode,
                 mockProblemDetailsHeader(),
                 "Not valid application/problem+json".getBytes()

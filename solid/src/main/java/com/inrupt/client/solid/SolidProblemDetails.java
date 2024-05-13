@@ -21,6 +21,7 @@
 package com.inrupt.client.solid;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.spi.JsonService;
 import com.inrupt.client.spi.ServiceProvider;
 
@@ -29,23 +30,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
-/**
- * A data class representing a structured problem description sent by the server on error response.
- *
- * @see <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457 Problem Details for HTTP APIs</a>
- */
-public class ProblemDetails {
+public class SolidProblemDetails implements ProblemDetails {
 
     private static final long serialVersionUID = -4597170432270957765L;
 
-    /**
-     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type.
-     */
-    public static final String MIME_TYPE = "application/problem+json";
-    /**
-     * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type.
-     */
-    public static final String DEFAULT_TYPE = "about:blank";
     private final URI type;
     private final String title;
     private final String details;
@@ -63,7 +51,7 @@ public class ProblemDetails {
      * @param status the error response status code
      * @param instance the problem instance
      */
-    public ProblemDetails(
+    public SolidProblemDetails(
         final URI type,
         final String title,
         final String details,
@@ -77,42 +65,27 @@ public class ProblemDetails {
         this.instance = instance;
     }
 
-    /**
-     * The problem type.
-     * @return the type
-     */
+    @Override
     public URI getType() {
         return this.type;
     }
 
-    /**
-     * The problem title.
-     * @return the title
-     */
+    @Override
     public String getTitle() {
         return this.title;
     }
 
-    /**
-     * The problem details.
-     * @return the details
-     */
+    @Override
     public String getDetails() {
         return this.details;
     }
 
-    /**
-     * The problem status code.
-     * @return the status code
-     */
+    @Override
     public int getStatus() {
         return this.status;
     }
 
-    /**
-     * The problem instance.
-     * @return the instance
-     */
+    @Override
     public URI getInstance() {
         return this.instance;
     }
@@ -120,7 +93,7 @@ public class ProblemDetails {
     /**
      * This inner class is only ever used for JSON deserialization. Please do not use in any other context.
      */
-    public static class Data {
+    static class Data {
         /**
          * The problem type.
          */
@@ -144,18 +117,18 @@ public class ProblemDetails {
     }
 
     private static JsonService getJsonService() {
-        if (ProblemDetails.isJsonServiceInitialized) {
-            return ProblemDetails.jsonService;
+        if (SolidProblemDetails.isJsonServiceInitialized) {
+            return SolidProblemDetails.jsonService;
         }
         // It is a legitimate use case that this is loaded in a context where no implementation of the JSON service is
         // available. On SPI lookup failure, the ProblemDetails exceptions will fall back to default and not be parsed.
         try {
-            ProblemDetails.jsonService = ServiceProvider.getJsonService();
+            SolidProblemDetails.jsonService = ServiceProvider.getJsonService();
         } catch (IllegalStateException e) {
-            ProblemDetails.jsonService = null;
+            SolidProblemDetails.jsonService = null;
         }
-        ProblemDetails.isJsonServiceInitialized = true;
-        return ProblemDetails.jsonService;
+        SolidProblemDetails.isJsonServiceInitialized = true;
+        return SolidProblemDetails.jsonService;
     }
 
     /**
@@ -165,7 +138,7 @@ public class ProblemDetails {
      * @param body the HTTP error response body
      * @return a {@link ProblemDetails} instance
      */
-    public static ProblemDetails fromErrorResponse(
+    public static SolidProblemDetails fromErrorResponse(
             final int statusCode,
             final Headers headers,
             final byte[] body
@@ -173,7 +146,7 @@ public class ProblemDetails {
         final JsonService jsonService = getJsonService();
         if (jsonService == null
                 || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
-            return new ProblemDetails(
+            return new SolidProblemDetails(
                 URI.create(ProblemDetails.DEFAULT_TYPE),
                 null,
                 null,
@@ -190,7 +163,7 @@ public class ProblemDetails {
                 .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
             // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
             final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
-            return new ProblemDetails(
+            return new SolidProblemDetails(
                     type,
                     pdData.title,
                     pdData.details,
@@ -198,7 +171,7 @@ public class ProblemDetails {
                     pdData.instance
             );
         } catch (IOException e) {
-            return new ProblemDetails(
+            return new SolidProblemDetails(
                 URI.create(ProblemDetails.DEFAULT_TYPE),
                 null,
                 null,
