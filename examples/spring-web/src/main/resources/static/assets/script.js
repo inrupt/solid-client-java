@@ -6,9 +6,9 @@
   const get = (uri) => {
     return fetch(uri).then(res => {
       if (res.ok) {
-        return res.headers.get("Content-Type") == "application/json" ? res.json() : res.text();
+        return res.headers.get("Content-Type") === "application/json" ? res.json() : res.text();
       }
-      throw new Exception("Error fetching data");
+      throw new Error("Error fetching data");
     });
   };
 
