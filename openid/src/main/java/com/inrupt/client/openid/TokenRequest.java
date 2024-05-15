@@ -152,6 +152,7 @@ public final class TokenRequest {
     public static class Builder {
 
         private static final String CLIENT_CREDENTIALS = "client_credentials";
+        private static final String AUTHORIZATION_CODE = "authorization_code";
 
         private String builderClientSecret;
         private String builderAuthMethod;
@@ -250,7 +251,7 @@ public final class TokenRequest {
             Objects.requireNonNull(clientId, "Client ID may not be null!");
             final String grant = Objects.requireNonNull(grantType, "Grant type may not be null!");
 
-            if ("authorization_code".equals(grantType)) {
+            if (AUTHORIZATION_CODE.equals(grantType)) {
                 if (builderCode == null) {
                     throw new IllegalArgumentException(
                         "Missing code parameter for authorization_code grant type");

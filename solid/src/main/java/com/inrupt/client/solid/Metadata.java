@@ -40,13 +40,13 @@ public class Metadata {
 
     private final URI acl;
     private final URI storage;
-    private final Set<URI> types = new HashSet<>();
-    private final Map<String, Set<String>> wacAllow = new HashMap<>();
-    private final Set<String> allowedMethods = new HashSet<>();
-    private final Set<String> allowedPatchSyntaxes = new HashSet<>();
-    private final Set<String> allowedPostSyntaxes = new HashSet<>();
-    private final Set<String> allowedPutSyntaxes = new HashSet<>();
     private final String contentType;
+    final Set<URI> types = new HashSet<>();
+    final Map<String, Set<String>> wacAllow = new HashMap<>();
+    final Set<String> allowedMethods = new HashSet<>();
+    final Set<String> allowedPatchSyntaxes = new HashSet<>();
+    final Set<String> allowedPostSyntaxes = new HashSet<>();
+    final Set<String> allowedPutSyntaxes = new HashSet<>();
 
     /**
      * The Solid Storage location.

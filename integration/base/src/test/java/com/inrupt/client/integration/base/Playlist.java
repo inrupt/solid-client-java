@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.integration.base;
 
-import com.inrupt.client.solid.Metadata;
+import com.inrupt.client.Headers;
 import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
@@ -40,8 +40,8 @@ class Playlist extends SolidRDFSource {
     private final IRI exSong;
     private final Node subject;
 
-    Playlist(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset, metadata);
+    Playlist(final URI identifier, final Dataset dataset, final Headers headers) {
+        super(identifier, dataset, headers);
 
         this.subject = new Node(rdf.createIRI(identifier.toString()), getGraph());
         this.dcTitle = rdf.createIRI("http://purl.org/dc/terms/title");

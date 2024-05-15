@@ -29,12 +29,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-public class Resource extends HttpEntity<byte[]> {
+public class SolidResource extends HttpEntity<byte[]> {
 
     private final HttpHeaders headers = new HttpHeaders();
     private final RDFSource resource;
 
-    public Resource(final RDFSource resource) {
+    public SolidResource(final RDFSource resource) {
         this.resource = resource;
         this.headers.setContentType(MediaType.valueOf(resource.getContentType()));
     }

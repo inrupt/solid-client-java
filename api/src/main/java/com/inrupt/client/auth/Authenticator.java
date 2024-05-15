@@ -53,5 +53,4 @@ public interface Authenticator {
      * @return the next stage of completion, containing the access token
      */
     CompletionStage<Credential> authenticate(Session session, Request request, Set<String> algorithms);
-
 }

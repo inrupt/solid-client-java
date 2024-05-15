@@ -207,6 +207,11 @@ public class UmaAuthenticationProvider implements AuthenticationProvider {
                     return CompletableFuture.completedFuture(null);
                 });
         }
+
+        @Override
+        public String toString() {
+            return getName();
+        }
     }
 
     static boolean supportsProfile(final Metadata metadata, final URI profile) {

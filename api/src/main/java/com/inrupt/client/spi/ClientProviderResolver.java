@@ -30,7 +30,7 @@ import java.util.ServiceLoader;
  */
 public abstract class ClientProviderResolver {
 
-    private static ClientProviderResolver instance = null;
+    private static ClientProviderResolver instance;
 
     /**
      * Get the {@link Client} for this application.
