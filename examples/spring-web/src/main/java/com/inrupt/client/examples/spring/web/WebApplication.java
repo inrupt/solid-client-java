@@ -23,8 +23,9 @@ package com.inrupt.client.examples.spring.web;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+// Spring Boot's class requirements conflict with the checkstyle rules in this case
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@SpringBootApplication
 public class WebApplication {
     public static void main(final String[] args) {
         SpringApplication.run(WebApplication.class, args);

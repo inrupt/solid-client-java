@@ -60,6 +60,7 @@ public class SecurityConfiguration {
 
     OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler() {
         final var successHandler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        // This URL should be one of the `post_logout_redirect_urls`
         successHandler.setPostLogoutRedirectUri("http://localhost:8080/");
         return successHandler;
     }

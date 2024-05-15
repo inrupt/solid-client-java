@@ -4,22 +4,21 @@
 
   // General API request handler
   async function get(uri) {
-    return fetch(uri).then(res => {
-      if (res.ok) {
-        return res.headers.get("Content-Type") === "application/json" ? res.json() : res.text();
-      }
-      throw new Error("Error fetching data");
-    });
+    const res = await fetch(uri);
+    if (res.ok) {
+      return res.headers.get("Content-Type") === "application/json" ? res.json() : res.text();
+    }
+    throw new Error("Error fetching data");
   }
 
   // Specific API methods
-  async function getUser() {
+  function getUser() {
     return get("/api/webid");
   }
-  async function getProfile() {
+  function getProfile() {
     return get("/api/profile");
   }
-  async function getResource(uri) {
+  function getResource(uri) {
     return get(`/api/resource?uri=${uri}`);
   }
 
@@ -32,14 +31,18 @@
     const profile = await getProfile();
     document.getElementById("storage").value = profile.storages[0];
     document.getElementById("load").disabled = false;
-    document.getElementById("load").addEventListener('click', evt => {
+    document.getElementById("load").addEventListener('click', async evt => {
       document.getElementById("fetch-output").value = "Loading...";
-      getResource(new URL(profile.storages[0]))
-          .then(resource => document.getElementById("fetch-output").value = resource)
-          .catch(err => window.location.href = "/");
+      try {
+        const resource = await getResource(new URL(profile.storages[0]));
+        document.getElementById("fetch-output").value = resource;
+      } catch (error) {
+          // An error here means that the access token has timed out
+          window.location.href = "/";
+      }
     });
   } catch (error) {
-    // An error means that the user is not logged in. In that case, display a login link.
+    // An error here means that the user is not logged in. In that case, display a login link.
     document.getElementById("webid").innerHTML = `<a href="/oauth2/authorization/myApp">login</a>`;
   }
 })();
