@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1715790739745">
+<licensePluginReport goal="CHECK" timestamp="1715799119659">
     <module artifactId="inrupt-client-examples-spring-web" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/examples/spring/web/SecurityConfiguration.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/examples/spring/web/WebApplication.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/examples/spring/web/controller/SolidController.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/examples/spring/web/model/Profile.java" result="PRESENT"/>
-        <file path="src/main/java/com/inrupt/client/examples/spring/web/model/Resource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/examples/spring/web/model/SolidResource.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/examples/spring/web/model/WebId.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/examples/spring/web/MockWebServer.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/examples/spring/web/WebApplicationTests.java" result="PRESENT"/>
