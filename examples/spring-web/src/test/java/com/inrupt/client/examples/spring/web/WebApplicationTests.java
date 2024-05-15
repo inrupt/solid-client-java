@@ -49,7 +49,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = { WebApplication.class })
+    classes = WebApplication.class)
 class WebApplicationTests {
 
     static final MockWebServer mockServer = new MockWebServer();
