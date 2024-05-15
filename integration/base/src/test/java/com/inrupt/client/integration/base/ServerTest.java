@@ -68,19 +68,15 @@ class ServerTest {
 
     @BeforeAll
     static void setup() {
-        System.out.println("UMA");
         authServer = new MockUMAAuthorizationServer();
         authServer.start();
 
-        System.out.println("Storage");
         mockHttpServer = new MockSolidServer(authServer.getMockServerUrl());
         mockHttpServer.start();
 
-        System.out.println("OpenID");
         identityProviderServer = new MockOpenIDProvider(MOCK_USERNAME);
         identityProviderServer.start();
 
-        System.out.println("WebID");
         webIdService = new MockWebIdService(
             mockHttpServer.getMockServerUrl(),
             identityProviderServer.getMockServerUrl(),
@@ -97,7 +93,6 @@ class ServerTest {
             issuer = profile.getOidcIssuers().iterator().next().toString();
             podUrl = profile.getStorages().iterator().next().toString();
         }
-        System.out.println("Set up");
     }
 
     @AfterAll

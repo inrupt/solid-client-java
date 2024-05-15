@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.examples.springboot.model;
 
-import com.inrupt.client.solid.Metadata;
+import com.inrupt.client.Headers;
 import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
@@ -40,8 +40,8 @@ public class Book extends SolidRDFSource {
     private final IRI author = rdf.createIRI(Vocabulary.BOOK_AUTHOR);
     private final IRI description = rdf.createIRI(Vocabulary.BOOK_DESCRIPTION);
 
-    public Book(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset, metadata);
+    public Book(final URI identifier, final Dataset dataset, final Headers headers) {
+        super(identifier, dataset, headers);
 
         this.bookId = new Node(rdf.createIRI(identifier.toString()), getGraph());
     }

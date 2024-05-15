@@ -99,6 +99,15 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <logging.level.root>WARN</logging.level.root>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
         <!-- for building a jar -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

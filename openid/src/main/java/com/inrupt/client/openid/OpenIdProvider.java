@@ -54,6 +54,8 @@ import java.util.stream.Stream;
  */
 public class OpenIdProvider {
 
+    private static final String CLIENT_SECRET_BASIC = "client_secret_basic";
+    private static final String CLIENT_SECRET_POST = "client_secret_post";
     private static final String CLIENT_ID = "client_id";
     private static final String REDIRECT_URI = "redirect_uri";
     private static final String EQUALS = "=";
@@ -239,10 +241,10 @@ public class OpenIdProvider {
 
         final Optional<String> authHeader;
         if (request.getClientSecret() != null) {
-            if ("client_secret_basic".equals(request.getAuthMethod())) {
+            if (CLIENT_SECRET_BASIC.equals(request.getAuthMethod())) {
                 authHeader = getBasicAuthHeader(request.getClientId(), request.getClientSecret());
             } else {
-                if ("client_secret_post".equals(request.getAuthMethod())) {
+                if (CLIENT_SECRET_POST.equals(request.getAuthMethod())) {
                     data.put(CLIENT_ID, request.getClientId());
                     data.put("client_secret", request.getClientSecret());
                 }

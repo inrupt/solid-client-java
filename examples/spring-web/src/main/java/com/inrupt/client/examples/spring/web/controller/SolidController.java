@@ -57,11 +57,11 @@ public class SolidController {
     HttpSession httpSession;
 
     @GetMapping(value = "/resource", produces = "text/turtle")
-    public Resource getResource(final @AuthenticationPrincipal OAuth2User user, final @RequestParam URI uri) {
+    public SolidResource getResource(final @AuthenticationPrincipal OAuth2User user, final @RequestParam URI uri) {
         final var session = SessionUtils.asSession(user)
             .orElseThrow(() -> new OAuth2AuthenticationException(INVALID_TOKEN));
         try (final var resource = client.session(session).read(uri, SolidRDFSource.class)) {
-            return new Resource(resource);
+            return new SolidResource(resource);
         }
     }
 

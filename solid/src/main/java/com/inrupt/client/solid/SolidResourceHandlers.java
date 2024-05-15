@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.solid;
 
+import com.inrupt.client.Headers;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.RdfService;
 import com.inrupt.client.spi.ServiceProvider;
@@ -47,13 +48,13 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidRDFSource> ofSolidRDFSource() {
         return responseInfo -> {
-            final Metadata metadata = Metadata.of(responseInfo.uri(), responseInfo.headers());
+            final Headers headers = responseInfo.headers();
 
-            return responseInfo.headers().firstValue(CONTENT_TYPE)
+            return headers.firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
                         buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
-                .map(dataset -> new SolidRDFSource(responseInfo.uri(), dataset, metadata))
-                .orElseGet(() -> new SolidRDFSource(responseInfo.uri(), null, metadata));
+                .map(dataset -> new SolidRDFSource(responseInfo.uri(), dataset, headers))
+                .orElseGet(() -> new SolidRDFSource(responseInfo.uri(), null, headers));
         };
     }
 
@@ -64,13 +65,12 @@ public final class SolidResourceHandlers {
      */
     public static Response.BodyHandler<SolidContainer> ofSolidContainer() {
         return responseInfo -> {
-            final Metadata metadata = Metadata.of(responseInfo.uri(), responseInfo.headers());
-
-            return responseInfo.headers().firstValue(CONTENT_TYPE)
+            final Headers headers = responseInfo.headers();
+            return headers.firstValue(CONTENT_TYPE)
                 .flatMap(contentType ->
                         buildDataset(contentType, responseInfo.body().array(), responseInfo.uri().toString()))
-                .map(dataset -> new SolidContainer(responseInfo.uri(), dataset, metadata))
-                .orElseGet(() -> new SolidContainer(responseInfo.uri(), null, metadata));
+                .map(dataset -> new SolidContainer(responseInfo.uri(), dataset, headers))
+                .orElseGet(() -> new SolidContainer(responseInfo.uri(), null, headers));
         };
     }
 

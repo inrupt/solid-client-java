@@ -52,7 +52,6 @@ public class ApplicationStartController {
 
     private String userName;
 
-
     @GetMapping("/")
     public String index() {
         this.userName = null;

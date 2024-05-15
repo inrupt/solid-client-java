@@ -292,7 +292,7 @@ public final class OpenIdSession implements Session {
 
     static String sha256(final String value) {
         final MessageDigest md = DigestUtils.getDigest("SHA-256");
-        return new String(Hex.encodeHex(md.digest(value.getBytes(UTF_8))));
+        return String.valueOf(Hex.encodeHex(md.digest(value.getBytes(UTF_8))));
     }
 
     static Instant getExpiration(final JwtClaims claims) {

@@ -696,7 +696,7 @@ public class AccessGrantScenarios {
             try (final InputStream newis = new ByteArrayInputStream(
                 StandardCharsets.UTF_8.encode("Test text").array())) {
                 final SolidNonRDFSource testResource =
-                    new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, newis, resource.getMetadata());
+                    new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, newis, resource.getHeaders());
                 assertDoesNotThrow(() -> requesterAuthClient.update(testResource));
             }
         }

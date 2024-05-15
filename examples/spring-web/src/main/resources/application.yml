@@ -2,6 +2,8 @@ logging:
   level:
     root: info
 spring:
+  main:
+    banner-mode: "off"
   security:
     oauth2:
       client:

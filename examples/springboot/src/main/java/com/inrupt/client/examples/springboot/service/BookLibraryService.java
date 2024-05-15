@@ -48,6 +48,7 @@ public class BookLibraryService implements IBookLibraryService {
     private BookLibrary bookLib;
     private String uriOfBookLibraryResource;
 
+    @Override
     public void loadBookLibrary(final String bookLibResource) {
         client = getClient();
 
@@ -60,25 +61,20 @@ public class BookLibraryService implements IBookLibraryService {
             this.bookLib = client.read(bookLibraryId, BookLibrary.class);
         } catch (SolidClientException exception) {
             if (authenticationFail(exception.getStatusCode())) {
-                throw new AuthenticationException("You are not authenticated! Try logging in.");
+                throw new AuthenticationException("You are not authenticated! Try logging in.", exception);
             }
             if (authorizationFail(exception.getStatusCode())) {
-                throw new AuthorizationException("You do not have the corresponding access rights.");
+                throw new AuthorizationException("You do not have the corresponding access rights.", exception);
             }
         }
     }
 
+    @Override
     public void clearBookLibrary() {
         this.bookLib = null;
     }
 
-    public Set<URI> getAllBookURIs() {
-        if (this.bookLib == null) {
-            throw new AuthorizationException("Not allowed.");
-        }
-        return this.bookLib.getAllBooks();
-    }
-
+    @Override
     public Set<Book> getAllBook() {
         if (this.bookLib == null) {
             throw new AuthorizationException("Not allowed.");
@@ -91,6 +87,7 @@ public class BookLibraryService implements IBookLibraryService {
         return allBooks;
     }
 
+    @Override
     public Set<Book> getBookForTitle(final String bookTitle) {
         if (this.bookLib == null) {
             throw new AuthorizationException("Not allowed.");
@@ -109,6 +106,7 @@ public class BookLibraryService implements IBookLibraryService {
         return foundBooks;
     }
 
+    @Override
     public Set<Book> getBookForAuthor(final String bookAuthor) {
         if (this.bookLib == null) {
             throw new AuthorizationException("Not allowed.");
@@ -127,6 +125,7 @@ public class BookLibraryService implements IBookLibraryService {
         return foundBooks;
     }
 
+    @Override
     public String getBookLibraryUri() {
         return this.uriOfBookLibraryResource;
     }
@@ -138,7 +137,7 @@ public class BookLibraryService implements IBookLibraryService {
             try {
                 defaultClient = defaultClient.session(OpenIdSession.ofIdToken(userService.getCurrentUser().getToken()));
             } catch (OpenIdException exception) {
-                throw new AuthorizationException("Token expired, please log out and re-login.");
+                throw new AuthorizationException("Token expired, please log out and re-login.", exception);
             }
         }
 
@@ -152,5 +151,4 @@ public class BookLibraryService implements IBookLibraryService {
     private boolean authorizationFail(final int statusCode) {
         return statusCode == 403;
     }
-
 }

@@ -119,7 +119,7 @@ public class ReactiveAuthorization {
             // Use the first authenticator, sorted by priority
             authenticators.sort(comparator);
             final Authenticator auth = authenticators.get(0);
-            LOGGER.debug("Using {} authenticator", auth.getName());
+            LOGGER.debug("Using {} authenticator", auth);
             return session.authenticate(auth, request, algorithms);
         }
         return CompletableFuture.completedFuture(Optional.empty());

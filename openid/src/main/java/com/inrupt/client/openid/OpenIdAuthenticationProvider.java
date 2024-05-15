@@ -108,6 +108,11 @@ public class OpenIdAuthenticationProvider implements AuthenticationProvider {
             return CompletableFuture.completedFuture(session
                     .getCredential(OpenIdSession.ID_TOKEN, request.uri()).orElse(null));
         }
+
+        @Override
+        public String toString() {
+            return getName();
+        }
     }
 }
 

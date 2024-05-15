@@ -21,12 +21,10 @@
 package com.inrupt.client.integration.base;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.inrupt.client.Headers;
 import com.inrupt.client.integration.base.MockSolidServer.ServerBody;
 import com.inrupt.client.vocabulary.PIM;
@@ -37,7 +35,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-class SolidServerTransformer extends ResponseDefinitionTransformer {
+class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
 
     private static final String SLASH = "/";
 
@@ -55,10 +53,10 @@ class SolidServerTransformer extends ResponseDefinitionTransformer {
     }
 
     @Override
-    public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-            final FileSource files, final Parameters parameters) {
+    public ResponseDefinition transform(final ServeEvent event) {
 
         final var res = new ResponseDefinitionBuilder();
+        final var request = event.getRequest();
 
         //determine if authenticated on private resources
         if (Utils.isPrivateResource(request.getUrl()) &&

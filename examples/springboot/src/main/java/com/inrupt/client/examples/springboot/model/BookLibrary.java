@@ -20,7 +20,7 @@
  */
 package com.inrupt.client.examples.springboot.model;
 
-import com.inrupt.client.solid.Metadata;
+import com.inrupt.client.Headers;
 import com.inrupt.client.solid.SolidRDFSource;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
@@ -39,8 +39,8 @@ public class BookLibrary extends SolidRDFSource {
     private Node bookLibraryId;
     private final IRI contains = rdf.createIRI(Vocabulary.CONTAINS_BOOK);
 
-    public BookLibrary(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset, metadata);
+    public BookLibrary(final URI identifier, final Dataset dataset, final Headers headers) {
+        super(identifier, dataset, headers);
 
         this.bookLibraryId = new Node(rdf.createIRI(identifier.toString()), getGraph());
     }

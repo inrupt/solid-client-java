@@ -30,7 +30,7 @@ import org.apache.commons.rdf.api.RDF;
  */
 public final class RDFFactory {
 
-    private static RDF instance = null;
+    private static RDF instance;
 
     /**
      * Find and return the RDF instance.
