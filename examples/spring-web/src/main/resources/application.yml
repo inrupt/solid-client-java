@@ -1,0 +1,19 @@
+logging:
+  level:
+    root: info
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          myApp:
+            client-id: https://inrupt.github.io/solid-client-java/clients/springboot-testing.jsonld
+            provider: inrupt
+            scope:
+              - openid
+              - webid
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+        provider:
+          inrupt:
+            issuer-uri: https://login.inrupt.com

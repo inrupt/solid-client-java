@@ -43,6 +43,7 @@
       <modules>
         <module>cli</module>
         <module>springboot</module>
+        <module>spring-web</module>
         <module>webapp</module>
       </modules>
     </profile>

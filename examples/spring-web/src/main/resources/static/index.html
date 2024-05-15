@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/solidlogo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Authentication Demo</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <script type="module" crossorigin src="/assets/script.js"></script>
+  </head>
+  <body>
+    <div id="root">
+      <div>
+        <nav class="navbar">
+          <div class="container-fluid">
+            <a class="navbar-brand">Authentication Demo</a>
+            <span id="user"><a href="/oauth2/authorization/myApp">login</a></span>
+          </div>
+        </nav>
+        <div class="app-layout">
+          <div class="demo">
+            <form>
+              <div class="mb-3">
+                <label for="webid" class="form-label">WebID</label>
+                <input name="webid" id="webid" type="url" readonly class="form-control"/>
+              </div>
+              <div class="mb-3">
+                <label for="storage" class="form-label">Storage</label>
+                <input name="storage" id="storage" type="url" readonly class="form-control"/>
+              </div>
+              <div>
+                <button type="button" id="load" disabled class="btn btn-secondary">Fetch Data</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="fetch-area">
+          <form>
+            <div class="mb-3">
+              <label for="fetch-output" class="form-label">Fetch Response</label>
+              <textarea readonly id="fetch-output" class="form-control"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
