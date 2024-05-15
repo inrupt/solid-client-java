@@ -96,15 +96,6 @@ public interface Response<T> {
     }
 
     /**
-     * Indicates whether a status code reflects a successful HTTP response.
-     * @param statusCode the HTTP response status code
-     * @return true if the status code is in the success range, namely [200, 299].
-     */
-    static boolean isSuccess(final int statusCode) {
-        return statusCode >= 200 && statusCode < 300;
-    }
-
-    /**
      * An interface for mapping an HTTP response into a specific Java type.
      * @param <T> the body type
      */

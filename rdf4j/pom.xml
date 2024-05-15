@@ -150,24 +150,6 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-jackson</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-jsonb</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse</groupId>
-      <artifactId>yasson</artifactId>
-      <version>${yasson.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -181,7 +163,7 @@
             <phase>none</phase>
           </execution>
           <execution>
-            <id>httpclient-jackson-test</id>
+            <id>httpclient-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>
@@ -189,25 +171,11 @@
             <configuration>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
           <execution>
-            <id>httpclient-jsonb-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>okhttp-jackson-test</id>
+            <id>okhttp-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>
@@ -215,20 +183,6 @@
             <configuration>
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>okhttp-jsonb-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>

@@ -20,191 +20,52 @@
  */
 package com.inrupt.client;
 
-import com.inrupt.client.spi.JsonService;
-import com.inrupt.client.spi.ServiceProvider;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
-import java.util.Optional;
 
 /**
  * A data class representing a structured problem description sent by the server on error response.
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457 Problem Details for HTTP APIs</a>
  */
-public class ProblemDetails implements Serializable {
-
-    private static final long serialVersionUID = -4597170432270957765L;
+public interface ProblemDetails {
 
     /**
      * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default MIME type.
      */
-    public static final String MIME_TYPE = "application/problem+json";
+    String MIME_TYPE = "application/problem+json";
+
     /**
      * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type.
      */
-    public static final String DEFAULT_TYPE = "about:blank";
-    private final URI type;
-    private final String title;
-    private final String details;
-    private final int status;
-    private final URI instance;
-    private static JsonService jsonService;
-    private static boolean isJsonServiceInitialized;
-
-    /**
-     * Build a ProblemDetails instance providing the expected fields as described in
-     * <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>.
-     * @param type the problem type
-     * @param title the problem title
-     * @param details the problem details
-     * @param status the error response status code
-     * @param instance the problem instance
-     */
-    public ProblemDetails(
-        final URI type,
-        final String title,
-        final String details,
-        final int status,
-        final URI instance
-    ) {
-        this.type = type;
-        this.title = title;
-        this.details = details;
-        this.status = status;
-        this.instance = instance;
-    }
+    String DEFAULT_TYPE = "about:blank";
 
     /**
      * The problem type.
      * @return the type
      */
-    public URI getType() {
-        return this.type;
-    }
+    URI getType();
 
     /**
      * The problem title.
      * @return the title
      */
-    public String getTitle() {
-        return this.title;
-    }
+    String getTitle();
 
     /**
      * The problem details.
      * @return the details
      */
-    public String getDetails() {
-        return this.details;
-    }
+    String getDetails();
 
     /**
      * The problem status code.
      * @return the status code
      */
-    public int getStatus() {
-        return this.status;
-    }
+    int getStatus();
 
     /**
      * The problem instance.
      * @return the instance
      */
-    public URI getInstance() {
-        return this.instance;
-    }
-
-    /**
-     * This inner class is only ever used for JSON deserialization. Please do not use in any other context.
-     */
-    public static class Data {
-        /**
-         * The problem type.
-         */
-        public URI type;
-        /**
-         * The problem title.
-         */
-        public String title;
-        /**
-         * The problem details.
-         */
-        public String details;
-        /**
-         * The problem status code.
-         */
-        public int status;
-        /**
-         * The problem instance.
-         */
-        public URI instance;
-    }
-
-    private static JsonService getJsonService() {
-        if (ProblemDetails.isJsonServiceInitialized) {
-            return ProblemDetails.jsonService;
-        }
-        // It is a legitimate use case that this is loaded in a context where no implementation of the JSON service is
-        // available. On SPI lookup failure, the ProblemDetails exceptions will fall back to default and not be parsed.
-        try {
-            ProblemDetails.jsonService = ServiceProvider.getJsonService();
-        } catch (IllegalStateException e) {
-            ProblemDetails.jsonService = null;
-        }
-        ProblemDetails.isJsonServiceInitialized = true;
-        return ProblemDetails.jsonService;
-    }
-
-    /**
-     * Builds a {@link ProblemDetails} instance from an HTTP error response.
-     * @param statusCode the HTTP error response status code
-     * @param headers the HTTP error response headers
-     * @param body the HTTP error response body
-     * @return a {@link ProblemDetails} instance
-     */
-    public static ProblemDetails fromErrorResponse(
-            final int statusCode,
-            final Headers headers,
-            final byte[] body
-    ) {
-        final JsonService jsonService = getJsonService();
-        if (jsonService == null
-                || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
-            return new ProblemDetails(
-                URI.create(ProblemDetails.DEFAULT_TYPE),
-                null,
-                null,
-                statusCode,
-                null
-            );
-        }
-        try {
-            final Data pdData = jsonService.fromJson(
-                    new ByteArrayInputStream(body),
-                    Data.class
-            );
-            final URI type = Optional.ofNullable(pdData.type)
-                .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
-            // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
-            final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
-            return new ProblemDetails(
-                    type,
-                    pdData.title,
-                    pdData.details,
-                    status,
-                    pdData.instance
-            );
-        } catch (IOException e) {
-            return new ProblemDetails(
-                URI.create(ProblemDetails.DEFAULT_TYPE),
-                null,
-                null,
-                statusCode,
-                null
-            );
-        }
-    }
+    URI getInstance();
 }

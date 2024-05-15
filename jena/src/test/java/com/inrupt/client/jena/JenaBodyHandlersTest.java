@@ -22,7 +22,6 @@ package com.inrupt.client.jena;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.ClientHttpException;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.spi.HttpService;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.jena.graph.NodeFactory;
@@ -59,14 +57,14 @@ class JenaBodyHandlersTest {
     }
 
     @Test
-    void testOfJenaModelHandler() throws IOException,
+    void testOfModelHandler() throws IOException,
             InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofJenaModel())
+        final var response = client.send(request, JenaBodyHandlers.ofModel())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -79,58 +77,6 @@ class JenaBodyHandlersTest {
         );
     }
 
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofModel function. To be removed when removing the function
-     *  from the API.
-     */
-    @Test
-    void testOfModelHandler() throws IOException,
-            InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
-                .GET()
-                .build();
-
-        final var response = client.send(request, JenaBodyHandlers.ofModel())
-                .toCompletableFuture().join();
-
-        assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
-        assertEquals(1, responseBody.size());
-        assertTrue(responseBody.contains(
-                null,
-                null,
-                ResourceFactory.createResource("http://example.test/o"))
-        );
-    }
-
-    @Test
-    void testOfJenaModelHandlerAsync() throws IOException,
-            InterruptedException, ExecutionException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
-                .header("Accept", "text/turtle")
-                .GET()
-                .build();
-
-        final var asyncResponse = client.send(request, JenaBodyHandlers.ofJenaModel());
-
-        final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
-        assertEquals(200, statusCode);
-
-        final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
-        assertEquals(1, responseBody.size());
-        assertTrue(responseBody.contains(
-            null,
-            null,
-            ResourceFactory.createResource("http://example.test/o"))
-        );
-    }
-
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofModel function. To be removed when removing the function
-     *  from the API.
-     */
     @Test
     void testOfModelHandlerAsync() throws IOException,
             InterruptedException, ExecutionException {
@@ -148,20 +94,20 @@ class JenaBodyHandlersTest {
         final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-                null,
-                null,
-                ResourceFactory.createResource("http://example.test/o"))
+            null,
+            null,
+            ResourceFactory.createResource("http://example.test/o"))
         );
     }
 
     @Test
-    void testOfJenaModelHandlerWithURL() throws IOException, InterruptedException {
+    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofJenaModel())
+        final var response = client.send(request, JenaBodyHandlers.ofModel())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -173,77 +119,6 @@ class JenaBodyHandlersTest {
         );
     }
 
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofModel function. To be removed when removing the function
-     *  from the API.
-     */
-    @Test
-    void testOfModelHandlerWithURL() throws IOException, InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/example"))
-                .GET()
-                .build();
-
-        final var response = client.send(request, JenaBodyHandlers.ofModel())
-                .toCompletableFuture().join();
-
-        assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
-        assertEquals(7, responseBody.size());
-        assertTrue(responseBody.contains(
-                null,
-                ResourceFactory.createProperty("http://www.w3.org/ns/pim/space#preferencesFile"))
-        );
-    }
-
-    @Test
-    void testOfJenaModelHandlerError() throws IOException,
-            InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/error"))
-                .GET()
-                .build();
-
-        final CompletionException completionException = assertThrows(
-                CompletionException.class,
-                () -> client.send(request, JenaBodyHandlers.ofJenaModel()).toCompletableFuture().join()
-        );
-
-        final ClientHttpException httpException = (ClientHttpException) completionException.getCause();
-
-        assertEquals(429, httpException.getProblemDetails().getStatus());
-        assertEquals("Too Many Requests", httpException.getProblemDetails().getTitle());
-        assertEquals("Some details", httpException.getProblemDetails().getDetails());
-        assertEquals("https://example.org/type", httpException.getProblemDetails().getType().toString());
-        assertEquals("https://example.org/instance", httpException.getProblemDetails().getInstance().toString());
-    }
-
-    @Test
-    void testOfJenaDatasetHandler() throws IOException,
-            InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
-                .GET()
-                .build();
-
-        final var response = client.send(request, JenaBodyHandlers.ofJenaDataset())
-                .toCompletableFuture().join();
-
-        assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
-        assertEquals(1, responseBody.asDatasetGraph().stream().count());
-        assertTrue(responseBody.asDatasetGraph().contains(
-                null,
-                NodeFactory.createURI("http://example.test/s"),
-                null,
-                null)
-        );
-    }
-
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofDataset function. To be removed when removing the function
-     *  from the API.
-     */
     @Test
     void testOfDatasetHandler() throws IOException,
             InterruptedException {
@@ -253,27 +128,27 @@ class JenaBodyHandlersTest {
                 .build();
 
         final var response = client.send(request, JenaBodyHandlers.ofDataset())
-                .toCompletableFuture().join();
+            .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
         final var responseBody = response.body();
         assertEquals(1, responseBody.asDatasetGraph().stream().count());
         assertTrue(responseBody.asDatasetGraph().contains(
-                null,
-                NodeFactory.createURI("http://example.test/s"),
-                null,
-                null)
+            null,
+            NodeFactory.createURI("http://example.test/s"),
+            null,
+            null)
         );
     }
 
     @Test
-    void testOfJenaDatasetHandlerWithURL() throws IOException, InterruptedException {
+    void testOfDatasetHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofJenaDataset())
+        final var response = client.send(request, JenaBodyHandlers.ofDataset())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -287,80 +162,6 @@ class JenaBodyHandlersTest {
         );
     }
 
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofDataset function. To be removed when removing the function
-     *  from the API.
-     */
-    @Test
-    void testOfDatasetHandlerWithURL() throws IOException, InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/example"))
-                .GET()
-                .build();
-
-        final var response = client.send(request, JenaBodyHandlers.ofDataset())
-                .toCompletableFuture().join();
-
-        assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
-        assertEquals(7, responseBody.asDatasetGraph().stream().count());
-        assertTrue(responseBody.asDatasetGraph().contains(
-                null,
-                null,
-                NodeFactory.createURI("http://www.w3.org/ns/pim/space#preferencesFile"),
-                null)
-        );
-    }
-
-    @Test
-    void testOfJenaDatasetHandlerError() throws IOException,
-            InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/error"))
-                .GET()
-                .build();
-
-        final CompletionException completionException = assertThrows(
-                CompletionException.class,
-                () -> client.send(request, JenaBodyHandlers.ofJenaDataset()).toCompletableFuture().join()
-        );
-
-        final ClientHttpException httpException = (ClientHttpException) completionException.getCause();
-
-        assertEquals(429, httpException.getProblemDetails().getStatus());
-        assertEquals("Too Many Requests", httpException.getProblemDetails().getTitle());
-        assertEquals("Some details", httpException.getProblemDetails().getDetails());
-        assertEquals("https://example.org/type", httpException.getProblemDetails().getType().toString());
-        assertEquals("https://example.org/instance", httpException.getProblemDetails().getInstance().toString());
-    }
-
-    @Test
-    void testOfJenaGraphHandlerAsync() throws IOException,
-            InterruptedException, ExecutionException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
-                .header("Accept", "text/turtle")
-                .GET()
-                .build();
-
-        final var asyncResponse = client.send(request, JenaBodyHandlers.ofJenaGraph());
-
-        final int statusCode = asyncResponse.thenApply(Response::statusCode).toCompletableFuture().join();
-        assertEquals(200, statusCode);
-
-        final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
-        assertEquals(1, responseBody.size());
-        assertTrue(responseBody.contains(
-            NodeFactory.createURI("http://example.test/s"),
-            null,
-            null)
-        );
-    }
-
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofGraph function. To be removed when removing the function
-     *  from the API.
-     */
     @Test
     void testOfGraphHandlerAsync() throws IOException,
             InterruptedException, ExecutionException {
@@ -378,21 +179,21 @@ class JenaBodyHandlersTest {
         final var responseBody = asyncResponse.thenApply(Response::body).toCompletableFuture().join();
         assertEquals(1, responseBody.size());
         assertTrue(responseBody.contains(
-                NodeFactory.createURI("http://example.test/s"),
-                null,
-                null)
+            NodeFactory.createURI("http://example.test/s"),
+            null,
+            null)
         );
     }
 
     @Test
-    void testOfJenaGraphHandler() throws IOException,
+    void testOfGraphHandler() throws IOException,
             InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofJenaGraph())
+        final var response = client.send(request, JenaBodyHandlers.ofGraph())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -405,39 +206,14 @@ class JenaBodyHandlersTest {
         );
     }
 
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofGraph function. To be removed when removing the function
-     *  from the API.
-     */
     @Test
-    void testOfGraphHandler() throws IOException,
-            InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/oneTriple"))
-                .GET()
-                .build();
-
-        final var response = client.send(request, JenaBodyHandlers.ofGraph())
-                .toCompletableFuture().join();
-
-        assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
-        assertEquals(1, responseBody.size());
-        assertTrue(responseBody.contains(
-                NodeFactory.createURI("http://example.test/s"),
-                null,
-                null)
-        );
-    }
-
-    @Test
-    void testOfJenaGraphHandlerWithURL() throws IOException, InterruptedException {
+    void testOfGraphHandlerWithURL() throws IOException, InterruptedException {
         final Request request = Request.newBuilder()
                 .uri(URI.create(config.get("rdf_uri") + "/example"))
                 .GET()
                 .build();
 
-        final var response = client.send(request, JenaBodyHandlers.ofJenaGraph())
+        final var response = client.send(request, JenaBodyHandlers.ofGraph())
             .toCompletableFuture().join();
 
         assertEquals(200, response.statusCode());
@@ -448,51 +224,5 @@ class JenaBodyHandlersTest {
             NodeFactory.createURI("http://www.w3.org/ns/pim/space#preferencesFile"),
             null)
         );
-    }
-
-    /**
-     * @deprecated covers the deprecated JenaBodyHandlers::ofGraph function. To be removed when removing the function
-     *  from the API.
-     */
-    @Test
-    void testOfGraphHandlerWithURL() throws IOException, InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/example"))
-                .GET()
-                .build();
-
-        final var response = client.send(request, JenaBodyHandlers.ofGraph())
-                .toCompletableFuture().join();
-
-        assertEquals(200, response.statusCode());
-        final var responseBody = response.body();
-        assertEquals(7, responseBody.size());
-        assertTrue(responseBody.contains(
-                null,
-                NodeFactory.createURI("http://www.w3.org/ns/pim/space#preferencesFile"),
-                null)
-        );
-    }
-
-    @Test
-    void testOfJenaGraphHandlerError() throws IOException,
-            InterruptedException {
-        final Request request = Request.newBuilder()
-                .uri(URI.create(config.get("rdf_uri") + "/error"))
-                .GET()
-                .build();
-
-        final CompletionException completionException = assertThrows(
-                CompletionException.class,
-                () -> client.send(request, JenaBodyHandlers.ofJenaGraph()).toCompletableFuture().join()
-        );
-
-        final ClientHttpException httpException = (ClientHttpException) completionException.getCause();
-
-        assertEquals(429, httpException.getProblemDetails().getStatus());
-        assertEquals("Too Many Requests", httpException.getProblemDetails().getTitle());
-        assertEquals("Some details", httpException.getProblemDetails().getDetails());
-        assertEquals("https://example.org/type", httpException.getProblemDetails().getType().toString());
-        assertEquals("https://example.org/instance", httpException.getProblemDetails().getInstance().toString());
     }
 }

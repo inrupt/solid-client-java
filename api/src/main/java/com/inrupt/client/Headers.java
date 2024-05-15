@@ -23,6 +23,7 @@ package com.inrupt.client;
 import com.inrupt.client.auth.Challenge;
 import com.inrupt.client.spi.ServiceProvider;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +40,9 @@ import java.util.stream.Collectors;
 /**
  * A read-only view of a collection of HTTP headers.
  */
-public final class Headers {
+public final class Headers implements Serializable {
+
+    private static final long serialVersionUID = 3845207335727836025L;
 
     private final NavigableMap<String, List<String>> data = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

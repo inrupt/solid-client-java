@@ -86,18 +86,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-jsonb</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse</groupId>
-      <artifactId>yasson</artifactId>
-      <version>${yasson.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -122,7 +110,7 @@
             <phase>none</phase>
           </execution>
           <execution>
-            <id>httpclient-jena-jackson-test</id>
+            <id>httpclient-jena-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>
@@ -131,26 +119,11 @@
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
           <execution>
-            <id>httpclient-jena-jsonb-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>httpclient-rdf4j-jackson-test</id>
+            <id>httpclient-rdf4j-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>
@@ -159,26 +132,11 @@
               <classpathDependencyExcludes>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
           <execution>
-            <id>httpclient-rdf4j-jsonb-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-okhttp</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>okhttp-jena-jackson-test</id>
+            <id>okhttp-jena-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>
@@ -188,27 +146,11 @@
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
           <execution>
-            <id>okhttp-jena-jsonb-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>okhttp-rdf4j-jackson-test</id>
+            <id>okhttp-rdf4j-test</id>
             <phase>test</phase>
             <goals>
               <goal>test</goal>
@@ -218,22 +160,6 @@
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
                 <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jsonb</classpathDependencyExclude>
-              </classpathDependencyExcludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>okhttp-rdf4j-jsonb-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <classpathDependencyExcludes>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-httpclient</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jena</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf-legacy</classpathDependencyExclude>
-                <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
               </classpathDependencyExcludes>
             </configuration>
           </execution>
