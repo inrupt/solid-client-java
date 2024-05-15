@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1715584871405">
+<licensePluginReport goal="CHECK" timestamp="1715790724976">
     <module artifactId="inrupt-client-api" groupId="com.inrupt.client" version="1.2.0-SNAPSHOT"/>
     <files>
         <file path="src/main/java/com/inrupt/client/ByteBufferPublisher.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Client.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/ClientCache.java" result="PRESENT"/>
-        <file path="src/main/java/com/inrupt/client/ClientHttpException.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/ClientProvider.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/Headers.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/InruptClientException.java" result="PRESENT"/>
