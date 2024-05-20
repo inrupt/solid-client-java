@@ -5,6 +5,9 @@ spring:
   main:
     banner-mode: "off"
   security:
+    oidc:
+      post-logout-redirect-uri: http://localhost:8080/
+      signature-algorithm: ES256
     oauth2:
       client:
         registration:

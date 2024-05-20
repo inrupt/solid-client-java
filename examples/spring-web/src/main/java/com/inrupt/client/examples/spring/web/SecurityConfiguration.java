@@ -21,6 +21,7 @@
 package com.inrupt.client.examples.spring.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -41,6 +42,12 @@ public class SecurityConfiguration {
     @Autowired
     ClientRegistrationRepository clientRegistrationRepository;
 
+    @Value("${spring.security.oidc.post-logout-redirect-uri}")
+    private String postLogoutRedirectUri;
+
+    @Value("${spring.security.oidc.signature-algorithm}")
+    private SignatureAlgorithm signatureAlgorithm;
+
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http
@@ -54,14 +61,13 @@ public class SecurityConfiguration {
     @Bean
     public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
         final var decoder = new OidcIdTokenDecoderFactory();
-        decoder.setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
+        decoder.setJwsAlgorithmResolver(clientRegistration -> signatureAlgorithm);
         return decoder;
     }
 
     OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler() {
         final var successHandler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-        // This URL should be one of the `post_logout_redirect_urls`
-        successHandler.setPostLogoutRedirectUri("http://localhost:8080/");
+        successHandler.setPostLogoutRedirectUri(postLogoutRedirectUri);
         return successHandler;
     }
 }
