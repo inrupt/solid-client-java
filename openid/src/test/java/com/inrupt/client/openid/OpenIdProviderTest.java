@@ -83,6 +83,8 @@ class OpenIdProviderTest {
     @Test
     void authorizeAsyncTest() {
         final AuthorizationRequest authReq = AuthorizationRequest.newBuilder()
+            .scope("openid")
+            .scope("webid")
             .codeChallenge("myCodeChallenge")
             .codeChallengeMethod("method")
             .build(
@@ -91,7 +93,27 @@ class OpenIdProviderTest {
             );
         assertEquals(
             issuer + "/auth?client_id=myClientId&redirect_uri=myRedirectUri&" +
-            "response_type=code&code_challenge=myCodeChallenge&code_challenge_method=method",
+            "response_type=code&scope=openid%20webid&code_challenge=myCodeChallenge&code_challenge_method=method",
+            openIdProvider.authorize(authReq).toCompletableFuture().join().toString()
+        );
+    }
+
+    @Test
+    void authorizeAsyncStateNonceTest() {
+        final String state = UUID.randomUUID().toString();
+        final String nonce = UUID.randomUUID().toString();
+        final AuthorizationRequest authReq = AuthorizationRequest.newBuilder()
+            .scope("openid")
+            .scope("webid")
+            .state(state)
+            .nonce(nonce)
+            .build(
+                "myClientId",
+                URI.create("myRedirectUri")
+            );
+        assertEquals(
+            issuer + "/auth?client_id=myClientId&redirect_uri=myRedirectUri&" +
+            "response_type=code&scope=openid%20webid&state=" + state + "&nonce=" + nonce,
             openIdProvider.authorize(authReq).toCompletableFuture().join().toString()
         );
     }
