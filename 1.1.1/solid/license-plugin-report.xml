@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1719418273962">
+    <module artifactId="inrupt-client-solid" groupId="com.inrupt.client" version="1.1.1"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/solid/BadRequestException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/ConflictException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/DataMappingException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/ForbiddenException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/GoneException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/InternalServerErrorException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/Metadata.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/MethodNotAllowedException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/NotAcceptableException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/NotFoundException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/PreconditionFailedException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidClient.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidClientException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidContainer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidNonRDFSource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidRDFSource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidResource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidResourceException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidResourceHandlers.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidResourceReference.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidSyncClient.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/TooManyRequestsException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/UnauthorizedException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/UnsupportedMediaTypeException.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/package-info.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/BasicBinary.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/DeprecatedBinary.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/DeprecatedType.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/InvalidType.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/Playlist.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/Recipe.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/SolidClientTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/SolidExceptionTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/SolidMockHttpService.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/SolidRDFSourceTest.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/SolidSyncClientTest.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

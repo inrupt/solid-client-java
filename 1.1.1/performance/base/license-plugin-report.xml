@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1719418288288">
+    <module artifactId="inrupt-client-performance-base-tests" groupId="com.inrupt.client" version="1.1.1"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/performance/base/GetResourcesWithGrantCachingTokenScenario.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/GetResourcesWithGrantScenario.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/MockAccessGrantServer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/MockOpenIDProvider.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/MockSolidServer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/MockUMAAuthorizationServer.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/MockWebIdService.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/State.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/Utils.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/performance/base/package-info.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>

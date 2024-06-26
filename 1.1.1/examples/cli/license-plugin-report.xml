@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="CHECK" timestamp="1719418276771">
+    <module artifactId="inrupt-client-examples-cli" groupId="com.inrupt.client" version="1.1.1"/>
+    <files>
+        <file path="src/main/java/com/inrupt/client/examples/cli/AppConfig.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/examples/cli/SolidApp.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/examples/cli/package-info.java" result="PRESENT"/>
+    </files>
+</licensePluginReport>
