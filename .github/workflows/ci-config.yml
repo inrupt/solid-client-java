@@ -139,7 +139,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java }}
+          java-version: 17
           cache: 'maven'
 
       - name: Build the code with Maven
