@@ -54,8 +54,16 @@ import java.util.stream.Stream;
  */
 public class OpenIdProvider {
 
+    // OAuth 2 and OpenID request parameters
     private static final String CLIENT_ID = "client_id";
+    private static final String CODE_CHALLENGE = "code_challenge";
+    private static final String CODE_CHALLENGE_METHOD = "code_challenge_method";
+    private static final String NONCE = "nonce";
     private static final String REDIRECT_URI = "redirect_uri";
+    private static final String RESPONSE_TYPE = "response_type";
+    private static final String SCOPE = "scope";
+    private static final String STATE = "state";
+
     private static final String EQUALS = "=";
     private static final String ETC = "&";
 
@@ -155,11 +163,20 @@ public class OpenIdProvider {
         final URIBuilder builder = URIBuilder.newBuilder(authorizationEndpoint)
             .queryParam(CLIENT_ID, request.getClientId())
             .queryParam(REDIRECT_URI, request.getRedirectUri().toString())
-            .queryParam("response_type", request.getResponseType());
+            .queryParam(RESPONSE_TYPE, request.getResponseType())
+            .queryParam(SCOPE, request.getScope());
+
+        if (request.getState() != null) {
+            builder.queryParam(STATE, request.getState());
+        }
+
+        if (request.getNonce() != null) {
+            builder.queryParam(NONCE, request.getNonce());
+        }
 
         if (request.getCodeChallenge() != null && request.getCodeChallengeMethod() != null) {
-            builder.queryParam("code_challenge", request.getCodeChallenge());
-            builder.queryParam("code_challenge_method", request.getCodeChallengeMethod());
+            builder.queryParam(CODE_CHALLENGE, request.getCodeChallenge());
+            builder.queryParam(CODE_CHALLENGE_METHOD, request.getCodeChallengeMethod());
         }
 
         return builder.build();
