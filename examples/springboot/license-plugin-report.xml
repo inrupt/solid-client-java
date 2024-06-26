@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1701290552474">
-    <module artifactId="inrupt-client-examples-springboot" groupId="com.inrupt.client" version="1.1.0"/>
+<licensePluginReport goal="CHECK" timestamp="1719418278425">
+    <module artifactId="inrupt-client-examples-springboot" groupId="com.inrupt.client" version="1.1.1"/>
     <files>
         <file path="src/main/java/com/inrupt/client/examples/springboot/Application.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/examples/springboot/ApplicationStartController.java" result="PRESENT"/>

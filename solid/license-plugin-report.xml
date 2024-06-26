@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1701290545885">
-    <module artifactId="inrupt-client-solid" groupId="com.inrupt.client" version="1.1.0"/>
+<licensePluginReport goal="CHECK" timestamp="1719418273962">
+    <module artifactId="inrupt-client-solid" groupId="com.inrupt.client" version="1.1.1"/>
     <files>
         <file path="src/main/java/com/inrupt/client/solid/BadRequestException.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/ConflictException.java" result="PRESENT"/>
