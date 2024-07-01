@@ -75,7 +75,7 @@
     <awaitility.version>4.2.1</awaitility.version>
     <equalsverifier.version>3.16.1</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
-    <junit.version>5.10.2</junit.version>
+    <junit.version>5.10.3</junit.version>
     <smallrye.jwt.version>4.5.3</smallrye.jwt.version>
     <smallrye.config.version>3.8.3</smallrye.config.version>
     <yasson.version>3.0.3</yasson.version>
