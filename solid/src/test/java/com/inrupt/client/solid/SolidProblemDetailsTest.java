@@ -57,7 +57,7 @@ class SolidProblemDetailsTest {
                 mockProblemDetailsHeader(),
                 "{}".getBytes()
         );
-        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType());
         assertEquals(statusCode, pd.getStatus());
         assertNull(pd.getTitle());
         assertNull(pd.getDetail());
@@ -170,7 +170,7 @@ class SolidProblemDetailsTest {
                     "\"type\":\"Some invalid type\"" +
                 "}").getBytes()
         );
-        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType());
     }
 
     @Test
@@ -195,7 +195,7 @@ class SolidProblemDetailsTest {
                 mockProblemDetailsHeader(),
                 "Not valid application/problem+json".getBytes()
         );
-        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType());
         assertEquals(statusCode, pd.getStatus());
         assertNull(pd.getTitle());
         assertNull(pd.getDetail());

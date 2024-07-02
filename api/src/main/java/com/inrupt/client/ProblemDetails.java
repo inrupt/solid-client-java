@@ -37,7 +37,7 @@ public interface ProblemDetails {
     /**
      * The <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a> default problem type.
      */
-    String DEFAULT_TYPE = "about:blank";
+    URI DEFAULT_TYPE = URI.create("about:blank");
 
     /**
      * The problem type.

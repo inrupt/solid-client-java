@@ -27,11 +27,16 @@ import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SolidProblemDetails implements ProblemDetails {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolidProblemDetails.class);
     private static final long serialVersionUID = -4597170432270957765L;
 
     private final URI type;
@@ -139,48 +144,23 @@ public class SolidProblemDetails implements ProblemDetails {
      * @param body the HTTP error response body
      * @return a {@link ProblemDetails} instance
      */
-    static SolidProblemDetails fromErrorResponse(
-            final URI uri,
-            final int statusCode,
-            final Headers headers,
-            final byte[] body
-    ) {
+    static SolidProblemDetails fromErrorResponse(final URI uri, final int statusCode, final Headers headers,
+            final byte[] body) {
         final JsonService jsonService = getJsonService();
-        if (jsonService == null
-                || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
-            return new SolidProblemDetails(
-                URI.create(ProblemDetails.DEFAULT_TYPE),
-                null,
-                null,
-                statusCode,
-                null
-            );
+        if (jsonService != null
+                && (headers != null && headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
+            try (final InputStream input = new ByteArrayInputStream(body)) {
+                final Data pdData = jsonService.fromJson(input, Data.class);
+                final URI type = Optional.ofNullable(pdData.type)
+                    .map(uri::resolve)
+                    .orElse(ProblemDetails.DEFAULT_TYPE);
+                // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
+                final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
+                return new SolidProblemDetails(type, pdData.title, pdData.detail, status, pdData.instance);
+            } catch (IOException e) {
+                LOGGER.debug("Unable to parse ProblemDetails response from server", e);
+            }
         }
-        try {
-            final Data pdData = jsonService.fromJson(
-                    new ByteArrayInputStream(body),
-                    Data.class
-            );
-            final URI type = Optional.ofNullable(pdData.type)
-                .map(uri::resolve)
-                .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
-            // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
-            final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
-            return new SolidProblemDetails(
-                    type,
-                    pdData.title,
-                    pdData.detail,
-                    status,
-                    pdData.instance
-            );
-        } catch (IOException e) {
-            return new SolidProblemDetails(
-                URI.create(ProblemDetails.DEFAULT_TYPE),
-                null,
-                null,
-                statusCode,
-                null
-            );
-        }
+        return new SolidProblemDetails(ProblemDetails.DEFAULT_TYPE, null, null, statusCode, null);
     }
 }

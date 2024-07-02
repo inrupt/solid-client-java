@@ -412,7 +412,7 @@ class SolidClientTest {
         assertEquals(statusCode, exception.getStatusCode());
         // The following assertions check that in absence of an RFC9457 compliant response, we properly initialize the
         // default values for the attached Problem Details.
-        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType());
         assertEquals(statusCode, exception.getProblemDetails().getStatus());
         assertNull(exception.getProblemDetails().getTitle());
         assertNull(exception.getProblemDetails().getDetail());
@@ -606,7 +606,7 @@ class SolidClientTest {
         );
         assertEquals(statusCode, exception.getStatusCode());
         // On malformed response, the ProblemDetails should fall back to defaults.
-        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType());
         assertNull(exception.getProblemDetails().getTitle());
         assertEquals(statusCode, exception.getProblemDetails().getStatus());
         assertNull(exception.getProblemDetails().getDetail());
@@ -653,7 +653,7 @@ class SolidClientTest {
         );
         assertEquals(statusCode, exception.getStatusCode());
         // On malformed response, the ProblemDetails should fall back to defaults.
-        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, exception.getProblemDetails().getType());
         assertNull(exception.getProblemDetails().getTitle());
         assertEquals(statusCode, exception.getProblemDetails().getStatus());
         assertNull(exception.getProblemDetails().getDetail());
