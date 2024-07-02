@@ -275,6 +275,9 @@ public class DomainModulesResource {
         final var err = assertThrows(NotFoundException.class, () -> client.read(missingWebId, WebIdProfile.class));
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
+
+        final var problemDetails = err.getProblemDetails();
+        assertEquals(err.getStatusCode(), problemDetails.getStatus());
     }
 
     @Test
