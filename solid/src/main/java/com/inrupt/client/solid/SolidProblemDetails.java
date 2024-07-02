@@ -36,7 +36,7 @@ public class SolidProblemDetails implements ProblemDetails {
 
     private final URI type;
     private final String title;
-    private final String details;
+    private final String detail;
     private final int status;
     private final URI instance;
     private static JsonService jsonService;
@@ -47,20 +47,20 @@ public class SolidProblemDetails implements ProblemDetails {
      * <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>.
      * @param type the problem type
      * @param title the problem title
-     * @param details the problem details
+     * @param detail the problem details
      * @param status the error response status code
      * @param instance the problem instance
      */
     public SolidProblemDetails(
         final URI type,
         final String title,
-        final String details,
+        final String detail,
         final int status,
         final URI instance
     ) {
         this.type = type;
         this.title = title;
-        this.details = details;
+        this.detail = detail;
         this.status = status;
         this.instance = instance;
     }
@@ -76,8 +76,8 @@ public class SolidProblemDetails implements ProblemDetails {
     }
 
     @Override
-    public String getDetails() {
-        return this.details;
+    public String getDetail() {
+        return this.detail;
     }
 
     @Override
@@ -103,9 +103,9 @@ public class SolidProblemDetails implements ProblemDetails {
          */
         public String title;
         /**
-         * The problem details.
+         * The problem detail.
          */
-        public String details;
+        public String detail;
         /**
          * The problem status code.
          */
@@ -133,12 +133,14 @@ public class SolidProblemDetails implements ProblemDetails {
 
     /**
      * Builds a {@link ProblemDetails} instance from an HTTP error response.
+     * @param uri the original URI
      * @param statusCode the HTTP error response status code
      * @param headers the HTTP error response headers
      * @param body the HTTP error response body
      * @return a {@link ProblemDetails} instance
      */
-    public static SolidProblemDetails fromErrorResponse(
+    static SolidProblemDetails fromErrorResponse(
+            final URI uri,
             final int statusCode,
             final Headers headers,
             final byte[] body
@@ -160,13 +162,14 @@ public class SolidProblemDetails implements ProblemDetails {
                     Data.class
             );
             final URI type = Optional.ofNullable(pdData.type)
+                .map(uri::resolve)
                 .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
             // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
             final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
             return new SolidProblemDetails(
                     type,
                     pdData.title,
-                    pdData.details,
+                    pdData.detail,
                     status,
                     pdData.instance
             );

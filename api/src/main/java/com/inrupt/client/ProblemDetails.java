@@ -52,10 +52,10 @@ public interface ProblemDetails {
     String getTitle();
 
     /**
-     * The problem details.
-     * @return the details
+     * The problem detail.
+     * @return the detail
      */
-    String getDetails();
+    String getDetail();
 
     /**
      * The problem status code.

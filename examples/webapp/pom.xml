@@ -16,8 +16,7 @@
   </description>
 
   <properties>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.release>17</maven.compiler.release>
 
     <quarkus.version>3.12.0</quarkus.version>
   </properties>
