@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -67,6 +68,7 @@ class SolidProblemDetailsTest {
     @Test
     void testRelativeUriProblemDetails() {
         final int statusCode = 400;
+        final UUID instance = UUID.randomUUID();
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 POD,
                 statusCode,
@@ -75,7 +77,7 @@ class SolidProblemDetailsTest {
                     "\"title\":\"Some title\"," +
                     "\"status\":400," +
                     "\"detail\":\"Some details\"," +
-                    "\"instance\":\"https://example.org/instance\"," +
+                    "\"instance\":\"Instance" + instance + "\"," +
                     "\"type\":\"SomeType\"" +
                 "}").getBytes()
         );
@@ -83,13 +85,13 @@ class SolidProblemDetailsTest {
         assertEquals(statusCode, pd.getStatus());
         Assertions.assertEquals("Some title", pd.getTitle());
         assertEquals("Some details", pd.getDetail());
-        assertEquals("https://example.org/instance", pd.getInstance().toString());
+        assertEquals("https://storage.test/pod/Instance" + instance, pd.getInstance().toString());
     }
-
 
     @Test
     void testCompleteProblemDetails() {
         final int statusCode = 400;
+        final UUID instance = UUID.randomUUID();
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
                 POD,
                 statusCode,
@@ -98,7 +100,7 @@ class SolidProblemDetailsTest {
                     "\"title\":\"Some title\"," +
                     "\"status\":400," +
                     "\"detail\":\"Some details\"," +
-                    "\"instance\":\"https://example.org/instance\"," +
+                    "\"instance\":\"urn:uuid:" + instance + "\"," +
                     "\"type\":\"https://example.org/type\"" +
                 "}").getBytes()
         );
@@ -106,7 +108,7 @@ class SolidProblemDetailsTest {
         assertEquals(statusCode, pd.getStatus());
         Assertions.assertEquals("Some title", pd.getTitle());
         assertEquals("Some details", pd.getDetail());
-        assertEquals("https://example.org/instance", pd.getInstance().toString());
+        assertEquals("urn:uuid:" + instance, pd.getInstance().toString());
     }
 
     @Test

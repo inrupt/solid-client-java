@@ -154,9 +154,10 @@ public class SolidProblemDetails implements ProblemDetails {
                 final URI type = Optional.ofNullable(pdData.type)
                     .map(uri::resolve)
                     .orElse(ProblemDetails.DEFAULT_TYPE);
+                final URI instance = pdData.instance != null ? uri.resolve(pdData.instance) : null;
                 // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
                 final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
-                return new SolidProblemDetails(type, pdData.title, pdData.detail, status, pdData.instance);
+                return new SolidProblemDetails(type, pdData.title, pdData.detail, status, instance);
             } catch (IOException e) {
                 LOGGER.debug("Unable to parse ProblemDetails response from server", e);
             }
