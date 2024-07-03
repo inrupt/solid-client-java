@@ -26,10 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import com.inrupt.client.Headers;
 import com.inrupt.client.ProblemDetails;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,6 +39,8 @@ import org.junit.jupiter.api.Test;
 // Ideally, this class should be in the api module, but it creates
 // a circular dependency with the JSON module implementation.
 class SolidProblemDetailsTest {
+    private static final URI POD = URI.create("https://storage.test/pod/");
+
     Headers mockProblemDetailsHeader() {
         final List<String> headerValues = new ArrayList<>();
         headerValues.add("application/problem+json");
@@ -49,47 +53,75 @@ class SolidProblemDetailsTest {
     void testEmptyProblemDetails() {
         final int statusCode = 400;
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 statusCode,
                 mockProblemDetailsHeader(),
                 "{}".getBytes()
         );
-        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType());
         assertEquals(statusCode, pd.getStatus());
         assertNull(pd.getTitle());
-        assertNull(pd.getDetails());
+        assertNull(pd.getDetail());
         assertNull(pd.getInstance());
     }
+
     @Test
-    void testCompleteProblemDetails() {
+    void testRelativeUriProblemDetails() {
         final int statusCode = 400;
+        final UUID instance = UUID.randomUUID();
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
                     "\"title\":\"Some title\"," +
                     "\"status\":400," +
-                    "\"details\":\"Some details\"," +
-                    "\"instance\":\"https://example.org/instance\"," +
+                    "\"detail\":\"Some details\"," +
+                    "\"instance\":\"Instance" + instance + "\"," +
+                    "\"type\":\"SomeType\"" +
+                "}").getBytes()
+        );
+        assertEquals(URI.create("https://storage.test/pod/SomeType"), pd.getType());
+        assertEquals(statusCode, pd.getStatus());
+        Assertions.assertEquals("Some title", pd.getTitle());
+        assertEquals("Some details", pd.getDetail());
+        assertEquals("https://storage.test/pod/Instance" + instance, pd.getInstance().toString());
+    }
+
+    @Test
+    void testCompleteProblemDetails() {
+        final int statusCode = 400;
+        final UUID instance = UUID.randomUUID();
+        final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
+                statusCode,
+                mockProblemDetailsHeader(),
+                ("{" +
+                    "\"title\":\"Some title\"," +
+                    "\"status\":400," +
+                    "\"detail\":\"Some details\"," +
+                    "\"instance\":\"urn:uuid:" + instance + "\"," +
                     "\"type\":\"https://example.org/type\"" +
                 "}").getBytes()
         );
         assertEquals("https://example.org/type", pd.getType().toString());
         assertEquals(statusCode, pd.getStatus());
         Assertions.assertEquals("Some title", pd.getTitle());
-        assertEquals("Some details", pd.getDetails());
-        assertEquals("https://example.org/instance", pd.getInstance().toString());
+        assertEquals("Some details", pd.getDetail());
+        assertEquals("urn:uuid:" + instance, pd.getInstance().toString());
     }
 
     @Test
     void testIgnoreUnknownProblemDetails() {
         final int statusCode = 400;
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
                     "\"title\":\"Some title\"," +
                     "\"status\":400," +
-                    "\"details\":\"Some details\"," +
+                    "\"detail\":\"Some details\"," +
                     "\"instance\":\"https://example.org/instance\"," +
                     "\"type\":\"https://example.org/type\"," +
                     "\"unknown\":\"Some unknown property\"" +
@@ -98,7 +130,7 @@ class SolidProblemDetailsTest {
         assertEquals("https://example.org/type", pd.getType().toString());
         assertEquals(statusCode, pd.getStatus());
         Assertions.assertEquals("Some title", pd.getTitle());
-        assertEquals("Some details", pd.getDetails());
+        assertEquals("Some details", pd.getDetail());
         assertEquals("https://example.org/instance", pd.getInstance().toString());
     }
 
@@ -106,6 +138,7 @@ class SolidProblemDetailsTest {
     void testInvalidStatusProblemDetails() {
         final int statusCode = 400;
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -119,6 +152,7 @@ class SolidProblemDetailsTest {
     void testMismatchingStatusProblemDetails() {
         final int statusCode = 400;
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 statusCode,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -131,18 +165,20 @@ class SolidProblemDetailsTest {
     @Test
     void testInvalidTypeProblemDetails() {
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 400,
                 mockProblemDetailsHeader(),
                 ("{" +
                     "\"type\":\"Some invalid type\"" +
                 "}").getBytes()
         );
-        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType());
     }
 
     @Test
     void testInvalidInstanceProblemDetails() {
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 400,
                 mockProblemDetailsHeader(),
                 ("{" +
@@ -156,14 +192,15 @@ class SolidProblemDetailsTest {
     void testInvalidProblemDetails() {
         final int statusCode = 400;
         final ProblemDetails pd = SolidProblemDetails.fromErrorResponse(
+                POD,
                 statusCode,
                 mockProblemDetailsHeader(),
                 "Not valid application/problem+json".getBytes()
         );
-        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType().toString());
+        assertEquals(ProblemDetails.DEFAULT_TYPE, pd.getType());
         assertEquals(statusCode, pd.getStatus());
         assertNull(pd.getTitle());
-        assertNull(pd.getDetails());
+        assertNull(pd.getDetail());
         assertNull(pd.getInstance());
     }
 }

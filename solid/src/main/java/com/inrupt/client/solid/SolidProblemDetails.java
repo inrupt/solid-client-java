@@ -27,16 +27,21 @@ import com.inrupt.client.spi.ServiceProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SolidProblemDetails implements ProblemDetails {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolidProblemDetails.class);
     private static final long serialVersionUID = -4597170432270957765L;
 
     private final URI type;
     private final String title;
-    private final String details;
+    private final String detail;
     private final int status;
     private final URI instance;
     private static JsonService jsonService;
@@ -47,20 +52,20 @@ public class SolidProblemDetails implements ProblemDetails {
      * <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC9457</a>.
      * @param type the problem type
      * @param title the problem title
-     * @param details the problem details
+     * @param detail the problem details
      * @param status the error response status code
      * @param instance the problem instance
      */
     public SolidProblemDetails(
         final URI type,
         final String title,
-        final String details,
+        final String detail,
         final int status,
         final URI instance
     ) {
         this.type = type;
         this.title = title;
-        this.details = details;
+        this.detail = detail;
         this.status = status;
         this.instance = instance;
     }
@@ -76,8 +81,8 @@ public class SolidProblemDetails implements ProblemDetails {
     }
 
     @Override
-    public String getDetails() {
-        return this.details;
+    public String getDetail() {
+        return this.detail;
     }
 
     @Override
@@ -103,9 +108,9 @@ public class SolidProblemDetails implements ProblemDetails {
          */
         public String title;
         /**
-         * The problem details.
+         * The problem detail.
          */
-        public String details;
+        public String detail;
         /**
          * The problem status code.
          */
@@ -133,51 +138,30 @@ public class SolidProblemDetails implements ProblemDetails {
 
     /**
      * Builds a {@link ProblemDetails} instance from an HTTP error response.
+     * @param uri the original URI
      * @param statusCode the HTTP error response status code
      * @param headers the HTTP error response headers
      * @param body the HTTP error response body
      * @return a {@link ProblemDetails} instance
      */
-    public static SolidProblemDetails fromErrorResponse(
-            final int statusCode,
-            final Headers headers,
-            final byte[] body
-    ) {
+    static SolidProblemDetails fromErrorResponse(final URI uri, final int statusCode, final Headers headers,
+            final byte[] body) {
         final JsonService jsonService = getJsonService();
-        if (jsonService == null
-                || (headers != null && !headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
-            return new SolidProblemDetails(
-                URI.create(ProblemDetails.DEFAULT_TYPE),
-                null,
-                null,
-                statusCode,
-                null
-            );
+        if (jsonService != null
+                && (headers != null && headers.allValues("Content-Type").contains(ProblemDetails.MIME_TYPE))) {
+            try (final InputStream input = new ByteArrayInputStream(body)) {
+                final Data pdData = jsonService.fromJson(input, Data.class);
+                final URI type = Optional.ofNullable(pdData.type)
+                    .map(uri::resolve)
+                    .orElse(ProblemDetails.DEFAULT_TYPE);
+                final URI instance = pdData.instance != null ? uri.resolve(pdData.instance) : null;
+                // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
+                final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
+                return new SolidProblemDetails(type, pdData.title, pdData.detail, status, instance);
+            } catch (IOException e) {
+                LOGGER.debug("Unable to parse ProblemDetails response from server", e);
+            }
         }
-        try {
-            final Data pdData = jsonService.fromJson(
-                    new ByteArrayInputStream(body),
-                    Data.class
-            );
-            final URI type = Optional.ofNullable(pdData.type)
-                .orElse(URI.create(ProblemDetails.DEFAULT_TYPE));
-            // JSON mappers map invalid integers to 0, which is an invalid value in our case anyway.
-            final int status = Optional.of(pdData.status).filter(s -> s != 0).orElse(statusCode);
-            return new SolidProblemDetails(
-                    type,
-                    pdData.title,
-                    pdData.details,
-                    status,
-                    pdData.instance
-            );
-        } catch (IOException e) {
-            return new SolidProblemDetails(
-                URI.create(ProblemDetails.DEFAULT_TYPE),
-                null,
-                null,
-                statusCode,
-                null
-            );
-        }
+        return new SolidProblemDetails(ProblemDetails.DEFAULT_TYPE, null, null, statusCode, null);
     }
 }

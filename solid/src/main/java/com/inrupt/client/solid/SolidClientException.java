@@ -97,7 +97,7 @@ public class SolidClientException extends InruptClientException {
      * @return the problem details object
      */
     public ProblemDetails getProblemDetails() {
-        return SolidProblemDetails.fromErrorResponse(statusCode, headers, body.getBytes());
+        return SolidProblemDetails.fromErrorResponse(uri, statusCode, headers, body.getBytes());
     }
 
     /**
