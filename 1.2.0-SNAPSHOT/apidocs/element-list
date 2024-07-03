@@ -5,14 +5,12 @@ com.inrupt.client.caffeine
 com.inrupt.client.core
 com.inrupt.client.guava
 com.inrupt.client.httpclient
-com.inrupt.client.integration.base
 com.inrupt.client.jackson
 com.inrupt.client.jena
 com.inrupt.client.jsonb
 com.inrupt.client.okhttp
 com.inrupt.client.openid
 com.inrupt.client.parser
-com.inrupt.client.performance.base
 com.inrupt.client.quarkus
 com.inrupt.client.rdf.legacy
 com.inrupt.client.rdf4j
