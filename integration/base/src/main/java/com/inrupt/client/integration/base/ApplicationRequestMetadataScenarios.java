@@ -322,6 +322,11 @@ public class ApplicationRequestMetadataScenarios {
             final var exception = assertThrows(BadRequestException.class, ()-> client.create(testResource));
 
             matchHeaders(requestHeaders, exception.getHeaders());
+            Utils.checkProblemDetails(exception).ifPresent(problemDetails -> {
+                assertEquals("Bad Request", problemDetails.getTitle());
+                assertNotNull(problemDetails.getInstance());
+                assertNotNull(problemDetails.getDetail());
+            });
         }
     }
 
@@ -345,8 +350,12 @@ public class ApplicationRequestMetadataScenarios {
             final var exception = assertThrows(UnauthorizedException.class, ()-> client.create(testResource));
 
             matchHeaders(requestHeaders, exception.getHeaders());
+            Utils.checkProblemDetails(exception).ifPresent(problemDetails -> {
+                assertEquals("Unauthorized", problemDetails.getTitle());
+                assertNotNull(problemDetails.getInstance());
+                assertNotNull(problemDetails.getDetail());
+            });
         }
-
     }
 
     @SuppressWarnings("unchecked")

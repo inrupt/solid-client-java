@@ -26,6 +26,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.Request;
 
 import java.io.IOException;
@@ -71,7 +72,12 @@ class MockUMAAuthorizationServer {
                 .withRequestBody(WireMock.notContaining("claim_token"))
                 .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
                 .willReturn(aResponse()
-                        .withStatus(403)));
+                        .withStatus(403)
+                        .withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE)
+                        .withBody("{" +
+                                "\"status\":403, \"title\": \"Forbidden\"," +
+                                "\"description\": \"The client does not have access to this resource.\"," +
+                                "\"instance\": \"urn:uuid:8dfa92c4-f56b-4f01-93a0-983484cfbb26\"}")));
     }
 
     public void start() {

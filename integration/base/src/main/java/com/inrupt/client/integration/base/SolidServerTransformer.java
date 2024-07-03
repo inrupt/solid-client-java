@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.inrupt.client.Headers;
+import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.integration.base.MockSolidServer.ServerBody;
 import com.inrupt.client.vocabulary.PIM;
 
@@ -61,10 +62,13 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
         //determine if authenticated on private resources
         if (Utils.isPrivateResource(request.getUrl()) &&
             request.getHeader("Authorization") == null) {
+            res.withStatus(Utils.UNAUTHORIZED);
             res.withHeader("WWW-Authenticate",
                         "Bearer, DPoP algs=\"ES256\", UMA ticket=token-67890, as_uri=\""
                         + this.asUri + "\"");
-            res.withStatus(Utils.UNAUTHORIZED);
+            res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+            res.withBody(problemDetails(Utils.UNAUTHORIZED, "Unauthorized",
+                        "The client does not have a valid access token", UUID.randomUUID()));
             return res.build();
         }
 
@@ -82,7 +86,11 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
                 }
                 return res.build();
             } else {
-                return res.withStatus(Utils.NOT_FOUND).build();
+                return res.withStatus(Utils.NOT_FOUND)
+                    .withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE)
+                    .withBody(problemDetails(Utils.NOT_FOUND, "Not Found", "The resource does not exist",
+                                UUID.randomUUID()))
+                    .build();
             }
         }
 
@@ -97,9 +105,15 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
                     res.withHeader("Location", location);
                 } else {
                     res.withStatus(Utils.NOT_FOUND);
+                    res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                    res.withBody(problemDetails(Utils.NOT_FOUND, "Not Found", "The resource does not exist",
+                                UUID.randomUUID()));
                 }
             } else {
                 res.withStatus(Utils.NOT_ALLOWED);
+                res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                res.withBody(problemDetails(Utils.NOT_ALLOWED, "Method Not Allowed",
+                            "The provided HTTP method is not allowed at this URL", UUID.randomUUID()));
             }
             return res.build();
         }
@@ -109,6 +123,9 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
                 res.withStatus(Utils.SUCCESS);
             } else {
                 res.withStatus(Utils.NOT_FOUND);
+                res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                res.withBody(problemDetails(Utils.NOT_FOUND, "Not Found", "The resource does not exist",
+                            UUID.randomUUID()));
             }
             res.build();
         }
@@ -122,6 +139,9 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
                 res.withStatus(Utils.NO_CONTENT);
             } else {
                 res.withStatus(Utils.PRECONDITION_FAILED);
+                res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                res.withBody(problemDetails(Utils.PRECONDITION_FAILED, "Precondition Failed",
+                            "The expected preconditions could not be fulfilled", UUID.randomUUID()));
             }
             return res.build();
         }
@@ -140,9 +160,15 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
                     res.withStatus(Utils.NO_CONTENT);
                 } catch (IOException e) {
                     res.withStatus(Utils.ERROR);
+                    res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                    res.withBody(problemDetails(Utils.ERROR, "Internal Server Error",
+                                "The server encountered an internal problem", UUID.randomUUID()));
                 }
             } else {
                 res.withStatus(Utils.ERROR);
+                res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                res.withBody(problemDetails(Utils.ERROR, "Internal Server Error",
+                                "The server encountered an internal problem", UUID.randomUUID()));
             }
             return res.build();
         }
@@ -153,11 +179,18 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
                 res.withStatus(Utils.NO_CONTENT);
             } else {
                 res.withStatus(Utils.NOT_FOUND);
+                res.withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE);
+                res.withBody(problemDetails(Utils.NOT_FOUND, "Not Found", "The resource was not found",
+                        UUID.randomUUID()));
             }
             return res.build();
         }
 
-        return res.withStatus(Utils.NOT_ALLOWED).build();
+        return res.withStatus(Utils.NOT_ALLOWED)
+            .withHeader(Utils.CONTENT_TYPE, ProblemDetails.MIME_TYPE)
+            .withBody(problemDetails(Utils.NOT_ALLOWED, "Method Not Allowed",
+                        "The HTTP method is not allowed at this URL", UUID.randomUUID()))
+            .build();
     }
 
     private void addSubContainersToStorage(final String path, final String mimeType) {
@@ -172,4 +205,15 @@ class SolidServerTransformer implements ResponseDefinitionTransformerV2 {
         }
     }
 
+    static String problemDetails(final int status, final String title, final String description,
+            final UUID instance) {
+        final var builder = new StringBuilder();
+        builder.append("{");
+        builder.append("\"status\":" + status);
+        builder.append(",\"title\":\"" + (title == null ? "(title)" : title) + "\"");
+        builder.append(",\"instance\":\"urn:uuid:" + (instance == null ? UUID.randomUUID() : instance) + "\"");
+        builder.append(",\"description\":\"" + (description == null ? "(description)" : description) + "\"");
+        builder.append("}");
+        return builder.toString();
+    }
 }

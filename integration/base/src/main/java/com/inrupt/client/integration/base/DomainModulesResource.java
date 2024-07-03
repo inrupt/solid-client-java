@@ -22,9 +22,7 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Headers;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
+import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
@@ -73,6 +71,7 @@ public class DomainModulesResource {
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
+    private static final String CONTENT_TYPE = "Content-Type";
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
     private static final String FOLDER_SEPARATOR = "/";
@@ -276,8 +275,11 @@ public class DomainModulesResource {
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
 
-        final var problemDetails = err.getProblemDetails();
-        assertEquals(err.getStatusCode(), problemDetails.getStatus());
+        Utils.checkProblemDetails(err).ifPresent(problemDetails -> {
+            assertEquals("Not Found", problemDetails.getTitle());
+            assertNotNull(problemDetails.getInstance());
+            assertNotNull(problemDetails.getDetail());
+        });
     }
 
     @Test

@@ -22,9 +22,10 @@ package com.inrupt.client.integration.base;
 
 import static com.inrupt.client.vocabulary.RDF.type;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.inrupt.client.Headers;
+import com.inrupt.client.ProblemDetails;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.solid.*;
@@ -116,6 +117,18 @@ public final class Utils {
                 RDFDataMgr.write(output, model, Lang.TURTLE);
                 return output.toByteArray();
             }
+        }
+    }
+
+    public static Optional<ProblemDetails> checkProblemDetails(final SolidClientException err) {
+        final ProblemDetails problemDetails = err.getProblemDetails();
+        assertEquals(err.getStatusCode(), problemDetails.getStatus());
+        if (err.getHeaders().firstValue(CONTENT_TYPE).equals(Optional.of(ProblemDetails.MIME_TYPE))) {
+            assertNotNull(problemDetails.getType(), "Type field should not be null!");
+            return Optional.of(problemDetails);
+        } else {
+            assertEquals(ProblemDetails.DEFAULT_TYPE, problemDetails.getType());
+            return Optional.empty();
         }
     }
 

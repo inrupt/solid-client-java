@@ -253,6 +253,11 @@ public class AccessGrantScenarios {
         final var err = assertThrows(UnauthorizedException.class,
                 () -> requesterClient.read(sharedTextFileURI, SolidNonRDFSource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+        Utils.checkProblemDetails(err).ifPresent(problemDetails -> {
+            assertEquals("Unauthorized", problemDetails.getTitle());
+            assertNotNull(problemDetails.getDetail());
+            assertNotNull(problemDetails.getInstance());
+        });
 
         //authorized request test
         final Session accessSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
@@ -271,10 +276,13 @@ public class AccessGrantScenarios {
         // Once revoked, the Access Grant should no longer grant access to the resource. The previously issued access
         // token may still be valid, so cache is cleared for the test.
         accessSession.reset();
-        assertThrows(
-                UnauthorizedException.class,
-                () -> requesterAuthClient.read(sharedTextFileURI, SolidNonRDFSource.class)
-        );
+        final var err2 = assertThrows(UnauthorizedException.class,
+                () -> requesterAuthClient.read(sharedTextFileURI, SolidNonRDFSource.class));
+        Utils.checkProblemDetails(err2).ifPresent(problemDetails -> {
+            assertEquals("Unauthorized", problemDetails.getTitle());
+            assertNotNull(problemDetails.getDetail());
+            assertNotNull(problemDetails.getInstance());
+        });
     }
 
     @ParameterizedTest

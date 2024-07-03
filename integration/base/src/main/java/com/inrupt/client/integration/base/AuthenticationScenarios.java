@@ -190,6 +190,7 @@ public class AuthenticationScenarios {
             final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURI, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+            Utils.checkProblemDetails(err);
 
             assertDoesNotThrow(() -> authClient.delete(testResource));
         }
@@ -245,6 +246,7 @@ public class AuthenticationScenarios {
             final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURI, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+            Utils.checkProblemDetails(err);
 
             final SolidSyncClient authClient2 = client.session(session);
             assertDoesNotThrow(() -> authClient2.read(privateResourceURI, SolidRDFSource.class));
@@ -281,6 +283,7 @@ public class AuthenticationScenarios {
                 final var err = assertThrows(UnauthorizedException.class,
                         () -> client.read(privateResourceURI, SolidRDFSource.class));
                 assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+                Utils.checkProblemDetails(err);
 
                 //delete both resources with whichever client
                 assertDoesNotThrow(() -> authClient1.delete(testResource2));
