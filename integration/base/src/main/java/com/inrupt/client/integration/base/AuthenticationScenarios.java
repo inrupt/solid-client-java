@@ -78,7 +78,7 @@ public class AuthenticationScenarios {
 
     private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
         .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
-        .orElse(false);
+        .orElse(true);
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
