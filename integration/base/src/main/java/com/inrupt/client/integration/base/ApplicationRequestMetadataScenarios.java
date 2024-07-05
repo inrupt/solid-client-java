@@ -84,8 +84,9 @@ public class ApplicationRequestMetadataScenarios {
             .orElse("client_secret_basic");
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
-    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE =
-            config.getValue("inrupt.test.error-description.feature", Boolean.class);
+    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
+        .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
+        .orElse(false);
 
 
     private static final String FOLDER_SEPARATOR = "/";
