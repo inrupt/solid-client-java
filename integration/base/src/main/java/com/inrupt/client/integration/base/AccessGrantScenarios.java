@@ -95,7 +95,7 @@ public class AccessGrantScenarios {
 
     private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
         .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
-        .orElse(false);
+        .orElse(true);
 
     protected static String ACCESS_GRANT_PROVIDER;
     protected static final String GRANT_MODE_READ = "Read";
