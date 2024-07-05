@@ -84,6 +84,10 @@ public class ApplicationRequestMetadataScenarios {
             .orElse("client_secret_basic");
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
+    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
+        .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
+        .orElse(false);
+
 
     private static final String FOLDER_SEPARATOR = "/";
 
@@ -322,6 +326,12 @@ public class ApplicationRequestMetadataScenarios {
             final var exception = assertThrows(BadRequestException.class, ()-> client.create(testResource));
 
             matchHeaders(requestHeaders, exception.getHeaders());
+            assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(exception).isPresent());
+            Utils.checkProblemDetails(exception).ifPresent(problemDetails -> {
+                assertEquals("Bad Request", problemDetails.getTitle());
+                assertNotNull(problemDetails.getInstance());
+                assertNotNull(problemDetails.getDetail());
+            });
         }
     }
 
@@ -345,8 +355,13 @@ public class ApplicationRequestMetadataScenarios {
             final var exception = assertThrows(UnauthorizedException.class, ()-> client.create(testResource));
 
             matchHeaders(requestHeaders, exception.getHeaders());
+            assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(exception).isPresent());
+            Utils.checkProblemDetails(exception).ifPresent(problemDetails -> {
+                assertEquals("Unauthorized", problemDetails.getTitle());
+                assertNotNull(problemDetails.getInstance());
+                assertNotNull(problemDetails.getDetail());
+            });
         }
-
     }
 
     @SuppressWarnings("unchecked")

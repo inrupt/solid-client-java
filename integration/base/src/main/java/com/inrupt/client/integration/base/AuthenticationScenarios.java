@@ -75,6 +75,10 @@ public class AuthenticationScenarios {
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
+
+    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
+        .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
+        .orElse(false);
     private static SolidSyncClient localAuthClient;
 
     @BeforeAll
@@ -190,6 +194,8 @@ public class AuthenticationScenarios {
             final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURI, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+            assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err).isPresent());
+            Utils.checkProblemDetails(err);
 
             assertDoesNotThrow(() -> authClient.delete(testResource));
         }
@@ -245,6 +251,9 @@ public class AuthenticationScenarios {
             final var err = assertThrows(UnauthorizedException.class,
                     () -> client.read(privateResourceURI, SolidRDFSource.class));
             assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+            assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err).isPresent());
+            Utils.checkProblemDetails(err);
+
 
             final SolidSyncClient authClient2 = client.session(session);
             assertDoesNotThrow(() -> authClient2.read(privateResourceURI, SolidRDFSource.class));
@@ -281,6 +290,8 @@ public class AuthenticationScenarios {
                 final var err = assertThrows(UnauthorizedException.class,
                         () -> client.read(privateResourceURI, SolidRDFSource.class));
                 assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
+                assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err).isPresent());
+                Utils.checkProblemDetails(err);
 
                 //delete both resources with whichever client
                 assertDoesNotThrow(() -> authClient1.delete(testResource2));

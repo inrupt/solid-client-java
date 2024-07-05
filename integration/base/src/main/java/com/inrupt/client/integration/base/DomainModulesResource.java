@@ -22,9 +22,7 @@ package com.inrupt.client.integration.base;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.inrupt.client.Headers;
-import com.inrupt.client.Request;
-import com.inrupt.client.Response;
+import com.inrupt.client.*;
 import com.inrupt.client.auth.Session;
 import com.inrupt.client.openid.OpenIdSession;
 import com.inrupt.client.solid.*;
@@ -73,10 +71,14 @@ public class DomainModulesResource {
     private static final String AUTH_METHOD = config
             .getOptionalValue("inrupt.test.auth-method", String.class)
             .orElse("client_secret_basic");
+    private static final String CONTENT_TYPE = "Content-Type";
     private static final String CLIENT_ID = config.getValue("inrupt.test.client-id", String.class);
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
     private static final String FOLDER_SEPARATOR = "/";
     private static URI publicContainerURI;
+    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
+        .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
+        .orElse(false);
 
     private static SolidSyncClient localAuthClient;
 
@@ -275,6 +277,13 @@ public class DomainModulesResource {
         final var err = assertThrows(NotFoundException.class, () -> client.read(missingWebId, WebIdProfile.class));
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
+
+        assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err).isPresent());
+        Utils.checkProblemDetails(err).ifPresent(problemDetails -> {
+            assertEquals("Not Found", problemDetails.getTitle());
+            assertNotNull(problemDetails.getInstance());
+            assertNotNull(problemDetails.getDetail());
+        });
     }
 
     @Test
