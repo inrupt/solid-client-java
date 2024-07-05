@@ -76,6 +76,8 @@ public class DomainModulesResource {
     private static final String CLIENT_SECRET = config.getValue("inrupt.test.client-secret", String.class);
     private static final String FOLDER_SEPARATOR = "/";
     private static URI publicContainerURI;
+    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE =
+            config.getValue("inrupt.test.error-description.feature", Boolean.class);
 
     private static SolidSyncClient localAuthClient;
 
@@ -275,6 +277,7 @@ public class DomainModulesResource {
         assertEquals(404, err.getStatusCode());
         assertEquals(missingWebId, err.getUri());
 
+        assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err).isPresent());
         Utils.checkProblemDetails(err).ifPresent(problemDetails -> {
             assertEquals("Not Found", problemDetails.getTitle());
             assertNotNull(problemDetails.getInstance());
