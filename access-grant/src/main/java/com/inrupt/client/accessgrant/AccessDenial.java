@@ -93,6 +93,7 @@ public class AccessDenial extends AccessCredential {
     static Set<String> getSupportedTypes() {
         final Set<String> types = new HashSet<>();
         types.add("SolidAccessDenial");
+        types.add("vc:SolidAccessDenial");
         types.add("http://www.w3.org/ns/solid/vc#SolidAccessDenial");
         return Collections.unmodifiableSet(types);
     }

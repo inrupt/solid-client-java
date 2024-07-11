@@ -93,6 +93,7 @@ public class AccessGrant extends AccessCredential {
     static Set<String> getSupportedTypes() {
         final Set<String> types = new HashSet<>();
         types.add("SolidAccessGrant");
+        types.add("vc:SolidAccessGrant");
         types.add("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
         return Collections.unmodifiableSet(types);
     }
