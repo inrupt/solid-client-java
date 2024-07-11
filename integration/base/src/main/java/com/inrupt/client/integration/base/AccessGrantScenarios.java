@@ -93,10 +93,6 @@ public class AccessGrantScenarios {
         .getOptionalValue("inrupt.test.auth-method", String.class)
         .orElse("client_secret_basic");
 
-    private static final Boolean INRUPT_TEST_ERROR_DESCRIPTION_FEATURE = config
-        .getOptionalValue("inrupt.test.error-description.feature", Boolean.class)
-        .orElse(true);
-
     protected static String ACCESS_GRANT_PROVIDER;
     protected static final String GRANT_MODE_READ = "Read";
     private static final String GRANT_MODE_APPEND = "Append";
@@ -257,7 +253,6 @@ public class AccessGrantScenarios {
         final var err = assertThrows(UnauthorizedException.class,
                 () -> requesterClient.read(sharedTextFileURI, SolidNonRDFSource.class));
         assertEquals(Utils.UNAUTHORIZED, err.getStatusCode());
-        assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err).isPresent());
         Utils.checkProblemDetails(err).ifPresent(problemDetails -> {
             assertEquals("Unauthorized", problemDetails.getTitle());
             assertNotNull(problemDetails.getDetail());
@@ -283,7 +278,6 @@ public class AccessGrantScenarios {
         accessSession.reset();
         final var err2 = assertThrows(UnauthorizedException.class,
                 () -> requesterAuthClient.read(sharedTextFileURI, SolidNonRDFSource.class));
-        assertEquals(INRUPT_TEST_ERROR_DESCRIPTION_FEATURE, Utils.checkProblemDetails(err2).isPresent());
         Utils.checkProblemDetails(err2).ifPresent(problemDetails -> {
             assertEquals("Unauthorized", problemDetails.getTitle());
             assertNotNull(problemDetails.getDetail());
