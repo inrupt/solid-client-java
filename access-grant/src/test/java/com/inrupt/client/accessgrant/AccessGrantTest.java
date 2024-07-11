@@ -74,6 +74,37 @@ class AccessGrantTest {
     }
 
     @Test
+    void testReadAccessGrantQualifiedName() throws IOException {
+        try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant4.json")) {
+            final AccessGrant grant = AccessGrant.of(resource);
+            assertEquals(Collections.singleton("Read"), grant.getModes());
+            assertEquals(URI.create("https://accessgrant.example"), grant.getIssuer());
+            final Set<String> expectedTypes = new HashSet<>();
+            expectedTypes.add("VerifiableCredential");
+            expectedTypes.add("vc:SolidAccessGrant");
+            assertEquals(expectedTypes, grant.getTypes());
+            assertEquals(Instant.parse("2022-08-27T12:00:00Z"), grant.getExpiration());
+            assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
+            assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
+                    grant.getIdentifier());
+            assertEquals(Collections.singleton(URI.create("https://purpose.example/Purpose1")), grant.getPurposes());
+            assertEquals(Collections.singleton(
+                        URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/")),
+                    grant.getResources());
+            assertEquals(URI.create("https://id.example/grantor"), grant.getCreator());
+            assertEquals(Optional.of(URI.create("https://id.example/grantee")), grant.getRecipient());
+            final Optional<Status> status = grant.getStatus();
+            assertTrue(status.isPresent());
+            status.ifPresent(s -> {
+                assertEquals(URI.create("https://accessgrant.example/status/CVAM#2832"), s.getIdentifier());
+                assertEquals(URI.create("https://accessgrant.example/status/CVAM"), s.getCredential());
+                assertEquals(2832, s.getIndex());
+                assertEquals("RevocationList2020Status", s.getType());
+            });
+        }
+    }
+
+    @Test
     void testReadAccessGrantSingletons() throws IOException {
         try (final InputStream resource = AccessGrantTest.class.getResourceAsStream("/access_grant2.json")) {
             final AccessGrant grant = AccessGrant.of(resource);

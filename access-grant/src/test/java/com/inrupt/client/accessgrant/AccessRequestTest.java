@@ -100,7 +100,6 @@ class AccessRequestTest {
         assertNull(params.getIssuedAt());
     }
 
-
     @Test
     void testReadAccessRequest() throws IOException {
         try (final InputStream resource = AccessRequestTest.class.getResourceAsStream("/access_request1.json")) {
@@ -110,6 +109,37 @@ class AccessRequestTest {
             final Set<String> expectedTypes = new HashSet<>();
             expectedTypes.add("VerifiableCredential");
             expectedTypes.add("SolidAccessRequest");
+            assertEquals(expectedTypes, request.getTypes());
+            assertEquals(Instant.parse("2022-08-27T12:00:00Z"), request.getExpiration());
+            assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), request.getIssuedAt());
+            assertEquals(URI.create("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab"),
+                    request.getIdentifier());
+            assertEquals(Collections.singleton(URI.create("https://purpose.test/Purpose1")), request.getPurposes());
+            assertEquals(Collections.singleton(
+                        URI.create("https://storage.test/data/")),
+                    request.getResources());
+            assertEquals(URI.create("https://id.test/username"), request.getCreator());
+            assertEquals(Optional.of(URI.create("https://id.test/agent")), request.getRecipient());
+            final Optional<Status> status = request.getStatus();
+            assertTrue(status.isPresent());
+            status.ifPresent(s -> {
+                assertEquals(URI.create("https://accessgrant.test/status/CVAM#2832"), s.getIdentifier());
+                assertEquals(URI.create("https://accessgrant.test/status/CVAM"), s.getCredential());
+                assertEquals(2832, s.getIndex());
+                assertEquals("RevocationList2020Status", s.getType());
+            });
+        }
+    }
+
+    @Test
+    void testReadAccessRequestQualifiedName() throws IOException {
+        try (final InputStream resource = AccessRequestTest.class.getResourceAsStream("/access_request3.json")) {
+            final AccessRequest request = AccessRequest.of(resource);
+            assertEquals(Collections.singleton("Read"), request.getModes());
+            assertEquals(URI.create("https://accessgrant.test"), request.getIssuer());
+            final Set<String> expectedTypes = new HashSet<>();
+            expectedTypes.add("VerifiableCredential");
+            expectedTypes.add("vc:SolidAccessRequest");
             assertEquals(expectedTypes, request.getTypes());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), request.getExpiration());
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), request.getIssuedAt());

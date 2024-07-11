@@ -94,6 +94,7 @@ public class AccessRequest extends AccessCredential {
     static Set<String> getSupportedTypes() {
         final Set<String> types = new HashSet<>();
         types.add("SolidAccessRequest");
+        types.add("vc:SolidAccessRequest");
         types.add("http://www.w3.org/ns/solid/vc#SolidAccessRequest");
         return Collections.unmodifiableSet(types);
     }

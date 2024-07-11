@@ -94,6 +94,7 @@ public class AccessGrantClient {
     private static final String INRUPT_CONTEXT_URI = "https://schema.inrupt.com/credentials/v1.jsonld";
     private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
     private static final String SOLID_VC_NAMESPACE = "http://www.w3.org/ns/solid/vc#";
+    private static final String SOLID_VC_QN = "vc:";
     private static final String TYPE = "type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -114,6 +115,9 @@ public class AccessGrantClient {
     private static final URI FQ_ACCESS_GRANT = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_GRANT);
     private static final URI FQ_ACCESS_REQUEST = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_REQUEST);
     private static final URI FQ_ACCESS_DENIAL = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_DENIAL);
+    private static final URI QN_ACCESS_GRANT = URI.create(SOLID_VC_QN + SOLID_ACCESS_GRANT);
+    private static final URI QN_ACCESS_REQUEST = URI.create(SOLID_VC_QN + SOLID_ACCESS_REQUEST);
+    private static final URI QN_ACCESS_DENIAL = URI.create(SOLID_VC_QN + SOLID_ACCESS_DENIAL);
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
     private static final Set<String> ACCESS_REQUEST_TYPES = getAccessRequestTypes();
     private static final Set<String> ACCESS_DENIAL_TYPES = getAccessDenialTypes();
@@ -785,6 +789,7 @@ public class AccessGrantClient {
     static Set<String> getAccessRequestTypes() {
         final Set<String> types = new HashSet<>();
         types.add(SOLID_ACCESS_REQUEST);
+        types.add(QN_ACCESS_REQUEST.toString());
         types.add(FQ_ACCESS_REQUEST.toString());
         return Collections.unmodifiableSet(types);
     }
@@ -792,6 +797,7 @@ public class AccessGrantClient {
     static Set<String> getAccessGrantTypes() {
         final Set<String> types = new HashSet<>();
         types.add(SOLID_ACCESS_GRANT);
+        types.add(QN_ACCESS_GRANT.toString());
         types.add(FQ_ACCESS_GRANT.toString());
         return Collections.unmodifiableSet(types);
     }
@@ -799,19 +805,23 @@ public class AccessGrantClient {
     static Set<String> getAccessDenialTypes() {
         final Set<String> types = new HashSet<>();
         types.add(SOLID_ACCESS_DENIAL);
+        types.add(QN_ACCESS_DENIAL.toString());
         types.add(FQ_ACCESS_DENIAL.toString());
         return Collections.unmodifiableSet(types);
     }
 
     static boolean isAccessGrant(final URI type) {
-        return SOLID_ACCESS_GRANT.equals(type.toString()) || FQ_ACCESS_GRANT.equals(type);
+        return SOLID_ACCESS_GRANT.equals(type.toString()) || QN_ACCESS_GRANT.equals(type)
+            || FQ_ACCESS_GRANT.equals(type);
     }
 
     static boolean isAccessRequest(final URI type) {
-        return SOLID_ACCESS_REQUEST.equals(type.toString()) || FQ_ACCESS_REQUEST.equals(type);
+        return SOLID_ACCESS_REQUEST.equals(type.toString()) || QN_ACCESS_REQUEST.equals(type)
+            || FQ_ACCESS_REQUEST.equals(type);
     }
 
     static boolean isAccessDenial(final URI type) {
-        return SOLID_ACCESS_DENIAL.equals(type.toString()) || FQ_ACCESS_DENIAL.equals(type);
+        return SOLID_ACCESS_DENIAL.equals(type.toString()) || QN_ACCESS_DENIAL.equals(type)
+            || FQ_ACCESS_DENIAL.equals(type);
     }
 }

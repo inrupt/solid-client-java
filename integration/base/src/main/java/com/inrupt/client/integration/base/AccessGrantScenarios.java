@@ -236,17 +236,27 @@ public class AccessGrantScenarios {
         ).session(resourceOwnerSession);
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
             .toCompletableFuture().join();
+        final AccessDenial denial = resourceOwnerAccessGrantClient.denyAccess(request)
+            .toCompletableFuture().join();
 
         //2. call verify endpoint to verify grant
         final var grantVerification = resourceOwnerAccessGrantClient.verify(grant).toCompletableFuture().join();
         assertTrue(grantVerification.getChecks().size() > 0);
         assertEquals(grantVerification.getErrors().size(), 0);
         assertEquals(grantVerification.getWarnings().size(), 0);
-
         final AccessGrant grantFromVcProvider =
             resourceOwnerAccessGrantClient.fetch(grant.getIdentifier(), AccessGrant.class)
                 .toCompletableFuture().join();
         assertEquals(grant.getPurposes(), grantFromVcProvider.getPurposes());
+
+        final var denialVerification = resourceOwnerAccessGrantClient.verify(denial).toCompletableFuture().join();
+        assertTrue(denialVerification.getChecks().size() > 0);
+        assertEquals(denialVerification.getErrors().size(), 0);
+        assertEquals(denialVerification.getWarnings().size(), 0);
+        final AccessDenial denialFromVcProvider =
+            resourceOwnerAccessGrantClient.fetch(denial.getIdentifier(), AccessDenial.class)
+                .toCompletableFuture().join();
+        assertEquals(denial.getPurposes(), denialFromVcProvider.getPurposes());
 
         //unauthorized request test
         final SolidSyncClient requesterClient = SolidSyncClient.getClientBuilder().build();
@@ -266,12 +276,19 @@ public class AccessGrantScenarios {
         assertDoesNotThrow(() -> requesterAuthClient.read(sharedTextFileURI, SolidNonRDFSource.class));
 
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(denial).toCompletableFuture()::join);
 
         //6. call verify endpoint to check the grant is not valid
         final var revokedGrantVerification = resourceOwnerAccessGrantClient.verify(grant).toCompletableFuture().join();
-        assertTrue(grantVerification.getChecks().size() > 0);
+        assertTrue(revokedGrantVerification.getChecks().size() > 0);
         assertEquals(revokedGrantVerification.getErrors().size(), 1);
-        assertEquals(grantVerification.getWarnings().size(), 0);
+        assertEquals(revokedGrantVerification.getWarnings().size(), 0);
+
+        final var revokedDenialVerification = resourceOwnerAccessGrantClient.verify(denial)
+            .toCompletableFuture().join();
+        assertTrue(revokedDenialVerification.getChecks().size() > 0);
+        assertEquals(revokedDenialVerification.getErrors().size(), 1);
+        assertEquals(revokedDenialVerification.getWarnings().size(), 0);
 
         // Once revoked, the Access Grant should no longer grant access to the resource. The previously issued access
         // token may still be valid, so cache is cleared for the test.
