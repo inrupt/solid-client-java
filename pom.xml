@@ -76,7 +76,7 @@
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.3</junit.version>
     <smallrye.jwt.version>4.5.3</smallrye.jwt.version>
-    <smallrye.config.version>3.8.3</smallrye.config.version>
+    <smallrye.config.version>3.9.0</smallrye.config.version>
     <yasson.version>3.0.3</yasson.version>
     <wiremock.version>3.8.0</wiremock.version>
 
