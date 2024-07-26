@@ -29,7 +29,8 @@ import java.util.function.Function;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 /**
- * A utility class for converting a Quarkus (Microprofile) {@link JsonWebToken} to session objects for use with the Java Client libraries.
+ * A utility class for converting a Quarkus (Microprofile) {@link JsonWebToken} to session objects
+ * for use with the Java Client libraries.
  */
 public final class SessionUtils {
 
