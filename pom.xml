@@ -78,7 +78,7 @@
     <junit.version>5.10.3</junit.version>
     <smallrye.jwt.version>4.5.3</smallrye.jwt.version>
     <smallrye.config.version>3.9.1</smallrye.config.version>
-    <yasson.version>3.0.3</yasson.version>
+    <yasson.version>3.0.4</yasson.version>
     <wiremock.version>3.9.1</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
