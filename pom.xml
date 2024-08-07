@@ -73,7 +73,7 @@
     <equalsverifier.version>3.16.1</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.3</junit.version>
-    <yasson.version>3.0.3</yasson.version>
+    <yasson.version>3.0.4</yasson.version>
     <wiremock.version>3.9.1</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
