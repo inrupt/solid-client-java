@@ -19,7 +19,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- dependencies -->
-    <antlr.version>4.13.1</antlr.version>
+    <antlr.version>4.13.2</antlr.version>
     <caffeine.version>3.1.8</caffeine.version>
     <commons.codec.version>1.17.1</commons.codec.version>
     <commons.cli.version>1.8.0</commons.cli.version>
@@ -32,7 +32,7 @@
     <jose4j.version>0.9.6</jose4j.version>
     <json.bind.version>3.0.1</json.bind.version>
     <okhttp.version>4.12.0</okhttp.version>
-    <quarkus.version>3.12.3</quarkus.version>
+    <quarkus.version>3.13.0</quarkus.version>
     <slf4j.version>2.0.13</slf4j.version>
     <!-- pinning to Spring 5.x for Java 11 support -->
     <spring.security.version>5.8.13</spring.security.version>
@@ -76,8 +76,8 @@
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.10.3</junit.version>
     <smallrye.jwt.version>4.5.3</smallrye.jwt.version>
-    <smallrye.config.version>3.9.0</smallrye.config.version>
-    <yasson.version>3.0.3</yasson.version>
+    <smallrye.config.version>3.9.1</smallrye.config.version>
+    <yasson.version>3.0.4</yasson.version>
     <wiremock.version>3.9.1</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
