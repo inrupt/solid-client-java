@@ -7,6 +7,16 @@ updates:
     ignore:
       - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
       - dependency-name: "org.springframework.security:spring-*"
+    groups:
+      plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+          - "com.mycila:license-maven-plugin"
+          - "org.jacoco:jacoco-maven-plugin"
+          - "org.sonarsource.scanner.maven:sonar-maven-plugin"
+          - "org.sonatype.plugins:nexus-staging-maven-plugin"
+          - "org.owasp:dependency-check-maven"
+          - "com.puppycrawl.tools:checkstyle"
 
   - package-ecosystem: "maven"
     directory: "/rdf4j/"
@@ -43,6 +53,16 @@ updates:
     labels:
       - "backport"
       - "1.0"
+    groups:
+      plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+          - "com.mycila:license-maven-plugin"
+          - "org.jacoco:jacoco-maven-plugin"
+          - "org.sonarsource.scanner.maven:sonar-maven-plugin"
+          - "org.sonatype.plugins:nexus-staging-maven-plugin"
+          - "org.owasp:dependency-check-maven"
+          - "com.puppycrawl.tools:checkstyle"
 
   - package-ecosystem: "maven"
     directory: "/rdf4j/"
@@ -85,6 +105,16 @@ updates:
     labels:
       - "backport"
       - "1.1"
+    groups:
+      plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+          - "com.mycila:license-maven-plugin"
+          - "org.jacoco:jacoco-maven-plugin"
+          - "org.sonarsource.scanner.maven:sonar-maven-plugin"
+          - "org.sonatype.plugins:nexus-staging-maven-plugin"
+          - "org.owasp:dependency-check-maven"
+          - "com.puppycrawl.tools:checkstyle"
 
   - package-ecosystem: "maven"
     directory: "/rdf4j/"
