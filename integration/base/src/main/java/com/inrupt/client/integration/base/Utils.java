@@ -123,6 +123,9 @@ public final class Utils {
     public static Optional<ProblemDetails> checkProblemDetails(final SolidClientException err) {
         final ProblemDetails problemDetails = err.getProblemDetails();
         assertEquals(err.getStatusCode(), problemDetails.getStatus());
+        LOGGER.warn("Error headers: {}", err.getHeaders().asMap());
+        LOGGER.warn("Error content type: {}", err.getHeaders().firstValue(CONTENT_TYPE));
+
         if (err.getHeaders().firstValue(CONTENT_TYPE).equals(Optional.of(ProblemDetails.MIME_TYPE))) {
             assertNotNull(problemDetails.getType(), "Type field should not be null!");
             return Optional.of(problemDetails);
