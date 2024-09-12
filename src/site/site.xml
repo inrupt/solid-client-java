@@ -1,9 +1,7 @@
-<project name="Inrupt Java Client Libraries">
+<site name="Inrupt Java Client Libraries">
 
-  <bannerRight>
-    <name>Inrupt</name>
-    <src>images/inrupt_logo-2020.svg</src>
-    <href>index.html</href>
+  <bannerRight name="Inrupt" href="index.html">
+    <image src="images/inrupt_logo-2020.svg"/>
   </bannerRight>
 
   <body>
@@ -21,4 +19,4 @@
     <version>1.11.1</version>
   </skin>
 
-</project>
+</site>
