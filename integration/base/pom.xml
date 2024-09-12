@@ -60,6 +60,11 @@
         </dependency>
         <dependency>
             <groupId>com.inrupt.client</groupId>
+            <artifactId>inrupt-client-rdf4j</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.inrupt.client</groupId>
             <artifactId>inrupt-client-solid</artifactId>
             <version>${project.version}</version>
         </dependency>

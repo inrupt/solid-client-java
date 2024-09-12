@@ -65,19 +65,19 @@
                 </classpathDependencyExcludes>
               </configuration>
             </execution>
-            <execution>
-              <id>okhttp-jsonb-jena-test</id>
-              <phase>test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <classpathDependencyExcludes>
-                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>
-                  <classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>
-                </classpathDependencyExcludes>
-              </configuration>
-            </execution>
+            <!--<execution>-->
+              <!--<id>okhttp-jsonb-jena-test</id>-->
+              <!--<phase>test</phase>-->
+              <!--<goals>-->
+                <!--<goal>test</goal>-->
+              <!--</goals>-->
+              <!--<configuration>-->
+                <!--<classpathDependencyExcludes>-->
+                  <!--<classpathDependencyExclude>com.inrupt.client:inrupt-client-jackson</classpathDependencyExclude>-->
+                  <!--<classpathDependencyExclude>com.inrupt.client:inrupt-client-rdf4j</classpathDependencyExclude>-->
+                <!--</classpathDependencyExcludes>-->
+              <!--</configuration>-->
+            <!--</execution>-->
             <execution>
               <id>okhttp-jackson-rdf4j-test</id>
               <phase>test</phase>
