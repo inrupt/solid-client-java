@@ -1,6 +1,9 @@
 name: Solid Java Client CI
 
 on:
+  push:
+    branches:
+      - test-problem-details
   # Build pull requests for any branch
   pull_request: { }
 
