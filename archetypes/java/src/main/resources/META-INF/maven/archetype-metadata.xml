@@ -10,6 +10,27 @@
       <requiredProperty key="inrupt-client-version">
         <defaultValue>${project.version}</defaultValue>
       </requiredProperty>
+      <requiredProperty key="maven-clean-plugin">
+        <defaultValue>${clean.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-antrun-plugin">
+        <defaultValue>${antrun.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-assembly-plugin">
+        <defaultValue>${assembly.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-dependency-plugin">
+        <defaultValue>${dependency.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-install-plugin">
+        <defaultValue>${install.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-jar-plugin">
+        <defaultValue>${jar.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-resources-plugin">
+        <defaultValue>${resources.plugin.version}</defaultValue>
+      </requiredProperty>
     </requiredProperties>
     <fileSets>
         <fileSet filtered="true" packaged="true">
