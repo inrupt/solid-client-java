@@ -4,11 +4,14 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd">
     <requiredProperties>
-      <requiredProperty key="junit-version">
-        <defaultValue>${junit.version}</defaultValue>
+      <requiredProperty key="java-version">
+        <defaultValue>${maven.compiler.release}</defaultValue>
       </requiredProperty>
       <requiredProperty key="inrupt-client-version">
         <defaultValue>${project.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="junit-version">
+        <defaultValue>${junit.version}</defaultValue>
       </requiredProperty>
       <requiredProperty key="maven-clean-plugin">
         <defaultValue>${clean.plugin.version}</defaultValue>

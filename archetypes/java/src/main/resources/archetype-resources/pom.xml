@@ -14,7 +14,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <!-- Java version -->
     <maven.compiler.parameters>true</maven.compiler.parameters>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.release>${java-version}</maven.compiler.release>
   </properties>
 
   <dependencyManagement>
