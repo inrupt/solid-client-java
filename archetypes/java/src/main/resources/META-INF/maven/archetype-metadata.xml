@@ -4,11 +4,35 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd">
     <requiredProperties>
-      <requiredProperty key="junit-version">
-        <defaultValue>${junit.version}</defaultValue>
+      <requiredProperty key="java-version">
+        <defaultValue>${maven.compiler.release}</defaultValue>
       </requiredProperty>
       <requiredProperty key="inrupt-client-version">
         <defaultValue>${project.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="junit-version">
+        <defaultValue>${junit.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-clean-plugin">
+        <defaultValue>${clean.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-antrun-plugin">
+        <defaultValue>${antrun.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-assembly-plugin">
+        <defaultValue>${assembly.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-dependency-plugin">
+        <defaultValue>${dependency.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-install-plugin">
+        <defaultValue>${install.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-jar-plugin">
+        <defaultValue>${jar.plugin.version}</defaultValue>
+      </requiredProperty>
+      <requiredProperty key="maven-resources-plugin">
+        <defaultValue>${resources.plugin.version}</defaultValue>
       </requiredProperty>
     </requiredProperties>
     <fileSets>
