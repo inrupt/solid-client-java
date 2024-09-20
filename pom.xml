@@ -4,7 +4,7 @@
 
   <groupId>com.inrupt.client</groupId>
   <artifactId>inrupt-client</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0</version>
   <name>Inrupt Java Client Libraries</name>
   <url>https://docs.inrupt.com/developer-tools/java/client-libraries/</url>
   <description>
@@ -83,7 +83,7 @@
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
     <archetype.test.skip>true</archetype.test.skip>
-    <nvd.api.key/>
+    <nvd.api.key />
     <nvd.api.datafeed />
 
     <!-- sonar -->
@@ -864,7 +864,7 @@
     <connection>scm:git:https://github.com/inrupt/solid-client-java.git</connection>
     <developerConnection>scm:git:git@github.com:inrupt/solid-client-java.git</developerConnection>
     <url>https://github.com/inrupt/solid-client-java</url>
-    <tag>HEAD</tag>
+    <tag>inrupt-client-1.2.0</tag>
   </scm>
 
   <licenses>
