@@ -7,6 +7,9 @@ updates:
     ignore:
       - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
       - dependency-name: "org.springframework.security:spring-*"
+      - dependency-name: "com.google.protobuf:protobuf-java"
+        update-types:
+          - "version-update:semver-major"
     groups:
       plugins:
         patterns:
