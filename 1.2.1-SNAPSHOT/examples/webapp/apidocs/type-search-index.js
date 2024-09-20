@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.inrupt.client.examples.webapp","l":"ClientExceptionMapper"},{"p":"com.inrupt.client.examples.webapp","l":"SolidStorage"}];updateSearchResults();
