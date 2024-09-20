@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1719418273962">
-    <module artifactId="inrupt-client-solid" groupId="com.inrupt.client" version="1.1.1"/>
+<licensePluginReport goal="CHECK" timestamp="1726836048996">
+    <module artifactId="inrupt-client-solid" groupId="com.inrupt.client" version="1.2.0"/>
     <files>
         <file path="src/main/java/com/inrupt/client/solid/BadRequestException.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/ConflictException.java" result="PRESENT"/>
@@ -17,6 +17,7 @@
         <file path="src/main/java/com/inrupt/client/solid/SolidClientException.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/SolidContainer.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/SolidNonRDFSource.java" result="PRESENT"/>
+        <file path="src/main/java/com/inrupt/client/solid/SolidProblemDetails.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/SolidRDFSource.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/SolidResource.java" result="PRESENT"/>
         <file path="src/main/java/com/inrupt/client/solid/SolidResourceException.java" result="PRESENT"/>
@@ -36,6 +37,7 @@
         <file path="src/test/java/com/inrupt/client/solid/SolidClientTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/SolidExceptionTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/SolidMockHttpService.java" result="PRESENT"/>
+        <file path="src/test/java/com/inrupt/client/solid/SolidProblemDetailsTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/SolidRDFSourceTest.java" result="PRESENT"/>
         <file path="src/test/java/com/inrupt/client/solid/SolidSyncClientTest.java" result="PRESENT"/>
     </files>
