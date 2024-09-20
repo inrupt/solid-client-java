@@ -161,6 +161,12 @@
           <artifactId>xmlunit-core</artifactId>
           <version>2.10.0</version>
         </dependency>
+        <!-- transitive dependency update for CVE-2024-7254 -->
+        <dependency>
+          <groupId>com.google.protobuf</groupId>
+          <artifactId>protobuf-java</artifactId>
+          <version>3.25.5</version>
+        </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -290,7 +296,7 @@
             <dependency>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>extra-enforcer-rules</artifactId>
-              <version>1.8.0</version>
+              <version>1.9.0</version>
             </dependency>
           </dependencies>
         </plugin>
