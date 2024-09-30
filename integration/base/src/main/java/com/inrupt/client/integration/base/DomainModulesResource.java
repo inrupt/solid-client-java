@@ -262,9 +262,9 @@ public class DomainModulesResource {
 
     @Test
     @DisplayName("https://w3id.org/inrupt/qa/manifest/solid-client-java/podStorageFinding " +
-            "find pod storage from webID")
+            "find Pod storage from WebID")
     void findStorageTest() {
-        LOGGER.info("Integration Test - find pod storage from webID");
+        LOGGER.info("Integration Test - find Pod storage from WebID");
 
         try (final WebIdProfile sameProfile = client.read(URI.create(webidUrl), WebIdProfile.class)) {
             assertFalse(sameProfile.getStorages().isEmpty());
