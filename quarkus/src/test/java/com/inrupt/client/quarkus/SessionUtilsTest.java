@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -81,7 +82,7 @@ class SessionUtilsTest {
                    .newPublicJwk(ResourceUtils.readResource("testKey.json"));
 
             final var authContext = new JWTAuthContextInfo(jwk.getPublicKey(), issuer);
-            authContext.setSignatureAlgorithm(SignatureAlgorithm.ES256);
+            authContext.setSignatureAlgorithm(Set.of(SignatureAlgorithm.ES256));
             final var parser = new DefaultJWTParser(authContext);
 
             final var token = Jwt.claims()
