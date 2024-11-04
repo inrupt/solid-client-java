@@ -42,7 +42,7 @@
 
     <!-- plugins -->
     <antrun.plugin.version>3.1.0</antrun.plugin.version>
-    <archetype.plugin.version>3.3.0</archetype.plugin.version>
+    <archetype.plugin.version>3.3.1</archetype.plugin.version>
     <assembly.plugin.version>3.7.1</assembly.plugin.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
     <clean.plugin.version>3.4.0</clean.plugin.version>
@@ -55,10 +55,10 @@
     <gpg.plugin.version>3.2.7</gpg.plugin.version>
     <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
     <jar.plugin.version>3.4.2</jar.plugin.version>
-    <javadoc.plugin.version>3.10.1</javadoc.plugin.version>
+    <javadoc.plugin.version>3.11.1</javadoc.plugin.version>
     <license.plugin.version>4.6</license.plugin.version>
     <nexus.plugin.version>1.7.0</nexus.plugin.version>
-    <owasp.plugin.version>11.0.0</owasp.plugin.version>
+    <owasp.plugin.version>11.1.0</owasp.plugin.version>
     <projectinfo.plugin.version>3.8.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.26.0</pmd.plugin.version>
     <site.plugin.version>3.21.0</site.plugin.version>
@@ -66,10 +66,10 @@
     <resources.plugin.version>3.3.1</resources.plugin.version>
     <sonar.plugin.version>4.0.0.4121</sonar.plugin.version>
     <source.plugin.version>3.3.1</source.plugin.version>
-    <surefire.plugin.version>3.5.1</surefire.plugin.version>
+    <surefire.plugin.version>3.5.2</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.19.0</checkstyle.tool.version>
+    <checkstyle.tool.version>10.20.0</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.2.2</awaitility.version>
