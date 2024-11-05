@@ -23,10 +23,9 @@ package com.inrupt.client.accessgrant;
 import java.net.URI;
 
 class Metadata {
-
     public URI queryEndpoint;
     public URI issueEndpoint;
     public URI statusEndpoint;
     public URI verifyEndpoint;
-
+    public URI deriveEndpoint;
 }
