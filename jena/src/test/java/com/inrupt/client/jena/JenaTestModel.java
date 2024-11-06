@@ -35,12 +35,12 @@ final class JenaTestModel {
     //JenaNode properties
     public static final Node S_NODE = NodeFactory.createURI(RdfTestModel.S_VALUE);
     public static final Node P_NODE = NodeFactory.createURI(RdfTestModel.P_VALUE);
-    public static final Node O_NODE = NodeFactory.createLiteral(RdfTestModel.O_VALUE);
+    public static final Node O_NODE = NodeFactory.createLiteralString(RdfTestModel.O_VALUE);
     public static final Node G_NODE = NodeFactory.createURI(RdfTestModel.G_VALUE);
 
     public static final Node S1_NODE = NodeFactory.createURI(RdfTestModel.S1_VALUE);
     public static final Node P1_NODE = NodeFactory.createURI(RdfTestModel.P1_VALUE);
-    public static final Node O1_NODE = NodeFactory.createLiteral(RdfTestModel.O1_VALUE);
+    public static final Node O1_NODE = NodeFactory.createLiteralString(RdfTestModel.O1_VALUE);
 
     //Jena Resources
     public static Model model = ModelFactory.createDefaultModel();
