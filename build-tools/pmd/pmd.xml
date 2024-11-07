@@ -18,7 +18,7 @@
     <rule ref="category/java/errorprone.xml"/>
 
     <!-- 1 (the default) assert per unit test seems extremely restrictive. Just raising to 5. -->
-    <rule ref="category/java/bestpractices.xml/JUnitTestContainsTooManyAsserts">
+    <rule ref="category/java/bestpractices.xml/UnitTestContainsTooManyAsserts">
         <properties>
             <property name="maximumAsserts" value="5" />
         </properties>

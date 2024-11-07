@@ -104,12 +104,10 @@ public class SolidStorage {
                 .HEAD()
                 .build();
         final var res = client.send(req, Response.BodyHandlers.discarding()).toCompletableFuture().join();
-        final var contentType = res.headers().firstValue("Content-Type");
-        if (contentType.isPresent() && (contentType.get().toLowerCase().contains("text/turtle")) ) {
-            return LDP.RDFSource;
-        }
-        if (contentType.isPresent() && !(contentType.get().toLowerCase().contains("text/turtle"))) {
-            return LDP.NonRDFSource;
+        final var contentTypes = res.headers().allValues("Content-Type");
+        if (!contentTypes.isEmpty()) {
+            return contentTypes.stream().map(type -> type.split(";")[0].trim())
+                .filter("text/turtle"::equalsIgnoreCase).findFirst().isPresent() ? LDP.RDFSource : LDP.NonRDFSource;
         }
         return LDP.Resource;
     }
