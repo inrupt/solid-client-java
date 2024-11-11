@@ -29,7 +29,9 @@ import java.util.Set;
  * An object to represent an access credential query.
  *
  * @param <T> The access credential type
+ * @deprecated As of 1.3, replaced by {@link CredentialFilter}
  */
+@Deprecated
 public class AccessCredentialQuery<T extends AccessCredential> {
 
     private final Set<URI> purposes;

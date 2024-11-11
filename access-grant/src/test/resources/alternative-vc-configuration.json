@@ -5,7 +5,6 @@
   ],
   "derivationService": "{{baseUrl}}/derive",
   "issuerService": "{{baseUrl}}/issue",
-  "queryService": "{{baseUrl}}/query",
   "statusService": "{{baseUrl}}/status",
   "supportedSignatureTypes": [
     "Ed25519Signature2020"

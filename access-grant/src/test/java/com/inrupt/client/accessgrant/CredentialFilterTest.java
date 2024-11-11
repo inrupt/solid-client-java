@@ -60,6 +60,34 @@ class CredentialFilterTest {
     }
 
     @Test
+    void testCredentialInvalidPageSizeFilterBuilder() {
+        final CredentialFilter<AccessDenial> filter = CredentialFilter.newBuilder()
+            .pageSize(-10)
+            .build(AccessDenial.class);
+        assertEquals(20, filter.getPageSize());
+        assertEquals(AccessDenial.class, filter.getCredentialType());
+
+        final URI expectedUri = URIBuilder.newBuilder(BASE_URL)
+            .queryParam("type", "SolidAccessDenial")
+            .queryParam("pageSize", "20").build();
+        assertEquals(expectedUri, filter.asURI(BASE_URL));
+    }
+
+    @Test
+    void testCredentialExcessivePageSizeFilterBuilder() {
+        final CredentialFilter<AccessDenial> filter = CredentialFilter.newBuilder()
+            .pageSize(200)
+            .build(AccessDenial.class);
+        assertEquals(20, filter.getPageSize());
+        assertEquals(AccessDenial.class, filter.getCredentialType());
+
+        final URI expectedUri = URIBuilder.newBuilder(BASE_URL)
+            .queryParam("type", "SolidAccessDenial")
+            .queryParam("pageSize", "20").build();
+        assertEquals(expectedUri, filter.asURI(BASE_URL));
+    }
+
+    @Test
     void testCredentialFilterBuilder() {
         final String page = UUID.randomUUID().toString();
         final CredentialFilter.CredentialStatus status = CredentialFilter.CredentialStatus.PENDING;

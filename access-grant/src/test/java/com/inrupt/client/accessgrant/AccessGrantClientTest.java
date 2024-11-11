@@ -67,12 +67,14 @@ class AccessGrantClientTest {
 
     private static final MockAccessGrantServer mockServer = new MockAccessGrantServer();
     private static AccessGrantClient agClient;
+    private static AccessGrantClient altAgClient;
     private static URI baseUri;
 
     @BeforeAll
     static void setup() {
         baseUri = URI.create(mockServer.start());
         agClient = new AccessGrantClient(baseUri);
+        altAgClient = new AccessGrantClient(URIBuilder.newBuilder(baseUri).path("alternative").build());
     }
 
     @AfterAll
@@ -391,6 +393,202 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryGrantFilter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
+
+        final CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder().build(AccessGrant.class);
+
+        final CredentialResult<AccessGrant> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(1, results.getItems().size());
+        assertEquals("/access-grant-1", results.getItems().get(0).getIdentifier().getPath());
+    }
+
+    @Test
+    void testQueryRequestFilter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
+
+        final CredentialFilter<AccessRequest> filter = CredentialFilter.newBuilder().build(AccessRequest.class);
+
+        final CredentialResult<AccessRequest> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(1, results.getItems().size());
+        assertEquals("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab",
+                results.getItems().get(0).getIdentifier().toString());
+    }
+
+    @Test
+    void testQueryDenialFilter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
+
+        final CredentialFilter<AccessDenial> filter = CredentialFilter.newBuilder().build(AccessDenial.class);
+
+        final CredentialResult<AccessDenial> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(1, results.getItems().size());
+        assertEquals("https://accessgrant.test/credential/fc2dbcd9-81d4-4fa4-8fd4-239e16dd83ab",
+                results.getItems().get(0).getIdentifier().toString());
+    }
+
+    @Test
+    void testQueryPageFilter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
+
+        final CredentialFilter<AccessRequest> filter = CredentialFilter.newBuilder().page("1").pageSize(5)
+            .build(AccessRequest.class);
+
+        final CredentialResult<AccessRequest> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(5, results.getItems().size());
+        assertEquals("https://accessgrant.test/credential/d604c858-209a-4bb6-a7f8-2f52c9617cab",
+                results.getItems().get(0).getIdentifier().toString());
+        assertEquals("https://accessgrant.test/credential/52049498-fc2e-45be-be79-703a39086574",
+                results.getItems().get(1).getIdentifier().toString());
+        assertEquals("https://accessgrant.test/credential/a0a73677-d139-48e4-8e62-0ae63925bd2b",
+                results.getItems().get(2).getIdentifier().toString());
+        assertEquals("https://accessgrant.test/credential/3869d6d9-3b3e-4c77-b842-6c938367e3b5",
+                results.getItems().get(3).getIdentifier().toString());
+        assertEquals("https://accessgrant.test/credential/3f61667a-4569-43f3-854e-1832f898049e",
+                results.getItems().get(4).getIdentifier().toString());
+        assertEquals(Optional.empty(), results.prevPage());
+        assertEquals(Optional.of("1"), results.firstPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("2"), results.nextPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("3"), results.lastPage().flatMap(CredentialFilter::getPage));
+
+    }
+
+    @Test
+    void testQueryAltPage1Filter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = altAgClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/");
+        final CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder().page("1").pageSize(2)
+            .resource(resource).build(AccessGrant.class);
+
+        final CredentialResult<AccessGrant> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(2, results.getItems().size());
+        assertEquals("/access-grant-1", results.getItems().get(0).getIdentifier().getPath());
+        assertEquals("/access-grant-2", results.getItems().get(1).getIdentifier().getPath());
+        assertEquals(Optional.of("1"), results.firstPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("2"), results.lastPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("2"), results.nextPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.empty(), results.prevPage());
+    }
+
+    @Test
+    void testQueryAltPageFilter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = altAgClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/");
+        final CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder().pageSize(2)
+            .resource(resource).build(AccessGrant.class);
+
+        final CredentialResult<AccessGrant> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(2, results.getItems().size());
+        assertEquals("/access-grant-1", results.getItems().get(0).getIdentifier().getPath());
+        assertEquals("/access-grant-2", results.getItems().get(1).getIdentifier().getPath());
+        assertEquals(Optional.of("1"), results.firstPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("2"), results.lastPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("2"), results.nextPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.empty(), results.prevPage());
+    }
+
+    @Test
+    void testQueryAltPage2Filter() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = altAgClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/");
+        final CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder().page("2").pageSize(2)
+            .resource(resource).build(AccessGrant.class);
+
+        final CredentialResult<AccessGrant> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(2, results.getItems().size());
+        assertEquals("/access-grant-3", results.getItems().get(0).getIdentifier().getPath());
+        assertEquals("/access-grant-4", results.getItems().get(1).getIdentifier().getPath());
+        assertEquals(Optional.of("1"), results.firstPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("2"), results.lastPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.of("1"), results.prevPage().flatMap(CredentialFilter::getPage));
+        assertEquals(Optional.empty(), results.nextPage());
+    }
+
+    @Test
+    void testQueryAltPageFilterSingleton() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = altAgClient.session(OpenIdSession.ofIdToken(token));
+
+        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/");
+        final CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder().page("1")
+            .resource(resource).build(AccessGrant.class);
+
+        final CredentialResult<AccessGrant> results = client.query(filter).toCompletableFuture().join();
+
+        assertEquals(4, results.getItems().size());
+        assertEquals("/access-grant-1", results.getItems().get(0).getIdentifier().getPath());
+        assertEquals(Optional.empty(), results.prevPage());
+        assertEquals(Optional.empty(), results.nextPage());
+        assertEquals(Optional.empty(), results.firstPage());
+        assertEquals(Optional.empty(), results.lastPage());
+    }
+
+    @Test
     void testQueryGrant() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
@@ -403,7 +601,7 @@ class AccessGrantClientTest {
         final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
         final List<AccessGrant> grants = client.query(resource, null, null, null, "Read", AccessGrant.class)
                     .toCompletableFuture().join();
-        assertEquals(1, grants.size());
+        assertEquals(4, grants.size());
     }
 
     @Test
@@ -420,7 +618,7 @@ class AccessGrantClientTest {
         final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
             .resource(resource).mode("Read").build(AccessGrant.class);
         final List<AccessGrant> grants = client.query(query).toCompletableFuture().join();
-        assertEquals(1, grants.size());
+        assertEquals(4, grants.size());
     }
 
     @Test
