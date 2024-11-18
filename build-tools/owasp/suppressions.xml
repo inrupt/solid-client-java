@@ -25,4 +25,11 @@
      <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-server@.*$</packageUrl>
      <vulnerabilityName>CVE-2024-8184</vulnerabilityName>
   </suppress>
+  <suppress until="2025-01-22Z">
+    <notes><![CDATA[
+        The use of spring-web in the JCL does not accept byte[] input data
+    ]]></notes>
+     <packageUrl regex="true">^pkg:maven/org\.springframework\..*@.*$</packageUrl>
+     <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
+  </suppress>
 </suppressions>
