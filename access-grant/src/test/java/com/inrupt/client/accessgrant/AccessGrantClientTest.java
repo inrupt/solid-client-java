@@ -894,4 +894,10 @@ class AccessGrantClientTest {
             throw new UncheckedJoseException("Unable to generate DPoP token", ex);
         }
     }
+
+    @Test
+    void testCastInvalidType() {
+        final Map<String, Object> data = new HashMap<>();
+        assertNull(agClient.cast(data, AccessCredential.class));
+    }
 }

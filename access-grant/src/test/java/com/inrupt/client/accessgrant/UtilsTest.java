@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
@@ -64,5 +65,14 @@ class UtilsTest {
         assertEquals("bar", Utils.getQueryParam(uri, "item"));
         assertNull(Utils.getQueryParam(uri, "query"));
         assertNull(Utils.getQueryParam(uri, "other"));
+        assertNull(Utils.getQueryParam(URI.create("https://example.com/path"), "param"));
+    }
+
+    @Test
+    void testConvertPage() {
+        assertEquals(1, Utils.convertPage("0"));
+        assertEquals(1, Utils.convertPage("-100"));
+        assertEquals(2, Utils.convertPage("2"));
+        assertEquals(1, Utils.convertPage(UUID.randomUUID().toString()));
     }
 }

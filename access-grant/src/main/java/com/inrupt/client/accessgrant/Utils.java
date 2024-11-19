@@ -32,9 +32,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** Utility classes for the Access Grant module. **/
 final class Utils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
     private static final String TYPE = "type";
     private static final String REVOCATION_LIST_2020_STATUS = "RevocationList2020Status";
 
@@ -135,6 +139,7 @@ final class Utils {
             return Math.max(1, p);
         } catch (final IllegalArgumentException ex) {
             // ignore invalid values
+            LOGGER.debug("Invalid page value, defaulting to first page: {}", ex.getMessage());
         }
         return 1;
     }

@@ -470,11 +470,11 @@ public class AccessGrantClient {
 
     @SuppressWarnings("unchecked")
     <T extends AccessCredential> T cast(final Map<String, Object> data, final Class<T> clazz) {
-        if (AccessGrant.class.equals(clazz)) {
+        if (AccessGrant.class.isAssignableFrom(clazz)) {
             return (T) AccessGrant.of(new String(serialize(data), UTF_8));
-        } else if (AccessRequest.class.equals(clazz)) {
+        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
             return (T) AccessRequest.of(new String(serialize(data), UTF_8));
-        } else if (AccessDenial.class.equals(clazz)) {
+        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
             return (T) AccessDenial.of(new String(serialize(data), UTF_8));
         }
         return null;
@@ -612,11 +612,11 @@ public class AccessGrantClient {
                 try (final InputStream input = res.body()) {
                     final int httpStatus = res.statusCode();
                     if (isSuccess(httpStatus)) {
-                        if (AccessGrant.class.equals(clazz)) {
+                        if (AccessGrant.class.isAssignableFrom(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_GRANT_TYPES, clazz);
-                        } else if (AccessRequest.class.equals(clazz)) {
+                        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_REQUEST_TYPES, clazz);
-                        } else if (AccessDenial.class.equals(clazz)) {
+                        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_DENIAL_TYPES, clazz);
                         }
                         throw new AccessGrantException("Unable to fetch credential as " + clazz);
