@@ -455,6 +455,19 @@ class AccessGrantClientTest {
     }
 
     @Test
+    void testQueryFilterInvalidType() {
+        final Map<String, Object> claims = new HashMap<>();
+        claims.put("webid", WEBID);
+        claims.put("sub", SUB);
+        claims.put("iss", ISS);
+        claims.put("azp", AZP);
+        final String token = generateIdToken(claims);
+        final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
+        final CredentialFilter<AccessCredential> filter = CredentialFilter.newBuilder().build(AccessCredential.class);
+        assertThrows(AccessGrantException.class, () -> client.query(filter));
+    }
+
+    @Test
     void testQueryPageFilter() {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);

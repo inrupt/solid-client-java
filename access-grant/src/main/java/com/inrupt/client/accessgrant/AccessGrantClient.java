@@ -359,7 +359,7 @@ public class AccessGrantClient {
      * @return the page of query results
      */
     public <T extends AccessCredential> CompletionStage<CredentialResult<T>> query(final CredentialFilter<T> filter) {
-        final Class<T> clazz = filter.getCredentialType();
+        final Class<T> clazz = Objects.requireNonNull(filter, "filter may not be null!").getCredentialType();
         final Set<String> supportedTypes;
         if (AccessGrant.class.isAssignableFrom(clazz)) {
             supportedTypes = ACCESS_GRANT_TYPES;
