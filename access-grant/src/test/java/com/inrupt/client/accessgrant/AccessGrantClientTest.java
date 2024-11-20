@@ -402,8 +402,6 @@ class AccessGrantClientTest {
         final String token = generateIdToken(claims);
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
-        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
-
         final CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder().build(AccessGrant.class);
 
         final CredentialResult<AccessGrant> results = client.query(filter).toCompletableFuture().join();
@@ -421,8 +419,6 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-
-        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
 
         final CredentialFilter<AccessRequest> filter = CredentialFilter.newBuilder().build(AccessRequest.class);
 
@@ -442,8 +438,6 @@ class AccessGrantClientTest {
         claims.put("azp", AZP);
         final String token = generateIdToken(claims);
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
-
-        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
 
         final CredentialFilter<AccessDenial> filter = CredentialFilter.newBuilder().build(AccessDenial.class);
 
@@ -477,8 +471,6 @@ class AccessGrantClientTest {
         final String token = generateIdToken(claims);
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
 
-        final URI resource = URI.create("https://storage.example/e973cc3d-5c28-4a10-98c5-e40079289358/a/b/c");
-
         final CredentialFilter<AccessRequest> filter = CredentialFilter.newBuilder().page("1").pageSize(5)
             .build(AccessRequest.class);
 
@@ -499,7 +491,6 @@ class AccessGrantClientTest {
         assertEquals(Optional.of("1"), results.firstPage().flatMap(CredentialFilter::getPage));
         assertEquals(Optional.of("2"), results.nextPage().flatMap(CredentialFilter::getPage));
         assertEquals(Optional.of("3"), results.lastPage().flatMap(CredentialFilter::getPage));
-
     }
 
     @Test

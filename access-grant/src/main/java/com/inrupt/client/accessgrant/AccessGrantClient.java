@@ -116,6 +116,10 @@ public class AccessGrantClient {
     private static final String SOLID_ACCESS_REQUEST = "SolidAccessRequest";
     private static final String SOLID_ACCESS_DENIAL = "SolidAccessDenial";
     private static final String VERIFIABLE_PRESENTATION = "VerifiablePresentation";
+    private static final String FIRST = "first";
+    private static final String LAST = "last";
+    private static final String PREV = "prev";
+    private static final String NEXT = "next";
     private static final URI FQ_ACCESS_GRANT = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_GRANT);
     private static final URI FQ_ACCESS_REQUEST = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_REQUEST);
     private static final URI FQ_ACCESS_DENIAL = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_DENIAL);
@@ -126,6 +130,7 @@ public class AccessGrantClient {
     private static final Set<String> ACCESS_REQUEST_TYPES = getAccessRequestTypes();
     private static final Set<String> ACCESS_DENIAL_TYPES = getAccessDenialTypes();
     private static final Type JSON_TYPE_REF = new HashMap<String, Object>(){}.getClass().getGenericSuperclass();
+    private static final Set<String> LINK_REL_VALUES = getLinkPagingRelValues();
 
     private final Client client;
     private final ClientCache<URI, Metadata> metadataCache;
@@ -387,8 +392,8 @@ public class AccessGrantClient {
                         final Map<String, CredentialFilter<T>> links = processFilterResponseHeaders(response.headers(),
                                 filter);
                         final List<T> items = processFilterResponseBody(input, supportedTypes, clazz);
-                        return new CredentialResult<>(items, links.get("first"), links.get("prev"),
-                                links.get("next"), links.get("last"));
+                        return new CredentialResult<>(items, links.get(FIRST), links.get(PREV),
+                                links.get(NEXT), links.get(LAST));
                     } else {
                         throw new AccessGrantException("Error querying access grant: HTTP response " +
                                 response.statusCode());
@@ -428,11 +433,11 @@ public class AccessGrantClient {
         final Map<String, CredentialFilter<T>> links = new HashMap<>();
         final List<String> linkHeaders = headers.allValues("Link");
         if (!linkHeaders.isEmpty()) {
-            Headers.Link.parse(linkHeaders.toArray(linkHeaders.toArray(new String[0])))
+            Headers.Link.parse(linkHeaders.toArray(new String[0]))
                 .forEach(link -> {
                     final String rel = link.getParameter("rel");
                     final URI uri = link.getUri();
-                    if (rel != null && uri != null) {
+                    if (rel != null && uri != null && LINK_REL_VALUES.contains(rel)) {
                         final String page = Utils.getQueryParam(uri, "page");
                         links.put(rel, CredentialFilter.newBuilder(filter).page(page)
                                 .build(filter.getCredentialType()));
@@ -935,6 +940,15 @@ public class AccessGrantClient {
         types.add(QN_ACCESS_DENIAL.toString());
         types.add(FQ_ACCESS_DENIAL.toString());
         return Collections.unmodifiableSet(types);
+    }
+
+    static Set<String> getLinkPagingRelValues() {
+        final Set<String> values = new HashSet<>();
+        values.add(FIRST);
+        values.add(LAST);
+        values.add(NEXT);
+        values.add(PREV);
+        return Collections.unmodifiableSet(values);
     }
 
     static boolean isAccessGrant(final URI type) {

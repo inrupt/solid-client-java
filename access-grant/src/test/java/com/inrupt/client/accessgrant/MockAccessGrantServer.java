@@ -230,6 +230,8 @@ class MockAccessGrantServer {
                         .withHeader("Link", "</query?type=SolidAccessRequest&page=1&pageSize=20>; rel=\"first\"")
                         .withHeader("Link", "</query?type=SolidAccessRequest&page=2&pageSize=20>; rel=\"next\"")
                         .withHeader("Link", "</query?type=SolidAccessRequest&page=3&pageSize=20>; rel=\"last\"")
+                        .withHeader("Link", "<>; type=\"invalid\"")
+                        .withHeader("Link", "</query>; rel=\"self\"")
                         .withBody(getResource("/query_request_page_response.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessRequest&pageSize=5&page=1"))
