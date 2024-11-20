@@ -437,7 +437,7 @@ public class AccessGrantClient {
                 .forEach(link -> {
                     final String rel = link.getParameter("rel");
                     final URI uri = link.getUri();
-                    if (rel != null && uri != null && LINK_REL_VALUES.contains(rel)) {
+                    if (LINK_REL_VALUES.contains(rel) && uri != null) {
                         final String page = Utils.getQueryParam(uri, "page");
                         links.put(rel, CredentialFilter.newBuilder(filter).page(page)
                                 .build(filter.getCredentialType()));
