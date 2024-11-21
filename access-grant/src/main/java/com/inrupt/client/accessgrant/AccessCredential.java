@@ -282,6 +282,7 @@ public class AccessCredential {
         private final Set<URI> purposes;
         private final Set<URI> resources;
         private final URI recipient;
+        private final URI accessRequest;
 
         /**
          * Create a collection of user-managed credential data.
@@ -293,10 +294,25 @@ public class AccessCredential {
          */
         public CredentialData(final Set<URI> resources, final Set<String> modes,
                 final Set<URI> purposes, final URI recipient) {
+            this(resources, modes, purposes, recipient, null);
+        }
+
+        /**
+         * Create a collection of user-managed credential data.
+         *
+         * @param resources the resources referenced by the credential
+         * @param modes the access modes defined by this credential
+         * @param purposes the purposes associated with this credential
+         * @param recipient the recipient for this credential, may be {@code null}
+         * @param accessRequest the access request identifier, may be {@code null}
+         */
+        public CredentialData(final Set<URI> resources, final Set<String> modes,
+                final Set<URI> purposes, final URI recipient, final URI accessRequest) {
             this.modes = Objects.requireNonNull(modes, "modes may not be null!");
             this.purposes = Objects.requireNonNull(purposes, "purposes may not be null!");
             this.resources = Objects.requireNonNull(resources, "resources may not be null!");
             this.recipient = recipient;
+            this.accessRequest = accessRequest;
         }
 
         /**
@@ -333,6 +349,15 @@ public class AccessCredential {
          */
         public URI getRecipient() {
             return recipient;
+        }
+
+        /**
+         * Get the access request identifier associated with this credential.
+         *
+         * @return the access request identifier, may be {@code null}
+         */
+        public URI getAccessRequest() {
+            return accessRequest;
         }
     }
 

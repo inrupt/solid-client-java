@@ -50,6 +50,7 @@ class AccessDenialTest {
             expectedTypes.add("VerifiableCredential");
             expectedTypes.add("SolidAccessDenial");
             assertEquals(expectedTypes, denial.getTypes());
+            assertEquals(URI.create("https://accessrequest.test/5678"), denial.getAccessRequest());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), denial.getExpiration());
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), denial.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.test/credential/fc2dbcd9-81d4-4fa4-8fd4-239e16dd83ab"),
@@ -80,6 +81,7 @@ class AccessDenialTest {
             final Set<String> expectedTypes = new HashSet<>();
             expectedTypes.add("VerifiableCredential");
             expectedTypes.add("vc:SolidAccessDenial");
+            assertNull(denial.getAccessRequest());
             assertEquals(expectedTypes, denial.getTypes());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), denial.getExpiration());
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), denial.getIssuedAt());

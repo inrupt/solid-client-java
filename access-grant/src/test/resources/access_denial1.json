@@ -21,6 +21,7 @@
             "id":"https://id.test/grantor",
             "providedConsent":{
                 "mode":["Read"],
+                "request": "https://accessrequest.test/5678",
                 "hasStatus":"https://w3id.org/GConsent#ConsentStatusRefused",
                 "isProvidedTo":"https://id.test/grantee",
                 "forPurpose":["https://purpose.test/Purpose1"],
