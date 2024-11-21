@@ -73,6 +73,6 @@ class UtilsTest {
         assertEquals(1, Utils.convertPage("0"));
         assertEquals(1, Utils.convertPage("-100"));
         assertEquals(2, Utils.convertPage("2"));
-        assertEquals(1, Utils.convertPage(UUID.randomUUID().toString()));
+        assertThrows(AccessGrantException.class, () -> Utils.convertPage(UUID.randomUUID().toString()));
     }
 }
