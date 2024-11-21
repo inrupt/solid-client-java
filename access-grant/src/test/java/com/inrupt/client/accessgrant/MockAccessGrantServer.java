@@ -56,6 +56,12 @@ class MockAccessGrantServer {
     }
 
     private void setupMocks() {
+        wireMockServer.stubFor(get(urlEqualTo("/alternative/.well-known/vc-configuration"))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .withBody(getResource("/alternative-vc-configuration.json", wireMockServer.baseUrl()))));
+
         wireMockServer.stubFor(get(urlEqualTo("/.well-known/vc-configuration"))
                 .willReturn(aResponse()
                     .withStatus(200)
@@ -168,6 +174,67 @@ class MockAccessGrantServer {
                         .withBody(getResource("/vc-3.json", wireMockServer.baseUrl()))));
 
         wireMockServer.stubFor(get(urlEqualTo("/vc-3"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessGrant&pageSize=20"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(getResource("/query_grant_response.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessGrant&pageSize=20"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessRequest&pageSize=20"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(getResource("/query_request_response.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessRequest&pageSize=20"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessDenial&pageSize=20"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(getResource("/query_denial_response.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessDenial&pageSize=20"))
+                    .atPriority(2)
+                    .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("WWW-Authenticate", "Bearer,DPoP algs=\"ES256\"")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessRequest&pageSize=5&page=1"))
+                    .atPriority(1)
+                    .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                    .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withHeader("Link", "</query?type=SolidAccessRequest&page=1&pageSize=20>; rel=\"first\"")
+                        .withHeader("Link", "</query?type=SolidAccessRequest&page=2&pageSize=20>; rel=\"next\"")
+                        .withHeader("Link", "</query?type=SolidAccessRequest&page=3&pageSize=20>; rel=\"last\"")
+                        .withHeader("Link", "<>; type=\"invalid\"")
+                        .withHeader("Link", "</query>; rel=\"self\"")
+                        .withBody(getResource("/query_request_page_response.json", wireMockServer.baseUrl()))));
+
+        wireMockServer.stubFor(get(urlEqualTo("/query?type=SolidAccessRequest&pageSize=5&page=1"))
                     .atPriority(2)
                     .willReturn(aResponse()
                         .withStatus(401)
@@ -374,7 +441,5 @@ class MockAccessGrantServer {
     private static String getResource(final String path, final String baseUrl) {
         return getResource(path).replace("{{baseUrl}}", baseUrl);
     }
-
-
 }
 

@@ -20,12 +20,23 @@
  */
 package com.inrupt.client.accessgrant;
 
-import java.net.URI;
+import static org.junit.jupiter.api.Assertions.*;
 
-class Metadata {
-    public URI queryEndpoint;
-    public URI issueEndpoint;
-    public URI statusEndpoint;
-    public URI verifyEndpoint;
-    public URI deriveEndpoint;
+import java.util.Collections;
+
+import org.junit.jupiter.api.Test;
+
+class CredentialResultTest {
+
+    @Test
+    void checkNullCredentialResult() {
+        final CredentialResult<AccessGrant> result = new CredentialResult<>(Collections.emptyList(),
+                null, null, null, null);
+
+        assertTrue(result.getItems().isEmpty());
+        assertFalse(result.firstPage().isPresent());
+        assertFalse(result.prevPage().isPresent());
+        assertFalse(result.nextPage().isPresent());
+        assertFalse(result.lastPage().isPresent());
+    }
 }

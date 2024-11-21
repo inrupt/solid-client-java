@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -84,6 +85,15 @@ final class Utils {
         return Optional.empty();
     }
 
+    public static Optional<List<Object>> asList(final Object value) {
+        if (value instanceof List) {
+            @SuppressWarnings("unchecked")
+            final List<Object> v = (List<Object>) value;
+            return Optional.of(v);
+        }
+        return Optional.empty();
+    }
+
     public static Optional<Set<String>> asSet(final Object value) {
         if (value != null) {
             final Set<String> data = new HashSet<>();
@@ -117,6 +127,21 @@ final class Utils {
             }
         }
         return credentials;
+    }
+
+    public static String getQueryParam(final URI uri, final String name) {
+        Objects.requireNonNull(uri, "uri may not be null!");
+        Objects.requireNonNull(name, "name may not be null!");
+        final String params = uri.getQuery();
+        if (params != null) {
+            for (final String param : params.split("&")) {
+                final String[] parts = param.split("=", 2);
+                if (parts.length == 2 && name.equals(parts[0])) {
+                    return parts[1];
+                }
+            }
+        }
+        return null;
     }
 
     private Utils() {

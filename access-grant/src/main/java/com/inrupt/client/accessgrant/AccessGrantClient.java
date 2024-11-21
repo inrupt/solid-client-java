@@ -25,6 +25,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.inrupt.client.Client;
 import com.inrupt.client.ClientCache;
 import com.inrupt.client.ClientProvider;
+import com.inrupt.client.Headers;
 import com.inrupt.client.Request;
 import com.inrupt.client.Response;
 import com.inrupt.client.auth.Session;
@@ -37,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -71,14 +73,15 @@ import org.slf4j.LoggerFactory;
 
    URI resource = URI.create("https://storage.example/data/resource");
    URI purpose = URI.create("https://purpose.example/1");
-   AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
+   CredentialFilter<AccessGrant> filter = CredentialFilter.newBuilder()
+        .status(CredentialStatus.ACTIVE)
         .resource(resource)
-        .mode("Read")
         .purpose(purpose)
         .build(AccessGrant.class);
 
-   client.query(query)
-       .thenApply(grants -> AccessGrantSession.ofAccessGrant(openid, grants.toArray(new AccessGrant[0])))
+   client.query(filter)
+       .thenApply(results -> AccessGrantSession.ofAccessGrant(openid,
+                    results.getItems().toArray(new AccessGrant[0])))
        .thenApply(session -> SolidClient.getClient().session(session))
        .thenAccept(cl -> {
             // Do something with the Access Grant-scoped client
@@ -112,6 +115,11 @@ public class AccessGrantClient {
     private static final String SOLID_ACCESS_GRANT = "SolidAccessGrant";
     private static final String SOLID_ACCESS_REQUEST = "SolidAccessRequest";
     private static final String SOLID_ACCESS_DENIAL = "SolidAccessDenial";
+    private static final String VERIFIABLE_PRESENTATION = "VerifiablePresentation";
+    private static final String FIRST = "first";
+    private static final String LAST = "last";
+    private static final String PREV = "prev";
+    private static final String NEXT = "next";
     private static final URI FQ_ACCESS_GRANT = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_GRANT);
     private static final URI FQ_ACCESS_REQUEST = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_REQUEST);
     private static final URI FQ_ACCESS_DENIAL = URI.create(SOLID_VC_NAMESPACE + SOLID_ACCESS_DENIAL);
@@ -121,6 +129,8 @@ public class AccessGrantClient {
     private static final Set<String> ACCESS_GRANT_TYPES = getAccessGrantTypes();
     private static final Set<String> ACCESS_REQUEST_TYPES = getAccessRequestTypes();
     private static final Set<String> ACCESS_DENIAL_TYPES = getAccessDenialTypes();
+    private static final Type JSON_TYPE_REF = new HashMap<String, Object>(){}.getClass().getGenericSuperclass();
+    private static final Set<String> LINK_REL_VALUES = getLinkPagingRelValues();
 
     private final Client client;
     private final ClientCache<URI, Metadata> metadataCache;
@@ -317,8 +327,7 @@ public class AccessGrantClient {
             final Map<String, Object> presentation = new HashMap<>();
 
             try (final InputStream is = new ByteArrayInputStream(credential.serialize().getBytes(UTF_8))) {
-                final Map<String, Object> data = jsonService.fromJson(is,
-                        new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+                final Map<String, Object> data = jsonService.fromJson(is, JSON_TYPE_REF);
                 Utils.getCredentialsFromPresentation(data, credential.getTypes()).stream().findFirst()
                     .ifPresent(c -> presentation.put(VERIFIABLE_CREDENTIAL, c));
             } catch (final IOException ex) {
@@ -348,6 +357,108 @@ public class AccessGrantClient {
     }
 
     /**
+     * Perform an Access Credentials query and return a page of access credentials.
+     *
+     * @param <T> the credential type
+     * @param filter the query filter
+     * @return the page of query results
+     */
+    public <T extends AccessCredential> CompletionStage<CredentialResult<T>> query(final CredentialFilter<T> filter) {
+        final Class<T> clazz = Objects.requireNonNull(filter, "filter may not be null!").getCredentialType();
+        final Set<String> supportedTypes;
+        if (AccessGrant.class.isAssignableFrom(clazz)) {
+            supportedTypes = ACCESS_GRANT_TYPES;
+        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
+            supportedTypes = ACCESS_REQUEST_TYPES;
+        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
+            supportedTypes = ACCESS_DENIAL_TYPES;
+        } else {
+            throw new AccessGrantException("Unsupported type " + clazz + " in query request");
+        }
+
+        return v1Metadata().thenCompose(metadata -> {
+            if (metadata.queryEndpoint == null) {
+                throw new AccessGrantException("Server does not support CredentialFilter-based queries");
+            }
+            final Request req = Request.newBuilder(filter.asURI(metadata.queryEndpoint)).GET().build();
+            return client.send(req, Response.BodyHandlers.ofInputStream()).thenApply(response -> {
+                try (final InputStream input = response.body()) {
+                    if (isSuccess(response.statusCode())) {
+                        final Map<String, CredentialFilter<T>> links = processFilterResponseHeaders(response.headers(),
+                                filter);
+                        final List<T> items = processFilterResponseBody(input, supportedTypes, clazz);
+                        return new CredentialResult<>(items, links.get(FIRST), links.get(PREV),
+                                links.get(NEXT), links.get(LAST));
+                    } else {
+                        throw new AccessGrantException("Error querying access grant: HTTP response " +
+                                response.statusCode());
+                    }
+                } catch (final IOException ex) {
+                    throw new AccessGrantException(
+                            "Unexpected I/O exception while processing Access Grant query", ex);
+                }
+            });
+        });
+    }
+
+    <T extends AccessCredential> Map<String, CredentialFilter<T>> processFilterResponseHeaders(final Headers headers,
+            final CredentialFilter<T> filter) {
+        final Map<String, CredentialFilter<T>> links = new HashMap<>();
+        final List<String> linkHeaders = headers.allValues("Link");
+        if (!linkHeaders.isEmpty()) {
+            Headers.Link.parse(linkHeaders.toArray(new String[0]))
+                .forEach(link -> {
+                    final String rel = link.getParameter("rel");
+                    final URI uri = link.getUri();
+                    if (LINK_REL_VALUES.contains(rel) && uri != null) {
+                        final String page = Utils.getQueryParam(uri, "page");
+                        links.put(rel, CredentialFilter.newBuilder(filter).page(page)
+                                .build(filter.getCredentialType()));
+                    }
+                });
+        }
+        return links;
+    }
+
+    <T extends AccessCredential> List<T> processFilterResponseBody(final InputStream input,
+            final Set<String> validTypes, final Class<T> clazz) throws IOException {
+
+        final List<T> page = new ArrayList<>();
+        final Map<String, Object> data = jsonService.fromJson(input, JSON_TYPE_REF);
+        Utils.asList(data.get("items")).ifPresent(items -> {
+            for (final Object item : items) {
+                Utils.asMap(item).ifPresent(credential ->
+                    Utils.asSet(credential.get(TYPE)).ifPresent(types -> {
+                        types.retainAll(validTypes);
+                        if (!types.isEmpty()) {
+                            final Map<String, Object> presentation = new HashMap<>();
+                            presentation.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI));
+                            presentation.put(TYPE, Arrays.asList(VERIFIABLE_PRESENTATION));
+                            presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(credential));
+                            final T c = cast(presentation, clazz);
+                            if (c != null) {
+                                page.add(c);
+                            }
+                        }
+                    }));
+            }
+        });
+        return page;
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends AccessCredential> T cast(final Map<String, Object> data, final Class<T> clazz) {
+        if (AccessGrant.class.isAssignableFrom(clazz)) {
+            return (T) AccessGrant.of(new String(serialize(data), UTF_8));
+        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
+            return (T) AccessRequest.of(new String(serialize(data), UTF_8));
+        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
+            return (T) AccessDenial.of(new String(serialize(data), UTF_8));
+        }
+        return null;
+    }
+
+    /**
      * Perform an Access Credentials query and returns 0 to N matching access credentials.
      *
      * @param <T> the AccessCredential type
@@ -358,7 +469,9 @@ public class AccessGrantClient {
      * @param mode the access mode, may be {@code null}
      * @param clazz the AccessCredential type, either {@link AccessGrant} or {@link AccessRequest}
      * @return the next stage of completion, including the matched Access Credentials
+     * @deprecated As of 1.3, replaced by {@link #query(CredentialFilter)}
      */
+    @Deprecated
     public <T extends AccessCredential> CompletionStage<List<T>> query(final URI resource, final URI creator,
             final URI recipient, final URI purpose, final String mode, final Class<T> clazz) {
 
@@ -374,7 +487,9 @@ public class AccessGrantClient {
      * @param <T> the AccessCredential type
      * @param query the access credential query, never {@code null}
      * @return the next stage of completion, including the matched Access Credentials
+     * @deprecated As of 1.3, replaced by {@link #query(CredentialFilter)}
      */
+    @Deprecated
     public <T extends AccessCredential> CompletionStage<List<T>> query(final AccessCredentialQuery<T> query) {
         Objects.requireNonNull(query, "The query may not be null!");
         return query(query.getResource(), query.getCreator(), query.getRecipient(), query.getPurposes(),
@@ -401,10 +516,13 @@ public class AccessGrantClient {
         }
 
         return v1Metadata().thenApply(metadata -> {
+            if (metadata.deriveEndpoint == null) {
+                throw new AccessGrantException("Server does not support queries via AccessCredentialQuery objects");
+            }
             final List<T> responses = new ArrayList<>();
             for (final Map<String, Object> data :
                     buildQuery(config.getIssuer(), type, resource, creator, recipient, purposes, modes)) {
-                final Request req = Request.newBuilder(metadata.queryEndpoint)
+                final Request req = Request.newBuilder(metadata.deriveEndpoint)
                         .header(CONTENT_TYPE, APPLICATION_JSON)
                         .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
                 final Response<InputStream> response = client.send(req, Response.BodyHandlers.ofInputStream())
@@ -475,11 +593,11 @@ public class AccessGrantClient {
                 try (final InputStream input = res.body()) {
                     final int httpStatus = res.statusCode();
                     if (isSuccess(httpStatus)) {
-                        if (AccessGrant.class.equals(clazz)) {
+                        if (AccessGrant.class.isAssignableFrom(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_GRANT_TYPES, clazz);
-                        } else if (AccessRequest.class.equals(clazz)) {
+                        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_REQUEST_TYPES, clazz);
-                        } else if (AccessDenial.class.equals(clazz)) {
+                        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
                             return (T) processVerifiableCredential(input, ACCESS_DENIAL_TYPES, clazz);
                         }
                         throw new AccessGrantException("Unable to fetch credential as " + clazz);
@@ -493,35 +611,28 @@ public class AccessGrantClient {
             });
     }
 
-    @SuppressWarnings("unchecked")
     <T extends AccessCredential> T processVerifiableCredential(final InputStream input, final Set<String> validTypes,
             final Class<T> clazz) throws IOException {
-        final Map<String, Object> data = jsonService.fromJson(input,
-                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+        final Map<String, Object> data = jsonService.fromJson(input, JSON_TYPE_REF);
         final Set<String> types = Utils.asSet(data.get(TYPE)).orElseThrow(() ->
                 new AccessGrantException("Invalid Access Grant: no 'type' field"));
         types.retainAll(validTypes);
         if (!types.isEmpty()) {
             final Map<String, Object> presentation = new HashMap<>();
             presentation.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI));
-            presentation.put(TYPE, Arrays.asList("VerifiablePresentation"));
+            presentation.put(TYPE, Arrays.asList(VERIFIABLE_PRESENTATION));
             presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(data));
-            if (AccessGrant.class.isAssignableFrom(clazz)) {
-                return (T) AccessGrant.of(new String(serialize(presentation), UTF_8));
-            } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-                return (T) AccessRequest.of(new String(serialize(presentation), UTF_8));
-            } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-                return (T) AccessDenial.of(new String(serialize(presentation), UTF_8));
+            final T credential = cast(presentation, clazz);
+            if (credential != null) {
+                return credential;
             }
         }
         throw new AccessGrantException("Invalid Access Grant: missing supported type");
     }
 
-    @SuppressWarnings("unchecked")
     <T extends AccessCredential> List<T> processQueryResponse(final InputStream input, final Set<String> validTypes,
             final Class<T> clazz) throws IOException {
-        final Map<String, Object> data = jsonService.fromJson(input,
-                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+        final Map<String, Object> data = jsonService.fromJson(input, JSON_TYPE_REF);
         final List<T> grants = new ArrayList<>();
         for (final Object item : getCredentials(data)) {
             Utils.asMap(item).ifPresent(credential ->
@@ -530,14 +641,11 @@ public class AccessGrantClient {
                     if (!types.isEmpty()) {
                         final Map<String, Object> presentation = new HashMap<>();
                         presentation.put(CONTEXT, Arrays.asList(VC_CONTEXT_URI));
-                        presentation.put(TYPE, Arrays.asList("VerifiablePresentation"));
+                        presentation.put(TYPE, Arrays.asList(VERIFIABLE_PRESENTATION));
                         presentation.put(VERIFIABLE_CREDENTIAL, Arrays.asList(credential));
-                        if (AccessGrant.class.equals(clazz)) {
-                            grants.add((T) AccessGrant.of(new String(serialize(presentation), UTF_8)));
-                        } else if (AccessRequest.class.equals(clazz)) {
-                            grants.add((T) AccessRequest.of(new String(serialize(presentation), UTF_8)));
-                        } else if (AccessDenial.class.equals(clazz)) {
-                            grants.add((T) AccessDenial.of(new String(serialize(presentation), UTF_8)));
+                        final T c = cast(presentation, clazz);
+                        if (c != null) {
+                            grants.add(c);
                         }
                     }
                 }));
@@ -559,8 +667,7 @@ public class AccessGrantClient {
                 try (final InputStream input = res.body()) {
                     final int httpStatus = res.statusCode();
                     if (isSuccess(httpStatus)) {
-                        final Map<String, Object> data = jsonService.fromJson(input,
-                                new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
+                        final Map<String, Object> data = jsonService.fromJson(input, JSON_TYPE_REF);
                         return data;
                     }
                     throw new AccessGrantException(
@@ -572,7 +679,8 @@ public class AccessGrantClient {
             })
             .thenApply(metadata -> {
                 final Metadata m = new Metadata();
-                m.queryEndpoint = asUri(metadata.get("derivationService"));
+                m.deriveEndpoint = asUri(metadata.get("derivationService"));
+                m.queryEndpoint = asUri(metadata.get("queryService"));
                 m.issueEndpoint = asUri(metadata.get("issuerService"));
                 m.verifyEndpoint = asUri(metadata.get("verifierService"));
                 m.statusEndpoint = asUri(metadata.get("statusService"));
@@ -808,6 +916,15 @@ public class AccessGrantClient {
         types.add(QN_ACCESS_DENIAL.toString());
         types.add(FQ_ACCESS_DENIAL.toString());
         return Collections.unmodifiableSet(types);
+    }
+
+    static Set<String> getLinkPagingRelValues() {
+        final Set<String> values = new HashSet<>();
+        values.add(FIRST);
+        values.add(LAST);
+        values.add(NEXT);
+        values.add(PREV);
+        return Collections.unmodifiableSet(values);
     }
 
     static boolean isAccessGrant(final URI type) {

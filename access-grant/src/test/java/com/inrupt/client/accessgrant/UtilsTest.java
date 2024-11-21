@@ -20,12 +20,30 @@
  */
 package com.inrupt.client.accessgrant;
 
-import java.net.URI;
+import static org.junit.jupiter.api.Assertions.*;
 
-class Metadata {
-    public URI queryEndpoint;
-    public URI issueEndpoint;
-    public URI statusEndpoint;
-    public URI verifyEndpoint;
-    public URI deriveEndpoint;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+
+class UtilsTest {
+
+    @Test
+    void testAsList() {
+        assertEquals(Optional.empty(), Utils.asList("not a list"));
+        final Object list = Arrays.asList("one", 2, 12.5f);
+        assertEquals(Optional.of(list), Utils.asList(list));
+    }
+
+    @Test
+    void testQueryParam() {
+        final URI uri = URI.create("https://example.com/?query&page=foo&item=bar");
+        assertEquals("foo", Utils.getQueryParam(uri, "page"));
+        assertEquals("bar", Utils.getQueryParam(uri, "item"));
+        assertNull(Utils.getQueryParam(uri, "query"));
+        assertNull(Utils.getQueryParam(uri, "other"));
+        assertNull(Utils.getQueryParam(URI.create("https://example.com/path"), "param"));
+    }
 }
