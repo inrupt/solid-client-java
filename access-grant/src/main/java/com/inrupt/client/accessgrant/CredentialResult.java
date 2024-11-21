@@ -36,8 +36,16 @@ public class CredentialResult<T extends AccessCredential> {
     private final CredentialFilter<T> prev;
     private final CredentialFilter<T> next;
 
-    /* package private */
-    CredentialResult(final List<T> items, final CredentialFilter<T> first, final CredentialFilter<T> prev,
+    /**
+     * A page of access credential results.
+     *
+     * @param items the result items
+     * @param first a filter for the first page of results, may be {@code null}
+     * @param prev a filter for the previous page of results, may be {@code null}
+     * @param next a filter for the next page of results, may be {@code null}
+     * @param last a filter for the last page of results, may be {@code null}
+     */
+    public CredentialResult(final List<T> items, final CredentialFilter<T> first, final CredentialFilter<T> prev,
             final CredentialFilter<T> next, final CredentialFilter<T> last) {
         this.items = items;
         this.first = first;

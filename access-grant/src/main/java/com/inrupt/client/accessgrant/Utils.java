@@ -129,19 +129,6 @@ final class Utils {
         return credentials;
     }
 
-    public static int convertPage(final String page) {
-        try {
-            final int p = Integer.parseInt(page);
-            return Math.max(1, p);
-        } catch (final IllegalArgumentException ex) {
-            throw new AccessGrantException("Invalid page value: " + page);
-        }
-    }
-
-    public static String convertPage(final int page) {
-        return Integer.toString(page);
-    }
-
     public static String getQueryParam(final URI uri, final String name) {
         Objects.requireNonNull(uri, "uri may not be null!");
         Objects.requireNonNull(name, "name may not be null!");
@@ -155,11 +142,6 @@ final class Utils {
             }
         }
         return null;
-    }
-
-    // Math.ceilDiv is not available in Java 11. This is an equivalent.
-    public static int ceilDiv(final int x, final int y) {
-        return (x + y - 1) / y;
     }
 
     private Utils() {

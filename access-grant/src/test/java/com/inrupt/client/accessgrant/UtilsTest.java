@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,26 +38,6 @@ class UtilsTest {
     }
 
     @Test
-    void testCeilDiv() {
-        assertEquals(3, Utils.ceilDiv(10, 4));
-        assertEquals(3, Utils.ceilDiv(11, 4));
-        assertEquals(3, Utils.ceilDiv(12, 4));
-        assertEquals(4, Utils.ceilDiv(13, 4));
-        assertEquals(4, Utils.ceilDiv(14, 4));
-        assertEquals(4, Utils.ceilDiv(15, 4));
-        assertEquals(4, Utils.ceilDiv(16, 4));
-        assertEquals(5, Utils.ceilDiv(17, 4));
-        assertEquals(5, Utils.ceilDiv(18, 4));
-        assertEquals(5, Utils.ceilDiv(19, 4));
-        assertEquals(5, Utils.ceilDiv(20, 4));
-        assertEquals(6, Utils.ceilDiv(21, 4));
-        assertEquals(6, Utils.ceilDiv(22, 4));
-        assertEquals(6, Utils.ceilDiv(23, 4));
-        assertEquals(6, Utils.ceilDiv(24, 4));
-        assertEquals(7, Utils.ceilDiv(25, 4));
-    }
-
-    @Test
     void testQueryParam() {
         final URI uri = URI.create("https://example.com/?query&page=foo&item=bar");
         assertEquals("foo", Utils.getQueryParam(uri, "page"));
@@ -66,13 +45,5 @@ class UtilsTest {
         assertNull(Utils.getQueryParam(uri, "query"));
         assertNull(Utils.getQueryParam(uri, "other"));
         assertNull(Utils.getQueryParam(URI.create("https://example.com/path"), "param"));
-    }
-
-    @Test
-    void testConvertPage() {
-        assertEquals(1, Utils.convertPage("0"));
-        assertEquals(1, Utils.convertPage("-100"));
-        assertEquals(2, Utils.convertPage("2"));
-        assertThrows(AccessGrantException.class, () -> Utils.convertPage(UUID.randomUUID().toString()));
     }
 }

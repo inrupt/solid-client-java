@@ -378,12 +378,7 @@ public class AccessGrantClient {
 
         return v1Metadata().thenCompose(metadata -> {
             if (metadata.queryEndpoint == null) {
-                LOGGER.debug("Query endpoint not supported. Falling back to derive endpoint.");
-                return query(filter.getResource().orElse(null), filter.getFromAgent().orElse(null),
-                        filter.getToAgent().orElse(null),
-                        filter.getPurpose().map(Collections::singleton).orElseGet(Collections::emptySet),
-                            Collections.emptySet(), clazz)
-                    .thenApply(results -> processResults(results, filter));
+                throw new AccessGrantException("Server does not support CredentialFilter-based queries");
             }
             final Request req = Request.newBuilder(filter.asURI(metadata.queryEndpoint)).GET().build();
             return client.send(req, Response.BodyHandlers.ofInputStream()).thenApply(response -> {
@@ -404,28 +399,6 @@ public class AccessGrantClient {
                 }
             });
         });
-    }
-
-    <T extends AccessCredential> CredentialResult<T> processResults(final List<T> items,
-            final CredentialFilter<T> filter) {
-        final int pageCount = Utils.ceilDiv(items.size(), filter.getPageSize());
-        final int page = Math.min(pageCount, filter.getPage().map(Utils::convertPage).orElse(1));
-        if (pageCount > 1) {
-            final CredentialFilter<T> first = CredentialFilter.newBuilder(filter)
-                .page(Utils.convertPage(1)).build(filter.getCredentialType());
-            final CredentialFilter<T> last = CredentialFilter.newBuilder(filter)
-                .page(Utils.convertPage(pageCount)).build(filter.getCredentialType());
-            final CredentialFilter<T> prev = page > 1 ? CredentialFilter.newBuilder(filter)
-                .page(Utils.convertPage(page - 1)).build(filter.getCredentialType()) : null;
-            final CredentialFilter<T> next = page <= pageCount - 1 ? CredentialFilter.newBuilder(filter)
-                .page(Utils.convertPage(page + 1)).build(filter.getCredentialType()) : null;
-
-            final int offset = (page - 1) * filter.getPageSize();
-            final int limit = filter.getPageSize();
-            return new CredentialResult<>(items.subList(offset, offset + limit), first, prev, next, last);
-        } else {
-            return new CredentialResult<>(items, null, null, null, null);
-        }
     }
 
     <T extends AccessCredential> Map<String, CredentialFilter<T>> processFilterResponseHeaders(final Headers headers,
@@ -543,6 +516,9 @@ public class AccessGrantClient {
         }
 
         return v1Metadata().thenApply(metadata -> {
+            if (metadata.deriveEndpoint == null) {
+                throw new AccessGrantException("Server does not support queries via AccessCredentialQuery objects");
+            }
             final List<T> responses = new ArrayList<>();
             for (final Map<String, Object> data :
                     buildQuery(config.getIssuer(), type, resource, creator, recipient, purposes, modes)) {
