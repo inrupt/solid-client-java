@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="CHECK" timestamp="1730970413632">
+<licensePluginReport goal="CHECK" timestamp="1732210678809">
     <module artifactId="inrupt-client-integration-tests" groupId="com.inrupt.client" version="1.3.0-SNAPSHOT"/>
     <files/>
 </licensePluginReport>
