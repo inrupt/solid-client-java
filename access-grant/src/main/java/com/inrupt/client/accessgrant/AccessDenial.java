@@ -49,6 +49,8 @@ public class AccessDenial extends AccessCredential {
     private static final Set<String> supportedTypes = getSupportedTypes();
     private static final JsonService jsonService = ServiceProvider.getJsonService();
 
+    private final URI accessRequest;
+
     /**
      * Read a verifiable presentation as an AccessDenial.
      *
@@ -60,6 +62,16 @@ public class AccessDenial extends AccessCredential {
     protected AccessDenial(final URI identifier, final String credential, final CredentialData data,
             final CredentialMetadata metadata) {
         super(identifier, credential, data, metadata);
+        this.accessRequest = data.getAccessRequest();
+    }
+
+    /**
+     * Get the corresponding access request identifier.
+     *
+     * @return the access request identifier, may be {@code null}
+     */
+    public URI getAccessRequest() {
+        return accessRequest;
     }
 
     /**
@@ -127,12 +139,14 @@ public class AccessDenial extends AccessCredential {
                 final Optional<URI> other = asUri(consent.get("isProvidedTo"));
 
                 final URI recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
+                final URI accessRequest = asUri(consent.get("request")).orElse(null);
                 final Set<String> modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 final Set<URI> resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
                 final Set<URI> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet)
                     .stream().flatMap(AccessCredential::filterUris).collect(Collectors.toSet());
-                final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient);
+                final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient,
+                        accessRequest);
 
                 return new AccessDenial(identifier, serialization, credentialData, credentialMetadata);
             } else {

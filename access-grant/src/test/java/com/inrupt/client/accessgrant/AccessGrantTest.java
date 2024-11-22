@@ -52,6 +52,7 @@ class AccessGrantTest {
             expectedTypes.add("VerifiableCredential");
             expectedTypes.add("SolidAccessGrant");
             assertEquals(expectedTypes, grant.getTypes());
+            assertNull(grant.getAccessRequest());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), grant.getExpiration());
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),
@@ -83,6 +84,7 @@ class AccessGrantTest {
             expectedTypes.add("VerifiableCredential");
             expectedTypes.add("vc:SolidAccessGrant");
             assertEquals(expectedTypes, grant.getTypes());
+            assertEquals(URI.create("https://accessrequest.example/1234"), grant.getAccessRequest());
             assertEquals(Instant.parse("2022-08-27T12:00:00Z"), grant.getExpiration());
             assertEquals(Instant.parse("2022-08-25T20:34:05.153Z"), grant.getIssuedAt());
             assertEquals(URI.create("https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626"),

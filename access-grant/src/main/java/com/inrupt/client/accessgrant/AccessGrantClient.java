@@ -106,6 +106,7 @@ public class AccessGrantClient {
     private static final String IS_CONSENT_FOR_DATA_SUBJECT = "isConsentForDataSubject";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
+    private static final String REQUEST = "request";
     private static final String MODE = "mode";
     private static final String PROVIDED_CONSENT = "providedConsent";
     private static final String FOR_PURPOSE = "forPurpose";
@@ -260,7 +261,8 @@ public class AccessGrantClient {
         Objects.requireNonNull(request, "Request may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data = buildAccessGrantv1(request.getCreator(), request.getResources(),
-                    request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt());
+                    request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt(),
+                    request.getIdentifier());
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
@@ -292,7 +294,8 @@ public class AccessGrantClient {
         Objects.requireNonNull(request, "Request may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data = buildAccessDenialv1(request.getCreator(), request.getResources(),
-                    request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt());
+                    request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt(),
+                    request.getIdentifier());
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
@@ -799,13 +802,14 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessDenialv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Set<URI> purposes, final Instant expiration, final Instant issuance) {
+            final Set<URI> purposes, final Instant expiration, final Instant issuance, final URI accessRequest) {
         Objects.requireNonNull(agent, "Access denial agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRefused");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
+        consent.put(REQUEST, accessRequest);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
@@ -829,13 +833,14 @@ public class AccessGrantClient {
     }
 
     static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Set<URI> purposes, final Instant expiration, final Instant issuance) {
+            final Set<URI> purposes, final Instant expiration, final Instant issuance, final URI accessRequest) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
+        consent.put(REQUEST, accessRequest);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
