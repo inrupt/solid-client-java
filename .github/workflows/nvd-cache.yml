@@ -43,7 +43,7 @@ jobs:
 
     - name: Generate data
       working-directory: ./data
-      run: ./vulnz.jar cve --cache --directory ./cache
+      run: ./vulnz.jar cve --cache --directory ./cache --delay=10000 --maxRetry=20
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
