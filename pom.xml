@@ -851,9 +851,6 @@
       <activation>
         <jdk>[11,21)</jdk>
       </activation>
-      <modules>
-        <module>gradle</module>
-      </modules>
     </profile>
   </profiles>
 
