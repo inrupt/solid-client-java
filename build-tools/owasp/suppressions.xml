@@ -8,6 +8,13 @@
     <packageUrl regex="true">^pkg:maven/com\.inrupt\.client/inrupt\-client\-openid@.*$</packageUrl>
     <cpe>cpe:/a:openid:openid</cpe>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+        This suppresses a false positive CVE match
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.inrupt\.client/inrupt-client-webid@.*$</packageUrl>
+    <cve>CVE-2021-4236</cve>
+  </suppress>
 
   <!-- Suppressed vulnerabilities. These need monthly review. -->
   <suppress until="2025-01-22Z">

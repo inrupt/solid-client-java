@@ -35,11 +35,6 @@ updates:
     allow:
       - dependency-name: "org.springframework.security:spring-*"
 
-  - package-ecosystem: "gradle"
-    directory: "/gradle/"
-    schedule:
-      interval: "weekly"
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
