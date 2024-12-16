@@ -33,7 +33,7 @@
     <jose4j.version>0.9.6</jose4j.version>
     <json.bind.version>3.0.1</json.bind.version>
     <okhttp.version>4.12.0</okhttp.version>
-    <quarkus.version>3.17.3</quarkus.version>
+    <quarkus.version>3.17.4</quarkus.version>
     <slf4j.version>2.0.16</slf4j.version>
     <!-- pinning to Spring 5.x for Java 11 support -->
     <spring.security.version>5.8.14</spring.security.version>
@@ -109,7 +109,6 @@
     <module>okhttp</module>
     <module>openid</module>
     <module>parser</module>
-    <module>quarkus</module>
     <module>rdf4j</module>
     <module>rdf-legacy</module>
     <module>solid</module>
@@ -121,7 +120,6 @@
     <module>spring</module>
     <module>integration</module>
     <module>performance</module>
-    <module>reports</module>
     <module>archetypes</module>
   </modules>
 
@@ -769,6 +767,16 @@
   </reporting>
 
   <profiles>
+    <profile>
+      <id>java-17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <modules>
+        <module>quarkus</module>
+        <module>reports</module>
+      </modules>
+    </profile>
     <profile>
       <id>publish</id>
       <!-- skip tests for publish profile, since these tests have already run -->
