@@ -108,7 +108,6 @@
     <module>okhttp</module>
     <module>openid</module>
     <module>parser</module>
-    <module>quarkus</module>
     <module>rdf4j</module>
     <module>rdf-legacy</module>
     <module>solid</module>
@@ -120,7 +119,6 @@
     <module>spring</module>
     <module>integration</module>
     <module>performance</module>
-    <module>reports</module>
     <module>archetypes</module>
   </modules>
 
@@ -776,6 +774,16 @@
   </reporting>
 
   <profiles>
+    <profile>
+      <id>java-17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <modules>
+        <module>quarkus</module>
+        <module>reports</module>
+      </modules>
+    </profile>
     <profile>
       <id>publish</id>
       <!-- skip tests for publish profile, since these tests have already run -->
