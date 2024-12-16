@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.inrupt.client.rdf4j","l":"RDF4JBodyHandlers"},{"p":"com.inrupt.client.rdf4j","l":"RDF4JBodyPublishers"},{"p":"com.inrupt.client.rdf4j","l":"RDF4JService"}];updateSearchResults();
