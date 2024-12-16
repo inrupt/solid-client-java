@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.inrupt.client.examples.springboot"},{"l":"com.inrupt.client.examples.springboot.model"},{"l":"com.inrupt.client.examples.springboot.service"}];updateSearchResults();

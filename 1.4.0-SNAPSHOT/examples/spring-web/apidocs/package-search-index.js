@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.inrupt.client.examples.spring.web"},{"l":"com.inrupt.client.examples.spring.web.controller"},{"l":"com.inrupt.client.examples.spring.web.model"}];updateSearchResults();
