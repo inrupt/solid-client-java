@@ -40,72 +40,6 @@ updates:
     schedule:
       interval: "weekly"
 
-# 1.1 Maintenance
-  - package-ecosystem: "maven"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    target-branch: "1.1"
-    ignore:
-      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
-      - dependency-name: "org.springframework.security:spring-*"
-      - dependency-name: "com.google.protobuf:protobuf-java"
-        update-types:
-          - "version-update:semver-major"
-    labels:
-      - "backport"
-      - "1.1"
-    groups:
-      plugins:
-        patterns:
-          - "org.apache.maven.plugins:*"
-          - "com.mycila:license-maven-plugin"
-          - "org.jacoco:jacoco-maven-plugin"
-          - "org.sonarsource.scanner.maven:sonar-maven-plugin"
-          - "org.sonatype.plugins:nexus-staging-maven-plugin"
-          - "org.owasp:dependency-check-maven"
-          - "com.puppycrawl.tools:checkstyle"
-
-  - package-ecosystem: "maven"
-    directory: "/rdf4j/"
-    schedule:
-      interval: "weekly"
-    target-branch: "1.1"
-    allow:
-      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
-    labels:
-      - "backport"
-      - "1.1"
-
-  - package-ecosystem: "maven"
-    directory: "/spring/"
-    schedule:
-      interval: "weekly"
-    target-branch: "1.1"
-    allow:
-      - dependency-name: "org.springframework.security:spring-*"
-    labels:
-      - "backport"
-      - "1.1"
-
-  - package-ecosystem: "gradle"
-    directory: "/gradle/"
-    schedule:
-      interval: "weekly"
-    target-branch: "1.1"
-    labels:
-      - "backport"
-      - "1.1"
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    target-branch: "1.1"
-    labels:
-      - "backport"
-      - "1.1"
-
 # 1.2 Maintenance
   - package-ecosystem: "maven"
     directory: "/"
@@ -171,4 +105,61 @@ updates:
     labels:
       - "backport"
       - "1.2"
+
+# 1.3 Maintenance
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.3"
+    ignore:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+      - dependency-name: "org.springframework.security:spring-*"
+      - dependency-name: "com.google.protobuf:protobuf-java"
+        update-types:
+          - "version-update:semver-major"
+    labels:
+      - "backport"
+      - "1.3"
+    groups:
+      plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+          - "com.mycila:license-maven-plugin"
+          - "org.jacoco:jacoco-maven-plugin"
+          - "org.sonarsource.scanner.maven:sonar-maven-plugin"
+          - "org.sonatype.plugins:nexus-staging-maven-plugin"
+          - "org.owasp:dependency-check-maven"
+          - "com.puppycrawl.tools:checkstyle"
+
+  - package-ecosystem: "maven"
+    directory: "/rdf4j/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.3"
+    allow:
+      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
+    labels:
+      - "backport"
+      - "1.3"
+
+  - package-ecosystem: "maven"
+    directory: "/spring/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.3"
+    allow:
+      - dependency-name: "org.springframework.security:spring-*"
+    labels:
+      - "backport"
+      - "1.3"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "1.3"
+    labels:
+      - "backport"
+      - "1.3"
 
