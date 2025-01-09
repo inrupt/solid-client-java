@@ -17,7 +17,7 @@ jobs:
       with:
         repository: jeremylong/Open-Vulnerability-Project
         path: ovp
-        ref: v7.0.2
+        ref: v7.1.0
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -28,7 +28,7 @@ jobs:
 
     - name: Build the OVP code with Gradle
       working-directory: ./ovp
-      run: ./gradlew build -x test
+      run: ./gradlew build -x test -x spotlessJavaCheck
 
     - uses: actions/checkout@v4
       with:
