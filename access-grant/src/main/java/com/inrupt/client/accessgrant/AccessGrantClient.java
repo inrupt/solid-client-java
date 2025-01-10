@@ -94,7 +94,7 @@ public class AccessGrantClient {
 
     private static final String CONTEXT = "@context";
     private static final String VC_CONTEXT_URI = "https://www.w3.org/2018/credentials/v1";
-    private static final String INRUPT_CONTEXT_URI = "https://schema.inrupt.com/credentials/v1.jsonld";
+    private static final String INRUPT_CONTEXT_URI = "https://schema.inrupt.com/credentials/v2.jsonld";
     private static final String VERIFIABLE_CREDENTIAL = "verifiableCredential";
     private static final String SOLID_VC_NAMESPACE = "http://www.w3.org/ns/solid/vc#";
     private static final String SOLID_VC_QN = "vc:";
