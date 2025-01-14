@@ -3,7 +3,7 @@
         "https://www.w3.org/2018/credentials/v1",
         "https://w3id.org/security/suites/ed25519-2020/v1",
         "https://w3id.org/vc-revocation-list-2020/v1",
-        "https://schema.inrupt.com/credentials/v1.jsonld"],
+        "https://schema.inrupt.com/credentials/v2.jsonld"],
     "id":"https://accessgrant.example/credential/5c6060ad-2f16-4bc1-b022-dffb46bff626",
     "type":["VerifiableCredential","SolidAccessGrant"],
     "issuer":"https://accessgrant.example",
