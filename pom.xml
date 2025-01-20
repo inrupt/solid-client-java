@@ -57,7 +57,7 @@
     <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
     <license.plugin.version>4.6</license.plugin.version>
     <nexus.plugin.version>1.7.0</nexus.plugin.version>
-    <owasp.plugin.version>12.0.0</owasp.plugin.version>
+    <owasp.plugin.version>12.0.1</owasp.plugin.version>
     <projectinfo.plugin.version>3.8.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.26.0</pmd.plugin.version>
     <site.plugin.version>3.21.0</site.plugin.version>
