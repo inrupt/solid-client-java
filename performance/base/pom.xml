@@ -128,7 +128,7 @@
           <jdk>11</jdk>
         </activation>
         <properties>
-          <smallrye.config.version>3.10.2</smallrye.config.version>
+          <smallrye.config.version>3.11.1</smallrye.config.version>
         </properties>
       </profile>
     </profiles>
