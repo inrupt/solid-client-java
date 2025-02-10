@@ -10,26 +10,12 @@
   </suppress>
 
   <!-- Suppressed vulnerabilities. These need monthly review. -->
-  <suppress until="2025-01-22Z">
+  <suppress until="2025-05-10Z">
     <notes><![CDATA[
-        This vulnerability affects an unused swagger javascript UI that is part of wiremock.
+        This vulnerability affects a transitive dependency of the test module but is not relevant
+        for how it is used in the context of the Java Client Libraries.
     ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
-    <vulnerabilityName>CVE-2024-45801</vulnerabilityName>
-    <vulnerabilityName>CVE-2024-47875</vulnerabilityName>
-  </suppress>
-  <suppress until="2025-01-22Z">
-    <notes><![CDATA[
-        This vulnerability affects wiremock but is not relevant for the Java Client Libraries.
-    ]]></notes>
-     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-server@.*$</packageUrl>
-     <vulnerabilityName>CVE-2024-8184</vulnerabilityName>
-  </suppress>
-  <suppress until="2025-01-22Z">
-    <notes><![CDATA[
-        The use of spring-web in the JCL does not accept byte[] input data
-    ]]></notes>
-     <packageUrl regex="true">^pkg:maven/org\.springframework\..*@.*$</packageUrl>
-     <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
+    <packageUrl regex="true">^pkg:maven/net\.minidev/json-smart@.*$</packageUrl>
+    <vulnerabilityName>CVE-2024-57699</vulnerabilityName>
   </suppress>
 </suppressions>
