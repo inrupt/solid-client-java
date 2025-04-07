@@ -52,12 +52,12 @@
     <exec.plugin.version>3.5.0</exec.plugin.version>
     <install.plugin.version>3.1.4</install.plugin.version>
     <gpg.plugin.version>3.2.7</gpg.plugin.version>
-    <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
+    <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
     <jar.plugin.version>3.4.2</jar.plugin.version>
     <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
     <license.plugin.version>5.0.0</license.plugin.version>
     <nexus.plugin.version>1.7.0</nexus.plugin.version>
-    <owasp.plugin.version>12.1.0</owasp.plugin.version>
+    <owasp.plugin.version>12.1.1</owasp.plugin.version>
     <projectinfo.plugin.version>3.9.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.26.0</pmd.plugin.version>
     <site.plugin.version>3.21.0</site.plugin.version>
@@ -68,7 +68,7 @@
     <surefire.plugin.version>3.5.3</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.22.0</checkstyle.tool.version>
+    <checkstyle.tool.version>10.23.0</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.3.0</awaitility.version>
