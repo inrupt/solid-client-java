@@ -68,7 +68,7 @@
     <surefire.plugin.version>3.5.3</surefire.plugin.version>
 
     <!-- tooling -->
-    <checkstyle.tool.version>10.23.0</checkstyle.tool.version>
+    <checkstyle.tool.version>10.23.1</checkstyle.tool.version>
 
     <!-- testing -->
     <awaitility.version>4.3.0</awaitility.version>
@@ -78,7 +78,7 @@
     <smallrye.jwt.version>4.6.1</smallrye.jwt.version>
     <smallrye.config.version>3.12.4</smallrye.config.version>
     <yasson.version>3.0.4</yasson.version>
-    <wiremock.version>3.12.1</wiremock.version>
+    <wiremock.version>3.13.0</wiremock.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
