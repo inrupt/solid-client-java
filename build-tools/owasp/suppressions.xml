@@ -17,12 +17,28 @@
   </suppress>
 
   <!-- Suppressed vulnerabilities. These need monthly review. -->
-  <suppress until="2025-05-10Z">
+  <suppress until="2025-08-10Z">
     <notes><![CDATA[
         This vulnerability affects a transitive dependency of the test module but is not relevant
         for how it is used in the context of the Java Client Libraries.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/net\.minidev/json-smart@.*$</packageUrl>
     <vulnerabilityName>CVE-2024-57699</vulnerabilityName>
+  </suppress>
+  <suppress until="2025-08-10Z">
+    <notes><![CDATA[
+        This vulnerability affects a transitive dependency of the test module but is not relevant
+        for how it is used in the context of the Java Client Libraries.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2-common@.*$</packageUrl>
+    <cve>CVE-2024-6763</cve>
+  </suppress>
+  <suppress until="2025-08-10Z">
+    <notes><![CDATA[
+        This vulnerability affects a transitive dependency of the test module but is not relevant
+        for how it is used in the context of the Java Client Libraries.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2-common@.*$</packageUrl>
+    <cve>CVE-2025-1948</cve>
   </suppress>
 </suppressions>
