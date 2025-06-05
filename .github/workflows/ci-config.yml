@@ -146,5 +146,5 @@ jobs:
         run: mvn -B -ntp install -Pci
 
       - name: Sonar Analysis
-        run: mvn sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+        run: mvn sonar:sonar -Dsonar.token=${{ secrets.SONARQUBE_TOKEN }}
 
