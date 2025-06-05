@@ -88,7 +88,8 @@
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <sonar.host.url>https://sonarqube.dev.inrupt.com</sonar.host.url>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.organization>inrupt</sonar.organization>
     <sonar.projectKey>solid-client-java</sonar.projectKey>
     <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
   </properties>
