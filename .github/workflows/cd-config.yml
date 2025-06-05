@@ -54,5 +54,5 @@ jobs:
 
       - name: Sonar Analysis
         if: ${{ github.actor != 'dependabot[bot]' }}
-        run: mvn sonar:sonar -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+        run: mvn sonar:sonar -Dsonar.token=${{ secrets.SONARQUBE_TOKEN }}
 
