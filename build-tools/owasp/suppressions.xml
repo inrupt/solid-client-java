@@ -8,6 +8,27 @@
     <packageUrl regex="true">^pkg:maven/com\.inrupt\.client/inrupt\-client\-openid@.*$</packageUrl>
     <cpe>cpe:/a:openid:openid</cpe>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+        This suppresses a false positive CPE match
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.roaringbitmap/RoaringBitmap@.*$</packageUrl>
+    <cpe>cpe:/a:bitmap_project:bitmap</cpe>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+        The json-java artifact is not a dependency of this project.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/(com\.inrupt\.client/inrupt\-client\-jsonb|com\.github\.jsonld\-java/jsonld\-java|net\.javacrumbs\.json\-unit/json\-unit\-core)@.*$</packageUrl>
+    <cve>CVE-2023-5072</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+        The json-java artifact is not a dependency of this project.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/(com\.inrupt\.client/inrupt\-client\-jsonb|com\.github\.jsonld\-java/jsonld\-java|net\.javacrumbs\.json\-unit/json\-unit\-core)@.*$</packageUrl>
+    <cve>CVE-2022-45688</cve>
+  </suppress>
 
   <!-- Suppressed vulnerabilities. These need monthly review. -->
   <suppress until="2025-08-10Z">
