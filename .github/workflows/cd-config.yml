@@ -35,7 +35,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
           cache: 'maven'
-          server-id: 'ossrh'
+          server-id: 'central'
           server-username: MAVEN_REPO_USERNAME
           server-password: MAVEN_REPO_TOKEN
           gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
