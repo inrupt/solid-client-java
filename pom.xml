@@ -56,7 +56,6 @@
     <jar.plugin.version>3.4.2</jar.plugin.version>
     <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
     <license.plugin.version>5.0.0</license.plugin.version>
-    <nexus.plugin.version>1.7.0</nexus.plugin.version>
     <owasp.plugin.version>12.1.2</owasp.plugin.version>
     <projectinfo.plugin.version>3.9.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.26.0</pmd.plugin.version>
@@ -64,6 +63,7 @@
     <release.plugin.version>3.1.1</release.plugin.version>
     <resources.plugin.version>3.3.1</resources.plugin.version>
     <sonar.plugin.version>5.1.0.4751</sonar.plugin.version>
+    <sonatype.plugin.version>0.7.0</sonatype.plugin.version>
     <source.plugin.version>3.3.1</source.plugin.version>
     <surefire.plugin.version>3.5.3</surefire.plugin.version>
 
@@ -124,16 +124,6 @@
   </modules>
 
   <distributionManagement>
-    <snapshotRepository>
-      <name>Snapshot Repository</name>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <name>Staging Repository</name>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
     <site child.site.url.inherit.append.path="false">
       <id>${project.artifactId}</id>
       <url>${project.baseUri}</url>
@@ -504,15 +494,9 @@
           <version>${sonar.plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${nexus.plugin.version}</version>
-          <extensions>true</extensions>
-          <configuration>
-            <serverId>ossrh</serverId>
-            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-          </configuration>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${sonatype.plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.antlr</groupId>
@@ -654,6 +638,15 @@
           </suppressionFile>
           <nvdApiKey>${nvd.api.key}</nvdApiKey>
           <nvdDatafeedUrl>${nvd.api.datafeed}</nvdDatafeedUrl>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
         </configuration>
       </plugin>
     </plugins>
