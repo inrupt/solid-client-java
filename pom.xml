@@ -56,7 +56,7 @@
     <jar.plugin.version>3.4.2</jar.plugin.version>
     <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
     <license.plugin.version>5.0.0</license.plugin.version>
-    <owasp.plugin.version>12.1.2</owasp.plugin.version>
+    <owasp.plugin.version>12.1.3</owasp.plugin.version>
     <projectinfo.plugin.version>3.9.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.26.0</pmd.plugin.version>
     <site.plugin.version>3.21.0</site.plugin.version>
