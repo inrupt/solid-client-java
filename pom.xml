@@ -48,10 +48,10 @@
     <compiler.plugin.version>3.14.0</compiler.plugin.version>
     <dependency.plugin.version>3.8.1</dependency.plugin.version>
     <deploy.plugin.version>3.1.4</deploy.plugin.version>
-    <enforcer.plugin.version>3.5.0</enforcer.plugin.version>
+    <enforcer.plugin.version>3.6.0</enforcer.plugin.version>
     <exec.plugin.version>3.5.0</exec.plugin.version>
     <install.plugin.version>3.1.4</install.plugin.version>
-    <gpg.plugin.version>3.2.7</gpg.plugin.version>
+    <gpg.plugin.version>3.2.8</gpg.plugin.version>
     <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
     <jar.plugin.version>3.4.2</jar.plugin.version>
     <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
