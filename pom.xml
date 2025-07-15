@@ -31,7 +31,7 @@
     <jena.version>5.4.0</jena.version>
     <jose4j.version>0.9.6</jose4j.version>
     <json.bind.version>3.0.1</json.bind.version>
-    <okhttp.version>5.0.0</okhttp.version>
+    <okhttp.version>5.1.0</okhttp.version>
     <quarkus.version>3.24.3</quarkus.version>
     <slf4j.version>2.0.17</slf4j.version>
     <!-- pinning to Spring 5.x for Java 11 support -->
