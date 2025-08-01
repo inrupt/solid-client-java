@@ -17,7 +17,7 @@
 
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
-    <springboot.version>3.5.3</springboot.version>
+    <springboot.version>3.5.4</springboot.version>
   </properties>
 
   <dependencyManagement>
