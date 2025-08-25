@@ -95,7 +95,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>6.2.8</version>
+      <version>6.2.10</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -107,7 +107,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <properties>
-        <spring.security.version>6.5.2</spring.security.version>
+        <spring.security.version>6.5.3</spring.security.version>
       </properties>
     </profile>
   </profiles>
