@@ -62,4 +62,12 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2-common@.*$</packageUrl>
     <cve>CVE-2025-1948</cve>
   </suppress>
+    <suppress until="2025-11-10Z">
+    <notes><![CDATA[
+        This vulnerability affects a transitive dependency of the test module but is not relevant
+        for how it is used in the context of the Java Client Libraries.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2-common@.*$</packageUrl>
+    <cve>CVE-2025-5115</cve>
+  </suppress>
 </suppressions>
