@@ -13,10 +13,6 @@
       UMA abstractions for the Inrupt Java Client Libraries.
   </description>
 
-  <properties>
-    <maven.compiler.release>8</maven.compiler.release>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.inrupt.client</groupId>

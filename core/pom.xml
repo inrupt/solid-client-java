@@ -13,10 +13,6 @@
       Core Classes and Utilities for the Inrupt Java Client Libraries.
   </description>
 
-  <properties>
-    <maven.compiler.release>8</maven.compiler.release>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>

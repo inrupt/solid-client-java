@@ -100,18 +100,6 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>java-17</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <properties>
-        <spring.security.version>6.5.3</spring.security.version>
-      </properties>
-    </profile>
-  </profiles>
-
   <build>
     <plugins>
       <plugin>
