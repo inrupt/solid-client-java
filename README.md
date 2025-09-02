@@ -18,7 +18,7 @@ After cloning the repository locally you can work with the code as follows:
 
 ### Code build
 
-The project can be built with Maven and a Java 11+ build environment.
+The project can be built with Maven and a Java 17+ build environment.
 
 ```bash
     ./mvnw install

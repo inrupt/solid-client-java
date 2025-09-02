@@ -13,10 +13,6 @@
       The Application Programming Interfaces for the Inrupt Java Client Libraries.
   </description>
 
-  <properties>
-    <maven.compiler.release>8</maven.compiler.release>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>
