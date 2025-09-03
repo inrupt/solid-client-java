@@ -5,12 +5,6 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "30 4 1,15 * *"
-    ignore:
-      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
-      - dependency-name: "org.springframework.security:spring-*"
-      - dependency-name: "com.google.protobuf:protobuf-java"
-        update-types:
-          - "version-update:semver-major"
     groups:
       plugins:
         patterns:
@@ -21,22 +15,6 @@ updates:
           - "org.sonatype.plugins:nexus-staging-maven-plugin"
           - "org.owasp:dependency-check-maven"
           - "com.puppycrawl.tools:checkstyle"
-
-  - package-ecosystem: "maven"
-    directory: "/rdf4j/"
-    schedule:
-      interval: "cron"
-      cronjob: "15 4 1,15 * *"
-    allow:
-      - dependency-name: "org.eclipse.rdf4j:rdf4j-*"
-
-  - package-ecosystem: "maven"
-    directory: "/spring/"
-    schedule:
-      interval: "cron"
-      cronjob: "45 4 1,15 * *"
-    allow:
-      - dependency-name: "org.springframework.security:spring-*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -68,7 +46,6 @@ updates:
           - "org.sonarsource.scanner.maven:sonar-maven-plugin"
           - "org.sonatype.plugins:nexus-staging-maven-plugin"
           - "org.owasp:dependency-check-maven"
-          - "com.puppycrawl.tools:checkstyle"
 
   - package-ecosystem: "maven"
     directory: "/rdf4j/"
@@ -138,7 +115,6 @@ updates:
           - "org.sonarsource.scanner.maven:sonar-maven-plugin"
           - "org.sonatype.plugins:nexus-staging-maven-plugin"
           - "org.owasp:dependency-check-maven"
-          - "com.puppycrawl.tools:checkstyle"
 
   - package-ecosystem: "maven"
     directory: "/rdf4j/"

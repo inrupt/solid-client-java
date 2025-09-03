@@ -13,10 +13,6 @@
       RDF4J integration for the Inrupt Java Client Libraries.
   </description>
 
-  <properties>
-    <rdf4j.version>5.1.4</rdf4j.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
