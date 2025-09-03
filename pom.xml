@@ -79,6 +79,7 @@
     <smallrye.config.version>3.13.2</smallrye.config.version>
     <yasson.version>3.0.4</yasson.version>
     <wiremock.version>3.13.1</wiremock.version>
+    <hamcrest.version>3.0</hamcrest.version>
 
     <!-- disable by default (enabled by profile in CI) -->
     <dependency-check.skip>true</dependency-check.skip>
