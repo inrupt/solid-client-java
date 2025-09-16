@@ -65,7 +65,7 @@
     <sonar.plugin.version>5.2.0.4988</sonar.plugin.version>
     <sonatype.plugin.version>0.8.0</sonatype.plugin.version>
     <source.plugin.version>3.3.1</source.plugin.version>
-    <surefire.plugin.version>3.5.3</surefire.plugin.version>
+    <surefire.plugin.version>3.5.4</surefire.plugin.version>
 
     <!-- tooling -->
     <checkstyle.tool.version>11.0.1</checkstyle.tool.version>
