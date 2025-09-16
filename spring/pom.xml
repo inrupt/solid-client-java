@@ -107,7 +107,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <properties>
-        <spring.security.version>6.5.3</spring.security.version>
+        <spring.security.version>6.5.4</spring.security.version>
       </properties>
     </profile>
   </profiles>
