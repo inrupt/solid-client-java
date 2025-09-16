@@ -32,7 +32,7 @@
     <jose4j.version>0.9.6</jose4j.version>
     <json.bind.version>3.0.1</json.bind.version>
     <okhttp.version>5.1.0</okhttp.version>
-    <quarkus.version>3.26.2</quarkus.version>
+    <quarkus.version>3.26.3</quarkus.version>
     <slf4j.version>2.0.17</slf4j.version>
     <!-- pinning to Spring 5.x for Java 11 support -->
     <spring.security.version>5.8.14</spring.security.version>
@@ -76,7 +76,7 @@
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>5.13.4</junit.version>
     <smallrye.jwt.version>4.6.2</smallrye.jwt.version>
-    <smallrye.config.version>3.13.2</smallrye.config.version>
+    <smallrye.config.version>3.13.4</smallrye.config.version>
     <yasson.version>3.0.4</yasson.version>
     <wiremock.version>3.13.1</wiremock.version>
 
@@ -220,7 +220,7 @@
               <link>https://jena.apache.org/documentation/javadoc/jena/</link>
               <link>https://jena.apache.org/documentation/javadoc/arq/</link>
               <link>https://www.antlr.org/api/Java/</link>
-              <link>https://rdf4j.org/javadoc/latest/</link>
+              <link>https://rdf4j.org/javadoc/5.1.0/</link>
               <link>http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/</link>
             </links>
             <header>
