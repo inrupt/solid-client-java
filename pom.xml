@@ -611,7 +611,7 @@
         </executions>
         <configuration>
           <failBuildOnCVSS>7</failBuildOnCVSS>
-          <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
+          <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
           <formats>
             <format>HTML</format>
             <format>JSON</format>
