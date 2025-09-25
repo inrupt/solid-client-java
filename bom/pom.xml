@@ -30,6 +30,11 @@
       </dependency>
       <dependency>
         <groupId>com.inrupt.client</groupId>
+        <artifactId>inrupt-client-acp</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.inrupt.client</groupId>
         <artifactId>inrupt-client-caffeine</artifactId>
         <version>${project.version}</version>
       </dependency>

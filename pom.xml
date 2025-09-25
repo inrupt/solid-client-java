@@ -97,6 +97,7 @@
 
   <modules>
     <module>access-grant</module>
+    <module>acp</module>
     <module>api</module>
     <module>bom</module>
     <module>caffeine</module>
