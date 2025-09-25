@@ -71,19 +71,6 @@ public class SolidContainer extends SolidRDFSource {
      *
      * @param identifier the container's unique identifier
      * @param dataset the dataset for this container, may be {@code null}
-     * @param metadata the container's metadata, may be {@code null}
-     * @deprecated use {@link #SolidContainer(URI, Dataset, Headers)} instead
-     */
-    @Deprecated
-    public SolidContainer(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset, metadata);
-    }
-
-    /**
-     * Create a new SolidContainer.
-     *
-     * @param identifier the container's unique identifier
-     * @param dataset the dataset for this container, may be {@code null}
      * @param headers headers associated with this resource, may be {@code null}
      */
     public SolidContainer(final URI identifier, final Dataset dataset, final Headers headers) {

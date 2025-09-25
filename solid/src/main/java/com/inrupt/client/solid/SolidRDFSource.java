@@ -58,24 +58,6 @@ public class SolidRDFSource extends RDFSource implements SolidResource {
      *
      * @param identifier the Solid Resource identifier
      * @param dataset the resource dataset, may be {@code null}
-     * @param metadata metadata associated with this resource, may be {@code null}
-     * @deprecated use {@link #SolidRDFSource(URI, Dataset, Headers)} instead
-     */
-    @Deprecated
-    public SolidRDFSource(final URI identifier, final Dataset dataset, final Metadata metadata) {
-        super(identifier, dataset);
-        if (metadata == null) {
-            this.metadata = Metadata.newBuilder().build();
-        } else {
-            this.metadata = metadata;
-        }
-    }
-
-    /**
-     * Create a Solid resource.
-     *
-     * @param identifier the Solid Resource identifier
-     * @param dataset the resource dataset, may be {@code null}
      * @param headers headers associated with this resource, may be {@code null}
      */
     public SolidRDFSource(final URI identifier, final Dataset dataset, final Headers headers) {
