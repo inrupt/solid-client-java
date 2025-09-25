@@ -27,5 +27,4 @@ class Metadata {
     public URI issueEndpoint;
     public URI statusEndpoint;
     public URI verifyEndpoint;
-    public URI deriveEndpoint;
 }

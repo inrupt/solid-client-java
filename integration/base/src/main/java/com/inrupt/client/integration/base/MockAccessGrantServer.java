@@ -43,13 +43,14 @@ class MockAccessGrantServer {
     private static final String USER_AGENT = "InruptJavaClient/" + Request.class
             .getPackage().getImplementationVersion();
     private static final String DERIVE = "/derive";
+    private static final String QUERY = "/query";
     private static final String ISSUE = "/issue";
-
     private static final String VERIFY = "/verify";
 
     private static final String HEADER_AUTHORIZATION = "Authorization";
 
     private static final String SCHEME_BEARER = "Bearer";
+    private static final String SOLID_ACCESS_GRANT = "SolidAccessGrant";
 
     // An identifier to enable statefulness in Wiremock, useful to manage revocation and verification.
     private static final String SCENARIO_ACCESS_GRANT = "AccessGrant";
@@ -224,6 +225,37 @@ class MockAccessGrantServer {
                 .withRequestBody(containing("\"RevocationList2020Status\""))
                 .willReturn(aResponse()
                         .withStatus(Utils.NO_CONTENT)));
+
+        wireMockServer.stubFor(get(urlPathEqualTo(QUERY))
+                .atPriority(1)
+                .withQueryParam("type", equalTo(SOLID_ACCESS_GRANT))
+                .withQueryParam("resource", equalTo(this.sharedResource))
+                .withQueryParam("purpose", equalTo(purpose.toString()))
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                    .withStatus(Utils.SUCCESS)
+                    .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                    .withBody(getResource("/query_endpoint_response.json", wireMockServer.baseUrl(),
+                            this.requesterWebId, this.ownerWebId, this.sharedResource))));
+
+        wireMockServer.stubFor(get(urlPathEqualTo(QUERY))
+                .atPriority(2)
+                .withQueryParam("type", equalTo(SOLID_ACCESS_GRANT))
+                .withQueryParam("resource", equalTo(this.sharedResource))
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/query_endpoint_response.json", wireMockServer.baseUrl(),
+                                this.requesterWebId, this.ownerWebId, this.sharedResource))));
+
+        wireMockServer.stubFor(get(urlPathEqualTo(QUERY))
+                .atPriority(3)
+                .withHeader(USER_AGENT_HEADER, equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                        .withStatus(Utils.SUCCESS)
+                        .withHeader(Utils.CONTENT_TYPE, Utils.APPLICATION_JSON)
+                        .withBody(getResource("/query_endpoint_response_empty.json"))));
 
         wireMockServer.stubFor(post(urlEqualTo(DERIVE))
                 .atPriority(1)

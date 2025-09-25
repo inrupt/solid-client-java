@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.integration.base;
 
+import static com.inrupt.client.accessgrant.CredentialFilter.CredentialStatus.ACTIVE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
@@ -41,9 +42,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -225,10 +224,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
+        final Set<String> modes = Set.of(GRANT_MODE_READ);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+            Set.of(sharedTextFileURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -313,10 +312,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_APPEND);
         final Instant expiration = Instant.now().plus(90, ChronoUnit.DAYS);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+            Set.of(sharedTextFileURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -345,10 +344,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-                        new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+                        Set.of(sharedTextFileURI), modes, PURPOSES, expiration)
                 .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -357,18 +356,12 @@ public class AccessGrantScenarios {
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
                 .toCompletableFuture().join();
 
-        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-                .recipient(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
-                .mode(GRANT_MODE_READ).mode(GRANT_MODE_WRITE).mode(GRANT_MODE_APPEND).build(AccessGrant.class);
-        final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
-        assertEquals(1, grants.size());
-
-        final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
-                .recipient(URI.create("https://someuser.test")).resource(sharedTextFileURI).build(AccessGrant.class);
-        final List<AccessGrant> randomGrants =
-            resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
-
-        assertEquals(0, randomGrants.size());
+        final CredentialFilter<AccessGrant> query = CredentialFilter.newBuilder().status(ACTIVE)
+                .toAgent(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
+                .build(AccessGrant.class);
+        final CredentialResult<AccessGrant> results = resourceOwnerAccessGrantClient.query(query)
+            .toCompletableFuture().join();
+        assertEquals(1, results.getItems().size());
 
         //cleanup
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
@@ -385,10 +378,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ));
+        final Set<String> modes = Set.of(GRANT_MODE_READ);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(webidUrl),
-                        new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+                        Set.of(sharedTextFileURI), modes, PURPOSES, expiration)
                 .toCompletableFuture().join();
 
         final var grantId = request.getIdentifier();
@@ -424,13 +417,14 @@ public class AccessGrantScenarios {
                         AccessGrant.class).toCompletableFuture().join();
 
         //check that the approved grant is the same we find when querying for all grants
-        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-                .recipient(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
-                .mode(GRANT_MODE_READ).build(AccessGrant.class);
-        final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
-        assertEquals(1, grants.size());
-        assertEquals(grant.getIdentifier(), grants.get(0).getIdentifier());
-        assertEquals(accessGrant.getIdentifier(), grants.get(0).getIdentifier());
+        final CredentialFilter<AccessGrant> query = CredentialFilter.newBuilder().status(ACTIVE)
+                .toAgent(URI.create(requesterWebidUrl)).resource(sharedTextFileURI)
+                .build(AccessGrant.class);
+        final CredentialResult<AccessGrant> results = resourceOwnerAccessGrantClient.query(query)
+            .toCompletableFuture().join();
+        assertEquals(1, results.getItems().size());
+        assertEquals(grant.getIdentifier(), results.getItems().get(0).getIdentifier());
+        assertEquals(accessGrant.getIdentifier(), results.getItems().get(0).getIdentifier());
 
         //cleanup
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
@@ -447,10 +441,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-                        new HashSet<>(Arrays.asList(sharedTextFileURI)), modes, PURPOSES, expiration)
+                        Set.of(sharedTextFileURI), modes, PURPOSES, expiration)
                 .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -460,17 +454,11 @@ public class AccessGrantScenarios {
                 .toCompletableFuture().join();
 
         //query for all grants with a dedicated purpose
-        final AccessCredentialQuery<AccessGrant> query = AccessCredentialQuery.newBuilder()
-                .resource(sharedTextFileURI).purpose(PURPOSE1).mode(GRANT_MODE_APPEND).build(AccessGrant.class);
-        final List<AccessGrant> grants = resourceOwnerAccessGrantClient.query(query).toCompletableFuture().join();
-        assertEquals(1, grants.size());
-
-        //query for all grants of dedicated purpose combinations
-        final AccessCredentialQuery<AccessGrant> query2 = AccessCredentialQuery.newBuilder()
-                .resource(sharedTextFileURI).purpose(PURPOSE1).mode(GRANT_MODE_WRITE).build(AccessGrant.class);
-        final List<AccessGrant> randomGrants =
-            resourceOwnerAccessGrantClient.query(query2).toCompletableFuture().join();
-        assertEquals(0, randomGrants.size()); //our grant is actually a APPEND
+        final CredentialFilter<AccessGrant> query = CredentialFilter.newBuilder().status(ACTIVE)
+                .resource(sharedTextFileURI).purpose(PURPOSE1).build(AccessGrant.class);
+        final CredentialResult<AccessGrant> results = resourceOwnerAccessGrantClient.query(query)
+            .toCompletableFuture().join();
+        assertEquals(1, results.getItems().size());
 
         //cleanup
         assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
@@ -501,10 +489,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
+            Set.of(testRDFresourceURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -548,11 +536,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(
-            GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(testRDFresourceURI)), modes, PURPOSES, expiration)
+            Set.of(testRDFresourceURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -602,10 +589,10 @@ public class AccessGrantScenarios {
             URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            Set.of(newTestFileURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -652,10 +639,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            Set.of(newTestFileURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -701,10 +688,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            Set.of(newTestFileURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
@@ -757,10 +744,10 @@ public class AccessGrantScenarios {
                 URI.create(ACCESS_GRANT_PROVIDER)
         ).session(requesterSession);
 
-        final Set<String> modes = new HashSet<>(Arrays.asList(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND));
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
         final Instant expiration = Instant.parse(GRANT_EXPIRATION);
         final AccessRequest request = requesterAccessGrantClient.requestAccess(URI.create(requesterWebidUrl),
-            new HashSet<>(Arrays.asList(newTestFileURI)), modes, PURPOSES, expiration)
+            Set.of(newTestFileURI), modes, PURPOSES, expiration)
             .toCompletableFuture().join();
 
         final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(

@@ -462,90 +462,6 @@ public class AccessGrantClient {
     }
 
     /**
-     * Perform an Access Credentials query and returns 0 to N matching access credentials.
-     *
-     * @param <T> the AccessCredential type
-     * @param resource the resource identifier, may be {@code null}
-     * @param creator the identifier for the agent who created the credential, may be {@code null}
-     * @param recipient the identifier for the agent who is the recipient for the credential, may be {@code null}
-     * @param purpose the access purpose, may be {@code null}
-     * @param mode the access mode, may be {@code null}
-     * @param clazz the AccessCredential type, either {@link AccessGrant} or {@link AccessRequest}
-     * @return the next stage of completion, including the matched Access Credentials
-     * @deprecated As of 1.3, replaced by {@link #query(CredentialFilter)}
-     */
-    @Deprecated
-    public <T extends AccessCredential> CompletionStage<List<T>> query(final URI resource, final URI creator,
-            final URI recipient, final URI purpose, final String mode, final Class<T> clazz) {
-
-        final Set<String> modes = mode != null ? Collections.singleton(mode) : Collections.emptySet();
-        final Set<URI> purposes = purpose != null ? Collections.singleton(purpose) : Collections.emptySet();
-
-        return query(resource, creator, recipient, purposes, modes, clazz);
-    }
-
-    /**
-     * Perform an Access Credentials query and returns 0 to N matching access credentials.
-     *
-     * @param <T> the AccessCredential type
-     * @param query the access credential query, never {@code null}
-     * @return the next stage of completion, including the matched Access Credentials
-     * @deprecated As of 1.3, replaced by {@link #query(CredentialFilter)}
-     */
-    @Deprecated
-    public <T extends AccessCredential> CompletionStage<List<T>> query(final AccessCredentialQuery<T> query) {
-        Objects.requireNonNull(query, "The query may not be null!");
-        return query(query.getResource(), query.getCreator(), query.getRecipient(), query.getPurposes(),
-                query.getModes(), query.getAccessCredentialType());
-    }
-
-    private <T extends AccessCredential> CompletionStage<List<T>> query(final URI resource, final URI creator,
-            final URI recipient, final Set<URI> purposes, final Set<String> modes, final Class<T> clazz) {
-        Objects.requireNonNull(clazz, "The clazz parameter must not be null!");
-
-        final URI type;
-        final Set<String> supportedTypes;
-        if (AccessGrant.class.isAssignableFrom(clazz)) {
-            type = URI.create(SOLID_ACCESS_GRANT);
-            supportedTypes = ACCESS_GRANT_TYPES;
-        } else if (AccessRequest.class.isAssignableFrom(clazz)) {
-            type = URI.create(SOLID_ACCESS_REQUEST);
-            supportedTypes = ACCESS_REQUEST_TYPES;
-        } else if (AccessDenial.class.isAssignableFrom(clazz)) {
-            type = URI.create(SOLID_ACCESS_DENIAL);
-            supportedTypes = ACCESS_DENIAL_TYPES;
-        } else {
-            throw new AccessGrantException("Unsupported type " + clazz + " in query request");
-        }
-
-        return v1Metadata().thenApply(metadata -> {
-            if (metadata.deriveEndpoint == null) {
-                throw new AccessGrantException("Server does not support queries via AccessCredentialQuery objects");
-            }
-            final List<T> responses = new ArrayList<>();
-            for (final Map<String, Object> data :
-                    buildQuery(config.getIssuer(), type, resource, creator, recipient, purposes, modes)) {
-                final Request req = Request.newBuilder(metadata.deriveEndpoint)
-                        .header(CONTENT_TYPE, APPLICATION_JSON)
-                        .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
-                final Response<InputStream> response = client.send(req, Response.BodyHandlers.ofInputStream())
-                    .toCompletableFuture().join();
-
-                try (final InputStream input = response.body()) {
-                    final int status = response.statusCode();
-                    if (isSuccess(status)) {
-                        responses.addAll(processQueryResponse(input, supportedTypes, clazz));
-                    }
-                } catch (final IOException ex) {
-                    throw new AccessGrantException(
-                            "Unexpected I/O exception while processing Access Grant query", ex);
-                }
-            }
-            return responses;
-        });
-    }
-
-    /**
      * Revoke an access credential.
      *
      * @param credential the access credential
@@ -682,7 +598,6 @@ public class AccessGrantClient {
             })
             .thenApply(metadata -> {
                 final Metadata m = new Metadata();
-                m.deriveEndpoint = asUri(metadata.get("derivationService"));
                 m.queryEndpoint = asUri(metadata.get("queryService"));
                 m.issueEndpoint = asUri(metadata.get("issuerService"));
                 m.verifyEndpoint = asUri(metadata.get("verifierService"));

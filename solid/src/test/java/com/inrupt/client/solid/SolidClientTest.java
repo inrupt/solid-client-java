@@ -202,20 +202,6 @@ class SolidClientTest {
     }
 
     @Test
-    void testGetDeprecatedBinaryFetch() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
-
-        client.read(uri, DeprecatedBinary.class).thenAccept(binary -> {
-            try (final DeprecatedBinary b = binary) {
-                assertEquals(uri, b.getIdentifier());
-                assertEquals(TEXT_PLAIN, b.getContentType());
-
-                assertTrue(b.getHeaders().asMap().isEmpty());
-            }
-        }).toCompletableFuture().join();
-    }
-
-    @Test
     void testGetBinaryFetch() {
         final URI uri = URI.create(config.get("solid_resource_uri") + "/binary");
 
@@ -324,22 +310,6 @@ class SolidClientTest {
                 assertEquals(11, r.getIngredients().size());
                 assertEquals(7, r.getSteps().size());
                 assertEquals(Optional.of("POST, PUT, PATCH"), r.getHeaders().firstValue("allow"));
-            }
-        })
-        .toCompletableFuture().join();
-    }
-
-    @Test
-    void testGetDeprecatedType() {
-        final URI uri = URI.create(config.get("solid_resource_uri") + "/recipe");
-
-        client.read(uri, DeprecatedType.class).thenAccept(recipe -> {
-            try (final DeprecatedType r = recipe) {
-                assertEquals(uri, r.getIdentifier());
-                assertEquals("Molasses Cookies", r.getTitle());
-                assertEquals(11, r.getIngredients().size());
-                assertEquals(7, r.getSteps().size());
-                assertFalse(r.getHeaders().firstValue("allow").isPresent());
             }
         })
         .toCompletableFuture().join();

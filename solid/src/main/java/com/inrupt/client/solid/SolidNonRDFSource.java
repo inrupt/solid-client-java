@@ -50,26 +50,6 @@ public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
      * @param identifier the resource identifier
      * @param contentType the content type
      * @param entity the entity
-     * @param metadata the metadata, may be {@code null}
-     * @deprecated use {@link #SolidNonRDFSource(URI, String, InputStream, Headers)} instead
-     */
-    @Deprecated
-    public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,
-            final Metadata metadata) {
-        super(identifier, contentType, entity);
-        if (metadata == null) {
-            this.metadata = Metadata.newBuilder().build();
-        } else {
-            this.metadata = metadata;
-        }
-    }
-
-    /**
-     * Create a non-RDF-bearing Solid Resource.
-     *
-     * @param identifier the resource identifier
-     * @param contentType the content type
-     * @param entity the entity
      * @param headers the headers, may be {@code null}
      */
     public SolidNonRDFSource(final URI identifier, final String contentType, final InputStream entity,

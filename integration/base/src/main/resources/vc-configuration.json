@@ -9,5 +9,6 @@
   "supportedSignatureTypes": [
     "Ed25519Signature2020"
   ],
-  "verifierService": "{{baseUrl}}/verify"
+  "verifierService": "{{baseUrl}}/verify",
+  "queryService": "{{baseUrl}}/query"
 }
