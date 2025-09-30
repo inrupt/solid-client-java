@@ -180,6 +180,51 @@ class AccessControlResourceTest {
     }
 
     @Test
+    void testAcr1RemoveValues() {
+        final var uri = mockHttpServer.acr2();
+        try (final AccessControlResource acr = client.read(uri, AccessControlResource.class)) {
+            assertEquals(2, acr.accessControl().size());
+            assertEquals(3, acr.memberAccessControl().size());
+
+            // Check dataset size
+            assertEquals(29, acr.size());
+
+            // Remove single matcher and compact
+            for (final var accessControl : acr.accessControl()) {
+                for (final var policy : accessControl.apply()) {
+                    if (policy.allow().contains(ACL.Write) && policy.allow().size() == 2) {
+                        for (final var matcher : policy.allOf()) {
+                            policy.allOf().remove(matcher);
+                        }
+                    }
+                }
+            }
+            assertEquals(28, acr.size());
+            acr.compact();
+            assertEquals(26, acr.size());
+
+            // Remove single policy and compact
+            for (final var accessControl : acr.accessControl()) {
+                for (final var policy : accessControl.apply()) {
+                    if (policy.allow().contains(ACL.Write) && policy.allow().size() == 2) {
+                        accessControl.apply().remove(policy);
+                    }
+                }
+            }
+            assertEquals(25, acr.size());
+            acr.compact();
+            assertEquals(22, acr.size());
+
+            // Remove single access control and compact - no compaction involved
+            final var ac = acr.accessControl().stream().findFirst().get();
+            acr.accessControl().remove(ac);
+            assertEquals(21, acr.size());
+            acr.compact();
+            assertEquals(21, acr.size());
+        }
+    }
+
+    @Test
     void buildAcrWithExistingPolicies() {
         final var identifier = "https://data.example/resource";
         final var dataset = rdf.createDataset();
