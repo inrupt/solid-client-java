@@ -406,16 +406,6 @@ public class SolidClient {
             // no-op
         }
 
-        // Next, try an arity-3 ctor with metadata
-        // TODO: this construct is deprecated and can be removed in a future version
-        try {
-            final Metadata metadata = Metadata.of(identifier, headers);
-            return clazz.getConstructor(URI.class, Dataset.class, Metadata.class)
-                        .newInstance(identifier, dataset, metadata);
-        } catch (final NoSuchMethodException ex) {
-            // no-op
-        }
-
         // Fall back to an arity-2 ctor
         return clazz.getConstructor(URI.class, Dataset.class)
                     .newInstance(identifier, dataset);
@@ -428,16 +418,6 @@ public class SolidClient {
         try {
             return clazz.getConstructor(URI.class, String.class, InputStream.class, Headers.class)
                 .newInstance(identifier, contentType, entity, headers);
-        } catch (final NoSuchMethodException ex) {
-            // no-op
-        }
-
-        // Next try an arity-4 ctor with metadata
-        // TODO: this construct is deprecated and can be removed in a future version
-        try {
-            final Metadata metadata = Metadata.of(identifier, headers);
-            return clazz.getConstructor(URI.class, String.class, InputStream.class, Metadata.class)
-                .newInstance(identifier, contentType, entity, metadata);
         } catch (final NoSuchMethodException ex) {
             // no-op
         }
