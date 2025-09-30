@@ -216,6 +216,26 @@ public class SolidMockHttpService {
             .willReturn(aResponse()
                 .withStatus(204)));
 
+        wireMockServer.stubFor(get(urlEqualTo("/transaction"))
+                .withHeader("User-Agent", equalTo(USER_AGENT))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBodyFile("transaction.json")));
+
+        wireMockServer.stubFor(put(urlEqualTo("/transaction"))
+                .withHeader("User-Agent", equalTo(USER_AGENT))
+                .withRequestBody(containing("DEBIT"))
+                .withRequestBody(containing("different description"))
+                .willReturn(aResponse()
+                    .withStatus(204)));
+
+        wireMockServer.stubFor(put(urlEqualTo("/transaction"))
+                .withHeader("User-Agent", equalTo(USER_AGENT))
+                .withRequestBody(containing("CREDIT"))
+                .willReturn(aResponse()
+                    .withStatus(403)));
+
         wireMockServer.stubFor(get(urlEqualTo("/binary"))
             .atPriority(1)
             .withHeader("User-Agent", equalTo(USER_AGENT))

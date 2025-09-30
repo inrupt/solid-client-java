@@ -1,0 +1,8 @@
+{
+    "id": "testid",
+    "date": "2025-09-28T15:37:00Z",
+    "description": "sample description",
+    "amount": 20.12,
+    "type": "CREDIT",
+    "category": "groceries"
+}
