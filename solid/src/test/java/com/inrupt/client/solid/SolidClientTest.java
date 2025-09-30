@@ -129,6 +129,24 @@ class SolidClientTest {
         }).toCompletableFuture().join();
     }
 
+    @Test
+    void testJsonResource() {
+        final URI uri = URI.create(config.get("solid_resource_uri") + "/transaction");
+        client.read(uri, TransactionResource.class).thenAccept(res -> {
+            try (final TransactionResource tr = res) {
+                final var transaction = tr.getTransaction();
+                assertEquals("sample description", transaction.description());
+                assertEquals(TransactionResource.TransactionType.CREDIT, transaction.type());
+                final var err = assertThrows(CompletionException.class, client.update(tr).toCompletableFuture()::join);
+                assertTrue(err.getCause() instanceof ForbiddenException);
+                tr.setTransaction(TransactionResource.Transaction.newBuilder(transaction)
+                    .type(TransactionResource.TransactionType.DEBIT)
+                    .description("different description")
+                    .build());
+                assertDoesNotThrow(client.update(tr).toCompletableFuture()::join);
+            }
+        }).toCompletableFuture().join();
+    }
 
     @Test
     void testGetPlaylist() throws IOException, InterruptedException {
