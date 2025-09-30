@@ -30,9 +30,11 @@ import java.net.URI;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDFTerm;
 
@@ -51,8 +53,7 @@ public class AccessControlResource extends RDFSource {
      */
     public AccessControlResource(final URI identifier, final Dataset dataset) {
         super(identifier, dataset);
-        dataset.add(null, rdf.createIRI(identifier.toString()), rdf.createIRI(RDF.type.toString()),
-                rdf.createIRI(ACP.AccessControlResource.toString()));
+        dataset.add(null, asIRI(identifier), asIRI(RDF.type), asIRI(ACP.AccessControlResource));
     }
 
     /**
@@ -63,7 +64,7 @@ public class AccessControlResource extends RDFSource {
      * @return a collection of {@link AccessControl} objects
      */
     public Set<AccessControl> accessControl() {
-        return new ACPNode(rdf.createIRI(getIdentifier().toString()), getGraph()).accessControl();
+        return new ACPNode(asIRI(getIdentifier()), getGraph()).accessControl();
     }
 
     /**
@@ -74,15 +75,15 @@ public class AccessControlResource extends RDFSource {
      * @return a collection of {@link AccessControl} objects
      */
     public Set<AccessControl> memberAccessControl() {
-        return new ACPNode(rdf.createIRI(getIdentifier().toString()), getGraph()).memberAccessControl();
+        return new ACPNode(asIRI(getIdentifier()), getGraph()).memberAccessControl();
     }
 
     /**
      * Compact the internal data.
      */
     public void compact() {
-        final var accessControls = stream(null, null, rdf.createIRI(RDF.type.toString()),
-                rdf.createIRI(ACP.AccessControl.toString())).map(Quad::getSubject).toList();
+        final var accessControls = stream(null, null, asIRI(RDF.type), asIRI(ACP.AccessControl))
+            .map(Quad::getSubject).toList();
         for (final var accessControl : accessControls) {
             if (!contains(null, null, null, accessControl)) {
                 for (final var quad : stream(null, accessControl, null, null).toList()) {
@@ -91,8 +92,7 @@ public class AccessControlResource extends RDFSource {
             }
         }
 
-        final var policies = stream(null, null, rdf.createIRI(RDF.type.toString()),
-                rdf.createIRI(ACP.Policy.toString())).map(Quad::getSubject).toList();
+        final var policies = stream(null, null, asIRI(RDF.type), asIRI(ACP.Policy)).map(Quad::getSubject).toList();
         for (final var policy : policies) {
             if (!contains(null, null, null, policy)) {
                 for (final var quad : stream(null, policy, null, null).toList()) {
@@ -101,8 +101,7 @@ public class AccessControlResource extends RDFSource {
             }
         }
 
-        final var matchers = stream(null, null, rdf.createIRI(RDF.type.toString()),
-                rdf.createIRI(ACP.Matcher.toString())).map(Quad::getSubject).toList();
+        final var matchers = stream(null, null, asIRI(RDF.type), asIRI(ACP.Matcher)).map(Quad::getSubject).toList();
         for (final var matcher : matchers) {
             if (!contains(null, null, null, matcher)) {
                 for (final var quad : stream(null, matcher, null, null).toList()) {
@@ -112,18 +111,74 @@ public class AccessControlResource extends RDFSource {
         }
     }
 
+    /**
+     * Merge two or more policies into a single policies with combined matchers.
+     *
+     * @param policies the policies to merge
+     * @return the merged policy
+     */
+    public Policy merge(final Policy... policies) {
+        final var baseUri = getIdentifier().getScheme() + ":" + getIdentifier().getSchemeSpecificPart();
+        final var policy = new Policy(asIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
+        for (final var p : policies) {
+            policy.allOf().addAll(p.allOf());
+            policy.anyOf().addAll(p.anyOf());
+            policy.noneOf().addAll(p.noneOf());
+        }
+        return policy;
+    }
+
+    public enum MatcherType {
+        AGENT(ACP.agent), CLIENT(ACP.client), ISSUER(ACP.issuer), VC(ACP.vc);
+
+        private final URI predicate;
+
+        MatcherType(final URI predicate) {
+            this.predicate = predicate;
+        }
+
+        public IRI asIRI() {
+            return AccessControlResource.asIRI(predicate);
+        }
+
+        public URI asURI() {
+            return predicate;
+        }
+    }
+
+    /**
+     * Find a policy, given a type, value and set of modes.
+     *
+     * @param type the matcher type
+     * @param value the matcher value
+     * @param modes the expected modes of the enclosing policy
+     * @return the matched policies
+     */
+    public Set<Policy> find(final MatcherType type, final URI value, final Set<URI> modes) {
+        return stream(null, null, type.asIRI(), asIRI(value))
+            .map(Quad::getSubject)
+            .flatMap(matcher -> stream(null, null, null, matcher))
+            .map(Quad::getSubject)
+            .filter(policy -> contains(null, policy, asIRI(RDF.type), asIRI(ACP.Policy)))
+            .filter(policy -> stream(null, policy, asIRI(ACP.allow), null)
+                    .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+                    .map(IRI::getIRIString).map(URI::create).toList().containsAll(modes))
+            .map(policy -> new Policy(policy, getGraph()))
+            .collect(Collectors.toSet());
+    }
+
     static class ACPNode extends WrapperIRI {
         public ACPNode(final RDFTerm original, final Graph graph) {
             super(original, graph);
         }
 
         public Set<AccessControl> memberAccessControl() {
-            return objects(rdf.createIRI(ACP.memberAccessControl.toString()),
+            return objects(asIRI(ACP.memberAccessControl),
                     AccessControl::asResource, ValueMappings.as(AccessControl.class));
         }
 
         public Set<AccessControl> accessControl() {
-            return objects(rdf.createIRI(ACP.accessControl.toString()),
+            return objects(asIRI(ACP.accessControl),
                     AccessControl::asResource, ValueMappings.as(AccessControl.class));
         }
     }
@@ -136,7 +191,7 @@ public class AccessControlResource extends RDFSource {
      */
     public AccessControl accessControl(final Policy... policies) {
         final var baseUri = getIdentifier().getScheme() + ":" + getIdentifier().getSchemeSpecificPart();
-        final var ac = new AccessControl(rdf.createIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
+        final var ac = new AccessControl(asIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
         for (final var policy : policies) {
             ac.apply().add(policy);
         }
@@ -228,14 +283,22 @@ public class AccessControlResource extends RDFSource {
 
     Policy simplePolicy(final Consumer<Matcher> handler, final URI... access) {
         final var baseUri = getIdentifier().getScheme() + ":" + getIdentifier().getSchemeSpecificPart();
-        final var matcher = new Matcher(rdf.createIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
+        final var matcher = new Matcher(asIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
         handler.accept(matcher);
 
-        final var policy = new Policy(rdf.createIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
+        final var policy = new Policy(asIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
         for (final var item : access) {
             policy.allow().add(item);
         }
         policy.allOf().add(matcher);
         return policy;
+    }
+
+    private static IRI asIRI(final URI uri) {
+        return asIRI(uri.toString());
+    }
+
+    private static IRI asIRI(final String uri) {
+        return rdf.createIRI(uri);
     }
 }

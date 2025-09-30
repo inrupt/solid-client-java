@@ -70,6 +70,11 @@ public class Policy extends WrapperIRI {
                 Matcher::asResource, ValueMappings.as(Matcher.class));
     }
 
+    public Set<Matcher> noneOf() {
+        return objects(rdf.createIRI(ACP.noneOf.toString()),
+                Matcher::asResource, ValueMappings.as(Matcher.class));
+    }
+
     public Set<URI> allow() {
         return objects(rdf.createIRI(ACP.allow.toString()),
                 TermMappings::asIri, ValueMappings::iriAsUri);
