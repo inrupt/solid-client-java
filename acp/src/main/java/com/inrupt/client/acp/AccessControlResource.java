@@ -32,6 +32,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Dataset;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
@@ -43,7 +44,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  */
 public class AccessControlResource extends RDFSource {
 
-    private static final URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+    public static final URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
 
     /**
      *  Create a new Access Control Resource.
@@ -85,28 +86,24 @@ public class AccessControlResource extends RDFSource {
         final var accessControls = stream(null, null, asIRI(RDF.type), asIRI(ACP.AccessControl))
             .map(Quad::getSubject).toList();
         for (final var accessControl : accessControls) {
-            if (!contains(null, null, null, accessControl)) {
-                for (final var quad : stream(null, accessControl, null, null).toList()) {
-                    remove(quad);
-                }
-            }
+            removeUnusedStatements(accessControl);
         }
 
         final var policies = stream(null, null, asIRI(RDF.type), asIRI(ACP.Policy)).map(Quad::getSubject).toList();
         for (final var policy : policies) {
-            if (!contains(null, null, null, policy)) {
-                for (final var quad : stream(null, policy, null, null).toList()) {
-                    remove(quad);
-                }
-            }
+            removeUnusedStatements(policy);
         }
 
         final var matchers = stream(null, null, asIRI(RDF.type), asIRI(ACP.Matcher)).map(Quad::getSubject).toList();
         for (final var matcher : matchers) {
-            if (!contains(null, null, null, matcher)) {
-                for (final var quad : stream(null, matcher, null, null).toList()) {
-                    remove(quad);
-                }
+            removeUnusedStatements(matcher);
+        }
+    }
+
+    <T extends BlankNodeOrIRI> void removeUnusedStatements(final T resource) {
+        if (!contains(null, null, null, resource)) {
+            for (final var quad : stream(null, resource, null, null).toList()) {
+                remove(quad);
             }
         }
     }

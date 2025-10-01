@@ -29,6 +29,7 @@ import com.inrupt.client.vocabulary.ACL;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Set;
 
 import org.apache.commons.rdf.api.RDF;
 import org.junit.jupiter.api.AfterAll;
@@ -177,6 +178,47 @@ class AccessControlResourceTest {
         acr.accessControl().add(accessControl);
 
         assertEquals(10, acr.size());
+    }
+
+    @Test
+    void testAcrFindPolicies() {
+        final var uri = mockHttpServer.acr2();
+        try (final AccessControlResource acr = client.read(uri, AccessControlResource.class)) {
+            assertEquals(1, acr.find(AccessControlResource.MatcherType.VC,
+                    AccessControlResource.SOLID_ACCESS_GRANT, Set.of(ACL.Read)).size());
+
+            assertEquals(0, acr.find(AccessControlResource.MatcherType.VC,
+                    AccessControlResource.SOLID_ACCESS_GRANT, Set.of(ACL.Read, ACL.Write)).size());
+
+            assertEquals(0, acr.find(AccessControlResource.MatcherType.AGENT,
+                    URI.create("https://bot.example/id"), Set.of(ACL.Read, ACL.Write)).size());
+
+            assertEquals(1, acr.find(AccessControlResource.MatcherType.AGENT,
+                    URI.create("https://bot.example/id"), Set.of(ACL.Read)).size());
+        }
+    }
+
+    @Test
+    void testAcr1RemoveAccessControl() {
+        final var uri = mockHttpServer.acr2();
+        try (final AccessControlResource acr = client.read(uri, AccessControlResource.class)) {
+            assertEquals(2, acr.accessControl().size());
+            assertEquals(3, acr.memberAccessControl().size());
+
+            // Check dataset size
+            assertEquals(29, acr.size());
+
+            acr.accessControl().stream().findFirst().ifPresent(acr.accessControl()::remove);
+
+            // Check dataset size
+            assertEquals(28, acr.size());
+            acr.compact();
+            assertEquals(28, acr.size());
+
+            assertEquals(1, acr.accessControl().size());
+            assertEquals(3, acr.memberAccessControl().size());
+
+        }
     }
 
     @Test
