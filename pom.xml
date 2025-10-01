@@ -45,7 +45,7 @@
     <assembly.plugin.version>3.7.1</assembly.plugin.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
     <clean.plugin.version>3.5.0</clean.plugin.version>
-    <compiler.plugin.version>3.14.0</compiler.plugin.version>
+    <compiler.plugin.version>3.14.1</compiler.plugin.version>
     <dependency.plugin.version>3.8.1</dependency.plugin.version>
     <deploy.plugin.version>3.1.4</deploy.plugin.version>
     <enforcer.plugin.version>3.6.1</enforcer.plugin.version>
@@ -54,9 +54,9 @@
     <gpg.plugin.version>3.2.8</gpg.plugin.version>
     <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
     <jar.plugin.version>3.4.2</jar.plugin.version>
-    <javadoc.plugin.version>3.11.3</javadoc.plugin.version>
+    <javadoc.plugin.version>3.12.0</javadoc.plugin.version>
     <license.plugin.version>5.0.0</license.plugin.version>
-    <owasp.plugin.version>12.1.3</owasp.plugin.version>
+    <owasp.plugin.version>12.1.6</owasp.plugin.version>
     <projectinfo.plugin.version>3.9.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.27.0</pmd.plugin.version>
     <site.plugin.version>3.21.0</site.plugin.version>
