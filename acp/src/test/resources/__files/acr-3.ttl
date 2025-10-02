@@ -1,0 +1,18 @@
+@prefix acp: <http://www.w3.org/ns/solid/acp#> .
+
+<>
+      a      acp:AccessControlResource ;
+      acp:accessControl <#owner-access-control> , <#indexer-access-control> ;
+      acp:memberAccessControl <#owner-access-control> , <#indexer-access-control> , <#vc-access-control> .
+
+<#owner-access-control>
+      a         acp:AccessControl ;
+      acp:apply </acr-2#owner-policy> .
+
+<#indexer-access-control>
+      a          acp:AccessControl ;
+      acp:apply  </acr-2#indexer-policy> .
+
+<#vc-access-control>
+      a         acp:AccessControl ;
+      acp:apply </acr-2#vc-policy> .

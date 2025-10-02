@@ -1,0 +1,7 @@
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix ex: <http://example.com/> .
+
+<>
+      a        ex:Type ;
+      dc:title "Example resource" .
+

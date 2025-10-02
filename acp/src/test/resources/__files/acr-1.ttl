@@ -1,0 +1,31 @@
+@prefix acp: <http://www.w3.org/ns/solid/acp#> .
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix vc: <http://www.w3.org/ns/solid/vc#> .
+
+<>
+      a      acp:AccessControlResource ;
+      acp:accessControl <#owner-access-control> , <#access-grants-access-control> ;
+      acp:memberAccessControl <#owner-access-control> , <#access-grants-access-control> .
+
+<#owner-access-control>
+      a         acp:AccessControl ;
+      acp:apply <#owner-policy> .
+<#owner-policy>
+      a         acp:Policy ;
+      acp:allOf <#owner-matcher> ;
+      acp:allow acl:Read , acl:Write .
+<#owner-matcher>
+      a          acp:Matcher ;
+      acp:agent  <https://id.example/user> .
+
+<#access-grants-access-control>
+      a         acp:AccessControl ;
+      acp:apply <#access-grants-policy> .
+<#access-grants-policy>
+      a         acp:Policy ;
+      acp:allOf <#access-grants-matcher> ;
+      acp:allow acl:Read .
+<#access-grants-matcher>
+      a      acp:Matcher ;
+      acp:client <https://app.example/id> ;
+      acp:vc vc:SolidAccessGrant .

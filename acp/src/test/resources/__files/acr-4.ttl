@@ -1,0 +1,31 @@
+@prefix acp: <http://www.w3.org/ns/solid/acp#> .
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix vc: <http://www.w3.org/ns/solid/vc#> .
+
+<>
+      a      acp:AccessControlResource ;
+      acp:accessControl <#owner-access-control> , <#indexer-access-control> ;
+      acp:memberAccessControl <#owner-access-control> , <#indexer-access-control> , <#vc-access-control> .
+
+<#owner-access-control>
+      a         acp:AccessControl ;
+      acp:apply </not-an-acr> .
+
+<#indexer-access-control>
+      a          acp:AccessControl ;
+      acp:apply  <#indexer-policy> .
+<#indexer-policy>
+      a         acp:Policy ;
+      acp:noneOf </also-not-an-acr> ;
+      acp:allow acl:Read .
+
+<#vc-access-control>
+      a         acp:AccessControl ;
+      acp:apply <#vc-policy> .
+<#vc-policy>
+      a         acp:Policy ;
+      acp:anyOf <#vc-matcher> ;
+      acp:allow acl:Read .
+<#vc-matcher>
+      a      acp:Matcher ;
+      acp:vc vc:SolidAccessGrant .

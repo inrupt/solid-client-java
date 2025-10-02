@@ -31,6 +31,19 @@ public final class ACP {
 
     private static String namespace = "http://www.w3.org/ns/solid/acp#";
 
+    // Named Individuals
+    /** The acp:AuthenticatedAgent URI. */
+    public static final URI AuthenticatedAgent = URI.create(namespace + "AuthenticatedAgent");
+
+    /** The acp:PublicAgent URI. */
+    public static final URI PublicAgent = URI.create(namespace + "PublicAgent");
+
+    /** The acp:PublicClient URI. */
+    public static final URI PublicClient = URI.create(namespace + "PublicClient");
+
+    /** The acp:PublicIssuer URI. */
+    public static final URI PublicIssuer = URI.create(namespace + "PublicIssuer");
+
     // Properties
     /**
      * The acp:resource URI.
@@ -76,6 +89,18 @@ public final class ACP {
      * The acp:vc URI.
      */
     public static final URI vc = URI.create(namespace + "vc");
+    /**
+     * The acp:client URI.
+     */
+    public static final URI client = URI.create(namespace + "client");
+    /**
+     * The acp:agent URI.
+     */
+    public static final URI agent = URI.create(namespace + "agent");
+    /**
+     * The acp:issuer URI.
+     */
+    public static final URI issuer = URI.create(namespace + "issuer");
 
     // Classes
     /**

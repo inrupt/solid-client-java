@@ -1,0 +1,42 @@
+@prefix acp: <http://www.w3.org/ns/solid/acp#> .
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix vc: <http://www.w3.org/ns/solid/vc#> .
+
+<>
+      a      acp:AccessControlResource ;
+      acp:accessControl <#owner-access-control> , <#indexer-access-control> ;
+      acp:memberAccessControl <#owner-access-control> , <#indexer-access-control> , <#vc-access-control> .
+
+<#owner-access-control>
+      a         acp:AccessControl ;
+      acp:apply <#owner-policy> .
+<#owner-policy>
+      a         acp:Policy ;
+      acp:allOf <#owner-matcher> ;
+      acp:allow acl:Read , acl:Write .
+<#owner-matcher>
+      a          acp:Matcher ;
+      acp:agent  <https://id.example/user2> .
+
+<#indexer-access-control>
+      a          acp:AccessControl ;
+      acp:apply  <#indexer-policy> .
+<#indexer-policy>
+      a         acp:Policy ;
+      acp:allOf <#indexer-matcher> ;
+      acp:allow acl:Read .
+<#indexer-matcher>
+      a         acp:Matcher ;
+      acp:issuer <https://issuer.example> ;
+      acp:agent <https://bot.example/id> .
+
+<#vc-access-control>
+      a         acp:AccessControl ;
+      acp:apply <#vc-policy> .
+<#vc-policy>
+      a         acp:Policy ;
+      acp:allOf <#vc-matcher> ;
+      acp:allow acl:Read .
+<#vc-matcher>
+      a      acp:Matcher ;
+      acp:vc vc:SolidAccessGrant .
