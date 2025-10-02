@@ -164,11 +164,19 @@ class AccessControlResourceTest {
         final var dataset = rdf.createDataset();
         final var uri = URI.create(identifier);
 
-        final var matcher = new Matcher(rdf.createIRI(identifier + "#matcher"), rdf.createGraph());
-        matcher.agent().add(URI.create("https://id.example/agent"));
+        final var matcher1 = new Matcher(rdf.createIRI(identifier + "#matcher1"), rdf.createGraph());
+        matcher1.agent().add(URI.create("https://id.example/agent"));
+
+        final var matcher2 = new Matcher(rdf.createIRI(identifier + "#matcher2"), rdf.createGraph());
+        matcher2.client().add(URI.create("https://app.example/id"));
+
+        final var matcher3 = new Matcher(rdf.createIRI(identifier + "#matcher3"), rdf.createGraph());
+        matcher3.issuer().add(URI.create("https://openid.example"));
 
         final var policy = new Policy(rdf.createIRI(identifier + "#policy"), rdf.createGraph());
-        policy.allOf().add(matcher);
+        policy.allOf().add(matcher1);
+        policy.anyOf().add(matcher2);
+        policy.noneOf().add(matcher3);
         policy.allow().add(ACL.Read);
         policy.allow().add(ACL.Write);
 
@@ -178,12 +186,7 @@ class AccessControlResourceTest {
         final var acr = new AccessControlResource(uri, dataset);
         acr.accessControl().add(accessControl);
 
-        assertEquals(10, acr.size());
-
-        policy.anyOf().addAll(acr.agentPolicy(URI.create("https://id.example/user1")).allOf());
-        policy.noneOf().addAll(acr.agentPolicy(URI.create("https://id.example/user2")).allOf());
-
-        assertEquals(18, acr.size());
+        assertEquals(16, acr.size());
     }
 
     @Test
