@@ -16,7 +16,7 @@
       acp:apply  <#indexer-policy> .
 <#indexer-policy>
       a         acp:Policy ;
-      acp:allOf </also-not-an-acr> ;
+      acp:noneOf </also-not-an-acr> ;
       acp:allow acl:Read .
 
 <#vc-access-control>
@@ -24,7 +24,7 @@
       acp:apply <#vc-policy> .
 <#vc-policy>
       a         acp:Policy ;
-      acp:allOf <#vc-matcher> ;
+      acp:anyOf <#vc-matcher> ;
       acp:allow acl:Read .
 <#vc-matcher>
       a      acp:Matcher ;

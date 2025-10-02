@@ -20,10 +20,10 @@
  */
 package com.inrupt.client.acp;
 
-import static com.inrupt.client.vocabulary.RDF.type;
+import static com.inrupt.client.acp.AccessControlResource.asIRI;
 
-import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.ACP;
+import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -33,51 +33,84 @@ import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 
+/**
+ * A Policy type for use with Access Control Policies.
+ *
+ * <p>A policy will reference various {@link Matcher} objects
+ * and apply access rules such as {@code Read} or {@code Write}.
+ */
 public class Policy extends WrapperIRI {
 
-    static final RDF rdf = RDFFactory.getInstance();
+    /**
+     * Create a new Policy.
+     *
+     * @param identifier the policy identifier
+     * @param graph the underlying graph for this resource
+     */
+    public Policy(final RDFTerm identifier, final Graph graph) {
+        super(identifier, graph);
+        graph.add((IRI) identifier, asIRI(RDF.type), asIRI(ACP.Policy));
+    }
 
-    public Policy(final RDFTerm original, final Graph graph) {
-        super(original, graph);
-        graph.add((IRI) original, rdf.createIRI(type.toString()), rdf.createIRI(ACP.Policy.toString()));
+    /**
+     * Retrieve the acp:allOf structures.
+     *
+     * @return a collection of {@link Matcher} objects
+     */
+    public Set<Matcher> allOf() {
+        return objects(asIRI(ACP.allOf),
+                Matcher::asResource, ValueMappings.as(Matcher.class));
+    }
+
+    /**
+     * Retrieve the acp:anyOf structures.
+     *
+     * @return a collection of {@link Matcher} objects
+     */
+    public Set<Matcher> anyOf() {
+        return objects(asIRI(ACP.anyOf),
+                Matcher::asResource, ValueMappings.as(Matcher.class));
+    }
+
+    /**
+     * Retrieve the acp:noneOf structures.
+     *
+     * @return a collection of {@link Matcher} objects
+     */
+    public Set<Matcher> noneOf() {
+        return objects(asIRI(ACP.noneOf),
+                Matcher::asResource, ValueMappings.as(Matcher.class));
+    }
+
+    /**
+     * Retrieve the acp:allow values.
+     *
+     * @return a collection of access values, such as {@code ACL.Read}
+     */
+    public Set<URI> allow() {
+        return objects(asIRI(ACP.allow),
+                TermMappings::asIri, ValueMappings::iriAsUri);
     }
 
     static IRI asResource(final Policy policy, final Graph graph) {
-        graph.add(policy, rdf.createIRI(type.toString()), rdf.createIRI(ACP.Policy.toString()));
+        graph.add(policy, asIRI(RDF.type), asIRI(ACP.Policy));
         policy.allOf().forEach(matcher -> {
-            graph.add(policy, rdf.createIRI(ACP.allOf.toString()), matcher);
+            graph.add(policy, asIRI(ACP.allOf), matcher);
             Matcher.asResource(matcher, graph);
         });
         policy.anyOf().forEach(matcher -> {
-            graph.add(policy, rdf.createIRI(ACP.anyOf.toString()), matcher);
+            graph.add(policy, asIRI(ACP.anyOf), matcher);
+            Matcher.asResource(matcher, graph);
+        });
+        policy.noneOf().forEach(matcher -> {
+            graph.add(policy, asIRI(ACP.noneOf), matcher);
             Matcher.asResource(matcher, graph);
         });
         policy.allow().forEach(allow ->
-                graph.add(policy, rdf.createIRI(ACP.allow.toString()), rdf.createIRI(allow.toString())));
+                graph.add(policy, asIRI(ACP.allow), asIRI(allow)));
         return policy;
-    }
-
-    public Set<Matcher> allOf() {
-        return objects(rdf.createIRI(ACP.allOf.toString()),
-                Matcher::asResource, ValueMappings.as(Matcher.class));
-    }
-
-    public Set<Matcher> anyOf() {
-        return objects(rdf.createIRI(ACP.anyOf.toString()),
-                Matcher::asResource, ValueMappings.as(Matcher.class));
-    }
-
-    public Set<Matcher> noneOf() {
-        return objects(rdf.createIRI(ACP.noneOf.toString()),
-                Matcher::asResource, ValueMappings.as(Matcher.class));
-    }
-
-    public Set<URI> allow() {
-        return objects(rdf.createIRI(ACP.allow.toString()),
-                TermMappings::asIri, ValueMappings::iriAsUri);
     }
 }
 

@@ -179,6 +179,11 @@ class AccessControlResourceTest {
         acr.accessControl().add(accessControl);
 
         assertEquals(10, acr.size());
+
+        policy.anyOf().addAll(acr.agentPolicy(URI.create("https://id.example/user1")).allOf());
+        policy.noneOf().addAll(acr.agentPolicy(URI.create("https://id.example/user2")).allOf());
+
+        assertEquals(18, acr.size());
     }
 
     @Test
@@ -186,16 +191,22 @@ class AccessControlResourceTest {
         final var uri = mockHttpServer.acr2();
         try (final AccessControlResource acr = client.read(uri, AccessControlResource.class)) {
             assertEquals(1, acr.find(AccessControlResource.MatcherType.VC,
-                    AccessControlResource.SOLID_ACCESS_GRANT, Set.of(ACL.Read)).size());
+                        AccessControlResource.SOLID_ACCESS_GRANT, Set.of(ACL.Read)).size());
 
             assertEquals(0, acr.find(AccessControlResource.MatcherType.VC,
-                    AccessControlResource.SOLID_ACCESS_GRANT, Set.of(ACL.Read, ACL.Write)).size());
+                        AccessControlResource.SOLID_ACCESS_GRANT, Set.of(ACL.Read, ACL.Write)).size());
 
             assertEquals(0, acr.find(AccessControlResource.MatcherType.AGENT,
-                    URI.create("https://bot.example/id"), Set.of(ACL.Read, ACL.Write)).size());
+                        URI.create("https://bot.example/id"), Set.of(ACL.Read, ACL.Write)).size());
 
             assertEquals(1, acr.find(AccessControlResource.MatcherType.AGENT,
-                    URI.create("https://bot.example/id"), Set.of(ACL.Read)).size());
+                        URI.create("https://bot.example/id"), Set.of(ACL.Read)).size());
+
+            assertEquals(2, acr.find(AccessControlResource.MatcherType.AGENT,
+                        null, Set.of(ACL.Read)).size());
+
+            assertEquals(1, acr.find(AccessControlResource.MatcherType.AGENT,
+                        URI.create("https://bot.example/id"), null).size());
         }
     }
 
@@ -334,5 +345,45 @@ class AccessControlResourceTest {
             assertEquals(22, expanded.size());
             assertEquals(20, acr.size());
         }
+    }
+
+    @Test
+    void expandAcr4Async() {
+        final var uri = mockHttpServer.acr4();
+        final var asyncClient = SolidClient.getClient();
+        asyncClient.read(uri, AccessControlResource.class).thenAccept(res -> {
+            try (final var acr = res) {
+                assertEquals(2, acr.accessControl().size());
+                assertEquals(3, acr.memberAccessControl().size());
+
+                // Check dataset size
+                assertEquals(20, acr.size());
+
+                final var expanded = acr.expand(asyncClient);
+                assertEquals(22, expanded.size());
+                assertEquals(20, acr.size());
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
+    void testMerge() {
+        final var identifier = "https://data.example/resource";
+        final var agent = URI.create("https://id.example/agent");
+        final var app = URI.create("https://app.example/id");
+
+        final var acr = new AccessControlResource(URI.create(identifier), rdf.createDataset());
+        final var policy = acr.merge(Set.of(ACL.Read, ACL.Write), acr.agentPolicy(agent), acr.clientPolicy(app));
+
+        assertEquals(2, policy.allow().size());
+        assertTrue(policy.allow().contains(ACL.Read));
+        assertTrue(policy.allow().contains(ACL.Write));
+
+        assertEquals(2, policy.allOf().size());
+        assertEquals(0, policy.anyOf().size());
+        assertEquals(0, policy.noneOf().size());
+
+        assertTrue(policy.allOf().stream().anyMatch(matcher -> matcher.client().contains(app)));
+        assertTrue(policy.allOf().stream().anyMatch(matcher -> matcher.agent().contains(agent)));
     }
 }

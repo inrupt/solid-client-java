@@ -29,6 +29,9 @@ import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -45,12 +48,56 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An Access Control Resource type.
+ *
+ * <p>This is the root type for a resource that expresses access control policies.
  */
 public class AccessControlResource extends RDFSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlResource.class);
 
     public static final URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
+
+    private static final Map<URI, IRI> EXPANSION_MAPPINGS = Map.of(
+                ACP.accessControl, asIRI(ACP.AccessControl),
+                ACP.memberAccessControl, asIRI(ACP.AccessControl),
+                ACP.apply, asIRI(ACP.Policy),
+                ACP.allOf, asIRI(ACP.Matcher),
+                ACP.anyOf, asIRI(ACP.Matcher),
+                ACP.noneOf, asIRI(ACP.Matcher));
+
+    private static final List<URI> EXPANSION_PROPERTIES = List.of(ACP.accessControl, ACP.memberAccessControl,
+            ACP.apply, ACP.allOf, ACP.anyOf, ACP.noneOf);
+
+    /**
+     * Definitions for different matcher types, for use with {@link #find}.
+     */
+    public enum MatcherType {
+        AGENT(ACP.agent), CLIENT(ACP.client), ISSUER(ACP.issuer), VC(ACP.vc);
+
+        private final URI predicate;
+
+        MatcherType(final URI predicate) {
+            this.predicate = predicate;
+        }
+
+        /**
+         * Return the matcher type as an IRI.
+         *
+         * @return the IRI for this predicate
+         */
+        public IRI asIRI() {
+            return AccessControlResource.asIRI(asURI());
+        }
+
+        /**
+         * Return the matcher type as a URI.
+         *
+         * @return the URI for this predicate
+         */
+        public URI asURI() {
+            return predicate;
+        }
+    }
 
     /**
      *  Create a new Access Control Resource.
@@ -96,15 +143,14 @@ public class AccessControlResource extends RDFSource {
         final var dataset = rdf.createDataset();
         stream().forEach(dataset::add);
 
-        final var cache = rdf.createDataset();
-        expandType(dataset, cache, asIRI(ACP.accessControl), asIRI(ACP.AccessControl),
-                uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.memberAccessControl), asIRI(ACP.AccessControl),
-                uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.apply), asIRI(ACP.Policy), uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.allOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.anyOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.noneOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+        try (final var cache = rdf.createDataset()) {
+            for (final var property : EXPANSION_PROPERTIES) {
+                expandType(dataset, cache, asIRI(property), EXPANSION_MAPPINGS.get(property),
+                    uri -> populateCache(client, uri, cache));
+            }
+        } catch (final Exception ex) {
+            LOGGER.atDebug().setMessage("Unable to close dataset: {}").addArgument(ex::getMessage).log();
+        }
 
         return new AccessControlResource(getIdentifier(), dataset);
     }
@@ -120,67 +166,16 @@ public class AccessControlResource extends RDFSource {
         final var dataset = rdf.createDataset();
         stream().forEach(dataset::add);
 
-        final var cache = rdf.createDataset();
-        expandType(dataset, cache, asIRI(ACP.accessControl), asIRI(ACP.AccessControl),
-                uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.memberAccessControl), asIRI(ACP.AccessControl),
-                uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.apply), asIRI(ACP.Policy), uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.allOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.anyOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
-        expandType(dataset, cache, asIRI(ACP.noneOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+        try (final var cache = rdf.createDataset()) {
+            for (final var property : EXPANSION_PROPERTIES) {
+                expandType(dataset, cache, asIRI(property), EXPANSION_MAPPINGS.get(property),
+                        uri -> populateCacheAsync(client, uri, cache));
+            }
+        } catch (final Exception ex) {
+            LOGGER.atDebug().setMessage("Unable to close dataset: {}").addArgument(ex::getMessage).log();
+        }
 
         return new AccessControlResource(getIdentifier(), dataset);
-    }
-
-    void expandType(final Dataset dataset, final Dataset cache, final IRI predicate, final IRI type,
-            final Consumer<URI> handler) {
-        final var subjects = dataset.stream(null, null, predicate, null)
-            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-            .filter(subject -> !dataset.contains(null, subject, asIRI(RDF.type), type)).toList();
-
-        for (final var subject : subjects) {
-            if (!cache.contains(null, subject, asIRI(RDF.type), type)) {
-                handler.accept(URI.create(subject.getIRIString()));
-            }
-            cache.stream(null, subject, null, null).forEach(dataset::add);
-        }
-    }
-
-    void populateCache(final SolidSyncClient client, final URI uri, final Dataset cache) {
-        try (final var acr = client.read(uri, AccessControlResource.class)) {
-            acr.stream()
-                .filter(quad -> !isAccessControlResourceType(quad))
-                .forEach(cache::add);
-        } catch (final Exception ex) {
-            LOGGER.atDebug()
-                .setMessage("Unable to fetch access control resource from {}: {}")
-                .addArgument(uri)
-                .addArgument(ex::getMessage)
-                .log();
-        }
-    }
-
-    void populateCache(final SolidClient client, final URI uri, final Dataset cache) {
-        client.read(uri, AccessControlResource.class).thenAccept(res -> {
-            try (final var acr = res) {
-                acr.stream()
-                    .filter(quad -> !isAccessControlResourceType(quad))
-                    .forEach(cache::add);
-            }
-        })
-        .exceptionally(err -> {
-            LOGGER.atDebug()
-                .setMessage("Unable to fetch access control resource from {}: {}")
-                .addArgument(uri)
-                .addArgument(err::getMessage)
-                .log();
-            return null;
-        }).toCompletableFuture().join();
-    }
-
-    static boolean isAccessControlResourceType(final Quad quad) {
-        return asIRI(RDF.type).equals(quad.getPredicate()) && asIRI(ACP.AccessControlResource).equals(quad.getObject());
     }
 
     /**
@@ -204,21 +199,14 @@ public class AccessControlResource extends RDFSource {
         }
     }
 
-    <T extends BlankNodeOrIRI> void removeUnusedStatements(final T resource) {
-        if (!contains(null, null, null, resource)) {
-            for (final var quad : stream(null, resource, null, null).toList()) {
-                remove(quad);
-            }
-        }
-    }
-
     /**
      * Merge two or more policies into a single policies with combined matchers.
      *
+     * @param allow the modes to allow
      * @param policies the policies to merge
      * @return the merged policy
      */
-    public Policy merge(final Policy... policies) {
+    public Policy merge(final Set<URI> allow, final Policy... policies) {
         final var baseUri = getIdentifier().getScheme() + ":" + getIdentifier().getSchemeSpecificPart();
         final var policy = new Policy(asIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
         for (final var p : policies) {
@@ -226,62 +214,31 @@ public class AccessControlResource extends RDFSource {
             policy.anyOf().addAll(p.anyOf());
             policy.noneOf().addAll(p.noneOf());
         }
+        policy.allow().addAll(allow);
         return policy;
-    }
-
-    public enum MatcherType {
-        AGENT(ACP.agent), CLIENT(ACP.client), ISSUER(ACP.issuer), VC(ACP.vc);
-
-        private final URI predicate;
-
-        MatcherType(final URI predicate) {
-            this.predicate = predicate;
-        }
-
-        public IRI asIRI() {
-            return AccessControlResource.asIRI(asURI());
-        }
-
-        public URI asURI() {
-            return predicate;
-        }
     }
 
     /**
      * Find a policy, given a type, value and set of modes.
      *
      * @param type the matcher type
-     * @param value the matcher value
-     * @param modes the expected modes of the enclosing policy
+     * @param value the matcher value, may be {@code null}
+     * @param modes the expected modes of the enclosing policy, may be {@code null}
      * @return the matched policies
      */
     public Set<Policy> find(final MatcherType type, final URI value, final Set<URI> modes) {
-        return stream(null, null, type.asIRI(), asIRI(value))
+        final IRI matcherValue = value != null ? asIRI(value) : null;
+        final Set<URI> matcherModes = modes != null ? modes : Collections.emptySet();
+        return stream(null, null, type.asIRI(), matcherValue)
             .map(Quad::getSubject)
             .flatMap(matcher -> stream(null, null, null, matcher))
             .map(Quad::getSubject)
             .filter(policy -> contains(null, policy, asIRI(RDF.type), asIRI(ACP.Policy)))
             .filter(policy -> stream(null, policy, asIRI(ACP.allow), null)
                     .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
-                    .map(IRI::getIRIString).map(URI::create).toList().containsAll(modes))
+                    .map(IRI::getIRIString).map(URI::create).toList().containsAll(matcherModes))
             .map(policy -> new Policy(policy, getGraph()))
             .collect(Collectors.toSet());
-    }
-
-    static class ACPNode extends WrapperIRI {
-        public ACPNode(final RDFTerm original, final Graph graph) {
-            super(original, graph);
-        }
-
-        public Set<AccessControl> memberAccessControl() {
-            return objects(asIRI(ACP.memberAccessControl),
-                    AccessControl::asResource, ValueMappings.as(AccessControl.class));
-        }
-
-        public Set<AccessControl> accessControl() {
-            return objects(asIRI(ACP.accessControl),
-                    AccessControl::asResource, ValueMappings.as(AccessControl.class));
-        }
     }
 
     /**
@@ -382,6 +339,22 @@ public class AccessControlResource extends RDFSource {
         return simplePolicy(matcher -> matcher.issuer().add(issuer), access);
     }
 
+    static class ACPNode extends WrapperIRI {
+        public ACPNode(final RDFTerm original, final Graph graph) {
+            super(original, graph);
+        }
+
+        public Set<AccessControl> memberAccessControl() {
+            return objects(asIRI(ACP.memberAccessControl),
+                    AccessControl::asResource, ValueMappings.as(AccessControl.class));
+        }
+
+        public Set<AccessControl> accessControl() {
+            return objects(asIRI(ACP.accessControl),
+                    AccessControl::asResource, ValueMappings.as(AccessControl.class));
+        }
+    }
+
     Policy simplePolicy(final Consumer<Matcher> handler, final URI... access) {
         final var baseUri = getIdentifier().getScheme() + ":" + getIdentifier().getSchemeSpecificPart();
         final var matcher = new Matcher(asIRI(baseUri + "#" + UUID.randomUUID()), getGraph());
@@ -395,11 +368,69 @@ public class AccessControlResource extends RDFSource {
         return policy;
     }
 
-    private static IRI asIRI(final URI uri) {
+    <T extends BlankNodeOrIRI> void removeUnusedStatements(final T resource) {
+        if (!contains(null, null, null, resource)) {
+            for (final var quad : stream(null, resource, null, null).toList()) {
+                remove(quad);
+            }
+        }
+    }
+
+    void expandType(final Dataset dataset, final Dataset cache, final IRI predicate, final IRI type,
+            final Consumer<URI> handler) {
+        final var subjects = dataset.stream(null, null, predicate, null)
+            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+            .filter(subject -> !dataset.contains(null, subject, asIRI(RDF.type), type)).toList();
+
+        for (final var subject : subjects) {
+            if (!cache.contains(null, subject, asIRI(RDF.type), type)) {
+                handler.accept(URI.create(subject.getIRIString()));
+            }
+            cache.stream(null, subject, null, null).forEach(dataset::add);
+        }
+    }
+
+    void populateCache(final SolidSyncClient client, final URI uri, final Dataset cache) {
+        try (final var acr = client.read(uri, AccessControlResource.class)) {
+            acr.stream()
+                .filter(quad -> !isAccessControlResourceType(quad))
+                .forEach(cache::add);
+        } catch (final Exception ex) {
+            LOGGER.atDebug()
+                .setMessage("Unable to fetch access control resource from {}: {}")
+                .addArgument(uri)
+                .addArgument(ex::getMessage)
+                .log();
+        }
+    }
+
+    void populateCacheAsync(final SolidClient client, final URI uri, final Dataset cache) {
+        client.read(uri, AccessControlResource.class).thenAccept(res -> {
+            try (final var acr = res) {
+                acr.stream()
+                    .filter(quad -> !isAccessControlResourceType(quad))
+                    .forEach(cache::add);
+            }
+        })
+        .exceptionally(err -> {
+            LOGGER.atDebug()
+                .setMessage("Unable to fetch access control resource from {}: {}")
+                .addArgument(uri)
+                .addArgument(err::getMessage)
+                .log();
+            return null;
+        }).toCompletableFuture().join();
+    }
+
+    static boolean isAccessControlResourceType(final Quad quad) {
+        return asIRI(RDF.type).equals(quad.getPredicate()) && asIRI(ACP.AccessControlResource).equals(quad.getObject());
+    }
+
+    static IRI asIRI(final URI uri) {
         return asIRI(uri.toString());
     }
 
-    private static IRI asIRI(final String uri) {
+    static IRI asIRI(final String uri) {
         return rdf.createIRI(uri);
     }
 }

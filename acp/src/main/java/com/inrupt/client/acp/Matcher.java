@@ -20,10 +20,10 @@
  */
 package com.inrupt.client.acp;
 
-import static com.inrupt.client.vocabulary.RDF.type;
+import static com.inrupt.client.acp.AccessControlResource.asIRI;
 
-import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.ACP;
+import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.rdf.wrapping.commons.TermMappings;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
@@ -33,49 +33,75 @@ import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 
+/**
+ * A Matcher type for use with Access Control Policies.
+ *
+ * <p>A matcher is associated with {@link Policy} objects, defining
+ * agents, clients, issuers or verifiable credential (vc) types.
+ */
 public class Matcher extends WrapperIRI {
 
-    static final RDF rdf = RDFFactory.getInstance();
+    /**
+     * Create a new Matcher.
+     *
+     * @param identifier the matcher identifier
+     * @param graph the underlying graph
+     */
+    public Matcher(final RDFTerm identifier, final Graph graph) {
+        super(identifier, graph);
+        graph.add((IRI) identifier, asIRI(RDF.type), asIRI(ACP.Matcher));
+    }
 
-    public Matcher(final RDFTerm original, final Graph graph) {
-        super(original, graph);
-        graph.add((IRI) original, rdf.createIRI(type.toString()), rdf.createIRI(ACP.Matcher.toString()));
+
+    /**
+     * Retrieve the acp:vc values.
+     *
+     * @return a collection of verifiable credential types
+     */
+    public Set<URI> vc() {
+        return objects(asIRI(ACP.vc), TermMappings::asIri, ValueMappings::iriAsUri);
+    }
+
+    /**
+     * Retrieve the acp:agent values.
+     *
+     * @return a collection of agent identifiers
+     */
+    public Set<URI> agent() {
+        return objects(asIRI(ACP.agent), TermMappings::asIri, ValueMappings::iriAsUri);
+    }
+
+    /**
+     * Retrieve the acp:client values.
+     *
+     * @return a collection of client identifiers
+     */
+    public Set<URI> client() {
+        return objects(asIRI(ACP.client), TermMappings::asIri, ValueMappings::iriAsUri);
+    }
+
+    /**
+     * Retrieve the acp:issuer values.
+     *
+     * @return a collection of issuer identifiers
+     */
+    public Set<URI> issuer() {
+        return objects(asIRI(ACP.issuer), TermMappings::asIri, ValueMappings::iriAsUri);
     }
 
     static RDFTerm asResource(final Matcher matcher, final Graph graph) {
-        graph.add(matcher, rdf.createIRI(type.toString()), rdf.createIRI(ACP.Matcher.toString()));
+        graph.add(matcher, asIRI(RDF.type), asIRI(ACP.Matcher));
         matcher.vc().forEach(vc ->
-                graph.add(matcher, rdf.createIRI(ACP.vc.toString()), rdf.createIRI(vc.toString())));
+                graph.add(matcher, asIRI(ACP.vc), asIRI(vc)));
         matcher.agent().forEach(agent ->
-                graph.add(matcher, rdf.createIRI(ACP.agent.toString()), rdf.createIRI(agent.toString())));
+                graph.add(matcher, asIRI(ACP.agent), asIRI(agent)));
         matcher.client().forEach(client ->
-                graph.add(matcher, rdf.createIRI(ACP.client.toString()), rdf.createIRI(client.toString())));
+                graph.add(matcher, asIRI(ACP.client), asIRI(client)));
         matcher.issuer().forEach(issuer ->
-                graph.add(matcher, rdf.createIRI(ACP.issuer.toString()), rdf.createIRI(issuer.toString())));
+                graph.add(matcher, asIRI(ACP.issuer), asIRI(issuer)));
         return matcher;
-    }
-
-    public Set<URI> vc() {
-        return objects(rdf.createIRI(ACP.vc.toString()),
-                TermMappings::asIri, ValueMappings::iriAsUri);
-    }
-
-    public Set<URI> agent() {
-        return objects(rdf.createIRI(ACP.agent.toString()),
-                TermMappings::asIri, ValueMappings::iriAsUri);
-    }
-
-    public Set<URI> client() {
-        return objects(rdf.createIRI(ACP.client.toString()),
-                TermMappings::asIri, ValueMappings::iriAsUri);
-    }
-
-    public Set<URI> issuer() {
-        return objects(rdf.createIRI(ACP.issuer.toString()),
-                TermMappings::asIri, ValueMappings::iriAsUri);
     }
 }
 

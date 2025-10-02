@@ -20,10 +20,10 @@
  */
 package com.inrupt.client.acp;
 
-import static com.inrupt.client.vocabulary.RDF.type;
+import static com.inrupt.client.acp.AccessControlResource.asIRI;
 
-import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.ACP;
+import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
 import com.inrupt.rdf.wrapping.commons.WrapperIRI;
 
@@ -31,31 +31,39 @@ import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 
+/**
+ * An AccessControl type for use with Access Control Policies.
+ *
+ * <p>An access control applies {@link Policy} objects directly to a resource
+ * via {@code acp:accessControl} or to container members via {@code acp:memberAccessControl}
+ */
 public class AccessControl extends WrapperIRI {
 
-    static final RDF rdf = RDFFactory.getInstance();
-
-    public AccessControl(final RDFTerm original, final Graph graph) {
-        super(original, graph);
-        graph.add((IRI) original, rdf.createIRI(type.toString()), rdf.createIRI(ACP.AccessControl.toString()));
+    /**
+     * Create a new AccessControl.
+     *
+     * @param identifier the access control identifier
+     * @param graph the underlying graph
+     */
+    public AccessControl(final RDFTerm identifier, final Graph graph) {
+        super(identifier, graph);
+        graph.add((IRI) identifier, asIRI(RDF.type), asIRI(ACP.AccessControl));
     }
 
-    public static IRI asResource(final AccessControl accessControl, final Graph graph) {
-        graph.add(accessControl, rdf.createIRI(type.toString()), rdf.createIRI(ACP.AccessControl.toString()));
+    public Set<Policy> apply() {
+        return objects(asIRI(ACP.apply), Policy::asResource, ValueMappings.as(Policy.class));
+    }
+
+    static IRI asResource(final AccessControl accessControl, final Graph graph) {
+        graph.add(accessControl, asIRI(RDF.type), asIRI(ACP.AccessControl));
         accessControl.apply().forEach(policy -> {
-            graph.add(accessControl, rdf.createIRI(ACP.apply.toString()), policy);
+            graph.add(accessControl, asIRI(ACP.apply), policy);
             Policy.asResource(policy, graph);
         });
 
         return accessControl;
-    }
-
-    public Set<Policy> apply() {
-        return objects(rdf.createIRI(ACP.apply.toString()),
-                Policy::asResource, ValueMappings.as(Policy.class));
     }
 }
 
