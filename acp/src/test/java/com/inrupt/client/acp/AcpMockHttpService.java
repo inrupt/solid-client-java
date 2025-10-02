@@ -43,6 +43,14 @@ public class AcpMockHttpService {
         return URI.create(wireMockServer.baseUrl() + "/acr-2");
     }
 
+    public URI acr3() {
+        return URI.create(wireMockServer.baseUrl() + "/acr-3");
+    }
+
+    public URI acr4() {
+        return URI.create(wireMockServer.baseUrl() + "/acr-4");
+    }
+
     private void setupMocks() {
         wireMockServer.stubFor(get(urlEqualTo("/acr-1"))
             .willReturn(aResponse()
@@ -56,6 +64,34 @@ public class AcpMockHttpService {
                 .withStatus(200)
                 .withHeader("Content-Type", "text/turtle")
                 .withBodyFile("acr-2.ttl")
+            )
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/acr-3"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withBodyFile("acr-3.ttl")
+            )
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/acr-4"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withBodyFile("acr-4.ttl")
+            )
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/not-an-acr"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/turtle")
+                .withBodyFile("not-an-acr.ttl")
+            )
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/also-not-an-acr"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBodyFile("not-an-acr.json")
             )
         );
     }

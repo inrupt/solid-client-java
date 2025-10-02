@@ -23,6 +23,7 @@ package com.inrupt.client.acp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.inrupt.client.solid.SolidClient;
 import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.spi.RDFFactory;
 import com.inrupt.client.vocabulary.ACL;
@@ -282,5 +283,56 @@ class AccessControlResourceTest {
                     acr.accessGrantsPolicy(ACL.Read, ACL.Write)));
 
         assertEquals(38, acr.size());
+    }
+
+    @Test
+    void expandAcr3Sync() {
+        final var uri = mockHttpServer.acr3();
+        try (final AccessControlResource acr = client.read(uri, AccessControlResource.class)) {
+            assertEquals(2, acr.accessControl().size());
+            assertEquals(3, acr.memberAccessControl().size());
+
+            // Check dataset size
+            assertEquals(12, acr.size());
+
+            final var expanded = acr.expand(client);
+            assertEquals(29, expanded.size());
+            assertEquals(12, acr.size());
+        }
+    }
+
+    @Test
+    void expandAcr3Async() {
+        final var uri = mockHttpServer.acr3();
+        final var asyncClient = SolidClient.getClient();
+        asyncClient.read(uri, AccessControlResource.class).thenAccept(res -> {
+            try (final var acr = res) {
+                assertEquals(2, acr.accessControl().size());
+                assertEquals(3, acr.memberAccessControl().size());
+
+                // Check dataset size
+                assertEquals(12, acr.size());
+
+                final var expanded = acr.expand(asyncClient);
+                assertEquals(29, expanded.size());
+                assertEquals(12, acr.size());
+            }
+        }).toCompletableFuture().join();
+    }
+
+    @Test
+    void expandAcr4Sync() {
+        final var uri = mockHttpServer.acr4();
+        try (final AccessControlResource acr = client.read(uri, AccessControlResource.class)) {
+            assertEquals(2, acr.accessControl().size());
+            assertEquals(3, acr.memberAccessControl().size());
+
+            // Check dataset size
+            assertEquals(20, acr.size());
+
+            final var expanded = acr.expand(client);
+            assertEquals(22, expanded.size());
+            assertEquals(20, acr.size());
+        }
     }
 }

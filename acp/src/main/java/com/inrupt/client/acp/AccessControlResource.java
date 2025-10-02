@@ -21,6 +21,8 @@
 package com.inrupt.client.acp;
 
 import com.inrupt.client.RDFSource;
+import com.inrupt.client.solid.SolidClient;
+import com.inrupt.client.solid.SolidSyncClient;
 import com.inrupt.client.vocabulary.ACP;
 import com.inrupt.client.vocabulary.RDF;
 import com.inrupt.rdf.wrapping.commons.ValueMappings;
@@ -38,11 +40,15 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Quad;
 import org.apache.commons.rdf.api.RDFTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An Access Control Resource type.
  */
 public class AccessControlResource extends RDFSource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlResource.class);
 
     public static final URI SOLID_ACCESS_GRANT = URI.create("http://www.w3.org/ns/solid/vc#SolidAccessGrant");
 
@@ -77,6 +83,104 @@ public class AccessControlResource extends RDFSource {
      */
     public Set<AccessControl> memberAccessControl() {
         return new ACPNode(asIRI(getIdentifier()), getGraph()).memberAccessControl();
+    }
+
+    /**
+     * Expand the internal data using a synchronous client.
+     *
+     * @param client the solid client
+     * @return an expanded access control resource
+     */
+    public AccessControlResource expand(final SolidSyncClient client) {
+        // Copy the data from the existing ACR into a new dataset
+        final var dataset = rdf.createDataset();
+        stream().forEach(dataset::add);
+
+        final var cache = rdf.createDataset();
+        expandType(dataset, cache, asIRI(ACP.accessControl), asIRI(ACP.AccessControl),
+                uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.memberAccessControl), asIRI(ACP.AccessControl),
+                uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.apply), asIRI(ACP.Policy), uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.allOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.anyOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.noneOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+
+        return new AccessControlResource(getIdentifier(), dataset);
+    }
+
+    /**
+     * Expand the internal data using an asynchronous client.
+     *
+     * @param client the solid client
+     * @return an expanded access control resource
+     */
+    public AccessControlResource expand(final SolidClient client) {
+        // Copy the data from the existing ACR into a new dataset
+        final var dataset = rdf.createDataset();
+        stream().forEach(dataset::add);
+
+        final var cache = rdf.createDataset();
+        expandType(dataset, cache, asIRI(ACP.accessControl), asIRI(ACP.AccessControl),
+                uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.memberAccessControl), asIRI(ACP.AccessControl),
+                uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.apply), asIRI(ACP.Policy), uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.allOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.anyOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+        expandType(dataset, cache, asIRI(ACP.noneOf), asIRI(ACP.Matcher), uri -> populateCache(client, uri, cache));
+
+        return new AccessControlResource(getIdentifier(), dataset);
+    }
+
+    void expandType(final Dataset dataset, final Dataset cache, final IRI predicate, final IRI type,
+            final Consumer<URI> handler) {
+        final var subjects = dataset.stream(null, null, predicate, null)
+            .map(Quad::getObject).filter(IRI.class::isInstance).map(IRI.class::cast)
+            .filter(subject -> !dataset.contains(null, subject, asIRI(RDF.type), type)).toList();
+
+        for (final var subject : subjects) {
+            if (!cache.contains(null, subject, asIRI(RDF.type), type)) {
+                handler.accept(URI.create(subject.getIRIString()));
+            }
+            cache.stream(null, subject, null, null).forEach(dataset::add);
+        }
+    }
+
+    void populateCache(final SolidSyncClient client, final URI uri, final Dataset cache) {
+        try (final var acr = client.read(uri, AccessControlResource.class)) {
+            acr.stream()
+                .filter(quad -> !isAccessControlResourceType(quad))
+                .forEach(cache::add);
+        } catch (final Exception ex) {
+            LOGGER.atDebug()
+                .setMessage("Unable to fetch access control resource from {}: {}")
+                .addArgument(uri)
+                .addArgument(ex::getMessage)
+                .log();
+        }
+    }
+
+    void populateCache(final SolidClient client, final URI uri, final Dataset cache) {
+        client.read(uri, AccessControlResource.class).thenAccept(res -> {
+            try (final var acr = res) {
+                acr.stream()
+                    .filter(quad -> !isAccessControlResourceType(quad))
+                    .forEach(cache::add);
+            }
+        })
+        .exceptionally(err -> {
+            LOGGER.atDebug()
+                .setMessage("Unable to fetch access control resource from {}: {}")
+                .addArgument(uri)
+                .addArgument(err::getMessage)
+                .log();
+            return null;
+        }).toCompletableFuture().join();
+    }
+
+    static boolean isAccessControlResourceType(final Quad quad) {
+        return asIRI(RDF.type).equals(quad.getPredicate()) && asIRI(ACP.AccessControlResource).equals(quad.getObject());
     }
 
     /**
@@ -135,7 +239,7 @@ public class AccessControlResource extends RDFSource {
         }
 
         public IRI asIRI() {
-            return AccessControlResource.asIRI(predicate);
+            return AccessControlResource.asIRI(asURI());
         }
 
         public URI asURI() {

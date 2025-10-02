@@ -49,6 +49,7 @@ public class AccessControl extends WrapperIRI {
             graph.add(accessControl, rdf.createIRI(ACP.apply.toString()), policy);
             Policy.asResource(policy, graph);
         });
+
         return accessControl;
     }
 

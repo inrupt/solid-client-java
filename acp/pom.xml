@@ -25,6 +25,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.inrupt.client</groupId>
+      <artifactId>inrupt-client-solid</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -76,12 +81,6 @@
     <dependency>
       <groupId>com.inrupt.client</groupId>
       <artifactId>inrupt-client-jena</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.inrupt.client</groupId>
-      <artifactId>inrupt-client-solid</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
