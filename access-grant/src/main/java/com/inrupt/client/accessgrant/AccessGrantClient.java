@@ -106,7 +106,7 @@ public class AccessGrantClient {
     private static final String IS_CONSENT_FOR_DATA_SUBJECT = "isConsentForDataSubject";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
-    private static final String REQUEST = "request";
+    private static final String VERIFIED_REQUEST = "verifiedRequest";
     private static final String MODE = "mode";
     private static final String PROVIDED_CONSENT = "providedConsent";
     private static final String FOR_PURPOSE = "forPurpose";
@@ -724,7 +724,7 @@ public class AccessGrantClient {
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRefused");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
-        consent.put(REQUEST, accessRequest);
+        consent.put(VERIFIED_REQUEST, accessRequest);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
@@ -755,7 +755,7 @@ public class AccessGrantClient {
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
-        consent.put(REQUEST, accessRequest);
+        consent.put(VERIFIED_REQUEST, accessRequest);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
