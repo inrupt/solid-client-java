@@ -138,7 +138,9 @@ public class AccessGrant extends AccessCredential {
                 final Optional<URI> other = asUri(consent.get("isProvidedTo"));
 
                 final URI recipient = person.orElseGet(() -> controller.orElseGet(() -> other.orElse(null)));
-                final URI accessRequest = asUri(consent.get("request")).orElse(null);
+                final URI accessRequest = asUri(consent.get("verifiedRequest")).orElse(
+                        asUri(consent.get("request")).orElse(null)
+                );
                 final Set<String> modes = asSet(consent.get("mode")).orElseGet(Collections::emptySet);
                 final Set<URI> resources = asSet(consent.get("forPersonalData")).orElseGet(Collections::emptySet)
                     .stream().map(URI::create).collect(Collectors.toSet());
