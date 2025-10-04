@@ -106,6 +106,7 @@ public class AccessGrantClient {
     private static final String IS_CONSENT_FOR_DATA_SUBJECT = "isConsentForDataSubject";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
     private static final String HAS_STATUS = "hasStatus";
+    private static final String REQUEST = "request";
     private static final String VERIFIED_REQUEST = "verifiedRequest";
     private static final String MODE = "mode";
     private static final String PROVIDED_CONSENT = "providedConsent";
@@ -252,17 +253,28 @@ public class AccessGrantClient {
     }
 
     /**
-     * Issue an access grant based on an access request.
+     * Issue an access grant based on an access request. The access request is not verified.
      *
      * @param request the access request
      * @return the next stage of completion containing the issued access grant
      */
     public CompletionStage<AccessGrant> grantAccess(final AccessRequest request) {
+        return grantAccess(request, false);
+    }
+
+    /**
+     * Issue an access grant based on an access request.
+     *
+     * @param request       the access request
+     * @param verifyRequest whether the request should be verified before issuing the access grant
+     * @return the next stage of completion containing the issued access grant
+     */
+    public CompletionStage<AccessGrant> grantAccess(final AccessRequest request, final boolean verifyRequest) {
         Objects.requireNonNull(request, "Request may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data = buildAccessGrantv1(request.getCreator(), request.getResources(),
                     request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt(),
-                    request.getIdentifier());
+                    request.getIdentifier(), verifyRequest);
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
@@ -285,17 +297,28 @@ public class AccessGrantClient {
     }
 
     /**
-     * Issue an access denial receipt based on an access request.
+     * Issue an access denial receipt based on an access request. The access request is not verified.
      *
      * @param request the access request
      * @return the next stage of completion containing the issued access denial
      */
     public CompletionStage<AccessDenial> denyAccess(final AccessRequest request) {
+        return denyAccess(request, false);
+    }
+
+    /**
+     * Issue an access denial receipt based on an access request.
+     *
+     * @param request       the access request
+     * @param verifyRequest whether the request should be verified before issuing the access denial
+     * @return the next stage of completion containing the issued access denial
+     */
+    public CompletionStage<AccessDenial> denyAccess(final AccessRequest request, final boolean verifyRequest) {
         Objects.requireNonNull(request, "Request may not be null!");
         return v1Metadata().thenCompose(metadata -> {
             final Map<String, Object> data = buildAccessDenialv1(request.getCreator(), request.getResources(),
                     request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt(),
-                    request.getIdentifier());
+                    request.getIdentifier(), verifyRequest);
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
                 .POST(Request.BodyPublishers.ofByteArray(serialize(data))).build();
@@ -716,15 +739,26 @@ public class AccessGrantClient {
         return null;
     }
 
-    static Map<String, Object> buildAccessDenialv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Set<URI> purposes, final Instant expiration, final Instant issuance, final URI accessRequest) {
+    static Map<String, Object> buildAccessDenialv1(
+            final URI agent,
+            final Set<URI> resources,
+            final Set<String> modes,
+            final Set<URI> purposes,
+            final Instant expiration,
+            final Instant issuance,
+            final URI accessRequest,
+            final boolean verifiedRequest) {
         Objects.requireNonNull(agent, "Access denial agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRefused");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
-        consent.put(VERIFIED_REQUEST, accessRequest);
+        if (verifiedRequest) {
+            consent.put(VERIFIED_REQUEST, accessRequest);
+        } else {
+            consent.put(REQUEST, accessRequest);
+        }
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
@@ -747,15 +781,26 @@ public class AccessGrantClient {
         return data;
     }
 
-    static Map<String, Object> buildAccessGrantv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Set<URI> purposes, final Instant expiration, final Instant issuance, final URI accessRequest) {
+    static Map<String, Object> buildAccessGrantv1(
+            final URI agent,
+            final Set<URI> resources,
+            final Set<String> modes,
+            final Set<URI> purposes,
+            final Instant expiration,
+            final Instant issuance,
+            final URI accessRequest,
+            final boolean verifiedRequest) {
         Objects.requireNonNull(agent, "Access grant agent may not be null!");
         final Map<String, Object> consent = new HashMap<>();
         consent.put(MODE, modes);
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
-        consent.put(VERIFIED_REQUEST, accessRequest);
+        if (verifiedRequest) {
+            consent.put(VERIFIED_REQUEST, accessRequest);
+        } else {
+            consent.put(REQUEST, accessRequest);
+        }
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
