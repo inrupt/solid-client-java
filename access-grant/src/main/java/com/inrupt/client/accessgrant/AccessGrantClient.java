@@ -754,11 +754,7 @@ public class AccessGrantClient {
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRefused");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
-        if (verifiedRequest) {
-            consent.put(VERIFIED_REQUEST, accessRequest);
-        } else {
-            consent.put(REQUEST, accessRequest);
-        }
+        linkRequest(consent, accessRequest, verifiedRequest);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
@@ -796,11 +792,7 @@ public class AccessGrantClient {
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusExplicitlyGiven");
         consent.put(FOR_PERSONAL_DATA, resources);
         consent.put(IS_PROVIDED_TO, agent);
-        if (verifiedRequest) {
-            consent.put(VERIFIED_REQUEST, accessRequest);
-        } else {
-            consent.put(REQUEST, accessRequest);
-        }
+        linkRequest(consent, accessRequest, verifiedRequest);
         if (!purposes.isEmpty()) {
             consent.put(FOR_PURPOSE, purposes);
         }
@@ -905,5 +897,13 @@ public class AccessGrantClient {
     static boolean isAccessDenial(final URI type) {
         return SOLID_ACCESS_DENIAL.equals(type.toString()) || QN_ACCESS_DENIAL.equals(type)
             || FQ_ACCESS_DENIAL.equals(type);
+    }
+
+    private static void linkRequest(final Map<String, Object> consent, final URI request, final boolean verifiedLink) {
+        if (verifiedLink) {
+            consent.put(VERIFIED_REQUEST, request);
+        } else {
+            consent.put(REQUEST, request);
+        }
     }
 }
