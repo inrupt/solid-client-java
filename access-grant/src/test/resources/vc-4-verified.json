@@ -22,7 +22,8 @@
             "isProvidedTo":"https://id.test/agent",
             "forPurpose":["https://purpose.test/Purpose1"],
             "forPersonalData":["https://storage.test/data/"],
-            "request": "http://localhost:33367/access-request-5"}},
+            "verifiedRequest": "http://localhost:33367/access-request-5"}},
+
     "proof":{
         "created":"2022-08-25T20:34:05.236Z",
         "proofPurpose":"assertionMethod",

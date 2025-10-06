@@ -277,6 +277,17 @@ class MockAccessGrantServer {
                         .withHeader("Content-Type", "application/json")
                         .withBody(getResource("/vc-4.json", wireMockServer.baseUrl()))));
 
+        wireMockServer.stubFor(post(urlEqualTo("/issue"))
+                .atPriority(1)
+                .withHeader("Authorization", containing("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."))
+                .withRequestBody(containing("\"providedConsent\""))
+                .withRequestBody(containing("\"2022-08-27T12:00:00Z\""))
+                .withRequestBody(containing("\"verifiedRequest\""))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(getResource("/vc-4-verified.json", wireMockServer.baseUrl()))));
+
         // Access Request
         wireMockServer.stubFor(post(urlEqualTo("/issue"))
                     .atPriority(1)

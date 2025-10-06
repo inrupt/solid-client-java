@@ -53,6 +53,8 @@ import org.jose4j.lang.UncheckedJoseException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class AccessGrantClientTest {
 
@@ -299,8 +301,9 @@ class AccessGrantClientTest {
         assertInstanceOf(AccessGrantException.class, err.getCause());
     }
 
-    @Test
-    void testGrantAccess() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testGrantAccess(final boolean verifyRequest) {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
@@ -318,7 +321,7 @@ class AccessGrantClientTest {
         final AccessRequest request = client.requestAccess(recipient, resources, modes, purposes, expiration)
             .toCompletableFuture().join();
 
-        final AccessGrant grant = client.grantAccess(request).toCompletableFuture().join();
+        final AccessGrant grant = client.grantAccess(request, verifyRequest).toCompletableFuture().join();
 
         assertTrue(grant.getTypes().contains("SolidAccessGrant"));
         assertEquals(Optional.of(recipient), grant.getRecipient());
@@ -327,10 +330,14 @@ class AccessGrantClientTest {
         assertEquals(baseUri, grant.getIssuer());
         assertEquals(purposes, grant.getPurposes());
         assertEquals(resources, grant.getResources());
+        // The request URL is static in the mock response, but it is dynamic in the request, so they will mismatch
+        // if compared.
+        assertNotNull(grant.getAccessRequest());
     }
 
-    @Test
-    void testDenyAccess() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testDenyAccess(final boolean verifyRequest) {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("webid", WEBID);
         claims.put("sub", SUB);
@@ -348,7 +355,7 @@ class AccessGrantClientTest {
         final AccessRequest request = client.requestAccess(recipient, resources, modes, purposes, expiration)
             .toCompletableFuture().join();
 
-        final AccessDenial denial = client.denyAccess(request).toCompletableFuture().join();
+        final AccessDenial denial = client.denyAccess(request, verifyRequest).toCompletableFuture().join();
 
         assertTrue(denial.getTypes().contains("SolidAccessDenial"));
         assertEquals(Optional.of(recipient), denial.getRecipient());
