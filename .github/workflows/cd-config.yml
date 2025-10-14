@@ -46,11 +46,12 @@ jobs:
 
       - name: Deploy Artifacts
         if: ${{ github.actor != 'dependabot[bot]' }}
-        run: mvn deploy -P publish
+        run: mvn deploy -P publish -Dcentral.publishing.autopublish=$AUTOPUBLISH
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          AUTOPUBLISH: ${{ true != contains(github.ref, 'refs/tags/inrupt-client') }}
 
       - name: Sonar Analysis
         if: ${{ github.actor != 'dependabot[bot]' }}

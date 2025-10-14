@@ -86,6 +86,7 @@
     <archetype.test.skip>true</archetype.test.skip>
     <nvd.api.key />
     <nvd.api.datafeed />
+    <central.publishing.autopublish>false</central.publishing.autopublish>
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -630,7 +631,23 @@
         <extensions>true</extensions>
         <configuration>
           <publishingServerId>central</publishingServerId>
-          <autoPublish>true</autoPublish>
+          <autoPublish>${central.publishing.autopublish}</autoPublish>
+          <excludeArtifacts>
+              <artifact>inrupt-client-examples-cli</artifact>
+              <artifact>inrupt-client-examples-parent</artifact>
+              <artifact>inrupt-client-examples-spring-web</artifact>
+              <artifact>inrupt-client-examples-springboot</artifact>
+              <artifact>inrupt-client-examples-webapp</artifact>
+              <artifact>inrupt-client-integration-base-tests</artifact>
+              <artifact>inrupt-client-integration-openid-tests</artifact>
+              <artifact>inrupt-client-integration-tests</artifact>
+              <artifact>inrupt-client-integration-uma-tests</artifact>
+              <artifact>inrupt-client-performance-base-tests</artifact>
+              <artifact>inrupt-client-performance-tests</artifact>
+              <artifact>inrupt-client-performance-uma-tests</artifact>
+              <artifact>inrupt-client-report</artifact>
+              <artifact>inrupt-client-test</artifact>
+          </excludeArtifacts>
         </configuration>
       </plugin>
     </plugins>
