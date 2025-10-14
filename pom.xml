@@ -86,7 +86,6 @@
     <archetype.test.skip>true</archetype.test.skip>
     <nvd.api.key />
     <nvd.api.datafeed />
-    <central.publishing.autopublish>false</central.publishing.autopublish>
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -631,7 +630,7 @@
         <extensions>true</extensions>
         <configuration>
           <publishingServerId>central</publishingServerId>
-          <autoPublish>${central.publishing.autopublish}</autoPublish>
+          <autoPublish>true</autoPublish>
           <excludeArtifacts>
               <artifact>inrupt-client-examples-cli</artifact>
               <artifact>inrupt-client-examples-parent</artifact>
