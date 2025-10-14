@@ -4,7 +4,7 @@
 
   <groupId>com.inrupt.client</groupId>
   <artifactId>inrupt-client</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
+  <version>2.0.1-SNAPSHOT</version>
   <name>Inrupt Java Client Libraries</name>
   <url>https://docs.inrupt.com/developer-tools/java/client-libraries/</url>
   <description>
@@ -631,6 +631,22 @@
         <configuration>
           <publishingServerId>central</publishingServerId>
           <autoPublish>true</autoPublish>
+          <excludeArtifacts>
+              <artifact>inrupt-client-examples-cli</artifact>
+              <artifact>inrupt-client-examples-parent</artifact>
+              <artifact>inrupt-client-examples-spring-web</artifact>
+              <artifact>inrupt-client-examples-springboot</artifact>
+              <artifact>inrupt-client-examples-webapp</artifact>
+              <artifact>inrupt-client-integration-base-tests</artifact>
+              <artifact>inrupt-client-integration-openid-tests</artifact>
+              <artifact>inrupt-client-integration-tests</artifact>
+              <artifact>inrupt-client-integration-uma-tests</artifact>
+              <artifact>inrupt-client-performance-base-tests</artifact>
+              <artifact>inrupt-client-performance-tests</artifact>
+              <artifact>inrupt-client-performance-uma-tests</artifact>
+              <artifact>inrupt-client-report</artifact>
+              <artifact>inrupt-client-test</artifact>
+          </excludeArtifacts>
         </configuration>
       </plugin>
     </plugins>
