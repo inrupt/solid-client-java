@@ -3,6 +3,7 @@ name: Solid Java Client CI
 on:
   # Build pull requests for any branch
   pull_request: { }
+  merge_group: { }
 
 jobs:
   build:
