@@ -16,7 +16,7 @@
   </description>
 
   <properties>
-    <springboot.version>3.5.5</springboot.version>
+    <springboot.version>3.5.7</springboot.version>
   </properties>
 
   <dependencyManagement>
