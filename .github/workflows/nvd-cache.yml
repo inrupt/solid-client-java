@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: Checkout OVP repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: jeremylong/Open-Vulnerability-Project
         path: ovp
@@ -30,7 +30,7 @@ jobs:
       working-directory: ./ovp
       run: ./gradlew build -x test
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         path: data
 
