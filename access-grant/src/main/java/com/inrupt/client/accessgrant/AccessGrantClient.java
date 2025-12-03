@@ -55,6 +55,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +106,7 @@ public class AccessGrantClient {
     private static final String IS_PROVIDED_TO = "isProvidedTo";
     private static final String IS_CONSENT_FOR_DATA_SUBJECT = "isConsentForDataSubject";
     private static final String FOR_PERSONAL_DATA = "forPersonalData";
+    private static final String TEMPLATE = "template";
     private static final String HAS_STATUS = "hasStatus";
     private static final String REQUEST = "request";
     private static final String VERIFIED_REQUEST = "verifiedRequest";
@@ -183,7 +185,10 @@ public class AccessGrantClient {
         this.config = Objects.requireNonNull(config, "config may not be null!");
         this.metadataCache = Objects.requireNonNull(metadataCache, "metadataCache may not be null!");
         this.jsonService = ServiceProvider.getJsonService();
-        LOGGER.debug("Initializing Access Grant client with issuer: {}", config.getIssuer());
+        LOGGER.atDebug()
+            .setMessage("Initializing Access Grant client with issuer: {}")
+            .addArgument(config::getIssuer)
+            .log();
     }
 
     /**
@@ -204,7 +209,7 @@ public class AccessGrantClient {
      * @return the next stage of completion containing the resulting access request
      */
     public CompletionStage<AccessRequest> requestAccess(final AccessRequest.RequestParameters request) {
-        return requestAccess(request.getRecipient(), request.getResources(),
+        return requestAccess(request.getRecipient(), request.getResources(), request.getTemplates(),
                 request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt());
     }
 
@@ -220,16 +225,23 @@ public class AccessGrantClient {
      */
     public CompletionStage<AccessRequest> requestAccess(final URI recipient, final Set<URI> resources,
             final Set<String> modes, final Set<URI> purposes, final Instant expiration) {
-        return requestAccess(recipient, resources, modes, purposes, expiration, null);
+        return requestAccess(recipient, resources, Collections.emptySet(), modes, purposes, expiration, null);
     }
 
     private CompletionStage<AccessRequest> requestAccess(final URI recipient, final Set<URI> resources,
-            final Set<String> modes, final Set<URI> purposes, final Instant expiration, final Instant issuance) {
+            final Set<String> templates, final Set<String> modes, final Set<URI> purposes, final Instant expiration,
+            final Instant issuance) {
         Objects.requireNonNull(resources, "Resources may not be null!");
+        Objects.requireNonNull(templates, "Templates may not be null!");
         Objects.requireNonNull(modes, "Access modes may not be null!");
+        if (templates.isEmpty() && resources.isEmpty()) {
+            LOGGER.warn("Both resources and templates are empty in access request");
+        } else if (!templates.isEmpty() && !resources.isEmpty()) {
+            LOGGER.warn("Both resources and templates are non-empty in access request");
+        }
         return v1Metadata().thenCompose(metadata -> {
-            final Map<String, Object> data = buildAccessRequestv1(recipient, resources, modes, purposes, expiration,
-                    issuance);
+            final Map<String, Object> data = buildAccessRequestv1(recipient, resources, templates, modes, purposes,
+                    expiration, issuance);
 
             final Request req = Request.newBuilder(metadata.issueEndpoint)
                 .header(CONTENT_TYPE, APPLICATION_JSON)
@@ -253,26 +265,79 @@ public class AccessGrantClient {
     }
 
     /**
-     * Issue an access grant based on an access request. The access request is not verified.
+     * Issue an access grant based on an access request.
+     *
+     * <p>
+     * The access request is not verified.
+     * Any templated URLs are ignored.
      *
      * @param request the access request
      * @return the next stage of completion containing the issued access grant
      */
     public CompletionStage<AccessGrant> grantAccess(final AccessRequest request) {
-        return grantAccess(request, false);
+        return grantAccess(request, templates -> Collections.emptySet(), false);
     }
 
     /**
      * Issue an access grant based on an access request.
+     *
+     * <p>
+     * The access request is verified.
+     * Any templated URLs are processed according to the provided mapping function.
+     *
+     * @param request the access request
+     * @param mapping a mapping function for template URLs
+     * @return the next stage of completion containing the issued access grant
+     */
+    public CompletionStage<AccessGrant> grantAccess(final AccessRequest request,
+            final Function<Set<String>, Set<URI>> mapping) {
+        return grantAccess(request, mapping, true);
+    }
+
+    /**
+     * Issue an access grant based on an access request.
+     *
+     * <p>
+     * Any templated URLs are ignored.
      *
      * @param request       the access request
      * @param verifyRequest whether the request should be verified before issuing the access grant
      * @return the next stage of completion containing the issued access grant
      */
     public CompletionStage<AccessGrant> grantAccess(final AccessRequest request, final boolean verifyRequest) {
+        return grantAccess(request, templates -> Collections.emptySet(), verifyRequest);
+    }
+
+    /**
+     * Issue an access grant based on an access request.
+     *
+     * @param request       the access request
+     * @param mapping       a mapping function for template URLs
+     * @param verifyRequest whether the request should be verified before issuing the access grant
+     * @return the next stage of completion containing the issued access grant
+     */
+    public CompletionStage<AccessGrant> grantAccess(final AccessRequest request,
+            final Function<Set<String>, Set<URI>> mapping, final boolean verifyRequest) {
         Objects.requireNonNull(request, "Request may not be null!");
+        final var templated = mapping.apply(request.getTemplates());
+        if (templated.size() != request.getTemplates().size()) {
+            LOGGER.atDebug()
+                .setMessage("Unexpected number of mapped template values, found ({}) expected ({})")
+                .addArgument(templated::size)
+                .addArgument(() -> request.getTemplates().size())
+                .log();
+        }
+        final var resources = new HashSet<URI>(request.getResources());
+        resources.addAll(templated);
+        if (resources.isEmpty()) {
+            LOGGER.atWarn()
+                .setMessage("No data URLs supplied: {} resource URLs and {} mapped templates")
+                .addArgument(() -> request.getResources().size())
+                .addArgument(() -> templated.size())
+                .log();
+        }
         return v1Metadata().thenCompose(metadata -> {
-            final Map<String, Object> data = buildAccessGrantv1(request.getCreator(), request.getResources(),
+            final Map<String, Object> data = buildAccessGrantv1(request.getCreator(), resources,
                     request.getModes(), request.getPurposes(), request.getExpiration(), request.getIssuedAt(),
                     request.getIdentifier(), verifyRequest);
             final Request req = Request.newBuilder(metadata.issueEndpoint)
@@ -815,12 +880,17 @@ public class AccessGrantClient {
         return data;
     }
 
-    static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources, final Set<String> modes,
-            final Set<URI> purposes, final Instant expiration, final Instant issuance) {
+    static Map<String, Object> buildAccessRequestv1(final URI agent, final Set<URI> resources,
+            final Set<String> templates, final Set<String> modes, final Set<URI> purposes,
+            final Instant expiration, final Instant issuance) {
         final Map<String, Object> consent = new HashMap<>();
         consent.put(HAS_STATUS, "https://w3id.org/GConsent#ConsentStatusRequested");
         consent.put(MODE, modes);
-        consent.put(FOR_PERSONAL_DATA, resources);
+        if (!resources.isEmpty()) {
+            consent.put(FOR_PERSONAL_DATA, resources);
+        } else {
+            consent.put(TEMPLATE, templates);
+        }
         if (agent != null) {
             consent.put(IS_CONSENT_FOR_DATA_SUBJECT, agent);
         }
