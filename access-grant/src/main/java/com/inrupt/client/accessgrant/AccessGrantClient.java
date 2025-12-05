@@ -333,7 +333,7 @@ public class AccessGrantClient {
             LOGGER.atWarn()
                 .setMessage("No data URLs supplied: {} resource URLs and {} mapped templates")
                 .addArgument(() -> request.getResources().size())
-                .addArgument(() -> templated.size())
+                .addArgument(templated::size)
                 .log();
         }
         return v1Metadata().thenCompose(metadata -> {
