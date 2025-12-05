@@ -146,6 +146,33 @@ public class AccessRequest extends AccessCredential {
     }
 
     /**
+     * Produce a URI template that can be used consistently with the JCL.
+     *
+     * @param dataPath the data path relative to a storage root
+     * @return a URI template
+     */
+    public static String template(final String dataPath) {
+        Objects.requireNonNull(dataPath, "dataPath may not be null!");
+        if (!dataPath.startsWith("/")) {
+            return "https://{domain}/{+path}/" + dataPath;
+        }
+        return template("/" + dataPath);
+    }
+
+    /**
+     * Produce a Map of template values that can be used with a URI template resolver.
+     *
+     * @param domain the domain of the user's storage
+     * @param path the base path of the user's storage
+     * @return a map of template values
+     */
+    public static Map<String, String> templateValues(final String domain, final String path) {
+        Objects.requireNonNull(domain, "domain may not be null!");
+        Objects.requireNonNull(path, "path may not be null!");
+        return Map.of("domain", domain, "path", path);
+    }
+
+    /**
      * A collection of parameters used for creating access requests.
      *
      * <p>See, in particular, the {@link AccessGrantClient#requestAccess(RequestParameters)} method.

@@ -272,4 +272,18 @@ class AccessRequestTest {
     void testInvalidString() throws IOException {
         assertThrows(IllegalArgumentException.class, () -> AccessRequest.of("not json"));
     }
+
+    @Test
+    void testTemplate() {
+        assertEquals("https://{domain}/{+path}/custom-path", AccessRequest.template("custom-path"));
+        assertEquals("https://{domain}/{+path}/custom-path", AccessRequest.template("/custom-path"));
+        assertEquals("https://{domain}/{+path}/./custom-path", AccessRequest.template("./custom-path"));
+    }
+
+    @Test
+    void testTemplateValues() {
+        final var values = AccessRequest.templateValues("mydomain.com", "/storage/path");
+        assertEquals("mydomain.com", values.get("domain"));
+        assertEquals("/storage/path", values.get("path"));
+    }
 }
