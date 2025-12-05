@@ -319,7 +319,8 @@ class AccessGrantClientTest {
         final AccessGrantClient client = agClient.session(OpenIdSession.ofIdToken(token));
         final AccessRequest request = client.fetch(uri, AccessRequest.class).toCompletableFuture().join();
 
-        final AccessGrant grant = client.grantAccess(request).toCompletableFuture().join();
+        final AccessGrant grant = client.grantAccess(request,
+                templates -> Set.of(URI.create("https://storage.test/data/"))).toCompletableFuture().join();
 
         final Instant expiration = Instant.parse("2022-08-27T12:00:00Z");
         final Set<String> modes = Set.of("Read", "Append");
