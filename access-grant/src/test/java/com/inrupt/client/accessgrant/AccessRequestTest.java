@@ -278,6 +278,7 @@ class AccessRequestTest {
         assertEquals("https://{domain}/{+path}/custom-path", AccessRequest.template("custom-path"));
         assertEquals("https://{domain}/{+path}/custom-path", AccessRequest.template("/custom-path"));
         assertEquals("https://{domain}/{+path}/./custom-path", AccessRequest.template("./custom-path"));
+        assertEquals("https://{domain}/{+path}/", AccessRequest.template(""));
     }
 
     @Test

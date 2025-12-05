@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -153,10 +154,10 @@ public class AccessRequest extends AccessCredential {
      */
     public static String template(final String dataPath) {
         Objects.requireNonNull(dataPath, "dataPath may not be null!");
-        if (!dataPath.startsWith("/")) {
-            return "https://{domain}/{+path}/" + dataPath;
+        if (!dataPath.startsWith("/") || dataPath.isBlank()) {
+            return template("/" + dataPath);
         }
-        return template("/" + dataPath);
+        return "https://{domain}/{+path}" + dataPath;
     }
 
     /**
