@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -100,13 +101,13 @@ public class AccessRequest extends AccessCredential {
     }
 
     static AccessRequest parse(final String serialization) throws IOException {
-        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
+        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes(UTF_8))) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
 
             final List<Map<String, Object>> vcs = getCredentialsFromPresentation(data, supportedTypes);
-            if (vcs.size() != 1) {
+            if (vcs.size() != SINGLETON) {
                 throw new IllegalArgumentException(
                         "Invalid Access Request: ambiguous number of verifiable credentials");
             }
@@ -128,13 +129,48 @@ public class AccessRequest extends AccessCredential {
                     .stream().map(URI::create).collect(Collectors.toSet());
                 final Set<URI> purposes = asSet(consent.get("forPurpose")).orElseGet(Collections::emptySet)
                     .stream().flatMap(AccessCredential::filterUris).collect(Collectors.toSet());
-                final CredentialData credentialData = new CredentialData(resources, modes, purposes, recipient);
+                final Set<String> templates = asSet(consent.get("template")).orElseGet(Collections::emptySet);
+
+                final CredentialData credentialData;
+
+                if (!templates.isEmpty()) {
+                    credentialData = new CredentialData(resources, templates, modes, purposes, recipient, null);
+                } else {
+                    credentialData = new CredentialData(resources, modes, purposes, recipient);
+                }
 
                 return new AccessRequest(identifier, serialization, credentialData, credentialMetadata);
             } else {
                 throw new IllegalArgumentException("Invalid Access Request: missing VerifiablePresentation type");
             }
         }
+    }
+
+    /**
+     * Produce a URI template that can be used consistently with the JCL.
+     *
+     * @param dataPath the data path relative to a storage root
+     * @return a URI template
+     */
+    public static String template(final String dataPath) {
+        Objects.requireNonNull(dataPath, "dataPath may not be null!");
+        if (!dataPath.startsWith("/") || dataPath.isBlank()) {
+            return template("/" + dataPath);
+        }
+        return "https://{domain}/{+path}" + dataPath;
+    }
+
+    /**
+     * Produce a Map of template values that can be used with a URI template resolver.
+     *
+     * @param domain the domain of the user's storage
+     * @param path the base path of the user's storage
+     * @return a map of template values
+     */
+    public static Map<String, String> templateValues(final String domain, final String path) {
+        Objects.requireNonNull(domain, "domain may not be null!");
+        Objects.requireNonNull(path, "path may not be null!");
+        return Map.of("domain", domain, "path", path);
     }
 
     /**
@@ -145,6 +181,7 @@ public class AccessRequest extends AccessCredential {
     public static class RequestParameters {
 
         private final URI recipient;
+        private final Set<String> templates;
         private final Set<URI> resources;
         private final Set<String> modes;
         private final Set<URI> purposes;
@@ -152,10 +189,11 @@ public class AccessRequest extends AccessCredential {
         private final Instant issuedAt;
 
         /* package private */
-        RequestParameters(final URI recipient, final Set<URI> resources,
+        RequestParameters(final URI recipient, final Set<URI> resources, final Set<String> templates,
                 final Set<String> modes, final Set<URI> purposes, final Instant expiration, final Instant issuedAt) {
             this.recipient = recipient;
             this.resources = resources;
+            this.templates = templates;
             this.modes = modes;
             this.purposes = purposes;
             this.expiration = expiration;
@@ -176,10 +214,19 @@ public class AccessRequest extends AccessCredential {
         /**
          * Get the resources used with an access request operation.
          *
-         * @return the resource idnetifiers
+         * @return the resource identifiers
          */
         public Set<URI> getResources() {
             return resources;
+        }
+
+        /**
+         * Get the resource templates used with an access request operation.
+         *
+         * @return the URI templates for an access request
+         */
+        public Set<String> getTemplates() {
+            return templates;
         }
 
         /**
@@ -239,6 +286,7 @@ public class AccessRequest extends AccessCredential {
             private final Set<URI> builderResources = new HashSet<>();
             private final Set<String> builderModes = new HashSet<>();
             private final Set<URI> builderPurposes = new HashSet<>();
+            private final Set<String> builderTemplates = new HashSet<>();
             private URI builderRecipient;
             private Instant builderExpiration;
             private Instant builderIssuedAt;
@@ -285,6 +333,34 @@ public class AccessRequest extends AccessCredential {
                     builderResources.addAll(resources);
                 } else {
                     builderResources.clear();
+                }
+                return this;
+            }
+
+            /**
+             * Set a single resource template for the access request operation.
+             *
+             * @param template a URL template for the requested resource, not {@code null}
+             * @return this builder
+             */
+            public Builder template(final String template) {
+                builderTemplates.add(template);
+                return this;
+            }
+
+            /**
+             * Set multiple resource templates for the access request operation.
+             *
+             * <p>Note: A null value will clear all existing template values
+             *
+             * @param templates URL templates for the requested resources, may be {@code null}
+             * @return this builder
+             */
+            public Builder templates(final Collection<String> templates) {
+                if (templates != null) {
+                    builderTemplates.addAll(templates);
+                } else {
+                    builderTemplates.clear();
                 }
                 return this;
             }
@@ -377,8 +453,8 @@ public class AccessRequest extends AccessCredential {
              * @return the access request parameters
              */
             public RequestParameters build() {
-                return new RequestParameters(builderRecipient, builderResources, builderModes, builderPurposes,
-                        builderExpiration, builderIssuedAt);
+                return new RequestParameters(builderRecipient, builderResources, builderTemplates, builderModes,
+                        builderPurposes, builderExpiration, builderIssuedAt);
             }
         }
     }

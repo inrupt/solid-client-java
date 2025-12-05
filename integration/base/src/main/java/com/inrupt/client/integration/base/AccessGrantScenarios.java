@@ -45,6 +45,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.IRI;
@@ -754,6 +755,70 @@ public class AccessGrantScenarios {
             URI.create(ACCESS_GRANT_PROVIDER)
         ).session(resourceOwnerSession);
         final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(request)
+            .toCompletableFuture().join();
+
+        final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
+        final SolidSyncClient requesterAuthClient = SolidSyncClient.getClient().session(newSession);
+
+        try (final InputStream is = new ByteArrayInputStream(
+            StandardCharsets.UTF_8.encode("Test test test text").array())) {
+            final SolidNonRDFSource testResource =
+                new SolidNonRDFSource(newTestFileURI, Utils.PLAIN_TEXT, is);
+            assertDoesNotThrow(() -> requesterAuthClient.create(testResource));
+        }
+
+        resourceOwnerClient.delete(newTestFileURI);
+        assertDoesNotThrow(resourceOwnerAccessGrantClient.revoke(grant).toCompletableFuture()::join);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideSessions")
+    @DisplayName("Creating non-RDF using a templated Access Grant")
+    void accessGrantCreateTemplateTest(final Session resourceOwnerSession, final Session requesterSession)
+            throws IOException {
+
+        LOGGER.info("Integration Test - Creating non-RDF using a templated Access Grant");
+
+        final URI newTestFileURI = URIBuilder.newBuilder(privateContainerURI)
+            .path("newFile-accessGrantCreateNonRdfTest2.txt")
+            .build();
+
+        final String template = "http://{domain}/{path}/newFile-accessGrantCreateNonRdfTest2.txt";
+
+        final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
+                .build().session(resourceOwnerSession);
+
+        final AccessGrantClient requesterAccessGrantClient = new AccessGrantClient(
+                URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(requesterSession);
+
+        final Set<String> modes = Set.of(GRANT_MODE_READ, GRANT_MODE_WRITE, GRANT_MODE_APPEND);
+        final Instant expiration = Instant.parse(GRANT_EXPIRATION);
+        final var request = AccessRequest.RequestParameters.newBuilder()
+            .template(template)
+            .modes(modes)
+            .purposes(PURPOSES)
+            .expiration(expiration)
+            .build();
+
+        final AccessRequest accessRequest = requesterAccessGrantClient.requestAccess(request)
+            .exceptionally(ex -> null)
+            .toCompletableFuture().join();
+
+        if (accessRequest == null) {
+            LOGGER.info("Templated Access Requests not supported");
+            return;
+        }
+
+        final AccessGrantClient resourceOwnerAccessGrantClient = new AccessGrantClient(
+            URI.create(ACCESS_GRANT_PROVIDER)
+        ).session(resourceOwnerSession);
+        final AccessGrant grant = resourceOwnerAccessGrantClient.grantAccess(accessRequest, templates ->
+                templates.stream().map(t -> t
+                    .replace("{domain}", privateContainerURI.getHost())
+                    .replace("{path}", privateContainerURI.getPath().replaceAll("^/", "").replaceAll("/$", "")))
+                .map(URI::create)
+                .collect(Collectors.toSet()))
             .toCompletableFuture().join();
 
         final Session newSession = AccessGrantSession.ofAccessGrant(requesterSession, grant);
