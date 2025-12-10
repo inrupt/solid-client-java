@@ -111,13 +111,13 @@ public class AccessGrant extends AccessCredential {
     }
 
     static AccessGrant parse(final String serialization) throws IOException {
-        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes())) {
+        try (final InputStream in = new ByteArrayInputStream(serialization.getBytes(UTF_8))) {
             // TODO process as JSON-LD
             final Map<String, Object> data = jsonService.fromJson(in,
                     new HashMap<String, Object>(){}.getClass().getGenericSuperclass());
 
             final List<Map<String, Object>> vcs = getCredentialsFromPresentation(data, supportedTypes);
-            if (vcs.size() != 1) {
+            if (vcs.size() != SINGLETON) {
                 throw new IllegalArgumentException(
                         "Invalid Access Grant: ambiguous number of verifiable credentials");
             }

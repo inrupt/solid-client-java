@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 /** A base class for access credentials. **/
 public class AccessCredential {
 
+    static final int SINGLETON = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessCredential.class);
 
     protected static final String TYPE = "type";
@@ -49,6 +50,7 @@ public class AccessCredential {
     private final Set<String> modes;
     private final Set<URI> purposes;
     private final Set<URI> resources;
+    private final Set<String> templates;
     private final URI recipient;
     private final URI creator;
     private final Instant expiration;
@@ -71,6 +73,7 @@ public class AccessCredential {
 
         this.purposes = data.getPurposes();
         this.resources = data.getResources();
+        this.templates = data.getTemplates();
         this.modes = data.getModes();
         this.recipient = data.getRecipient();
 
@@ -163,6 +166,15 @@ public class AccessCredential {
      */
     public Set<URI> getResources() {
         return resources;
+    }
+
+    /**
+     * Get the templates associated with the access credential.
+     *
+     * @return the associated templates
+     */
+    public Set<String> getTemplates() {
+        return templates;
     }
 
     /**
@@ -281,6 +293,7 @@ public class AccessCredential {
         private final Set<String> modes;
         private final Set<URI> purposes;
         private final Set<URI> resources;
+        private final Set<String> templates;
         private final URI recipient;
         private final URI accessRequest;
 
@@ -294,7 +307,7 @@ public class AccessCredential {
          */
         public CredentialData(final Set<URI> resources, final Set<String> modes,
                 final Set<URI> purposes, final URI recipient) {
-            this(resources, modes, purposes, recipient, null);
+            this(resources, Collections.emptySet(), modes, purposes, recipient, null);
         }
 
         /**
@@ -308,6 +321,22 @@ public class AccessCredential {
          */
         public CredentialData(final Set<URI> resources, final Set<String> modes,
                 final Set<URI> purposes, final URI recipient, final URI accessRequest) {
+            this(resources, Collections.emptySet(), modes, purposes, recipient, accessRequest);
+        }
+
+        /**
+         * Create a collection of user-managed credential data.
+         *
+         * @param resources the resources referenced by the credential
+         * @param templates the resource templates referenced by the credential
+         * @param modes the access modes defined by this credential
+         * @param purposes the purposes associated with this credential
+         * @param recipient the recipient for this credential, may be {@code null}
+         * @param accessRequest the access request identifier, may be {@code null}
+         */
+        public CredentialData(final Set<URI> resources, final Set<String> templates, final Set<String> modes,
+                final Set<URI> purposes, final URI recipient, final URI accessRequest) {
+            this.templates = Objects.requireNonNull(templates, "templates may not be null!");
             this.modes = Objects.requireNonNull(modes, "modes may not be null!");
             this.purposes = Objects.requireNonNull(purposes, "purposes may not be null!");
             this.resources = Objects.requireNonNull(resources, "resources may not be null!");
@@ -340,6 +369,15 @@ public class AccessCredential {
          */
         public Set<URI> getResources() {
             return resources;
+        }
+
+        /**
+         * Get the URL templates associated with this credential.
+         *
+         * @return the URL templates
+         */
+        public Set<String> getTemplates() {
+            return templates;
         }
 
         /**
@@ -393,7 +431,7 @@ public class AccessCredential {
         try {
             return Stream.of(URI.create(uri));
         } catch (final IllegalArgumentException ex) {
-            LOGGER.debug("Ignoring non-URI purpose: {}", ex.getMessage());
+            LOGGER.atDebug().setMessage("Ignoring non-URI purpose: {}").addArgument(ex::getMessage).log();
         }
         return Stream.empty();
     }
