@@ -130,7 +130,7 @@ public class SolidApp implements QuarkusApplication {
     void showHelp(final Options options) {
         final var formatter = HelpFormatter.builder().get();
         try {
-            formatter.printHelp("java -jar inrupt-client-examples-cli.jar", null, options, null, false);
+            formatter.printHelp("java -jar inrupt-client-examples-cli-runner.jar", null, options, null, false);
         } catch (IOException ex) {
             LOGGER.error("Failed to print help output: {}", ex.getMessage());
         }
