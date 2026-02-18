@@ -35,13 +35,14 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 
 import jakarta.inject.Inject;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.slf4j.Logger;
 
 /**
@@ -127,9 +128,12 @@ public class SolidApp implements QuarkusApplication {
     }
 
     void showHelp(final Options options) {
-        final var formatter = new HelpFormatter();
-        formatter.printHelp(printWriter, formatter.getWidth(), "java -jar inrupt-openid-jwk-runner.jar",
-                null, options, formatter.getLeftPadding(), formatter.getDescPadding(), null, false);
+        final var formatter = HelpFormatter.builder().get();
+        try {
+            formatter.printHelp("java -jar inrupt-client-examples-cli-runner.jar", null, options, null, false);
+        } catch (IOException ex) {
+            LOGGER.error("Failed to print help output: {}", ex.getMessage());
+        }
     }
 
 }
