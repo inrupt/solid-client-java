@@ -783,7 +783,8 @@ public class AccessGrantScenarios {
             .path("newFile-accessGrantCreateNonRdfTest2.txt")
             .build();
 
-        final String template = "http://{domain}/{path}/newFile-accessGrantCreateNonRdfTest2.txt";
+        final String template = privateContainerURI.getScheme()
+            + "://{domain}/{path}/newFile-accessGrantCreateNonRdfTest2.txt";
 
         final SolidSyncClient resourceOwnerClient = SolidSyncClient.getClientBuilder()
                 .build().session(resourceOwnerSession);
