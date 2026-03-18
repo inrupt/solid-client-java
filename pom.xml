@@ -775,6 +775,7 @@
       </activation>
       <properties>
         <jena.version>5.6.0</jena.version>
+        <checkstyle.tool.version>12.3.1</checkstyle.tool.version>
       </properties>
     </profile>
     <profile>
