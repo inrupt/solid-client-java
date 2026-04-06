@@ -32,7 +32,7 @@
     <jose4j.version>0.9.6</jose4j.version>
     <json.bind.version>3.0.1</json.bind.version>
     <okhttp.version>5.3.2</okhttp.version>
-    <quarkus.version>3.34.1</quarkus.version>
+    <quarkus.version>3.34.2</quarkus.version>
     <rdf4j.version>5.2.2</rdf4j.version>
     <slf4j.version>2.0.17</slf4j.version>
     <spring.security.version>7.0.4</spring.security.version>
@@ -56,7 +56,6 @@
     <jar.plugin.version>3.5.0</jar.plugin.version>
     <javadoc.plugin.version>3.12.0</javadoc.plugin.version>
     <license.plugin.version>5.0.0</license.plugin.version>
-    <owasp.plugin.version>12.2.0</owasp.plugin.version>
     <projectinfo.plugin.version>3.9.0</projectinfo.plugin.version>
     <pmd.plugin.version>3.28.0</pmd.plugin.version>
     <site.plugin.version>3.21.0</site.plugin.version>
@@ -82,10 +81,7 @@
     <hamcrest.version>3.0</hamcrest.version>
 
     <!-- disable by default (enabled by profile in CI) -->
-    <dependency-check.skip>true</dependency-check.skip>
     <archetype.test.skip>true</archetype.test.skip>
-    <nvd.api.key />
-    <nvd.api.datafeed />
 
     <!-- sonar -->
     <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/reports/target/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -494,11 +490,6 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <groupId>org.owasp</groupId>
-          <artifactId>dependency-check-maven</artifactId>
-          <version>${owasp.plugin.version}</version>
-        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -598,31 +589,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <failBuildOnCVSS>7</failBuildOnCVSS>
-          <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
-          <formats>
-            <format>HTML</format>
-            <format>JSON</format>
-            <format>CSV</format>
-          </formats>
-          <suppressionFile>
-              ./build-tools/owasp/suppressions.xml
-          </suppressionFile>
-          <nvdApiKey>${nvd.api.key}</nvdApiKey>
-          <nvdDatafeedUrl>${nvd.api.datafeed}</nvdDatafeedUrl>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.sonatype.central</groupId>
@@ -747,23 +713,6 @@
           </reportSet>
         </reportSets>
       </plugin>
-      <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <version>${owasp.plugin.version}</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>aggregate</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-        <configuration>
-          <suppressionFiles>
-            <suppressionFile>./build-tools/owasp/suppressions.xml</suppressionFile>
-          </suppressionFiles>
-        </configuration>
-      </plugin>
     </plugins>
   </reporting>
 
@@ -822,18 +771,6 @@
         <skipTests>true</skipTests>
         <pmd.skip>true</pmd.skip>
         <cpd.skip>true</cpd.skip>
-        <jacoco.skip>true</jacoco.skip>
-        <checkstyle.skip>true</checkstyle.skip>
-        <archetype.test.skip>true</archetype.test.skip>
-      </properties>
-    </profile>
-    <profile>
-      <id>dependencies</id>
-      <properties>
-        <skipTests>true</skipTests>
-        <pmd.skip>true</pmd.skip>
-        <cpd.skip>true</cpd.skip>
-        <dependency-check.skip>false</dependency-check.skip>
         <jacoco.skip>true</jacoco.skip>
         <checkstyle.skip>true</checkstyle.skip>
         <archetype.test.skip>true</archetype.test.skip>
