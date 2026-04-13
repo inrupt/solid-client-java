@@ -6,9 +6,13 @@ on:
     paths:
       - '**/site/**'
 
+permissions: {}
+
 jobs:
   site:
     name: Project site
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
