@@ -5,9 +5,13 @@ on:
   pull_request: { }
   merge_group: { }
 
+permissions: {}
+
 jobs:
   build:
     name: Java environment
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -58,6 +62,8 @@ jobs:
 
   performance:
     name: Performance Tests
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -79,6 +85,8 @@ jobs:
 
   documentation:
     name: Documentation Check
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -99,6 +107,8 @@ jobs:
 
   sonar:
     name: Sonar Scan
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
 
