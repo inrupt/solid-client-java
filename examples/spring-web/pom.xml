@@ -16,7 +16,7 @@
   </description>
 
   <properties>
-    <springboot.version>4.0.5</springboot.version>
+    <springboot.version>4.0.6</springboot.version>
   </properties>
 
   <dependencyManagement>
