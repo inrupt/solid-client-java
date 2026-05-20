@@ -731,8 +731,11 @@
     <profile>
       <id>java-17</id>
       <activation>
-        <jdk>[17,)</jdk>
+        <jdk>17</jdk>
       </activation>
+      <properties>
+        <jena.version>5.6.0</jena.version>
+      </properties>
       <modules>
         <module>quarkus</module>
         <module>reports</module>
