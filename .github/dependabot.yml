@@ -4,11 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    groups:
-      test:
-        dependency-type: "development"
-      main:
-        dependency-type: "production"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -39,11 +34,6 @@ updates:
     labels:
       - "backport"
       - "1.3"
-    groups:
-      test:
-        dependency-type: "development"
-      main:
-        dependency-type: "production"
 
   - package-ecosystem: "maven"
     directory: "/rdf4j/"
