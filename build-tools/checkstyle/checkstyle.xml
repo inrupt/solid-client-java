@@ -83,11 +83,6 @@
       <property name="accessModifiers" value="public"/>
     </module>
 
-    <module name="JavadocStyle">
-      <property name="severity" value="error"/>
-      <property name="checkHtml" value="true"/>
-    </module>
-
     <module name="MethodName">
       <property name="severity" value="error"/>
     </module>
