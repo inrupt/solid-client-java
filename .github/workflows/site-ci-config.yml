@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - '**/site/**'
+  # Run the required tests on the merge queue.
+  merge_group:
 
 permissions: {}
 
