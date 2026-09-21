@@ -74,7 +74,7 @@
     <equalsverifier.version>4.5.2</equalsverifier.version>
     <glassfish.json.version>2.0.1</glassfish.json.version>
     <junit.version>6.1.3</junit.version>
-    <smallrye.jwt.version>4.6.3</smallrye.jwt.version>
+    <smallrye.jwt.version>4.6.4</smallrye.jwt.version>
     <smallrye.config.version>4.0.0</smallrye.config.version>
     <yasson.version>3.0.5</yasson.version>
     <wiremock.version>3.13.2</wiremock.version>
