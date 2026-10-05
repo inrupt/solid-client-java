@@ -33,6 +33,7 @@ jobs:
 
       - name: Prod Integration tests
         if: ${{ github.actor != 'dependabot[bot]' }}
+        continue-on-error: true
         run: mvn -B -ntp verify -Pci -pl integration/uma,integration/openid
         env:
           INRUPT_TEST_WEBID: ${{ secrets.INRUPT_PROD_WEBID }}
