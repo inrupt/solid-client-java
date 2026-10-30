@@ -52,7 +52,7 @@
     <exec.plugin.version>3.5.0</exec.plugin.version>
     <install.plugin.version>3.2.0</install.plugin.version>
     <gpg.plugin.version>3.2.8</gpg.plugin.version>
-    <jacoco.plugin.version>0.8.15</jacoco.plugin.version>
+    <jacoco.plugin.version>0.8.16</jacoco.plugin.version>
     <jar.plugin.version>3.5.1</jar.plugin.version>
     <javadoc.plugin.version>3.12.0</javadoc.plugin.version>
     <license.plugin.version>5.1.2</license.plugin.version>
@@ -64,7 +64,7 @@
     <sonar.plugin.version>5.8.0.7211</sonar.plugin.version>
     <sonatype.plugin.version>0.12.0</sonatype.plugin.version>
     <source.plugin.version>3.4.0</source.plugin.version>
-    <surefire.plugin.version>3.6.0</surefire.plugin.version>
+    <surefire.plugin.version>3.6.1</surefire.plugin.version>
 
     <!-- tooling -->
     <checkstyle.tool.version>14.3.0</checkstyle.tool.version>
