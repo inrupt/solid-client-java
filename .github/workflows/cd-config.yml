@@ -39,18 +39,15 @@ jobs:
           distribution: 'temurin'
           java-version: 17
           cache: 'maven'
-          server-id: 'central'
-          server-username: MAVEN_REPO_USERNAME
-          server-password: MAVEN_REPO_TOKEN
+          overwrite-settings: false
           gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Build the code with Maven
         run: mvn -B -ntp install -Pci
 
       - name: Deploy Artifacts
         if: ${{ github.actor != 'dependabot[bot]' }}
-        run: mvn deploy -P publish
+        run: mvn -B -s .github/maven-settings.xml deploy -P publish
         env:
           MAVEN_REPO_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           MAVEN_REPO_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
