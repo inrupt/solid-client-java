@@ -34,7 +34,7 @@ class IOUtilsTest {
 
     static final String INPUT_DOC = "/clarissa.txt";
 
-    enum Speed { FAST, SLOW };
+    enum Speed { FAST, SLOW }
 
     @Test
     void testAsyncOutputPipe() throws IOException {
