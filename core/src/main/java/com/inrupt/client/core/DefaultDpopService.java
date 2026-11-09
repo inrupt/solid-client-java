@@ -20,6 +20,7 @@
  */
 package com.inrupt.client.core;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.jose4j.jwx.HeaderParameterNames.TYPE;
 import static org.jose4j.lang.HashUtil.SHA_256;
 
@@ -37,11 +38,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.keys.EcKeyUtil;
 import org.jose4j.keys.EllipticCurves;
+import org.jose4j.lang.HashUtil;
 import org.jose4j.lang.JoseException;
 
 /**
@@ -98,6 +101,12 @@ public class DefaultDpopService implements DpopService {
 
         @Override
         public String generateProof(final String algorithm, final URI uri, final String method) {
+            return generateProof(algorithm, uri, method, null);
+        }
+
+        @Override
+        public String generateProof(final String algorithm, final URI uri, final String method,
+                final String accessToken) {
             final KeyPair keypair = keypairs.get(Objects.requireNonNull(algorithm));
             if (keypair == null) {
                 throw new AuthenticationException("Unsupported DPoP algorithm: " + algorithm);
@@ -117,8 +126,11 @@ public class DefaultDpopService implements DpopService {
                 final JwtClaims claims = new JwtClaims();
                 claims.setJwtId(UUID.randomUUID().toString());
                 claims.setStringClaim("htm", htm);
-                claims.setStringClaim("htu", htu.toString());
+                claims.setStringClaim("htu", stripQueryAndFragment(htu));
                 claims.setIssuedAtToNow();
+                if (accessToken != null) {
+                    claims.setStringClaim("ath", accessTokenHash(accessToken));
+                }
                 jws.setPayload(claims.toJson());
 
                 return jws.getCompactSerialization();
@@ -131,6 +143,16 @@ public class DefaultDpopService implements DpopService {
         public Set<String> algorithms() {
             return keypairs.keySet();
         }
+    }
+
+    static String stripQueryAndFragment(final URI uri) {
+        // The htu claim is the HTTP target URI, without query and fragment parts (RFC 9449, section 4.2).
+        return uri.getScheme() + "://" + uri.getRawAuthority() + uri.getRawPath();
+    }
+
+    static String accessTokenHash(final String accessToken) {
+        // The ath claim is the encoded hash of the access token (RFC 9449, section 4.2).
+        return Base64Url.encode(HashUtil.getMessageDigest(SHA_256).digest(accessToken.getBytes(US_ASCII)));
     }
 
     static KeyPair defaultKeyPair(final ECParameterSpec spec) {

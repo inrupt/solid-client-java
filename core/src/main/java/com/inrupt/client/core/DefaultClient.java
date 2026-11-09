@@ -119,7 +119,7 @@ public final class DefaultClient implements Client {
         // Use setHeader to overwrite any possible existing authorization header
         builder.setHeader(AUTHORIZATION, String.join(" ", token.getScheme(), token.getToken()));
         if (DPOP.equalsIgnoreCase(token.getScheme())) {
-            token.getProofThumbprint().flatMap(jkt -> clientSession.generateProof(jkt, request))
+            token.getProofThumbprint().flatMap(jkt -> clientSession.generateProof(jkt, request, token.getToken()))
                 .ifPresent(proof -> builder.setHeader(DPOP, proof));
         }
 

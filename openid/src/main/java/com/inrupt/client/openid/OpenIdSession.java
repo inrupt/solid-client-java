@@ -224,6 +224,12 @@ public final class OpenIdSession implements Session {
     }
 
     @Override
+    public Optional<String> generateProof(final String jkt, final Request request, final String accessToken) {
+        return dpop.lookupAlgorithm(jkt)
+            .map(alg -> dpop.generateProof(alg, request.uri(), request.method(), accessToken));
+    }
+
+    @Override
     public Optional<Credential> fromCache(final Request request) {
         if (request != null) {
             final Credential cachedToken = requestCache.get(cacheKey(request.uri()));
