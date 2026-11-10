@@ -146,6 +146,11 @@ public final class AccessGrantSession implements Session {
     }
 
     @Override
+    public Optional<String> generateProof(final String jkt, final Request request, final String accessToken) {
+        return session.generateProof(jkt, request, accessToken);
+    }
+
+    @Override
     public CompletionStage<Optional<Credential>> authenticate(final Authenticator authenticator,
             final Request request, final Set<String> algorithms) {
         return authenticator.authenticate(this, request, algorithms)

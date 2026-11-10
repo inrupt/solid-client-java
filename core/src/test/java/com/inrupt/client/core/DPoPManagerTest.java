@@ -30,10 +30,13 @@ import java.util.Optional;
 
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwt.consumer.Validator;
 import org.jose4j.keys.resolvers.EmbeddedJwkVerificationKeyResolver;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class DPoPManagerTest {
 
@@ -53,6 +56,54 @@ class DPoPManagerTest {
         final String proof = dpop.generateProof("ES256", uri, method);
 
         assertDoesNotThrow(() -> verifyDpop(proof, uri, method));
+    }
+
+    @Test
+    void testGenerateProofWithoutAccessToken() throws Exception {
+        final DPoP dpop = DPoP.of();
+        final URI uri = URI.create("https://storage.example/resource");
+        final JwtClaims claims = parseClaims(dpop.generateProof("ES256", uri, "GET"));
+        assertFalse(claims.hasClaim("ath"));
+    }
+
+    @Test
+    void testGenerateProofWithAccessToken() throws Exception {
+        final DPoP dpop = DPoP.of();
+        final String method = "GET";
+        final URI uri = URI.create("https://storage.example/resource");
+        // Example from RFC 9449, section 7.1
+        final String accessToken = "Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU";
+        final String proof = dpop.generateProof("ES256", uri, method, accessToken);
+
+        assertDoesNotThrow(() -> verifyDpop(proof, uri, method));
+        assertEquals("fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo",
+                parseClaims(proof).getStringClaimValue("ath"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "https://storage.example/resource?query=value",
+        "https://storage.example/resource#fragment",
+        "https://storage.example/resource?query=value#fragment"
+    })
+    void testHtuWithoutQueryAndFragment(final String target) throws Exception {
+        final DPoP dpop = DPoP.of();
+        final String proof = dpop.generateProof("ES256", URI.create(target), "GET", "token");
+        assertEquals("https://storage.example/resource", parseClaims(proof).getStringClaimValue("htu"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "https://storage.example/a%2Fb",
+        "https://storage.example/caf%C3%A9",
+        "https://storage.example/a%20b",
+        "https://user@storage.example:8443/resource",
+        "https://storage.example"
+    })
+    void testHtuKeepsRawComponents(final String target) throws Exception {
+        final DPoP dpop = DPoP.of();
+        final String proof = dpop.generateProof("ES256", URI.create(target + "?q=1#f"), "GET", "token");
+        assertEquals(target, parseClaims(proof).getStringClaimValue("htu"));
     }
 
     @Test
@@ -89,6 +140,15 @@ class DPoPManagerTest {
         } catch (final InvalidJwtException ex) {
             throw new AuthenticationException("Invalid DPoP proof: " + ex.getMessage());
         }
+    }
+
+    static JwtClaims parseClaims(final String proof) throws InvalidJwtException {
+        final JwtConsumer consumer = new JwtConsumerBuilder()
+            .setVerificationKeyResolver(new EmbeddedJwkVerificationKeyResolver())
+            .setJwsAlgorithmConstraints(PERMIT, algorithms)
+            .setExpectedType(true, "dpop+jwt")
+            .build();
+        return consumer.processToClaims(proof);
     }
 
     static Validator htuValidator(final String url) {

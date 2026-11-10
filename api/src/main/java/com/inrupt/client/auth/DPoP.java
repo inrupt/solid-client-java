@@ -32,7 +32,8 @@ import java.util.Set;
 /**
  * An abstraction for working with OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP).
  *
- * @see <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop">DPoP draft specification</a>
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9449">RFC 9449: OAuth 2.0 Demonstrating Proof of Possession
+ * (DPoP)</a>
  */
 public interface DPoP {
 
@@ -43,8 +44,30 @@ public interface DPoP {
      * @param uri the HTTP URI
      * @param method the HTTP method
      * @return the DPoP Proof, serialized as a Base64-encoded string, suitable for use with HTTP headers
+     * @deprecated The Access Token should be included in the proof.
      */
     String generateProof(String algorithm, URI uri, String method);
+
+    /**
+     * Generate a DPoP proof for a given URI and method pair, bound to an access token.
+     *
+     * <p>When presenting a DPoP-bound access token to a protected resource, the proof must include
+     * an {@code ath} claim containing the hash of that access token
+     * (<a href="https://www.rfc-editor.org/rfc/rfc9449#section-4.2">RFC 9449, section 4.2</a>).
+     *
+     * @implSpec The default implementation ignores the access token and delegates to
+     *     {@link #generateProof(String, URI, String)}. Implementations should override this method
+     *     in order to include the {@code ath} claim.
+     * @param algorithm the algorithm to use
+     * @param uri the HTTP URI
+     * @param method the HTTP method
+     * @param accessToken the access token sent alongside the proof, may be {@code null}
+     * @return the DPoP Proof, serialized as a Base64-encoded string, suitable for use with HTTP headers
+     */
+    default String generateProof(final String algorithm, final URI uri, final String method,
+            final String accessToken) {
+        return generateProof(algorithm, uri, method);
+    }
 
     /**
      * Return a collection of the supported algorithm names.

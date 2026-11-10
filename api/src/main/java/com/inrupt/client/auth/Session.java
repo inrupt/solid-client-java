@@ -81,8 +81,23 @@ public interface Session {
      * @param jkt the JSON Key thumbprint for the proof key
      * @param request the request
      * @return a proof token
+     * @deprecated The Access Token should be included in the proof.
      */
     Optional<String> generateProof(String jkt, Request request);
+
+    /**
+     * Generate a proof for a request, bound to the access token sent with that request.
+     *
+     * @implSpec The default implementation ignores the access token and delegates to
+     *     {@link #generateProof(String, Request)}.
+     * @param jkt the JSON Key thumbprint for the proof key
+     * @param request the request
+     * @param accessToken the access token sent with the request, may be {@code null}
+     * @return a proof token
+     */
+    default Optional<String> generateProof(final String jkt, final Request request, final String accessToken) {
+        return generateProof(jkt, request);
+    }
 
     /**
      * Select the thumbprint from a set of candidate algorithms.
