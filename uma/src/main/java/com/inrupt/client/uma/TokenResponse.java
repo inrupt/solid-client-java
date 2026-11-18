@@ -22,7 +22,10 @@ package com.inrupt.client.uma;
 
 /**
  * An UMA token response class.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class TokenResponse {
     public String accessToken;
     public String tokenType;

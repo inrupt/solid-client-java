@@ -32,7 +32,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 /**
  * A utility class for converting Spring constructs into session objects for use with the Java Client libraries.
+ *
+ * @deprecated This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class SessionUtils {
 
     /**

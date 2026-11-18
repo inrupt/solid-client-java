@@ -40,7 +40,10 @@ import org.apache.commons.rdf.api.RDFTerm;
  *
  * <p>A policy will reference various {@link Matcher} objects
  * and apply access rules such as {@code Read} or {@code Write}.
+ *
+ * @deprecated This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class Policy extends WrapperIRI {
 
     /**

@@ -28,7 +28,10 @@ import java.util.Objects;
  *
  * @see <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html#uma-grant-type">
  * User-Managed Access 2.0: Client Request to Authorization Server for RPT</a>
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class ClaimToken {
 
     private final String token;

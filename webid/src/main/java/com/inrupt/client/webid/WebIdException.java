@@ -24,7 +24,10 @@ import com.inrupt.client.InruptClientException;
 
 /**
  * A runtime exception for use with WebId-related errors.
+ *
+ * @deprecated This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class WebIdException extends InruptClientException {
 
     private static final long serialVersionUID = 3854695545552441025L;

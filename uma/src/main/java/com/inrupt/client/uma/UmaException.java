@@ -24,7 +24,10 @@ import com.inrupt.client.InruptClientException;
 
 /**
  * A runtime exception for use with UMA-related errors.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class UmaException extends InruptClientException {
 
     private static final long serialVersionUID = 3422598347430002847L;

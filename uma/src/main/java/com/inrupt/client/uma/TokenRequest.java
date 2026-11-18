@@ -27,7 +27,10 @@ import java.util.Optional;
 
 /**
  * An UMA token request class.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class TokenRequest {
 
     private final String ticket;

@@ -85,5 +85,7 @@
         System.out.println("An invalid scope was provided");
     }
  * }</pre>
+ *
+ * <p><strong>Deprecated:</strong> UMA support will be removed in version 3.0 with no replacement.
  */
 package com.inrupt.client.uma;

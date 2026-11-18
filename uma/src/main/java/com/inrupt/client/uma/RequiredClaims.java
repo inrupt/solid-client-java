@@ -28,7 +28,10 @@ import java.util.Set;
 
 /**
  * A class representing the required claims that are part of an UMA interactive exchange.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class RequiredClaims {
 
     private final Map<String, Object> data;

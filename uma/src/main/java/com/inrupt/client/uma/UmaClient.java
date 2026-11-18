@@ -45,7 +45,10 @@ import java.util.stream.Collectors;
 
 /**
  * An UMA client implmentation.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class UmaClient {
 
     /* HTTP */

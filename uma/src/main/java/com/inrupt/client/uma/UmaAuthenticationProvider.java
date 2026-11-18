@@ -51,7 +51,10 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-grant-2.0.html">User
  * Managed Access (UMA) 2.0 Grant for OAuth 2.0 Authorization</a>
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class UmaAuthenticationProvider implements AuthenticationProvider {
 
     public static final URI ID_TOKEN = URI.create("http://openid.net/specs/openid-connect-core-1_0.html#IDToken");

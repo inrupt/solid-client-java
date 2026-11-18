@@ -25,7 +25,10 @@ import java.util.Set;
 
 /**
  * A class representing an UMA discovery document.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class Metadata {
 
     public Set<String> dpopSigningAlgValuesSupported;
