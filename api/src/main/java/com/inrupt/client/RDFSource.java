@@ -40,7 +40,10 @@ import org.apache.commons.rdf.api.RDFSyntax;
  * A base class for RDF-based resource mapping.
  *
  * <p>This class can be used as a basis for object mapping with higher-level client applications.
+ *
+ * @deprecated This class will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class RDFSource extends WrapperDataset implements Resource {
 
     /**

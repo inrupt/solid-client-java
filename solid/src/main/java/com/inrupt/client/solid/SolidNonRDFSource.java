@@ -28,7 +28,10 @@ import java.net.URI;
 
 /**
  * A non-RDF-bearing Solid Resource.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidNonRDFSource extends NonRDFSource implements SolidResource {
 
     private final Metadata metadata;

@@ -44,7 +44,10 @@ import org.apache.commons.rdf.api.Triple;
 
 /**
  * A Solid Container Object.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidContainer extends SolidRDFSource {
 
     /**

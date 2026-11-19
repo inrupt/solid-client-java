@@ -28,7 +28,10 @@ import java.net.URI;
  * A runtime exception that represents an HTTP unsupported media type (415) response.
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.415">RFC 9110 (15.5.16.) 415 Unsupported Media Type</a>
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class UnsupportedMediaTypeException extends SolidClientException {
     private static final long serialVersionUID = 1312856145838280673L;
 

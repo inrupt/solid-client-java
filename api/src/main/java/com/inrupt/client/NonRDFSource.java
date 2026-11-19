@@ -30,7 +30,10 @@ import java.util.Objects;
  * A base class for non-RDF-bearing resources.
  *
  * <p>This class can be used as a basis for object mapping with the high-level client operations.
+ *
+ * @deprecated This class will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class NonRDFSource implements Resource {
 
     private final URI identifier;

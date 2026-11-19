@@ -33,7 +33,10 @@ import java.util.Set;
 
 /**
  * Solid Resource Metadata.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class Metadata {
 
     private static final String CONTENT_TYPE = "Content-Type";
