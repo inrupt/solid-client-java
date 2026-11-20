@@ -48,7 +48,10 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 /**
  * An {@link RdfService} that uses the RDF4J library.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class RDF4JService implements RdfService {
 
     private static final Map<RDFSyntax, RDFFormat> SYNTAX_TO_FORMAT = buildSyntaxMapping();

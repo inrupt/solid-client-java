@@ -30,7 +30,11 @@ import java.util.Objects;
  *
  * @param <T> the key type
  * @param <U> the value type
+ *
+ * @deprecated Use the Guava-based {@code inrupt-client-guava} module instead. This module will be removed in version
+ *     3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class CaffeineCache<T, U> implements ClientCache<T, U> {
 
     private static final String CACHE_NOT_NULL = "cache may not be null!";

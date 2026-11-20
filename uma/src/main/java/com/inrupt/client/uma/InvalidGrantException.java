@@ -22,7 +22,10 @@ package com.inrupt.client.uma;
 
 /**
  * An invalid grant error from the UMA server.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class InvalidGrantException extends UmaException {
 
     private static final long serialVersionUID = 2634097455648315683L;

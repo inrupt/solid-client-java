@@ -47,5 +47,8 @@
         System.out.println("Custom Type Id is: " + obj.id);
     }
  * }</pre>
+ *
+ * <p><strong>Deprecated:</strong> Use the Jackson-based {@code inrupt-client-jackson} module instead. This module will
+ * be removed in version 3.0.
  */
 package com.inrupt.client.jsonb;

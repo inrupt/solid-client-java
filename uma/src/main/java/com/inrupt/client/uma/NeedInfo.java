@@ -29,7 +29,10 @@ import java.util.Optional;
 
 /**
  * A class representing a {@code need_info} error response from an UMA server.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class NeedInfo {
 
     private static final String NEED_INFO = "need_info";

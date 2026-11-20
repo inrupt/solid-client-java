@@ -28,7 +28,10 @@ import java.net.URI;
 
 /**
  * A runtime exception for use with SolidClient HTTP operations.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidClientException extends InruptClientException {
 
     private static final long serialVersionUID = 2868432164225689934L;

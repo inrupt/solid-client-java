@@ -34,6 +34,12 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A problem details object for Solid error responses.
+ *
+ * @deprecated This module will be removed in version 3.0.
+ */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidProblemDetails implements ProblemDetails {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolidProblemDetails.class);

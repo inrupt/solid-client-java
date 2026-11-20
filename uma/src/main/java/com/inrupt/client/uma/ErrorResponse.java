@@ -26,7 +26,10 @@ import java.util.Map;
 
 /**
  * A concrete error response class from the UMA server.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class ErrorResponse {
 
     public String error;

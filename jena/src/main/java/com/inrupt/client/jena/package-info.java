@@ -82,5 +82,7 @@
 
     System.out.println("HTTP status code: " + response.statusCode());
  * }</pre>
+ *
+ * <p><strong>Deprecated:</strong> This module will be removed in version 3.0.
  */
 package com.inrupt.client.jena;

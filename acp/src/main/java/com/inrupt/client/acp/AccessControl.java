@@ -38,7 +38,10 @@ import org.apache.commons.rdf.api.RDFTerm;
  *
  * <p>An access control applies {@link Policy} objects directly to a resource
  * via {@code acp:accessControl} or to container members via {@code acp:memberAccessControl}
+ *
+ * @deprecated This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class AccessControl extends WrapperIRI {
 
     /**

@@ -28,7 +28,10 @@ import java.net.URI;
  * A runtime exception that represents an HTTP bad request (400) response.
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.400">RFC 9110 (15.5.1.) 400 Bad Request</a>
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class BadRequestException extends SolidClientException {
     private static final long serialVersionUID = -3379457428921025570L;
 

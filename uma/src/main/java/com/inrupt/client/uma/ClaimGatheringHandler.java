@@ -24,7 +24,10 @@ import java.util.concurrent.CompletionStage;
 
 /**
  * A handler capable of gathering claims for a given type, from a given issuer.
+ *
+ * @deprecated UMA support will be removed in version 3.0 with no replacement.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public interface ClaimGatheringHandler {
 
     /**

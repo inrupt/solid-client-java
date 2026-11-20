@@ -24,7 +24,10 @@ import com.inrupt.client.InruptClientException;
 
 /**
  * A runtime exception for use with Solid resource related errors.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidResourceException extends InruptClientException {
 
     private static final long serialVersionUID = 2812695548792441025L;

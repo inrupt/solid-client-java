@@ -39,7 +39,10 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * A WebID Profile for use with Solid.
+ *
+ * @deprecated This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class WebIdProfile extends RDFSource {
 
     private final IRI rdfType;

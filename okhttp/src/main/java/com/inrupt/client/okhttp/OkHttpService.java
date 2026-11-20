@@ -46,7 +46,11 @@ import okhttp3.RequestBody;
 
 /**
  * A {@link HttpService} using the {@code okhttp3.OkHttpClient}.
+ *
+ * @deprecated Use the {@code java.net.http}-based {@code inrupt-client-httpclient} module instead. This module will be
+ *     removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class OkHttpService implements HttpService {
 
     static final Logger LOGGER = LoggerFactory.getLogger(OkHttpService.class);

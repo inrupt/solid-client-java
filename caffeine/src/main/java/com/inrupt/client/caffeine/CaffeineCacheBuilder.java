@@ -29,7 +29,11 @@ import java.time.Duration;
 
 /**
  * A {@link CacheBuilderService} using a Caffeine-based cache.
+ *
+ * @deprecated Use the Guava-based {@code inrupt-client-guava} module instead. This module will be removed in version
+ *     3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class CaffeineCacheBuilder implements CacheBuilderService {
 
     @Override

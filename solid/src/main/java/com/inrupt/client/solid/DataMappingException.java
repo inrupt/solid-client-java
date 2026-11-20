@@ -22,6 +22,12 @@ package com.inrupt.client.solid;
 
 import java.util.Collection;
 
+/**
+ * A data mapping exception for Solid resources.
+ *
+ * @deprecated This module will be removed in version 3.0.
+ */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class DataMappingException extends SolidResourceException{
 
     private static final long serialVersionUID = 3752688648792259425L;

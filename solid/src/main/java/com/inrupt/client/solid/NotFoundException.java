@@ -28,7 +28,10 @@ import java.net.URI;
  * A runtime exception that represents an HTTP not found (404) response.
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.404">RFC 9110 (15.5.5.) 404 Not Found</a>
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class NotFoundException extends SolidClientException {
     private static final long serialVersionUID = -2256628528500739683L;
 
