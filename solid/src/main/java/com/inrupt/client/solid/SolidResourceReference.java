@@ -30,7 +30,10 @@ import java.net.URI;
 
 /**
  * A reference to a Solid Resource without any corresponding data.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidResourceReference implements SolidResource {
 
     private final InputStream entity;

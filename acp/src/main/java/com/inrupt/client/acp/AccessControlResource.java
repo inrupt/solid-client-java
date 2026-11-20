@@ -50,7 +50,10 @@ import org.slf4j.LoggerFactory;
  * An Access Control Resource type.
  *
  * <p>This is the root type for a resource that expresses access control policies.
+ *
+ * @deprecated This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class AccessControlResource extends RDFSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlResource.class);

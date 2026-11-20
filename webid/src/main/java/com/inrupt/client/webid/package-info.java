@@ -35,5 +35,7 @@
             }
         }}
  * </pre>
+ *
+ * <p><strong>Deprecated:</strong> This module will be removed from the SDK in version 3.0 and moved into the examples.
  */
 package com.inrupt.client.webid;

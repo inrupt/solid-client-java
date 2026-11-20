@@ -37,7 +37,10 @@ import org.apache.commons.rdf.api.Triple;
 
 /**
  * Utility methods for use with the Access Grant module.
+ *
+ * @deprecated This class will be removed from the SDK in version 3.0 and moved into the examples.
  **/
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class AccessGrantUtils {
 
     private static final RDF rdf = RDFFactory.getInstance();

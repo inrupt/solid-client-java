@@ -46,5 +46,8 @@
     System.out.println("Response uri: " + response.uri());
     System.out.println("Content type: " + response.headers().asMap().get(CONTENT_TYPE));
  * }</pre>
+ *
+ * <p><strong>Deprecated:</strong> Use the {@code java.net.http}-based {@code inrupt-client-httpclient} module instead.
+ * This module will be removed in version 3.0.
  */
 package com.inrupt.client.okhttp;

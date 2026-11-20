@@ -22,6 +22,12 @@ package com.inrupt.client.solid;
 
 import com.inrupt.client.Resource;
 
+/**
+ * A Solid resource type.
+ *
+ * @deprecated This module will be removed in version 3.0.
+ */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public interface SolidResource extends Resource {
 
     /**

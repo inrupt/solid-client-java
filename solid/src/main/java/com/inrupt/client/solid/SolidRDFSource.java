@@ -29,7 +29,10 @@ import org.apache.commons.rdf.api.Dataset;
 
 /**
  * A Solid Resource Object.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidRDFSource extends RDFSource implements SolidResource {
 
     private final Metadata metadata;

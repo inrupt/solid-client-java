@@ -28,7 +28,10 @@ import java.net.URI;
  * A runtime exception that represents an HTTP method not allowed (405) response.
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.405">RFC 9110 (15.5.6.) 405 Method Not Allowed</a>
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class MethodNotAllowedException extends SolidClientException {
     private static final long serialVersionUID = -9125437562813923030L;
 

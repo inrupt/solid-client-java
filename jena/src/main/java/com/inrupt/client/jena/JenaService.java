@@ -38,7 +38,10 @@ import org.apache.jena.sparql.core.DatasetGraphFactory;
 
 /**
  * An {@link RdfService} that uses the Jena library.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class JenaService implements RdfService {
 
     private static final String UNSUPPORTED_SYNTAX = "Unsupported syntax: ";

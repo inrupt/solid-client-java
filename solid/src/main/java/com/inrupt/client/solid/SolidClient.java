@@ -40,7 +40,10 @@ import org.apache.commons.rdf.api.Dataset;
 
 /**
  * A high-level client for interacting with Solid resources.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class SolidClient {
 
     static final Headers EMPTY_HEADERS = Headers.of(Collections.emptyMap());

@@ -104,5 +104,7 @@
         System.out.println("HTTP status: " + response.statusCode());
         System.out.println("Resource URI: " + response.body().getId());}
  * </pre>
+ *
+ * <p><strong>Deprecated:</strong> This module will be removed in version 3.0.
  */
 package com.inrupt.client.solid;

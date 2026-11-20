@@ -28,7 +28,10 @@ import java.net.URI;
  * A runtime exception that represents an HTTP conflict (409) response..
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#status.409">RFC 9110 (15.5.10.) 409 Conflict</a>
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class ConflictException extends SolidClientException {
     private static final long serialVersionUID = -203198307847520748L;
 

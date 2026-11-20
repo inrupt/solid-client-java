@@ -35,7 +35,10 @@ import org.apache.commons.rdf.api.RDFSyntax;
 
 /**
  * Body handlers for Solid Resources.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class SolidResourceHandlers {
 
     private static final RdfService service = ServiceProvider.getRdfService();

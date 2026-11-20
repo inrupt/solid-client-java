@@ -33,7 +33,10 @@ import org.eclipse.rdf4j.rio.Rio;
 
 /**
  * {@link Request.BodyPublisher} implementations for use with RDF4J types.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class RDF4JBodyPublishers {
     /**
      * Serialize a RDF4J Model as an HTTP request body.

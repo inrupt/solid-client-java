@@ -39,7 +39,10 @@ import org.apache.jena.riot.RDFLanguages;
 
 /**
  * {@link Response.BodyHandler} implementations for use with Jena types.
+ *
+ * @deprecated This module will be removed in version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public final class JenaBodyHandlers {
 
     private static final String CONTENT_TYPE = "Content-Type";

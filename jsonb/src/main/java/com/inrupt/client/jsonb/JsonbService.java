@@ -36,7 +36,11 @@ import java.lang.reflect.Type;
 
 /**
  * A {@link JsonService} using the JakartaEE JSON Bind API.
+ *
+ * @deprecated Use the Jackson-based {@code inrupt-client-jackson} module instead. This module will be removed in
+ *     version 3.0.
  */
+@Deprecated(since = "2.1.0", forRemoval = true)
 public class JsonbService implements JsonService {
 
     private final Jsonb jsonb;
