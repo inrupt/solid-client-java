@@ -28,7 +28,7 @@
     <guava.version>33.8.0-jre</guava.version>
     <jackson.version>2.23.0</jackson.version>
     <jakarta.json.version>2.1.3</jakarta.json.version>
-    <jena.version>6.2.0</jena.version>
+    <jena.version>5.6.0</jena.version>
     <jose4j.version>0.9.7</jose4j.version>
     <json.bind.version>3.0.4</json.bind.version>
     <okhttp.version>5.5.1</okhttp.version>
@@ -718,12 +718,11 @@
 
   <profiles>
     <profile>
-      <id>jena5</id>
+      <id>jdk17</id>
       <activation>
         <jdk>(,21)</jdk>
       </activation>
       <properties>
-        <jena.version>5.6.0</jena.version>
         <checkstyle.tool.version>12.3.1</checkstyle.tool.version>
       </properties>
     </profile>

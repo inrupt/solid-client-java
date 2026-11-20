@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "30 4 1,15 * *"
+    ignore:
+      # Pin Apache Jena to 5.x
+      - dependency-name: "org.apache.jena:*"
+        versions: [">=6.0.0"]
     groups:
       plugins:
         patterns:
