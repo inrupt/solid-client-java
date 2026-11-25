@@ -6,6 +6,13 @@ updates:
       interval: "cron"
       cronjob: "30 4 1,15 * *"
     ignore:
+      # Stay on the Quarkus 3.x line; major upgrades are handled manually, not via Dependabot.
+      - dependency-name: "io.quarkus:*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "io.quarkus.platform:*"
+        update-types:
+          - "version-update:semver-major"
       # Pin Apache Jena to 5.x
       - dependency-name: "org.apache.jena:*"
         versions: [">=6.0.0"]
